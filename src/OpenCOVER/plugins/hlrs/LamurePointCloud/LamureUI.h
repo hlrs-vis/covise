@@ -80,7 +80,6 @@ private:
     opencover::ui::Group*  m_shader_group       = nullptr;
 
     opencover::ui::Menu*   m_measure_menu        = nullptr;
-    opencover::ui::Group*  m_measure_group       = nullptr;
     opencover::ui::Button* m_measure_button      = nullptr;    
     opencover::ui::Button* m_measure_full        = nullptr;
     opencover::ui::Button* m_measure_light       = nullptr;
@@ -101,19 +100,18 @@ private:
     opencover::ui::Slider* m_depth_range_slider        = nullptr;
     opencover::ui::Slider* m_flank_lift_slider         = nullptr;
     // Anisotropic scaling mode (exclusive buttons)
-    opencover::ui::Group*  m_aniso_mode_group          = nullptr;
     opencover::ui::Button* m_aniso_off_btn             = nullptr;
     opencover::ui::Button* m_aniso_auto_btn            = nullptr;
     opencover::ui::Button* m_aniso_on_btn              = nullptr;
 
-    opencover::ui::Menu*    m_scaling_menu    = nullptr;
-    opencover::ui::Group*   m_scaling_group   = nullptr;
+    opencover::ui::Menu*    m_scaling_menu                  = nullptr;
+    opencover::ui::Group*   m_scaling_group                 = nullptr;
 
-    opencover::ui::Menu*   m_lod_menu       = nullptr;
-    opencover::ui::Group*  m_lod_group      = nullptr;
-    opencover::ui::Button* m_lod_button     = nullptr;
+    opencover::ui::Menu*   m_lod_menu                       = nullptr;
+    opencover::ui::Group*  m_lod_group                      = nullptr;
+    opencover::ui::Button* m_lod_button                     = nullptr;
 
-    opencover::ui::Menu*   m_lighting_menu = nullptr;
+    opencover::ui::Menu*   m_lighting_menu                  = nullptr;
     opencover::ui::Button* m_lighting_button                = nullptr;
     opencover::ui::Group*  m_lighting_group                 = nullptr;
     opencover::ui::Slider* m_light_color_slider             = nullptr;
@@ -138,7 +136,7 @@ private:
     opencover::ui::Group*  m_coloring_group     = nullptr;
     opencover::ui::Button* m_coloring_button    = nullptr;
 
-    opencover::ui::Menu*   m_model_menu = nullptr;
+    opencover::ui::Menu*   m_model_menu             = nullptr;
     opencover::ui::Group*  m_mode_group             = nullptr;
     opencover::ui::Button* m_mode_normals_btn       = nullptr;
     opencover::ui::Button* m_mode_accuracy_btn      = nullptr;

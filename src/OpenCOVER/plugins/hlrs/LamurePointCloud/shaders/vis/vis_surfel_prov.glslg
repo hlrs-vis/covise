@@ -1,4 +1,5 @@
 #version 420 core
+INCLUDE vis_surfel_util.glsl
 
 layout(points) in;
 layout(triangle_strip, max_vertices = 4) out;
@@ -19,7 +20,7 @@ in VertexData {
 } VertexIn[];
 
 uniform mat4  mvp_matrix;
-uniform vec2  viewport;        // bleibt für Konsistenz, hier nicht benötigt
+uniform vec2  viewport;
 uniform float min_screen_size;   // Pixel-Radius min
 uniform float max_screen_size;   // Pixel-Radius max
 uniform float scale_projection;
@@ -29,14 +30,14 @@ out FS_IN {
     vec2  pass_uv_coords;
     vec3  pass_world_pos;
     vec3  pass_normal_ws;
-    float pass_radius_ws;     // Radius (WS) NACH Pixel-Clamp
+    float pass_radius_ws;     // Radius (WS) nach Pixel-Clamp
     float pass_prov1;
     float pass_prov2;
     float pass_prov3;
     float pass_prov4;
     float pass_prov5;
     float pass_prov6;
-    float pass_screen_size;   // Pixel-Radius NACH Clamp
+    float pass_screen_size;   // Pixel-Radius nach Clamp
 } gOut;
 
 void main() {
@@ -55,18 +56,23 @@ void main() {
     vec3 step_u = VertexIn[0].pass_ms_u; // Halbachsen (WS-Radius)
     vec3 step_v = VertexIn[0].pass_ms_v;
 
-    // Pixel-Radius aus WS-Radius via w-Division
-    float w0  = max(1e-6, abs(gl_in[0].gl_Position.w));
-    float Rpx = (VertexIn[0].pass_radius_ws * scale_projection) / w0;      // Pixel-RADIUS
-    float RpxC = clamp(Rpx, min_screen_size, max_screen_size);                  // Clamp in Pixeln
-    float s = (Rpx > 0.0) ? (RpxC / Rpx) : 1.0;                             // isotrop skalieren
+    const float EPS = 1e-6;
+    if (all(lessThanEqual(abs(step_u) + abs(step_v), vec3(EPS))))
+        return;
 
-    step_u *= s;
-    step_v *= s;
+    float diameter_px = 0.0;
+    if (!scale_isotropic_pixels(center, step_u, step_v,
+                                mvp_matrix, viewport,
+                                min_screen_size, max_screen_size,
+                                scale_projection,
+                                diameter_px))
+    {
+        return;
+    }
 
-    // zurück-projizierter WS-Radius nach Clamp + Pixelradius für Debug
-    gOut.pass_radius_ws   = VertexIn[0].pass_radius_ws * s;                 // Radius (WS)
-    gOut.pass_screen_size = RpxC;                                           // Radius (px)
+    // Rueckprojizierter WS-Radius nach Clamp + Pixelradius fuer Debug
+    gOut.pass_radius_ws   = length(step_u);                 // Radius (WS) nach Clamp
+    gOut.pass_screen_size = diameter_px;                    // Durchmesser (px)
 
     // Quad-Ecken
     vec3 offs[4] = vec3[4](

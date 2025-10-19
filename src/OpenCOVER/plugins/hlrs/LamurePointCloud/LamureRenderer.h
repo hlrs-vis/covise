@@ -16,7 +16,6 @@
 #include <map>
 #include <unordered_map>
 #include <string>
-#include <functional>
 #include <cstdint>
 #include <mutex>
 #include <condition_variable>
@@ -39,15 +38,15 @@ class LamureRenderer {
 
 
 private:
-    Lamure* m_plugin;
-    LamureRenderer* m_renderer;
+    Lamure* m_plugin{nullptr};
+    LamureRenderer* m_renderer{nullptr};
 
     //osg::ref_ptr<osg::Group> m_group;
 
     void flushGlCommands();
     void releaseSceneGraph();
 
-    bool m_rendering;
+    bool m_rendering{false};
     mutable std::mutex m_renderMutex;
     std::condition_variable m_renderCondition;
     bool m_renderingAllowed{true};
@@ -91,8 +90,8 @@ private:
     struct PointColorShader {
         GLuint program{0};
         GLint mvp_matrix_loc            {-1}; // mat4  mvp_matrix
-        GLint view_matrix_loc           {-1}; // mat4 view_matrix
-        GLint normal_matrix_loc         {-1}; // mat3 normal_matrix
+        GLint view_matrix_loc           {-1}; // mat4  view_matrix
+        GLint normal_matrix_loc         {-1}; // mat3  normal_matrix
         GLint max_radius_loc            {-1}; // float max_radius
         GLint min_radius_loc            {-1}; // float min_radius
         GLint max_screen_size_loc       {-1};
@@ -126,7 +125,6 @@ private:
         // --- Unified float-based lighting uniforms ---
         GLint use_tone_mapping_loc      {-1};
         GLint ambient_intensity_loc     {-1};
-        GLint diffuse_intensity_loc     {-1};
         GLint specular_intensity_loc    {-1};
         GLint shininess_loc             {-1};
         GLint point_light_intensity_loc {-1};
@@ -144,8 +142,6 @@ private:
     struct PointProvShader {
         GLuint program{0};
         GLint mvp_matrix_loc            {-1};
-        GLint view_matrix_loc           {-1}; // mat4 view_matrix
-        GLint normal_matrix_loc         {-1}; // mat3 normal_matrix
         GLint max_radius_loc            {-1};
         GLint min_radius_loc            {-1};
         GLint max_screen_size_loc       {-1};
@@ -236,7 +232,6 @@ private:
         // --- Unified float-based lighting uniforms ---
         GLint use_tone_mapping_loc      {-1};
         GLint ambient_intensity_loc     {-1};
-        GLint diffuse_intensity_loc     {-1};
         GLint specular_intensity_loc    {-1};
         GLint shininess_loc             {-1};
         GLint point_light_intensity_loc {-1};
@@ -249,16 +244,14 @@ private:
     struct SurfelProvShader {
         GLuint program{0};
         GLint mvp_matrix_loc            {-1}; // mat4  mvp_matrix
-        GLint view_matrix_loc           {-1}; // mat4 view_matrix
-        GLint normal_matrix_loc         {-1}; // mat3 normal_matrix
         GLint min_radius_loc            {-1}; // float min_radius
         GLint max_radius_loc            {-1}; // float max_radius
         GLint min_screen_size_loc       {-1};
         GLint max_screen_size_loc       {-1};
-        GLint scale_radius_gamma_loc    {-1};
-        GLint max_radius_cut_loc        {-1};
         GLint scale_radius_loc          {-1}; // float scale_radius
-        GLint viewport_loc              {-1};
+        GLint scale_radius_gamma_loc    {-1}; // float scale_radius_gamma
+        GLint max_radius_cut_loc        {-1}; // float max_radius_cut
+        GLint viewport_loc              {-1}; // vec2 viewport
         GLint scale_projection_loc      {-1};
         GLint show_normals_loc          {-1}; // bool  show_normals
         GLint show_accuracy_loc         {-1}; // bool  show_accuracy
@@ -267,11 +260,11 @@ private:
         GLint accuracy_loc              {-1}; // float accuracy
         GLint average_radius_loc        {-1}; // float average_radius
         GLint channel_loc               {-1}; // int   channel
-        GLint heatmap_loc;
-        GLint heatmap_min_loc;
-        GLint heatmap_max_loc;
-        GLint heatmap_min_color_loc;
-        GLint heatmap_max_color_loc;
+        GLint heatmap_loc               {-1};
+        GLint heatmap_min_loc           {-1};
+        GLint heatmap_max_loc           {-1};
+        GLint heatmap_min_color_loc     {-1};
+        GLint heatmap_max_color_loc     {-1};
     };
     SurfelProvShader m_surfel_prov_shader;
 
@@ -301,28 +294,23 @@ private:
     // Pass 2: Accumulation pass to gather color, normal, and position data in off-screen buffers.
     struct SurfelPass2Shader {
         GLuint program{0};
-        // Matrix uniforms (from VS/GS, same as pass 1)
-        GLint mvp_matrix_loc{-1};
+        // Matrix uniforms used in pass 2
         GLint model_view_matrix_loc{-1};
-        GLint projection_matrix_loc{-1};    
+        GLint projection_matrix_loc{-1};
         GLint normal_matrix_loc{-1};
-        GLint model_matrix_loc{-1};
-        GLint inv_mv_matrix_loc{-1};
-        GLint model_to_screen_matrix_loc{-1};
+        // Samplers / viewport
         GLint depth_texture_loc{-1};
-        GLint far_plane_loc{-1};
-        GLint near_plane_loc{-1};
-        GLint viewport_loc {-1};
+        GLint viewport_loc{-1};
         GLint use_aniso_loc{-1};
-        GLint scale_projection_loc      {-1};
+        GLint scale_projection_loc{-1};
         // Scaling uniforms (from VS)
         GLint max_radius_loc{-1};
         GLint min_radius_loc{-1};
         GLint min_screen_size_loc{-1};
         GLint max_screen_size_loc{-1};
         GLint scale_radius_loc{-1};
-        GLint scale_radius_gamma_loc    {-1};
-        GLint max_radius_cut_loc        {-1};
+        GLint scale_radius_gamma_loc{-1};
+        GLint max_radius_cut_loc{-1};
         // Visualization uniforms (from vis_color.glsl)
         GLint show_normals_loc{-1};
         GLint show_accuracy_loc{-1};
@@ -330,22 +318,11 @@ private:
         GLint show_output_sens_loc{-1};
         GLint accuracy_loc{-1};
         GLint average_radius_loc{-1};
-        // Provenance/Channel uniforms (from vis_color.glsl)
-        GLint channel_loc{-1};
-        GLint heatmap_loc{-1};
-        GLint heatmap_min_loc{-1};
-        GLint heatmap_max_loc{-1};
-        GLint heatmap_min_color_loc{-1};
-        GLint heatmap_max_color_loc{-1};
-        GLint edge_profile_loc{-1};
-        GLint depth_epsilon_vs_loc{-1};
-
         // Blending uniforms
         GLint depth_range_loc{-1};
         GLint flank_lift_loc{-1};
-
-
-        GLint coloring_loc {-1};
+        // Misc
+        GLint coloring_loc{-1};
     };
     SurfelPass2Shader m_surfel_pass2_shader;
 
@@ -356,12 +333,7 @@ private:
         GLint in_color_texture_loc{-1};
         GLint in_normal_texture_loc{-1};
         GLint in_vs_position_texture_loc{-1};
-        // Background
-        GLint background_color_loc{-1};
         // Lighting uniforms (for Blinn-Phong shading)
-        GLint view_matrix_loc{-1};
-        GLint normal_matrix_loc{-1};
-        // --- Unified float-based lighting uniforms ---
         GLint point_light_pos_vs_loc    {-1};
         GLint point_light_intensity_loc {-1};
         GLint ambient_intensity_loc     {-1};
@@ -369,30 +341,15 @@ private:
         GLint shininess_loc             {-1};
         GLint use_tone_mapping_loc      {-1};
         GLint gamma_loc                 {-1};
-
-        GLint show_normals_loc{-1};
-        GLint show_accuracy_loc{-1};
-        GLint show_radius_dev_loc{-1};
-        GLint show_output_sens_loc{-1};
-        GLint accuracy_loc{-1};
-        GLint average_radius_loc{-1};
-
-        GLint inv_view_matrix_loc{-1};
-        GLint fy_pixels_loc{-1};
-        GLint show_radius_deviation_loc{-1};
-        GLint show_output_sensitivity_loc{-1};
-        GLint accuracy{-1};
-        GLint average_radius{-1};
-
         GLint lighting_loc {-1};
 
     };
     SurfelPass3Shader m_surfel_pass3_shader;
 
     struct LineShader {
-        GLuint program;
-        GLint in_color_location;
-        GLint mvp_matrix_location;
+        GLuint program{0};
+        GLint in_color_location{-1};
+        GLint mvp_matrix_location{-1};
     };
     LineShader m_line_shader;
 
@@ -488,16 +445,18 @@ private:
     };
     TextResource m_text_resource;
 
-    // Matrizen
+    // Matrices
     scm::math::mat4d m_modelview_matrix;
     scm::math::mat4d m_projection_matrix;
+    scm::math::mat4d m_frozen_modelview_matrix;
+    scm::math::mat4d m_frozen_projection_matrix;
 
     // Schism objects
     scm::gl::render_device_ptr      m_device;
     scm::gl::render_context_ptr     m_context;
 
     // Cameras
-    lamure::ren::camera* m_scm_camera;
+    lamure::ren::camera* m_scm_camera{nullptr};
     osg::ref_ptr<osg::Camera>   m_osg_camera;
     osg::ref_ptr<osg::Camera>   m_hud_camera;
 
@@ -608,16 +567,17 @@ private:
     std::string vis_xyz_pass3_vs_lighting_source;
     std::string vis_xyz_pass3_fs_lighting_source;
 
+    const osg::Camera* m_active_sync_camera{nullptr};
+    bool m_has_frozen_matrices{false};
+    bool m_last_sync_state{false};
+
 public:
     LamureRenderer(Lamure* lamure_plugin);
     ~LamureRenderer();
 
+    void init();
     void shutdown();
     void detachCallbacks();
-
-    void init();
-
-    std::map<uint32_t, std::vector<uint32_t>> m_bvh_node_vertex_offsets;
 
     bool beginFrame();
     void endFrame();
@@ -631,7 +591,6 @@ public:
     void initUniforms();
     void initBoxResources();
     void initPclResources();
-    MultipassTarget& acquireMultipassTarget(lamure::context_t contextID, const osg::Camera* camera, int width, int height);
     void releaseMultipassTargets();
     void initializeMultipassTarget(MultipassTarget& target, int width, int height);
     void destroyMultipassTarget(MultipassTarget& target);
@@ -645,9 +604,15 @@ public:
 
     scm::math::mat4d getModelViewMatrix() { return m_modelview_matrix; }
     scm::math::mat4d getProjectionMatrix() { return m_projection_matrix; }
+    MultipassTarget& acquireMultipassTarget(lamure::context_t contextID, const osg::Camera* camera, int width, int height);
 
     void setModelViewMatrix(scm::math::mat4d model_view_matrix) { m_modelview_matrix = model_view_matrix; }
     void setProjectionMatrix(scm::math::mat4d projection_matrix) { m_projection_matrix = projection_matrix; }
+    void updateSyncCameraState(const osg::Camera* sourceCamera,
+                               const scm::math::mat4d& modelview,
+                               const scm::math::mat4d& projection,
+                               bool syncActive,
+                               bool haveState);
 
     osg::ref_ptr<osg::Geode> getPointcloudGeode() { return m_pointcloud_geode; }
     osg::ref_ptr<osg::Geode> getBoundingboxGeode() { return m_boundingbox_geode; }
@@ -687,17 +652,19 @@ public:
     };
 
     ShaderType m_active_shader_type = ShaderType::Point;
-    void setActiveShaderType(ShaderType t) { m_active_shader_type = t; }
 
     const std::vector<ShaderInfo>& getPclShader() const { return pcl_shader; }
+    std::map<uint32_t, std::vector<uint32_t>> m_bvh_node_vertex_offsets;
 
+    void setActiveShaderType(ShaderType t) { m_active_shader_type = t; }
     void setFrameUniforms(const scm::math::mat4& projection_matrix, const scm::math::vec2& viewport);
     void setModelUniforms(const scm::math::mat4& mvp_matrix);
     void setNodeUniforms(const lamure::ren::bvh* bvh, uint32_t node_id);
-    void resetLamureSystemAndWait();
+    bool isModelVisible(std::size_t modelIndex) const;
 
-    void print_active_uniforms(GLuint programID, const std::string& shaderName);
+
     std::string glTypeToString(GLenum type);
+    void print_active_uniforms(GLuint programID, const std::string& shaderName);
 
     const PointShader&                  getPointShader()                const { return m_point_shader; }
     const PointColorShader&             getPointColorShader()           const { return m_point_color_shader; }

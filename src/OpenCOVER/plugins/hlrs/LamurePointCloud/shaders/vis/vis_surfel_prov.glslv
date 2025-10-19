@@ -1,4 +1,5 @@
 #version 420 core
+INCLUDE vis_surfel_util.glsl
 
 layout(location = 0)  in vec3  in_position;
 layout(location = 1)  in float in_r;
@@ -19,8 +20,8 @@ uniform mat4  mvp_matrix;
 uniform float max_radius;
 uniform float min_radius;
 uniform float scale_radius;
-uniform float scale_radius_gamma_loc; 
 uniform float max_radius_cut;
+uniform float scale_radius_gamma;
 
 out VertexData {
     vec3  pass_ms_u;        // Tangenten-Halbachse U (WS, = Radius)
@@ -45,7 +46,14 @@ void main() {
     vec3 u = normalize(cross(ref, n));
     vec3 v = normalize(cross(n, u));
 
-    float r_world = clamp(in_radius * scale_radius, min_radius, max_radius); // Radius (WS)
+    float r_world = map_raw_to_world_radius(
+        in_radius,
+        max_radius_cut,
+        scale_radius_gamma,
+        scale_radius,
+        min_radius,
+        max_radius
+    ); // Radius (WS)
 
     VertexOut.pass_ms_u        = u * r_world;
     VertexOut.pass_ms_v        = v * r_world;

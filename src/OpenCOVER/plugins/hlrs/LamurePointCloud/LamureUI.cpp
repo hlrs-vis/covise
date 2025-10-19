@@ -71,7 +71,6 @@ void LamureUI::setupUi() {
     m_splat_button->setState(m_plugin->getSettings().splatting);
 
 
-
     m_lod_menu = new opencover::ui::Menu(m_lamure_menu, "LOD");
 
     m_lod_button = new opencover::ui::Button(m_lod_menu, "LOD");
@@ -93,14 +92,13 @@ void LamureUI::setupUi() {
         m_plugin->getSettings().lod_error = static_cast<float>(value);
         });
 
-
     m_scaling_menu = new opencover::ui::Menu(m_lamure_menu, "Scaling");
 
     // Anisotropic scaling mode (Off / Auto / On) at top of Scaling
-    m_aniso_mode_group = new opencover::ui::Group(m_scaling_menu, "");
-    m_aniso_auto_btn = new opencover::ui::Button(m_aniso_mode_group, "Auto");
-    m_aniso_off_btn  = new opencover::ui::Button(m_aniso_mode_group, "Off");
-    m_aniso_on_btn   = new opencover::ui::Button(m_aniso_mode_group, "On");
+    //m_aniso_mode_group = new opencover::ui::Group(m_scaling_menu, "");
+    m_aniso_auto_btn = new opencover::ui::Button(m_scaling_menu, "Auto");
+    m_aniso_off_btn  = new opencover::ui::Button(m_scaling_menu, "Off");
+    m_aniso_on_btn   = new opencover::ui::Button(m_scaling_menu, "On");
     m_aniso_off_btn->setShared(true);
     m_aniso_auto_btn->setShared(true);
     m_aniso_on_btn->setShared(true);
@@ -341,7 +339,7 @@ void LamureUI::setupUi() {
     m_lighting_button->setShared(true);
     m_lighting_button->setState(m_plugin->getSettings().lighting);
 
-    m_lighting_group = new opencover::ui::Group(m_lighting_menu, "Lighting");
+    m_lighting_group = new opencover::ui::Group(m_lighting_menu, "");
 
     m_point_light_intensity_slider = new opencover::ui::Slider(m_lighting_group, "point_light_intensity");
     m_point_light_intensity_slider->setText("Point Light Intensity");
@@ -520,8 +518,10 @@ void LamureUI::setupUi() {
     m_coloring_button->setCallback([this, applyShader](bool on) {
         auto &st = m_plugin->getSettings();
         st.coloring = on;
-        if (on && m_lighting_button && m_lighting_button->state()) {
-            st.lighting = false; m_lighting_button->setState(false);
+        if (on && st.lighting) {
+            st.lighting = false;
+            if (m_lighting_button && m_lighting_button->state() != st.lighting)
+                m_lighting_button->setState(st.lighting);
         }
         LamureRenderer::ShaderType t;
         if (st.splatting) t = LamureRenderer::ShaderType::SurfelMultipass;
@@ -538,8 +538,10 @@ void LamureUI::setupUi() {
     m_lighting_button->setCallback([this, applyShader](bool on) {
         auto &st = m_plugin->getSettings();
         st.lighting = on;
-        if (on && m_coloring_button && m_coloring_button->state()) {
-            st.coloring = false; m_coloring_button->setState(false);
+        if (on && st.coloring) {
+            st.coloring = false;
+            if (m_coloring_button && m_coloring_button->state() != st.coloring)
+                m_coloring_button->setState(st.coloring);
         }
         LamureRenderer::ShaderType t;
         if (st.splatting)   t = LamureRenderer::ShaderType::SurfelMultipass;
@@ -556,7 +558,6 @@ void LamureUI::setupUi() {
     // --- Measurement ---
 
     m_measure_menu  = new opencover::ui::Menu (m_lamure_menu, "Measurement");
-    m_measure_group = new opencover::ui::Group(m_measure_menu, "Measurement");
 
     // --- Settings normalisieren (Priorität: Full > Light > Off)
     {
@@ -589,15 +590,15 @@ void LamureUI::setupUi() {
         };
 
     // --- Buttons (jedes Element braucht einen eindeutigen Namen!)
-    m_measure_full = new opencover::ui::Button(m_measure_group, "full");
+    m_measure_full = new opencover::ui::Button(m_measure_menu, "full");
     m_measure_full->setText("Messung full");
     m_measure_full->setShared(true);
 
-    m_measure_light = new opencover::ui::Button(m_measure_group, "light");
+    m_measure_light = new opencover::ui::Button(m_measure_menu, "light");
     m_measure_light->setText("Messung light");
     m_measure_light->setShared(true);
 
-    m_measure_off = new opencover::ui::Button(m_measure_group, "off");
+    m_measure_off = new opencover::ui::Button(m_measure_menu, "off");
     m_measure_off->setText("Messung off");
     m_measure_off->setShared(true);
 
@@ -626,7 +627,7 @@ void LamureUI::setupUi() {
         });
 
 
-    m_measure_sample = new opencover::ui::Slider(m_measure_group, "sampling");
+    m_measure_sample = new opencover::ui::Slider(m_measure_menu, "sampling");
     m_measure_sample->setText("Sampling");
     m_measure_sample->setBounds(1, 60);
     m_measure_sample->setIntegral(true);

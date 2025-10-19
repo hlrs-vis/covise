@@ -5,8 +5,6 @@ layout(binding = 1) uniform sampler2D in_normal_texture;      // rgb:  Σ(normal
 layout(binding = 2) uniform sampler2D in_vs_position_texture; // rgb:  Σ(pos_vs*w)
 
 layout(location = 0) out vec4 out_color;
-
-uniform vec3 background_color;
 uniform bool lighting;
 uniform vec3  point_light_pos_vs;
 uniform float point_light_intensity;
