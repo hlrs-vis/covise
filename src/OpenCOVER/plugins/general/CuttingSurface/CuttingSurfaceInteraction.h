@@ -97,6 +97,7 @@ private:
         NumSurfaceStyles
     };
     int option_ = OPTION_NONE;
+    int flip_ = 0;
     ui::SelectionList *optionChoice_=nullptr;
 
     CuttingSurfacePlane *csPlane_;

@@ -59,42 +59,39 @@ class PLUGINEXPORT TacxFTMS : public opencover::coVRPlugin, public opencover::co
 public:
     TacxFTMS();
     ~TacxFTMS();
-    bool update();
-    float getAngle();
-    float getBrakeForce();
-    float getAccelleration();
-    float getSpeed();
-    volatile bool running;
-    virtual void run();
+    bool update() override;
+    float getAngle() const;
+    float getBrakeForce() const;
+    float getAccelleration() const;
+    float getSpeed() const;
+    std::atomic<bool> running;
+    void run() override;
     bool doStop;
 
 private:
-    bool ftmsfound = false;
-    bool alpinefound = false;
     float stepSizeUp;
     float stepSizeDown;
     const float BrakeThreshold = 1.0;
     bool braking = true;
-    bool init();
+    bool init() override;
     void addDevice(const opencover::deviceInfo *dev);
     float getYAcceleration();
     float getGrade();
     float resistance;
-    osg::Matrix getMatrix();
+    osg::Matrix getMatrix() const;
     osg::Matrix TransformMat;
     osg::Matrix TacxFTMSPos;
-    virtual void setEnabled(bool);
+    void setEnabled(bool) override;
     void updateThread();
-    UDPComm* udpNeo; 
-    UDPComm* udpAlpine;
-    UDPComm* udpListen; // for listening to all devices
+    std::unique_ptr<UDPComm> udpNeo; 
+    std::unique_ptr<UDPComm> udpAlpine;
+    std::unique_ptr<UDPComm> udpListen; // for listening to all devices
     FTMSBikeData ftmsData;
     FTMSControlData ftmsControl;
     AlpineData alpineData;
     int ret;
     OpenThreads::Mutex mutex;
     float wheelBase = 0.97;
-    void Initialize();
     void sendIndoorBikeSimulationParameters();
 };
 #endif /* TacxFTMSPlugin_H */

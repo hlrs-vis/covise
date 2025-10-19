@@ -128,6 +128,7 @@ protected:
     ui::Action *newButton_ = nullptr; // copy this module
     ui::Action *deleteButton_ = nullptr; // delete this module
     ui::Button *executeCheckbox_ = nullptr; // execute module button
+    ui::Action *executeAction_ = nullptr; // execute module action
     //ui::coSubMenuItem *colorsButton_; // open colorbar
     opencover::coInteractor *inter_ = nullptr; // the last interaction got from the module at issue
     bool inExecute_; // switch checkbox off when new object arrived

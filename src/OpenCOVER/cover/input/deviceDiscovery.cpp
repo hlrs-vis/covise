@@ -79,37 +79,38 @@ namespace opencover
         OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
         int numToAdd = toAdd.size();
         coVRMSController::instance()->syncData(&numToAdd, sizeof(numToAdd));
-	if (coVRMSController::instance()->isMaster())
-	{  
-	    for(const auto &i:toAdd)
-	    {
-            devices.push_back(i);
-            int len = i->pluginName.length();
-            coVRMSController::instance()->sendSlaves(&len, sizeof(len));
-            coVRMSController::instance()->sendSlaves(i->pluginName.c_str(), len + 1);
-            cover->addPlugin(i->pluginName.c_str());
-	    }
-	}
-	else
-	{
-	    for(int i=0;i<numToAdd;i++)
-	    {
-		std::string pluginName;
-		int len = 0;
-		char buf[1000];
-		coVRMSController::instance()->readMaster(&len, sizeof(len));
-		coVRMSController::instance()->readMaster(buf, len+1);
-		cover->addPlugin(buf);
-	    }
+        if (coVRMSController::instance()->isMaster())
+        {  
+            for(const auto &i:toAdd)
+            {
+                devices.push_back(i);
+                int len = i->pluginName.length();
+                coVRMSController::instance()->sendSlaves(&len, sizeof(len));
+                coVRMSController::instance()->sendSlaves(i->pluginName.c_str(), len + 1);
+                cover->addPlugin(i->pluginName.c_str());
+            }
+            auto firstNew = devices.end() - numToAdd;
+            for (int i = 0; i < numToAdd; i++)
+            {
+                deviceAdded(*firstNew);
+                ++firstNew;
+            }
+        }
+        else
+        {
+            for(int i=0;i<numToAdd;i++)
+            {
+                std::string pluginName;
+                int len = 0;
+                char buf[1000];
+                coVRMSController::instance()->readMaster(&len, sizeof(len));
+                coVRMSController::instance()->readMaster(buf, len+1);
+                cover->addPlugin(buf);
+            }
+        }
+        toAdd.clear();
     }
-    toAdd.clear();
-    auto firstNew = devices.end() - numToAdd;
-    for (int i = 0; i < numToAdd; i++)
-    {
-        deviceAdded(*firstNew);
-        ++firstNew;
-    }
-    }
+
     void deviceDiscovery::run()
     {
         covise::setThreadName("deviceDiscoveryThread");
