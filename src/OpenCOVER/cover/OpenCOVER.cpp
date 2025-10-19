@@ -1637,6 +1637,13 @@ void OpenCOVER::restartVrbc()
     }
 
     if (m_loadVistlePlugin) {
+        if (!m_visPlugin)
+        {
+            m_vrbc.reset();
+            std::cerr << "OpenCOVER::restartVrbc: Vistle plugin not loaded, cannot start VRB client" << std::endl;
+            return;
+        }
+
         class PluginMessageSender : public covise::MessageSenderInterface {
 
           public:
