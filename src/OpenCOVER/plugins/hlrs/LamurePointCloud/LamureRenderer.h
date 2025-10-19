@@ -333,6 +333,7 @@ private:
         GLint in_color_texture_loc{-1};
         GLint in_normal_texture_loc{-1};
         GLint in_vs_position_texture_loc{-1};
+        GLint in_depth_texture_loc{-1};
         // Lighting uniforms (for Blinn-Phong shading)
         GLint point_light_pos_vs_loc    {-1};
         GLint point_light_intensity_loc {-1};

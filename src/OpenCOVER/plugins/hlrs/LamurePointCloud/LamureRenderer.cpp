@@ -980,18 +980,14 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
 
             // --- PASS 3: Resolve / Lighting (premultiplied coverage)
 
-            glBindFramebuffer(GL_READ_FRAMEBUFFER, target.fbo);
-            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, prev_fbo);
-            glBlitFramebuffer(0, 0, vpWidth, vpHeight, 0, 0, vpWidth, vpHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-            
-
             glBindFramebuffer(GL_FRAMEBUFFER, prev_fbo);
             glDrawBuffer(prev_draw_buffer);
             glReadBuffer(prev_read_buffer);
             glViewport(prev_viewport[0], prev_viewport[1], prev_viewport[2], prev_viewport[3]);
 
             glEnable(GL_DEPTH_TEST);
-            glDepthMask(GL_FALSE);
+            glDepthMask(GL_TRUE);
+            glDepthFunc(GL_LEQUAL);
             glDisable(GL_BLEND);
             //glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // premultiplied resolve
 
@@ -1012,6 +1008,11 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
             glBindTexture(GL_TEXTURE_2D, target.texture_position);
             if (_renderer->getSurfelPass3Shader().in_vs_position_texture_loc >= 0)
                 glUniform1i(_renderer->getSurfelPass3Shader().in_vs_position_texture_loc, 2);
+
+            glActiveTexture(GL_TEXTURE3);
+            glBindTexture(GL_TEXTURE_2D, target.depth_texture);
+            if (_renderer->getSurfelPass3Shader().in_depth_texture_loc >= 0)
+                glUniform1i(_renderer->getSurfelPass3Shader().in_depth_texture_loc, 3);
 
             // View-space lighting Setup
             scm::math::mat4 viewMat = view_matrix;
@@ -1036,6 +1037,7 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
             
 
             glActiveTexture(GL_TEXTURE0);
+            glDepthMask(GL_FALSE);
         }
         else {
             // ================= SINGLE-PASS RENDER PATH =================
@@ -1625,6 +1627,7 @@ void LamureRenderer::initUniforms()
     m_surfel_pass3_shader.in_color_texture_loc        = glGetUniformLocation(m_surfel_pass3_shader.program, "in_color_texture");
     m_surfel_pass3_shader.in_normal_texture_loc       = glGetUniformLocation(m_surfel_pass3_shader.program, "in_normal_texture");
     m_surfel_pass3_shader.in_vs_position_texture_loc  = glGetUniformLocation(m_surfel_pass3_shader.program, "in_vs_position_texture");
+    m_surfel_pass3_shader.in_depth_texture_loc        = glGetUniformLocation(m_surfel_pass3_shader.program, "in_depth_texture");
 
     m_surfel_pass3_shader.point_light_pos_vs_loc      = glGetUniformLocation(m_surfel_pass3_shader.program, "point_light_pos_vs");
     m_surfel_pass3_shader.point_light_intensity_loc   = glGetUniformLocation(m_surfel_pass3_shader.program, "point_light_intensity");
@@ -1639,6 +1642,7 @@ void LamureRenderer::initUniforms()
     if (m_surfel_pass3_shader.in_color_texture_loc >= 0)       glUniform1i(m_surfel_pass3_shader.in_color_texture_loc, 0);
     if (m_surfel_pass3_shader.in_normal_texture_loc >= 0)      glUniform1i(m_surfel_pass3_shader.in_normal_texture_loc, 1);
     if (m_surfel_pass3_shader.in_vs_position_texture_loc >= 0) glUniform1i(m_surfel_pass3_shader.in_vs_position_texture_loc, 2);
+    if (m_surfel_pass3_shader.in_depth_texture_loc >= 0)       glUniform1i(m_surfel_pass3_shader.in_depth_texture_loc, 3);
 
     glUseProgram(0);
 }

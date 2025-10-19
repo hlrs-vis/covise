@@ -1,11 +1,12 @@
 #version 420 core
 
-layout(binding = 0) uniform sampler2D in_color_texture;       // rgba: Σ(color*w), a: Σw
-layout(binding = 1) uniform sampler2D in_normal_texture;      // rgb:  Σ(normal*w)
-layout(binding = 2) uniform sampler2D in_vs_position_texture; // rgb:  Σ(pos_vs*w)
+layout(binding = 0) uniform sampler2D in_color_texture;       // rgba: sum(color*w), a: sum w
+layout(binding = 1) uniform sampler2D in_normal_texture;      // rgb:  sum(normal*w)
+layout(binding = 2) uniform sampler2D in_vs_position_texture; // rgb:  sum(pos_vs*w)
+layout(binding = 3) uniform sampler2D in_depth_texture;       // depth from pass 1
 
 layout(location = 0) out vec4 out_color;
-uniform bool lighting;
+uniform bool  lighting;
 uniform vec3  point_light_pos_vs;
 uniform float point_light_intensity;
 uniform float ambient_intensity;
@@ -29,11 +30,11 @@ void main()
     vec3 accumulated_pos_vs = texture(in_vs_position_texture, t).rgb;
 
     if (accumulated_color.a <= 0.0)
-        discard; // kein Surfel-Beitrag
+        discard; // no surfel contribution
 
-    float sum_w = accumulated_color.a; // Σw
+    float sum_w = accumulated_color.a; // sum weights
 
-    // Gemittelte Größen (gewichteter Mittelwert)
+    // Weighted mean reconstruction
     vec3 albedo    = accumulated_color.rgb  / max(sum_w, 1e-8);
     vec3 normal_vs = normalize(accumulated_normal / max(sum_w, 1e-8));
     vec3 pos_vs    = accumulated_pos_vs     / max(sum_w, 1e-8);
@@ -48,10 +49,12 @@ void main()
         use_tone_mapping
     );
 
-    // Debug-Modi umgehen Beleuchtung
+    // Lighting can be disabled for debug views
     vec3 shaded = lighting ? shade_blinn_phong(pos_vs, normal_vs, albedo, lighting_params)
                            : albedo;
 
-    // Voll deckende Ausgabe (keine Transparenz, kein Blend nötig)
+    // Premultiplied resolve output, also provide depth
+    float depth = texture(in_depth_texture, t).r;
+    gl_FragDepth = depth;
     out_color = vec4(shaded, 1.0);
 }
