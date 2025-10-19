@@ -844,6 +844,23 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
             const float scale_radius_combined = s.scale_radius * s.scale_element;
             const float scale_proj_pass = opencover::cover->getScale() * static_cast<float>(vpHeight) * 0.5f * projection_matrix.data_array[5];
 
+            const auto bindTexture2DToUnit = [](GLuint unit, GLuint texture) {
+#if defined(GL_VERSION_4_5)
+                if (GLEW_VERSION_4_5) {
+                    glBindTextureUnit(unit, texture);
+                    return;
+                }
+#endif
+#if defined(GL_ARB_direct_state_access)
+                if (GLEW_ARB_direct_state_access) {
+                    glBindTextureUnit(unit, texture);
+                    return;
+                }
+#endif
+                glActiveTexture(GL_TEXTURE0 + unit);
+                glBindTexture(GL_TEXTURE_2D, texture);
+            };
+
             // --- PASS 1: Depth pre-pass (depth-only, kreisförmiges discard im FS)
             glBindFramebuffer(GL_FRAMEBUFFER, target.fbo);
             glViewport(0, 0, vpWidth, vpHeight);
@@ -918,10 +935,7 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
             glViewport(0, 0, vpWidth, vpHeight);
 
             // Tiefe aus Pass 1
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, target.depth_texture);
-            if (_renderer->getSurfelPass2Shader().depth_texture_loc >= 0)
-                glUniform1i(_renderer->getSurfelPass2Shader().depth_texture_loc, 0);
+            bindTexture2DToUnit(0, target.depth_texture);
 
             // Globale Uniforms für VS/GS/FS
             if (_renderer->getSurfelPass2Shader().viewport_loc            >= 0) glUniform2f(_renderer->getSurfelPass2Shader().viewport_loc, viewport.x, viewport.y);
@@ -994,25 +1008,10 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
             glUseProgram(_renderer->getSurfelPass3Shader().program);
 
             // G-Buffer
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, target.texture_color);
-            if (_renderer->getSurfelPass3Shader().in_color_texture_loc >= 0)
-                glUniform1i(_renderer->getSurfelPass3Shader().in_color_texture_loc, 0);
-
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, target.texture_normal);
-            if (_renderer->getSurfelPass3Shader().in_normal_texture_loc >= 0)
-                glUniform1i(_renderer->getSurfelPass3Shader().in_normal_texture_loc, 1);
-
-            glActiveTexture(GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_2D, target.texture_position);
-            if (_renderer->getSurfelPass3Shader().in_vs_position_texture_loc >= 0)
-                glUniform1i(_renderer->getSurfelPass3Shader().in_vs_position_texture_loc, 2);
-
-            glActiveTexture(GL_TEXTURE3);
-            glBindTexture(GL_TEXTURE_2D, target.depth_texture);
-            if (_renderer->getSurfelPass3Shader().in_depth_texture_loc >= 0)
-                glUniform1i(_renderer->getSurfelPass3Shader().in_depth_texture_loc, 3);
+            bindTexture2DToUnit(0, target.texture_color);
+            bindTexture2DToUnit(1, target.texture_normal);
+            bindTexture2DToUnit(2, target.texture_position);
+            bindTexture2DToUnit(3, target.depth_texture);
 
             // View-space lighting Setup
             scm::math::mat4 viewMat = view_matrix;

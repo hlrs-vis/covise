@@ -144,26 +144,20 @@ bool scale_anisotropic_pixels_depth(
 
     float ru = length(su - s0);
     float rv = length(sv - s0);
-    float d_pxC = clamp(2.0 * max(ru, rv), min_screen_size, max_screen_size);
-    if (d_pxC <= UTIL_EPS) return false;
 
-    float R = 0.5 * d_pxC;
-    float m = max(ru, rv);
-    float iso = (m > UTIL_EPS) ? (R / m) : 1.0;
-    float su_s = (ru > UTIL_EPS) ? (R / ru) : 1.0;
-    float sv_s = (rv > UTIL_EPS) ? (R / rv) : 1.0;
+    float du = clamp(2.0 * ru, min_screen_size, max_screen_size);
+    float dv = clamp(2.0 * rv, min_screen_size, max_screen_size);
+    float r_u = 0.5f * du;
+    float r_v = 0.5f * dv;
 
-    // Smoothly cap extreme anisotropy to avoid popping near degeneracies
-    const float Amax = 3.0; // desired max anisotropy ratio
-    float ratio = (ru > rv) ? (ru / max(rv, UTIL_EPS)) : (rv / max(ru, UTIL_EPS));
-    float t = clamp((ratio - Amax) / (Amax * 0.5), 0.0, 1.0); // blend towards isotropic when exceeding cap
-    su_s = mix(su_s, iso, t);
-    sv_s = mix(sv_s, iso, t);
+    float su_s = (ru > UTIL_EPS) ? (r_u / ru) : 0.0f;
+    float sv_s = (rv > UTIL_EPS) ? (r_v / rv) : 0.0f;
 
     step_u_ws *= su_s;
     step_v_ws *= sv_s;
-    out_pixel_diameter = d_pxC;
-    return true;
+
+    out_pixel_diameter = max(du, dv);
+    return (du > UTIL_EPS) || (dv > UTIL_EPS);
 }
 
 // Anisotropic pixel-scaling (no depth): same as above, but does not report NDC depth
@@ -187,25 +181,20 @@ bool scale_anisotropic_pixels(
 
     float ru = length(su - s0);
     float rv = length(sv - s0);
-    float d_pxC = clamp(2.0 * max(ru, rv), min_screen_size, max_screen_size);
-    if (d_pxC <= UTIL_EPS) return false;
 
-    float R = 0.5 * d_pxC;
-    float m  = max(ru, rv);
-    float iso = (m > UTIL_EPS) ? (R / m) : 1.0;
-    float su_s = (ru > UTIL_EPS) ? (R / ru) : 1.0;
-    float sv_s = (rv > UTIL_EPS) ? (R / rv) : 1.0;
+    float du = clamp(2.0 * ru, min_screen_size, max_screen_size);
+    float dv = clamp(2.0 * rv, min_screen_size, max_screen_size);
+    float r_u = 0.5f * du;
+    float r_v = 0.5f * dv;
 
-    const float Amax = 3.0;
-    float ratio = (ru > rv) ? (ru / max(rv, UTIL_EPS)) : (rv / max(ru, UTIL_EPS));
-    float t = clamp((ratio - Amax) / (Amax * 0.5), 0.0, 1.0);
-    su_s = mix(su_s, iso, t);
-    sv_s = mix(sv_s, iso, t);
+    float su_s = (ru > UTIL_EPS) ? (r_u / ru) : 0.0f;
+    float sv_s = (rv > UTIL_EPS) ? (r_v / rv) : 0.0f;
 
     step_u_ws *= su_s;
     step_v_ws *= sv_s;
-    out_pixel_diameter = d_pxC;
-    return true;
+
+    out_pixel_diameter = max(du, dv);
+    return (du > UTIL_EPS) || (dv > UTIL_EPS);
 }
 
 // Isotropic scaling with depth reporting (compat variant for other shaders)
