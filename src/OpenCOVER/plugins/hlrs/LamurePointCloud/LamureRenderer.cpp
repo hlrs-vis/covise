@@ -641,7 +641,7 @@ struct BoundingBoxDrawCallback : public virtual osg::Drawable::DrawCallback
 
         uint64_t rendered_bounding_boxes = 0;
         for (uint16_t m_id = 0; m_id < _plugin->getSettings().models.size(); ++m_id) {
-            if (!_plugin->isModelVisible(m_id))
+            if (!_renderer->isModelVisible(m_id))
                 continue;
             const lamure::model_t model_id = controller->deduce_model_id(std::to_string(m_id));
             lamure::ren::cut& cut = cuts->get_cut(context_id, renderInfo.getState()->getContextID(), model_id);
@@ -759,7 +759,7 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
 
         if (database->num_models() == 0) { _renderer->endFrame(); before.restore(); return; }
         for (lamure::model_t model_id = 0; model_id < settings.models.size(); ++model_id) {
-            if (!_plugin->isModelVisible(static_cast<std::size_t>(model_id)))
+            if (!_renderer->isModelVisible(static_cast<std::size_t>(model_id)))
                 continue;
             lamure::model_t m_id = controller->deduce_model_id(std::to_string(model_id));
             const auto &trafo = _plugin->getModelInfo().model_transformations[m_id];
@@ -861,7 +861,7 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
                 glBindTexture(GL_TEXTURE_2D, texture);
             };
 
-            // --- PASS 1: Depth pre-pass (depth-only, kreisförmiges discard im FS)
+            // --- PASS 1: Depth pre-pass (depth-only, kreisfoermiges discard im FS)
             glBindFramebuffer(GL_FRAMEBUFFER, target.fbo);
             glViewport(0, 0, vpWidth, vpHeight);
             glDrawBuffer(GL_NONE);
@@ -890,7 +890,7 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
             if (_renderer->getSurfelPass1Shader().projection_matrix_loc >= 0) glUniformMatrix4fv(_renderer->getSurfelPass1Shader().projection_matrix_loc, 1, GL_FALSE, projection_matrix.data_array);
             if (_renderer->getSurfelPass1Shader().use_aniso_loc          >= 0) glUniform1i(_renderer->getSurfelPass1Shader().use_aniso_loc, useAnisoThisPass ? 1 : 0);
             for (uint16_t m_id = 0; m_id < s.models.size(); ++m_id) {
-                if (!_plugin->isModelVisible(m_id))
+                if (!_renderer->isModelVisible(m_id))
                     continue;
 
                 const lamure::model_t model_id = controller->deduce_model_id(std::to_string(m_id));
@@ -937,7 +937,7 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
             // Tiefe aus Pass 1
             bindTexture2DToUnit(0, target.depth_texture);
 
-            // Globale Uniforms für VS/GS/FS
+            // Globale Uniforms fuer VS/GS/FS
             if (_renderer->getSurfelPass2Shader().viewport_loc            >= 0) glUniform2f(_renderer->getSurfelPass2Shader().viewport_loc, viewport.x, viewport.y);
             if (_renderer->getSurfelPass2Shader().max_radius_loc          >= 0) glUniform1f(_renderer->getSurfelPass2Shader().max_radius_loc,   s.max_radius);
             if (_renderer->getSurfelPass2Shader().min_radius_loc          >= 0) glUniform1f(_renderer->getSurfelPass2Shader().min_radius_loc,   s.min_radius);
@@ -962,7 +962,7 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
             const bool needNodeUniforms = (showRadiusDeviationDebug || showAccuracyDebug);
 
             for (uint16_t m_id = 0; m_id < s.models.size(); ++m_id) {
-                if (!_plugin->isModelVisible(m_id))
+                if (!_renderer->isModelVisible(m_id))
                     continue;
                 const lamure::model_t model_id = controller->deduce_model_id(std::to_string(m_id));
                 lamure::ren::cut &cut = cuts->get_cut(context_id, renderInfo.getState()->getContextID(), model_id);
@@ -1042,7 +1042,7 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
             // ================= SINGLE-PASS RENDER PATH =================
             _renderer->setFrameUniforms(projection_matrix, viewport);
             for (uint16_t model_id = 0; model_id < _plugin->getSettings().models.size(); ++model_id) {
-                if (!_plugin->isModelVisible(model_id))
+                if (!_renderer->isModelVisible(model_id))
                     continue;
                 const lamure::model_t m_id = controller->deduce_model_id(std::to_string(model_id));
                 lamure::ren::cut& cut = cuts->get_cut(context_id, renderInfo.getState()->getContextID(), m_id);
@@ -1665,18 +1665,19 @@ bool LamureRenderer::isModelVisible(std::size_t modelIndex) const
         return false;
 
     osg::Node* node = it_node->second.get();
-    if (!node || node->getNumParents() == 0)
+    if (!node || node->getNodeMask() == 0)
         return false;
 
-    osg::Node* current = node;
-    while (current) {
-        if (current->getNodeMask() == 0)
-            return false;
-        if (current->getNumParents() == 0)
-            break;
-        current = current->getParent(0);
+    const unsigned int parentCount = node->getNumParents();
+    if (parentCount == 0)
+        return false;
+
+    for (unsigned int i = 0; i < parentCount; ++i) {
+        osg::Node* parent = node->getParent(i);
+        if (parent && parent->getNodeMask() != 0)
+            return true;
     }
-    return true;
+    return false;
 }
 
 void LamureRenderer::setFrameUniforms(const scm::math::mat4& projection_matrix, const scm::math::vec2& viewport) {
