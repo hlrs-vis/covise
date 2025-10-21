@@ -41,6 +41,9 @@ struct RenderTarget : render_target, opencover::MultiChannelDrawer
 
         clearColor(channel);
         clearDepth(channel);
+	
+	colorPtr = rgba(channel);
+	depthPtr = opencover::MultiChannelDrawer::depth(channel);
     }
 
     void begin_frame() {}
@@ -49,22 +52,25 @@ struct RenderTarget : render_target, opencover::MultiChannelDrawer
     ref_type ref()
     { return { color(), depth(), accum(), width(), height() }; }
 
-    color_type* color()
-    { return (color_type *)rgba(channel); }
+    VSNRAY_FUNC color_type* color()
+    { return (color_type *)colorPtr; }
 
-    depth_type* depth()
+    VSNRAY_FUNC depth_type* depth()
     { return (depth_type *)opencover::MultiChannelDrawer::depth(channel); }
 
-    const color_type* color() const
+    VSNRAY_FUNC const color_type* color() const
     { return (color_type *)rgba(channel); }
 
-    const depth_type* depth() const
+    VSNRAY_FUNC const depth_type* depth() const
     { return (depth_type *)opencover::MultiChannelDrawer::depth(channel); }
 
-    accum_type* accum()
+    VSNRAY_FUNC accum_type* accum()
     { return nullptr; }
 
     unsigned channel{0};
+
+    unsigned char *colorPtr{nullptr};
+    unsigned char *depthPtr{nullptr};
 };
 
 struct PointRayTracerDrawable::Impl
@@ -338,6 +344,7 @@ void PointRayTracerDrawable::drawImplementation(osg::RenderInfo &info) const
 
     //display result
     sparams.rt.swapFrame();
+ return;
 
     //update member
     m_total_frame_num++;

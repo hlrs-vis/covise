@@ -49,6 +49,7 @@ struct Kernel
                 );
 
         result.depth = hit_rec.t;
+        result.color=visionaray::vec4(1,0,0,1);
 
         return result;
     }
