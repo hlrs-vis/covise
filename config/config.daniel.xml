@@ -76,7 +76,7 @@
       </Visionaray>
 
       <Volume value="on" >
-        <Renderer value="texrend" />
+        <Renderer value="rayrendcuda" />
         <!--Renderer value="texrend" /-->
         <!--Renderer value="rayrendcuda" /-->
         <Lighting value="off" />

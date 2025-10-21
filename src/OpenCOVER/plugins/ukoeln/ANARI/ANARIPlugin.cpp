@@ -76,13 +76,13 @@ static FileHandler handlers[] = {
       ANARIPlugin::unloadUMeshVTK,
       "vtu" },
     { NULL,
-      ANARIPlugin::loadPointCloud,
-      ANARIPlugin::unloadPointCloud,
-      "pts" },
+      ANARIPlugin::loadPlyFile,
+      ANARIPlugin::unloadPlyFile,
+      "ply" },
     { NULL,
       ANARIPlugin::loadPointCloud,
       ANARIPlugin::unloadPointCloud,
-      "ply" },
+      "pts" },    
     { NULL,
       ANARIPlugin::loadPointCloud,
       ANARIPlugin::unloadPointCloud,
@@ -206,6 +206,39 @@ int ANARIPlugin::unloadUMeshVTK(const char *fileName, const char *)
 {
     if (plugin->renderer)
         plugin->renderer->unloadUMeshVTK(fileName);
+
+    return 1;
+}
+
+int ANARIPlugin::loadPlyFile(const char *fileName, osg::Group *loadParent, const char *)
+{
+    bool loadPlyAsPointCloud = covise::coCoviseConfig::isOn("value", "COVER.Plugin.ANARI.loadPlyAsPointCloud", true);
+
+    std::cout << "Loading PLY file: " << fileName << ", loadPlyAsPointCloud=" << loadPlyAsPointCloud << std::endl;
+
+    if (loadPlyAsPointCloud) {
+        if (plugin->renderer)
+            plugin->renderer->loadPointCloud(fileName);
+    } else {
+        if(plugin->renderer)
+            plugin->renderer->loadMesh(fileName);
+    }
+    return 1;
+}
+
+int ANARIPlugin::unloadPlyFile(const char *fileName, const char *)
+{
+    bool loadPlyAsPointCloud = covise::coCoviseConfig::isOn("value", "COVER.Plugin.ANARI.loadPlyAsPointCloud", true);
+    
+    std::cout << "Unloading PLY file: " << fileName << ", loadPlyAsPointCloud=" << loadPlyAsPointCloud << std::endl;
+
+    if (loadPlyAsPointCloud) {
+        if (plugin->renderer)
+            plugin->renderer->unloadPointCloud(fileName);
+    } else {
+        if (plugin->renderer)
+            plugin->renderer->unloadMesh(fileName);
+    }
 
     return 1;
 }
