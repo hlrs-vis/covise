@@ -49,10 +49,6 @@ private:
 
     struct CameraBinding;
     CameraBinding& ensureCameraBinding(const osg::Camera* osgCamera);
-    lamure::ren::camera* bindActiveCamera(const osg::Camera* osgCamera,
-                                          const scm::math::mat4d& modelview,
-                                          const scm::math::mat4d& projection,
-                                          bool updateViewMatrix);
     void releaseCameraBindings();
     bool isHudCamera(const osg::Camera* camera) const;
 
@@ -67,7 +63,6 @@ private:
     // Private methods
     bool readShader(const std::string& pathString, std::string& shaderString, bool keepOptionalShaderCode);
     void initCamera();
-    void printSettings() const;
 
     GLuint compileAndLinkShaders(std::string vsSource, std::string fsSource);
     GLuint compileAndLinkShaders(std::string vsSource, std::string gsSource, std::string fsSource);
@@ -285,8 +280,6 @@ private:
         GLint projection_matrix_loc{-1};    
         GLint model_view_matrix_loc{-1};
         GLint model_matrix_loc{-1};         // mat4 model_matrix
-        GLint near_plane_loc{-1};           // float near_plane
-        GLint far_plane_loc{-1};            // float far_plane
         GLint viewport_loc {-1};
         GLint use_aniso_loc{-1};
         GLint scale_projection_loc      {-1};

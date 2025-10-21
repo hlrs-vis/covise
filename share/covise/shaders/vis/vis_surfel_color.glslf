@@ -1,0 +1,49 @@
+// ===================== Fragment Shader =====================
+#version 420 core
+
+in FS_IN {
+    vec3  pass_point_color;
+    vec2  pass_uv_coords;
+    vec3  pass_world_pos;
+    vec3  pass_normal_ws;
+    vec3  pass_vs_pos;
+    vec3  pass_vs_normal;
+    float pass_radius_ws;
+    float pass_screen_size;
+} fsIn;
+
+layout(location = 0) out vec4 out_color;
+
+uniform bool  show_normals;
+uniform bool  show_accuracy;
+uniform bool  show_radius_deviation;
+uniform bool  show_output_sensitivity;
+uniform float accuracy;
+uniform float average_radius;
+
+INCLUDE vis_color_no_prov.glsl
+
+void main() {
+    // Kreisscheibe maskieren
+    if (length(fsIn.pass_uv_coords) > 1.0) discard;
+
+    ColorDebugParams dbg = ColorDebugParams(
+        show_normals,
+        show_accuracy,
+        show_radius_deviation,
+        show_output_sensitivity,
+        accuracy,
+        average_radius
+    );
+
+    vec3 finalColor = get_color(
+        fsIn.pass_world_pos,
+        fsIn.pass_vs_normal,
+        fsIn.pass_point_color,
+        fsIn.pass_radius_ws,
+        fsIn.pass_screen_size,
+        dbg
+    );
+
+    out_color = vec4(finalColor, 1.0);
+}

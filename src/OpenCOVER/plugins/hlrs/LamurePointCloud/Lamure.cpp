@@ -377,8 +377,6 @@ void Lamure::preFrame() {
         perform_system_reset();
     }
 
-    // no sanitize pass here by default
-
     // Dynamic loading after start
     if (!m_files_to_load.empty()) {
         if (!g_is_resetting) {

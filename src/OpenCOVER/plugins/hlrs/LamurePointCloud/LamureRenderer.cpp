@@ -1,4 +1,4 @@
-#include "LamureRenderer.h"
+﻿#include "LamureRenderer.h"
 #include "Lamure.h"
 #include "LamureUtil.h"
 
@@ -201,7 +201,7 @@ LamureRenderer::LamureRenderer(Lamure *plugin)
 LamureRenderer::~LamureRenderer()
 {
     releaseMultipassTargets();
-    releaseCameraBindings();
+
 }
 
 bool LamureRenderer::isHudCamera(const osg::Camera* camera) const
@@ -215,132 +215,6 @@ bool LamureRenderer::isHudCamera(const osg::Camera* camera) const
     return false;
 }
 
-LamureRenderer::CameraBinding& LamureRenderer::ensureCameraBinding(const osg::Camera* osgCamera)
-{
-    auto it = m_camera_bindings.find(osgCamera);
-    if (it == m_camera_bindings.end()) {
-        CameraBinding binding;
-        binding.osgCamera = osgCamera;
-        binding.viewDescriptor = m_next_view_descriptor++;
-        it = m_camera_bindings.emplace(osgCamera, std::move(binding)).first;
-    }
-
-    CameraBinding& binding = it->second;
-    if (binding.lamureCamera) {
-        return binding;
-    }
-
-    double left = 0.0;
-    double right = 0.0;
-    double bottom = 0.0;
-    double top = 0.0;
-    double zNear = 0.01;
-    double zFar = 1000.0;
-
-    if (osgCamera) {
-        if (!osgCamera->getProjectionMatrixAsFrustum(left, right, bottom, top, zNear, zFar)) {
-            osgCamera->getProjectionMatrixAsOrtho(left, right, bottom, top, zNear, zFar);
-        }
-
-        const osg::Matrixd view = osgCamera->getViewMatrix();
-        const osg::Matrixd proj = osgCamera->getProjectionMatrix();
-
-        binding.modelview = LamureUtil::matConv4D(view);
-        binding.projection = LamureUtil::matConv4D(proj);
-
-        osg::Matrix base = opencover::VRSceneGraph::instance()->getScaleTransform()->getMatrix();
-        osg::Matrix trans = opencover::VRSceneGraph::instance()->getTransform()->getMatrix();
-        base.postMult(trans);
-
-        const auto lamureView = LamureUtil::matConv4D(osg::Matrixd(view * base));
-        const auto lamureProj = binding.projection;
-
-        binding.lamureCamera = std::make_unique<lamure::ren::camera>(
-            binding.viewDescriptor,
-            zNear,
-            zFar,
-            lamureView,
-            lamureProj);
-
-        if (binding.lamureCamera) {
-            binding.lamureCamera->set_projection_matrix(binding.projection);
-            binding.lamureCamera->set_view_matrix(binding.modelview);
-        }
-    }
-
-    return binding;
-}
-
-lamure::ren::camera* LamureRenderer::bindActiveCamera(const osg::Camera* osgCamera,
-                                                      const scm::math::mat4d& modelview,
-                                                      const scm::math::mat4d& projection,
-                                                      bool updateViewMatrix)
-{
-    if (!osgCamera || isHudCamera(osgCamera)) {
-        return nullptr;
-    }
-
-    CameraBinding& binding = ensureCameraBinding(osgCamera);
-
-    if (binding.lamureCamera) {
-        binding.lamureCamera->set_projection_matrix(projection);
-
-        if (updateViewMatrix) {
-            binding.modelview = modelview;
-            binding.lamureCamera->set_view_matrix(binding.modelview);
-        }
-    }
-
-    binding.projection = projection;
-    binding.modelview = modelview;
-
-    m_active_osg_camera = osgCamera;
-    m_scm_camera = binding.lamureCamera.get();
-    m_modelview_matrix = modelview;
-    m_projection_matrix = projection;
-
-    return m_scm_camera;
-}
-
-void LamureRenderer::releaseCameraBindings()
-{
-    m_camera_bindings.clear();
-    m_scm_camera = nullptr;
-    m_active_osg_camera = nullptr;
-    m_next_view_descriptor = 0;
-}
-
-lamure::ren::camera* LamureRenderer::activateCameraForDraw(const osg::Camera* osgCamera,
-                                                           const scm::math::mat4d& modelview,
-                                                           const scm::math::mat4d& projection,
-                                                           bool syncActive)
-{
-    return bindActiveCamera(osgCamera, modelview, projection, syncActive);
-}
-
-void LamureRenderer::updateSyncCameraState(const osg::Camera* sourceCamera,
-                                           const scm::math::mat4d& modelview,
-                                           const scm::math::mat4d& projection,
-                                           bool syncActive,
-                                           bool haveState)
-{
-    if (!haveState) {
-        return;
-    }
-
-    const osg::Camera* resolvedCamera = sourceCamera;
-    if (!resolvedCamera && m_osg_camera.valid()) {
-        resolvedCamera = m_osg_camera.get();
-    }
-
-    if (!resolvedCamera || isHudCamera(resolvedCamera)) {
-        return;
-    }
-
-    bindActiveCamera(resolvedCamera, modelview, projection, syncActive);
-}
-
-
 struct InitDrawCallback : public osg::Drawable::DrawCallback
 {
     explicit InitDrawCallback(Lamure* plugin)
@@ -351,6 +225,19 @@ struct InitDrawCallback : public osg::Drawable::DrawCallback
 
     void drawImplementation(osg::RenderInfo& renderInfo, const osg::Drawable* drawable) const override
     {
+
+        osg::Matrix mv_matrix = opencover::cover->getBaseMat() * _renderer->getOsgCamera()->getViewMatrix();
+        scm::math::mat4d modelview_matrix = LamureUtil::matConv4D(mv_matrix);
+        scm::math::mat4d projection_matrix = LamureUtil::matConv4D(_renderer->getOsgCamera()->getProjectionMatrix());
+
+        _renderer->setModelViewMatrix(modelview_matrix);
+        _renderer->setProjectionMatrix(projection_matrix);
+
+        _renderer->getScmCamera()->set_projection_matrix(projection_matrix);
+        if (_plugin->getUI()->getSyncButton()->state()) {
+            _renderer->getScmCamera()->set_view_matrix(modelview_matrix);
+        }
+
         if (_renderer && !_initialized) {
             GLState before = GLState::capture();
             _renderer->initSchismObjects();
@@ -365,29 +252,6 @@ struct InitDrawCallback : public osg::Drawable::DrawCallback
             _renderer->getTextGeode()->setNodeMask(_plugin->getUI()->getTextButton()->state() ? 0xFFFFFFFF : 0);
             before.restore();
             _initialized = true;
-        }
-
-        const bool syncActive = _plugin && _plugin->getUI()->getSyncButton()->state();
-        osg::State* state = renderInfo.getState();
-        if (_renderer) {
-            const osg::Camera* currentCamera = renderInfo.getCurrentCamera();
-
-            if (state) {
-                const osg::Matrixd osg_modelview = state->getModelViewMatrix();
-                const osg::Matrixd osg_projection = state->getProjectionMatrix();
-                const auto modelview_matrix = LamureUtil::matConv4D(osg_modelview);
-                const auto projection_matrix = LamureUtil::matConv4D(osg_projection);
-                _renderer->updateSyncCameraState(currentCamera, modelview_matrix, projection_matrix, syncActive, true);
-            } else {
-                _renderer->updateSyncCameraState(currentCamera,
-                                                 _renderer->getModelViewMatrix(),
-                                                 _renderer->getProjectionMatrix(),
-                                                 syncActive,
-                                                 false);
-                if (notifyOn(_plugin)) {
-                    std::cerr << "[Lamure] InitDrawCallback: missing render state\n";
-                }
-            }
         }
 
         if (drawable)
@@ -431,9 +295,9 @@ struct TextDrawCallback : public osg::Drawable::DrawCallback
         const auto now = std::chrono::steady_clock::now();
         if (now - _lastUpdateTime >= _minInterval)
         {
-            osg::Matrix baseMatrix = opencover::VRSceneGraph::instance()->getScaleTransform()->getMatrix();
-            osg::Matrix transformMatrix = opencover::VRSceneGraph::instance()->getTransform()->getMatrix();
-            baseMatrix.postMult(transformMatrix);
+                    osg::Matrix baseMatrix = opencover::VRSceneGraph::instance()->getScaleTransform()->getMatrix();
+                    osg::Matrix transformMatrix = opencover::VRSceneGraph::instance()->getTransform()->getMatrix();
+                    baseMatrix.postMult(transformMatrix);
 
             if (_renderer)
             {
@@ -656,25 +520,6 @@ struct BoundingBoxDrawCallback : public virtual osg::Drawable::DrawCallback
         osg::Matrixd osg_view_matrix = state->getModelViewMatrix();
         osg::Matrixd osg_projection_matrix = state->getProjectionMatrix();
         const osg::Camera* currentCamera = renderInfo.getCurrentCamera();
-        if (!currentCamera) {
-            if (notifyOn(_plugin)) {
-                std::cerr << "[Lamure] BoundingBoxDrawCallback: missing current camera\n";
-            }
-            before.restore();
-            return;
-        }
-
-        const bool syncActive = (_plugin->getUI()->getSyncButton()->state() == 1);
-        if (!_renderer->activateCameraForDraw(currentCamera,
-                                              LamureUtil::matConv4D(osg_view_matrix),
-                                              LamureUtil::matConv4D(osg_projection_matrix),
-                                              syncActive)) {
-            if (notifyOn(_plugin)) {
-                std::cerr << "[Lamure] BoundingBoxDrawCallback: unable to activate render camera\n";
-            }
-            before.restore();
-            return;
-        }
 
         const scm::math::mat4 view_matrix = LamureUtil::matConv4F(osg_view_matrix);
         const scm::math::mat4 projection_matrix = LamureUtil::matConv4F(osg_projection_matrix);
@@ -819,29 +664,6 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
         const osg::Matrixd osg_view_matrix = state->getModelViewMatrix();
         const osg::Matrixd osg_projection_matrix = state->getProjectionMatrix();
         const osg::Camera* currentCamera = renderInfo.getCurrentCamera();
-        if (!currentCamera) {
-            if (notifyOn(_plugin)) {
-                std::cerr << "[Lamure] PointsDrawCallback: missing current camera, skip draw\n";
-            }
-            _renderer->endFrame();
-            before.restore();
-            return;
-        }
-
-        const bool syncActive = (_plugin->getUI()->getSyncButton()->state() == 1);
-        lamure::ren::camera* activeCamera = _renderer->activateCameraForDraw(
-            currentCamera,
-            LamureUtil::matConv4D(osg_view_matrix),
-            LamureUtil::matConv4D(osg_projection_matrix),
-            syncActive);
-        if (!activeCamera) {
-            if (notifyOn(_plugin)) {
-                std::cerr << "[Lamure] PointsDrawCallback: unable to activate render camera, skip draw\n";
-            }
-            _renderer->endFrame();
-            before.restore();
-            return;
-        }
 
         scm::math::mat4 view_matrix = LamureUtil::matConv4F(osg_view_matrix);
         scm::math::mat4 projection_matrix = LamureUtil::matConv4F(osg_projection_matrix);
@@ -849,9 +671,6 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
         lamure::ren::cut_database* cuts = lamure::ren::cut_database::get_instance();
         lamure::ren::controller* controller = lamure::ren::controller::get_instance();
         lamure::pvs::pvs_database* pvs = lamure::pvs::pvs_database::get_instance();
-
-        //if (lamure::ren::policy::get_instance()->size_of_provenance() > 0) { controller->reset_system(_plugin->getDataProvenance()); }
-        //else { controller->reset_system(); }
 
         lamure::context_t context_id = controller->deduce_context_id(renderInfo.getState()->getContextID());
         lamure::view_t    view_id = controller->deduce_view_id(context_id, _renderer->getScmCamera()->view_id());
@@ -967,8 +786,6 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
 
             // Globale Uniforms (nur setzen, wenn vorhanden)
             if (_renderer->getSurfelPass1Shader().viewport_loc          >= 0) glUniform2f(_renderer->getSurfelPass1Shader().viewport_loc, static_cast<float>(vpWidth), static_cast<float>(vpHeight));
-            if (_renderer->getSurfelPass1Shader().near_plane_loc        >= 0) glUniform1f(_renderer->getSurfelPass1Shader().near_plane_loc, _renderer->getScmCamera()->near_plane_value());
-            if (_renderer->getSurfelPass1Shader().far_plane_loc         >= 0) glUniform1f(_renderer->getSurfelPass1Shader().far_plane_loc,  _renderer->getScmCamera()->far_plane_value());
             if (_renderer->getSurfelPass1Shader().max_radius_loc        >= 0) glUniform1f(_renderer->getSurfelPass1Shader().max_radius_loc,   s.max_radius);
             if (_renderer->getSurfelPass1Shader().min_radius_loc        >= 0) glUniform1f(_renderer->getSurfelPass1Shader().min_radius_loc,   s.min_radius);
             if (_renderer->getSurfelPass1Shader().min_screen_size_loc   >= 0) glUniform1f(_renderer->getSurfelPass1Shader().min_screen_size_loc, s.min_screen_size);
@@ -1316,7 +1133,7 @@ void LamureRenderer::shutdown()
     }
 
     releaseMultipassTargets();
-    releaseCameraBindings();
+
 
     if (m_plugin && m_plugin->getGroup()) {
         if (m_frustum_geode.valid())    m_plugin->getGroup()->removeChild(m_frustum_geode);
@@ -1350,6 +1167,7 @@ void LamureRenderer::shutdown()
 
     m_osg_camera = nullptr;
     m_hud_camera = nullptr;
+    m_scm_camera = nullptr;
 
     //m_device.reset();
     //m_context.reset();
@@ -1666,8 +1484,6 @@ void LamureRenderer::initUniforms()
     m_surfel_pass1_shader.projection_matrix_loc  = glGetUniformLocation(m_surfel_pass1_shader.program, "projection_matrix");
     m_surfel_pass1_shader.model_view_matrix_loc  = glGetUniformLocation(m_surfel_pass1_shader.program, "model_view_matrix");
     m_surfel_pass1_shader.model_matrix_loc       = glGetUniformLocation(m_surfel_pass1_shader.program, "model_matrix");
-    m_surfel_pass1_shader.near_plane_loc         = glGetUniformLocation(m_surfel_pass1_shader.program, "near_plane");
-    m_surfel_pass1_shader.far_plane_loc          = glGetUniformLocation(m_surfel_pass1_shader.program, "far_plane");
     m_surfel_pass1_shader.viewport_loc           = glGetUniformLocation(m_surfel_pass1_shader.program, "viewport");
     m_surfel_pass1_shader.max_radius_loc         = glGetUniformLocation(m_surfel_pass1_shader.program, "max_radius");
     m_surfel_pass1_shader.min_radius_loc         = glGetUniformLocation(m_surfel_pass1_shader.program, "min_radius");
@@ -2212,7 +2028,7 @@ void LamureRenderer::initLamureShader()
         val = getenv( "COVISEDIR" );
         shader_root_path=val;
         shader_root_path=shader_root_path+"/src/OpenCOVER/plugins/hlrs/LamurePointCloud/shaders";
-        //shader_root_path=shader_root_path+"/share/covise/shaders";
+        shader_root_path=std::string(val)+"/share/covise/shaders";
         if (!readShader(shader_root_path + "/vis/vis_point.glslv", vis_point_vs_source) ||
             !readShader(shader_root_path + "/vis/vis_point.glslf", vis_point_fs_source) ||
             !readShader(shader_root_path + "/vis/vis_point_color.glslv", vis_point_color_vs_source) ||
@@ -2292,19 +2108,21 @@ void LamureRenderer::initCamera()
     if (notifyOn(m_plugin)) { std::cout << "[Lamure] LamureRenderer::initCamera()" << std::endl; }
     m_osg_camera = opencover::VRViewer::instance()->getCamera();
 
-    if (m_osg_camera.valid()) {
-        const auto view = LamureUtil::matConv4D(m_osg_camera->getViewMatrix());
-        const auto proj = LamureUtil::matConv4D(m_osg_camera->getProjectionMatrix());
-        bindActiveCamera(m_osg_camera.get(), view, proj, true);
-    }
+    lamure::context_t lmr_ctx = m_osg_camera->getGraphicsContext()->getState()->getContextID();
+    double look_dist = 1.0;
+    double left, right, bottom, top, zNear, zFar;
+    osg::Vec3d eye, center, up;
+    m_osg_camera->getProjectionMatrixAsFrustum(left, right, bottom, top, zNear, zFar);
+    m_osg_camera->getViewMatrixAsLookAt(eye, center, up, look_dist);
 
-    if (auto* config = opencover::coVRConfig::instance()) {
-        for (auto& channel : config->channels) {
-            if (channel.camera) {
-                ensureCameraBinding(channel.camera.get());
-            }
-        }
-    }
+    osg::Matrix base = opencover::VRSceneGraph::instance()->getScaleTransform()->getMatrix();
+    osg::Matrix trans = opencover::VRSceneGraph::instance()->getTransform()->getMatrix();
+    base.postMult(trans);
+
+    osg::Matrixd view = m_osg_camera->getViewMatrix();
+    osg::Matrixd proj = m_osg_camera->getProjectionMatrix();
+
+    m_scm_camera = new lamure::ren::camera((lamure::view_t)lmr_ctx, zNear, zFar, LamureUtil::matConv4D(view * base), LamureUtil::matConv4D(proj));
 
     osgViewer::Viewer::Windows windows;
     opencover::VRViewer::instance()->getWindows(windows);

@@ -1,0 +1,47 @@
+#version 420 core
+
+uniform mat4 projection_matrix; // P
+
+layout(points) in;
+layout(triangle_strip, max_vertices = 4) out;
+
+in VsOut {
+    vec3 vs_center;  // View-space
+    vec3 vs_half_u;  // Radius-Vektor (bereits geclampt)
+    vec3 vs_half_v;  // Radius-Vektor (bereits geclampt)
+} v_in[];
+
+out GsOut {
+    noperspective vec2 uv;   // -1..1
+    flat vec3 vs_center;
+    flat vec3 vs_half_u;
+    flat vec3 vs_half_v;
+} gs_out;
+
+void main() {
+    const float EPS = 1e-6;
+
+    gs_out.vs_center = v_in[0].vs_center;
+    gs_out.vs_half_u = v_in[0].vs_half_u;
+    gs_out.vs_half_v = v_in[0].vs_half_v;
+
+    // Degenerat? → nichts emittieren
+    if (all(lessThanEqual(abs(gs_out.vs_half_u) + abs(gs_out.vs_half_v), vec3(EPS))))
+        return;
+
+    const vec2 kQuadUV[4] = vec2[4](
+        vec2(-1.0, -1.0),
+        vec2(-1.0,  1.0),
+        vec2( 1.0, -1.0),
+        vec2( 1.0,  1.0)
+    );
+
+    for (int i = 0; i < 4; ++i) {
+        vec2 t = kQuadUV[i];
+        gs_out.uv = t;
+        vec3 corner_vs = gs_out.vs_center + t.x * gs_out.vs_half_u + t.y * gs_out.vs_half_v;
+        gl_Position = projection_matrix * vec4(corner_vs, 1.0); // VS -> Clip
+        EmitVertex();
+    }
+    EndPrimitive();
+}

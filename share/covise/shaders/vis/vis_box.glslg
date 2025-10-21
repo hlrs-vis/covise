@@ -1,0 +1,54 @@
+#version 330 core
+
+layout(points) in;
+layout(line_strip, max_vertices = 24) out;
+
+in vec3 vs_min[];
+in vec3 vs_max[];
+
+uniform mat4 modelMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 projectionMatrix;
+
+void emitLine(vec3 a, vec3 b)
+{
+    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(a, 1.0);
+    EmitVertex();
+    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(b, 1.0);
+    EmitVertex();
+    EndPrimitive(); // Trennt die Linie vom nächsten Strich
+}
+
+void main()
+{
+    vec3 minVal = vs_min[0];
+    vec3 maxVal = vs_max[0];
+    
+    // Berechne die 8 Ecken des Axis-Aligned Bounding Box (AABB)
+    vec3 c0 = vec3(minVal.x, minVal.y, minVal.z);
+    vec3 c1 = vec3(maxVal.x, minVal.y, minVal.z);
+    vec3 c2 = vec3(maxVal.x, maxVal.y, minVal.z);
+    vec3 c3 = vec3(minVal.x, maxVal.y, minVal.z);
+    vec3 c4 = vec3(minVal.x, minVal.y, maxVal.z);
+    vec3 c5 = vec3(maxVal.x, minVal.y, maxVal.z);
+    vec3 c6 = vec3(maxVal.x, maxVal.y, maxVal.z);
+    vec3 c7 = vec3(minVal.x, maxVal.y, maxVal.z);
+    
+    // Unteres Quadrat (Boden)
+    emitLine(c0, c1);
+    emitLine(c1, c2);
+    emitLine(c2, c3);
+    emitLine(c3, c0);
+    
+    // Oberes Quadrat (Deckfläche)
+    emitLine(c4, c5);
+    emitLine(c5, c6);
+    emitLine(c6, c7);
+    emitLine(c7, c4);
+    
+    // Vertikale Kanten
+    emitLine(c0, c4);
+    emitLine(c1, c5);
+    emitLine(c2, c6);
+    emitLine(c3, c7);
+}
