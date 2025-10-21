@@ -15,6 +15,7 @@ public:
     ~SalzburgFestival();
 
     bool init();
+    bool update();
 };
 
 COVERPLUGIN(SalzburgFestival)

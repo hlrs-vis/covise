@@ -17,9 +17,9 @@ bool SalzburgFestival::init()
 {
     delete udp;
 
-    const std::string host = coCoviseConfig::getEntry("value", "SalzburgFestival.serverHost", "localhost");
-    unsigned short serverPort = coCoviseConfig::getInt("SalzburgFestival.serverPort", 31350);
-    unsigned short localPort = coCoviseConfig::getInt("SalzburgFestival.localPort", 31352);
+    const std::string host = coCoviseConfig::getEntry("value", "COVER.Plugin.SalzburgFestival.serverHost", "localhost");
+    unsigned short serverPort = coCoviseConfig::getInt("value", "COVER.Plugin.SalzburgFestival.serverPort", 31350);
+    unsigned short localPort = coCoviseConfig::getInt("value", "COVER.Plugin.SalzburgFestival.localPort", 31352);
     std::cerr << "SalzburgFestival config: UDP: serverHost: " << host << ", serverPort: " << serverPort << ", localPort: " << localPort << std::endl;
     udp = new UDPComm(host.c_str(), serverPort, localPort);
 
@@ -29,5 +29,33 @@ bool SalzburgFestival::init()
         return false;
     }
 
+    return true;
+}
+
+bool SalzburgFestival::update()
+{
+    if (udp)
+    {
+        char tmpBuf[10000];
+        int status = udp->receive(&tmpBuf, 10000);
+
+        if (status > 0)
+        {
+            std::string msg(tmpBuf, status);
+            std::cerr << "SalzburgFestival: received message: " << msg << std::endl;
+        }
+        else if (status == -1)
+        {
+            std::cerr << "SalzburgFestival::update: error while reading data" << std::endl;
+            return false;
+        }
+        else
+        {
+            std::cerr << "SalzburgFestival::update: received invalid no. of bytes: recv=" << status << ", got=" << status << std::endl;
+            return false;
+        }
+
+        udp->send("test");
+    }
     return true;
 }
