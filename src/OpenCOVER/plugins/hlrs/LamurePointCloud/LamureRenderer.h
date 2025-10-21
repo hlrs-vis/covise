@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <mutex>
 #include <condition_variable>
+#include <memory>
 
 #include <scm/core/math.h>
 #include <osg/Geometry>
@@ -45,6 +46,15 @@ private:
 
     void flushGlCommands();
     void releaseSceneGraph();
+
+    struct CameraBinding;
+    CameraBinding& ensureCameraBinding(const osg::Camera* osgCamera);
+    lamure::ren::camera* bindActiveCamera(const osg::Camera* osgCamera,
+                                          const scm::math::mat4d& modelview,
+                                          const scm::math::mat4d& projection,
+                                          bool updateViewMatrix);
+    void releaseCameraBindings();
+    bool isHudCamera(const osg::Camera* camera) const;
 
     bool m_rendering{false};
     mutable std::mutex m_renderMutex;
@@ -446,11 +456,17 @@ private:
     };
     TextResource m_text_resource;
 
+    struct CameraBinding {
+        const osg::Camera* osgCamera{nullptr};
+        std::unique_ptr<lamure::ren::camera> lamureCamera;
+        lamure::view_t viewDescriptor{0};
+        scm::math::mat4d modelview{scm::math::mat4d::identity()};
+        scm::math::mat4d projection{scm::math::mat4d::identity()};
+    };
+
     // Matrices
-    scm::math::mat4d m_modelview_matrix;
-    scm::math::mat4d m_projection_matrix;
-    scm::math::mat4d m_frozen_modelview_matrix;
-    scm::math::mat4d m_frozen_projection_matrix;
+    scm::math::mat4d m_modelview_matrix{scm::math::mat4d::identity()};
+    scm::math::mat4d m_projection_matrix{scm::math::mat4d::identity()};
 
     // Schism objects
     scm::gl::render_device_ptr      m_device;
@@ -458,6 +474,9 @@ private:
 
     // Cameras
     lamure::ren::camera* m_scm_camera{nullptr};
+    const osg::Camera* m_active_osg_camera{nullptr};
+    std::unordered_map<const osg::Camera*, CameraBinding> m_camera_bindings;
+    lamure::view_t m_next_view_descriptor{0};
     osg::ref_ptr<osg::Camera>   m_osg_camera;
     osg::ref_ptr<osg::Camera>   m_hud_camera;
 
@@ -605,6 +624,10 @@ public:
 
     scm::math::mat4d getModelViewMatrix() { return m_modelview_matrix; }
     scm::math::mat4d getProjectionMatrix() { return m_projection_matrix; }
+    lamure::ren::camera* activateCameraForDraw(const osg::Camera* osgCamera,
+                                               const scm::math::mat4d& modelview,
+                                               const scm::math::mat4d& projection,
+                                               bool syncActive);
     MultipassTarget& acquireMultipassTarget(lamure::context_t contextID, const osg::Camera* camera, int width, int height);
 
     void setModelViewMatrix(scm::math::mat4d model_view_matrix) { m_modelview_matrix = model_view_matrix; }

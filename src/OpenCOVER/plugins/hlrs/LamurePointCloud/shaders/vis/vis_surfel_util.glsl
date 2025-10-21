@@ -134,6 +134,9 @@ bool scale_anisotropic_pixels_depth(
     out float out_ndc_depth)
 {
     vec4 Pc = mvp * vec4(center_ws, 1.0);
+    if (abs(Pc.w) <= UTIL_EPS) {
+        return false;
+    }
     vec4 Pu = mvp * vec4(center_ws + step_u_ws, 1.0);
     vec4 Pv = mvp * vec4(center_ws + step_v_ws, 1.0);
     out_ndc_depth = clip_to_ndc_depth(Pc);
@@ -172,6 +175,9 @@ bool scale_anisotropic_pixels(
     out float out_pixel_diameter)
 {
     vec4 Pc = mvp * vec4(center_ws, 1.0);
+    if (abs(Pc.w) <= UTIL_EPS) {
+        return false;
+    }
     vec4 Pu = mvp * vec4(center_ws + step_u_ws, 1.0);
     vec4 Pv = mvp * vec4(center_ws + step_v_ws, 1.0);
 
