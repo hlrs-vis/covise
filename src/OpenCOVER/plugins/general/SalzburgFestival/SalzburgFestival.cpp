@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include <config/CoviseConfig.h>
 
 #include "SalzburgFestival.h"
@@ -36,13 +38,12 @@ bool SalzburgFestival::update()
 {
     if (udp)
     {
-        char tmpBuf[10000];
-        int status = udp->receive(&tmpBuf, 10000);
+        int status = udp->receive(&receivedData, sizeof(receivedData));
 
         if (status > 0)
         {
-            std::string msg(tmpBuf, status);
-            std::cerr << "SalzburgFestival: received message: " << msg << std::endl;
+            auto angle = receivedData.angle;
+            std::cerr << "SalzburgFestival::update: received angle=" << angle << std::endl;
         }
         else if (status == -1)
         {
@@ -54,8 +55,6 @@ bool SalzburgFestival::update()
             std::cerr << "SalzburgFestival::update: received invalid no. of bytes: recv=" << status << ", got=" << status << std::endl;
             return false;
         }
-
-        udp->send("test");
     }
     return true;
 }

@@ -5,6 +5,10 @@
 
 #include <util/UDPComm.h>
 
+struct ReceivedData{
+    float angle; // 4 bytes
+};
+
 class PLUGINEXPORT SalzburgFestival : public opencover::coVRPlugin
 {
 private:
@@ -16,6 +20,8 @@ public:
 
     bool init();
     bool update();
+
+    ReceivedData receivedData;
 };
 
 COVERPLUGIN(SalzburgFestival)
