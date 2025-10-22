@@ -1,4 +1,4 @@
-#include <algorithm> 
+#include <algorithm>
 #include <vector>
 
 #include <vrml97/vrml/System.h>
@@ -7,7 +7,7 @@
 
 using namespace vrml;
 
-std::vector<VrmlNodeTangible*> VrmlNodeTangible::allNodeTangibles;
+std::vector<VrmlNodeTangible *> VrmlNodeTangible::allNodeTangibles;
 
 VrmlNodeTangible::VrmlNodeTangible(VrmlScene *scene)
     : VrmlNodeChild(scene, typeName()), d_angle(0.0f)
@@ -50,7 +50,7 @@ VrmlNodeTangible *VrmlNodeTangible::toTangible() const
     return (VrmlNodeTangible *)(this);
 }
 
-const std::vector<VrmlNodeTangible*> &VrmlNodeTangible::getAllNodeTangibles()
+const std::vector<VrmlNodeTangible *> &VrmlNodeTangible::getAllNodeTangibles()
 {
     return allNodeTangibles;
 }

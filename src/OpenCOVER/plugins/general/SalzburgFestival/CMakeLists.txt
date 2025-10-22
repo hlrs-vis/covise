@@ -10,5 +10,5 @@ SET(SOURCES
     VrmlNodeTangible.cpp
 )
 
-cover_add_plugin(SalzburgFestival)
-TARGET_LINK_LIBRARIES(SalzburgFestival coUtil coConfig)
+cover_add_plugin(TangibleInterface)
+TARGET_LINK_LIBRARIES(TangibleInterface coUtil coConfig)

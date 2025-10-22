@@ -58,7 +58,7 @@ bool SalzburgFestival::update()
         }
         else if (status == -1)
         {
-            std::cerr << "SalzburgFestival::update: error while reading data" << std::endl;
+            //std::cerr << "SalzburgFestival::update: error while reading data" << std::endl;
             return false;
         }
         else
