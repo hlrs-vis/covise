@@ -1,14 +1,20 @@
 #include <stdio.h>
 
 #include <config/CoviseConfig.h>
+#include <vrml97/vrml/VrmlNamespace.h>
 
 #include "SalzburgFestival.h"
+#include "VrmlNodeTangible.h"
 
 using namespace covise;
 using namespace opencover;
+using namespace vrml;
 
 SalzburgFestival::SalzburgFestival()
-    : coVRPlugin(COVER_PLUGIN_NAME) {}
+    : coVRPlugin(COVER_PLUGIN_NAME)
+{
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeTangible>());
+}
 
 SalzburgFestival::~SalzburgFestival()
 {
@@ -44,6 +50,11 @@ bool SalzburgFestival::update()
         {
             auto angle = receivedData.angle;
             std::cerr << "SalzburgFestival::update: received angle=" << angle << std::endl;
+
+            for (auto node : VrmlNodeTangible::getAllNodeTangibles())
+            {
+                node->setAngle(angle);
+            }
         }
         else if (status == -1)
         {

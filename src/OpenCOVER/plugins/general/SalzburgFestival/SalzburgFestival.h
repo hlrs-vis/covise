@@ -5,7 +5,8 @@
 
 #include <util/UDPComm.h>
 
-struct ReceivedData{
+struct ReceivedData
+{
     float angle; // 4 bytes
 };
 
