@@ -34,7 +34,9 @@ typedef void pthread_barrier_t;
 #include <vector>
 #include <util/coTypes.h>
 
-//#define DEBUG_MESSAGES
+#ifndef NDEBUG
+#define DEBUG_MESSAGES
+#endif
 #ifdef DEBUG_MESSAGES
 #define CLUSTER_MARK() \
     ;                  \
