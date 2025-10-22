@@ -4,6 +4,7 @@
 #include <cover/coVRPluginSupport.h>
 
 #include <util/UDPComm.h>
+#include <cover/input/deviceDiscovery.h>
 
 struct ReceivedData
 {
@@ -21,6 +22,7 @@ public:
 
     bool init();
     bool update();
+    void addDevice(const opencover::deviceInfo *dev);
 
     ReceivedData receivedData;
 };

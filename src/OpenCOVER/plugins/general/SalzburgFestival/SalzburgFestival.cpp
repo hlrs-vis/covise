@@ -2,9 +2,11 @@
 
 #include <config/CoviseConfig.h>
 #include <vrml97/vrml/VrmlNamespace.h>
+#include <cover/input/input.h>
 
 #include "SalzburgFestival.h"
 #include "VrmlNodeTangible.h"
+#include <cover/coVRMSController.h>
 
 using namespace covise;
 using namespace opencover;
@@ -23,49 +25,65 @@ SalzburgFestival::~SalzburgFestival()
 
 bool SalzburgFestival::init()
 {
-    delete udp;
+    udp=nullptr;
 
-    const std::string host = coCoviseConfig::getEntry("value", "COVER.Plugin.SalzburgFestival.serverHost", "localhost");
-    unsigned short serverPort = coCoviseConfig::getInt("value", "COVER.Plugin.SalzburgFestival.serverPort", 31350);
+    opencover::Input::instance()->discovery()->deviceAdded.connect(&SalzburgFestival::addDevice, this);
+    return true;
+}
+
+void SalzburgFestival::addDevice(const opencover::deviceInfo *i)
+{
+    
+    std::cerr << "SalzburgFestival::addDevice called" << std::endl;
     unsigned short localPort = coCoviseConfig::getInt("value", "COVER.Plugin.SalzburgFestival.localPort", 31352);
-    std::cerr << "SalzburgFestival config: UDP: serverHost: " << host << ", serverPort: " << serverPort << ", localPort: " << localPort << std::endl;
-    udp = new UDPComm(host.c_str(), serverPort, localPort);
-
-    if (udp->isBad())
+    
+    unsigned short serverPort = configInt("TacxFTMS", "serverPort", 31319)->value();
+    std::string host = "";
+    std::cerr << "Devicename found" << i->deviceName << std::endl;
+    if (i->deviceName == "TangibleInterface")
     {
-        std::cerr << "SalzburgFestival: failed to open UDP port" << localPort << std::endl;
-        return false;
+        host = i->address;
+        std::cerr << "SalzburgFestival config: UDP: TacxHost: " << host << std::endl;
+
+        udp = new UDPComm(host.c_str(), serverPort, localPort);
+
+        if (udp->isBad())
+        {
+            std::cerr << "SalzburgFestival: failed to open UDP port" << host << std::endl;
+            delete udp;
+            udp=nullptr;
+        }
     }
 
-    return true;
 }
 
 bool SalzburgFestival::update()
 {
+    float angle=-100000;
+    static float oldAngle=0;
+
     if (udp)
     {
-        int status = udp->receive(&receivedData, sizeof(receivedData));
+        int status = udp->receive(&receivedData, sizeof(receivedData),0);
 
         if (status > 0)
         {
-            auto angle = receivedData.angle;
+            angle = receivedData.angle;
             std::cerr << "SalzburgFestival::update: received angle=" << angle << std::endl;
 
-            for (auto node : VrmlNodeTangible::getAllNodeTangibles())
-            {
-                node->setAngle(angle);
-            }
-        }
-        else if (status == -1)
-        {
-            //std::cerr << "SalzburgFestival::update: error while reading data" << std::endl;
-            return false;
-        }
-        else
-        {
-            std::cerr << "SalzburgFestival::update: received invalid no. of bytes: recv=" << status << ", got=" << status << std::endl;
-            return false;
         }
     }
-    return true;
+    coVRMSController::instance()->syncData(&angle,sizeof(angle));
+    
+
+    if(angle != -100000 && angle !=oldAngle)
+    {
+        oldAngle=angle;
+        for (auto node : VrmlNodeTangible::getAllNodeTangibles())
+        {
+            node->setAngle(angle);
+        }
+        return true;
+    }
+    return false;
 }
