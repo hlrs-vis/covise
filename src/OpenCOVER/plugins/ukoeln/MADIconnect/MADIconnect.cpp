@@ -616,7 +616,14 @@ void MADIconnect::handleMessage(Message *m)
                     if (geode)
                     {
                         std::cout << "MADIconnect:: Found geode for neuron: " << neuronName << std::endl;
-                        VRSceneGraph::instance()->setColor(geode, rgb, 1.0f);
+                        VRSceneGraph::instance()->setColor(geode, rgb, alpha);
+                        if (alpha < 0.999f)
+                        {
+                            cout << "MADIconnect:: Setting transparency." << endl;
+                            osg::StateSet* ss = geode->getOrCreateStateSet();
+                            ss->setMode(GL_BLEND, osg::StateAttribute::ON);
+                            ss->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+                        }
                     }
                     else
                     {
