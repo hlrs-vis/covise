@@ -546,10 +546,13 @@ void MADIconnect::handleMessage(Message *m)
             int rgb[3];
             tb >> rgb[0] >> rgb[1] >> rgb[2];
             
-            float transparency;
+            float transparency = 0.0f;
             tb >> transparency;
 
-            std::cout << "MADIconnect::Color RGBA: " << rgb[0] << ", " << rgb[1] << ", " << rgb[2] << ", " << transparency << std::endl;
+            const float alpha = std::max(0.f, std::min(1.f, 1.f - transparency));
+
+            std::cout << "MADIconnect::Color RGBA: " << rgb[0] << ", " << rgb[1] << ", " 
+                      << rgb[2] << ", " << alpha << std::endl;
 
             // Apply color to all neurons
             int numNeurons = 0;
@@ -577,7 +580,15 @@ void MADIconnect::handleMessage(Message *m)
                             if (geode)
                             {
                                 cout << "MADIconnect:: Found geode." << endl;
-                                VRSceneGraph::instance()->setColor(geode, rgb, 1.0f);
+                                VRSceneGraph::instance()->setColor(geode, rgb, alpha);
+                                if (alpha < 0.999f)
+                                {
+                                    cout << "MADIconnect:: Setting transparency." << endl;
+                                    osg::StateSet* ss = geode->getOrCreateStateSet();
+                                    ss->setMode(GL_BLEND, osg::StateAttribute::ON);
+                                    ss->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+                                }
+
                                 found = true;
                             }
                             else
