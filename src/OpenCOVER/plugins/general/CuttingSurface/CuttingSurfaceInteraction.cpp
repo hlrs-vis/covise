@@ -219,7 +219,7 @@ void CuttingSurfaceInteraction::createMenu(bool invertClip)
 
     if (invertClip)
     {
-        clipInvertCheckbox_ = new ui::Button(menu_, "Invert");
+        clipInvertCheckbox_ = new ui::Button(menu_, "Flip");
         clipInvertCheckbox_->setCallback(
             [this](bool state)
             {
