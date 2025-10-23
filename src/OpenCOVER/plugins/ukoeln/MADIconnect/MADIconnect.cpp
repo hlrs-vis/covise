@@ -48,6 +48,7 @@
 #include <osg/Switch>
 
 #include <iostream>
+#include <sys/stat.h>
 
 using namespace opencover;
 using namespace std;
@@ -472,9 +473,23 @@ void MADIconnect::handleMessage(Message *m)
                     return;
                 }
 
-                // 3. Load the file into the switch node               
+                // 3. Load the file into the switch node                
+                string cachedPath = dataPath + "/.covercache/" + filename + ".ive";
+                string fileToLoad = fullPath;
+
+                struct stat buffer;
+                if (stat(cachedPath.c_str(), &buffer) == 0)
+                {
+                    fileToLoad = cachedPath;
+                    std::cout << "MADIconnect::Using cached file: " << cachedPath << std::endl;
+                }
+                else
+                {
+                    std::cout << "MADIconnect::Cached file not found, using original: " << fullPath << std::endl;
+                }
+       
                 osg::Node* loadedNode = coVRFileManager::instance()->loadFile(
-                    fullPath.c_str(),  // fileName
+                    fileToLoad.c_str(),  // fileName
                     nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
                     switchNode.get(),  // parent
                     nullptr            // covise_key (can be nullptr)
