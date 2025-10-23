@@ -137,15 +137,15 @@ bool ColorAnimPlugin::init()
     });
 
     // Load brain models
-    std::string brainPath = coCoviseConfig::getEntry("value", "COVER.Plugin.ColorAnim.ModelPath", "");
-    if (brainPath.empty())
+    std::string firstFilePath = coCoviseConfig::getEntry("value", "COVER.Plugin.ColorAnim.FirstModel", "");
+    if (firstFilePath.empty())
     {
-        fprintf(stderr, "ColorAnimPlugin: No model path configured. Please set COVER.Plugin.ColorAnim.ModelPath in config\n");
-        fprintf(stderr, "ColorAnimPlugin: Trying to load from current directory ./brain_*.obj\n");
-        brainPath = "./brain";
+        fprintf(stderr, "ColorAnimPlugin: No first model path configured. Please set COVER.Plugin.ColorAnim.FirstModel in config\n");
+        fprintf(stderr, "ColorAnimPlugin: Example: /path/to/data/highres_cortex_001.ply\n");
+        return false;
     }
 
-    if (!loadBrainModels(brainPath))
+    if (!loadBrainModels(firstFilePath))
     {
         fprintf(stderr, "ColorAnimPlugin: Failed to load brain models\n");
         return false;
@@ -171,19 +171,56 @@ bool ColorAnimPlugin::init()
     return true;
 }
 
-bool ColorAnimPlugin::loadBrainModels(const std::string &basePath)
+bool ColorAnimPlugin::loadBrainModels(const std::string &firstFilePath)
 {
-    fprintf(stderr, "ColorAnimPlugin: Loading brain models from %s\n", basePath.c_str());
+    fprintf(stderr, "ColorAnimPlugin: Loading brain models starting from %s\n", firstFilePath.c_str());
+
+    // Parse the first file path to extract directory, base name, number, and extension
+    size_t lastSlash = firstFilePath.find_last_of("/\\");
+    std::string directory = (lastSlash != std::string::npos) ? firstFilePath.substr(0, lastSlash + 1) : "";
+    std::string filename = (lastSlash != std::string::npos) ? firstFilePath.substr(lastSlash + 1) : firstFilePath;
+
+    // Find the last sequence of digits in the filename
+    size_t digitEnd = filename.length();
+    size_t digitStart = digitEnd;
+
+    // Find extension (last dot)
+    size_t extPos = filename.find_last_of('.');
+    std::string extension = (extPos != std::string::npos) ? filename.substr(extPos) : "";
+
+    // Look for digits before the extension
+    if (extPos != std::string::npos)
+    {
+        digitEnd = extPos;
+        digitStart = extPos;
+
+        // Find the start of the digit sequence
+        while (digitStart > 0 && isdigit(filename[digitStart - 1]))
+        {
+            digitStart--;
+        }
+    }
+
+    if (digitStart >= digitEnd)
+    {
+        fprintf(stderr, "ColorAnimPlugin: Could not find number pattern in filename: %s\n", filename.c_str());
+        return false;
+    }
+
+    std::string baseFileName = filename.substr(0, digitStart);
+    std::string numberStr = filename.substr(digitStart, digitEnd - digitStart);
+    int startNumber = std::atoi(numberStr.c_str());
+    int numberWidth = numberStr.length(); // Zero-padding width
+
+    fprintf(stderr, "ColorAnimPlugin: Parsed pattern - base: '%s', start: %d, width: %d, ext: '%s'\n",
+            baseFileName.c_str(), startNumber, numberWidth, extension.c_str());
 
     // Try to load the first model to get geometry
-    std::ostringstream firstPath;
-    firstPath << basePath << "highres_cortex_001.ply";
-
-    osg::ref_ptr<osg::Node> firstModel = osgDB::readNodeFile(firstPath.str());
+    osg::ref_ptr<osg::Node> firstModel = osgDB::readNodeFile(firstFilePath);
 
     if (!firstModel.valid())
     {
-        fprintf(stderr, "ColorAnimPlugin: Could not load first model: %s\n", firstPath.str().c_str());
+        fprintf(stderr, "ColorAnimPlugin: Could not load first model: %s\n", firstFilePath.c_str());
         return false;
     }
 
@@ -231,7 +268,8 @@ bool ColorAnimPlugin::loadBrainModels(const std::string &basePath)
     for (int i = 0; i < numFrames; ++i)
     {
         std::ostringstream modelPath;
-        modelPath << basePath << "highres_cortex_" << std::setfill('0') << std::setw(3) << (i + 1) << ".ply";
+        modelPath << directory << baseFileName << std::setfill('0') << std::setw(numberWidth)
+                  << (startNumber + i) << extension;
 
         osg::ref_ptr<osg::Node> model = osgDB::readNodeFile(modelPath.str());
 

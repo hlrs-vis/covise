@@ -81,7 +81,7 @@ private:
     InterpolationMode interpolationMode;
 
     // Helper methods
-    bool loadBrainModels(const std::string &path);
+    bool loadBrainModels(const std::string &firstFilePath);
     void updateColors();
     osg::Vec4Array* interpolateColors(int frame1, int frame2, float t);
     void flipNormals();
