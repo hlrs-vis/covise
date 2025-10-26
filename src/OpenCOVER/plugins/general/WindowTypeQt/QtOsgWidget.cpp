@@ -462,19 +462,26 @@ void QtOsgWidget::wheelEvent(QWheelEvent *event)
     setKeyboardModifiers(event);
     event->accept();
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
-    osgGA::GUIEventAdapter::ScrollingMotion motion =
-        event->angleDelta().y()>0 ? osgGA::GUIEventAdapter::SCROLL_UP : osgGA::GUIEventAdapter::SCROLL_DOWN;
-    if (event->angleDelta().x() != 0)
-        motion = motion = event->angleDelta().x() >0 ? osgGA::GUIEventAdapter::SCROLL_LEFT : osgGA::GUIEventAdapter::SCROLL_RIGHT;
-        
+    if (event->angleDelta().y() != 0)
+    {
+        auto motion =
+            event->angleDelta().y() > 0 ? osgGA::GUIEventAdapter::SCROLL_UP : osgGA::GUIEventAdapter::SCROLL_DOWN;
+        getEventQueue()->mouseScroll(motion);
+    }
+    else if (event->angleDelta().x() != 0)
+    {
+        auto motion =
+            event->angleDelta().x() > 0 ? osgGA::GUIEventAdapter::SCROLL_LEFT : osgGA::GUIEventAdapter::SCROLL_RIGHT;
+        getEventQueue()->mouseScroll(motion);
+    }
 #else
     int delta = event->delta();
     osgGA::GUIEventAdapter::ScrollingMotion motion =
             delta>0 ? osgGA::GUIEventAdapter::SCROLL_UP : osgGA::GUIEventAdapter::SCROLL_DOWN;
     if (event->orientation() == Qt::Horizontal)
-            motion = delta>0 ? osgGA::GUIEventAdapter::SCROLL_LEFT : osgGA::GUIEventAdapter::SCROLL_RIGHT;
-#endif
+        motion = delta > 0 ? osgGA::GUIEventAdapter::SCROLL_LEFT : osgGA::GUIEventAdapter::SCROLL_RIGHT;
     getEventQueue()->mouseScroll(motion);
+#endif
 }
 
 osgGA::EventQueue* QtOsgWidget::getEventQueue() const
