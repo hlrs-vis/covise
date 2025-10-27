@@ -42,7 +42,7 @@ void VrmlNodeTangible::initFields(VrmlNodeTangible *node, VrmlNodeType *t)
 
 const char *VrmlNodeTangible::typeName()
 {
-    return "Tangible";
+    return "TangibleInterface";
 }
 
 VrmlNodeTangible *VrmlNodeTangible::toTangible() const
