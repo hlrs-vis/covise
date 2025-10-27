@@ -11,14 +11,14 @@ struct ReceivedData
     float angle; // 4 bytes
 };
 
-class PLUGINEXPORT SalzburgFestival : public opencover::coVRPlugin
+class PLUGINEXPORT TangibleInterface : public opencover::coVRPlugin
 {
 private:
     UDPComm *udp = nullptr;
 
 public:
-    SalzburgFestival();
-    ~SalzburgFestival();
+    TangibleInterface();
+    ~TangibleInterface();
 
     bool init();
     bool update();
@@ -27,6 +27,6 @@ public:
     ReceivedData receivedData;
 };
 
-COVERPLUGIN(SalzburgFestival)
+COVERPLUGIN(TangibleInterface)
 
 #endif // SALZBURG_FESTIVAL_H

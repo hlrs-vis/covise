@@ -4,7 +4,7 @@
 #include <vrml97/vrml/VrmlNamespace.h>
 #include <cover/input/input.h>
 
-#include "SalzburgFestival.h"
+#include "TangibleInterface.h"
 #include "VrmlNodeTangible.h"
 #include <cover/coVRMSController.h>
 
@@ -12,44 +12,44 @@ using namespace covise;
 using namespace opencover;
 using namespace vrml;
 
-SalzburgFestival::SalzburgFestival()
+TangibleInterface::TangibleInterface()
     : coVRPlugin(COVER_PLUGIN_NAME)
 {
     VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeTangible>());
 }
 
-SalzburgFestival::~SalzburgFestival()
+TangibleInterface::~TangibleInterface()
 {
     delete udp;
 }
 
-bool SalzburgFestival::init()
+bool TangibleInterface::init()
 {
     udp=nullptr;
 
-    opencover::Input::instance()->discovery()->deviceAdded.connect(&SalzburgFestival::addDevice, this);
+    opencover::Input::instance()->discovery()->deviceAdded.connect(&TangibleInterface::addDevice, this);
     return true;
 }
 
-void SalzburgFestival::addDevice(const opencover::deviceInfo *i)
+void TangibleInterface::addDevice(const opencover::deviceInfo *i)
 {
     
-    std::cerr << "SalzburgFestival::addDevice called" << std::endl;
-    unsigned short localPort = coCoviseConfig::getInt("value", "COVER.Plugin.SalzburgFestival.localPort", 31352);
+    std::cerr << "TangibleInterface::addDevice called" << std::endl;
+    unsigned short localPort = coCoviseConfig::getInt("value", "COVER.Plugin.TangibleInterface.localPort", 31352);
     
-    unsigned short serverPort = configInt("TacxFTMS", "serverPort", 31319)->value();
+    unsigned short serverPort = configInt("TangibleInterface", "serverPort", 31319)->value();
     std::string host = "";
     std::cerr << "Devicename found" << i->deviceName << std::endl;
     if (i->deviceName == "TangibleInterface")
     {
         host = i->address;
-        std::cerr << "SalzburgFestival config: UDP: TacxHost: " << host << std::endl;
+        std::cerr << "TangibleInterface config: UDP: TacxHost: " << host << std::endl;
 
         udp = new UDPComm(host.c_str(), serverPort, localPort);
 
         if (udp->isBad())
         {
-            std::cerr << "SalzburgFestival: failed to open UDP port" << host << std::endl;
+            std::cerr << "TangibleInterface: failed to open UDP port" << host << std::endl;
             delete udp;
             udp=nullptr;
         }
@@ -57,7 +57,7 @@ void SalzburgFestival::addDevice(const opencover::deviceInfo *i)
 
 }
 
-bool SalzburgFestival::update()
+bool TangibleInterface::update()
 {
     float angle=-100000;
     static float oldAngle=0;
@@ -69,7 +69,7 @@ bool SalzburgFestival::update()
         if (status > 0)
         {
             angle = receivedData.angle;
-            std::cerr << "SalzburgFestival::update: received angle=" << angle << std::endl;
+            std::cerr << "TangibleInterface::update: received angle=" << angle << std::endl;
 
         }
     }

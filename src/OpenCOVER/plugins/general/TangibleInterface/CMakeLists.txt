@@ -1,12 +1,12 @@
 using(VRML)
 
 SET(HEADERS
-    SalzburgFestival.h
+    TangibleInterface.h
     VrmlNodeTangible.h
 )
 
 SET(SOURCES
-    SalzburgFestival.cpp
+    TangibleInterface.cpp
     VrmlNodeTangible.cpp
 )
 
