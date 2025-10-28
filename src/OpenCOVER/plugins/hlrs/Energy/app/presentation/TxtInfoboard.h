@@ -31,23 +31,31 @@ struct TxtBoxAttributes {
  * @class TxtInfoboard
  * @brief A text-based infoboard for displaying information in an OpenCOVER scene.
  *
- * TxtInfoboard provides an interface for showing, hiding, and updating textual information
- * on a 3D infoboard. It supports customization of appearance via attributes such as position,
- * title, font, size, and margins. The class inherits from core::interface::IInfoboard and
- * implements its required methods for managing the infoboard's lifecycle and content.
+ * TxtInfoboard provides an interface for showing, hiding, and updating textual
+ * information on a 3D infoboard. It supports customization of appearance via
+ * attributes such as position, title, font, size, and margins. The class inherits
+ * from core::interface::IInfoboard and implements its required methods for managing
+ * the infoboard's lifecycle and content.
  *
- * @note The infoboard uses OSG (OpenSceneGraph) objects for rendering and positioning.
+ * @note The infoboard uses OSG (OpenSceneGraph) objects for rendering and
+ * positioning.
  *
  * @see core::interface::IInfoboard
  */
-class TxtInfoboard : public core::interface::IInfoboard<std::string> {
+class TxtInfoboard
+    : public core::interface::IInfoboard<std::string> {
  public:
-  TxtInfoboard(const TxtBoxAttributes &attributes) : m_attributes(attributes) {};
+  TxtInfoboard(const TxtBoxAttributes &attributes)
+      : m_attributes(attributes),
+        m_TextGeode(nullptr),
+        m_BBoard(nullptr),
+        m_enabled(false),
+        m_info("") {};
   TxtInfoboard(const osg::Vec3 &position, const std::string &title,
                const std::string &font, const float &maxWidth, const float &height,
                const float &margin, const float &titleHeightPercentage,
                int charSize = 2)
-      : m_attributes(TxtBoxAttributes(position, title, font, maxWidth, height,
+      : TxtInfoboard(TxtBoxAttributes(position, title, font, maxWidth, height,
                                       margin, titleHeightPercentage, charSize)) {};
 
   // IInfoboard interface
@@ -59,6 +67,7 @@ class TxtInfoboard : public core::interface::IInfoboard<std::string> {
   void updateDrawable() override;
   void updateInfo(const std::string &info) override;
   void move(const osg::Vec3 &pos) override;
+  bool enabled() override { return m_enabled; }
 
   // getter and setter
   void setMaxWidth(float width) { m_attributes.maxWidth = width; }
@@ -81,9 +90,11 @@ class TxtInfoboard : public core::interface::IInfoboard<std::string> {
   }
 
  private:
-  osg::ref_ptr<osg::Group> m_TextGeode = nullptr;
-  osg::ref_ptr<opencover::coBillboard> m_BBoard = nullptr;
+  osg::ref_ptr<osg::Group> m_TextGeode;
+  osg::ref_ptr<opencover::coBillboard> m_BBoard;
 
   // txtbox attributes
   TxtBoxAttributes m_attributes;
+  bool m_enabled;
+  std::string m_info;
 };
