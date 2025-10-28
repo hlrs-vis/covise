@@ -12,6 +12,7 @@ set(HEADERS
     ITimedependable.h
     ISolarPanel.h
     ISystem.h
+    IUpdateable.h
 )
 
 set(Name "interface")
