@@ -9,8 +9,5 @@ class IInformable : public IDrawable {
   virtual void showInfo() = 0;
   virtual void hideInfo() = 0;
   virtual void updateInfo(const Info &info) = 0;
-
- protected:
-  Info m_info;
 };
 }  // namespace core::interface

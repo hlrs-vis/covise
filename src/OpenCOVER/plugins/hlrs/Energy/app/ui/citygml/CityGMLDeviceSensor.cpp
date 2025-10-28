@@ -11,8 +11,7 @@
 #include <osg/Geometry>
 
 CityGMLDeviceSensor::CityGMLDeviceSensor(
-    osg::ref_ptr<osg::Group> parent,
-    std::unique_ptr<core::interface::IInfoboard<std::string>> &&infoBoard,
+    osg::ref_ptr<osg::Group> parent, std::unique_ptr<Infoboard> &&infoBoard,
     std::unique_ptr<core::interface::IBuilding> &&drawableBuilding,
     const std::vector<std::string> &textBoxTxt)
     : coPickSensor(parent)
