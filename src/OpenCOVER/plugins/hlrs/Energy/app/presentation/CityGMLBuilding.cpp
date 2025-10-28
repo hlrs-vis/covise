@@ -14,7 +14,8 @@ constexpr auto SHADER_SCALAR_TIMESTEP_MAPPING_INDEX =
     0;  // index of the texture that maps from node index to timestep value
 }
 
-CityGMLBuilding::CityGMLBuilding(const osgUtils::Geodes &geodes) : m_shaders() {
+CityGMLBuilding::CityGMLBuilding(const osgUtils::Geodes &geodes)
+    : m_shaders(), m_timestep(0) {
   m_drawables.reserve(geodes.size());
   m_drawables.insert(m_drawables.begin(), geodes.begin(), geodes.end());
 }

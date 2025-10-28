@@ -57,4 +57,5 @@ class CityGMLBuilding : public core::interface::IBuilding {
 
 private:
   std::vector<opencover::coVRShader *> m_shaders;
+  int m_timestep;
 };
