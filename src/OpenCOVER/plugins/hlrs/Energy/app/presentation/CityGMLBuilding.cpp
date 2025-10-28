@@ -20,7 +20,7 @@ CityGMLBuilding::CityGMLBuilding(const osgUtils::Geodes &geodes)
   m_drawables.insert(m_drawables.begin(), geodes.begin(), geodes.end());
 }
 
-void CityGMLBuilding::initDrawables() {}
+void CityGMLBuilding::initDrawable() {}
 
 void CityGMLBuilding::updateColor(const osg::Vec4 &color) {
   for (auto drawable : m_drawables) {
@@ -51,7 +51,7 @@ void CityGMLBuilding::updateTime(int timestep) {
   }
 }
 
-void CityGMLBuilding::updateDrawables() {}
+void CityGMLBuilding::updateDrawable() {}
 std::unique_ptr<osg::Vec4> CityGMLBuilding::getColorInRange(float value,
                                                             float maxValue) {
   return nullptr;

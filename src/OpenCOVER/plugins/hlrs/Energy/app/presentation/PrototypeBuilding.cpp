@@ -14,7 +14,7 @@ void PrototypeBuilding::updateColor(const osg::Vec4 &color) {
       utils::color::overrideGeodeColor(geode, color);
 }
 
-void PrototypeBuilding::initDrawables() {
+void PrototypeBuilding::initDrawable() {
   const osg::Vec3f bottom(m_attributes.position);
   osg::Vec3f top(bottom);
   top.z() += m_attributes.height;
@@ -28,7 +28,7 @@ std::unique_ptr<osg::Vec4> PrototypeBuilding::getColorInRange(float value,
   return m_attributes.colorMap.getColor(value, maxValue);
 }
 
-void PrototypeBuilding::updateDrawables() {}
+void PrototypeBuilding::updateDrawable() {}
 
 void PrototypeBuilding::updateTime(int timestep) {
   // TODO: update for example the height of the cylinder with each

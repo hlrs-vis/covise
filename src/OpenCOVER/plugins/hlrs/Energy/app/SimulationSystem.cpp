@@ -1081,7 +1081,7 @@ void SimulationSystem::buildPowerGrid() {
                            EnergyGridConnectionType::Line, mergedLines);
 
   auto powerGrid = std::make_unique<EnergyGrid>(econfig, false);
-  powerGrid->initDrawables();
+  powerGrid->initDrawable();
   egrid.grid = std::move(powerGrid);
   addEnergyGridToGridSwitch(egrid.group);
 
@@ -1711,7 +1711,7 @@ void SimulationSystem::readHeatingGridStream(CSVStream &heatingStream) {
                                                     infoboardAttributes,
                                                     EnergyGridConnectionType::Line,
                                                     lines});
-  heatingGrid.grid->initDrawables();
+  heatingGrid.grid->initDrawable();
   addEnergyGridToGridSwitch(heatingGrid.group);
   switchEnergyGrid(EnergyGridType::HeatingGrid);
 }

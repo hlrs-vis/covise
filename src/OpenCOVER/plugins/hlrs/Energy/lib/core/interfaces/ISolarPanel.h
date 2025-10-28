@@ -1,9 +1,9 @@
 #pragma once
 #include "IColorable.h"
-#include "IDrawables.h"
+#include "IDrawable.h"
 
 namespace core::interface {
-class ISolarPanel : public IDrawables, public IColorable {
+class ISolarPanel : public IDrawable, public IColorable {
  public:
   virtual ~ISolarPanel() = default;
 };

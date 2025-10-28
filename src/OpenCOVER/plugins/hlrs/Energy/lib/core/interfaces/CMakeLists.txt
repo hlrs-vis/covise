@@ -5,7 +5,6 @@ set(HEADERS
     IEnergyGrid.h
     IColorable.h
     IDrawable.h
-    IDrawables.h
     IInfoboard.h
     IInformable.h
     IMovable.h

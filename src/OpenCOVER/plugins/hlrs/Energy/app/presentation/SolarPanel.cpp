@@ -21,9 +21,9 @@
 
 using namespace core::utils::osgUtils;
 
-void SolarPanel::init() { initDrawables(); }
+void SolarPanel::init() { initDrawable(); }
 
-void SolarPanel::initDrawables() {
+void SolarPanel::initDrawable() {
   osg::ref_ptr<osg::Group> group = m_node->asGroup();
   if (!group) {
     std::cerr << "SolarPanel: m_node is not a group!" << std::endl;
@@ -39,7 +39,7 @@ void SolarPanel::initDrawables() {
   m_drawables.push_back(m_node);
 }
 
-void SolarPanel::updateDrawables() {}
+void SolarPanel::updateDrawable() {}
 
 void SolarPanel::updateColor(const osg::Vec4 &color) {
   for (auto &node : m_drawables) {

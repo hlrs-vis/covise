@@ -37,11 +37,12 @@ class SolarPanel : public core::interface::ISolarPanel {
   SolarPanel(osg::ref_ptr<osg::Node> node) : m_node(node) { init(); }
 
   ~SolarPanel() {};
-  void initDrawables() override;
-  void updateDrawables() override;
+  void initDrawable() override;
+  void updateDrawable() override;
   void updateColor(const osg::Vec4 &color) override;
 
  private:
   void init();
   osg::ref_ptr<osg::Node> m_node;
+  std::vector<osg::ref_ptr<osg::Node>> m_drawables;
 };

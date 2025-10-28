@@ -1,6 +1,6 @@
 #pragma once
 #include <lib/core/interfaces/IInfoboard.h>
-#include <osg/Node>
-#include <osg/ref_ptr>
+#include "OsgImpl.h"
 
-typedef core::interface::IInfoboard<std::string, osg::ref_ptr<osg::Node>> Infoboard;
+typedef core::interface::IInfoboard<std::string, Drawable> InfoboardImpl;
+typedef OsgBuildingImpl BuildingImpl;
