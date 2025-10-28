@@ -35,7 +35,7 @@ auto get_string = [](const auto &data)
 } // namespace
 
 InfoboardSensor::InfoboardSensor(osg::ref_ptr<osg::Group> parent,
-                                 std::unique_ptr<OsgInfoboard> &&infoboard,
+                                 std::unique_ptr<Infoboard> &&infoboard,
                                  const std::string &content)
     : coPickSensor(parent), m_enabled(false), m_infoBoard(std::move(infoboard)) {
   m_infoBoard->initInfoboard();

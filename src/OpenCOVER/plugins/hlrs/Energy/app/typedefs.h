@@ -3,4 +3,4 @@
 #include <osg/Node>
 #include <osg/ref_ptr>
 
-typedef core::interface::IInfoboard<std::string, osg::ref_ptr<osg::Node>> OsgInfoboard;
+typedef core::interface::IInfoboard<std::string, osg::ref_ptr<osg::Node>> Infoboard;
