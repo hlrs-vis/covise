@@ -1,12 +1,10 @@
 #pragma once
 #include "IInformable.h"
 #include "IMovable.h"
-#include "ITimedependable.h"
 
 namespace core::interface {
 template <typename InfoType, typename DrawableType>
 class IInfoboard : public IInformable<InfoType>,
-                   public ITimedependable,
                    public IMoveable {
  public:
   virtual ~IInfoboard() = default;

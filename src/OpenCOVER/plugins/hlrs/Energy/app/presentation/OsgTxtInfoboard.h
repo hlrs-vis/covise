@@ -59,7 +59,6 @@ class OsgTxtInfoboard : public core::interface::IInfoboard<std::string, osg::ref
                                       margin, titleHeightPercentage, charSize)) {};
 
   // IInfoboard interface
-  void updateTime(int timestep) override;
   void showInfo() override;
   void hideInfo() override;
   void initDrawable() override;

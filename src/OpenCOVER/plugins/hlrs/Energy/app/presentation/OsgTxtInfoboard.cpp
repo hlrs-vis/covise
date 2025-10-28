@@ -20,10 +20,6 @@
 
 using namespace core;
 
-void OsgTxtInfoboard::updateTime(int timestep) {
-  // TODO: implement later when needed
-}
-
 void OsgTxtInfoboard::updateDrawable() {}
 
 void OsgTxtInfoboard::initDrawable() {
