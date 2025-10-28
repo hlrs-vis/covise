@@ -6,5 +6,8 @@
 #include "ITimedependable.h"
 
 namespace core::interface {
-class IBuilding : public IDrawables, public IColorable, public ITimedependable {};
+class IBuilding : public IDrawables, public IColorable, public ITimedependable {
+ public:
+  virtual ~IBuilding() = default;
+};
 }  // namespace core::interface

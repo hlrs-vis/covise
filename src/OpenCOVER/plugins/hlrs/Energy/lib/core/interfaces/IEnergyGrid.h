@@ -9,5 +9,8 @@ namespace core::interface {
 class IEnergyGrid : public IDrawables,
                     public IColorable,
                     public ITimedependable,
-                    public IUpdateable {};
+                    public IUpdateable {
+ public:
+  ~IEnergyGrid() = default;
+};
 }  // namespace core::interface
