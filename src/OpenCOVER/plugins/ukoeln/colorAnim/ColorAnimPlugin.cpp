@@ -44,6 +44,16 @@ ColorAnimPlugin::~ColorAnimPlugin()
     {
         cover->getObjectsRoot()->removeChild(brainTransform.get());
     }
+
+    if (secondModel.valid() && cover->getObjectsRoot())
+    {
+        cover->getObjectsRoot()->removeChild(secondModel.get());
+    }
+
+    if (thirdModel.valid() && cover->getObjectsRoot())
+    {
+        cover->getObjectsRoot()->removeChild(thirdModel.get());
+    }
 }
 
 bool ColorAnimPlugin::init()
@@ -165,6 +175,40 @@ bool ColorAnimPlugin::init()
 
         // Set initial colors
         updateColors();
+    }
+
+    // Load second additional model
+    std::string secondModelPath = coCoviseConfig::getEntry("value", "COVER.Plugin.ColorAnim.SecondModel", "");
+    if (!secondModelPath.empty())
+    {
+        fprintf(stderr, "ColorAnimPlugin: Loading second model from %s\n", secondModelPath.c_str());
+        secondModel = osgDB::readNodeFile(secondModelPath);
+        if (secondModel.valid())
+        {
+            cover->getObjectsRoot()->addChild(secondModel.get());
+            fprintf(stderr, "ColorAnimPlugin: Second model loaded successfully\n");
+        }
+        else
+        {
+            fprintf(stderr, "ColorAnimPlugin: Warning - Could not load second model: %s\n", secondModelPath.c_str());
+        }
+    }
+
+    // Load third additional model
+    std::string thirdModelPath = coCoviseConfig::getEntry("value", "COVER.Plugin.ColorAnim.ThirdModel", "");
+    if (!thirdModelPath.empty())
+    {
+        fprintf(stderr, "ColorAnimPlugin: Loading third model from %s\n", thirdModelPath.c_str());
+        thirdModel = osgDB::readNodeFile(thirdModelPath);
+        if (thirdModel.valid())
+        {
+            cover->getObjectsRoot()->addChild(thirdModel.get());
+            fprintf(stderr, "ColorAnimPlugin: Third model loaded successfully\n");
+        }
+        else
+        {
+            fprintf(stderr, "ColorAnimPlugin: Warning - Could not load third model: %s\n", thirdModelPath.c_str());
+        }
     }
 
     fprintf(stderr, "ColorAnimPlugin: Initialization complete\n");

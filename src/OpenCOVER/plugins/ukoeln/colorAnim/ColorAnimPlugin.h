@@ -69,6 +69,10 @@ private:
     osg::ref_ptr<osg::Geode> brainGeode;
     osg::ref_ptr<osg::Geometry> brainGeometry;
 
+    // Additional static models
+    osg::ref_ptr<osg::Node> secondModel;
+    osg::ref_ptr<osg::Node> thirdModel;
+
     // Animation data
     std::vector<osg::ref_ptr<osg::Vec4Array>> colorFrames;
     int numFrames;
