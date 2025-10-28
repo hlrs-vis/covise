@@ -53,7 +53,7 @@ EnnovatisDevice::EnnovatisDevice(
     const ennovatis::Building &building, opencover::ui::SelectionList *channelList,
     std::shared_ptr<ennovatis::rest_request> req,
     std::shared_ptr<ennovatis::ChannelGroup> channelGroup,
-    std::unique_ptr<core::interface::IInfoboard<std::string>> &&infoBoard,
+    std::unique_ptr<OsgInfoboard> &&infoBoard,
     std::unique_ptr<core::interface::IBuilding> &&drawableBuilding)
     : m_deviceGroup(new osg::Group()),
       m_infoBoard(std::move(infoBoard)),

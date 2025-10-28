@@ -4,8 +4,8 @@
 
 #include <osg/ref_ptr>
 
-struct TxtBoxAttributes {
-  TxtBoxAttributes(const osg::Vec3 &pos, const std::string &title,
+struct OsgTxtBoxAttributes {
+  OsgTxtBoxAttributes(const osg::Vec3 &pos, const std::string &title,
                    const std::string &font, const float &width, const float &height,
                    const float &margin, const float &titleHeightPercentage,
                    int charSize = 2)
@@ -28,7 +28,7 @@ struct TxtBoxAttributes {
 };
 
 /**
- * @class TxtInfoboard
+ * @class OsgTxtInfoboard
  * @brief A text-based infoboard for displaying information in an OpenCOVER scene.
  *
  * TxtInfoboard provides an interface for showing, hiding, and updating textual
@@ -42,20 +42,20 @@ struct TxtBoxAttributes {
  *
  * @see core::interface::IInfoboard
  */
-class TxtInfoboard
-    : public core::interface::IInfoboard<std::string> {
+class OsgTxtInfoboard : public core::interface::IInfoboard<std::string, osg::ref_ptr<osg::Node>> {
  public:
-  TxtInfoboard(const TxtBoxAttributes &attributes)
+  OsgTxtInfoboard(const OsgTxtBoxAttributes &attributes)
       : m_attributes(attributes),
         m_TextGeode(nullptr),
         m_BBoard(nullptr),
+        m_drawable(nullptr),
         m_enabled(false),
         m_info("") {};
-  TxtInfoboard(const osg::Vec3 &position, const std::string &title,
+  OsgTxtInfoboard(const osg::Vec3 &position, const std::string &title,
                const std::string &font, const float &maxWidth, const float &height,
                const float &margin, const float &titleHeightPercentage,
                int charSize = 2)
-      : TxtInfoboard(TxtBoxAttributes(position, title, font, maxWidth, height,
+      : OsgTxtInfoboard(OsgTxtBoxAttributes(position, title, font, maxWidth, height,
                                       margin, titleHeightPercentage, charSize)) {};
 
   // IInfoboard interface
@@ -75,6 +75,8 @@ class TxtInfoboard
   void setFont(const std::string &font) { m_attributes.fontFile = font; }
   void setTitle(const std::string &title) { m_attributes.title = title; }
   void setCharSize(int charSize) { m_attributes.charSize = charSize; }
+
+  osg::ref_ptr<osg::Node> &getDrawable() override { return m_drawable; }
   [[nodiscard]] const auto &getMaxWidth(float width) {
     return m_attributes.maxWidth;
   }
@@ -88,13 +90,15 @@ class TxtInfoboard
   [[nodiscard]] const auto &getCharSize(int charSize) {
     return m_attributes.charSize;
   }
+  [[nodiscard]] const auto &getDrawable() const { return m_drawable; }
 
  private:
   osg::ref_ptr<osg::Group> m_TextGeode;
   osg::ref_ptr<opencover::coBillboard> m_BBoard;
+  osg::ref_ptr<osg::Node> m_drawable;
 
   // txtbox attributes
-  TxtBoxAttributes m_attributes;
+  OsgTxtBoxAttributes m_attributes;
   bool m_enabled;
   std::string m_info;
 };

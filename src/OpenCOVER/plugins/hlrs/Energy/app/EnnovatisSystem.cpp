@@ -15,7 +15,7 @@
 #include <iostream>
 #include <regex>
 
-#include "presentation/TxtInfoboard.h"
+#include "presentation/OsgTxtInfoboard.h"
 
 namespace {
 constexpr bool debug = build_options.debug_ennovatis;
@@ -266,7 +266,7 @@ void EnnovatisSystem::initEnnovatisDevices() {
     auto infoboardPos = osg::Vec3(b.getX() + cylinderAttributes.radius + 5,
                                   b.getY() + cylinderAttributes.radius + 5,
                                   b.getHeight() + cylinderAttributes.height);
-    auto infoboard = std::make_unique<TxtInfoboard>(
+    auto infoboard = std::make_unique<OsgTxtInfoboard>(
         infoboardPos, b.getName(), "DroidSans-Bold.ttf",
         cylinderAttributes.radius * 20, cylinderAttributes.radius * 21, 2.0f, 0.1,
         2);

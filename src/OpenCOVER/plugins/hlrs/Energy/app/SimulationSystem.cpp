@@ -27,7 +27,7 @@
 
 // presentation
 #include <app/presentation/EnergyGrid.h>
-#include <app/presentation/TxtInfoboard.h>
+#include <app/presentation/OsgTxtInfoboard.h>
 
 // core
 #include <lib/core/constants.h>
@@ -1072,7 +1072,7 @@ void SimulationSystem::buildPowerGrid() {
   auto &powerGroup = egrid.group;
   powerGroup = new osg::MatrixTransform;
   auto font = m_plugin->configString("Billboard", "font", "default")->value();
-  TxtBoxAttributes infoboardAttributes = TxtBoxAttributes(
+  OsgTxtBoxAttributes infoboardAttributes = OsgTxtBoxAttributes(
       osg::Vec3(0, 0, 0), "EnergyGridText", font, 50, 50, 2.0f, 0.1, 2);
   powerGroup->setName("PowerGrid");
 
@@ -1689,7 +1689,7 @@ void SimulationSystem::readHeatingGridStream(CSVStream &heatingStream) {
   auto egridIdx = getEnergyGridTypeIndex(EnergyGridType::HeatingGrid);
   m_energyGrids[egridIdx].group = new osg::MatrixTransform;
   auto font = m_plugin->configString("Billboard", "font", "default")->value();
-  TxtBoxAttributes infoboardAttributes = TxtBoxAttributes(
+  OsgTxtBoxAttributes infoboardAttributes = OsgTxtBoxAttributes(
       osg::Vec3(0, 0, 0), "EnergyGridText", font, 50, 50, 2.0f, 0.1, 2);
 
   std::map<int, std::string> connectionStrings;

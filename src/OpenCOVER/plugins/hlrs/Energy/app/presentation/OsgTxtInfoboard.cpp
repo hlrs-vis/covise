@@ -1,4 +1,4 @@
-#include "TxtInfoboard.h"
+#include "OsgTxtInfoboard.h"
 
 #include <cover/coVRFileManager.h>
 #include <lib/core/utils/osgUtils.h>
@@ -20,13 +20,13 @@
 
 using namespace core;
 
-void TxtInfoboard::updateTime(int timestep) {
+void OsgTxtInfoboard::updateTime(int timestep) {
   // TODO: implement later when needed
 }
 
-void TxtInfoboard::updateDrawable() {}
+void OsgTxtInfoboard::updateDrawable() {}
 
-void TxtInfoboard::initDrawable() {
+void OsgTxtInfoboard::initDrawable() {
   osg::ref_ptr<osg::MatrixTransform> trans = new osg::MatrixTransform;
   trans->setMatrix(osg::Matrix::translate(m_attributes.position));
   trans->addChild(m_BBoard);
@@ -34,14 +34,14 @@ void TxtInfoboard::initDrawable() {
   m_drawable = trans;
 }
 
-void TxtInfoboard::initInfoboard() {
+void OsgTxtInfoboard::initInfoboard() {
   m_BBoard = new opencover::coBillboard();
   m_BBoard->setNormal(osg::Vec3(0, -1, 0));
   m_BBoard->setAxis(osg::Vec3(0, 0, 1));
   m_BBoard->setMode(opencover::coBillboard::AXIAL_ROT);
 }
 
-void TxtInfoboard::updateInfo(const std::string &info) {
+void OsgTxtInfoboard::updateInfo(const std::string &info) {
   m_info = info;
   m_BBoard->removeChild(m_TextGeode);
   utils::osgUtils::deleteChildrenRecursive(m_BBoard);
@@ -91,17 +91,17 @@ void TxtInfoboard::updateInfo(const std::string &info) {
   if (m_enabled) showInfo();
 }
 
-void TxtInfoboard::showInfo() {
+void OsgTxtInfoboard::showInfo() {
   m_BBoard->addChild(m_TextGeode);
   m_enabled = true;
 }
 
-void TxtInfoboard::move(const osg::Vec3 &pos) {
+void OsgTxtInfoboard::move(const osg::Vec3 &pos) {
   m_attributes.position = pos;
   if (m_enabled) updateInfo(m_info);
 }
 
-void TxtInfoboard::hideInfo() {
+void OsgTxtInfoboard::hideInfo() {
   m_BBoard->removeChild(m_TextGeode);
   m_enabled = false;
 }

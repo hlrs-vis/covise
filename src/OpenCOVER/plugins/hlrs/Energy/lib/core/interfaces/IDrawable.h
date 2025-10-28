@@ -8,9 +8,5 @@ class IDrawable {
   virtual void initDrawable() = 0;
   virtual void updateDrawable() = 0;
   virtual ~IDrawable() = default;
-  auto getDrawable() { return m_drawable; }
-
- protected:
-  osg::ref_ptr<osg::Node> m_drawable;
 };
 }  // namespace core::interface

@@ -1,6 +1,6 @@
 #include "CityGMLSystem.h"
 #include "app/presentation/CityGMLBuilding.h"
-#include "app/presentation/TxtInfoboard.h"
+#include "app/presentation/OsgTxtInfoboard.h"
 
 #include <cover/coVRAnimationManager.h>
 
@@ -768,7 +768,7 @@ void CityGMLSystem::addCityGMLObject(const std::string &name,
   auto infoboardPos = boundingbox.center();
   infoboardPos.z() +=
       (boundingbox.zMax() - boundingbox.zMin()) / 2 + boundingbox.zMin();
-  auto infoboard = std::make_unique<TxtInfoboard>(
+  auto infoboard = std::make_unique<OsgTxtInfoboard>(
       infoboardPos, name, "DroidSans-Bold.ttf", 50, 50, 2.0f, 0.1, 2);
   auto building = std::make_unique<CityGMLBuilding>(*geodes);
   auto sensor = std::make_unique<CityGMLDeviceSensor>(

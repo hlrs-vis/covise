@@ -27,6 +27,8 @@
 
 // std
 #include <memory>
+#include "app/presentation/OsgTxtInfoboard.h"
+#include "app/typedefs.h"
 
 /**
  * @class EnnovatisDevice
@@ -64,7 +66,7 @@ class EnnovatisDevice {
       const ennovatis::Building &building, opencover::ui::SelectionList *channelList,
       std::shared_ptr<ennovatis::rest_request> req,
       std::shared_ptr<ennovatis::ChannelGroup> channelGroup,
-      std::unique_ptr<core::interface::IInfoboard<std::string>> &&infoBoard,
+      std::unique_ptr<OsgInfoboard> &&infoBoard,
       std::unique_ptr<core::interface::IBuilding> &&drawableBuilding);
 
   void update();
@@ -102,7 +104,7 @@ class EnnovatisDevice {
       const ennovatis::json_response_object &j_resp_obj);
 
   osg::ref_ptr<osg::Group> m_deviceGroup = nullptr;
-  std::unique_ptr<core::interface::IInfoboard<std::string>> m_infoBoard;
+  std::unique_ptr<OsgInfoboard> m_infoBoard;
   std::unique_ptr<core::interface::IBuilding> m_drawableBuilding;
   std::weak_ptr<ennovatis::rest_request> m_request;
   std::weak_ptr<ennovatis::ChannelGroup> m_channelGroup;
