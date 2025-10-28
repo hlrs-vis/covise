@@ -11,9 +11,6 @@ class IInfoboard : public IInformable<Info>,
  public:
   virtual ~IInfoboard() = default;
   virtual void initInfoboard() = 0;
-  bool enabled() { return m_enabled; }
-
- protected:
-  bool m_enabled = false;
+  virtual bool enabled() = 0;
 };
 }  // namespace core::interface
