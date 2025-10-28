@@ -49,7 +49,7 @@ class CityGMLBuilding : public core::interface::IBuilding {
   void updateColor(const osg::Vec4 &color) override;
   void updateTime(int timestep) override;
   void updateDrawables() override;
-  std::unique_ptr<osg::Vec4> getColorInRange(float value, float maxValue) override;
+  std::unique_ptr<osg::Vec4> getColorInRange(float value, float maxValue);
 
   void setColorMapInShader(const opencover::ColorMap &colorMap);
   void setDataInShader(const std::vector<double> &data, float min, float max);

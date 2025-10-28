@@ -1,5 +1,6 @@
 #include "EnnovatisDevice.h"
 
+#include "app/presentation/PrototypeBuilding.h"
 #include "build_options.h"
 
 // core
@@ -343,7 +344,13 @@ void EnnovatisDevice::createTimestepColorList(
   if (numTimesteps > opencover::coVRAnimationManager::instance()->getNumTimesteps())
     opencover::coVRAnimationManager::instance()->setNumTimesteps(numTimesteps);
 
-  for (auto t = 0; t < numTimesteps; ++t)
-    m_timestepColors[t] =
-        m_drawableBuilding->getColorInRange(respValues[t], maxValue);
+  auto buildingPtr =
+      dynamic_cast<PrototypeBuilding *>(m_drawableBuilding.get());
+  if (!buildingPtr) {
+    std::cout << "Error: Building pointer is not a PrototypeBuilding.";
+    return;
+  }
+  for (auto t = 0; t < numTimesteps; ++t) {
+    m_timestepColors[t] = buildingPtr->getColorInRange(respValues[t], maxValue);
+  }
 }
