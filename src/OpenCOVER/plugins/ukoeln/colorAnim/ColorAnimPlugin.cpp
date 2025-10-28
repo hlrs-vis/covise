@@ -185,6 +185,7 @@ bool ColorAnimPlugin::init()
         secondModel = osgDB::readNodeFile(secondModelPath);
         if (secondModel.valid())
         {
+            setupVertexColorMaterial(secondModel.get());
             cover->getObjectsRoot()->addChild(secondModel.get());
             fprintf(stderr, "ColorAnimPlugin: Second model loaded successfully\n");
         }
@@ -202,6 +203,7 @@ bool ColorAnimPlugin::init()
         thirdModel = osgDB::readNodeFile(thirdModelPath);
         if (thirdModel.valid())
         {
+            setupVertexColorMaterial(thirdModel.get());
             cover->getObjectsRoot()->addChild(thirdModel.get());
             fprintf(stderr, "ColorAnimPlugin: Third model loaded successfully\n");
         }
@@ -564,6 +566,45 @@ void ColorAnimPlugin::flipNormals()
         else
         {
             cullFace->setMode(osg::CullFace::FRONT);
+        }
+    }
+}
+
+void ColorAnimPlugin::setupVertexColorMaterial(osg::Node *node)
+{
+    if (!node)
+        return;
+
+    // Set up material to use vertex colors
+    osg::StateSet *stateSet = node->getOrCreateStateSet();
+    osg::Material *material = new osg::Material();
+    material->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+    stateSet->setAttributeAndModes(material, osg::StateAttribute::ON);
+
+    // If this is a geode, also set the material on each drawable
+    osg::Geode *geode = dynamic_cast<osg::Geode*>(node);
+    if (geode)
+    {
+        for (unsigned int i = 0; i < geode->getNumDrawables(); ++i)
+        {
+            osg::Drawable *drawable = geode->getDrawable(i);
+            if (drawable)
+            {
+                osg::StateSet *drawableStateSet = drawable->getOrCreateStateSet();
+                osg::Material *drawableMaterial = new osg::Material();
+                drawableMaterial->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+                drawableStateSet->setAttributeAndModes(drawableMaterial, osg::StateAttribute::ON);
+            }
+        }
+    }
+
+    // Recursively process child nodes
+    osg::Group *group = node->asGroup();
+    if (group)
+    {
+        for (unsigned int i = 0; i < group->getNumChildren(); ++i)
+        {
+            setupVertexColorMaterial(group->getChild(i));
         }
     }
 }

@@ -27,25 +27,17 @@
       <FileType name="fits" plugin="Volume" /> 
     </FileManager>
 
-  
-  
+
+
     <WelcomeMessage value="Welcome to Daniel" />
 
     <Plugin>
-      <MADIconnect value="on">
-        <DataPath value="/home/daniel/data/KeiIto/3neurons" />
-      </MADIconnect>
+      <ColorAnim value="on">
+        <FirstModel  value="/home/daniel/data/Horn/surfaces/dynamic/cortex_sample/cortex_001.ply" />
+        <SecondModel value="/home/daniel/data/Horn/surfaces/static/anatomy.ply" />
+        <ThirdModel  value="/home/daniel/data/Horn/surfaces/static/left_electrode.ply" />
+      </ColorAnim>
 
-      <ANARI>
-        <PointCloud radius="0.025" />        
-      </ANARI>
-
-      <Vrml97>
-        <TransparencyMode value="sorted_blended_alphatest" />
-        <Headlight value="ON" />
-        <Lights value="ON" />
-      </Vrml97>
-      
       <OrientationIndicator value="off">
         <Position x="-700.0" y="0.0" z="-400.0" />
 	      <InvertX value="true" />

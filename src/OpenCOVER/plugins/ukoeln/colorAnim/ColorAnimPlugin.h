@@ -91,6 +91,7 @@ private:
     void flipNormals();
     float applyInterpolationCurve(float t);
     void setInterpolationMode(InterpolationMode mode);
+    void setupVertexColorMaterial(osg::Node *node);
 };
 
 #endif
