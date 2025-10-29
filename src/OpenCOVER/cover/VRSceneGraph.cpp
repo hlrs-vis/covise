@@ -80,6 +80,8 @@
 #include <osg/Vec4>
 #include <osg/Version>
 #include <osgDB/WriteFile>
+#include <osgDB/FileUtils>
+#include <osgDB/FileNameUtils>
 #include <osgFX/Scribe>
 
 #ifdef _OPENMP
@@ -1682,24 +1684,45 @@ bool
 VRSceneGraph::saveScenegraph(const std::string &filename, bool storeWithMenu)
 {
     if (isScenegraphProtected_)
-    {
+    {   
         fprintf(stderr, "Cannot store scenegraph. Not allowed!");
         return false;
     }
 
     if (cover->debugLevel(3))
         fprintf(stderr, "save file as: %s\n", filename.c_str());
-    size_t len = filename.length();
-    if ((len > 4 && (!strcmp(filename.c_str() + len - 4, ".ive") || !strcmp(filename.c_str() + len - 4, ".osg")))
-        || (len > 5 && (!strcmp(filename.c_str() + len - 5, ".osgt")
-                        || !strcmp(filename.c_str() + len - 5, ".osgb")
-                        || !strcmp(filename.c_str() + len - 5, ".osgx"))))
+
+
+    auto supportedExtentions = coVRFileManager::instance()->getSupportedOsgExtentions();
+    std::string popularExtentions = coVRFileManager::instance()->getWriteFilterList();
+
+    // Check if filename extension is supported
+    std::string fileExt;
+    size_t dotPos = filename.find_last_of('.');
+    if (dotPos != std::string::npos && dotPos < filename.size() - 1)
     {
+        fileExt = filename.substr(dotPos + 1);
     }
-    else
+    
+    bool validExt = false;
+    if (!fileExt.empty())
     {
-        if (cover->debugLevel(1))
-            std::cerr << "Writing to \"" << filename << "\": unknown extension, use .ive, .osg, .osgt, .osgb, or .osgx." << std::endl;
+        for (const auto& ext : supportedExtentions)
+        {
+            if (osg::iequals(fileExt, ext))
+            {
+                validExt = true;
+                break;
+            }
+        }
+    }
+    
+    // If not, print the supported popular extensions
+    if (!validExt && cover->debugLevel(1))
+    {
+        std::cerr << "Writing to \"" << filename << "\": unknown extension. Supported extensions are: ";
+        std::cerr << coVRFileManager::instance()->getWriteFilterList() << std::endl;
+
     }
 
     if (osgDB::writeNodeFile(storeWithMenu ? *static_cast<osg::Group *>(m_scene) : *m_objectsRoot, filename.c_str()))
@@ -1896,11 +1919,11 @@ VRSceneGraph::loadDefaultGeostate(osg::Material::ColorMode mode)
 
     osg::StateSet *stateSet = new osg::StateSet();
     stateSet->setRenderingHint(osg::StateSet::OPAQUE_BIN);
-    stateSet->setAttributeAndModes(material, osg::StateAttribute::ON);
+    stateSet->setAttribute(material, osg::StateAttribute::ON);
+    stateSet->setAttribute(defaultLm, osg::StateAttribute::ON);
     stateSet->setMode(GL_LIGHTING, osg::StateAttribute::ON);
     stateSet->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
     stateSet->setAttributeAndModes(blendFunc, osg::StateAttribute::ON);
-    stateSet->setAttributeAndModes(defaultLm, osg::StateAttribute::ON);
     return stateSet;
 }
 
@@ -2121,7 +2144,7 @@ void VRSceneGraph::setColor(osg::Geode *geode, int *color, float transparency)
                drawable->asGeometry()->setColorBinding(Geometry::BIND_OVERALL);
                drawable->asGeometry()->setColorArray(colorArray.get());
             }
-         }*/
+        }*/
             drawable->dirtyBound();
         }
     }

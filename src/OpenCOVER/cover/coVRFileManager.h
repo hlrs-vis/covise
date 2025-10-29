@@ -191,11 +191,12 @@ public:
     int unregisterFileHandler(const FileHandler *handler);
     int unregisterFileHandler(coVRIOReader *handler);
 
-    // get list of extensions as required by a filebrowser
-    std::string getFilterList();
+    const std::vector<std::string> &getSupportedOsgExtentions() const;
+    
+    const std::string &getFilterList() const;
 
     // get list of extensions for saving as required by a filebrowser
-    std::string getWriteFilterList();
+    const std::string &getWriteFilterList() const;
 
     // get a loader for a file type, if available
     const FileHandler *getFileHandler(const char *extension);
@@ -232,6 +233,7 @@ public:
 private:
     // Get the configured font style.
     int coLoadFontDefaultStyle();
+    void updateSupportedFormats();
 	//set in 'config/system/vrb/RemoteFetch value = "on" to enable remote fetch in local usr tmp directory. 
 	bool remoteFetchEnabled = false;
     bool remoteFetchHashPrefix = true;
@@ -244,7 +246,9 @@ private:
     std::unique_ptr<ui::Owner> m_owner;
     ui::Group *m_fileGroup = nullptr;
     int uniqueNumber = 0;
-
+    const std::vector<std::string> m_supportedOsgExtentions;
+    std::string m_supportedReadExtentions, m_supportedWriteExtentions;
+    ui::FileBrowser* m_fileOpen = nullptr;
     typedef std::list<const FileHandler *> FileHandlerList;
     FileHandlerList fileHandlerList;
 
