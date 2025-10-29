@@ -7,7 +7,7 @@
 
 using namespace vrml;
 
-std::vector<VrmlNodeTangible *> VrmlNodeTangible::allNodeTangibles;
+std::vector<VrmlNodeTangible *> allNodeTangibles;
 
 VrmlNodeTangible::VrmlNodeTangible(VrmlScene *scene)
     : VrmlNodeChild(scene, typeName()), d_angle(0.0f)

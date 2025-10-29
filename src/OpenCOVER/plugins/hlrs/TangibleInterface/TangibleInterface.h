@@ -11,7 +11,7 @@ struct ReceivedData
     float angle; // 4 bytes
 };
 
-class PLUGINEXPORT TangibleInterface : public opencover::coVRPlugin
+class TangibleInterface : public opencover::coVRPlugin
 {
 private:
     UDPComm *udp = nullptr;

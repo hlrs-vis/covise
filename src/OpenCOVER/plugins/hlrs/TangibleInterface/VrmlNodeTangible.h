@@ -1,12 +1,10 @@
 #ifndef VRML_NODE_TANGIBLE_H
 #define VRML_NODE_TANGIBLE_H
 
-#include <util/coExport.h>
-
 #include <vrml97/vrml/VrmlNodeChild.h>
 #include <vrml97/vrml/VrmlSFFloat.h>
 
-class VRML97COVEREXPORT VrmlNodeTangible : public vrml::VrmlNodeChild
+class VrmlNodeTangible : public vrml::VrmlNodeChild
 {
 public:
     VrmlNodeTangible(vrml::VrmlScene *scene = 0);
@@ -28,7 +26,6 @@ public:
 private:
     vrml::VrmlSFFloat d_angle;
 
-    static std::vector<VrmlNodeTangible *> allNodeTangibles;
 };
 
 #endif // VRML_NODE_TANGIBLE_H
