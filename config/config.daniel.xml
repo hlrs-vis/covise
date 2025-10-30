@@ -15,11 +15,11 @@
       <!--FileType name="pts" plugin="PointRayTracer" /-->
       <!--FileType name="xyz" plugin="PointRayTracer" /-->
       <!--FileType name="ptsb" plugin="PointRayTracer" /-->
-      <FileType name="ply" plugin="ANARI" />
+      <!--FileType name="ply" plugin="ANARI" /-->
       <!--FileType name="ply" plugin="PointRayTracer" /-->
       <!--FileType name="e57" plugin="PointRayTracer" /-->
 
-      <FileType name="obj" plugin="ANARI" />
+      <!--FileType name="obj" plugin="ANARI" /-->
       <FileType name="pts" plugin="ANARI" />
       <FileType name="glb" plugin="ANARI" />
       <FileType name="gltf" plugin="ANARI" /> 
@@ -32,10 +32,13 @@
     <WelcomeMessage value="Welcome to Daniel" />
 
     <Plugin>
+      <ANARI value="off">
+        <loadPlyAsPointCloud value="off" />
+      </ANARI>
+
       <ColorAnim value="on">
-        <FirstModel  value="/home/daniel/data/Horn/surfaces/dynamic/cortex_sample/cortex_001.ply" />
-        <SecondModel value="/home/daniel/data/Horn/surfaces/static/anatomy.ply" />
-        <ThirdModel  value="/home/daniel/data/Horn/surfaces/static/left_electrode.ply" />
+        <ProjectDir value="/home/daniel/data/Horn/" />
+        <high_res value="on" />
       </ColorAnim>
 
       <OrientationIndicator value="off">

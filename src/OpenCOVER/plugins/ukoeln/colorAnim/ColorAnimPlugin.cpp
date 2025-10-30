@@ -7,6 +7,7 @@
 
 #include "ColorAnimPlugin.h"
 #include <cover/coVRPluginSupport.h>
+#include <cover/coVRFileManager.h>
 #include <cover/ui/Button.h>
 #include <cover/ui/Slider.h>
 #include <cover/ui/Menu.h>
@@ -89,7 +90,7 @@ bool ColorAnimPlugin::init()
     // Speed slider
     speedSlider = new ui::Slider(animMenu, "Speed");
     speedSlider->setBounds(0.001, 0.1);
-    speedSlider->setValue(1.0);
+    speedSlider->setValue(0.01);
     speedSlider->setCallback([this](double value, bool released) {
         animationSpeed = (float)value;
     });
@@ -146,14 +147,22 @@ bool ColorAnimPlugin::init()
         if (state) setInterpolationMode(CUBIC);
     });
 
-    // Load brain models
-    std::string firstFilePath = coCoviseConfig::getEntry("value", "COVER.Plugin.ColorAnim.FirstModel", "");
-    if (firstFilePath.empty())
+    // Load brain models    
+    std::string projectDir = coCoviseConfig::getEntry("value", "COVER.Plugin.ColorAnim.ProjectDir", "");
+    bool highRes = coCoviseConfig::isOn("COVER.Plugin.ColorAnim.high_res", false);
+    
+    if (projectDir.empty())
     {
-        fprintf(stderr, "ColorAnimPlugin: No first model path configured. Please set COVER.Plugin.ColorAnim.FirstModel in config\n");
-        fprintf(stderr, "ColorAnimPlugin: Example: /path/to/data/highres_cortex_001.ply\n");
+        fprintf(stderr, "ColorAnimPlugin: No project directory configured. Please set COVER.Plugin.ColorAnim.ProjectDir in config\n");
+        fprintf(stderr, "ColorAnimPlugin: Example: /path/to/data/Horn/\n");
         return false;
     }
+
+    std::string firstFilePath = "";
+    if (highRes)
+        firstFilePath = projectDir + "surfaces/dynamic/cortex_high_res/highres_cortex_001.ply";
+    else
+        firstFilePath = projectDir + "surfaces/dynamic/cortex/cortex_001.ply";
 
     if (!loadBrainModels(firstFilePath))
     {
@@ -177,41 +186,78 @@ bool ColorAnimPlugin::init()
         updateColors();
     }
 
-    // Load second additional model
-    std::string secondModelPath = coCoviseConfig::getEntry("value", "COVER.Plugin.ColorAnim.SecondModel", "");
-    if (!secondModelPath.empty())
-    {
-        fprintf(stderr, "ColorAnimPlugin: Loading second model from %s\n", secondModelPath.c_str());
-        secondModel = osgDB::readNodeFile(secondModelPath);
-        if (secondModel.valid())
-        {
-            setupVertexColorMaterial(secondModel.get());
-            cover->getObjectsRoot()->addChild(secondModel.get());
-            fprintf(stderr, "ColorAnimPlugin: Second model loaded successfully\n");
-        }
-        else
-        {
-            fprintf(stderr, "ColorAnimPlugin: Warning - Could not load second model: %s\n", secondModelPath.c_str());
-        }
-    }
+    // Load additional static models
+    std::string fn = projectDir + "surfaces/static/anatomy/anatomy_L1.obj";
+    osg::Node* loadedNode = coVRFileManager::instance()->loadFile(
+        fn.c_str(),  // fileName
+        nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
+        cover->getObjectsRoot(),  // parent
+        nullptr            // covise_key (can be nullptr)
+    );
 
-    // Load third additional model
-    std::string thirdModelPath = coCoviseConfig::getEntry("value", "COVER.Plugin.ColorAnim.ThirdModel", "");
-    if (!thirdModelPath.empty())
-    {
-        fprintf(stderr, "ColorAnimPlugin: Loading third model from %s\n", thirdModelPath.c_str());
-        thirdModel = osgDB::readNodeFile(thirdModelPath);
-        if (thirdModel.valid())
-        {
-            setupVertexColorMaterial(thirdModel.get());
-            cover->getObjectsRoot()->addChild(thirdModel.get());
-            fprintf(stderr, "ColorAnimPlugin: Third model loaded successfully\n");
-        }
-        else
-        {
-            fprintf(stderr, "ColorAnimPlugin: Warning - Could not load third model: %s\n", thirdModelPath.c_str());
-        }
-    }
+    fn = projectDir + "surfaces/static/anatomy/anatomy_L2.obj";
+    loadedNode = coVRFileManager::instance()->loadFile(
+        fn.c_str(),  // fileName
+        nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
+        cover->getObjectsRoot(),  // parent
+        nullptr            // covise_key (can be nullptr)
+    );
+
+    fn = projectDir + "surfaces/static/anatomy/anatomy_L3.obj";
+    loadedNode = coVRFileManager::instance()->loadFile(
+        fn.c_str(),  // fileName
+        nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
+        cover->getObjectsRoot(),  // parent
+        nullptr            // covise_key (can be nullptr)
+    );
+
+    fn = projectDir + "surfaces/static/anatomy/anatomy_L4.obj";
+    loadedNode = coVRFileManager::instance()->loadFile(
+        fn.c_str(),  // fileName
+        nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
+        cover->getObjectsRoot(),  // parent
+        nullptr            // covise_key (can be nullptr)
+    );
+
+    fn = projectDir + "surfaces/static/anatomy/anatomy_R1.obj";
+    loadedNode = coVRFileManager::instance()->loadFile(
+        fn.c_str(),  // fileName
+        nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
+        cover->getObjectsRoot(),  // parent
+        nullptr            // covise_key (can be nullptr)
+    );
+
+    fn = projectDir + "surfaces/static/anatomy/anatomy_R2.obj";
+    loadedNode = coVRFileManager::instance()->loadFile(
+        fn.c_str(),  // fileName
+        nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
+        cover->getObjectsRoot(),  // parent
+        nullptr            // covise_key (can be nullptr)
+    );
+
+    fn = projectDir + "surfaces/static/anatomy/anatomy_R3.obj";
+    loadedNode = coVRFileManager::instance()->loadFile(
+        fn.c_str(),  // fileName
+        nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
+        cover->getObjectsRoot(),  // parent
+        nullptr            // covise_key (can be nullptr)
+    );
+
+    fn = projectDir + "surfaces/static/anatomy/anatomy_R4.obj";
+    loadedNode = coVRFileManager::instance()->loadFile(
+        fn.c_str(),  // fileName
+        nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
+        cover->getObjectsRoot(),  // parent
+        nullptr            // covise_key (can be nullptr)
+    );
+
+    fn = projectDir + "surfaces/static/left_electrode.ply";
+    loadedNode = coVRFileManager::instance()->loadFile(
+        fn.c_str(),  // fileName
+        nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
+        cover->getObjectsRoot(),  // parent
+        nullptr            // covise_key (can be nullptr)
+    );
 
     fprintf(stderr, "ColorAnimPlugin: Initialization complete\n");
     return true;
