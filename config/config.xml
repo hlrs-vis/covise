@@ -150,6 +150,12 @@
    <upload value="64" />
    <vram value="2000" />
    <ram value="10000" />
+   <scale_radius value="0.05" />
+   <scale_radius_gamma value="0.5" />
+   <max_radius value="1.0" />
+   <min_radius value="0.0" />
+   <max_screen_size value="10000" />
+   <min_screen_size value="0.0" />
    </LamurePointCloud>
    <RhrClient mpiThread="false" />
    <Browser menu="true" logLevel="1" logFile="/tmp/browserlog.txt" />
