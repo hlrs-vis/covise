@@ -29,8 +29,3 @@ std::unique_ptr<osg::Vec4> PrototypeBuilding::getColorInRange(float value,
 }
 
 void PrototypeBuilding::updateDrawable() {}
-
-void PrototypeBuilding::updateTime(int timestep) {
-  // TODO: update for example the height of the cylinder with each
-  // timestep
-}

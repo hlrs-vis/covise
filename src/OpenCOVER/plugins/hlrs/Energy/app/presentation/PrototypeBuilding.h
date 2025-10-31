@@ -1,5 +1,4 @@
 #pragma once
-#include <lib/core/interfaces/IBuilding.h>
 #include <lib/core/utils/color.h>
 
 #include <memory>
@@ -38,7 +37,6 @@ class PrototypeBuilding : public BuildingImpl {
       : m_attributes(cylinderAttributes) {};
   void initDrawable() override;
   void updateColor(const osg::Vec4 &color) override;
-  void updateTime(int timestep) override;
   void updateDrawable() override;
   std::unique_ptr<osg::Vec4> getColorInRange(float value, float maxValue);
 

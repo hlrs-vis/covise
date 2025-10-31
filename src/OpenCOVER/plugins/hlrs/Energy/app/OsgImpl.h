@@ -1,5 +1,6 @@
 #pragma once
 #include <lib/core/interfaces/IBuilding.h>
+#include <lib/core/interfaces/ITimedependable.h>
 
 #include <osg/Node>
 #include <osg/ref_ptr>
@@ -20,4 +21,9 @@ class OsgBuildingImpl
 
  protected:
   Drawables m_drawables;
+};
+
+class OsgBuildingTimedependImpl : public OsgBuildingImpl, public core::interface::ITimedependable {
+    public:
+     virtual ~OsgBuildingTimedependImpl();
 };

@@ -46,7 +46,7 @@
  * @var std::vector<opencover::coVRShader *> m_shaders
  *   Stores pointers to shaders used for rendering and data mapping.
  */
-class CityGMLBuilding : public BuildingImpl {
+class CityGMLBuilding : public BuildingTimedependImpl {
  public:
   CityGMLBuilding(const core::utils::osgUtils::Geodes &geodes);
   void initDrawable() override;

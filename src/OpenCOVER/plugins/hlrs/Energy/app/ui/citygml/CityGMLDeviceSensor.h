@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <osg/Group>
+
 #include "app/typedefs.h"
 
 /**
@@ -53,11 +54,10 @@
  * @var m_active Indicates whether the sensor is active.
  */
 class CityGMLDeviceSensor : public coPickSensor {
-
  public:
   CityGMLDeviceSensor(osg::ref_ptr<osg::Group> group,
                       std::unique_ptr<InfoboardImpl> &&infoBoard,
-                      std::unique_ptr<BuildingImpl> &&drawableBuilding,
+                      std::unique_ptr<BuildingTimedependImpl> &&drawableBuilding,
                       const std::vector<std::string> &textBoxTxt = {});
 
     ~CityGMLDeviceSensor();
@@ -88,7 +88,7 @@ class CityGMLDeviceSensor : public coPickSensor {
     void setDataInShader(const std::vector<double> &data, float min, float max);
 
  private:
-  std::unique_ptr<BuildingImpl> m_cityGMLBuilding;
+  std::unique_ptr<BuildingTimedependImpl> m_cityGMLBuilding;
   std::unique_ptr<InfoboardImpl> m_infoBoard;
   std::vector<osg::Vec4> m_colors;
   std::vector<std::string> m_textBoxTxt;

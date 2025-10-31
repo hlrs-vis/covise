@@ -12,7 +12,7 @@
 
 CityGMLDeviceSensor::CityGMLDeviceSensor(
     osg::ref_ptr<osg::Group> parent, std::unique_ptr<InfoboardImpl> &&infoBoard,
-    std::unique_ptr<BuildingImpl> &&drawableBuilding,
+    std::unique_ptr<BuildingTimedependImpl> &&drawableBuilding,
     const std::vector<std::string> &textBoxTxt)
     : coPickSensor(parent),
       m_cityGMLBuilding(std::move(drawableBuilding)),
