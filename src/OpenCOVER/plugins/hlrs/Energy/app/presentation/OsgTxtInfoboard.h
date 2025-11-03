@@ -63,7 +63,6 @@ class OsgTxtInfoboard : public core::interface::IInfoboard<std::string, osg::ref
   void hideInfo() override;
   void initDrawable() override;
   void initInfoboard() override;
-  void updateDrawable() override;
   void updateInfo(const std::string &info) override;
   void move(const osg::Vec3 &pos) override;
   bool enabled() override { return m_enabled; }

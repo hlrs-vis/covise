@@ -51,7 +51,6 @@ void CityGMLBuilding::updateTime(int timestep) {
   }
 }
 
-void CityGMLBuilding::updateDrawable() {}
 std::unique_ptr<osg::Vec4> CityGMLBuilding::getColorInRange(float value,
                                                             float maxValue) {
   return nullptr;

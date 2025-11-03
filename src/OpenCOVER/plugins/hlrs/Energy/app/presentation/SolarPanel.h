@@ -38,7 +38,6 @@ class SolarPanel : public core::interface::ISolarPanel {
 
   ~SolarPanel() {};
   void initDrawable() override;
-  void updateDrawable() override;
   void updateColor(const osg::Vec4 &color) override;
 
  private:

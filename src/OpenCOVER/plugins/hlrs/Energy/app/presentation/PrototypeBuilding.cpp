@@ -27,5 +27,3 @@ std::unique_ptr<osg::Vec4> PrototypeBuilding::getColorInRange(float value,
                                                               float maxValue) {
   return m_attributes.colorMap.getColor(value, maxValue);
 }
-
-void PrototypeBuilding::updateDrawable() {}

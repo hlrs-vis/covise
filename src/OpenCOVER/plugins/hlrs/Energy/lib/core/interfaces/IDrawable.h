@@ -6,7 +6,6 @@ namespace core::interface {
 class IDrawable {
  public:
   virtual void initDrawable() = 0;
-  virtual void updateDrawable() = 0;
   virtual ~IDrawable() = default;
 };
 }  // namespace core::interface

@@ -39,8 +39,6 @@ void SolarPanel::initDrawable() {
   m_drawables.push_back(m_node);
 }
 
-void SolarPanel::updateDrawable() {}
-
 void SolarPanel::updateColor(const osg::Vec4 &color) {
   for (auto &node : m_drawables) {
     auto geode = dynamic_cast<osg::Geode *>(node.get());

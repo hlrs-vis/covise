@@ -83,10 +83,8 @@ void InfoboardSensor::activate()
     coPickSensor::activate();
 }
 
-void InfoboardSensor::update()
-{
-    updateDrawable();
-    coPickSensor::update();
+void InfoboardSensor::update() {
+  coPickSensor::update();
 }
 
 EnergyGrid::EnergyGrid(const EnergyGridConfig &data, bool ignoreOverlap)
@@ -297,11 +295,6 @@ void EnergyGrid::updateColor(const osg::Vec4 &color)
         utils::color::overrideGeodeColor(point->getGeode(), color);
 }
 
-void EnergyGrid::updateDrawable() {
-  for (auto &infoboard : m_infoboards) {
-    infoboard->updateDrawable();
-  }
-}
 // toDo: streamline update for m_connections, m_lines and m_config.lines
 void EnergyGrid::updateTime(int timestep)
 {

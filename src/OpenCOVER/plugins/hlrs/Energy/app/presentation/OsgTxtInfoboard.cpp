@@ -20,8 +20,6 @@
 
 using namespace core;
 
-void OsgTxtInfoboard::updateDrawable() {}
-
 void OsgTxtInfoboard::initDrawable() {
   osg::ref_ptr<osg::MatrixTransform> trans = new osg::MatrixTransform;
   trans->setMatrix(osg::Matrix::translate(m_attributes.position));
