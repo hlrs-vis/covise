@@ -51,11 +51,6 @@ void CityGMLBuilding::updateTime(int timestep) {
   }
 }
 
-std::unique_ptr<osg::Vec4> CityGMLBuilding::getColorInRange(float value,
-                                                            float maxValue) {
-  return nullptr;
-}
-
 void CityGMLBuilding::setColorMapInShader(const opencover::ColorMap &colorMap) {
   m_shaders.resize(m_drawables.size());
   for (auto i = 0; i < m_drawables.size(); ++i) {

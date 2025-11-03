@@ -2,8 +2,6 @@
 #include <PluginUtil/coShaderUtil.h>
 #include <lib/core/utils/osgUtils.h>
 
-#include <memory>
-
 #include "app/typedefs.h"
 
 /**
@@ -27,10 +25,6 @@
  * @fn void updateTime(int timestep) override
  *   Updates the building's state based on the given timestep.
  *
- * @fn std::unique_ptr<osg::Vec4> getColorInRange(float value, float maxValue)
- * override Computes and returns a color corresponding to the given value within a
- * specified range.
- *
  * @fn void setColorMapInShader(const opencover::ColorMap &colorMap)
  *   Sets the color map in the building's shaders for data visualization.
  *
@@ -49,7 +43,6 @@ class CityGMLBuilding : public BuildingTimedependImpl {
   void initDrawable() override;
   void updateColor(const osg::Vec4 &color) override;
   void updateTime(int timestep) override;
-  std::unique_ptr<osg::Vec4> getColorInRange(float value, float maxValue);
 
   void setColorMapInShader(const opencover::ColorMap &colorMap);
   void setDataInShader(const std::vector<double> &data, float min, float max);
