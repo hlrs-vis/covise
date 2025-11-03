@@ -399,6 +399,9 @@ void ViewDesc::createButtons(const char *name,
     showAvatar_->setCallback([this](bool state)
                              { showAvatar(state); });
 
+    deleteButton_ = new ui::Action(editVPMenu_, "Delete");
+    deleteButton_->setCallback([this, master]() { master->deleteViewPoint(id_); });
+
     if (isChangeable_ && isChangeableFromCover_)
     {
         changeButton_ = new ui::Action("Change", this);
