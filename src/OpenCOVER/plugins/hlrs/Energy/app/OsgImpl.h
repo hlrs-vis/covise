@@ -25,5 +25,5 @@ class OsgBuildingImpl
 
 class OsgBuildingTimedependImpl : public OsgBuildingImpl, public core::interface::ITimedependable {
     public:
-     virtual ~OsgBuildingTimedependImpl();
+     virtual ~OsgBuildingTimedependImpl() = default;
 };
