@@ -168,29 +168,7 @@ coColorBar::coColorBar(const std::string &name, const ColorMap &map, bool inMenu
     speciesLabel_ = new vrui::coLabel();
     speciesLabel_->setUniqueName("speciesLabel");
 
-    std::string precision = covise::coCoviseConfig::getEntry("COVER.Plugin.ColorBars.Precision");
-    if (!precision.empty())
-    {
-        sprintf(format_str_, "%%.%sf", precision.c_str());
-    }
-    else if ((fabs(map.max()) > 1e-4 || fabs(map.min()) > 1e-4) && fabs(map.min()) < 1e+6 && fabs(map.max()) < 1e+6)
-    {
-        int ndig = 5;
-        int prec = std::max(0, ndig-(int)std::log10(std::max(fabs(map.min()), fabs(map.max()))));
-        std::string sign = "";
-        if (map.min() < 0 || map.max() < 0)
-            sign = "+";
-        sprintf(format_str_, "%%%s%d.%df", sign.c_str(), ndig-prec, prec);
-    }
-    else if (map.min() < 0)
-    {
-        sprintf(format_str_, "%%+g");
-    }
-    else
-    {
-        sprintf(format_str_, "%%g");
-    }
-
+    precision_ = covise::coCoviseConfig::getEntry("COVER.Plugin.ColorBars.Precision");
     // create texture
     image_.resize(4 * 256 * 2); // 4 componenten, 256*2 gross
     makeImage(map, map.min() > map.max());
@@ -274,15 +252,37 @@ void
 coColorBar::update(const ColorMap &map)
 {
     char str[100];
-    // use - and + symbyls with same width
+    // use - and + symbols with same width
     //const char minus[] = "\u2212"; // minus
-    //const char minus[] = "\uff0d"; // full-width hypen minus
+    //const char minus[] = "\uff0d"; // full-width hyphen minus
     const char minus[] = "\u2013"; // en-dash
     //const char plus[] = "\uff0b"; // full-width plus
     const char plus[] = "+";
     //const char space[] = "\u2002"; // en-space
     const char space[] = " ";
     const size_t off = std::max(sizeof space, std::max(sizeof minus,sizeof plus)-2); // reuse one char, don't count terminating 0
+
+    if (!precision_.empty())
+    {
+        sprintf(format_str_, "%%.%sf", precision_.c_str());
+    }
+    else if ((fabs(map.max()) > 1e-4 || fabs(map.min()) > 1e-4) && fabs(map.min()) < 1e+6 && fabs(map.max()) < 1e+6)
+    {
+        int ndig = 5;
+        int prec = std::max(0, ndig - (int)std::log10(std::max(fabs(map.min()), fabs(map.max()))));
+        std::string sign = "";
+        if (map.min() < 0 || map.max() < 0)
+            sign = "+";
+        sprintf(format_str_, "%%%s%d.%df", sign.c_str(), ndig - prec, prec);
+    }
+    else if (map.min() < 0)
+    {
+        sprintf(format_str_, "%%+g");
+    }
+    else
+    {
+        sprintf(format_str_, "%%g");
+    }
 
     // remove old labels
     for (size_t i = 0; i < MAX_LABELS; i++)
@@ -307,13 +307,13 @@ coColorBar::update(const ColorMap &map)
         }
         else if (str[off] == '+')
         {
-            for (size_t j=0; j<sizeof plus-1; ++j)
+            for (size_t j = 0; j < sizeof(plus) - 1; ++j)
                 str[off+2-sizeof(plus)+j] = plus[j];
             labels_[i]->setString(str+off+2-sizeof plus);
         }
         else if (str[off] == ' ')
         {
-            for (size_t j=0; j<sizeof space-1; ++j)
+            for (size_t j = 0; j < sizeof(space) - 1; ++j)
                 str[off+2-sizeof(space)] = space[j];
             labels_[i]->setString(str+off+2-sizeof space);
         }
