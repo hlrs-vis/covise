@@ -17,6 +17,8 @@ SET(HEADERS
     app/CityGMLSystem.h
     app/EnnovatisSystem.h
     app/SimulationSystem.h
+    app/typedefs.h
+    app/OsgImpl.h
     app/ui/ennovatis/EnnovatisDevice.h
     app/ui/ennovatis/EnnovatisDeviceSensor.h
     app/ui/citygml/CityGMLDeviceSensor.h
@@ -54,7 +56,6 @@ cover_add_plugin(
     EnergyCore
     coApacheArrow
     ${HEADERS} ${SOURCES})
-# add_dependencies(${Name} coApacheArrow)
 
 target_include_directories(${Name} PRIVATE
 	"${CMAKE_CURRENT_BINARY_DIR}/lib/ennovatis/include")
