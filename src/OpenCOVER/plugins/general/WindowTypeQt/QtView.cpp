@@ -410,7 +410,29 @@ QtViewElement *QtView::elementFactoryImplementation(FileBrowser *fb)
     ve->markForDeletion(a);
     connect(a, &QAction::triggered, [fb](bool){
         QString filters = QString::fromStdString(fb->filter());
-        filters.replace(";", ";;");
+        auto filterList = filters.split(";");
+        QStringList formattedFilters;
+        for (auto &f: filterList)
+        {
+            f = f.trimmed();
+            QString ext = f;
+            if (ext.startsWith("*"))
+                ext = ext.mid(1);
+            if (ext.startsWith("."))
+                ext = ext.mid(1);
+            if (ext.isEmpty())
+                ext = "All Files";
+
+            if (!f.startsWith("*"))
+            {
+                if (!f.startsWith("."))
+                    f.prepend(".");
+                f.prepend("*");
+            }
+            f = QString("%1 (%2)").arg(ext).arg(f);
+            formattedFilters.append(f);
+        }
+        filters = formattedFilters.join(";;");
         QString dir = QString::fromStdString(fb->value());
         QString selectedFilter;
         QString file = fb->forSaving()
