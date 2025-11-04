@@ -148,19 +148,18 @@ bool scale_anisotropic_pixels_depth(
     float ru = length(su - s0);
     float rv = length(sv - s0);
 
-    float du = clamp(2.0 * ru, min_screen_size, max_screen_size);
-    float dv = clamp(2.0 * rv, min_screen_size, max_screen_size);
-    float r_u = 0.5f * du;
-    float r_v = 0.5f * dv;
+    float diameter_raw = 2.0f * max(ru, rv);
+    if (diameter_raw <= UTIL_EPS)
+        return false;
 
-    float su_s = (ru > UTIL_EPS) ? (r_u / ru) : 0.0f;
-    float sv_s = (rv > UTIL_EPS) ? (r_v / rv) : 0.0f;
+    float diameter_clamped = clamp(diameter_raw, min_screen_size, max_screen_size);
+    float scale = diameter_clamped / diameter_raw;
 
-    step_u_ws *= su_s;
-    step_v_ws *= sv_s;
+    step_u_ws *= scale;
+    step_v_ws *= scale;
 
-    out_pixel_diameter = max(du, dv);
-    return (du > UTIL_EPS) || (dv > UTIL_EPS);
+    out_pixel_diameter = diameter_clamped;
+    return diameter_clamped > UTIL_EPS;
 }
 
 // Anisotropic pixel-scaling (no depth): same as above, but does not report NDC depth
@@ -188,19 +187,18 @@ bool scale_anisotropic_pixels(
     float ru = length(su - s0);
     float rv = length(sv - s0);
 
-    float du = clamp(2.0 * ru, min_screen_size, max_screen_size);
-    float dv = clamp(2.0 * rv, min_screen_size, max_screen_size);
-    float r_u = 0.5f * du;
-    float r_v = 0.5f * dv;
+    float diameter_raw = 2.0f * max(ru, rv);
+    if (diameter_raw <= UTIL_EPS)
+        return false;
 
-    float su_s = (ru > UTIL_EPS) ? (r_u / ru) : 0.0f;
-    float sv_s = (rv > UTIL_EPS) ? (r_v / rv) : 0.0f;
+    float diameter_clamped = clamp(diameter_raw, min_screen_size, max_screen_size);
+    float scale = diameter_clamped / diameter_raw;
 
-    step_u_ws *= su_s;
-    step_v_ws *= sv_s;
+    step_u_ws *= scale;
+    step_v_ws *= scale;
 
-    out_pixel_diameter = max(du, dv);
-    return (du > UTIL_EPS) || (dv > UTIL_EPS);
+    out_pixel_diameter = diameter_clamped;
+    return diameter_clamped > UTIL_EPS;
 }
 
 // Isotropic scaling with depth reporting (compat variant for other shaders)

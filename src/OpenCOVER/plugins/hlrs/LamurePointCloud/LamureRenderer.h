@@ -89,6 +89,11 @@ private:
         GLint scale_radius_gamma_loc    {-1};
         GLint max_radius_cut_loc        {-1};
         GLint  scale_projection_loc{-1};
+        GLint  proj_col0_loc{-1};
+        GLint  proj_col1_loc{-1};
+        GLint  viewport_half_y_loc{-1};
+        GLint  use_aniso_loc{-1};
+        GLint  aniso_normalize_loc{-1};
     };
     PointShader m_point_shader;
 
@@ -105,6 +110,11 @@ private:
         GLint max_radius_cut_loc        {-1};
         GLint scale_radius_loc          {-1}; // float scale_radius
         GLint scale_projection_loc      {-1}; // float scale_projection
+        GLint proj_col0_loc             {-1};
+        GLint proj_col1_loc             {-1};
+        GLint viewport_half_y_loc       {-1};
+        GLint use_aniso_loc             {-1};
+        GLint aniso_normalize_loc       {-1};
         GLint show_normals_loc          {-1}; // bool  show_normals
         GLint show_accuracy_loc         {-1}; // bool  show_accuracy
         GLint show_radius_dev_loc       {-1}; // bool  show_radius_deviation
@@ -121,13 +131,17 @@ private:
         GLint normal_matrix_loc         {-1};
         GLint max_radius_loc            {-1};
         GLint min_radius_loc            {-1};
-        GLint max_screen_size_loc{-1};
-        GLint min_screen_size_loc{-1};
+        GLint max_screen_size_loc       {-1};
+        GLint min_screen_size_loc       {-1};
         GLint scale_radius_gamma_loc    {-1};
         GLint max_radius_cut_loc        {-1};
         GLint scale_radius_loc          {-1};
         GLint scale_projection_loc      {-1};
-        // --- Unified float-based lighting uniforms ---
+        GLint proj_col0_loc             {-1};
+        GLint proj_col1_loc             {-1};
+        GLint viewport_half_y_loc       {-1};
+        GLint use_aniso_loc             {-1};
+        GLint aniso_normalize_loc       {-1};
         GLint use_tone_mapping_loc      {-1};
         GLint ambient_intensity_loc     {-1};
         GLint specular_intensity_loc    {-1};
@@ -161,25 +175,25 @@ private:
         GLint show_output_sens_loc      {-1}; // bool  show_output_sensitivity
         GLint accuracy_loc              {-1}; // float accuracy
         GLint average_radius_loc        {-1}; // float average_radius
-        GLint channel_loc;
-        GLint heatmap_loc;
-        GLint heatmap_min_loc;
-        GLint heatmap_max_loc;
-        GLint heatmap_min_color_loc;
-        GLint heatmap_max_color_loc;
+        GLint channel_loc               {-1};
+        GLint heatmap_loc               {-1};
+        GLint heatmap_min_loc           {-1};
+        GLint heatmap_max_loc           {-1};
+        GLint heatmap_min_color_loc     {-1};
+        GLint heatmap_max_color_loc     {-1};
     };
     PointProvShader m_point_prov_shader;
 
 
     struct SurfelShader {
         GLuint program{0};
-        GLint  mvp_matrix_loc{-1};
-        GLint  model_view_matrix_loc {-1};
-        GLint  max_radius_loc{-1};
-        GLint  min_radius_loc{-1};
-        GLint max_screen_size_loc{-1};
-        GLint min_screen_size_loc{-1};
-        GLint  scale_radius_loc{-1};
+        GLint  mvp_matrix_loc           {-1};
+        GLint  model_view_matrix_loc    {-1};
+        GLint  max_radius_loc           {-1};
+        GLint  min_radius_loc           {-1};
+        GLint max_screen_size_loc       {-1};
+        GLint min_screen_size_loc       {-1};
+        GLint  scale_radius_loc         {-1};
         GLint scale_projection_loc      {-1};
         GLint scale_radius_gamma_loc    {-1};
         GLint max_radius_cut_loc        {-1};

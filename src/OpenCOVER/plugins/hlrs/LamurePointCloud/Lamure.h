@@ -164,12 +164,12 @@ public:
         float scale_radius_gamma{ 0.5f };
         float scale_element{ 1.0f };
         float scale_point{ 1.0f };
-        float scale_surfel{ 2.0f };
+        float scale_surfel{ 1.75f };
         float min_radius{ 0.0f };
-        float max_radius{ std::min(std::numeric_limits<float>::max(), 0.1f) };
-        float min_screen_size{ 1.0f };
-        float max_screen_size{ std::min(std::numeric_limits<float>::max(), 0.1f) };
-        float max_radius_cut{ 10.0f };
+        float max_radius{ std::min(std::numeric_limits<float>::max(), 3.0f) };
+        float min_screen_size{ 0.0f };
+        float max_screen_size{ std::min(std::numeric_limits<float>::max(), 10000.0f) };
+        float max_radius_cut{ 2.5f };
         // Surfel scaling mode: 0=off (isotropic), 1=auto (default), 2=on (anisotropic)
         int32_t anisotropic_surfel_scaling{ 1 };
         // Auto-mode off-axis sensitivity threshold (max(|col2.x|,|col2.y|))
@@ -177,7 +177,7 @@ public:
         float depth_range{ 2.0f };
         float flank_lift{ 0.0f };
         std::vector<float> bvh_color{ 1.0f, 1.0f, 0.0f, 1.0f };
-        std::vector<float> frustum_color{ 0.0f, 0.0f, 0.0f, 1.0f };
+        std::vector<float> frustum_color{ 1.0f, 0.0f, 0.0f, 1.0f };
         uint16_t num_models{};
         bool show_pointcloud{ true };
         bool show_boundingbox{ false };

@@ -1,5 +1,7 @@
 #version 420 core
 
+INCLUDE vis_point_util.glsl
+
 out VertexData {
     vec3 color;
 } VertexOut;
@@ -17,41 +19,34 @@ uniform float min_radius;
 uniform float max_radius;
 uniform float scale_radius; 
 uniform float scale_projection;
-uniform float scale_radius_gamma; 
+uniform float scale_radius_gamma;
 uniform float max_radius_cut;
+uniform bool  use_aniso;
+uniform vec4  Pcol0;
+uniform vec4  Pcol1;
+uniform float viewport_half_y;
+uniform float aniso_normalize;
 
 void main() {
     const float EPS = 1e-6;
 
-    // Clip-/Gerätekoordinaten
+    float r_ws = calc_world_radius(
+        in_radius, max_radius_cut, scale_radius_gamma, scale_radius, min_radius, max_radius);
+
     vec4 clip = mvp_matrix * vec4(in_position, 1.0);
-    gl_Position = clip;
-
-    // 1) RAW-Radius
-    float r_raw = max(0.0, in_radius);
-
-    // 2) CUT im RAW-Domain
-    if (max_radius_cut > 0.0 && r_raw > max_radius_cut) {
-        gl_PointSize    = 0.0;
-        gl_Position     = vec4(2e9, 2e9, 2e9, 1.0); // sicher außerhalb
-        VertexOut.color = vec3(0.0);
-        return;
-    }
-
-    // 3) Gamma & Scale -> WS-Radius, danach WS-CLAMP (Radius)
-    float gamma = (scale_radius_gamma > 0.0) ? scale_radius_gamma : 1.0;
-    float r_ws = clamp(scale_radius * pow(r_raw, gamma), min_radius, max_radius);
-
-    // 4) Screenspace-CLAMP auf Pixel-DURCHMESSER (gl_PointSize erwartet Durchmesser)
-    float d_px  = (2.0 * r_ws * scale_projection) / max(EPS, abs(clip.w)); // Pixel-Durchmesser
-    float d_pxC = clamp(d_px, min_screen_size, max_screen_size);
-
-    if (d_pxC <= EPS) {
-        gl_PointSize    = 0.0;
-        VertexOut.color = vec3(0.0);
-        return;
-    }
-
-    gl_PointSize    = d_pxC;
     VertexOut.color = vec3(in_r, in_g, in_b);
+
+    if (abs(clip.w) <= EPS || r_ws <= UTIL_EPS) {
+        gl_Position = clip;
+        gl_PointSize = 0.0;
+        return;
+    }
+
+    float pointSize = use_aniso
+        ? calc_diameter_px_aniso(clip, r_ws, Pcol0, Pcol1, viewport_half_y, aniso_normalize,
+                                 min_screen_size, max_screen_size)
+        : calc_diameter_px_iso(clip, r_ws, scale_projection, min_screen_size, max_screen_size);
+
+    gl_Position = clip;
+    gl_PointSize = (pointSize > UTIL_EPS) ? pointSize : 0.0;
 }

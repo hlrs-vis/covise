@@ -32,6 +32,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <cmath>
 #include <fstream>
 #include <thread>
 #include <stdexcept>
@@ -470,9 +471,9 @@ struct FrustumDrawCallback : public osg::Drawable::DrawCallback
             _renderer->getFrustumResource().vertices[i * 3 + 2] = vv.z;
         }
 
-        glEnable(GL_DEPTH_CLAMP);
-        glDisable(GL_DEPTH_TEST);
-        glLineWidth(2);
+        //glEnable(GL_DEPTH_CLAMP);
+        //glDisable(GL_DEPTH_TEST);
+        glLineWidth(1);
         glBindVertexArray(_renderer->getFrustumResource().vao);
         glBindBuffer(GL_ARRAY_BUFFER, _renderer->getFrustumResource().vbo);
         glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * _renderer->getFrustumResource().vertices.size(), _renderer->getFrustumResource().vertices.data());
@@ -1296,6 +1297,11 @@ void LamureRenderer::initUniforms()
     m_point_shader.scale_projection_loc   = glGetUniformLocation(m_point_shader.program, "scale_projection");
     m_point_shader.max_radius_cut_loc = glGetUniformLocation(m_point_shader.program, "max_radius_cut");
     m_point_shader.scale_radius_gamma_loc   = glGetUniformLocation(m_point_shader.program, "scale_radius_gamma");
+    m_point_shader.proj_col0_loc    = glGetUniformLocation(m_point_shader.program, "Pcol0");
+    m_point_shader.proj_col1_loc    = glGetUniformLocation(m_point_shader.program, "Pcol1");
+    m_point_shader.viewport_half_y_loc = glGetUniformLocation(m_point_shader.program, "viewport_half_y");
+    m_point_shader.use_aniso_loc    = glGetUniformLocation(m_point_shader.program, "use_aniso");
+    m_point_shader.aniso_normalize_loc = glGetUniformLocation(m_point_shader.program, "aniso_normalize");
     glUseProgram(0);
 
     glUseProgram(m_point_color_shader.program);
@@ -1309,8 +1315,12 @@ void LamureRenderer::initUniforms()
     m_point_color_shader.max_radius_cut_loc = glGetUniformLocation(m_point_color_shader.program, "max_radius_cut");
     m_point_color_shader.scale_radius_gamma_loc   = glGetUniformLocation(m_point_color_shader.program, "scale_radius_gamma");
     m_point_color_shader.scale_radius_loc = glGetUniformLocation(m_point_color_shader.program, "scale_radius");
-
     m_point_color_shader.scale_projection_loc   = glGetUniformLocation(m_point_color_shader.program, "scale_projection");
+    m_point_color_shader.proj_col0_loc    = glGetUniformLocation(m_point_color_shader.program, "Pcol0");
+    m_point_color_shader.proj_col1_loc    = glGetUniformLocation(m_point_color_shader.program, "Pcol1");
+    m_point_color_shader.viewport_half_y_loc = glGetUniformLocation(m_point_color_shader.program, "viewport_half_y");
+    m_point_color_shader.use_aniso_loc    = glGetUniformLocation(m_point_color_shader.program, "use_aniso");
+    m_point_color_shader.aniso_normalize_loc = glGetUniformLocation(m_point_color_shader.program, "aniso_normalize");
     m_point_color_shader.show_normals_loc         = glGetUniformLocation(m_point_color_shader.program, "show_normals");
     m_point_color_shader.show_accuracy_loc        = glGetUniformLocation(m_point_color_shader.program, "show_accuracy");
     m_point_color_shader.show_radius_dev_loc      = glGetUniformLocation(m_point_color_shader.program, "show_radius_deviation");
@@ -1329,6 +1339,11 @@ void LamureRenderer::initUniforms()
     m_point_color_lighting_shader.min_screen_size_loc          = glGetUniformLocation(m_point_color_lighting_shader.program, "min_screen_size");
     m_point_color_lighting_shader.scale_radius_loc        = glGetUniformLocation(m_point_color_lighting_shader.program, "scale_radius");
     m_point_color_lighting_shader.scale_projection_loc   = glGetUniformLocation(m_point_color_lighting_shader.program, "scale_projection");
+    m_point_color_lighting_shader.proj_col0_loc    = glGetUniformLocation(m_point_color_lighting_shader.program, "Pcol0");
+    m_point_color_lighting_shader.proj_col1_loc    = glGetUniformLocation(m_point_color_lighting_shader.program, "Pcol1");
+    m_point_color_lighting_shader.viewport_half_y_loc = glGetUniformLocation(m_point_color_lighting_shader.program, "viewport_half_y");
+    m_point_color_lighting_shader.use_aniso_loc    = glGetUniformLocation(m_point_color_lighting_shader.program, "use_aniso");
+    m_point_color_lighting_shader.aniso_normalize_loc = glGetUniformLocation(m_point_color_lighting_shader.program, "aniso_normalize");
     m_point_color_lighting_shader.max_radius_cut_loc = glGetUniformLocation(m_point_color_lighting_shader.program, "max_radius_cut");
     m_point_color_lighting_shader.scale_radius_gamma_loc    = glGetUniformLocation(m_point_color_lighting_shader.program, "scale_radius_gamma");
 
@@ -1522,7 +1537,6 @@ void LamureRenderer::initUniforms()
     m_surfel_pass2_shader.flank_lift_loc        = glGetUniformLocation(m_surfel_pass2_shader.program, "flank_lift");
     m_surfel_pass2_shader.coloring_loc          = glGetUniformLocation(m_surfel_pass2_shader.program, "coloring");
 
-    // Feste Samplerbindung (einmalig, spart pro-Frame-Setups)
     if (m_surfel_pass2_shader.depth_texture_loc >= 0)
         glUniform1i(m_surfel_pass2_shader.depth_texture_loc, 0);
     glUseProgram(0);
@@ -1533,7 +1547,6 @@ void LamureRenderer::initUniforms()
     m_surfel_pass3_shader.in_normal_texture_loc       = glGetUniformLocation(m_surfel_pass3_shader.program, "in_normal_texture");
     m_surfel_pass3_shader.in_vs_position_texture_loc  = glGetUniformLocation(m_surfel_pass3_shader.program, "in_vs_position_texture");
     m_surfel_pass3_shader.in_depth_texture_loc        = glGetUniformLocation(m_surfel_pass3_shader.program, "in_depth_texture");
-
     m_surfel_pass3_shader.point_light_pos_vs_loc      = glGetUniformLocation(m_surfel_pass3_shader.program, "point_light_pos_vs");
     m_surfel_pass3_shader.point_light_intensity_loc   = glGetUniformLocation(m_surfel_pass3_shader.program, "point_light_intensity");
     m_surfel_pass3_shader.ambient_intensity_loc       = glGetUniformLocation(m_surfel_pass3_shader.program, "ambient_intensity");
@@ -1541,14 +1554,12 @@ void LamureRenderer::initUniforms()
     m_surfel_pass3_shader.shininess_loc               = glGetUniformLocation(m_surfel_pass3_shader.program, "shininess");
     m_surfel_pass3_shader.gamma_loc                   = glGetUniformLocation(m_surfel_pass3_shader.program, "gamma");
     m_surfel_pass3_shader.use_tone_mapping_loc        = glGetUniformLocation(m_surfel_pass3_shader.program, "use_tone_mapping");
-
     m_surfel_pass3_shader.lighting_loc               = glGetUniformLocation(m_surfel_pass3_shader.program, "lighting");
 
     if (m_surfel_pass3_shader.in_color_texture_loc >= 0)       glUniform1i(m_surfel_pass3_shader.in_color_texture_loc, 0);
     if (m_surfel_pass3_shader.in_normal_texture_loc >= 0)      glUniform1i(m_surfel_pass3_shader.in_normal_texture_loc, 1);
     if (m_surfel_pass3_shader.in_vs_position_texture_loc >= 0) glUniform1i(m_surfel_pass3_shader.in_vs_position_texture_loc, 2);
     if (m_surfel_pass3_shader.in_depth_texture_loc >= 0)       glUniform1i(m_surfel_pass3_shader.in_depth_texture_loc, 3);
-
     glUseProgram(0);
 }
 
@@ -1595,6 +1606,21 @@ void LamureRenderer::setFrameUniforms(const scm::math::mat4& projection_matrix, 
     // Precompute common scalars once per frame
     const float scale_radius_combined = s.scale_radius * s.scale_element;
     const float scale_projection_val = opencover::cover->getScale() * viewport.y * 0.5f * projection_matrix.data_array[5];
+    const scm::math::vec4f proj_col0(
+        projection_matrix.data_array[0],
+        projection_matrix.data_array[1],
+        projection_matrix.data_array[2],
+        projection_matrix.data_array[3]);
+    const scm::math::vec4f proj_col1(
+        projection_matrix.data_array[4],
+        projection_matrix.data_array[5],
+        projection_matrix.data_array[6],
+        projection_matrix.data_array[7]);
+    const float viewport_half_y = opencover::cover->getScale() * viewport.y * 0.5f;
+    const float len0 = std::sqrt(std::max(0.0f, proj_col0[0] * proj_col0[0] + proj_col0[1] * proj_col0[1]));
+    const float len1 = std::sqrt(std::max(0.0f, proj_col1[0] * proj_col1[0] + proj_col1[1] * proj_col1[1]));
+    const float rms_proj = std::sqrt(std::max(1e-8f, 0.5f * (len0 * len0 + len1 * len1)));
+    const float aniso_normalize = (rms_proj > 1e-8f) ? (len1 / rms_proj) : 1.0f;
     const bool enableColorDebug = s.coloring;
     const bool showNormalsDebug = enableColorDebug && s.show_normals;
     const bool showAccuracyDebug = enableColorDebug && s.show_accuracy;
@@ -1644,6 +1670,11 @@ void LamureRenderer::setFrameUniforms(const scm::math::mat4& projection_matrix, 
         glUniform1f(prog.max_radius_cut_loc, s.max_radius_cut);
         glUniform1f(prog.scale_radius_gamma_loc, s.scale_radius_gamma);
         glUniform1f(prog.scale_projection_loc, scale_projection_val);
+        if (prog.proj_col0_loc >= 0)       glUniform4fv(prog.proj_col0_loc, 1, proj_col0.data_array);
+        if (prog.proj_col1_loc >= 0)       glUniform4fv(prog.proj_col1_loc, 1, proj_col1.data_array);
+        if (prog.viewport_half_y_loc >= 0) glUniform1f(prog.viewport_half_y_loc, viewport_half_y);
+        if (prog.use_aniso_loc >= 0)       glUniform1i(prog.use_aniso_loc, useAnisoThisPass ? 1 : 0);
+        if (prog.aniso_normalize_loc >= 0) glUniform1f(prog.aniso_normalize_loc, aniso_normalize);
         break;
     }
     case ShaderType::PointColor: {
@@ -1661,6 +1692,11 @@ void LamureRenderer::setFrameUniforms(const scm::math::mat4& projection_matrix, 
         glUniform1f(prog.max_radius_cut_loc, s.max_radius_cut);
         glUniform1f(prog.scale_radius_gamma_loc, s.scale_radius_gamma);
         glUniform1f(prog.scale_projection_loc, scale_projection_val);
+        if (prog.proj_col0_loc >= 0)       glUniform4fv(prog.proj_col0_loc, 1, proj_col0.data_array);
+        if (prog.proj_col1_loc >= 0)       glUniform4fv(prog.proj_col1_loc, 1, proj_col1.data_array);
+        if (prog.viewport_half_y_loc >= 0) glUniform1f(prog.viewport_half_y_loc, viewport_half_y);
+        if (prog.use_aniso_loc >= 0)       glUniform1i(prog.use_aniso_loc, useAnisoThisPass ? 1 : 0);
+        if (prog.aniso_normalize_loc >= 0) glUniform1f(prog.aniso_normalize_loc, aniso_normalize);
         if (prog.show_normals_loc >= 0)     glUniform1i(prog.show_normals_loc,     showNormalsDebug ? 1 : 0);
         if (prog.show_radius_dev_loc >= 0)  glUniform1i(prog.show_radius_dev_loc,  showRadiusDeviationDebug ? 1 : 0);
         if (prog.show_output_sens_loc >= 0) glUniform1i(prog.show_output_sens_loc, showOutputSensitivityDebug ? 1 : 0);
@@ -1680,6 +1716,11 @@ void LamureRenderer::setFrameUniforms(const scm::math::mat4& projection_matrix, 
         glUniform1f(prog.max_radius_cut_loc, s.max_radius_cut);
         glUniform1f(prog.scale_radius_gamma_loc, s.scale_radius_gamma);
         glUniform1f(prog.scale_projection_loc, scale_projection_val);
+        if (prog.proj_col0_loc >= 0)       glUniform4fv(prog.proj_col0_loc, 1, proj_col0.data_array);
+        if (prog.proj_col1_loc >= 0)       glUniform4fv(prog.proj_col1_loc, 1, proj_col1.data_array);
+        if (prog.viewport_half_y_loc >= 0) glUniform1f(prog.viewport_half_y_loc, viewport_half_y);
+        if (prog.use_aniso_loc >= 0)       glUniform1i(prog.use_aniso_loc, useAnisoThisPass ? 1 : 0);
+        if (prog.aniso_normalize_loc >= 0) glUniform1f(prog.aniso_normalize_loc, aniso_normalize);
         if (prog.show_normals_loc >= 0)     glUniform1i(prog.show_normals_loc,     showNormalsDebug ? 1 : 0);
         if (prog.show_radius_dev_loc >= 0)  glUniform1i(prog.show_radius_dev_loc,  showRadiusDeviationDebug ? 1 : 0);
         if (prog.show_output_sens_loc >= 0) glUniform1i(prog.show_output_sens_loc, showOutputSensitivityDebug ? 1 : 0);
