@@ -45,6 +45,7 @@
 #include <util/string_util.h>
 #include <util/unixcompat.h>
 #include <vrb/client/VRBClient.h>
+#include <grmsg/coGRSetViewpointFile.h>
 
 #include <boost/filesystem/exception.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -1079,8 +1080,18 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         handler = findFileHandler(fileTypeString.c_str());
 	//vrml will remote fetch missing files itself
 	std::string xt = url.extension();
-	
-	std::vector<std::string> vrmlExtentions{ "x3dv", "wrl", "wrz" };
+
+    if (!handler && fileTypeString == "vwp")
+    {
+        coVRPluginList::instance()->addPlugin("ViewPoint");
+        if (viewPointFile == "")
+            viewPointFile = validFileName;
+        grmsg::coGRSetViewpointFile msg(validFileName.c_str(), 0);
+        cover->guiToRenderMsg(msg);
+        return nullptr;
+    }
+
+    std::vector<std::string> vrmlExtentions{"x3dv", "wrl", "wrz"};
     const char *ive = ".ive";
 	std::string lowXt(xt);
 	std::transform(xt.begin(), xt.end(), lowXt.begin(), ::tolower);
