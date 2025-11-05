@@ -10,15 +10,13 @@
 
 #include <cassert>
 #include <chrono>
-#include <cstring>
 #include <cstdlib>
+#include <cstring>
+#include <filesystem>
 #include <locale>
 #include <thread>
+#include <unordered_set>
 
-#include "OpenCOVER.h"
-#include "VRRegisterSceneGraph.h"
-#include "VRSceneGraph.h"
-#include "VRViewer.h"
 #include "coTabletUI.h"
 #include "coVRCommunication.h"
 #include "coVRConfig.h"
@@ -28,6 +26,7 @@
 #include "coVRPluginList.h"
 #include "coVRPluginSupport.h"
 #include "coVRRenderer.h"
+#include "OpenCOVER.h"
 #include "SidecarConfigBridge.h"
 #include "ui/Action.h"
 #include "ui/Button.h"
@@ -35,6 +34,9 @@
 #include "ui/Group.h"
 #include "ui/Menu.h"
 #include "ui/Owner.h"
+#include "VRRegisterSceneGraph.h"
+#include "VRSceneGraph.h"
+#include "VRViewer.h"
 #include <config/CoviseConfig.h>
 #include <net/covise_host.h>
 #include <net/message.h>
@@ -49,9 +51,17 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/locale.hpp>
 #include <fcntl.h>
+#include <osg/Identifier>
 #include <osg/Texture2D>
+#include <osgDB/FileNameUtils>
+#include <osgDB/FileUtils>
 #include <osgText/Font>
 #include <PluginUtil/PluginMessageTypes.h>
+
+#include <OpenConfig/access.h>
+#include <OpenConfig/array.h>
+#include <OpenConfig/file.h>
+#include <OpenConfig/value.h>
 
 #ifdef HAVE_LIBCURL
 #include <HTTPClient/CURL/request.h>
@@ -77,6 +87,161 @@ using namespace covise;
 namespace fs = boost::filesystem;
 namespace opencover
 {
+namespace detail{
+
+static inline bool starts_with(const std::string& s, const std::string& prefix)
+{
+    return s.compare(0, prefix.size(), prefix) == 0;
+}
+
+static inline bool iequals(const std::string &a, const std::string &b)
+{
+    return a.size() == b.size()
+        && std::equal(a.begin(), a.end(), b.begin(),
+            [](unsigned char x, unsigned char y){ return std::tolower(x) == std::tolower(y); });
+}
+
+static std::vector<std::string> collectPluginSearchDirs()
+{
+    std::vector<std::string> dirs;
+
+    auto* reg = osgDB::Registry::instance();
+    auto libDirs = reg->getLibraryFilePathList();
+    dirs.insert(dirs.end(), libDirs.begin(), libDirs.end());
+
+#ifdef _WIN32
+    // add application directory
+    char exePath[MAX_PATH] = {0};
+    if (GetModuleFileNameA(nullptr, exePath, MAX_PATH))
+    {
+        std::filesystem::path p(exePath);
+        dirs.emplace_back(p.parent_path().string());
+    }
+    // add PATH directories
+    if (const char* pathEnv = std::getenv("PATH"))
+    {
+        std::string pathStr(pathEnv);
+        size_t pos = 0;
+        while (pos != std::string::npos)
+        {
+            size_t next = pathStr.find(';', pos);
+            std::string dir = pathStr.substr(pos, next == std::string::npos ? next : next - pos);
+            if (!dir.empty())
+                dirs.emplace_back(dir);
+            pos = (next == std::string::npos) ? next : next + 1;
+        }
+    }
+#endif
+
+    // deduplicate, keep only existing directories
+    std::unordered_set<std::string> seen;
+    std::vector<std::string> out;
+    for (auto& d : dirs)
+    {
+        try {
+            if (!d.empty() && std::filesystem::is_directory(d) && seen.insert(d).second)
+                out.emplace_back(d);
+        } catch (...) {
+            // ignore invalid entries
+        }
+    }
+    return out;
+}
+
+static void preloadOsgDbPlugins()
+{
+    auto* reg = osgDB::Registry::instance();
+    const auto dirs = collectPluginSearchDirs();
+    for (const auto& dir : dirs)
+    {
+        for (const auto& f : osgDB::getDirectoryContents(dir))
+        {
+            auto ext = std::filesystem::path(f).extension().string();
+#ifdef _WIN32
+            if (!osg::iequals(ext, ".dll")) continue;
+#else
+            if (ext != ".so" && ext != ".dylib") continue;
+#endif
+            const auto name = osgDB::getSimpleFileName(f);
+            if (!starts_with(name, "osgdb_")) continue;
+
+            const auto full = osgDB::concatPaths(dir, f);
+            reg->loadLibrary(full);
+        }
+    }
+}
+
+std::vector<std::string> getSupportedOsgExtentions() {
+    //plugins are loaded lazily on demand, so we need to preload them first
+    opencover::config::File configFile("supportedFormats");
+
+    if (!configFile.exists()) {
+        static bool pluginsPreloaded = false;
+        if (!pluginsPreloaded) {
+            preloadOsgDbPlugins();
+            pluginsPreloaded = true;
+        }
+        osgDB::Registry* registry = osgDB::Registry::instance();
+        
+        // Get list of all ReaderWriter plugins
+        osgDB::Registry::ReaderWriterList& rwList = registry->getReaderWriterList();
+        std::vector<std::string> formats, descriptions, pluginNames;
+
+        for (auto& rw : rwList) {
+            for(auto ext : rw->supportedExtensions()) {
+                formats.push_back(ext.first);
+                descriptions.push_back(ext.second);
+                pluginNames.push_back(rw->className());
+            }
+        }
+        auto formatArray = configFile.array("supportedOsgFormats", "suffix", std::vector<std::string>{}, opencover::config::Flag::Default);
+        *formatArray = formats;
+        auto descriptionArray = configFile.array("supportedOsgFormatDescriptions", "description", std::vector<std::string>{}, opencover::config::Flag::Default);
+        *descriptionArray = descriptions;
+        auto pluginNameArray = configFile.array("supportedOsgFormatPluginNames", "pluginName", std::vector<std::string>{}, opencover::config::Flag::Default);
+        *pluginNameArray = pluginNames;
+        if(!configFile.save()) {
+            std::cerr << "Could not open " << configFile.pathname() << " for writing supported formats" << std::endl;
+            return std::vector<std::string>{};
+        }
+    }
+    auto formatArray = configFile.array<std::string>("supportedOsgFormats", "suffix");
+    return formatArray->value();
+}
+
+
+std::string getWriteFilterList(const std::vector<std::string>& supportedExtensions)
+{
+    const std::vector<std::string> popularFilters = {
+        "*.osg", "*.ive", "*.osgb", "*.osgt", "*.osgx",
+        "*.obj", "*.stl", "*.3ds", "*.fbx", "*.iv", "*.dae"
+    };
+    
+    std::string result;
+    for (const auto& filter : popularFilters)
+    {
+        // Extract extension from filter (e.g., "*.osg" -> "osg")
+        if (filter.size() > 2 && filter.substr(0, 2) == "*.")
+        {
+            std::string ext = filter.substr(2);
+            // Check if this extension is in supportedExtensions
+            if (std::find(supportedExtensions.begin(), supportedExtensions.end(), ext) != supportedExtensions.end())
+            {
+                result.append(filter);
+                result.append(";");
+            }
+        }
+    }
+    return result;
+}
+
+
+
+} // namespace detail
+
+const std::vector<std::string> &coVRFileManager::getSupportedOsgExtentions() const {
+    return m_supportedOsgExtentions;
+}
 
 coVRFileManager *coVRFileManager::s_instance = NULL;
 
@@ -1202,6 +1367,8 @@ coVRFileManager::coVRFileManager()
     : fileHandlerList()
     , m_sharedFiles("coVRFileManager_filePaths", fileOwnerList(), vrb::ALWAYS_SHARE)
     , remoteFetchPathTmp((fs::temp_directory_path() / ("remoteFetch_" + covise::Host::getUsername())).string())
+    , m_supportedOsgExtentions(detail::getSupportedOsgExtentions())
+    , m_supportedWriteExtentions(detail::getWriteFilterList(m_supportedOsgExtentions))
 {
     START("coVRFileManager::coVRFileManager");
     /// path for the viewpoint file: initialized by 1st param() call
@@ -1221,13 +1388,13 @@ coVRFileManager::coVRFileManager()
     if (cover) {
         m_owner.reset(new ui::Owner("FileManager", cover->ui));
 
-        auto fileOpen = new ui::FileBrowser("OpenFile", m_owner.get());
-        fileOpen->setText("Open");
-        fileOpen->setFilter(getFilterList());
+        m_fileOpen = new ui::FileBrowser("OpenFile", m_owner.get());
+        m_fileOpen->setText("Open");
+        
         if(cover->fileMenu)
         {
-          cover->fileMenu->add(fileOpen);
-          fileOpen->setCallback([this](const std::string &file){
+          cover->fileMenu->add(m_fileOpen);
+          m_fileOpen->setCallback([this](const std::string &file){
                   loadFile(file.c_str());
           });
           m_sharedFiles.setUpdateFunction([this](void) {loadPartnerFiles(); });
@@ -1258,7 +1425,7 @@ coVRFileManager::coVRFileManager()
 
     osgDB::Registry::instance()->addFileExtensionAlias("gml", "citygml");
     osgDB::Registry::instance()->addFileExtensionAlias("3mxb", "3mx");
-
+    updateSupportedFormats();
     options = new osgDB::ReaderWriter::Options;
     options->setOptionString(coCoviseConfig::getEntry("options", "COVER.File"));
     osgDB::Registry::instance()->setOptions(options);
@@ -1643,52 +1810,42 @@ int coVRFileManager::coLoadFontDefaultStyle()
     return 0;
 }
 
-std::string coVRFileManager::getFilterList()
+void coVRFileManager::updateSupportedFormats()
 {
-    std::string extensions;
+    m_supportedReadExtentions.clear();
     for (FileHandlerList::iterator it = fileHandlerList.begin();
          it != fileHandlerList.end();
          ++it)
     {
-        extensions += "*.";
-        extensions += (*it)->extension;
-        extensions += ";";
+        m_supportedReadExtentions += "*.";
+        m_supportedReadExtentions += (*it)->extension;
+        m_supportedReadExtentions += ";";
     }
-    extensions += "*.wrl;";
-    extensions += "*.osg *.ive;";
-    extensions += "*.osgb *.osgt *.osgx;";
-    extensions += "*.obj;";
-    extensions += "*.stl;";
-    extensions += "*.ply;";
-    extensions += "*.iv;";
-    extensions += "*.dxf;";
-    extensions += "*.3ds;";
-    extensions += "*.flt;";
-    extensions += "*.dae;";
-    extensions += "*.md2;";
-    extensions += "*.geo;";
-    extensions += "*.bvh;";
-    extensions += "*";
+    constexpr std::array<const char*, 18> popularExtensions = {
+        "wrl", "osg", "ive", "osgb", "osgt", "osgx", "obj", "stl", "ply", "iv", "dxf", "3ds", "flt", "dae", "md2", "geo", "bvh", "fbx"
+    };
 
-    return extensions;
+    for(const auto ext : popularExtensions)
+    {
+        if(std::find(m_supportedOsgExtentions.begin(), m_supportedOsgExtentions.end(), ext) == m_supportedOsgExtentions.end())
+            continue;
+        m_supportedReadExtentions += "*.";
+        m_supportedReadExtentions += ext;
+        m_supportedReadExtentions += ";";
+    }
+    m_supportedReadExtentions += "*";
+    if(m_fileOpen)
+        m_fileOpen->setFilter(getFilterList());
 }
 
-std::string coVRFileManager::getWriteFilterList()
+const std::string &coVRFileManager::getFilterList() const
 {
-    std::string extensions;
-    extensions += "*.osg;";
-    extensions += "*.ive;";
-    extensions += "*.osgb;";
-    extensions += "*.osgt;";
-    extensions += "*.osgx;";
-    extensions += "*.obj;";
-    extensions += "*.stl;";
-    extensions += "*.3ds;";
-    extensions += "*.iv;";
-    extensions += "*.dae;";
-    extensions += "*";
+    return m_supportedReadExtentions;
+}
 
-    return extensions;
+const std::string &coVRFileManager::getWriteFilterList() const
+{
+    return m_supportedWriteExtentions;
 }
 
 
@@ -1806,6 +1963,7 @@ int coVRFileManager::registerFileHandler(const FileHandler *handler)
         return -1;
 
     fileHandlerList.push_back(handler);
+    updateSupportedFormats();
     return 0;
 }
 
@@ -1854,6 +2012,8 @@ int coVRFileManager::unregisterFileHandler(const FileHandler *handler)
                 }
 
                 fileHandlerList.erase(it);
+                updateSupportedFormats();
+
                 return 0;
             }
         }

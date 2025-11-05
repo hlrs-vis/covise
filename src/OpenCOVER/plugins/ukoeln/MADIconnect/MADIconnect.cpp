@@ -48,6 +48,7 @@
 #include <osg/Switch>
 
 #include <iostream>
+#include <sys/stat.h>
 
 using namespace opencover;
 using namespace std;
@@ -472,9 +473,23 @@ void MADIconnect::handleMessage(Message *m)
                     return;
                 }
 
-                // 3. Load the file into the switch node               
+                // 3. Load the file into the switch node                
+                string cachedPath = dataPath + "/.covercache/" + filename + ".ive";
+                string fileToLoad = fullPath;
+
+                struct stat buffer;
+                if (stat(cachedPath.c_str(), &buffer) == 0)
+                {
+                    fileToLoad = cachedPath;
+                    std::cout << "MADIconnect::Using cached file: " << cachedPath << std::endl;
+                }
+                else
+                {
+                    std::cout << "MADIconnect::Cached file not found, using original: " << fullPath << std::endl;
+                }
+       
                 osg::Node* loadedNode = coVRFileManager::instance()->loadFile(
-                    fullPath.c_str(),  // fileName
+                    fileToLoad.c_str(),  // fileName
                     nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
                     switchNode.get(),  // parent
                     nullptr            // covise_key (can be nullptr)
@@ -531,10 +546,13 @@ void MADIconnect::handleMessage(Message *m)
             int rgb[3];
             tb >> rgb[0] >> rgb[1] >> rgb[2];
             
-            float transparency;
+            float transparency = 0.0f;
             tb >> transparency;
 
-            std::cout << "MADIconnect::Color RGBA: " << rgb[0] << ", " << rgb[1] << ", " << rgb[2] << ", " << transparency << std::endl;
+            const float alpha = std::max(0.f, std::min(1.f, 1.f - transparency));
+
+            std::cout << "MADIconnect::Color RGBA: " << rgb[0] << ", " << rgb[1] << ", " 
+                      << rgb[2] << ", " << alpha << std::endl;
 
             // Apply color to all neurons
             int numNeurons = 0;
@@ -562,7 +580,15 @@ void MADIconnect::handleMessage(Message *m)
                             if (geode)
                             {
                                 cout << "MADIconnect:: Found geode." << endl;
-                                VRSceneGraph::instance()->setColor(geode, rgb, 1.0f);
+                                VRSceneGraph::instance()->setColor(geode, rgb, alpha);
+                                if (alpha < 0.999f)
+                                {
+                                    cout << "MADIconnect:: Setting transparency." << endl;
+                                    osg::StateSet* ss = geode->getOrCreateStateSet();
+                                    ss->setMode(GL_BLEND, osg::StateAttribute::ON);
+                                    ss->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+                                }
+
                                 found = true;
                             }
                             else
@@ -590,7 +616,14 @@ void MADIconnect::handleMessage(Message *m)
                     if (geode)
                     {
                         std::cout << "MADIconnect:: Found geode for neuron: " << neuronName << std::endl;
-                        VRSceneGraph::instance()->setColor(geode, rgb, 1.0f);
+                        VRSceneGraph::instance()->setColor(geode, rgb, alpha);
+                        if (alpha < 0.999f)
+                        {
+                            cout << "MADIconnect:: Setting transparency." << endl;
+                            osg::StateSet* ss = geode->getOrCreateStateSet();
+                            ss->setMode(GL_BLEND, osg::StateAttribute::ON);
+                            ss->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+                        }
                     }
                     else
                     {

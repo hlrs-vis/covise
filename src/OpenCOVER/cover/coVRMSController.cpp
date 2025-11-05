@@ -637,7 +637,10 @@ void coVRMSController::heartBeat(const std::string &name, bool draw)
         if (localCounter != masterCount)
         {
             std::cerr << "coVRMSController: missed heart beat \"" << name << "\", master is " << masterCount << ", on " << getID() << " is " << localCounter << std::endl;
-            exit(0);
+            while(true)
+            {
+              sleep(1000);
+            }
         }
     }
 }
@@ -698,6 +701,7 @@ void coVRMSController::sendSlaves(const Message *msg)
 
     if (syncMode == SYNC_MULTICAST)
     {
+
 #if !defined(NOMCAST) && defined(HAVE_NORM)
 
         // Prepare header

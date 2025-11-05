@@ -64,6 +64,7 @@ private:
 
     int numLabels_ = 0; // number of labels, max
     float labelValues_[MAX_LABELS]; // numerical values of labels
+    std::string precision_; // configured precision
     char format_str_[32]; // precision of float values
 
    //  const opencover::ColorMap &map_;

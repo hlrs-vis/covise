@@ -69,6 +69,10 @@ private:
     osg::ref_ptr<osg::Geode> brainGeode;
     osg::ref_ptr<osg::Geometry> brainGeometry;
 
+    // Additional static models
+    osg::ref_ptr<osg::Node> secondModel;
+    osg::ref_ptr<osg::Node> thirdModel;
+
     // Animation data
     std::vector<osg::ref_ptr<osg::Vec4Array>> colorFrames;
     int numFrames;
@@ -81,12 +85,13 @@ private:
     InterpolationMode interpolationMode;
 
     // Helper methods
-    bool loadBrainModels(const std::string &path);
+    bool loadBrainModels(const std::string &firstFilePath);
     void updateColors();
     osg::Vec4Array* interpolateColors(int frame1, int frame2, float t);
     void flipNormals();
     float applyInterpolationCurve(float t);
     void setInterpolationMode(InterpolationMode mode);
+    void setupVertexColorMaterial(osg::Node *node);
 };
 
 #endif

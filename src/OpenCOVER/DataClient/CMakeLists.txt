@@ -1,12 +1,14 @@
 
 SET(HEADERS
   DataClient.h
+  DummyClient.h
   MultiDimensionalArray.h
   ObserverHandle.h
 )
 
 SET(SOURCES
   DataClient.cpp
+  DummyClient.cpp
   MultiDimensionalArray.cpp
   ObserverHandle.cpp
 )

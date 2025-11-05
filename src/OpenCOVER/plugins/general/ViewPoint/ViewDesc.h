@@ -79,6 +79,7 @@ private:
     opencover::ui::Action *button_ = nullptr; //< button in Viepoints menu
     opencover::ui::Action *changeButton_ = nullptr; //< button for change in Viepoints menu
     opencover::ui::Button *flightButton_ = nullptr; // button in flight menu
+    opencover::ui::Action *deleteButton_ = nullptr; //< button for removing viewpoint, in Viepoints menu
     bool hasScale_ = false;
     bool isViewAll_ = false;
     bool hasPosition_ = false;

@@ -15,11 +15,11 @@
       <!--FileType name="pts" plugin="PointRayTracer" /-->
       <!--FileType name="xyz" plugin="PointRayTracer" /-->
       <!--FileType name="ptsb" plugin="PointRayTracer" /-->
-      <FileType name="ply" plugin="ANARI" />
+      <!--FileType name="ply" plugin="ANARI" /-->
       <!--FileType name="ply" plugin="PointRayTracer" /-->
       <!--FileType name="e57" plugin="PointRayTracer" /-->
 
-      <FileType name="obj" plugin="ANARI" />
+      <!--FileType name="obj" plugin="ANARI" /-->
       <FileType name="pts" plugin="ANARI" />
       <FileType name="glb" plugin="ANARI" />
       <FileType name="gltf" plugin="ANARI" /> 
@@ -27,25 +27,20 @@
       <FileType name="fits" plugin="Volume" /> 
     </FileManager>
 
-  
-  
+
+
     <WelcomeMessage value="Welcome to Daniel" />
 
     <Plugin>
-      <MADIconnect value="on">
-        <DataPath value="/home/daniel/data/KeiIto/3neurons" />
-      </MADIconnect>
-
-      <ANARI>
-        <PointCloud radius="0.025" />        
+      <ANARI value="off">
+        <loadPlyAsPointCloud value="off" />
       </ANARI>
 
-      <Vrml97>
-        <TransparencyMode value="sorted_blended_alphatest" />
-        <Headlight value="ON" />
-        <Lights value="ON" />
-      </Vrml97>
-      
+      <ColorAnim value="on">
+        <ProjectDir value="/home/daniel/data/Horn/" />
+        <high_res value="on" />
+      </ColorAnim>
+
       <OrientationIndicator value="off">
         <Position x="-700.0" y="0.0" z="-400.0" />
 	      <InvertX value="true" />

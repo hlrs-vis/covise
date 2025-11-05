@@ -1,0 +1,2 @@
+${EXTERNLIBS}/lamure/bin/lamure_preprocessing -g $1 -o $2.bin
+${EXTERNLIBS}/lamure/bin/lamure_preprocessing --no-translate-to-origin -m 100 -t 16 -r -i $2.bin -o $2.bvh

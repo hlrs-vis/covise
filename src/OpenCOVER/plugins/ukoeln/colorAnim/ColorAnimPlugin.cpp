@@ -7,6 +7,7 @@
 
 #include "ColorAnimPlugin.h"
 #include <cover/coVRPluginSupport.h>
+#include <cover/coVRFileManager.h>
 #include <cover/ui/Button.h>
 #include <cover/ui/Slider.h>
 #include <cover/ui/Menu.h>
@@ -44,6 +45,16 @@ ColorAnimPlugin::~ColorAnimPlugin()
     {
         cover->getObjectsRoot()->removeChild(brainTransform.get());
     }
+
+    if (secondModel.valid() && cover->getObjectsRoot())
+    {
+        cover->getObjectsRoot()->removeChild(secondModel.get());
+    }
+
+    if (thirdModel.valid() && cover->getObjectsRoot())
+    {
+        cover->getObjectsRoot()->removeChild(thirdModel.get());
+    }
 }
 
 bool ColorAnimPlugin::init()
@@ -79,7 +90,7 @@ bool ColorAnimPlugin::init()
     // Speed slider
     speedSlider = new ui::Slider(animMenu, "Speed");
     speedSlider->setBounds(0.001, 0.1);
-    speedSlider->setValue(1.0);
+    speedSlider->setValue(0.01);
     speedSlider->setCallback([this](double value, bool released) {
         animationSpeed = (float)value;
     });
@@ -136,16 +147,24 @@ bool ColorAnimPlugin::init()
         if (state) setInterpolationMode(CUBIC);
     });
 
-    // Load brain models
-    std::string brainPath = coCoviseConfig::getEntry("value", "COVER.Plugin.ColorAnim.ModelPath", "");
-    if (brainPath.empty())
+    // Load brain models    
+    std::string projectDir = coCoviseConfig::getEntry("value", "COVER.Plugin.ColorAnim.ProjectDir", "");
+    bool highRes = coCoviseConfig::isOn("COVER.Plugin.ColorAnim.high_res", false);
+    
+    if (projectDir.empty())
     {
-        fprintf(stderr, "ColorAnimPlugin: No model path configured. Please set COVER.Plugin.ColorAnim.ModelPath in config\n");
-        fprintf(stderr, "ColorAnimPlugin: Trying to load from current directory ./brain_*.obj\n");
-        brainPath = "./brain";
+        fprintf(stderr, "ColorAnimPlugin: No project directory configured. Please set COVER.Plugin.ColorAnim.ProjectDir in config\n");
+        fprintf(stderr, "ColorAnimPlugin: Example: /path/to/data/Horn/\n");
+        return false;
     }
 
-    if (!loadBrainModels(brainPath))
+    std::string firstFilePath = "";
+    if (highRes)
+        firstFilePath = projectDir + "surfaces/dynamic/cortex_high_res/highres_cortex_001.ply";
+    else
+        firstFilePath = projectDir + "surfaces/dynamic/cortex/cortex_001.ply";
+
+    if (!loadBrainModels(firstFilePath))
     {
         fprintf(stderr, "ColorAnimPlugin: Failed to load brain models\n");
         return false;
@@ -167,23 +186,133 @@ bool ColorAnimPlugin::init()
         updateColors();
     }
 
+    // Load additional static models
+    std::string fn = projectDir + "surfaces/static/anatomy/anatomy_L1.obj";
+    osg::Node* loadedNode = coVRFileManager::instance()->loadFile(
+        fn.c_str(),  // fileName
+        nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
+        cover->getObjectsRoot(),  // parent
+        nullptr            // covise_key (can be nullptr)
+    );
+
+    fn = projectDir + "surfaces/static/anatomy/anatomy_L2.obj";
+    loadedNode = coVRFileManager::instance()->loadFile(
+        fn.c_str(),  // fileName
+        nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
+        cover->getObjectsRoot(),  // parent
+        nullptr            // covise_key (can be nullptr)
+    );
+
+    fn = projectDir + "surfaces/static/anatomy/anatomy_L3.obj";
+    loadedNode = coVRFileManager::instance()->loadFile(
+        fn.c_str(),  // fileName
+        nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
+        cover->getObjectsRoot(),  // parent
+        nullptr            // covise_key (can be nullptr)
+    );
+
+    fn = projectDir + "surfaces/static/anatomy/anatomy_L4.obj";
+    loadedNode = coVRFileManager::instance()->loadFile(
+        fn.c_str(),  // fileName
+        nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
+        cover->getObjectsRoot(),  // parent
+        nullptr            // covise_key (can be nullptr)
+    );
+
+    fn = projectDir + "surfaces/static/anatomy/anatomy_R1.obj";
+    loadedNode = coVRFileManager::instance()->loadFile(
+        fn.c_str(),  // fileName
+        nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
+        cover->getObjectsRoot(),  // parent
+        nullptr            // covise_key (can be nullptr)
+    );
+
+    fn = projectDir + "surfaces/static/anatomy/anatomy_R2.obj";
+    loadedNode = coVRFileManager::instance()->loadFile(
+        fn.c_str(),  // fileName
+        nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
+        cover->getObjectsRoot(),  // parent
+        nullptr            // covise_key (can be nullptr)
+    );
+
+    fn = projectDir + "surfaces/static/anatomy/anatomy_R3.obj";
+    loadedNode = coVRFileManager::instance()->loadFile(
+        fn.c_str(),  // fileName
+        nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
+        cover->getObjectsRoot(),  // parent
+        nullptr            // covise_key (can be nullptr)
+    );
+
+    fn = projectDir + "surfaces/static/anatomy/anatomy_R4.obj";
+    loadedNode = coVRFileManager::instance()->loadFile(
+        fn.c_str(),  // fileName
+        nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
+        cover->getObjectsRoot(),  // parent
+        nullptr            // covise_key (can be nullptr)
+    );
+
+    fn = projectDir + "surfaces/static/left_electrode.ply";
+    loadedNode = coVRFileManager::instance()->loadFile(
+        fn.c_str(),  // fileName
+        nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
+        cover->getObjectsRoot(),  // parent
+        nullptr            // covise_key (can be nullptr)
+    );
+
     fprintf(stderr, "ColorAnimPlugin: Initialization complete\n");
     return true;
 }
 
-bool ColorAnimPlugin::loadBrainModels(const std::string &basePath)
+bool ColorAnimPlugin::loadBrainModels(const std::string &firstFilePath)
 {
-    fprintf(stderr, "ColorAnimPlugin: Loading brain models from %s\n", basePath.c_str());
+    fprintf(stderr, "ColorAnimPlugin: Loading brain models starting from %s\n", firstFilePath.c_str());
+
+    // Parse the first file path to extract directory, base name, number, and extension
+    size_t lastSlash = firstFilePath.find_last_of("/\\");
+    std::string directory = (lastSlash != std::string::npos) ? firstFilePath.substr(0, lastSlash + 1) : "";
+    std::string filename = (lastSlash != std::string::npos) ? firstFilePath.substr(lastSlash + 1) : firstFilePath;
+
+    // Find the last sequence of digits in the filename
+    size_t digitEnd = filename.length();
+    size_t digitStart = digitEnd;
+
+    // Find extension (last dot)
+    size_t extPos = filename.find_last_of('.');
+    std::string extension = (extPos != std::string::npos) ? filename.substr(extPos) : "";
+
+    // Look for digits before the extension
+    if (extPos != std::string::npos)
+    {
+        digitEnd = extPos;
+        digitStart = extPos;
+
+        // Find the start of the digit sequence
+        while (digitStart > 0 && isdigit(filename[digitStart - 1]))
+        {
+            digitStart--;
+        }
+    }
+
+    if (digitStart >= digitEnd)
+    {
+        fprintf(stderr, "ColorAnimPlugin: Could not find number pattern in filename: %s\n", filename.c_str());
+        return false;
+    }
+
+    std::string baseFileName = filename.substr(0, digitStart);
+    std::string numberStr = filename.substr(digitStart, digitEnd - digitStart);
+    int startNumber = std::atoi(numberStr.c_str());
+    int numberWidth = numberStr.length(); // Zero-padding width
+
+    fprintf(stderr, "ColorAnimPlugin: Parsed pattern - base: '%s', start: %d, width: %d, ext: '%s'\n",
+            baseFileName.c_str(), startNumber, numberWidth, extension.c_str());
 
     // Try to load the first model to get geometry
-    std::ostringstream firstPath;
-    firstPath << basePath << "highres_cortex_001.ply";
-
-    osg::ref_ptr<osg::Node> firstModel = osgDB::readNodeFile(firstPath.str());
+    osg::ref_ptr<osg::Node> firstModel = osgDB::readNodeFile(firstFilePath);
 
     if (!firstModel.valid())
     {
-        fprintf(stderr, "ColorAnimPlugin: Could not load first model: %s\n", firstPath.str().c_str());
+        fprintf(stderr, "ColorAnimPlugin: Could not load first model: %s\n", firstFilePath.c_str());
         return false;
     }
 
@@ -231,7 +360,8 @@ bool ColorAnimPlugin::loadBrainModels(const std::string &basePath)
     for (int i = 0; i < numFrames; ++i)
     {
         std::ostringstream modelPath;
-        modelPath << basePath << "highres_cortex_" << std::setfill('0') << std::setw(3) << (i + 1) << ".ply";
+        modelPath << directory << baseFileName << std::setfill('0') << std::setw(numberWidth)
+                  << (startNumber + i) << extension;
 
         osg::ref_ptr<osg::Node> model = osgDB::readNodeFile(modelPath.str());
 
@@ -482,6 +612,45 @@ void ColorAnimPlugin::flipNormals()
         else
         {
             cullFace->setMode(osg::CullFace::FRONT);
+        }
+    }
+}
+
+void ColorAnimPlugin::setupVertexColorMaterial(osg::Node *node)
+{
+    if (!node)
+        return;
+
+    // Set up material to use vertex colors
+    osg::StateSet *stateSet = node->getOrCreateStateSet();
+    osg::Material *material = new osg::Material();
+    material->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+    stateSet->setAttributeAndModes(material, osg::StateAttribute::ON);
+
+    // If this is a geode, also set the material on each drawable
+    osg::Geode *geode = dynamic_cast<osg::Geode*>(node);
+    if (geode)
+    {
+        for (unsigned int i = 0; i < geode->getNumDrawables(); ++i)
+        {
+            osg::Drawable *drawable = geode->getDrawable(i);
+            if (drawable)
+            {
+                osg::StateSet *drawableStateSet = drawable->getOrCreateStateSet();
+                osg::Material *drawableMaterial = new osg::Material();
+                drawableMaterial->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+                drawableStateSet->setAttributeAndModes(drawableMaterial, osg::StateAttribute::ON);
+            }
+        }
+    }
+
+    // Recursively process child nodes
+    osg::Group *group = node->asGroup();
+    if (group)
+    {
+        for (unsigned int i = 0; i < group->getNumChildren(); ++i)
+        {
+            setupVertexColorMaterial(group->getChild(i));
         }
     }
 }
