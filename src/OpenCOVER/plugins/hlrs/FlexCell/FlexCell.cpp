@@ -9,8 +9,8 @@
 #include <sstream>
 #include <cstdlib>
 
-#include <rabbitmq-c/amqp.h>
-#include <rabbitmq-c/tcp_socket.h>
+#include <amqp.h>
+#include <amqp_tcp_socket.h>
 
 using namespace opencover;
 using json = nlohmann::json;
