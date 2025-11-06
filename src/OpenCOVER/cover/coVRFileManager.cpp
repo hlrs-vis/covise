@@ -1853,7 +1853,12 @@ void coVRFileManager::updateSupportedFormats()
             return f;
         }
 
-        bool operator<(const FilterList &o) const { return description < o.description; }
+        bool operator<(const FilterList &o) const
+        {
+            return std::lexicographical_compare(description.begin(), description.end(), o.description.begin(),
+                                                o.description.end(),
+                                                [](auto l, auto r) { return std::tolower(l) < std::tolower(r); });
+        }
     };
 
     std::vector<FilterList> filterLists;
