@@ -1931,43 +1931,38 @@ const FileHandler *coVRFileManager::findFileHandler(const char *pathname)
         extensions.push_back(extension);
     }
 
+    opencover::config::File filetypes("filetypes");
+    const auto plugins = filetypes.entries("plugin");
+
     for (auto extension: extensions)
     {
+        std::string lowerext(extension);
+        std::transform(lowerext.begin(), lowerext.end(), lowerext.begin(), ::tolower);
+
         for (FileHandlerList::iterator it = fileHandlerList.begin();
                 it != fileHandlerList.end();
                 ++it)
         {
-            if (!strcasecmp(extension, (*it)->extension))
+            if (lowerext == (*it)->extension)
                 return *it;
         }
 
-        int extlen = strlen(extension);
-        char *cEntry = new char[40 + extlen];
-        char *lowerExt = new char[extlen + 1];
-        for (size_t i = 0; i < extlen; i++)
+        for (const auto &plugin: plugins)
         {
-            lowerExt[i] = tolower(extension[i]);
-            if (lowerExt[i] == '.')
-                lowerExt[i] = '_';
-        }
-        lowerExt[extlen] = '\0';
-
-        sprintf(cEntry, "COVER.FileManager.FileType:%s", lowerExt);
-        string plugin = coCoviseConfig::getEntry("plugin", cEntry);
-        delete[] cEntry;
-        delete[] lowerExt;
-        if (plugin.size() > 0)
-        { // load the appropriate plugin and give it another try
-            coVRPluginList::instance()->addPlugin(plugin.c_str());
-            for (FileHandlerList::iterator it = fileHandlerList.begin();
-                    it != fileHandlerList.end();
-                    ++it)
+            auto exts = filetypes.array<std::string>("plugin", plugin)->value();
+            auto it = std::find(exts.begin(), exts.end(), lowerext);
+            if (it != exts.end())
             {
-                if (!strcasecmp(extension, (*it)->extension))
+                coVRPluginList::instance()->addPlugin(plugin.c_str());
+                for (FileHandlerList::iterator it = fileHandlerList.begin(); it != fileHandlerList.end(); ++it)
                 {
-                    if (cover->debugLevel(2))
-                        fprintf(stderr, "coVRFileManager::findFileHandler(extension=%s), using plugin %s\n", extension, plugin.c_str());
-                    return *it;
+                    if (!strcasecmp(extension, (*it)->extension))
+                    {
+                        if (cover->debugLevel(2))
+                            fprintf(stderr, "coVRFileManager::findFileHandler(extension=%s), using plugin %s\n",
+                                    extension, plugin.c_str());
+                        return *it;
+                    }
                 }
             }
         }

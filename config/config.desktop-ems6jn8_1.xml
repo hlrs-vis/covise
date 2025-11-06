@@ -3,7 +3,6 @@
 <COCONFIG version="1" >
 
 <INCLUDE global="1" configname="colormap" >config-colormaps.xml </INCLUDE>
-<INCLUDE global="1" configname="filetypes" >config-filetypes.xml </INCLUDE>
 
   <GLOBAL>
     <COVER>

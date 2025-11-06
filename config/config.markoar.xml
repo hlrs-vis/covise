@@ -392,5 +392,4 @@
         </COVER>
     </GLOBAL>
     <INCLUDE global="1" configname="colormap">config-colormaps.xml </INCLUDE>
-    <INCLUDE global="1" configname="filetypes">config-filetypes.xml </INCLUDE>
 </COCONFIG>

@@ -413,7 +413,7 @@ INSTALL(FILES .covise .covise.sh
 INSTALL(FILES
     config/config.xml
     config/config-colormaps.xml
-    config/config-filetypes.xml
+    config/filetypes.toml
     config/config-ar.xml
     config/config-spray.xml
     config/config-midi.xml
