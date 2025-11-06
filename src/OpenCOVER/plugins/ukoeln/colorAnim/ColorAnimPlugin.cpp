@@ -8,6 +8,7 @@
 #include "ColorAnimPlugin.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRFileManager.h>
+#include <cover/VRSceneGraph.h>
 #include <cover/ui/Button.h>
 #include <cover/ui/Slider.h>
 #include <cover/ui/Menu.h>
@@ -30,7 +31,7 @@ ColorAnimPlugin::ColorAnimPlugin()
 , ui::Owner("ColorAnimPlugin", cover->ui)
 , numFrames(275)
 , currentFrame(0.0f)
-, animationSpeed(1.0f)
+, animationSpeed(0.02f)
 , isPlaying(false)
 , isPingPong(false)
 , animationDirection(1.0f)
@@ -45,16 +46,26 @@ ColorAnimPlugin::~ColorAnimPlugin()
     {
         cover->getObjectsRoot()->removeChild(brainTransform.get());
     }
+}
 
-    if (secondModel.valid() && cover->getObjectsRoot())
+// Rekursive Hilfsfunktion
+osg::Geode* findFirstGeode(osg::Node* node)
+{
+    if (!node) return nullptr;
+    
+    osg::Geode* geode = dynamic_cast<osg::Geode*>(node);
+    if (geode) return geode;
+    
+    osg::Group* group = dynamic_cast<osg::Group*>(node);
+    if (group)
     {
-        cover->getObjectsRoot()->removeChild(secondModel.get());
+        for (unsigned int i = 0; i < group->getNumChildren(); ++i)
+        {
+            osg::Geode* foundGeode = findFirstGeode(group->getChild(i));
+            if (foundGeode) return foundGeode;
+        }
     }
-
-    if (thirdModel.valid() && cover->getObjectsRoot())
-    {
-        cover->getObjectsRoot()->removeChild(thirdModel.get());
-    }
+    return nullptr;
 }
 
 bool ColorAnimPlugin::init()
@@ -90,7 +101,7 @@ bool ColorAnimPlugin::init()
     // Speed slider
     speedSlider = new ui::Slider(animMenu, "Speed");
     speedSlider->setBounds(0.001, 0.1);
-    speedSlider->setValue(0.01);
+    speedSlider->setValue(0.02);
     speedSlider->setCallback([this](double value, bool released) {
         animationSpeed = (float)value;
     });
@@ -186,78 +197,52 @@ bool ColorAnimPlugin::init()
         updateColors();
     }
 
-    // Load additional static models
-    std::string fn = projectDir + "surfaces/static/anatomy/anatomy_L1.obj";
-    osg::Node* loadedNode = coVRFileManager::instance()->loadFile(
-        fn.c_str(),  // fileName
-        nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
-        cover->getObjectsRoot(),  // parent
-        nullptr            // covise_key (can be nullptr)
-    );
+    // Load additional static models with transparency settings
+    struct AnatomyModel {
+        std::string filename;
+        float transparency;
+    };
 
-    fn = projectDir + "surfaces/static/anatomy/anatomy_L2.obj";
-    loadedNode = coVRFileManager::instance()->loadFile(
-        fn.c_str(),  // fileName
-        nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
-        cover->getObjectsRoot(),  // parent
-        nullptr            // covise_key (can be nullptr)
-    );
+    brainGroup = new osg::Group();
+    brainTransform->addChild(brainGroup.get());
 
-    fn = projectDir + "surfaces/static/anatomy/anatomy_L3.obj";
-    loadedNode = coVRFileManager::instance()->loadFile(
-        fn.c_str(),  // fileName
-        nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
-        cover->getObjectsRoot(),  // parent
-        nullptr            // covise_key (can be nullptr)
-    );
+    std::vector<AnatomyModel> anatomyModels = {
+        {"surfaces/static/anatomy/anatomy_L1.obj", 0.8f},
+        {"surfaces/static/anatomy/anatomy_L2.obj", 0.7f},
+        {"surfaces/static/anatomy/anatomy_L3.obj", 0.5f},
+        {"surfaces/static/anatomy/anatomy_L4.obj", 0.5f},
+        {"surfaces/static/anatomy/anatomy_R1.obj", 0.8f},
+        {"surfaces/static/anatomy/anatomy_R2.obj", 0.7f},
+        {"surfaces/static/anatomy/anatomy_R3.obj", 0.5f},
+        {"surfaces/static/anatomy/anatomy_R4.obj", 0.5f},
+        {"surfaces/static/left_electrode.ply", 1.0f}
+    };
 
-    fn = projectDir + "surfaces/static/anatomy/anatomy_L4.obj";
-    loadedNode = coVRFileManager::instance()->loadFile(
-        fn.c_str(),  // fileName
-        nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
-        cover->getObjectsRoot(),  // parent
-        nullptr            // covise_key (can be nullptr)
-    );
+    for (const auto& model : anatomyModels)
+    {
+        std::string fn = projectDir + model.filename;
+        osg::Node* loadedNode = coVRFileManager::instance()->loadFile(
+            fn.c_str(),
+            nullptr,
+            brainGroup.get(),
+            nullptr
+        );
+        /*
+        osg::Geode* geode = findFirstGeode(loadedNode);
+        if (geode)
+        {
+            VRSceneGraph::instance()->setTransparency(geode, model.transparency);
+            osg::StateSet* ss = geode->getOrCreateStateSet();
+            ss->setMode(GL_BLEND, osg::StateAttribute::ON);
+            ss->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+            ss->setNestRenderBins(false);
 
-    fn = projectDir + "surfaces/static/anatomy/anatomy_R1.obj";
-    loadedNode = coVRFileManager::instance()->loadFile(
-        fn.c_str(),  // fileName
-        nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
-        cover->getObjectsRoot(),  // parent
-        nullptr            // covise_key (can be nullptr)
-    );
-
-    fn = projectDir + "surfaces/static/anatomy/anatomy_R2.obj";
-    loadedNode = coVRFileManager::instance()->loadFile(
-        fn.c_str(),  // fileName
-        nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
-        cover->getObjectsRoot(),  // parent
-        nullptr            // covise_key (can be nullptr)
-    );
-
-    fn = projectDir + "surfaces/static/anatomy/anatomy_R3.obj";
-    loadedNode = coVRFileManager::instance()->loadFile(
-        fn.c_str(),  // fileName
-        nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
-        cover->getObjectsRoot(),  // parent
-        nullptr            // covise_key (can be nullptr)
-    );
-
-    fn = projectDir + "surfaces/static/anatomy/anatomy_R4.obj";
-    loadedNode = coVRFileManager::instance()->loadFile(
-        fn.c_str(),  // fileName
-        nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
-        cover->getObjectsRoot(),  // parent
-        nullptr            // covise_key (can be nullptr)
-    );
-
-    fn = projectDir + "surfaces/static/left_electrode.ply";
-    loadedNode = coVRFileManager::instance()->loadFile(
-        fn.c_str(),  // fileName
-        nullptr,           // coTUIFileBrowserButton* fb (can be nullptr)
-        cover->getObjectsRoot(),  // parent
-        nullptr            // covise_key (can be nullptr)
-    );
+            //osg::StateSet* stateTransp = VRSceneGraph::instance()->loadTransparentGeostate(osg::Material::ColorMode::AMBIENT_AND_DIFFUSE);
+            //geode->setStateSet(stateTransp);        
+            
+        }
+        */
+    }
 
     fprintf(stderr, "ColorAnimPlugin: Initialization complete\n");
     return true;
