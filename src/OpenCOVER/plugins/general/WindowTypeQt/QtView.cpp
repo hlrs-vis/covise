@@ -412,6 +412,7 @@ QtViewElement *QtView::elementFactoryImplementation(FileBrowser *fb)
         QString filters = QString::fromStdString(fb->filter());
         auto filterList = filters.split(";;");
         QStringList formattedFilters;
+        QString selectedFilter;
         for (auto &f: filterList)
         {
             f = f.trimmed();
@@ -420,6 +421,7 @@ QtViewElement *QtView::elementFactoryImplementation(FileBrowser *fb)
             if (f.contains("(") && f.endsWith(")"))
             {
                 formattedFilters.append(f);
+                selectedFilter = f;
                 continue;
             }
 
@@ -439,10 +441,10 @@ QtViewElement *QtView::elementFactoryImplementation(FileBrowser *fb)
             }
             f = QString("%1 (%2)").arg(ext).arg(f);
             formattedFilters.append(f);
+            selectedFilter = f;
         }
         filters = formattedFilters.join(";;");
         QString dir = QString::fromStdString(fb->value());
-        QString selectedFilter;
         QString file = fb->forSaving()
                 ? QFileDialog::getSaveFileName(nullptr, "Save...", dir, filters, &selectedFilter)
                 : QFileDialog::getOpenFileName(nullptr, "Open...", dir, filters, &selectedFilter);
