@@ -1831,7 +1831,32 @@ int coVRFileManager::coLoadFontDefaultStyle()
 
 void coVRFileManager::updateSupportedFormats()
 {
-    m_supportedReadExtentions.clear();
+    struct FilterList
+    {
+        std::string description;
+        std::set<std::string> extensions;
+        std::string filter() const
+        {
+            std::string f = description + " (";
+            bool first = true;
+            for (const auto &ext: extensions)
+            {
+                if (!first)
+                    f += " ";
+                first = false;
+                if (ext.empty())
+                    f += "*";
+                else
+                    f += "*." + ext;
+            }
+            f += ")";
+            return f;
+        }
+
+        bool operator<(const FilterList &o) const { return description < o.description; }
+    };
+
+    std::vector<FilterList> filterLists;
 
     opencover::config::File filetypes("filetypes");
     const auto plugins = filetypes.entries("plugin");
@@ -1840,16 +1865,7 @@ void coVRFileManager::updateSupportedFormats()
     for (const auto &plugin: plugins)
     {
         auto exts = filetypes.array<std::string>("plugin", plugin)->value();
-        std::string formats;
-        for (const auto &ext: exts)
-        {
-            extensions.insert(ext);
-            if (!formats.empty())
-                formats += " ";
-            formats += "*." + ext;
-        }
-        std::string f = plugin + " Files (" + formats + ")";
-        m_supportedReadExtentions += f + ";;";
+        filterLists.push_back({plugin + " Files", std::set<std::string>(exts.begin(), exts.end())});
     }
 
     for (FileHandlerList::iterator it = fileHandlerList.begin();
@@ -1860,9 +1876,7 @@ void coVRFileManager::updateSupportedFormats()
         if (extensions.find(e) != extensions.end())
             continue;
 
-        std::string f = e + " Files (*." + e + ")";
-
-        m_supportedReadExtentions += f + ";;";
+        filterLists.push_back({e + " Files", std::set<std::string>({e})});
     }
     constexpr std::array<const char*, 18> popularExtensions = {
         "wrl", "osg", "ive", "osgb", "osgt", "osgx", "obj", "stl", "ply", "iv", "dxf", "3ds", "flt", "dae", "md2", "geo", "bvh", "fbx"
@@ -1896,23 +1910,22 @@ void coVRFileManager::updateSupportedFormats()
     // build filter string
     for(const auto &[plugin, exts] : popularPlugins)
     {
-        m_supportedReadExtentions += plugin + " (";
-        bool first = true;
-        for(const auto ext : exts)
-        {
-            if (!first)
-                m_supportedReadExtentions += " ";
-            first = false;
-            m_supportedReadExtentions += "*.";
-            m_supportedReadExtentions += ext;
-        }
-        m_supportedReadExtentions.pop_back(); //remove last space
-        m_supportedReadExtentions += ");;";
+        filterLists.push_back({plugin + " Files", std::set<std::string>(exts.begin(), exts.end())});
     }
 
-    m_supportedReadExtentions += "Viewpoints (*.vwp);;"; // viewpoint files always supported
+    filterLists.push_back({"Viewpoints", std::set<std::string>({"vwp"})});
 
-    m_supportedReadExtentions += "All Files (*)";
+
+    std::sort(filterLists.begin(), filterLists.end());
+    filterLists.push_back({"All Files", std::set<std::string>({""})});
+
+    m_supportedReadExtentions.clear();
+    for (const auto &fl: filterLists)
+    {
+        if (!m_supportedReadExtentions.empty())
+            m_supportedReadExtentions += ";;";
+        m_supportedReadExtentions += fl.filter();
+    }
 
     if(m_fileOpen)
         m_fileOpen->setFilter(getFilterList());
