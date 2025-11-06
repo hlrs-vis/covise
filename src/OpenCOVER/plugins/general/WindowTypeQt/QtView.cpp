@@ -410,11 +410,19 @@ QtViewElement *QtView::elementFactoryImplementation(FileBrowser *fb)
     ve->markForDeletion(a);
     connect(a, &QAction::triggered, [fb](bool){
         QString filters = QString::fromStdString(fb->filter());
-        auto filterList = filters.split(";");
+        auto filterList = filters.split(";;");
         QStringList formattedFilters;
         for (auto &f: filterList)
         {
             f = f.trimmed();
+            if (f.isEmpty())
+                continue;
+            if (f.contains("(") && f.endsWith(")"))
+            {
+                formattedFilters.append(f);
+                continue;
+            }
+
             QString ext = f;
             if (ext.startsWith("*"))
                 ext = ext.mid(1);
