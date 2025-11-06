@@ -1678,12 +1678,12 @@ void MidiPlugin::handleController(MidiEvent& me)
 			lTrack[i]->setRotation(rotSpeed);
 		}
 	}
-	if ((controllerID == 53)|| (controllerID == 32) || (controllerID == 71)) // slider right
+	/*if ((controllerID == 53) || (controllerID == 32) || (controllerID == 71)) // slider right
 	{
 		float sliderValue = ((float)(value - 64) / 64.0)*0.3;
 		rAcceleration = sliderValue;
 		raccelSlider->setValue(sliderValue);
-	}
+	}*/
 	if ((controllerID == 63) || (controllerID == 15) || (controllerID == 23)) // distance sensor
 	{
 		float sliderValue = value / 127.0;
