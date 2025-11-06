@@ -399,8 +399,9 @@ struct TextGeode : public osg::Geode
         float characterSize = 18.0f;
         const osg::GraphicsContext::Traits* traits = opencover::coVRConfig::instance()->windows[0].context->getTraits();
         const float marginX = 12.f, marginY = 12.f;
-        osg::Vec3 pos_label(traits->width - marginX - 160.f, traits->height - marginY, 0.0f);
-        osg::Vec3 pos_value(traits->width - marginX,          traits->height - marginY, 0.0f);
+        const float labelColumnOffset = 120.f;
+        osg::Vec3 pos_label(traits->width - marginX - labelColumnOffset, traits->height - marginY, 0.0f);
+        osg::Vec3 pos_value(traits->width - marginX,                      traits->height - marginY, 0.0f);
         osg::ref_ptr<osgText::Text> label = new osgText::Text();
         label->setColor(color);
         label->setFont(font);

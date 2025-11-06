@@ -56,6 +56,7 @@
 #include <cover/coVRPluginList.h>
 #include <cover/coVRNavigationManager.h>
 #include <numeric>
+#include <osg/MatrixTransform>
 
 
 namespace {
@@ -102,6 +103,10 @@ namespace {
         bool m_shouldResume{false};
     };
 } // namespace
+
+namespace {
+    constexpr const char* kLamureRegistrationKey = "LamureRegister";
+}
 
 static std::mutex g_settings_mutex;
 static std::mutex g_load_bvh_mutex;
@@ -205,14 +210,26 @@ int Lamure::unloadBvh(const char* filename, const char* /*covise_key*/)
     auto it_node = plugin_ref.m_model_nodes.find(path);
     if (it_node != plugin_ref.m_model_nodes.end()) {
         osg::Group* node = it_node->second.get();
-        if (node && node->getNumParents() > 0) {
-            node->getParent(0)->removeChild(node);
+        if (node) {
+            // Detach from every parent to avoid stale references on reload
+            while (node->getNumParents() > 0) {
+                osg::Node* parentNode = node->getParent(0);
+                auto* parentGroup = dynamic_cast<osg::Group*>(parentNode);
+                if (!parentGroup) {
+                    break;
+                }
+                parentGroup->removeChild(node);
+            }
         }
         plugin_ref.m_model_nodes.erase(it_node);
     }
 
     // Remove from internal tracking so it can be fully reloaded
     plugin_ref.m_model_idx.erase(it_idx);
+    plugin_ref.m_pendingTransformPrint.erase(path);
+    plugin_ref.m_vrmlTransforms.erase(path);
+    plugin_ref.m_scene_nodes.erase(path);
+    plugin_ref.m_registeredFiles.erase(path);
     
     // Note: The model is not removed from the main m_settings.models vector to avoid re-indexing issues.
     // It will be fully purged on the next dynamic load of a *new* model, which triggers a full system reset.
@@ -221,7 +238,7 @@ int Lamure::unloadBvh(const char* filename, const char* /*covise_key*/)
 }
 
 
-int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *)
+int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *covise_key)
 {
     std::lock_guard<std::mutex> lock(g_load_bvh_mutex);
     if (!filename || !plugin)
@@ -232,76 +249,135 @@ int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *)
     std::replace(file.begin(), file.end(), '\\', '/');
 #endif
 
+    const bool isMenuCall = (covise_key && std::strcmp(covise_key, kLamureRegistrationKey) == 0);
+    const bool isRegistrationCall = (isMenuCall && parent == nullptr);
+    const bool isMenuReload = (isMenuCall && parent != nullptr);
+
+    if (isRegistrationCall) {
+        // Called from ensureFileMenuEntry just to register the handler; nothing to do.
+        return 0;
+    }
+
+    SceneNodes *scene_nodes = nullptr;
+    {
+        auto itScene = plugin->m_scene_nodes.find(file);
+        if (itScene == plugin->m_scene_nodes.end()) {
+            SceneNodes nodes;
+            nodes.root = new osg::Group();
+            nodes.root->setName(file);
+            nodes.config = new osg::MatrixTransform();
+            nodes.config->setName(file + "_config");
+            nodes.bvh = new osg::MatrixTransform();
+            nodes.bvh->setName(file + "_bvh");
+            nodes.payload = new osg::Group();
+            nodes.payload->setName(file + "_payload");
+            nodes.root->addChild(nodes.config);
+            nodes.config->addChild(nodes.bvh);
+            nodes.bvh->addChild(nodes.payload);
+            itScene = plugin->m_scene_nodes.emplace(file, std::move(nodes)).first;
+        }
+        scene_nodes = &itScene->second;
+    }
+
+    auto ensureHierarchy = [&](SceneNodes &nodes) {
+        if (!nodes.root) {
+            nodes.root = new osg::Group();
+            nodes.root->setName(file);
+        }
+        if (!nodes.config) {
+            nodes.config = new osg::MatrixTransform();
+            nodes.config->setName(file + "_config");
+        }
+        if (!nodes.bvh) {
+            nodes.bvh = new osg::MatrixTransform();
+            nodes.bvh->setName(file + "_bvh");
+        }
+        if (!nodes.payload) {
+            nodes.payload = new osg::Group();
+            nodes.payload->setName(file + "_payload");
+        }
+        if (!nodes.root->containsNode(nodes.config))
+            nodes.root->addChild(nodes.config);
+        if (!nodes.config->containsNode(nodes.bvh))
+            nodes.config->addChild(nodes.bvh);
+        if (!nodes.bvh->containsNode(nodes.payload))
+            nodes.bvh->addChild(nodes.payload);
+    };
+
+    ensureHierarchy(*scene_nodes);
+    osg::Group *modelNode = scene_nodes->root.get();
+
+    auto storeVrmlMatrix = [&](const osg::Matrix &mat){
+        plugin->m_vrmlTransforms[file] = LamureUtil::matConv4D(mat);
+        plugin->ensureFileMenuEntry(file);
+    };
+
     // --- Startup-Ladevorgang (von Kommandozeile) ---
     if (!plugin->initialized) {
-        // Nur den Dateipfad für die spätere Verarbeitung in preFrame sammeln.
         if (std::find(plugin->m_bootstrap_files.begin(), plugin->m_bootstrap_files.end(), file) == plugin->m_bootstrap_files.end()) {
             plugin->m_bootstrap_files.push_back(file);
         }
 
-        // Den OSG-Knoten für den FileManager erstellen, da er ihn erwartet.
-        osg::ref_ptr<osg::Group> modelNode = new osg::Group();
-        modelNode->setName(file);
         if (parent) {
-            parent->addChild(modelNode.get());
+            bool hasParent = false;
+            for (unsigned i = 0; i < modelNode->getNumParents(); ++i) {
+                if (modelNode->getParent(i) == parent) { hasParent = true; break; }
+            }
+            if (!hasParent)
+                parent->addChild(modelNode);
+            plugin->m_pendingTransformPrint[file] = modelNode;
+            if (auto *mt = dynamic_cast<osg::MatrixTransform *>(parent)) {
+                storeVrmlMatrix(mt->getMatrix());
+            }
         }
-
-        // Den Knoten auch intern für später merken.
         std::lock_guard<std::mutex> settings_lock(g_settings_mutex);
         plugin->m_model_nodes[file] = modelNode;
         return 1;
     }
 
-    // --- Dynamisches Laden (zur Laufzeit) ---
     std::lock_guard<std::mutex> settings_lock(g_settings_mutex);
 
-    // Prüfen, ob das Modell bereits geladen oder in der Warteschlange ist, um Duplikate zu vermeiden.
-    if (plugin->m_model_idx.count(file) ||
-        std::find(plugin->m_files_to_load.begin(), plugin->m_files_to_load.end(), file) != plugin->m_files_to_load.end()) {
-
-        // Modell existiert bereits: Knoten gezielt bereinigen/anhängen, ohne Reset/Listenänderung
-        if (plugin->m_model_idx.count(file)) {
-            // Sichtbarkeit nicht überschreiben; nur Scenegraph konsistent halten
-            auto itNode = plugin->m_model_nodes.find(file);
-            if (itNode != plugin->m_model_nodes.end()) {
-                osg::Group *node = itNode->second.get();
-                // Ziel-Parent priorisiert: übergebener parent, sonst Plugingruppe
-                osg::Group *targetParent = parent ? parent : (plugin->m_lamure_grp ? plugin->m_lamure_grp.get() : nullptr);
-                if (node) {
-                    if (targetParent) {
-                        bool hasTarget = false;
-                        for (unsigned i = 0; i < node->getNumParents(); ++i) {
-                            if (node->getParent(i) == targetParent) { hasTarget = true; break; }
-                        }
-                        if (!hasTarget) targetParent->addChild(node);
-                    }
-
-                    if (plugin->m_settings.prefer_parent && targetParent) {
-                        // Entferne alle anderen Parents außer dem Ziel-Parent
-                        for (int i = static_cast<int>(node->getNumParents()) - 1; i >= 0; --i) {
-                            osg::Group *p = node->getParent(i);
-                            if (p == targetParent) continue;
-                            if (p) p->removeChild(node);
-                        }
-                    }
-                }
+    auto itExisting = plugin->m_model_nodes.find(file);
+    if (!isMenuReload && itExisting != plugin->m_model_nodes.end()) {
+        osg::Group *node = itExisting->second.get();
+        const bool hasLiveParents = node && node->getNumParents() > 0;
+        if (hasLiveParents && parent) {
+            bool hasParent = false;
+            for (unsigned i = 0; i < node->getNumParents(); ++i) {
+                if (node->getParent(i) == parent) { hasParent = true; break; }
+            }
+            if (!hasParent)
+                parent->addChild(node);
+            plugin->m_pendingTransformPrint[file] = node;
+            if (auto *mt = dynamic_cast<osg::MatrixTransform *>(parent)) {
+                storeVrmlMatrix(mt->getMatrix());
             }
         }
-        return 0; // signal no new load to prevent duplicate entries
+        if (hasLiveParents)
+            return 0;
+        // fall through to full reload when the previous instance has been detached
     }
 
-    // OSG-Knoten für das neue dynamische Modell erstellen.
-    osg::ref_ptr<osg::Group> modelNode = new osg::Group();
-    modelNode->setName(file);
+    if (std::find(plugin->m_files_to_load.begin(), plugin->m_files_to_load.end(), file) != plugin->m_files_to_load.end()) {
+        return 0;
+    }
+
     if (parent) {
-        parent->addChild(modelNode.get());
+        bool hasParent = false;
+        for (unsigned i = 0; i < modelNode->getNumParents(); ++i) {
+            if (modelNode->getParent(i) == parent) { hasParent = true; break; }
+        }
+        if (!hasParent)
+            parent->addChild(modelNode);
+        plugin->m_pendingTransformPrint[file] = modelNode;
+        if (auto *mt = dynamic_cast<osg::MatrixTransform *>(parent)) {
+            storeVrmlMatrix(mt->getMatrix());
+        }
     }
     plugin->m_model_nodes[file] = modelNode;
 
-    // Zur dynamischen Reload-Warteschlange hinzufügen, die von preFrame verarbeitet wird.
     plugin->m_files_to_load.push_back(file);
-    // Batching-Timer nach Settings setzen
-    plugin->m_frames_to_wait = static_cast<int>(plugin->m_settings.pause_frames);
+    plugin->m_frames_to_wait = isMenuReload ? 0 : static_cast<int>(plugin->m_settings.pause_frames);
 
     return 1;
 }
@@ -395,6 +471,36 @@ void Lamure::preFrame() {
                     std::cout << "[Lamure] Dynamic load triggered" << std::endl;
                 perform_system_reset();
             }
+        }
+    }
+
+    if (!m_pendingTransformPrint.empty()) {
+        std::vector<std::string> finished;
+        finished.reserve(m_pendingTransformPrint.size());
+        for (auto &entry : m_pendingTransformPrint) {
+            const std::string &path = entry.first;
+            osg::Node *node = entry.second.get();
+            if (!node)
+                continue;
+
+            if (node->getNumParents() == 0)
+                continue;
+
+            osg::Node *parentNode = node->getParent(0);
+            auto *mt = dynamic_cast<osg::MatrixTransform *>(parentNode);
+            if (!mt)
+                continue;
+
+            const auto vrmlMat = LamureUtil::matConv4D(mt->getMatrix());
+            {
+                std::lock_guard<std::mutex> lock(g_settings_mutex);
+                m_vrmlTransforms[path] = vrmlMat;
+            }
+            ensureFileMenuEntry(path);
+            finished.push_back(path);
+        }
+        for (const auto &path : finished) {
+            m_pendingTransformPrint.erase(path);
         }
     }
 
@@ -505,10 +611,23 @@ void Lamure::perform_system_reset()
         m_model_idx.emplace(model_path, mid);
         lamure::model_t model_id = database->add_model(model_path, std::to_string(mid));
         const auto itTrafo = m_settings.transforms.find(mid);
-        const auto trafo_user = itTrafo != m_settings.transforms.end() ? itTrafo->second : scm::math::mat4d::identity();
+        const auto trafo_config = itTrafo != m_settings.transforms.end() ? itTrafo->second : scm::math::mat4d::identity();
         const auto trafo_bvh  = scm::math::mat4d(scm::math::make_translation(database->get_model(model_id)->get_bvh()->get_translation()));
-        const auto final_trafo = trafo_user * trafo_bvh;
+        const auto itVrml = m_vrmlTransforms.find(model_path);
+        const auto trafo_vrml = itVrml != m_vrmlTransforms.end() ? itVrml->second : scm::math::mat4d::identity();
+        const auto final_trafo = trafo_vrml * trafo_config * trafo_bvh;
         m_model_info.model_transformations.push_back(final_trafo);
+        auto sceneIt = m_scene_nodes.find(model_path);
+        if (sceneIt != m_scene_nodes.end()) {
+            if (sceneIt->second.config.valid()) {
+                auto cfgCopy = trafo_config;
+                sceneIt->second.config->setMatrix(LamureUtil::matConv4D(cfgCopy));
+            }
+            if (sceneIt->second.bvh.valid()) {
+                auto bvhCopy = trafo_bvh;
+                sceneIt->second.bvh->setMatrix(LamureUtil::matConv4D(bvhCopy));
+            }
+        }
 
         // Compute transformed root bbox min/max/center (approx)
         const auto &boxes = database->get_model(model_id)->get_bvh()->get_bounding_boxes();
@@ -802,6 +921,7 @@ void Lamure::loadSettingsFromCovise() {
     s.transforms.clear();
     for (lamure::model_t mid=0; mid < s.models.size(); ++mid)
         s.transforms[mid] = scm::math::mat4d::identity();
+    m_vrmlTransforms.clear();
 
     // ---- Hintergrundfarbe ----
     s.background_color = scm::math::vec3(
@@ -1425,4 +1545,21 @@ void Lamure::updateModelDependentSettings()
     s.transforms.clear();
     for (lamure::model_t mid=0; mid < s.models.size(); ++mid)
         s.transforms[mid] = scm::math::mat4d::identity();
+    m_vrmlTransforms.clear();
+}
+
+void Lamure::ensureFileMenuEntry(const std::string& path)
+{
+    if (path.empty())
+        return;
+    if (m_registeredFiles.count(path))
+        return;
+
+    auto *fm = opencover::coVRFileManager::instance();
+    if (!fm)
+        return;
+
+    osg::Node *node = fm->loadFile(path.c_str(), nullptr, nullptr, kLamureRegistrationKey);
+    (void)node;
+    m_registeredFiles.insert(path);
 }

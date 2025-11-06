@@ -12,6 +12,8 @@
 #include <functional>
 #include <memory>
 #include <map>
+#include <unordered_map>
+#include <unordered_set>
 #include <limits>
 #include <bitset>
 #include <initializer_list>
@@ -21,6 +23,7 @@
 #include <osg/Timer>
 #include <osg/Matrix>
 #include <osg/Vec3>
+#include <osg/MatrixTransform>
 #include <osgGA/GUIEventAdapter>
 #include <osgViewer/ViewerBase>
 
@@ -36,6 +39,7 @@
 #include "LamureUI.h"
 #include "LamureUtil.h"
 #include "LamureMeasurement.h"
+#include <osg/observer_ptr>
 
 namespace opencover {
     namespace ui {
@@ -301,7 +305,19 @@ public:
     std::map<std::string, osg::ref_ptr<osg::Group>> m_model_nodes;
     osg::ref_ptr<osg::Group> m_pluginRootGroup;
 
+    struct SceneNodes {
+        osg::ref_ptr<osg::Group> root;
+        osg::ref_ptr<osg::MatrixTransform> config;
+        osg::ref_ptr<osg::MatrixTransform> bvh;
+        osg::ref_ptr<osg::Group> payload;
+    };
+    std::unordered_map<std::string, SceneNodes> m_scene_nodes;
+
     osg::ref_ptr<osg::Group> getGroup() { return m_lamure_grp; }
+
+    std::unordered_map<std::string, osg::observer_ptr<osg::Node>> m_pendingTransformPrint;
+    std::unordered_map<std::string, scm::math::mat4d> m_vrmlTransforms;
+    std::unordered_set<std::string> m_registeredFiles;
 
 private:
     std::vector<std::string> m_files_to_load;
@@ -364,6 +380,7 @@ private:
     std::vector<std::string> resolveAndNormalizeModels();
     void updateModelDependentSettings();
     void adjustOsgCameraClipping();
+    void ensureFileMenuEntry(const std::string& path);
 
     // Bootstrap file collection before initialization
     std::vector<std::string> m_bootstrap_files;
