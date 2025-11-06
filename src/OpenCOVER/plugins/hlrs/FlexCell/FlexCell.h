@@ -40,7 +40,19 @@ private:
     bool loadRecordedData(const std::string& filepath);
     void updateReplay(double currentTime);
 
-    // RabbitMQ live streaming
+    // SSE live streaming (preferred)
+    void initSSE();
+    void shutdownSSE();
+    void sseConsumerLoop();
+    static size_t sseWriteCallback(char* ptr, size_t size, size_t nmemb, void* userdata);
+    
+    void* m_curl = nullptr;  // CURL* without including curl headers
+    std::thread m_sseThread;
+    std::atomic<bool> m_sseStop{false};
+    std::atomic<bool> m_sseConnected{false};
+    std::string m_sseBuffer;
+
+    // RabbitMQ live streaming (fallback)
     void initRabbitMQ();
     void shutdownRabbitMQ();
     void rabbitmqConsumerLoop();
@@ -48,12 +60,12 @@ private:
     amqp_connection_state_t m_rabbitConn = nullptr;
     std::thread m_rabbitThread;
     std::atomic<bool> m_rabbitStop{false};
+    std::atomic<bool> m_rabbitConnected{false};
     
     mutable std::mutex m_rabbitMutex;
     std::deque<RobotPosition> m_livePositions;
     bool m_bend = false;
     int m_variant = 0;
-    bool m_rabbitConnected = false;
     bool m_variantChanged = false;
 };
 

@@ -12,6 +12,8 @@
 #include <amqp.h>
 #include <amqp_tcp_socket.h>
 
+#include <curl/curl.h>
+
 using namespace opencover;
 using json = nlohmann::json;
 
@@ -31,14 +33,18 @@ FlexCell::FlexCell()
     }
     m_client->connect();
     
-    // Always use RabbitMQ when compiled with support
-    std::cerr << "FlexCell: Initializing RabbitMQ live streaming..." << std::endl;
+    // Try SSE first (preferred), then fall back to RabbitMQ
+    std::cerr << "FlexCell: Initializing SSE live streaming..." << std::endl;
+    initSSE();
+    
+    // Also initialize RabbitMQ as fallback
+    std::cerr << "FlexCell: Initializing RabbitMQ as fallback..." << std::endl;
     initRabbitMQ();
-
 }
 
 FlexCell::~FlexCell()
 {
+    shutdownSSE();
     shutdownRabbitMQ();
 }
 
@@ -162,8 +168,8 @@ bool FlexCell::update()
     
     double currentTime = cover->frameTime();
     
-    // Priority: RabbitMQ live > replay > dummy client
-    if (m_rabbitConnected)
+    // Priority: SSE live > RabbitMQ live > replay > dummy client
+    if (m_sseConnected)
     {
         std::lock_guard<std::mutex> lock(m_rabbitMutex);
         auto vrmlNode = *flexCellNodes.begin();
@@ -176,8 +182,6 @@ bool FlexCell::update()
                 // Positions are in radians, normalize for full rotation
                 vrmlNode->send(i, static_cast<float>(pos.positions[i] / (2.0 * M_PI)));
             }
-            
-            // No need to pop - consumer thread keeps buffer at size 1
         }
         if(m_bend)
         {
@@ -189,10 +193,33 @@ bool FlexCell::update()
             vrmlNode->switchWorkpiece(m_variant);
             m_variantChanged = false;
         }
-
     }
-    else
-    if (m_isReplaying)
+    else if (m_rabbitConnected)
+    {
+        std::lock_guard<std::mutex> lock(m_rabbitMutex);
+        auto vrmlNode = *flexCellNodes.begin();
+        if (!m_livePositions.empty())
+        {
+            const auto& pos = m_livePositions.back();  // Always use the latest
+            
+            for (size_t i = 0; i < std::min(pos.positions.size(), size_t(7)); ++i)
+            {
+                // Positions are in radians, normalize for full rotation
+                vrmlNode->send(i, static_cast<float>(pos.positions[i] / (2.0 * M_PI)));
+            }
+        }
+        if(m_bend)
+        {
+            vrmlNode->bend();
+            m_bend = false;
+        }
+        if(m_variantChanged)
+        {
+            vrmlNode->switchWorkpiece(m_variant);
+            m_variantChanged = false;
+        }
+    }
+    else if (m_isReplaying)
     {
         updateReplay(currentTime);
     }
@@ -460,4 +487,186 @@ void FlexCell::rabbitmqConsumerLoop()
     amqp_destroy_connection(m_rabbitConn);
     m_rabbitConn = nullptr;
     m_rabbitConnected = false;
+}
+
+void FlexCell::initSSE()
+{
+    // Read SSE endpoint from environment variable
+    const char* endpoint = std::getenv("SSE_ENDPOINT");
+    std::string endpointStr = endpoint ? endpoint : "http://localhost:8000/events";
+    
+    std::cerr << "FlexCell SSE config:\n"
+              << "  Endpoint: " << endpointStr << std::endl;
+    
+    curl_global_init(CURL_GLOBAL_ALL);
+    m_sseStop = false;
+    m_sseThread = std::thread(&FlexCell::sseConsumerLoop, this);
+}
+
+void FlexCell::shutdownSSE()
+{
+    m_sseStop = true;
+    if (m_sseThread.joinable())
+    {
+        m_sseThread.join();
+    }
+    curl_global_cleanup();
+}
+
+size_t FlexCell::sseWriteCallback(char* ptr, size_t size, size_t nmemb, void* userdata)
+{
+    FlexCell* self = static_cast<FlexCell*>(userdata);
+    size_t totalSize = size * nmemb;
+    
+    self->m_sseBuffer.append(ptr, totalSize);
+    
+    // Process complete SSE messages (lines ending with \n\n)
+    size_t pos = 0;
+    while ((pos = self->m_sseBuffer.find("\n\n")) != std::string::npos)
+    {
+        std::string message = self->m_sseBuffer.substr(0, pos);
+        self->m_sseBuffer.erase(0, pos + 2);
+        
+        // Parse SSE message format
+        std::istringstream stream(message);
+        std::string line;
+        std::string eventType;
+        std::string data;
+        
+        while (std::getline(stream, line))
+        {
+            // Remove carriage return if present
+            if (!line.empty() && line.back() == '\r')
+            {
+                line.pop_back();
+            }
+            
+            if (line.substr(0, 6) == "event:")
+            {
+                eventType = line.substr(6);
+                // Trim whitespace
+                eventType.erase(0, eventType.find_first_not_of(" \t"));
+            }
+            else if (line.substr(0, 5) == "data:")
+            {
+                data = line.substr(5);
+                // Trim whitespace
+                data.erase(0, data.find_first_not_of(" \t"));
+            }
+        }
+        
+        // Process the data
+        if (!data.empty())
+        {
+            try
+            {
+                json j = json::parse(data);
+                
+                RobotPosition pos;
+                
+                if (j.contains("bend"))
+                {
+                    self->m_bend = true;
+                }
+                
+                if (j.contains("variant") && j["variant"].is_number_integer())
+                {
+                    self->m_variant = j["variant"].get<int>();
+                    self->m_variantChanged = true;
+                }
+                
+                if (j.contains("timestampUtc") && j["timestampUtc"].is_string())
+                {
+                    pos.timestampUtc = j["timestampUtc"].get<std::string>();
+                }
+                
+                if (j.contains("positions") && j["positions"].is_array())
+                {
+                    for (const auto& p : j["positions"])
+                    {
+                        if (p.is_number())
+                        {
+                            pos.positions.push_back(p.get<double>());
+                        }
+                    }
+                }
+                
+                // Update live buffer - keep only latest for minimal latency
+                {
+                    std::lock_guard<std::mutex> lock(self->m_rabbitMutex);
+                    self->m_livePositions.clear();
+                    self->m_livePositions.push_back(pos);
+                }
+            }
+            catch (const json::parse_error& e)
+            {
+                std::cerr << "FlexCell: JSON parse error: " << e.what() << std::endl;
+            }
+        }
+    }
+    
+    return totalSize;
+}
+
+void FlexCell::sseConsumerLoop()
+{
+    const char* endpoint = std::getenv("SSE_ENDPOINT");
+    std::string endpointStr = endpoint ? endpoint : "http://localhost:8000/events";
+    
+    m_curl = curl_easy_init();
+    if (!m_curl)
+    {
+        std::cerr << "FlexCell: Failed to initialize CURL" << std::endl;
+        return;
+    }
+    
+    CURL* curl = static_cast<CURL*>(m_curl);
+    
+    // Configure CURL for SSE
+    curl_easy_setopt(curl, CURLOPT_URL, endpointStr.c_str());
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, sseWriteCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, this);
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+    curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 0L); // No timeout
+    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10L);
+    
+    // Set headers for SSE
+    struct curl_slist* headers = nullptr;
+    headers = curl_slist_append(headers, "Accept: text/event-stream");
+    headers = curl_slist_append(headers, "Cache-Control: no-cache");
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+    
+    std::cerr << "FlexCell: Connecting to SSE endpoint: " << endpointStr << std::endl;
+    
+    while (!m_sseStop.load())
+    {
+        m_sseBuffer.clear();
+        CURLcode res = curl_easy_perform(curl);
+        
+        if (res == CURLE_OK)
+        {
+            m_sseConnected = true;
+            std::cerr << "FlexCell: SSE stream ended normally" << std::endl;
+        }
+        else
+        {
+            m_sseConnected = false;
+            std::cerr << "FlexCell: SSE connection error: " << curl_easy_strerror(res) << std::endl;
+        }
+        
+        // Reconnect after delay if not stopping
+        if (!m_sseStop.load())
+        {
+            std::cerr << "FlexCell: Reconnecting to SSE in 5 seconds..." << std::endl;
+            std::this_thread::sleep_for(std::chrono::seconds(5));
+        }
+    }
+    
+    curl_slist_free_all(headers);
+    curl_easy_cleanup(curl);
+    m_curl = nullptr;
+    m_sseConnected = false;
+    
+    std::cerr << "FlexCell: SSE consumer thread stopped" << std::endl;
 }
