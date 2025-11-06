@@ -1871,8 +1871,8 @@ void coVRFileManager::updateSupportedFormats()
         m_supportedReadExtentions.pop_back(); //remove last space
         m_supportedReadExtentions += ");;";
     }
-    
-    m_supportedReadExtentions += "All files (*.*)";
+
+    m_supportedReadExtentions += "All Files (*)";
 
     if(m_fileOpen)
         m_fileOpen->setFilter(getFilterList());
