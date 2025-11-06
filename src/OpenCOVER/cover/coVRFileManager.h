@@ -191,7 +191,7 @@ public:
     int unregisterFileHandler(const FileHandler *handler);
     int unregisterFileHandler(coVRIOReader *handler);
 
-    const std::vector<std::string> &getSupportedOsgExtentions() const;
+    const  std::map<std::string, std::vector<std::string>> &getSupportedOsgExtentions() const;
     
     const std::string &getFilterList() const;
 
@@ -246,7 +246,7 @@ private:
     std::unique_ptr<ui::Owner> m_owner;
     ui::Group *m_fileGroup = nullptr;
     int uniqueNumber = 0;
-    const std::vector<std::string> m_supportedOsgExtentions;
+    const std::map<std::string, std::vector<std::string>> m_supportedOsgExtentions;
     std::string m_supportedReadExtentions, m_supportedWriteExtentions;
     ui::FileBrowser* m_fileOpen = nullptr;
     typedef std::list<const FileHandler *> FileHandlerList;

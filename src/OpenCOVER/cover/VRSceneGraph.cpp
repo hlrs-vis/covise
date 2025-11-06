@@ -1707,9 +1707,11 @@ VRSceneGraph::saveScenegraph(const std::string &filename, bool storeWithMenu)
     bool validExt = false;
     if (!fileExt.empty())
     {
-        for (const auto& ext : supportedExtentions)
+        for (const auto& [plugins, exts] : supportedExtentions)
         {
-            if (osg::iequals(fileExt, ext))
+            if (std::find_if(exts.begin(), exts.end(), [&fileExt](const std::string& ext) {
+                return osg::iequals(ext, fileExt);
+            }) != exts.end())
             {
                 validExt = true;
                 break;

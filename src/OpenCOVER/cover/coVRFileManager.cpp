@@ -171,7 +171,7 @@ static void preloadOsgDbPlugins()
     }
 }
 
-std::vector<std::string> getSupportedOsgExtentions() {
+std::map<std::string, std::vector<std::string>> getSupportedOsgExtentions() {
     //plugins are loaded lazily on demand, so we need to preload them first
     opencover::config::File configFile("supportedFormats");
 
@@ -202,15 +202,20 @@ std::vector<std::string> getSupportedOsgExtentions() {
         *pluginNameArray = pluginNames;
         if(!configFile.save()) {
             std::cerr << "Could not open " << configFile.pathname() << " for writing supported formats" << std::endl;
-            return std::vector<std::string>{};
+            return std::map<std::string, std::vector<std::string>>{};
         }
     }
     auto formatArray = configFile.array<std::string>("supportedOsgFormats", "suffix");
-    return formatArray->value();
+    auto pluginNameArray = configFile.array<std::string>("supportedOsgFormatPluginNames", "pluginName");
+    std::map<std::string, std::vector<std::string>> formatMap;
+    for(size_t i=0; i<formatArray->value().size(); ++i) {
+        formatMap[(*pluginNameArray)[i]].push_back((*formatArray)[i]);
+    }
+    return formatMap;
 }
 
 
-std::string getWriteFilterList(const std::vector<std::string>& supportedExtensions)
+std::string getWriteFilterList(const std::map<std::string, std::vector<std::string>>& supportedExtensions)
 {
     const std::vector<std::string> popularFilters = {
         "*.osg", "*.ive", "*.osgb", "*.osgt", "*.osgx",
@@ -225,10 +230,13 @@ std::string getWriteFilterList(const std::vector<std::string>& supportedExtensio
         {
             std::string ext = filter.substr(2);
             // Check if this extension is in supportedExtensions
-            if (std::find(supportedExtensions.begin(), supportedExtensions.end(), ext) != supportedExtensions.end())
+            for(auto & [pluginName, exts] : supportedExtensions)
             {
-                result.append(filter);
-                result.append(";");
+                if (std::find(exts.begin(), exts.end(), ext) != exts.end())
+                {
+                    result.append(filter);
+                    result.append(";");
+                }
             }
         }
     }
@@ -239,7 +247,7 @@ std::string getWriteFilterList(const std::vector<std::string>& supportedExtensio
 
 } // namespace detail
 
-const std::vector<std::string> &coVRFileManager::getSupportedOsgExtentions() const {
+const std::map<std::string, std::vector<std::string>> &coVRFileManager::getSupportedOsgExtentions() const {
     return m_supportedOsgExtentions;
 }
 
@@ -1824,16 +1832,48 @@ void coVRFileManager::updateSupportedFormats()
     constexpr std::array<const char*, 18> popularExtensions = {
         "wrl", "osg", "ive", "osgb", "osgt", "osgx", "obj", "stl", "ply", "iv", "dxf", "3ds", "flt", "dae", "md2", "geo", "bvh", "fbx"
     };
-
-    for(const auto ext : popularExtensions)
+    // only show plugins for popular extensions, but with all of their supported types
+    std::map<std::string, std::vector<std::string>> popularPlugins;
+    for (const auto &ext : popularExtensions)
     {
-        if(std::find(m_supportedOsgExtentions.begin(), m_supportedOsgExtentions.end(), ext) == m_supportedOsgExtentions.end())
-            continue;
-        m_supportedReadExtentions += "*.";
-        m_supportedReadExtentions += ext;
-        m_supportedReadExtentions += ";";
+        for(const auto &[plugin, exts] : m_supportedOsgExtentions)
+        {
+            if(std::find(exts.begin(), exts.end(), ext) != exts.end())
+            {
+                //remove reader/writer from plugin name
+                const std::array<std::string, 3> toRemove = { "reader/writer", "reader", "writer" };
+                std::string pluginName = plugin;
+                auto pluginNameLower = pluginName;
+                std::transform(pluginNameLower.begin(), pluginNameLower.end(), pluginNameLower.begin(), ::tolower);
+                for (const auto &rem : toRemove)
+                {
+                    size_t pos = pluginNameLower.find(rem);
+                    if (pos != std::string::npos)
+                    {
+                        pluginName.erase(pos, rem.length());
+                        pluginNameLower.erase(pos, rem.length());
+                    }
+                }
+                popularPlugins[pluginName] = exts;
+            }
+        }
     }
-    m_supportedReadExtentions += "*";
+    // build filter string
+    for(const auto &[plugin, exts] : popularPlugins)
+    {
+        m_supportedReadExtentions += plugin + " (";
+        for(const auto ext : exts)
+        {
+            m_supportedReadExtentions += "*.";
+            m_supportedReadExtentions += ext;
+            m_supportedReadExtentions += " ";
+        }
+        m_supportedReadExtentions.pop_back(); //remove last space
+        m_supportedReadExtentions += ");;";
+    }
+    
+    m_supportedReadExtentions += "All files (*.*)";
+
     if(m_fileOpen)
         m_fileOpen->setFilter(getFilterList());
 }
