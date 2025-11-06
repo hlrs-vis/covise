@@ -1832,13 +1832,37 @@ int coVRFileManager::coLoadFontDefaultStyle()
 void coVRFileManager::updateSupportedFormats()
 {
     m_supportedReadExtentions.clear();
+
+    opencover::config::File filetypes("filetypes");
+    const auto plugins = filetypes.entries("plugin");
+
+    std::set<std::string> extensions;
+    for (const auto &plugin: plugins)
+    {
+        auto exts = filetypes.array<std::string>("plugin", plugin)->value();
+        std::string formats;
+        for (const auto &ext: exts)
+        {
+            extensions.insert(ext);
+            if (!formats.empty())
+                formats += " ";
+            formats += "*." + ext;
+        }
+        std::string f = plugin + " Files (" + formats + ")";
+        m_supportedReadExtentions += f + ";;";
+    }
+
     for (FileHandlerList::iterator it = fileHandlerList.begin();
          it != fileHandlerList.end();
          ++it)
     {
-        m_supportedReadExtentions += "*.";
-        m_supportedReadExtentions += (*it)->extension;
-        m_supportedReadExtentions += ";";
+        std::string e = (*it)->extension;
+        if (extensions.find(e) != extensions.end())
+            continue;
+
+        std::string f = e + " Files (*." + e + ")";
+
+        m_supportedReadExtentions += f + ";;";
     }
     constexpr std::array<const char*, 18> popularExtensions = {
         "wrl", "osg", "ive", "osgb", "osgt", "osgx", "obj", "stl", "ply", "iv", "dxf", "3ds", "flt", "dae", "md2", "geo", "bvh", "fbx"
@@ -1873,15 +1897,20 @@ void coVRFileManager::updateSupportedFormats()
     for(const auto &[plugin, exts] : popularPlugins)
     {
         m_supportedReadExtentions += plugin + " (";
+        bool first = true;
         for(const auto ext : exts)
         {
+            if (!first)
+                m_supportedReadExtentions += " ";
+            first = false;
             m_supportedReadExtentions += "*.";
             m_supportedReadExtentions += ext;
-            m_supportedReadExtentions += " ";
         }
         m_supportedReadExtentions.pop_back(); //remove last space
         m_supportedReadExtentions += ");;";
     }
+
+    m_supportedReadExtentions += "Viewpoints (*.vwp);;"; // viewpoint files always supported
 
     m_supportedReadExtentions += "All Files (*)";
 
