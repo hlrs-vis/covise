@@ -32,3 +32,7 @@ ThreeDTK = ["oct"]
 Volume = ["avf", "nii", "nii.gz", "rvf", "tif", "tiff", "xvf", "dcm", "dicomdir"]
 VRAnim = ["dyn", "geoall", "sensor", "str"]
 Vrml97 = ["wrl", "wrl.gz", "wrz", "x3d", "x3dv"]
+
+[osg]
+# add filters for the osg_db plugins supporting any of these formats
+extensions = ["wrl", "osg", "ive", "osgb", "osgt", "osgx", "obj", "stl", "ply", "iv", "dxf", "3ds", "flt", "dae", "md2", "geo", "bvh", "fbx"]

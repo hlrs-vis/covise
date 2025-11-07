@@ -1863,10 +1863,11 @@ void coVRFileManager::updateSupportedFormats()
 
     std::vector<FilterList> filterLists;
 
+    std::set<std::string> extensions;
+
+    // configured filetypes
     opencover::config::File filetypes("filetypes");
     const auto plugins = filetypes.entries("plugin");
-
-    std::set<std::string> extensions;
     for (const auto &plugin: plugins)
     {
         auto exts = filetypes.array<std::string>("plugin", plugin)->value();
@@ -1874,6 +1875,7 @@ void coVRFileManager::updateSupportedFormats()
         filterLists.push_back({plugin + " Files", std::set<std::string>(exts.begin(), exts.end())});
     }
 
+    // add what's missing from currently loaded plugins
     for (FileHandlerList::iterator it = fileHandlerList.begin();
          it != fileHandlerList.end();
          ++it)
@@ -1884,10 +1886,9 @@ void coVRFileManager::updateSupportedFormats()
 
         filterLists.push_back({e + " Files", std::set<std::string>({e})});
     }
-    constexpr std::array<const char*, 18> popularExtensions = {
-        "wrl", "osg", "ive", "osgb", "osgt", "osgx", "obj", "stl", "ply", "iv", "dxf", "3ds", "flt", "dae", "md2", "geo", "bvh", "fbx"
-    };
+
     // only show plugins for popular extensions, but with all of their supported types
+    auto popularExtensions = filetypes.array<std::string>("osg", "extensions")->value();
     std::map<std::string, std::vector<std::string>> popularPlugins;
     for (const auto &ext : popularExtensions)
     {
