@@ -1870,6 +1870,7 @@ void coVRFileManager::updateSupportedFormats()
     for (const auto &plugin: plugins)
     {
         auto exts = filetypes.array<std::string>("plugin", plugin)->value();
+        std::copy(exts.begin(), exts.end(), std::inserter(extensions, extensions.end()));
         filterLists.push_back({plugin + " Files", std::set<std::string>(exts.begin(), exts.end())});
     }
 
