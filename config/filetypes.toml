@@ -36,3 +36,7 @@ Vrml97 = ["wrl", "wrl.gz", "wrz", "x3d", "x3dv"]
 [osg]
 # add filters for the osg_db plugins supporting any of these formats
 extensions = ["wrl", "osg", "ive", "osgb", "osgt", "osgx", "obj", "stl", "ply", "iv", "dxf", "3ds", "flt", "dae", "md2", "geo", "bvh", "fbx"]
+
+[common]
+# first entry listing all supported extensions from this list
+extensions = ["wrl", "osg", "ive", "osgb", "obj", "stl", "ply", "3ds", "bvh", "fbx", "xvf", "e57", "ptsb", "vwp"]

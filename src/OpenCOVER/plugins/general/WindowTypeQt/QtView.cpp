@@ -443,6 +443,7 @@ QtViewElement *QtView::elementFactoryImplementation(FileBrowser *fb)
             formattedFilters.append(f);
             selectedFilter = f;
         }
+        selectedFilter = formattedFilters.first(); // default to first filter
         filters = formattedFilters.join(";;");
         QString dir = QString::fromStdString(fb->value());
         QString file = fb->forSaving()

@@ -1861,7 +1861,7 @@ void coVRFileManager::updateSupportedFormats()
         }
     };
 
-    std::vector<FilterList> filterLists;
+    std::deque<FilterList> filterLists;
 
     std::set<std::string> extensions;
 
@@ -1914,6 +1914,7 @@ void coVRFileManager::updateSupportedFormats()
             }
         }
     }
+
     // build filter string
     for(const auto &[plugin, exts] : popularPlugins)
     {
@@ -1925,6 +1926,9 @@ void coVRFileManager::updateSupportedFormats()
 
     std::sort(filterLists.begin(), filterLists.end());
     filterLists.push_back({"All Files", std::set<std::string>({""})});
+
+    auto commonExtensions = filetypes.array<std::string>("common", "extensions")->value();
+    filterLists.push_front({"Common Files", {commonExtensions.begin(), commonExtensions.end()}});
 
     m_supportedReadExtentions.clear();
     for (const auto &fl: filterLists)
