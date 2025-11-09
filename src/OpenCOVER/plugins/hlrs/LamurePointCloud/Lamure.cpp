@@ -149,6 +149,8 @@ Lamure* Lamure::instance()
 Lamure::~Lamure()
 {
     fprintf(stderr, "LamurePlugin::~LamurePlugin\n");
+
+    opencover::cover->getObjectsRoot()->removeChild(m_lamure_grp);//TODO: remove all other nodes
     opencover::coVRFileManager::instance()->unregisterFileHandler(&handler);
 }
 
@@ -326,6 +328,7 @@ bool Lamure::init2() {
 
     // Die Haupt-Gruppe für das Plugin erstellen.
     m_lamure_grp = new osg::Group();
+    m_lamure_grp->setName("lamureGroup"); // anything added to objectsRoot must have a name for the SceneGraphBrowser to work
     opencover::cover->getObjectsRoot()->addChild(m_lamure_grp.get());
 
     // Grundlegendes UI-Setup.
