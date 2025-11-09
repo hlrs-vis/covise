@@ -534,22 +534,13 @@ cmake .. -G "Visual Studio 17 2022" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/extern
 ###########
 #Lamure
 
-cmake .. -G "Visual Studio 17 2022" -A x64  -DBOOST_ROOT=c:/src/externlibs/zebu/boost -DGLOBAL_EXT_DIR=c:/src/externlibs/zebu -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/lamure -DCMAKE_DEBUG_POSTFIX=d -DSCHISM_INCLUDE_SEARCH_DIR=D:/src/gitbase/schism -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv
-
-add -DSCM_STATIC_BUILD
-
-add to lamure_rendering and _app
-
-C:\src\externlibs\zebu\schism\lib\scm_core-gdd.lib
-C:\src\externlibs\zebu\schism\lib\scm_gl_core-gdd.lib
-C:\src\externlibs\zebu\schism\lib\scm_gl_util-gdd.lib
-C:\src\externlibs\zebu\freeglut\lib\x64\freeglut.lib
-C:\src\externlibs\zebu\schism\lib\scm_input-gdd.lib
-opengl32.lib
+cmake-gui .. -G "Visual Studio 17 2022" -A x64  -DBOOST_ROOT=c:/src/externlibs/zebu/boost -DGLOBAL_EXT_DIR=c:/src/externlibs/zebu -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/lamure -DCMAKE_DEBUG_POSTFIX=d -DSCHISM_INCLUDE_SEARCH_DIR=D:/src/gitbase/schism -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv;c:/src/externlibs/zebu/FreeGLUT;c:/src/externlibs/zebu/glm;c:/src/externlibs/zebu/gmp
 
 #cgal
 https://github.com/CGAL/cgal.git
 cmake .. -G "Visual Studio 17 2022" -A x64  -DBOOST_ROOT=c:/src/externlibs/zebu/boost -DGLOBAL_EXT_DIR=c:/src/externlibs/zebu -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/cgal -DCMAKE_DEBUG_POSTFIX=d -DSCHISM_INCLUDE_SEARCH_DIR=D:/src/gitbase/schism -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv
+#FreeGLUT
+cmake .. -G "Visual Studio 17 2022" -A x64   -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/freeglut -DCMAKE_DEBUG_POSTFIX=d  -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv
 
 
 #libqtviewer

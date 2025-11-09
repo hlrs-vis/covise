@@ -20,7 +20,7 @@
 					   <Controller name="2" controllerID="58"   action="rAcceleration"   min="0"   max="125" minOut="0.0" maxOut="1.0"  />
 					   <Controller name="3" controllerID="7"   action="rAcceleration"   min="0"   max="127" minOut="-1.0" maxOut="1.0"  />
 					   <Controller name="4" controllerID="10"   action="Acceleration"   min="0"   max="127" minOut="-1000" maxOut="100.0"  />
-					   
+					   <Function name="0" keyNumber="56" channel="0" action="LinePointViz" />
 					   <TriplePlay DeviceName="Fishman TriplePlay TP Control" DeviceIn="5" DeviceOut="6"/>
 					   
 					   <Instrument name="5" channel="11" type="Drumkit">

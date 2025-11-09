@@ -77,7 +77,7 @@ using namespace smf;
 class ControllerInfo
 {
 public:
-	enum ControllerAction {NONE,Shader0,Shader1,Shader2,Shader3,Shader4,Shader5,rAcceleration,Acceleration};
+	enum ControllerAction {NONE,Shader0,Shader1,Shader2,Shader3,Shader4,Shader5,rAcceleration,Acceleration,SpiralSpeed};
 	ControllerInfo(std::string& configName);
 	~ControllerInfo();
 	std::string configName;
@@ -88,6 +88,25 @@ public:
 	float minOut = 0.0;
 	float maxOut = 1.0;
 	enum ControllerAction action = NONE;
+};
+
+class FunctionInfo
+{
+public:
+	enum FunctionAction { NONE, LinePointViz, Store, ClearStore, Reset};
+	FunctionInfo(std::string& configName);
+	~FunctionInfo();
+	std::string configName;
+	std::string actionName;
+	std::string typeString;
+	bool isOn;
+	int keyNumber = 0;
+	int channel = 0;
+	int triggerVelocity = 0; //0-127
+	enum FunctionAction faction = NONE;
+	void handleOn(MidiEvent& me);
+	void handleOff(MidiEvent& me);
+	void handle(MidiEvent& me);
 };
 
 class UDPMidiMessage
@@ -475,6 +494,7 @@ private:
 
 public:
 
+	std::list<FunctionInfo*>functions;
 	ui::Button* TubeButton = nullptr;
     UDPComm *udp= nullptr;
     static const size_t NUMMidiStreams = 16;
@@ -487,6 +507,9 @@ public:
 	std::vector<std::string> streamDeviceNames;
 	std::vector<std::string> midiDeviceNames;
     static MidiPlugin *instance();
+	void Reset();
+	void store();
+	void clearStore();
     vrml::Player *player;
     //scenegraph
 	osg::ref_ptr<osg::Group> MIDIRoot;
@@ -497,7 +520,6 @@ public:
 	float speedFactor = 1.0;
     int currentTrack;
 	void handleController(MidiEvent& me);
-	void clearStore();
     static int unloadMidi(const char *filename, const char *);
     static int loadMidi(const char *filename, osg::Group *parent, const char *);
     int loadFile(const char *filename, osg::Group *parent);

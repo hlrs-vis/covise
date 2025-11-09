@@ -51,7 +51,7 @@ bool UDPComm::error_SW = true;
 // ++  Constructors
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-static const int MaxPort = 0x7fff; // avoid ephemeral ports - might start at 0x8000
+static const int MaxPort = 65535; // avoid ephemeral ports - might start at 0x8000 nope, we need larger port numbers and you are allowed to use them
 
 UDPComm::UDPComm(const char *hostname, int port, int localPort, const char *mcastif, int mcastttl)
 {

@@ -578,6 +578,7 @@ MidiPlugin::MidiPlugin()
 	startTime = 0;
 	//Initialize SDL
 	
+	
     udp = new UDPComm("localhost", 51322, 51324);
 	if (coVRMSController::instance()->isMaster())
 	{
@@ -928,6 +929,16 @@ device_list();
 
 		ControllerInfo* controllerInfo = new ControllerInfo(configName);
 	}
+	coCoviseConfig::ScopeEntries FunctionEntries = coCoviseConfig::getScopeEntries("COVER.Plugin.Midi", "Function");
+	for (const auto& functionEntry : FunctionEntries)
+	{
+		const string& n = functionEntry.first;
+
+		std::string configName = "COVER.Plugin.Midi." + n;
+
+		FunctionInfo* functionInfo = new FunctionInfo(configName);
+		functions.push_back(functionInfo);
+	}
 
 	shaderUniforms.push_back(new osg::Uniform("Shader0", (float)(0.0)));
 	shaderUniforms.push_back(new osg::Uniform("Shader1", (float)(0.0)));
@@ -1032,6 +1043,90 @@ device_list();
 	return true;
 }
 
+FunctionInfo::FunctionInfo(std::string& cn)
+{
+	configName = cn;
+	keyNumber = coCoviseConfig::getInt("keyNumber", configName, 0);
+	channel = coCoviseConfig::getInt("channel", configName, 0);
+	triggerVelocity = coCoviseConfig::getInt("triggerVelocity", configName, 0);
+	actionName = coCoviseConfig::getEntry("action", configName, "NONE");
+	typeString = coCoviseConfig::getEntry("type", configName, "On");
+	if (typeString == "On")
+		isOn = true;
+
+	if (actionName == "LinePointViz")
+		faction = LinePointViz;
+	else if (actionName == "Store")
+		faction = Store;
+	else if (actionName == "ClearStore")
+		faction = ClearStore;
+	else if (actionName == "Reset")
+		faction = Reset;
+}
+FunctionInfo::~FunctionInfo()
+{
+}
+void FunctionInfo::handle(MidiEvent& me)
+{
+	if (faction == LinePointViz)
+    {
+        static int s = 0;
+        s++;
+        if (s == 5)
+            s = 0;
+        if (s == 0)
+        {
+
+            VRSceneGraph::instance()->setWireframe(VRSceneGraph::Disabled);
+            fprintf(stderr, "Points\n");
+        }
+        else if (s == 1)
+        {
+            VRSceneGraph::instance()->setWireframe(VRSceneGraph::Points);
+        }
+        else if (s == 2)
+        {
+            VRSceneGraph::instance()->setWireframe(VRSceneGraph::HiddenLineBlack);
+        }
+        else if (s == 3)
+        {
+            VRSceneGraph::instance()->setWireframe(VRSceneGraph::HiddenLineWhite);
+        }
+        else if (s == 4)
+        {
+            VRSceneGraph::instance()->setWireframe(VRSceneGraph::Enabled);
+        }
+        else
+        {
+            s = 0;
+        }
+    }
+	else if (faction == Reset)
+	{
+		MidiPlugin::instance()->Reset();
+	}
+	else if (faction == Store)
+	{
+		MidiPlugin::instance()->store();
+	}
+	else if (faction == ClearStore)
+	{
+		MidiPlugin::instance()->clearStore();
+	}
+
+}
+void FunctionInfo::handleOn(MidiEvent& me)
+{
+	if (isOn)
+		handle(me);
+
+}
+void FunctionInfo::handleOff(MidiEvent& me)
+{
+	if (!isOn)
+		handle(me);
+}
+
 ControllerInfo::ControllerInfo(std::string& cn)
 {
 	configName = cn;
@@ -1053,6 +1148,8 @@ ControllerInfo::ControllerInfo(std::string& cn)
 		action = Shader4;
 	else if (actionName == "Shader5")
 		action = Shader5;
+	else if (actionName == "SpiralSpeed")
+		action = SpiralSpeed;
 	else if (actionName == "rAcceleration")
 		action = rAcceleration;
 	else if (actionName == "Acceleration")
@@ -1244,7 +1341,7 @@ bool MidiPlugin::update()
 	    do{
 		if (udp)
 		{
-		    status = udp->receive(&packet, sizeof(packet),0.001);
+		    status = udp->receive(&packet, sizeof(packet),0);
 		}
 		else
 		{
@@ -1326,6 +1423,26 @@ bool MidiPlugin::update()
 	return true;
 }
 
+void MidiPlugin::Reset()
+{
+	for (int i = 0; i < NUMMidiStreams; i++)
+	{
+		lTrack[i]->reset();
+	}
+}
+void MidiPlugin::store()
+{
+
+	for (int i = 0; i < NUMMidiStreams; i++)
+	{
+		MidiInstrument* inst = lTrack[i]->instrument;
+		lTrack[i]->store();
+		lTrack[i] = new Track(tracks.size(), true);
+		lTrack[i]->reset();
+		lTrack[i]->instrument = inst;
+		lTrack[i]->setVisible(true);
+	}
+}
 //------------------------------------------------------------------------------
 void MidiPlugin::preFrame()
 {
@@ -1423,22 +1540,11 @@ void MidiPlugin::preFrame()
 			{
 				if (me.getVelocity() < 50)
 				{
-					for (int i = 0; i < NUMMidiStreams; i++)
-					{
-						lTrack[i]->reset();
-					}
+					Reset();
 				}
 				else
 				{
-					for (int i = 0; i < NUMMidiStreams; i++)
-					{
-						MidiInstrument* inst = lTrack[i]->instrument;
-					lTrack[i]->store();
-					lTrack[i] = new Track(tracks.size(), true);
-					lTrack[i]->reset();
-					lTrack[i]->instrument = inst;
-					lTrack[i]->setVisible(true);
-					}
+					store();
 				}
 			}
 			else
@@ -1527,7 +1633,13 @@ void MidiPlugin::handleController(MidiEvent& me)
 			{
 				rAcceleration = val;
 				raccelSlider->setValue(val);
-			}
+            }
+            else if (ci->action == ControllerInfo::SpiralSpeed)
+            {
+                spiralSpeed = val;
+                spiralSpeedSlider->setValue(val);
+
+            }
 			else if (ci->action == ControllerInfo::Acceleration)
 			{
 				acceleration = val;
@@ -1555,7 +1667,7 @@ void MidiPlugin::handleController(MidiEvent& me)
 			lastThereminTime = cover->frameTime();
 			lastThereminScaleY = thereminScaleY;
 		}
-	}
+	}/*
 	if (controllerID == 5)
 	{
 		if (value < 10)
@@ -1580,8 +1692,8 @@ void MidiPlugin::handleController(MidiEvent& me)
 			VRSceneGraph::instance()->setWireframe(VRSceneGraph::Enabled);
 		}
 
-	}
-	if (controllerID == 63)
+	}*/
+	/*if (controllerID == 63) //Abstandssensor
 	{
 		if (value < 41)
 		{
@@ -1597,7 +1709,7 @@ void MidiPlugin::handleController(MidiEvent& me)
 			VRSceneGraph::instance()->setWireframe(VRSceneGraph::Enabled);
 		}
 
-	}
+	}*/
 	if (controllerID == 65)
 	{
 		if (value > 64)
@@ -1617,7 +1729,7 @@ void MidiPlugin::handleController(MidiEvent& me)
 			spiralSpeedSlider->setValue(spiralSpeed);
 		}
 	}
-	if (controllerID == 74)
+	/*if (controllerID == 74)
 	{
 		if (value > 64)
 		{
@@ -1635,7 +1747,7 @@ void MidiPlugin::handleController(MidiEvent& me)
 				spiralSpeed = -4;
 			spiralSpeedSlider->setValue(spiralSpeed);
 		}
-	}
+	}*/
 	if (controllerID == 55)
 	{
 		frequencySurface->radius1 = value;
@@ -2177,10 +2289,24 @@ void Track::handleEvent(MidiEvent& me)
 	if (me.isNoteOn())
 	{
 		addNote(new Note(me, this));
+		for (const auto& f : MidiPlugin::instance()->functions)
+		{
+			if (f->channel == me.getChannel() && f->keyNumber == me.getKeyNumber())
+			{
+				f->handleOn(me);
+			}
+		}
 	}
 	else if (me.isNoteOff())
 	{
 		endNote(me);
+		for (const auto& f : MidiPlugin::instance()->functions)
+		{
+			if (f->channel == me.getChannel() && f->keyNumber == me.getKeyNumber())
+            {
+                f->handleOff(me);
+            }
+		}
 	}
 	else if (me.isController())
 	{
@@ -3562,6 +3688,9 @@ void MidiPlugin::error(const char *format, ...)
 	va_end(ap);
 	putc('\n', stderr);
 }
+FunctionInfo::FunctionInfo()
+{
 
+}
 
 #endif
