@@ -161,9 +161,7 @@ public:
         std::string pvs{};
         std::string background_image{};
         std::vector<std::string> models;
-        std::vector<bool> model_visible;
         std::vector<uint32_t> initial_selection;
-        std::map<uint32_t, scm::math::mat4d> transforms;
         float scale_radius{ 0.05f };
         float scale_radius_gamma{ 0.5f };
         float scale_element{ 1.0f };
@@ -220,6 +218,8 @@ public:
         scm::math::vec3f models_min;
         scm::math::vec3f models_max;
         scm::math::vec3d models_center;
+        std::vector<bool> model_visible;
+        std::vector<scm::math::mat4d> config_transforms;
     };
 
     struct RenderInfo
@@ -318,6 +318,7 @@ public:
     std::unordered_map<std::string, osg::observer_ptr<osg::Node>> m_pendingTransformPrint;
     std::unordered_map<std::string, scm::math::mat4d> m_vrmlTransforms;
     std::unordered_set<std::string> m_registeredFiles;
+    std::unordered_map<std::string, std::string> m_model_source_keys;
 
 private:
     std::vector<std::string> m_files_to_load;

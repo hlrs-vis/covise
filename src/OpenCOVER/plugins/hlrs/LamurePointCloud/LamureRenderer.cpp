@@ -36,13 +36,11 @@
 #include <fstream>
 #include <thread>
 #include <stdexcept>
+#include <unordered_set>
 
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
 #include <cover/coVRNavigationManager.h>
-
-std::string shader_root_path = LAMURE_SHADERS_DIR;
-std::string font_root_path = LAMURE_FONTS_DIR;
 
 namespace {
     inline bool notifyOn(Lamure* p) { return p && p->getSettings().show_notify; }
@@ -253,6 +251,78 @@ struct InitDrawCallback : public osg::Drawable::DrawCallback
             _renderer->getTextGeode()->setNodeMask(_plugin->getUI()->getTextButton()->state() ? 0xFFFFFFFF : 0);
             before.restore();
             _initialized = true;
+        }
+
+        if (_plugin && _plugin->getUI() && _plugin->getUI()->getDumpButton()->state()) {
+            auto *dumpButton = _plugin->getUI()->getDumpButton();
+            const auto &settings = _plugin->getSettings();
+            const auto &modelInfo = _plugin->getModelInfo();
+            const auto &models = settings.models;
+            std::cout << "[Lamure] Dump parents (" << models.size() << " models)" << std::endl;
+            for (std::size_t idx = 0; idx < models.size(); ++idx) {
+                const auto &modelPath = models[idx];
+                std::cout << "[" << idx << "] " << modelPath << std::endl;
+                auto itNode = _plugin->m_model_nodes.find(modelPath);
+                if (itNode == _plugin->m_model_nodes.end()) {
+                    std::cout << " node missing" << std::endl << std::endl;
+                    continue;
+                }
+                osg::Node *node = itNode->second.get();
+                if (!node) {
+                    std::cout << " node expired" << std::endl << std::endl;
+                    continue;
+                }
+                bool configVisible = idx < modelInfo.model_visible.size() ? modelInfo.model_visible[idx] : true;
+                std::cout << " model_visible=" << (configVisible ? "on" : "off") << std::endl;
+                auto itSource = _plugin->m_model_source_keys.find(modelPath);
+                if (itSource != _plugin->m_model_source_keys.end()) {
+                    std::cout << " source=" << (itSource->second.empty() ? "<menu>" : itSource->second) << std::endl;
+                }
+                const unsigned parentCount = node->getNumParents();
+                std::cout << " parents=" << parentCount << std::endl;
+                if (parentCount == 0) {
+                    std::cout << std::endl;
+                    continue;
+                }
+                for (unsigned p = 0; p < parentCount; ++p) {
+                    osg::Node *parent = node->getParent(p);
+                    if (!parent) {
+                        std::cout << " parent[" << p << "] = null" << std::endl;
+                        continue;
+                    }
+                    unsigned childCount = 0;
+                    if (auto *parentGroup = dynamic_cast<osg::Group *>(parent)) {
+                        childCount = parentGroup->getNumChildren();
+                    }
+                    std::cout << " parent[" << p << "]:" << std::endl;
+                    std::cout << "  name='" << parent->getName() << "'" << std::endl;
+                    std::cout << "  mask=0x" << std::hex << parent->getNodeMask() << std::dec << std::endl;
+                    std::cout << "  children=" << childCount << std::endl;
+
+                    std::vector<std::pair<const osg::Node*, unsigned>> stack;
+                    stack.emplace_back(parent, 1);
+                    while (!stack.empty()) {
+                        auto [cur, depth] = stack.back();
+                        stack.pop_back();
+                        const unsigned depthCap = 32;
+                        if (depth > depthCap) continue;
+                        const auto mask = cur ? cur->getNodeMask() : 0u;
+                        const std::string curName = cur ? cur->getName() : std::string("<null>");
+                        std::cout << "  depth=" << depth << " name='" << curName << "'" << std::endl;
+                        std::cout << "   mask=0x" << std::hex << mask << std::dec << std::endl;
+                        std::cout << "   parents=" << (cur ? cur->getNumParents() : 0) << std::endl;
+                        if (!cur) continue;
+                        for (unsigned pp = 0; pp < cur->getNumParents(); ++pp) {
+                            stack.emplace_back(cur->getParent(pp), depth + 1);
+                        }
+                    }
+                    std::cout << std::endl;
+                }
+                std::cout << std::endl;
+            }
+            if (dumpButton) {
+                dumpButton->setState(false);
+            }
         }
 
         if (drawable)
@@ -1571,10 +1641,11 @@ bool LamureRenderer::isModelVisible(std::size_t modelIndex) const
         return false;
 
     const auto& settings = m_plugin->getSettings();
+    const auto& modelInfo = m_plugin->getModelInfo();
     if (modelIndex >= settings.models.size())
         return false;
 
-    if (modelIndex < settings.model_visible.size() && !settings.model_visible[modelIndex])
+    if (modelIndex < modelInfo.model_visible.size() && !modelInfo.model_visible[modelIndex])
         return false;
 
     const auto& model_path = settings.models[modelIndex];
@@ -1586,16 +1657,37 @@ bool LamureRenderer::isModelVisible(std::size_t modelIndex) const
     if (!node || node->getNodeMask() == 0)
         return false;
 
-    const unsigned int parentCount = node->getNumParents();
-    if (parentCount == 0)
+    auto hasPathToSceneRoot = [](osg::Node* start) {
+        if (!start)
+            return false;
+        osg::Node* scene_root = nullptr;
+        if (opencover::cover)
+            scene_root = opencover::cover->getObjectsRoot();
+        std::vector<osg::Node*> stack;
+        stack.push_back(start);
+        std::unordered_set<const osg::Node*> visited;
+        while (!stack.empty()) {
+            osg::Node* current = stack.back();
+            stack.pop_back();
+            if (!current)
+                continue;
+            if (visited.find(current) != visited.end())
+                continue;
+            visited.insert(current);
+            if (current == scene_root)
+                return true;
+            if (current->getNodeMask() == 0)
+                continue;
+            for (unsigned int i = 0; i < current->getNumParents(); ++i) {
+                stack.push_back(current->getParent(i));
+            }
+        }
         return false;
+    };
 
-    for (unsigned int i = 0; i < parentCount; ++i) {
-        osg::Node* parent = node->getParent(i);
-        if (parent && parent->getNodeMask() != 0)
-            return true;
-    }
-    return false;
+    if (!hasPathToSceneRoot(node))
+        return false;
+    return true;
 }
 
 void LamureRenderer::setFrameUniforms(const scm::math::mat4& projection_matrix, const scm::math::vec2& viewport) {
@@ -2068,7 +2160,7 @@ void LamureRenderer::initLamureShader()
     {
         char * val;
         val = getenv( "COVISEDIR" );
-        shader_root_path=val;
+        std::string shader_root_path=val;
         shader_root_path=shader_root_path+"/src/OpenCOVER/plugins/hlrs/LamurePointCloud/shaders";
         shader_root_path=std::string(val)+"/share/covise/shaders";
         if (!readShader(shader_root_path + "/vis/vis_point.glslv", vis_point_vs_source) ||

@@ -162,13 +162,15 @@ Lamure::~Lamure()
 
 void Lamure::setModelVisible(uint16_t idx, bool v) {
     std::lock_guard<std::mutex> lock(g_settings_mutex);
-    if (idx >= m_settings.model_visible.size()) return;
-    m_settings.model_visible[idx] = v;
+    auto &visible = m_model_info.model_visible;
+    if (idx >= visible.size()) return;
+    visible[idx] = v;
 }
 
 bool Lamure::isModelVisible(uint16_t idx) const {
     std::lock_guard<std::mutex> lock(g_settings_mutex);
-    return idx < m_settings.model_visible.size() ? m_settings.model_visible[idx] : false;
+    const auto &visible = m_model_info.model_visible;
+    return idx < visible.size() ? visible[idx] : false;
 }
 
 
@@ -180,7 +182,6 @@ int Lamure::unloadBvh(const char* filename, const char* /*covise_key*/)
     
     if (!filename || !Lamure::plugin) return 0;
 
-    // Normalize to absolute path and unify separators on Windows
     std::string path = std::filesystem::absolute(std::filesystem::path(filename)).string();
 #ifdef _WIN32
     std::replace(path.begin(), path.end(), '\\', '/');
@@ -191,7 +192,6 @@ int Lamure::unloadBvh(const char* filename, const char* /*covise_key*/)
 
     std::lock_guard<std::mutex> lock(g_settings_mutex);
 
-    // Find model index
     auto it_idx = plugin_ref.m_model_idx.find(path);
     if (it_idx == plugin_ref.m_model_idx.end()) {
         if (plugin_ref.m_settings.show_notify) {
@@ -201,17 +201,14 @@ int Lamure::unloadBvh(const char* filename, const char* /*covise_key*/)
     }
     uint16_t idx = it_idx->second;
 
-    // Set internal visibility to false
-    if (idx < plugin_ref.m_settings.model_visible.size()) {
-        plugin_ref.m_settings.model_visible[idx] = false;
+    if (idx < plugin_ref.m_model_info.model_visible.size()) {
+        plugin_ref.m_model_info.model_visible[idx] = false;
     }
 
-    // Find and remove the scene graph node
     auto it_node = plugin_ref.m_model_nodes.find(path);
     if (it_node != plugin_ref.m_model_nodes.end()) {
         osg::Group* node = it_node->second.get();
         if (node) {
-            // Detach from every parent to avoid stale references on reload
             while (node->getNumParents() > 0) {
                 osg::Node* parentNode = node->getParent(0);
                 auto* parentGroup = dynamic_cast<osg::Group*>(parentNode);
@@ -224,15 +221,12 @@ int Lamure::unloadBvh(const char* filename, const char* /*covise_key*/)
         plugin_ref.m_model_nodes.erase(it_node);
     }
 
-    // Remove from internal tracking so it can be fully reloaded
     plugin_ref.m_model_idx.erase(it_idx);
     plugin_ref.m_pendingTransformPrint.erase(path);
     plugin_ref.m_vrmlTransforms.erase(path);
     plugin_ref.m_scene_nodes.erase(path);
     plugin_ref.m_registeredFiles.erase(path);
-    
-    // Note: The model is not removed from the main m_settings.models vector to avoid re-indexing issues.
-    // It will be fully purged on the next dynamic load of a *new* model, which triggers a full system reset.
+    plugin_ref.m_model_source_keys.erase(path);
 
     return 1;
 }
@@ -253,9 +247,16 @@ int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *covise
     const bool isRegistrationCall = (isMenuCall && parent == nullptr);
     const bool isMenuReload = (isMenuCall && parent != nullptr);
 
-    if (isRegistrationCall) {
-        // Called from ensureFileMenuEntry just to register the handler; nothing to do.
+    if (isRegistrationCall)
         return 0;
+
+    if (!isMenuCall) {
+        std::string sourceKey = "<direct>";
+        if (covise_key && covise_key[0])
+            sourceKey = covise_key;
+        plugin->m_model_source_keys[file] = sourceKey;
+    } else if (plugin->m_model_source_keys.find(file) == plugin->m_model_source_keys.end()) {
+        plugin->m_model_source_keys[file] = std::string();
     }
 
     SceneNodes *scene_nodes = nullptr;
@@ -302,21 +303,19 @@ int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *covise
             nodes.config->addChild(nodes.bvh);
         if (!nodes.bvh->containsNode(nodes.payload))
             nodes.bvh->addChild(nodes.payload);
-    };
+        };
 
     ensureHierarchy(*scene_nodes);
     osg::Group *modelNode = scene_nodes->root.get();
 
-    auto storeVrmlMatrix = [&](const osg::Matrix &mat){
+    auto storeVrmlMatrix = [&](const osg::Matrix &mat) {
         plugin->m_vrmlTransforms[file] = LamureUtil::matConv4D(mat);
         plugin->ensureFileMenuEntry(file);
-    };
+        };
 
-    // --- Startup-Ladevorgang (von Kommandozeile) ---
     if (!plugin->initialized) {
-        if (std::find(plugin->m_bootstrap_files.begin(), plugin->m_bootstrap_files.end(), file) == plugin->m_bootstrap_files.end()) {
+        if (std::find(plugin->m_bootstrap_files.begin(), plugin->m_bootstrap_files.end(), file) == plugin->m_bootstrap_files.end())
             plugin->m_bootstrap_files.push_back(file);
-        }
 
         if (parent) {
             bool hasParent = false;
@@ -326,9 +325,8 @@ int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *covise
             if (!hasParent)
                 parent->addChild(modelNode);
             plugin->m_pendingTransformPrint[file] = modelNode;
-            if (auto *mt = dynamic_cast<osg::MatrixTransform *>(parent)) {
+            if (auto *mt = dynamic_cast<osg::MatrixTransform *>(parent))
                 storeVrmlMatrix(mt->getMatrix());
-            }
         }
         std::lock_guard<std::mutex> settings_lock(g_settings_mutex);
         plugin->m_model_nodes[file] = modelNode;
@@ -339,28 +337,26 @@ int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *covise
 
     auto itExisting = plugin->m_model_nodes.find(file);
     if (!isMenuReload && itExisting != plugin->m_model_nodes.end()) {
-        osg::Group *node = itExisting->second.get();
-        const bool hasLiveParents = node && node->getNumParents() > 0;
-        if (hasLiveParents && parent) {
+        osg::ref_ptr<osg::Group> node = itExisting->second;
+        if (!node)
+            return 0;
+
+        if (parent) {
             bool hasParent = false;
             for (unsigned i = 0; i < node->getNumParents(); ++i) {
                 if (node->getParent(i) == parent) { hasParent = true; break; }
             }
             if (!hasParent)
                 parent->addChild(node);
-            plugin->m_pendingTransformPrint[file] = node;
-            if (auto *mt = dynamic_cast<osg::MatrixTransform *>(parent)) {
+            plugin->m_pendingTransformPrint[file] = node.get();
+            if (auto *mt = dynamic_cast<osg::MatrixTransform *>(parent))
                 storeVrmlMatrix(mt->getMatrix());
-            }
         }
-        if (hasLiveParents)
-            return 0;
-        // fall through to full reload when the previous instance has been detached
-    }
-
-    if (std::find(plugin->m_files_to_load.begin(), plugin->m_files_to_load.end(), file) != plugin->m_files_to_load.end()) {
         return 0;
     }
+
+    if (std::find(plugin->m_files_to_load.begin(), plugin->m_files_to_load.end(), file) != plugin->m_files_to_load.end())
+        return 0;
 
     if (parent) {
         bool hasParent = false;
@@ -370,9 +366,8 @@ int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *covise
         if (!hasParent)
             parent->addChild(modelNode);
         plugin->m_pendingTransformPrint[file] = modelNode;
-        if (auto *mt = dynamic_cast<osg::MatrixTransform *>(parent)) {
+        if (auto *mt = dynamic_cast<osg::MatrixTransform *>(parent))
             storeVrmlMatrix(mt->getMatrix());
-        }
     }
     plugin->m_model_nodes[file] = modelNode;
 
@@ -383,37 +378,29 @@ int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *covise
 }
 
 
+
 bool Lamure::init2() {
 
     if (initialized)
         return false;
 
-    // Load settings (non-model parameters)
     loadSettingsFromCovise();
-
-    // Resolve models from CLI bootstrap or config, normalize + dedupe
     m_settings.models = resolveAndNormalizeModels();
-    // Model-dependent settings
     updateModelDependentSettings();
 
-    // Konfiguriere Budgets neu
     lamure::ren::policy* policy = lamure::ren::policy::get_instance();
     policy->set_max_upload_budget_in_mb(m_settings.upload);
     policy->set_render_budget_in_mb(m_settings.vram);
     policy->set_out_of_core_budget_in_mb(m_settings.ram);
 
-    // Die Haupt-Gruppe für das Plugin erstellen.
     m_lamure_grp = new osg::Group();
     m_lamure_grp->setName("lamureGroup"); // anything added to objectsRoot must have a name for the SceneGraphBrowser to work
     opencover::cover->getObjectsRoot()->addChild(m_lamure_grp.get());
 
-    // Grundlegendes UI-Setup.
     m_ui->setupUi();
 
-    // Navigationsmodus setzen.
     opencover::coVRNavigationManager::instance()->setNavMode("Point");
 
-    // Mark plugin initialized; defer model setup to first preFrame
     m_first_frame = true;
     initialized = true;
 
@@ -606,12 +593,14 @@ void Lamure::perform_system_reset()
     scm::math::vec3f global_max(-std::numeric_limits<float>::max()
                                ,-std::numeric_limits<float>::max()
                                ,-std::numeric_limits<float>::max());
+    m_model_info.model_visible.assign(N, true);
+    m_model_info.config_transforms.assign(N, scm::math::mat4d::identity());
+
     for (uint16_t mid = 0; mid < N; ++mid) {
         const std::string &model_path = models[mid];
         m_model_idx.emplace(model_path, mid);
         lamure::model_t model_id = database->add_model(model_path, std::to_string(mid));
-        const auto itTrafo = m_settings.transforms.find(mid);
-        const auto trafo_config = itTrafo != m_settings.transforms.end() ? itTrafo->second : scm::math::mat4d::identity();
+        const auto trafo_config = m_model_info.config_transforms[mid];
         const auto trafo_bvh  = scm::math::mat4d(scm::math::make_translation(database->get_model(model_id)->get_bvh()->get_translation()));
         const auto itVrml = m_vrmlTransforms.find(model_path);
         const auto trafo_vrml = itVrml != m_vrmlTransforms.end() ? itVrml->second : scm::math::mat4d::identity();
@@ -659,7 +648,6 @@ void Lamure::perform_system_reset()
 
     database->apply();
     m_settings.num_models = N;
-    m_settings.model_visible.assign(N, true);
     // Store aggregated bounds and center
     m_model_info.models_min = global_min;
     m_model_info.models_max = global_max;
@@ -780,8 +768,8 @@ void Lamure::loadSettingsFromCovise() {
     std::string color_mode = getStr((std::string(root)+".color_mode").c_str(), "normals");
     for (char &c : color_mode) c = (char)std::tolower((unsigned char)c);
 
-    // ---- Exklusivität ----
-    // Primitive: genau eins. Priorität: Surfel > Splatting > Point.
+    // ---- Exclusivity ----
+    // Primitive: exactly one; priority Surfel > Splatting > Point.
     {
         int prim_count = (s.point?1:0) + (s.surfel?1:0) + (s.splatting?1:0);
         if (prim_count != 1) {
@@ -794,7 +782,7 @@ void Lamure::loadSettingsFromCovise() {
     // Modes: Lighting > Color
     if (s.lighting && s.coloring) s.coloring = false;
 
-    // ---- color_mode immer übernehmen (auch wenn coloring=off), UI soll Zustand zeigen ----
+    // ---- always honor the color mode so the UI reflects the actual state ----
     s.show_normals = s.show_accuracy = s.show_radius_deviation = s.show_output_sensitivity = false;
     if      (color_mode == "accuracy")    s.show_accuracy = true;
     else if (color_mode == "derivation")  s.show_radius_deviation = true;   // „derivation“ -> radius deviation
@@ -918,10 +906,12 @@ void Lamure::loadSettingsFromCovise() {
     if (s.json.empty() && !first_json.empty()) s.json = first_json;
 
     // ---- Transforms default ----
-    s.transforms.clear();
-    for (lamure::model_t mid=0; mid < s.models.size(); ++mid)
-        s.transforms[mid] = scm::math::mat4d::identity();
+    m_model_info.config_transforms.clear();
+    m_model_info.config_transforms.resize(s.models.size(), scm::math::mat4d::identity());
+    m_model_info.model_visible.clear();
+    m_model_info.model_visible.resize(s.models.size(), true);
     m_vrmlTransforms.clear();
+    m_model_source_keys.clear();
 
     // ---- Hintergrundfarbe ----
     s.background_color = scm::math::vec3(
@@ -984,7 +974,7 @@ void Lamure::stopMeasurement() {
 
 void Lamure::addMarkMs(MarkField f, double ms) noexcept
 {
-    if (!m_measurement) return; // nur akkumulieren, wenn Messung aktiv
+    if (!m_measurement) return; // only accumulate when measurement is active
 
     switch (f) {
     case MarkField::DrawCB_Total: m_marks.draw_cb_ms      = ms; break;
@@ -1002,7 +992,7 @@ void Lamure::addMarkMs(MarkField f, double ms) noexcept
 
 void Lamure::applyShaderToRendererFromSettings() {
     if (!m_renderer) return;
-    // Falls jemand s.shader_type später überschreibt, hier noch mal robust ableiten:
+    // Ensure shader type is determined consistently even if s.shader_type is overridden later:
     auto& s = m_settings;
     auto decideShaderType = [&](){
         using ST = LamureRenderer::ShaderType;
@@ -1093,7 +1083,7 @@ std::string Lamure::buildMeasurementOutputPath() const {
     auto rxEscape = [](const std::string& s){ std::string r; r.reserve(s.size()*2);
     for(char c: s){ switch(c){ case '.': case '^': case '$': case '|': case '(': case ')': case '[': case ']': case '*': case '+': case '?': case '{': case '}': case '\\': r.push_back('\\'); default: r.push_back(c);} } return r; };
 
-    // 1) Höchste Nummer aus ANY stem_####*.* (Frames/Summary/etc. inklusive)
+    // 1) Highest stem number from ANY stem_####*.* file (includes Frames/Summary)
     const std::regex pat("^" + rxEscape(stem) + "_(\\d+)(?:$|[^0-9].*)", std::regex::icase);
     unsigned maxN = 0;
     for (const auto& de : fs::directory_iterator(dir)) {
@@ -1105,7 +1095,7 @@ std::string Lamure::buildMeasurementOutputPath() const {
         }
     }
 
-    // 2) Kollisionen vermeiden: prüfe Prefix stem_#### gegen alle Dateien
+    // 2) Avoid collisions by checking the stem_#### prefix against every file
     auto anyWithPrefix = [&](unsigned n)->bool{
         std::ostringstream os; os << stem << '_' << std::setw(4) << std::setfill('0') << n;
         const std::string pref = os.str();
@@ -1227,7 +1217,7 @@ bool Lamure::writeSettingsJson(const Lamure::Settings& s, const std::string& out
         o<<'}'; return o.str();
         };
 
-    // Zielordner (non-fatal bei Fehlern)
+    // Target directory (non-fatal on failure)
     try {
         fs::path p(outPath);
         if (p.has_parent_path()) {
@@ -1301,7 +1291,7 @@ bool Lamure::writeSettingsJson(const Lamure::Settings& s, const std::string& out
 
     // Shader / Primitive & Skalen
     add_str("shader",      s.shader);
-    add_str("primitive",   determinePrimitive); // <<<< hier die gewünschte Ableitung
+    add_str("primitive",   determinePrimitive); // <<<< final primitive derivation
     add_f ("scale_element",      s.scale_element);
     add_f ("scale_point",        s.scale_point);
     add_f ("scale_surfel",       s.scale_surfel);
@@ -1370,7 +1360,7 @@ bool Lamure::writeSettingsJson(const Lamure::Settings& s, const std::string& out
     add_raw("frustum_color",    vecF(s.frustum_color));
     add_raw("background_color", v3f_scm(s.background_color));
 
-    // Sichtbarkeiten UI
+    // Visibility toggles
     add_bool("show_pointcloud",  s.show_pointcloud);
     add_bool("show_boundingbox", s.show_boundingbox);
     add_bool("show_frustum",     s.show_frustum);
@@ -1386,13 +1376,20 @@ bool Lamure::writeSettingsJson(const Lamure::Settings& s, const std::string& out
     add_raw ("initial_navigation",     mat4_osg(s.initial_navigation));
     add_raw ("initial_view",           mat4_osg(s.initial_view));
 
-    // Pro-Modell Daten
-    add_raw("transforms", mapTransforms(s.transforms));
+    // Per-model data
+    {
+        std::map<uint32_t, scm::math::mat4d> cfg;
+        const auto &modelInfo = m_model_info;
+        for (uint32_t i = 0; i < modelInfo.config_transforms.size(); ++i) {
+            cfg[i] = modelInfo.config_transforms[i];
+        }
+        add_raw("transforms", mapTransforms(cfg));
+    }
 
-    // Messpfade
+    // Measurement paths
     add_raw("measurement_segments", segs(s.measurement_segments));
 
-    // Messungs-Modi/Flags
+    // Measurement modes/flags
     add_bool("measure_off",    s.measure_off);
     add_bool("measure_light",  s.measure_light);
     add_bool("measure_full",   s.measure_full);
@@ -1542,24 +1539,21 @@ void Lamure::updateModelDependentSettings()
     if (s.json.empty() && !first_json.empty()) s.json = first_json;
 
     // Reset transforms to identity for each model
-    s.transforms.clear();
-    for (lamure::model_t mid=0; mid < s.models.size(); ++mid)
-        s.transforms[mid] = scm::math::mat4d::identity();
+    m_model_info.config_transforms.clear();
+    m_model_info.config_transforms.resize(s.models.size(), scm::math::mat4d::identity());
+    m_model_info.model_visible.clear();
+    m_model_info.model_visible.resize(s.models.size(), true);
     m_vrmlTransforms.clear();
+    m_model_source_keys.clear();
 }
 
 void Lamure::ensureFileMenuEntry(const std::string& path)
 {
-    if (path.empty())
-        return;
-    if (m_registeredFiles.count(path))
-        return;
+    if (path.empty()) return;
+    if (m_registeredFiles.count(path)) return;
 
-    auto *fm = opencover::coVRFileManager::instance();
-    if (!fm)
-        return;
-
-    osg::Node *node = fm->loadFile(path.c_str(), nullptr, nullptr, kLamureRegistrationKey);
-    (void)node;
-    m_registeredFiles.insert(path);
+    if (auto *fm = opencover::coVRFileManager::instance()) {
+        fm->loadFile(path.c_str(), nullptr, m_lamure_grp.get(), "");
+        m_registeredFiles.insert(path);
+    }
 }
