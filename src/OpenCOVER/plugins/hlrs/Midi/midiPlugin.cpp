@@ -571,14 +571,14 @@ MidiPlugin::MidiPlugin()
 	plugin = this;
 	player = NULL;
 	coVRPluginList::instance()->addPlugin("Vrml97");
-	
+
 	initOPCUA();
 
 	MIDITab = NULL;
 	startTime = 0;
 	//Initialize SDL
-	
-	
+
+
     udp = new UDPComm("localhost", 51322, 51324);
 	if (coVRMSController::instance()->isMaster())
 	{
@@ -722,11 +722,11 @@ void NoteInfo::createGeom()
 		colorMaterial->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
 
 	geoState->setAttributeAndModes(colorMaterial, osg::StateAttribute::ON);
-	
-	
-	
-	
-	
+
+
+
+
+
 		geometry = mt;
 	}
 	if (geometry == NULL)
@@ -834,7 +834,7 @@ MidiDevice::~MidiDevice()
 bool MidiPlugin::init()
 {
 	currentTrack = 0;
-	
+
 #ifdef HAVE_ALSA
 
 			if (coVRMSController::instance()->isMaster())
@@ -965,7 +965,7 @@ device_list();
 	{
 		coVRFileManager::instance()->loadFile(objFileName.c_str(), 0, thereminTransform);
 	}
-	
+
         BBVisitor bbVisitor;
         thereminTransform->accept(bbVisitor);
 
@@ -1005,9 +1005,9 @@ device_list();
 			    {
 			        OpenMidiDevice(DeviceName,hMidiDevice[streamNum],hMidiDeviceOut[streamNum]);
 			    }
-			    
+
 		            //snd_rawmidi_read(hMidiDevice[streamNum], NULL, 0); /* trigger reading */
-			    
+
 			    #endif
 			    }
 			    else
@@ -1030,7 +1030,7 @@ device_list();
 				streamNum++;
 				if (streamNum >= NUMMidiStreams)
 					break;
-					
+
 		}
 		int midiPortOut = coCoviseConfig::getInt("OutPort", "COVER.Plugin.Midi", 1);
 		fprintf(stderr, "OpenMidiOut %d\n", midiPortOut);
@@ -1134,7 +1134,7 @@ ControllerInfo::ControllerInfo(std::string& cn)
 	min = coCoviseConfig::getFloat("min", configName, min);
 	max = coCoviseConfig::getFloat("max", configName, max);
 	minOut = coCoviseConfig::getFloat("minOut", configName, minOut);
-	maxOut = coCoviseConfig::getFloat("maxOut", configName, maxOut); 
+	maxOut = coCoviseConfig::getFloat("maxOut", configName, maxOut);
 	actionName = coCoviseConfig::getEntry("action", configName, "NONE");
 	if (actionName == "Shader0")
 		action = Shader0;
@@ -1417,9 +1417,9 @@ bool MidiPlugin::update()
 
 	     } while(me.getP0() != 0 || me.getP1() != 0);
 	}
-	
-	
-	
+
+
+
 	return true;
 }
 
@@ -1485,7 +1485,7 @@ void MidiPlugin::preFrame()
 				{
 					std::cerr << "Controller: " << me.getCommandByte() << std::endl;
 					fprintf(stderr, "Raw: p0 %d, p1 %d, p2 %d, p3 %d\n",  me.getP0(), me.getP1(), me.getP2(), me.getP3());
-			
+
 				}
 				else if (me.isEndOfTrack())
 				{
@@ -1719,7 +1719,7 @@ void MidiPlugin::handleController(MidiEvent& me)
 			if (spiralSpeed > 5)
 				spiralSpeed = 5;
 			spiralSpeedSlider->setValue(spiralSpeed);
-			
+
 		}
 		else
 		{
@@ -1939,7 +1939,7 @@ void MidiPlugin::MIDItab_create(void)
 	sphereScaleSlider->setCallback([this](float value, bool) {
 		sphereScale = value;
 		});
-	
+
 	trackNumber = new  ui::EditField(MIDITab, "trackNumber");
 	trackNumber->setValue(0);
 	trackNumber->setCallback([this](std::string newVal) {
@@ -2133,7 +2133,7 @@ void Track::addNote(Note *n)
 	if (n->track->instrument->type == "keyboard")
 	{
 	// check if there is already a note on, then turn it off
-	
+
 	// find key press for this release
 	for (auto it = notes.end(); it != notes.begin(); )
 	{
@@ -2155,7 +2155,7 @@ void Track::addNote(Note *n)
 			break;
 		}
 	}
-	
+
 		notes.push_back(n);
 		n->setInactive(false);
 		n->vertNum = lineVert->size();
@@ -2243,12 +2243,12 @@ void Track::endNote(MidiEvent& me)
 	{
 	  // this is an end Note without a note On, treat it as noteOn if this is a keyboard or guitar
 	  addNote(new Note(me, this));
-	} 
+	}
 	if (note != NULL)
 	{
 
 	}
-	
+
 }
 
 void Track::setRotation(osg::Vec3& rotSpeed)
@@ -2373,14 +2373,14 @@ void Track::update()
 		char buf[1000];
 		int numRead = 1;
 		while(numRead > 0)
-		{	
-		
+		{
+
 			me.setP0(0);
 			me.setP1(0);
 			me.setP2(0);
 			if (coVRMSController::instance()->isMaster())
 			{
-			
+
 			    #ifdef HAVE_ALSA
 				unsigned char buf[256];
 				int i, length=0;
@@ -2413,7 +2413,7 @@ void Track::update()
 						numRead=2;
 					        err = snd_rawmidi_read(MidiPlugin::instance()->hMidiDevice[trackNumber], buf+1, 2);
 					    }
-					
+
 					if(err > 0)
 				     fprintf(stderr,"length: %d trackNumber: %d buf0:%x\n",err,trackNumber,buf[0]);
 					if (err <= 0)
@@ -2522,7 +2522,7 @@ void Track::update()
 				buf[3] = numRead;
 				coVRMSController::instance()->sendSlaves((char*)buf, 4);
 //fprintf(stderr, "sent: %01d %02d velo %03d chan %d numRead %d streamnum %d\n", me.isNoteOn(), me.getKeyNumber(), me.getVelocity(), me.getChannel(), numRead, streamNum);*/
-			
+
 
 				if (numRead > 0)
 				{
@@ -2549,7 +2549,7 @@ void Track::update()
 				numRead = buf[3];
 	//fprintf(stderr,"received: %01d %02d velo %03d chan %d numRead %d\n", me.isNoteOn(),me.getKeyNumber(), me.getVelocity(), me.getChannel(),numRead);
 			}
-			
+
 			if(numRead > 0 &&  me.getP0()!=0)
 			{
 
@@ -2646,7 +2646,7 @@ Note::Note(MidiEvent &me, Track *t)
 				break;
 			}
 		}
-		
+
 		//event.setKeyNumber(0);
 	}
 	transform->setMatrix(osg::Matrix::scale(noteScale, noteScale, noteScale) * osg::Matrix::translate(ni->initialPosition));
@@ -2875,7 +2875,7 @@ WaveSurface::WaveSurface(osg::Group * p, AudioInStream *s, int w)
 	}
 
 	geoState->setAttributeAndModes(globalDefaultMaterial.get(), osg::StateAttribute::ON);
-	
+
 	osg::BoundingBox *boundingBox = new osg::BoundingBox(-radius1*2, -radius1*20, -radius1*2,radius1*2, radius1*20, radius1*2);
         geom->setInitialBound(*boundingBox);
 }
@@ -3070,9 +3070,9 @@ int run(UA_String* transportProfile,
 
 
 int MidiPlugin::initOPCUA() {
-	
 
-	
+
+
 		/*if (strncmp(argv[1], "opc.udp://", 10) == 0) {
 			networkAddressUrl.url = UA_STRING(argv[1]);
 		}
@@ -3128,9 +3128,9 @@ int MidiPlugin::initOPCUA() {
 
 		UA_StatusCode retval = UA_Server_run_startup(server);
 
-		
+
 #endif
-		
+
 
 		return 1;
 
@@ -3227,7 +3227,7 @@ void TriplePlay::MIDItab_create(void)
         setParam(MIDIMode, ftpValue::Poly);
         setParam(MIDIMode, ftpValue::Poly);
         });
-	
+
    sensitivity = std::make_unique<opencover::ui::SliderConfigValue>(FTPGroup, "sensitivity", 50.0, *MidiPlugin::instance()->config(),"TriplePlay",config::Flag::Default);
    sensitivity->ui()->setBounds(MinDynamicsSensitivity,MaxDynamicsSensitivity);
    sensitivity->ui()->setIntegral(true);
@@ -3284,7 +3284,7 @@ void TriplePlay::MIDItab_create(void)
        setParam(ThreadSensitivity,(int)threadSensitivity6->getValue()+0x50);
        fprintf(stderr,"threadSensitivity1:%d\n",(int)threadSensitivity6->getValue()+0x50);
    });
-   
+
 }
 
 
@@ -3471,7 +3471,7 @@ void MidiPlugin::OpenMidiDevice(const std::string &DeviceName,snd_rawmidi_t *&in
 		return;
 	}
 	do {
-	
+
 	snd_ctl_t *ctl;
 	char devName[128];
 	int device;
@@ -3531,7 +3531,7 @@ void MidiPlugin::OpenMidiDevice(const std::string &DeviceName,snd_rawmidi_t *&in
 		sub_name = snd_rawmidi_info_get_subdevice_name(info);
 		if(DeviceName == name)
 		{
-		
+
 			sprintf(devName, "hw:%d,%d", card, device);
 			if ((err = snd_rawmidi_open(&inputp, &outputp, devName, SND_RAWMIDI_NONBLOCK)) < 0) {
 				error("cannot open port \"%s\": %s", devName, snd_strerror(err));
@@ -3550,7 +3550,7 @@ void MidiPlugin::OpenMidiDevice(const std::string &DeviceName,snd_rawmidi_t *&in
 			sprintf(devName, "hw:%d,%d,%d", card, device, sub);
 			if ((err = snd_rawmidi_open(&inputp, &outputp, devName, SND_RAWMIDI_NONBLOCK)) < 0) {
 				error("cannot open port \"%s\": %s", devName, snd_strerror(err));
-				
+
 			}
 			if ((err = snd_rawmidi_nonblock(inputp, 1)) < 0) {
 				error("cannot set nonblocking mode: %s", snd_strerror(err));
@@ -3563,7 +3563,7 @@ void MidiPlugin::OpenMidiDevice(const std::string &DeviceName,snd_rawmidi_t *&in
 	}
 	}
 	snd_ctl_close(ctl);
-	
+
 		if ((err = snd_card_next(&card)) < 0) {
 			error("cannot determine card number: %s", snd_strerror(err));
 			break;
@@ -3687,10 +3687,6 @@ void MidiPlugin::error(const char *format, ...)
 	vfprintf(stderr, format, ap);
 	va_end(ap);
 	putc('\n', stderr);
-}
-FunctionInfo::FunctionInfo()
-{
-
 }
 
 #endif
