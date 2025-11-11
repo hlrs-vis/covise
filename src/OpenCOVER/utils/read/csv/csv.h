@@ -1,9 +1,12 @@
 #ifndef _READ_CSV_H
 #define _READ_CSV_H
 
+#ifdef _WIN32
 #include <boost/filesystem.hpp>
+#else
 #include <boost/filesystem.hpp>
-//#include <boost/filesystem/directory.hpp>
+#include <boost/filesystem/directory.hpp>
+#endif
 #include <algorithm>
 #include <array>
 #include <fstream>
