@@ -34,12 +34,4 @@ void Simulation::computeMaxTimestep(const std::string &key,
   m_scalarProperties.ref()[key].timesteps = values.size();
 }
 
-void Simulation::setUnit(const std::string &key) {
-  m_scalarProperties.ref()[key].unit = UNIT_MAP[key];
-}
-
-void Simulation::setPreferredColorMap(const std::string &key) {
-  m_scalarProperties.ref()[key].preferredColorMap = COLORMAP_MAP[key];
-}
-
 }  // namespace core::simulation

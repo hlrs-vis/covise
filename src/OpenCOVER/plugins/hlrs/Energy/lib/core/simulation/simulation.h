@@ -40,8 +40,8 @@ class Simulation {
     }
 
     for (const auto &[key, values] : allValues) {
-      setUnit(key);
-      setPreferredColorMap(key);
+      m_scalarProperties.setUnit(key);
+      m_scalarProperties.setPreferredColorMap(key);
       computeMinMax(key, values, trim);  // 1% trimming
       computeMaxTimestep(key, values);
       m_scalarProperties.ref()[key].species = key;
@@ -71,8 +71,6 @@ class Simulation {
                              const double &trimPercent = 0.00);
   virtual void computeMaxTimestep(const std::string &key,
                                   const std::vector<double> &values);
-  virtual void setUnit(const std::string &key);
-  virtual void setPreferredColorMap(const std::string &key);
 
   ScalarProperties m_scalarProperties;
   DataStorage m_dataStorage;
