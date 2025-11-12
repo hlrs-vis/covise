@@ -10,6 +10,7 @@
 
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/text/Text.h>
+#include <vsg/text/StandardLayout.h>
 
 namespace vrui
 {
@@ -29,6 +30,7 @@ public:
     void createGeometry();
     void resizeGeometry();
 
+    void createSharedLists();
     void update();
 
 protected:
@@ -37,21 +39,37 @@ protected:
 
     vsg::ref_ptr<vsg::vec3Array> coord1; ///< position indicator coordinates
     vsg::ref_ptr<vsg::vec3Array> coord2; ///< dial coordinates
-    vsg::ref_ptr<vsg::vec3Array> normal; ///< slider textures normal
+    
     vsg::ref_ptr<vsg::vec2Array> texCoord1; ///< texture coordinates of slider position indicator
     vsg::ref_ptr<vsg::vec2Array> texCoord2; ///< texture coordinates of dial
+
     vsg::ref_ptr<vsg::Node> positionNode; ///< position indicator geode
     vsg::ref_ptr<vsg::Node> dialNode; ///< dial geode
-    vsg::ref_ptr<vsg::Text> textNode;
+
     vsg::ref_ptr<vsg::Node> positionNodeDisabled; ///< disabled position indicator geode
     vsg::ref_ptr<vsg::Node> dialNodeDisabled; ///< disabled dial geode
 
+    vsg::ref_ptr<vsg::VertexIndexDraw> positionNodeVid;
+    vsg::ref_ptr<vsg::VertexIndexDraw> dialNodeVid;
+
+    vsg::ref_ptr<vsg::Text> sliderText;
+    vsg::ref_ptr<vsg::stringValue> sliderTextString;
+    vsg::ref_ptr<vsg::StandardLayout> sliderTextLayout; 
+
     vsg::ref_ptr<vsg::Switch> switchPosition;
     vsg::ref_ptr<vsg::Switch> switchDial;
-    vsg::ref_ptr<vsg::Text> numberText; ///< OSG string for slider value
+    vsg::ref_ptr<vsg::Text> numberText; ///< string for slider value
+    
+    static vsg::ref_ptr<vsg::uintArray> coordIndices; 
+    static vsg::ref_ptr<vsg::vec3Array> normals; ///< slider textures normal
+    static vsg::ref_ptr<vsg::vec4Array> colors; // per vertex color to share for dial and slider
 
     void updateSlider();
     void updateDial();
+
+    // create texture node, bool isSlider decides whether for dial or slider
+    vsg::ref_ptr<vsg::Node> createNode(const std::string& textureName, vsg::ref_ptr<vsg::vec3Array> coord
+        , vsg::ref_ptr<vsg::vec2Array> texCoord, bool isSlider);
 
     coSlider *slider;
 
@@ -61,5 +79,6 @@ private:
     vsg::ref_ptr<vsg::Node> createText(float xPos = 0.0f);
 
     float sliderDialSize;
+    bool initiallyCompiled; 
 };
 }

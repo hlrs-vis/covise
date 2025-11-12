@@ -683,8 +683,13 @@ vsg::ref_ptr<vsg::Image> &vvFileManager::loadTexture(const char *texture)
             std::cerr << "New texture " << texture << std::endl;
     }
 
-    auto image = vsg::read_cast<vsg::Image>(name, vvPluginSupport::instance()->options);
-    textureList[texture] = image;
+    auto data = vsg::read_cast<vsg::Data>(name, vvPluginSupport::instance()->options);
+    if (data) 
+    {
+        auto image = vsg::Image::create(data);
+        textureList[texture] = image;
+        // std::cerr << "Loading texture with name: " << texture << std::endl;
+    }
 
     return textureList[texture];
 }

@@ -81,15 +81,48 @@ void VSGVruiNode::removeChild(vruiNode *node)
 
 int VSGVruiNode::getNumParents() const
 {
-    cerr << "undefined VSGVruiNode::getNumParents()" << endl;
-    return 0;
+    if (nodePath.size() >= 2)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 vruiNode *VSGVruiNode::getParent(int parentNumber)
 {
-    
-    cerr << "undefined vruiNode *VSGVruiNode::getParent(int parentNumber)" << endl;
-    return nullptr;
+    if (getNumParents())
+    {
+        vsg::ref_ptr<vsg::Node> parentNode(const_cast<vsg::Node*>(nodePath[nodePath.size() - 2]));
+        if (!parent)
+        {
+            parent = new VSGVruiNode(parentNode);
+            parent->setNodePath(std::vector<const vsg::Node*>(nodePath.begin(), nodePath.end() - 1));
+            this->node->setValue("nodePath", nodePath);
+        }
+        else
+        {
+            if (parentNode.valid())
+            {
+                parent->node = parentNode;
+            }
+            else
+            {
+                delete parent;
+                parent = 0;
+            }
+        }
+    }
+    else
+    {
+        delete parent;
+        parent = 0;
+    }
+    return parent;
+    /*cerr << "undefined vruiNode *VSGVruiNode::getParent(int parentNumber)" << endl;
+    return nullptr;*/
 }
 
 Node *VSGVruiNode::getNodePtr()
@@ -111,8 +144,30 @@ std::string VSGVruiNode::getName() const
 
 void VSGVruiNode::removeAllParents()
 {
-
     cerr << "undefined VSGVruiNode::removeAllParents()" << endl;
+    /*std::vector<const vsg::Node*> currentNodePath;
+    if (this->node->getValue("nodePath", currentNodePath))
+    {
+        Node* parentNode = const_cast<vsg::Node*>(currentNodePath[currentNodePath.size() - 2]);
+        Group* parentGroup = dynamic_cast<Group*>(parentNode);
+
+        for (auto it = parentGroup->children.begin(); it != parentGroup->children.end(); it++)
+        {
+            if ((*it).get() == this->node.get())
+            {
+                parentGroup->children.erase(it);
+                return;
+            }
+            else
+            {
+                cerr << "Child not found in the parent group" << endl;
+            }
+        }
+    }
+    else
+    {
+        cerr << "undefined VSGVruiNode::removeAllParents()" << endl;
+    }*/
 }
 
 void VSGVruiNode::removeAllChildren()
@@ -123,22 +178,34 @@ void VSGVruiNode::removeAllChildren()
 
 void VSGVruiNode::convertToWorld(vruiMatrix *matrix)
 {
-
+    
     cerr << "undefined VSGVruiNode::convertToWorld(vruiMatrix *matrix)" << endl;
-   /* VSGVruiMatrix* mat = dynamic_cast<VSGVruiMatrix*>(matrix);
-    Matrix returnMatrix = mat->getMatrix();
+    VSGVruiMatrix* mat = dynamic_cast<VSGVruiMatrix*>(matrix);
+    dmat4 returnMatrix = mat->getMatrix();
+
+    /*
     VSGVruiNode *parent = this;
     while (parent != 0)
     {
         MatrixTransform *transform = dynamic_cast<MatrixTransform *>(parent->getNodePtr());
         if (transform)
         {
-            Matrix transformMatrix = transform->getMatrix();
-            returnMatrix.postMult(transformMatrix);
+            dmat4 transformMatrix = transform->matrix;
+            returnMatrix = transformMatrix * returnMatrix;
+            // returnMatrix.postMult(transformMatrix);
         }
         parent = dynamic_cast<VSGVruiNode *>(parent->getParent());
     }
-    mat->setMatrix(returnMatrix);*/
+    */
+    
+    std::vector<const vsg::Node*> currentNodePath;
+    if (this->node->getValue("nodePath", currentNodePath))
+    { 
+        returnMatrix = computeTransform(currentNodePath);
+        cerr << "Computing the localToWorld Transform of selected node " << endl;
+    }
+    mat->setMatrix(returnMatrix);
+    
 }
 
 vruiUserData *VSGVruiNode::getUserData(const std::string &name)
@@ -149,5 +216,10 @@ vruiUserData *VSGVruiNode::getUserData(const std::string &name)
 void VSGVruiNode::setUserData(const string &name, vruiUserData *data)
 {
     VSGVruiUserDataCollection::setUserData(this->node, name, data);
+}
+
+void VSGVruiNode::setNodePath(std::vector<const vsg::Node*> hitNodePath)
+{
+    nodePath = hitNodePath;
 }
 }

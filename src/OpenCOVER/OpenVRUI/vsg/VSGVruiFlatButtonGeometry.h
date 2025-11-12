@@ -46,7 +46,7 @@ public:
 
 protected:
     ///< creates the base button polygon
-    vsg::ref_ptr<vsg::Node> createQuad(const vsg::vec3& origin, const vsg::vec3& horizontal, const vsg::vec3& vertical);
+    vsg::ref_ptr<vsg::Node> createQuad(const vsg::vec3& origin, const vsg::vec3& horizontal, const vsg::vec3& vertical, vsg::ref_ptr<vsg::Data> image);
 
     vsg::ref_ptr<vsg::Node> createBox(const std::string& textureName);
 
@@ -67,7 +67,7 @@ protected:
 
     VSGVruiTransformNode *myDCS;
 
-    vsg::ref_ptr<vsg::Sampler> defaulTexture;
+    vsg::ref_ptr<vsg::Data> defaultTexture;
 
 private:
     //shared coord and color list
@@ -76,7 +76,10 @@ private:
     static float D; ///< size parameters
     static vsg::ref_ptr<vsg::vec3Array> coord1; ///< coordinates
     static vsg::ref_ptr<vsg::vec3Array> coord2; ///< coordinates
-    static vsg::ref_ptr<vsg::vec3Array> normal; ///< normals
+    static vsg::ref_ptr<vsg::uintArray> coordIndices;
+    static vsg::ref_ptr<vsg::vec3Array> normals; ///< normals
+    static vsg::ref_ptr<vsg::vec4Array> colors;
+
     ///< texture coordinates
     static vsg::ref_ptr<vsg::vec2Array> texCoord;
 

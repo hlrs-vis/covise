@@ -26,6 +26,12 @@ using namespace std;
 
 namespace vrui
 {
+    //initialize shared variables for all VSGVruiFrame objects
+    ref_ptr<vec4Array> VSGVruiFrame::colors = nullptr;
+    ref_ptr<vec3Array> VSGVruiFrame::normals = nullptr;
+    ref_ptr<vec2Array> VSGVruiFrame::texCoords = vec2Array::create(24);
+    ref_ptr<uintArray> VSGVruiFrame::coordIndices = uintArray::create(72);
+    ref_ptr<Data> VSGVruiFrame::textureData = nullptr;
 
 /** Constructor
  @param name Texture name, default is "UI/Frame",
@@ -40,12 +46,16 @@ VSGVruiFrame::VSGVruiFrame(coFrame *frame, const string &name)
     texture = 0;
 
     ref_ptr<MatrixTransform> transform = MatrixTransform::create();
+
     myDCS = new VSGVruiTransformNode(transform);
 
-    
+    transform->setValue("name", "VSGVruiFrame(" + name + ")");
+    transform->setValue("coUIElement", frame); 
+
     createGeometry();
 
-    //transform->addChild(geometryNode);
+    transform->addChild(stateGroup);
+    
 }
 
 /** Destructor
@@ -57,8 +67,9 @@ VSGVruiFrame::~VSGVruiFrame()
 /// recalculate and set new geometry coordinates
 void VSGVruiFrame::resizeGeometry()
 {
-
-   /* float fw = frame->getWidth();
+    // testing frame geometry resizing
+    
+    float fw = frame->getWidth();
     float fh = frame->getHeight();
 
     //VRUILOG("VSGVruiFrame::resizeGeometry info: resizing " << fw << "x" << fh)
@@ -69,6 +80,7 @@ void VSGVruiFrame::resizeGeometry()
     float iw = fw - 2 * bw;
     float ih = fh - 2 * bh;
 
+    //recalculate and assign frame coords
     (*coord)[0].set(0, fh, 0);
     (*coord)[1].set(20, fh, 0);
     (*coord)[2].set(fw - 20, fh, 0);
@@ -94,203 +106,153 @@ void VSGVruiFrame::resizeGeometry()
     (*coord)[22].set(bw, 20, 0);
     (*coord)[23].set(bw, fh - 20, 0);
 
-	coord->dirty();
-	geometry->setVertexArray(coord.get());
-    geometryNode->dirtyBound();
-	//geometry->dirtyBound(); this is done by setVertexArray
-	//geometry->dirtyDisplayList();*/
+    coord->dirty();
+    
+    // if compiled, buffers have been created
+    if (!initiallyCompiled)
+    {
+        initiallyCompiled = vruiRendererInterface::the()->compileNode(myDCS);
+    }
+    else 
+    {
+        if ((*vertexIndexDraw).arrays[0]->buffer) 
+        {
+            vruiRendererInterface::the()->addToTransfer(vertexIndexDraw->arrays[0]);
+        }
+    }
 }
 
 /// allocate shared datastructures that can be used by all frames
 void VSGVruiFrame::createSharedLists()
 {
-
-   /* if (color == 0)
+    if (!colors || !normals) 
     {
+        // 12 quads * 2 tris * 3 indices
+        coordIndices = uintArray::create({
+            0,12,13 , 0,13,1 , 1,13,14 , 1,14,2 , 2,14,15 , 2,15,3,
+            15,16,4 , 15,4,3 , 16,17,5 , 16,5,4 , 17,18,6 , 17,6,5,
+            6,18,19 , 6,19,7 , 7,19,20 , 7,20,8 , 8,20,21 , 8,21,9,
+            9,21,22 , 9,22,10 , 10,22,23 , 10,23,11 , 11,23,12 , 11,12,0
+            });
 
-        //VRUILOG("VSGVruiFrame::createSharedLists info: creating shared data")
+        // color and normal
+        normals = vec3Array::create(24, vec3{ 0.0f, 0.0f, 1.0f });
+        colors = vec4Array::create(24, vec4{ 0.8f, 0.8f, 0.8f, 1.0f });
 
-        color = new vsg::vec4Array(1);
+        // texture coordinates (might be flipped, need to check with another texture)
+        texCoords->set(0, vec2{ (1.0f / 32.0f) * 0.0f, (1.0f / 32.0f) * 32.0f });
+        texCoords->set(1, vec2{ (1.0f / 32.0f) * 16.0f, (1.0f / 32.0f) * 32.0f });
+        texCoords->set(2, vec2{ (1.0f / 32.0f) * 16.0f, (1.0f / 32.0f) * 32.0f });
+        texCoords->set(3, vec2{ (1.0f / 32.0f) * 32.0f, (1.0f / 32.0f) * 32.0f });
+        texCoords->set(4, vec2{ (1.0f / 32.0f) * 32.0f, (1.0f / 32.0f) * 16.0f });
+        texCoords->set(5, vec2{ (1.0f / 32.0f) * 32.0f, (1.0f / 32.0f) * 16.0f });
+        texCoords->set(6, vec2{ (1.0f / 32.0f) * 32.0f, (1.0f / 32.0f) * 0.0f });
+        texCoords->set(7, vec2{ (1.0f / 32.0f) * 16.0f, (1.0f / 32.0f) * 0.0f });
+        texCoords->set(8, vec2{ (1.0f / 32.0f) * 16.0f, (1.0f / 32.0f) * 0.0f });
+        texCoords->set(9, vec2{ (1.0f / 32.0f) * 0.0f, (1.0f / 32.0f) * 0.0f });
+        texCoords->set(10, vec2{ (1.0f / 32.0f) * 0.0f, (1.0f / 32.0f) * 16.0f });
+        texCoords->set(11, vec2{ (1.0f / 32.0f) * 0.0f, (1.0f / 32.0f) * 16.0f });
+        texCoords->set(12, vec2{ (1.0f / 32.0f) * 8.0f, (1.0f / 32.0f) * 24.0f });
+        texCoords->set(13, vec2{ (1.0f / 32.0f) * 16.0f, (1.0f / 32.0f) * 24.0f });
+        texCoords->set(14, vec2{ (1.0f / 32.0f) * 16.0f, (1.0f / 32.0f) * 24.0f });
+        texCoords->set(15, vec2{ (1.0f / 32.0f) * 24.0f, (1.0f / 32.0f) * 24.0f });
+        texCoords->set(16, vec2{ (1.0f / 32.0f) * 24.0f, (1.0f / 32.0f) * 16.0f });
+        texCoords->set(17, vec2{ (1.0f / 32.0f) * 24.0f, (1.0f / 32.0f) * 16.0f });
+        texCoords->set(18, vec2{ (1.0f / 32.0f) * 24.0f, (1.0f / 32.0f) * 8.0f });
+        texCoords->set(19, vec2{ (1.0f / 32.0f) * 16.0f, (1.0f / 32.0f) * 8.0f });
+        texCoords->set(20, vec2{ (1.0f / 32.0f) * 16.0f, (1.0f / 32.0f) * 8.0f });
+        texCoords->set(21, vec2{ (1.0f / 32.0f) * 8.0f, (1.0f / 32.0f) * 8.0f });
+        texCoords->set(22, vec2{ (1.0f / 32.0f) * 8.0f, (1.0f / 32.0f) * 16.0f });
+        texCoords->set(23, vec2{ (1.0f / 32.0f) * 8.0f, (1.0f / 32.0f) * 16.0f });
 
-        (*texCoord)[0].set((1.0f / 32.0f) * 0.0f, (1.0f / 32.0f) * 32.0f);
-        (*texCoord)[1].set((1.0f / 32.0f) * 16.0f, (1.0f / 32.0f) * 32.0f);
-        (*texCoord)[2].set((1.0f / 32.0f) * 16.0f, (1.0f / 32.0f) * 32.0f);
-        (*texCoord)[3].set((1.0f / 32.0f) * 32.0f, (1.0f / 32.0f) * 32.0f);
-        (*texCoord)[4].set((1.0f / 32.0f) * 32.0f, (1.0f / 32.0f) * 16.0f);
-        (*texCoord)[5].set((1.0f / 32.0f) * 32.0f, (1.0f / 32.0f) * 16.0f);
-        (*texCoord)[6].set((1.0f / 32.0f) * 32.0f, (1.0f / 32.0f) * 0.0f);
-        (*texCoord)[7].set((1.0f / 32.0f) * 16.0f, (1.0f / 32.0f) * 0.0f);
-        (*texCoord)[8].set((1.0f / 32.0f) * 16.0f, (1.0f / 32.0f) * 0.0f);
-        (*texCoord)[9].set((1.0f / 32.0f) * 0.0f, (1.0f / 32.0f) * 0.0f);
-        (*texCoord)[10].set((1.0f / 32.0f) * 0.0f, (1.0f / 32.0f) * 16.0f);
-        (*texCoord)[11].set((1.0f / 32.0f) * 0.0f, (1.0f / 32.0f) * 16.0f);
-        (*texCoord)[12].set((1.0f / 32.0f) * 8.0f, (1.0f / 32.0f) * 24.0f);
-        (*texCoord)[13].set((1.0f / 32.0f) * 16.0f, (1.0f / 32.0f) * 24.0f);
-        (*texCoord)[14].set((1.0f / 32.0f) * 16.0f, (1.0f / 32.0f) * 24.0f);
-        (*texCoord)[15].set((1.0f / 32.0f) * 24.0f, (1.0f / 32.0f) * 24.0f);
-        (*texCoord)[16].set((1.0f / 32.0f) * 24.0f, (1.0f / 32.0f) * 16.0f);
-        (*texCoord)[17].set((1.0f / 32.0f) * 24.0f, (1.0f / 32.0f) * 16.0f);
-        (*texCoord)[18].set((1.0f / 32.0f) * 24.0f, (1.0f / 32.0f) * 8.0f);
-        (*texCoord)[19].set((1.0f / 32.0f) * 16.0f, (1.0f / 32.0f) * 8.0f);
-        (*texCoord)[20].set((1.0f / 32.0f) * 16.0f, (1.0f / 32.0f) * 8.0f);
-        (*texCoord)[21].set((1.0f / 32.0f) * 8.0f, (1.0f / 32.0f) * 8.0f);
-        (*texCoord)[22].set((1.0f / 32.0f) * 8.0f, (1.0f / 32.0f) * 16.0f);
-        (*texCoord)[23].set((1.0f / 32.0f) * 8.0f, (1.0f / 32.0f) * 16.0f);
-
-        (*color)[0].set(0.8f, 0.8f, 0.8f, 1.0f);
-        (*normal)[0].set(0.0f, 0.0f, 1.0f);
-
-        ushort *vertices = new ushort[12 * 4];
-
-        vertices[0] = 12;
-        vertices[1] = 13;
-        vertices[2] = 1;
-        vertices[3] = 0;
-        vertices[4] = 13;
-        vertices[5] = 14;
-        vertices[6] = 2;
-        vertices[7] = 1;
-        vertices[8] = 14;
-        vertices[9] = 15;
-        vertices[10] = 3;
-        vertices[11] = 2;
-        vertices[12] = 15;
-        vertices[13] = 16;
-        vertices[14] = 4;
-        vertices[15] = 3;
-        vertices[16] = 16;
-        vertices[17] = 17;
-        vertices[18] = 5;
-        vertices[19] = 4;
-        vertices[20] = 17;
-        vertices[21] = 18;
-        vertices[22] = 6;
-        vertices[23] = 5;
-        vertices[24] = 18;
-        vertices[25] = 19;
-        vertices[26] = 7;
-        vertices[27] = 6;
-        vertices[28] = 19;
-        vertices[29] = 20;
-        vertices[30] = 8;
-        vertices[31] = 7;
-        vertices[32] = 20;
-        vertices[33] = 21;
-        vertices[34] = 9;
-        vertices[35] = 8;
-        vertices[36] = 21;
-        vertices[37] = 22;
-        vertices[38] = 10;
-        vertices[39] = 9;
-        vertices[40] = 22;
-        vertices[41] = 23;
-        vertices[42] = 11;
-        vertices[43] = 10;
-        vertices[44] = 23;
-        vertices[45] = 12;
-        vertices[46] = 0;
-        vertices[47] = 11;
-
-        coordIndex = new DrawElementsUShort(PrimitiveSet::QUADS, 48, vertices);
-
-        delete[] vertices;
-    }*/
+    }
 }
 
-/// greate the  geometry node
+/// create the  geometry node
 void VSGVruiFrame::createGeometry()
 {
-
-   /* if (geometry == 0)
+    // testing frame geometry here
+    if (!stateGroup) 
     {
+        // create shared lists (shared by all Frames)
         createSharedLists();
 
-        //VRUILOG("VSGVruiFrame::createGeometry info: creating geometry")
+        // set vertices of geometry 
+        coord = vec3Array::create({
+        {0,60,0} , {20,60,0} , {40,60,0} ,  //outer frame
+        {60,60,0} , {60,40,0} , {60,20,0} ,
+        {60,0,0} , {40,0,0} , {20,0,0} ,
+        {0,0,0} , {0,20,0} , {0,40,0} ,
 
-        coord = new vec3Array(24);
+        {5,55,0} , {20,55,0} , {40,55,0} , //inner frame
+        {55,55,0} , {55,40,0} , {55,20,0} ,
+        {55,5,0} , {40,5,0} , {20,5,0} ,
+        {5,5,0} , {5,20,0} , {5,40,0}
+        });
+        
+        // to test dataVariance = DYNAMIC_DATA 
+        //coord->properties.dataVariance = DYNAMIC_DATA;
 
-        (*coord)[0] = Vec3(0, 60, 0);
-        (*coord)[1] = Vec3(20, 60, 0);
-        (*coord)[2] = Vec3(40, 60, 0);
-        (*coord)[3] = Vec3(60, 60, 0);
-        (*coord)[4] = Vec3(60, 40, 0);
-        (*coord)[5] = Vec3(60, 20, 0);
-        (*coord)[6] = Vec3(60, 0, 0);
-        (*coord)[7] = Vec3(40, 0, 0);
-        (*coord)[8] = Vec3(20, 0, 0);
-        (*coord)[9] = Vec3(0, 0, 0);
-        (*coord)[10] = Vec3(0, 20, 0);
-        (*coord)[11] = Vec3(0, 40, 0);
-        (*coord)[12] = Vec3(5, 55, 0);
-        (*coord)[13] = Vec3(20, 55, 0);
-        (*coord)[14] = Vec3(40, 55, 0);
-        (*coord)[15] = Vec3(55, 55, 0);
-        (*coord)[16] = Vec3(55, 40, 0);
-        (*coord)[17] = Vec3(55, 20, 0);
-        (*coord)[18] = Vec3(55, 5, 0);
-        (*coord)[19] = Vec3(40, 5, 0);
-        (*coord)[20] = Vec3(20, 5, 0);
-        (*coord)[21] = Vec3(5, 5, 0);
-        (*coord)[22] = Vec3(5, 20, 0);
-        (*coord)[23] = Vec3(5, 40, 0);
+        // setup using GraphicsPipelineConfigurator, without Options
+        ref_ptr<ShaderSet> shaderSet;
+        shaderSet = createFlatShadedShaderSet();
+        //shaderSet = createPhongShaderSet();
 
-        VSGVruiTexture *oTex = dynamic_cast<VSGVruiTexture *>(vruiRendererInterface::the()->createTexture(frame->getTextureName()));
-        texture = oTex->getTexture();
+        // custom setting for PipelineStates, attachments[0] is the default
+        auto colorBlendState = vsg::ColorBlendState::create();
+        colorBlendState->attachments[0].blendEnable = VK_TRUE;
+        colorBlendState->attachments[0].srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+        colorBlendState->attachments[0].dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+        colorBlendState->attachments[0].colorBlendOp = VK_BLEND_OP_ADD;
+        colorBlendState->attachments[0].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+        colorBlendState->attachments[0].dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+        colorBlendState->attachments[0].alphaBlendOp = VK_BLEND_OP_ADD;
+        colorBlendState->attachments[0].colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
+            VK_COLOR_COMPONENT_G_BIT |
+            VK_COLOR_COMPONENT_B_BIT |
+            VK_COLOR_COMPONENT_A_BIT;
+        colorBlendState->logicOpEnable = VK_FALSE;
+
+        auto depthStencilState = vsg::DepthStencilState::create();
+        depthStencilState->depthTestEnable = VK_TRUE;
+        depthStencilState->depthWriteEnable = VK_FALSE;
+        depthStencilState->depthCompareOp = VK_COMPARE_OP_GREATER;
+
+        shaderSet->defaultGraphicsPipelineStates.push_back(colorBlendState);
+        shaderSet->defaultGraphicsPipelineStates.push_back(depthStencilState);
+
+        // load the texture
+        VSGVruiTexture* oTex = dynamic_cast<VSGVruiTexture*>(vruiRendererInterface::the()->createTexture(frame->getTextureName()));
+        image = Image::create(oTex->getTexture()->data);
         vruiRendererInterface::the()->deleteTexture(oTex);
+        
+        gpConfigurator = GraphicsPipelineConfigurator::create(shaderSet);
 
-        if (texture.valid())
+        if (image->data)
         {
-            texture->setFilter(Texture::MIN_FILTER, Texture::LINEAR);
-            texture->setWrap(Texture::WRAP_S, Texture::CLAMP);
-            texture->setWrap(Texture::WRAP_T, Texture::CLAMP);
-        }
-        else
-        {
-            VRUILOG("VSGVruiFrame::createGeometry err: texture image " << frame->getTextureName() << " not found");
+            gpConfigurator->assignTexture("diffuseMap", image->data);
         }
 
-        ref_ptr<Material> material = new Material();
+        gpConfigurator->assignArray(vertexArrays, "vsg_Vertex", VK_VERTEX_INPUT_RATE_VERTEX, coord);
+        gpConfigurator->assignArray(vertexArrays, "vsg_Normal", VK_VERTEX_INPUT_RATE_VERTEX, normals);
+        gpConfigurator->assignArray(vertexArrays, "vsg_TexCoord0", VK_VERTEX_INPUT_RATE_VERTEX, texCoords);
+        gpConfigurator->assignArray(vertexArrays, "vsg_Color", VK_VERTEX_INPUT_RATE_VERTEX, colors);
 
-        material->setColorMode(Material::AMBIENT_AND_DIFFUSE);
-        material->setAmbient(Material::FRONT_AND_BACK, vsg::vec4(0.2f, 0.2f, 0.2f, 1.0f));
-        material->setDiffuse(Material::FRONT_AND_BACK, vsg::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-        material->setSpecular(Material::FRONT_AND_BACK, vsg::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-        material->setEmission(Material::FRONT_AND_BACK, vsg::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-        material->setShininess(Material::FRONT_AND_BACK, 80.0f);
-        material->setAlpha(Material::FRONT_AND_BACK, 1.0f);
+        gpConfigurator->init();
 
-        ref_ptr<TexEnv> texEnv = VSGVruiPresets::getTexEnvModulate();
-        ref_ptr<CullFace> cullFace = VSGVruiPresets::getCullFaceBack();
-        ref_ptr<PolygonMode> polyMode = VSGVruiPresets::getPolyModeFill();
+        stateGroup = StateGroup::create();
+        gpConfigurator->copyTo(stateGroup);
 
-        geometryNode = new Geode();
-        geometry = new Geometry();
+        vertexIndexDraw = VertexIndexDraw::create();
+        vertexIndexDraw->assignArrays(vertexArrays);
+        vertexIndexDraw->assignIndices(coordIndices);
+        vertexIndexDraw->indexCount = static_cast<uint32_t>(coordIndices->size());
+        vertexIndexDraw->instanceCount = 1;
 
-        geometry->setVertexArray(coord.get());
-        geometry->addPrimitiveSet(coordIndex.get());
-        geometry->setColorArray(color.get());
-        geometry->setColorBinding(Geometry::BIND_OVERALL);
-        geometry->setNormalArray(normal.get());
-        geometry->setNormalBinding(Geometry::BIND_OVERALL);
-        geometry->setTexCoordArray(0, texCoord.get());
-
-        stateSet = geometryNode->getOrCreateStateSet();
-
-        VSGVruiPresets::makeTransparent(stateSet);
-        stateSet->setMode(GL_BLEND, StateAttribute::ON | StateAttribute::PROTECTED);
-        stateSet->setMode(GL_LIGHTING, StateAttribute::ON | StateAttribute::PROTECTED);
-        stateSet->setAttributeAndModes(material.get(), StateAttribute::ON | StateAttribute::PROTECTED);
-        stateSet->setAttributeAndModes(polyMode.get(), StateAttribute::ON | StateAttribute::PROTECTED);
-        stateSet->setAttributeAndModes(cullFace.get(), StateAttribute::ON | StateAttribute::PROTECTED);
-
-        stateSet->setTextureAttributeAndModes(0, texEnv.get(), StateAttribute::ON | StateAttribute::PROTECTED);
-        stateSet->setTextureAttributeAndModes(0, texture.get(), StateAttribute::ON | StateAttribute::PROTECTED);
-
-        geometryNode->setStateSet(stateSet.get());
-
-        geometryNode->addDrawable(geometry.get());
+        stateGroup->addChild(vertexIndexDraw);
 
         resizeGeometry();
-    }*/
+    }
+ 
 }
 }

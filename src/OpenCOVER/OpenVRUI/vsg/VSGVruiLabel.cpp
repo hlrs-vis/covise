@@ -15,8 +15,8 @@
 
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/text/Text.h>
-#include <vsg/text/StandardLayout.h>
-
+#include <vsg/text/StandardLayout.h> // moved to class header
+#include <vsg/text/GpuLayoutTechnique.h>
 
 #include <config/CoviseConfig.h>
 
@@ -59,12 +59,14 @@ float VSGVruiLabel::getWidth() const
 
     if (labelText.valid())
     {
-        dbox bound = labelText->layout->extents(labelText->text, *(VSGVruiPresets::instance()->font.get()));
+        dbox bound = labelText->layout->extents(labelText->text, *(VSGVruiPresets::instance()->font2.get()));
         rv = bound.max[0] - bound.min[0];
     }
 
+    double w = rv * label->getFontSize();
+    return (float)w;
     //VRUILOG("VSGVruiLabel::getWidth info: width is " << rv)
-    return (float)rv;
+    //return (float)rv;
 }
 
 float VSGVruiLabel::getHeight() const
@@ -74,12 +76,14 @@ float VSGVruiLabel::getHeight() const
 
     if (labelText.valid())
     {
-        dbox bound = labelText->layout->extents(labelText->text, *(VSGVruiPresets::instance()->font.get()));
+        dbox bound = labelText->layout->extents(labelText->text, *(VSGVruiPresets::instance()->font2.get()));
         rv = bound.max[1] - bound.min[1];
     }
 
+    double h = rv * label->getFontSize();
+    return (float)h;
     //VRUILOG("VSGVruiLabel::getHeight info: height is " << rv)
-    return (float)rv;
+    //return (float)rv;
 }
 
 float VSGVruiLabel::getDepth() const
@@ -89,12 +93,14 @@ float VSGVruiLabel::getDepth() const
 
     if (labelText.valid())
     {
-        dbox bound = labelText->layout->extents(labelText->text, *(VSGVruiPresets::instance()->font.get()));
+        dbox bound = labelText->layout->extents(labelText->text, *(VSGVruiPresets::instance()->font2.get()));
         rv = bound.max[2] - bound.min[2];
     }
 
+    double d = rv * label->getFontSize();
+    return (float)d;
     //VRUILOG("VSGVruiLabel::getDepth info: depth is " << rv)
-    return (float)rv;
+    //return (float)rv;
 }
 
 void VSGVruiLabel::createGeometry()
@@ -108,22 +114,43 @@ void VSGVruiLabel::createGeometry()
     myDCS = new VSGVruiTransformNode(transform);
 
     labelText = Text::create();
-    labelText->font = VSGVruiPresets::instance()->font;
+    labelTextLayout = StandardLayout::create();
+    labelTextString = stringValue::create();
 
+    // GpuLayoutTechnique supports 
+    // dynamic updating of text parameters
+    labelText->technique = GpuLayoutTechnique::create();
 
+    if (VSGVruiPresets::instance()->font2)
+    {
+        labelText->font = VSGVruiPresets::instance()->font2;
+    }
+    else 
+    {
+        labelText->font = VSGVruiPresets::instance()->font;
+    }
+
+    labelText->text = labelTextString;
+    labelText->layout = labelTextLayout;
+    
     makeText();
+    
+    // should be called only once, since GpuLayoutTechnique is used 
+    // to dynamically update text params
+    labelText->setup(0, VSGVruiPresets::instance()->options);
 
     transform->addChild(labelText);
+    transform->setValue("name", "VSGVruiLabel");
+    transform->setValue("coUIElement", label);
 }
 
 /// Private method to generate text string and attach it to a node.
 void VSGVruiLabel::makeText()
 {
-
     if (label->getString() == 0)
         return;
-
-    vsg::StandardLayout::Alignment align = StandardLayout::LEFT_ALIGNMENT;
+    
+    StandardLayout::Alignment align = StandardLayout::LEFT_ALIGNMENT;
     switch (label->getJustify())
     {
     case coLabel::LEFT:
@@ -148,29 +175,32 @@ void VSGVruiLabel::makeText()
         break;
     }
 
+    labelTextLayout->horizontalAlignment = align;
+    labelTextLayout->verticalAlignment = StandardLayout::BOTTOM_ALIGNMENT;
+    labelTextLayout->glyphLayout = direction; 
+    labelTextLayout->outlineWidth = 0.05f;
+    labelTextLayout->color = textColor; 
 
+    // approach to set the font size by scaling tranform
+    myDCS->setScale(label->getFontSize(), label->getFontSize(), 1.0f);
 
-    auto layout = StandardLayout::create();
-    layout->horizontalAlignment = align;
-    layout->verticalAlignment = StandardLayout::BASELINE_ALIGNMENT;
-    layout->glyphLayout = direction;
-    labelText->layout = layout;
-    labelText->text = vsg::stringValue::create(label->getString());
-
-    
+    labelTextString->value() = vsg::make_string(label->getString());
+    labelText->setup(64, VSGVruiPresets::instance()->options);
 
 }
 
 void VSGVruiLabel::setHighlighted(bool hl)
 {
-   /* if (hl)
+    if (hl)
     {
-        labelText->setColor(textColorHL);
+        labelTextLayout->color = textColorHL;
+        labelText->setup(0, VSGVruiPresets::instance()->options);
     }
     else
     {
-        labelText->setColor(textColor);
-    }*/
+        labelTextLayout->color = textColor;
+        labelText->setup(0, VSGVruiPresets::instance()->options);
+    }
 }
 
 void VSGVruiLabel::resizeGeometry()

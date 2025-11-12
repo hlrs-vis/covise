@@ -27,9 +27,14 @@ using namespace vsg;
 namespace vrui
 {
 
+ref_ptr<uintArray> VSGVruiSlider::coordIndices = nullptr;
+ref_ptr<vec3Array> VSGVruiSlider::normals = nullptr;
+ref_ptr<vec4Array> VSGVruiSlider::colors = nullptr; 
+
 VSGVruiSlider::VSGVruiSlider(coSlider *slider)
     : VSGVruiUIElement(slider)
     , sliderDialSize(0.0f)
+    , initiallyCompiled(0)
 {
     this->slider = slider;
 }
@@ -57,8 +62,6 @@ void VSGVruiSlider::createGeometry()
     sliderTransform = new MatrixTransform();
     transform->addChild(sliderTransform);
 
-    normal = 0;
-
     positionNode = createSlider("UI/slider");
     positionNodeDisabled = createSlider("UI/slider-disabled");
     dialNode = createDial("UI/scale");
@@ -75,12 +78,49 @@ void VSGVruiSlider::createGeometry()
     switchDial->setSingleChildOn(0);
 
     sliderTransform->addChild(switchPosition);
+
+    sliderText = Text::create();
+    sliderTextLayout = StandardLayout::create();
+    sliderTextString = stringValue::create();
+
+    sliderText->technique = GpuLayoutTechnique::create();
+    
+    sliderText->font = VSGVruiPresets::instance()->font2;
+    sliderText->text = sliderTextString;
+    sliderText->layout = sliderTextLayout;
+
     if (slider->getShowValue())
     {
         sliderTransform->addChild(createText());
     }
+
     transform->addChild(switchDial);
+    transform->setValue("name", "VSGVruiSlider");
+    transform->setValue("coUIElement", slider);
+
     resizeGeometry();
+}
+
+void VSGVruiSlider::createSharedLists()
+{
+    if (!normals)
+    {
+        normals = vec3Array::create(4, vec3{ 0.0f, 0.0f, 1.0f });
+    }
+
+    if (!coordIndices)
+    {
+        coordIndices = uintArray::create(
+            {
+                0,1,2 , 0,2,3
+            }
+        );
+    }
+
+    if (!colors) 
+    {
+        colors = vec4Array::create(4, vec4{ 0.9f, 0.9f, 0.9f, 0.9f });
+    }
 }
 
 /** This method is called whenever the GUI element containing the slider changes its size.
@@ -92,7 +132,7 @@ void VSGVruiSlider::resizeGeometry()
     float dialSize = slider->getDialSize();
     float myWidth = slider->getWidth();
 
-  /*  (*coord1)[0].set(-dialSize, -dialSize, 0.0f);
+    (*coord1)[0].set(-dialSize, -dialSize, 0.0f);
     (*coord1)[1].set(dialSize, -dialSize, 0.0f);
     (*coord1)[2].set(dialSize, dialSize, 0.0f);
     (*coord1)[3].set(-dialSize, dialSize, 0.0f);
@@ -102,8 +142,25 @@ void VSGVruiSlider::resizeGeometry()
     (*coord2)[2].set(myWidth - dialSize, dialSize * 2.0f, 0.0f);
     (*coord2)[3].set(dialSize, dialSize * 2.0f, 0.0f);
 
-    positionNode->dirtyBound();
-    dialNode->dirtyBound();*/
+    coord1->dirty();
+    coord2->dirty();
+
+    if (!initiallyCompiled)
+    {
+        initiallyCompiled = vruiRendererInterface::the()->compileNode(myDCS);
+    }
+    else
+    {
+        if ((*positionNodeVid).arrays[0]->buffer)
+        {
+            vruiRendererInterface::the()->addToTransfer(positionNodeVid->arrays[0]);
+        }
+        if ((*dialNodeVid).arrays[0]->buffer)
+        {
+            vruiRendererInterface::the()->addToTransfer(dialNodeVid->arrays[0]);
+        }
+        
+    }
 
     updateSlider();
     updateDial();
@@ -122,10 +179,24 @@ void VSGVruiSlider::updateDial()
     if (slider->getMax() >= slider->getMin())
     {
         float numTicks = slider->getNumTicks();
-      /*  (*texCoord2)[0].set(1.0f / 64.0f, 0.0f);
-        (*texCoord2)[1].set(1.0f / 64.0f + (numTicks / 5.0f), 0.0f);
-        (*texCoord2)[2].set(1.0f / 64.0f + (numTicks / 5.0f), 1.0f);
-        (*texCoord2)[3].set(1.0f / 64.0f, 1.0f);*/
+        (*texCoord2)[0].set(1.0f / 64.0f, 1.0f);
+        (*texCoord2)[1].set(1.0f / 64.0f + (numTicks / 5.0f), 1.0f);
+        (*texCoord2)[2].set(1.0f / 64.0f + (numTicks / 5.0f), 0.0f);
+        (*texCoord2)[3].set(1.0f / 64.0f, 0.0f);
+
+        texCoord2->dirty();
+
+        if (!initiallyCompiled)
+        {
+            initiallyCompiled = vruiRendererInterface::the()->compileNode(myDCS);
+        }
+        else
+        {
+            if ((*dialNodeVid).arrays[2]->buffer)
+            {
+                vruiRendererInterface::the()->addToTransfer(dialNodeVid->arrays[2]);
+            }
+        }
     }
 }
 
@@ -177,32 +248,6 @@ void VSGVruiSlider::updateSlider()
 ref_ptr<Node> VSGVruiSlider::createText(float xPos)
 {
 
-    /*if (!numberText)
-    {
-        textNode = new Geode();
-
-        numberText = new Text();
-        numberText->setFont(VSGVruiPresets::getFontFile());
-        numberText->setDrawMode(Text::TEXT);
-        numberText->setColor(vsg::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-
-        numberText->setAlignment(Text::CENTER_BASE_LINE);
-        numberText->setLayout(Text::LEFT_TO_RIGHT);
-        numberText->setAxisAlignment(Text::XY_PLANE);
-
-        sliderDialSize = slider->getDialSize();
-        numberText->setCharacterSize(sliderDialSize * 2.0f);
-
-        textNode->setStateSet(VSGVruiPresets::getStateSetCulled(coUIElement::YELLOW));
-        textNode->addDrawable(numberText.get());
-    }
-
-    if (sliderDialSize != slider->getDialSize())
-    {
-        sliderDialSize = slider->getDialSize();
-        numberText->setCharacterSize(sliderDialSize * 2.0f);
-    }*/
-
     char number[200];
     float value = slider->getValue();
     int precision = slider->getPrecision();
@@ -215,8 +260,6 @@ ref_ptr<Node> VSGVruiSlider::createText(float xPos)
     {
         sprintf(number, "%.*f", precision, value);
     }
-
-   // numberText->setText(number);
 
     vec3 position;
 
@@ -238,22 +281,21 @@ ref_ptr<Node> VSGVruiSlider::createText(float xPos)
         position = vec3(0.0f, 2.0f * dialSize, 0.0f);
     }
 
-    //numberText->setPosition(position);
-    auto layout = vsg::StandardLayout::create();
-    layout->horizontalAlignment = vsg::StandardLayout::CENTER_ALIGNMENT;
-    layout->position = vsg::vec3(6.0, 0.0, 0.0);
-    layout->horizontal = vsg::vec3(1.0, 0.0, 0.0);
-    layout->vertical = vsg::vec3(0.0, 1.0, 0.0);
-    layout->color = vsg::vec4(1.0, 1.0, 1.0, 1.0);
-    layout->outlineWidth = 0.1f;
-    layout->billboard = true;
+    sliderTextLayout->horizontalAlignment = StandardLayout::CENTER_ALIGNMENT;
+    sliderTextLayout->position = vec3(0.0, 1.0, 0.0);
+    sliderTextLayout->horizontal = vec3(1.0, 0.0, 0.0);
+    sliderTextLayout->vertical = vec3(0.0, 1.0, 0.0);
+    sliderTextLayout->color = vec4(1.0, 1.0, 1.0, 1.0);
+    sliderTextLayout->outlineWidth = 0.1f;
+    sliderTextLayout->billboard = false;
 
-    textNode = vsg::Text::create();
-    textNode->text = vsg::stringValue::create(number);
-    textNode->font = VSGVruiPresets::instance()->font;
-    textNode->layout = layout;
-    textNode->setup(0, VSGVruiPresets::instance()->options);
+    sliderTextString->value() = make_string(number);
+    sliderText->setup(32, VSGVruiPresets::instance()->options);
 
+    ref_ptr<MatrixTransform> textNode = MatrixTransform::create();
+    textNode->addChild(sliderText); 
+    textNode->matrix = scale((double)dialSize * 2, (double)dialSize * 2, (double)1.0f);
+    
     return textNode;
 }
 
@@ -264,9 +306,11 @@ ref_ptr<Node> VSGVruiSlider::createText(float xPos)
 */
 ref_ptr<Node> VSGVruiSlider::createSlider(const string &textureName)
 {
+    createSharedLists();
+
     float dialSize = slider->getDialSize();
 
-   /* if (coord1 == 0)
+    if (!coord1)
     {
         coord1 = new vec3Array(4);
         (*coord1)[0].set(-dialSize, -dialSize, 0.0f);
@@ -275,66 +319,18 @@ ref_ptr<Node> VSGVruiSlider::createSlider(const string &textureName)
         (*coord1)[3].set(-dialSize, dialSize, 0.0f);
     }
 
-    if (normal == 0)
-    {
-        normal = new vec3Array(1);
-        (*normal)[0].set(0.0f, 0.0f, 1.0f);
-    }
-
-    if (texCoord1 == 0)
+    if (!texCoord1)
     {
         texCoord1 = new vec2Array(4);
-        (*texCoord1)[0].set(0.0f, 0.0f);
-        (*texCoord1)[1].set(1.0f, 0.0f);
-        (*texCoord1)[2].set(1.0f, 1.0f);
-        (*texCoord1)[3].set(0.0f, 1.0f);
+        (*texCoord1)[0].set(0.0f, 1.0f);
+        (*texCoord1)[1].set(1.0f, 1.0f);
+        (*texCoord1)[2].set(1.0f, 0.0f);
+        (*texCoord1)[3].set(0.0f, 0.0f);
     }
-
-    vsg::ref_ptr<vsg::Geometry> node = new Geode();
-    vsg::ref_ptr<vsg::Geometry> geometry = new Geometry();
-
-    geometry->setVertexArray(coord1.get());
-    geometry->addPrimitiveSet(new DrawArrays(PrimitiveSet::QUADS, 0, 4));
-    geometry->setNormalArray(normal.get());
-    geometry->setNormalBinding(Geometry::BIND_OVERALL);
-    geometry->setTexCoordArray(0, texCoord1.get());
-
-    ref_ptr<StateSet> stateSet = new StateSet();
-
-    VSGVruiTexture *oTex = dynamic_cast<VSGVruiTexture *>(vruiRendererInterface::the()->createTexture(textureName));
-    ref_ptr<Texture2D> texture = oTex->getTexture();
-    vruiRendererInterface::the()->deleteTexture(oTex);
-
-    if (texture.valid())
-    {
-        texture->setFilter(Texture::MIN_FILTER, Texture::LINEAR);
-        texture->setWrap(Texture::WRAP_S, Texture::CLAMP);
-        texture->setWrap(Texture::WRAP_T, Texture::CLAMP);
-    }
-    else
-    {
-        VRUILOG("VSGVruiFlatButtonGeometry::createBox err: texture image " << textureName << " not found")
-    }
-
-    ref_ptr<TexEnv> texEnv = VSGVruiPresets::getTexEnvModulate();
-    ref_ptr<CullFace> cullFace = VSGVruiPresets::getCullFaceBack();
-    ref_ptr<PolygonMode> polyMode = VSGVruiPresets::getPolyModeFill();
-
-    VSGVruiPresets::makeTransparent(stateSet);
-    stateSet->setMode(GL_BLEND, StateAttribute::ON | StateAttribute::PROTECTED);
-    stateSet->setMode(GL_LIGHTING, StateAttribute::ON | StateAttribute::PROTECTED);
-    stateSet->setAttributeAndModes(cullFace.get(), StateAttribute::ON | StateAttribute::PROTECTED);
-    stateSet->setAttributeAndModes(polyMode.get(), StateAttribute::ON | StateAttribute::PROTECTED);
-
-    stateSet->setTextureAttribute(0, texEnv.get());
-    stateSet->setTextureAttributeAndModes(0, texture.get(), StateAttribute::ON | StateAttribute::PROTECTED);
-
-    stateSet->setAttributeAndModes(VSGVruiPresets::getMaterial(coUIElement::WHITE), StateAttribute::ON | StateAttribute::PROTECTED);
-
-    node->setStateSet(stateSet.get());
-    node->addDrawable(geometry.get());*/
 
     vsg::ref_ptr<vsg::MatrixTransform> node = MatrixTransform::create();
+    node->addChild(createNode(textureName, coord1, texCoord1, true));
+
     return node;
 }
 
@@ -346,8 +342,8 @@ ref_ptr<Node> VSGVruiSlider::createDial(const string &textureName)
 {
     float myWidth = slider->getWidth();
     float dialSize = slider->getDialSize();
-/*
-    if (coord2 == 0)
+
+    if (!coord2)
     {
         coord2 = new vec3Array(4);
         (*coord2)[0].set(0.0f, dialSize, 0.0f);
@@ -356,67 +352,88 @@ ref_ptr<Node> VSGVruiSlider::createDial(const string &textureName)
         (*coord2)[3].set(0.0f, dialSize * 2.0f, 0.0f);
     }
 
-    if (normal == 0)
-    {
-        normal = new vec3Array(1);
-        (*normal)[0].set(0.0f, 0.0f, 1.0f);
-    }
-
-    if (texCoord2 == 0)
+    if (!texCoord2)
     {
         texCoord2 = new vec2Array(4);
-        (*texCoord2)[0].set(0.0f, 0.0f);
-        (*texCoord2)[1].set(1.0f, 0.0f);
-        (*texCoord2)[2].set(1.0f, 1.0f);
-        (*texCoord2)[3].set(0.0f, 1.0f);
+        (*texCoord2)[0].set(0.0f, 1.0f);
+        (*texCoord2)[1].set(1.0f, 1.0f);
+        (*texCoord2)[2].set(1.0f, 0.0f);
+        (*texCoord2)[3].set(0.0f, 0.0f);
     }
 
-    vsg::ref_ptr<vsg::Geometry> node = new Geode();
-    vsg::ref_ptr<vsg::Geometry> geometry = new Geometry();
+    vsg::ref_ptr<vsg::MatrixTransform> node = MatrixTransform::create();
+    node->addChild(createNode(textureName, coord2, texCoord2, false));
 
-    geometry->setVertexArray(coord2.get());
-    geometry->addPrimitiveSet(new DrawArrays(PrimitiveSet::QUADS, 0, 4));
-    geometry->setNormalArray(normal.get());
-    geometry->setNormalBinding(Geometry::BIND_OVERALL);
-    geometry->setTexCoordArray(0, texCoord2.get());
+    return node;    
+}
 
-    ref_ptr<StateSet> stateSet = new StateSet();
+ref_ptr<Node> VSGVruiSlider::createNode(const string& textureName, ref_ptr<vec3Array> coord, ref_ptr<vec2Array> texCoord, bool isSlider)
+{
+    ref_ptr<ShaderSet> shaderSet; 
+    shaderSet = createFlatShadedShaderSet();
 
-    VSGVruiTexture *oTex = dynamic_cast<VSGVruiTexture *>(vruiRendererInterface::the()->createTexture(textureName));
-    ref_ptr<Texture2D> texture = oTex->getTexture();
+    auto colorBlendState = vsg::ColorBlendState::create();
+    colorBlendState->attachments[0].blendEnable = VK_TRUE;
+    colorBlendState->attachments[0].srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+    colorBlendState->attachments[0].dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    colorBlendState->attachments[0].colorBlendOp = VK_BLEND_OP_ADD;
+    colorBlendState->attachments[0].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+    colorBlendState->attachments[0].dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    colorBlendState->attachments[0].alphaBlendOp = VK_BLEND_OP_ADD;
+    colorBlendState->attachments[0].colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
+        VK_COLOR_COMPONENT_G_BIT |
+        VK_COLOR_COMPONENT_B_BIT |
+        VK_COLOR_COMPONENT_A_BIT;
+    colorBlendState->logicOpEnable = VK_FALSE;
+
+    auto depthStencilState = vsg::DepthStencilState::create();
+    depthStencilState->depthTestEnable = VK_TRUE;
+    depthStencilState->depthWriteEnable = VK_FALSE;
+    depthStencilState->depthCompareOp = VK_COMPARE_OP_GREATER;
+
+    shaderSet->defaultGraphicsPipelineStates.push_back(colorBlendState);
+    shaderSet->defaultGraphicsPipelineStates.push_back(depthStencilState);
+
+    DataList vertexArrays;
+
+    VSGVruiTexture* oTex = dynamic_cast<VSGVruiTexture*>(vruiRendererInterface::the()->createTexture(textureName));
+    auto image = Image::create(oTex->getTexture()->data);
     vruiRendererInterface::the()->deleteTexture(oTex);
 
-    if (texture.valid())
+    ref_ptr<GraphicsPipelineConfigurator> gpConfigurator = GraphicsPipelineConfigurator::create(shaderSet);
+
+    if (image->data)
+        gpConfigurator->assignTexture("diffuseMap", image->data);
+    else
+        cerr << "No texture could be loaded for toggle button geometry!" << endl;
+
+    gpConfigurator->assignArray(vertexArrays, "vsg_Vertex", VK_VERTEX_INPUT_RATE_VERTEX, coord);
+    gpConfigurator->assignArray(vertexArrays, "vsg_Normal", VK_VERTEX_INPUT_RATE_VERTEX, normals);
+    gpConfigurator->assignArray(vertexArrays, "vsg_TexCoord0", VK_VERTEX_INPUT_RATE_VERTEX, texCoord);
+    gpConfigurator->assignArray(vertexArrays, "vsg_Color", VK_VERTEX_INPUT_RATE_VERTEX, colors);
+
+    gpConfigurator->init();
+
+    ref_ptr<StateGroup> stateGroup = StateGroup::create();
+    gpConfigurator->copyTo(stateGroup);
+
+    ref_ptr<VertexIndexDraw> vid = VertexIndexDraw::create();
+    vid->assignArrays(vertexArrays);
+    vid->assignIndices(coordIndices);
+    vid->indexCount = static_cast<uint32_t>(coordIndices->size());
+    vid->instanceCount = 1;
+
+    if (isSlider)
     {
-        texture->setFilter(Texture::MIN_FILTER, Texture::LINEAR);
-        texture->setWrap(Texture::WRAP_S, Texture::REPEAT);
-        texture->setWrap(Texture::WRAP_T, Texture::CLAMP);
+        positionNodeVid = vid;
+        stateGroup->addChild(positionNodeVid);
     }
     else
     {
-        VRUILOG("VSGVruiFlatButtonGeometry::createBox err: texture image " << textureName << " not found")
+        dialNodeVid = vid;
+        stateGroup->addChild(dialNodeVid);
     }
 
-    ref_ptr<TexEnv> texEnv = VSGVruiPresets::getTexEnvModulate();
-    ref_ptr<CullFace> cullFace = VSGVruiPresets::getCullFaceBack();
-    ref_ptr<PolygonMode> polyMode = VSGVruiPresets::getPolyModeFill();
-
-    VSGVruiPresets::makeTransparent(stateSet);
-    stateSet->setMode(GL_BLEND, StateAttribute::ON | StateAttribute::PROTECTED);
-    stateSet->setMode(GL_LIGHTING, StateAttribute::ON | StateAttribute::PROTECTED);
-    stateSet->setAttributeAndModes(cullFace.get(), StateAttribute::ON | StateAttribute::PROTECTED);
-    stateSet->setAttributeAndModes(polyMode.get(), StateAttribute::ON | StateAttribute::PROTECTED);
-
-    stateSet->setTextureAttribute(0, texEnv.get());
-    stateSet->setTextureAttributeAndModes(0, texture.get(), StateAttribute::ON | StateAttribute::PROTECTED);
-
-    stateSet->setAttributeAndModes(VSGVruiPresets::getMaterial(coUIElement::WHITE), StateAttribute::ON | StateAttribute::PROTECTED);
-
-    node->setStateSet(stateSet.get());
-    node->addDrawable(geometry.get());*/
-
-    vsg::ref_ptr<vsg::MatrixTransform> node = MatrixTransform::create();
-
-    return node;
+    return stateGroup;
 }
 }

@@ -11,6 +11,7 @@
 #include <OpenVRUI/vsg/VSGVruiUIElement.h>
 
 #include <vsg/text/Text.h>
+#include <vsg/text/StandardLayout.h> 
 
 namespace vrui
 {
@@ -45,8 +46,10 @@ protected:
     vsg::vec4 textColor; ///< components of text color (RGBA)
     vsg::vec4 textColorHL; ///< components of text color when highlighted (RGBA)
 
-    ///< Geostate of background texture
-    vsg::ref_ptr<vsg::Text> labelText; ///< label text string in OSG format
+    // vsg::Text related for dynamically updatable texts
+    vsg::ref_ptr<vsg::Text> labelText; 
+    vsg::ref_ptr<vsg::stringValue > labelTextString;
+    vsg::ref_ptr<vsg::StandardLayout> labelTextLayout;
 
     void makeText();
 };

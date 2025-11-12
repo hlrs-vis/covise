@@ -229,14 +229,14 @@ void vvSceneGraph::init()
     tm->setText("Toggle VR menu");
     tm->addShortcut("m");
     tm->setCallback([this]() { toggleMenu(); });
-    tm->setVisible(false);
+    tm->setVisible(true);
 
     auto sm = new ui::Button(vv->viewOptionsMenu, "ShowMenu");
     vv->viewOptionsMenu->add(sm);
     sm->setText("Show VR menu");
     sm->setState(m_showMenu);
     sm->setCallback([this](bool state) { setMenu(state ? MenuAndObjects : MenuHidden); });
-    sm->setVisible(false);
+    sm->setVisible(/*false*/ true);
     m_showMenuButton = sm;
 
     auto fc = new ui::Action(vv->viewOptionsMenu, "ForceCompile");

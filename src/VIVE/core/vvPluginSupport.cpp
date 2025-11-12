@@ -229,8 +229,7 @@ coPointerButton *vvPluginSupport::getRelativeButton() const
 const vsg::dmat4 &vvPluginSupport::getViewerMat() const
 {
     START("vvPluginSupport::getViewerMat");
-    static vsg::dmat4  transformMatrix;
-    return transformMatrix; //return (vvViewer::instance()->getViewerMat());
+    return (vvViewer::instance()->getViewerMat());
 }
 
 const vsg::dmat4 &vvPluginSupport::getXformMat() const
@@ -242,15 +241,13 @@ const vsg::dmat4 &vvPluginSupport::getXformMat() const
 const vsg::dmat4 &vvPluginSupport::getMouseMat() const
 {
     START("vvPluginSupport::getMouseMat");
-    static vsg::dmat4  transformMatrix;
-    return transformMatrix; // return Input::instance()->getMouseMat();
+    return Input::instance()->getMouseMat();
 }
 
 const vsg::dmat4 &vvPluginSupport::getRelativeMat() const
 {
 
-    static vsg::dmat4  transformMatrix;
-    return transformMatrix; //return Input::instance()->getRelativeMat();
+    return Input::instance()->getRelativeMat();
 }
 
 const vsg::dmat4 &vvPluginSupport::getPointerMat() const
@@ -274,7 +271,7 @@ void vvPluginSupport::setXformMat(const vsg::dmat4 &transformMatrix)
 float vvPluginSupport::getSceneSize() const
 {
     START("vvPluginSupport::getSceneSize");
-    return 1; // return vvConfig::instance()->getSceneSize();
+    return vvConfig::instance()->getSceneSize();
 }
 
 // return no. of seconds since epoch 
@@ -316,7 +313,7 @@ coMenu *vvPluginSupport::getMenu()
         float xp = 0.0, yp = 0.0, zp = 0.0;
         double h = 0, p = 0, r = 0;
         float size = 1;
-        m_vruiMenu = new coRowMenu("COVER");
+        m_vruiMenu = new coRowMenu("VIVE");
         m_vruiMenu->setVisible(coCoviseConfig::isOn("VIVE.Menu.Visible", true));
 
         xp = coCoviseConfig::getFloat("x", "VIVE.Menu.Position", 0.0);
@@ -331,13 +328,13 @@ coMenu *vvPluginSupport::getMenu()
             size = 1;
         dcsRotMat = makeEulerMat(h, p, r);
         preRot = rotate(vsg::radians(90.0f), vsg::vec3(1.0f, 0.0f, 0.0f));
-        dcsTransMat= vsg::translate(xp, yp, zp);
-        tmp = dcsRotMat* preRot;
+        dcsTransMat = vsg::translate(xp, yp, zp);
+        tmp = dcsRotMat * preRot;
         dcsMat = dcsTransMat * tmp;
         VSGVruiMatrix menuMatrix;
         menuMatrix.setMatrix(dcsMat);
         m_vruiMenu->setTransformMatrix(&menuMatrix);
-        m_vruiMenu->setScale((float)(size * (getSceneSize() / 2500.0)));
+        m_vruiMenu->setScale((float)(size * (getSceneSize() / 2500.0f)));
     }
 
     return m_vruiMenu;

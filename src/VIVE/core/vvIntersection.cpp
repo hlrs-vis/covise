@@ -33,6 +33,7 @@
 #include <util/coWristWatch.h>
 #include <numeric>
 #include <limits>
+#include <algorithm>
 
 using namespace vsg;
 using namespace vrui;
@@ -268,6 +269,53 @@ void vvIntersection::intersect(const vsg::dmat4 &handMat, bool mouseHit)
 
     if (q0 != q1)
     {
+        ref_ptr<vvIntersector> intersector = vvIntersector::create(ray.start, ray.end);
+        
+        if (numIsectAllNodes > 0) 
+        {
+            intersector->traversalMask = Isect::Pick;
+        }
+        else 
+        {
+            intersector->traversalMask = Isect::Intersection;
+        }
+        
+        vv->getMenuGroup()->accept(*intersector);
+        //vv->getScene()->accept(*intersector);
+
+        auto isects = intersector->intersections;
+
+        // sort intersections front to back 
+        std::sort(isects.begin(), isects.end(), [](auto& lhs, auto& rhs) { return lhs->ratio < rhs->ratio; });
+
+        // this loop should break after processing nearest element
+        for (const auto& isect : isects) 
+        {
+            // logic to process nearest element and call actions accordingly
+            
+            vv->intersectionHitPointWorld = isect->worldIntersection;
+            vv->intersectionHitPointLocal = isect->localIntersection;
+            vv->intersectedNodePath = isect->nodePath;
+            vv->intersectedNode = const_cast<Node*>(isect->nodePath.back());
+
+            /*
+            cerr << "The intersected node computed transform is: " << computeTransform(vv->intersectedNodePath) << endl;
+            cerr << "The localToWorld  matrix of the intersected node is: " << isect->localToWorld << endl;
+            cerr << "The world intersection point: " << isect->worldIntersection << endl;
+            */
+
+            // callActions goes up through the parents of the node
+            // and calls all coActions
+            VSGVruiHit hit(*isect, mouseHit);
+            if (vv->intersectedNode) 
+            {
+                VSGVruiNode node(vv->intersectedNode);
+                node.setNodePath(isect->nodePath);
+                callActions(&node, &hit);
+            }
+            break; // stop this for loop for going through other hits farer away from nearest
+        }
+
         /*IntersectionVisitor visitor;
         if (numIsectAllNodes > 0)
         {

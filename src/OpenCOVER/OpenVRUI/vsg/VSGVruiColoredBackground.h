@@ -49,13 +49,17 @@ private:
     //shared coord and color list
     vsg::ref_ptr<vsg::vec3Array> coord; ///< Coordinates of background geometry
     vsg::ref_ptr<vsg::vec3Value> normal; ///< Normal of background geometry
+    vsg::ref_ptr<vsg::vec4Value> color; // without color, the background is just black, with reflection?
 
     vsg::ref_ptr<vsg::StateGroup> stateGroup; ///< Normal geometry color
+    vsg::ref_ptr<vsg::VertexIndexDraw> vertexIndexDraw;
 
     vsg::ref_ptr<vsg::Node> node; ///< Geometry node
 
     vsg::ref_ptr<vsg::MatrixTransform> fancyDCS;
     vsg::ref_ptr <vsg::PhongMaterialValue> material;
+
+    bool initiallyCompiled = false;
 };
 }
 #endif

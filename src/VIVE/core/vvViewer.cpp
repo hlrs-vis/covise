@@ -174,8 +174,8 @@ void vvViewer::vvUpdate()
         setFrustumAndView(i);
     }
 
+    //vvViewer::instance()->compile();
 
-    //viewer->compile();
     if (advanceToNextFrame())
     {
         // pass any events into EventHandlers assigned to the Viewer

@@ -131,13 +131,13 @@ VruiView::VruiView()
     if (auto tb = vv->getToolBar(m_useToolbar))
     {
         std::cerr << "ui::VruiView: toolbar mode" << std::endl;
-        auto menuButton = new coLabelSubMenuToolboxItem("COVER");
+        auto menuButton = new coLabelSubMenuToolboxItem("VIVE");
         menuButton->setMenu(vv->getMenu());
         menuButton->setMenuListener(m_root);
         m_root->m_toolboxItem = menuButton;
         tb->add(menuButton);
 
-        auto smi = new coSubMenuItem("COVER...");
+        auto smi = new coSubMenuItem("VIVE...");
         smi->setMenuListener(m_root);
         smi->setMenu(vv->getMenu());
         m_root->m_menuItem = smi;

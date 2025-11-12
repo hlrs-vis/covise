@@ -32,7 +32,7 @@ vruiMatrix *VSGVruiMatrix::preTranslated(double x, double y, double z, vruiMatri
 {
     vsg::dmat4 translate= vsg::translate(x, y, z);
     VSGVruiMatrix *VSGVruiMatrix = dynamic_cast<vrui::VSGVruiMatrix *>(matrix);
-    this->matrix = translate * VSGVruiMatrix->matrix;
+    this->matrix = VSGVruiMatrix->matrix * translate;
     return this;
 }
 
@@ -44,7 +44,7 @@ vruiMatrix *VSGVruiMatrix::makeTranslate(double x, double y, double z)
 
 vruiMatrix *VSGVruiMatrix::makeRotate(double degrees, double xAxis, double yAxis, double zAxis)
 {
-    this->matrix = rotate(degrees, xAxis, yAxis, zAxis);
+    this->matrix = rotate(vsg::radians(degrees), xAxis, yAxis, zAxis);
     return this;
 }
 
@@ -57,17 +57,17 @@ vruiMatrix *VSGVruiMatrix::makeScale(double x, double y, double z)
 vruiMatrix *VSGVruiMatrix::makeEuler(double h, double p, double r)
 {
     dmat4 hm, pm, rm;
-    pm = rotate(p, 1.0, 0.0, 0.0);
-    rm = rotate(r, 0.0, 1.0, 0.0);
-    hm = rotate(h, 0.0, 0.0, 1.0);
+    pm = rotate(vsg::radians(p), 1.0, 0.0, 0.0);
+    rm = rotate(vsg::radians(r), 0.0, 1.0, 0.0);
+    hm = rotate(vsg::radians(h), 0.0, 0.0, 1.0);
     this->matrix = hm * pm * rm;
     return this;
 }
 
-vruiMatrix *VSGVruiMatrix::mult(const vruiMatrix *matrix)
+vruiMatrix *VSGVruiMatrix::mult(const vruiMatrix *mat)
 {
-    const VSGVruiMatrix *VSGVruiMatrix = dynamic_cast<const vrui::VSGVruiMatrix *>(matrix);
-    const_cast<vrui::VSGVruiMatrix *>(VSGVruiMatrix)->matrix * this->matrix;
+    const VSGVruiMatrix *VSGVruiMatrix = dynamic_cast<const vrui::VSGVruiMatrix *>(mat);
+    matrix = const_cast<vrui::VSGVruiMatrix *>(VSGVruiMatrix)->matrix * matrix;
     return this;
 }
 

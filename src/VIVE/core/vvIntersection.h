@@ -11,9 +11,6 @@
 #include <vsg/maths/mat4.h>
 #include <vsg/utils/LineSegmentIntersector.h>
 
-namespace osgUtil {
-class IntersectionVisitor;
-}
 
 namespace vive
 {

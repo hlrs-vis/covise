@@ -36,7 +36,7 @@ VSGVruiDefaultButtonGeometry::~VSGVruiDefaultButtonGeometry()
 
 void VSGVruiDefaultButtonGeometry::createGeometry()
 {
-
+    
     if (!normalNode.get())
     {
 

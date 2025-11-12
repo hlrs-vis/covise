@@ -44,7 +44,10 @@ public:
     vsg::Node *getNodePtr();
     vsg::ref_ptr<vsg::Node> node;
 
+    void setNodePath(std::vector<const vsg::Node*> hitNodePath);
+
 private:
     VSGVruiNode *parent;
+    std::vector<const vsg::Node*> nodePath;
 };
 }

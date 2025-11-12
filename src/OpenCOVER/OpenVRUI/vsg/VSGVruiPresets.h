@@ -42,10 +42,11 @@ public:
     }
     std::vector<vsg::ref_ptr<vsg::DescriptorConfigurator>> configurations;
     vsg::PhongMaterial materials[coUIElement::NUM_MATERIALS];
-    vsg::ref_ptr<const vsg::Options> options;
+    vsg::ref_ptr<vsg::Options> options;
     std::string fontFile;
 
     vsg::ref_ptr<vsg::Font> font;
+    vsg::ref_ptr<vsg::Font> font2;
 
     vsg::ref_ptr<vsg::SharedObjects> sharedObjects;
 

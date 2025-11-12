@@ -32,6 +32,12 @@ float VSGVruiFlatButtonGeometry::A = 30.0f;
 float VSGVruiFlatButtonGeometry::B = 50.0f;
 float VSGVruiFlatButtonGeometry::D = 5.0f;
 
+ref_ptr<vec3Array> VSGVruiFlatButtonGeometry::coord1 = nullptr;
+ref_ptr<vec3Array> VSGVruiFlatButtonGeometry::coord2 = nullptr;
+ref_ptr<vec3Array> VSGVruiFlatButtonGeometry::normals = nullptr;
+ref_ptr<vec2Array> VSGVruiFlatButtonGeometry::texCoord = nullptr;
+ref_ptr<uintArray> VSGVruiFlatButtonGeometry::coordIndices = nullptr;
+ref_ptr<vec4Array> VSGVruiFlatButtonGeometry::colors = nullptr;
 
 /**
     creates the button.
@@ -53,7 +59,7 @@ VSGVruiFlatButtonGeometry::~VSGVruiFlatButtonGeometry()
     myDCS = nullptr;
 }
 
-vsg::ref_ptr<vsg::Node> VSGVruiFlatButtonGeometry::createQuad(const vsg::vec3& origin, const vsg::vec3& horizontal, const vsg::vec3& vertical)
+vsg::ref_ptr<vsg::Node> VSGVruiFlatButtonGeometry::createQuad(const vsg::vec3& origin, const vsg::vec3& horizontal, const vsg::vec3& vertical, ref_ptr<Data> image)
 {
 
     auto builder = vsg::Builder::create();
@@ -66,18 +72,18 @@ vsg::ref_ptr<vsg::Node> VSGVruiFlatButtonGeometry::createQuad(const vsg::vec3& o
     geomInfo.dz.set(0.0f, 0.0f, 1.0f);
 
     vsg::StateInfo stateInfo;
+    stateInfo.image = image; 
 
     return builder->createQuad(geomInfo, stateInfo);
 }
 
 void VSGVruiFlatButtonGeometry::createSharedLists()
 {
-  /*  if (coord1 == 0)
+    if (!coord1 || !coord2 || !normals || !coordIndices || !colors)
     {
 
         coord1 = new vec3Array(4);
         coord2 = new vec3Array(4);
-        normal = new vec3Array(1);
         texCoord = new vec2Array(4);
 
         (*coord1)[3].set(0.0f, A, 0.0f);
@@ -90,75 +96,89 @@ void VSGVruiFlatButtonGeometry::createSharedLists()
         (*coord2)[1].set(B - ((B - A) / 2.0f), 0 - ((B - A) / 2.0f), D);
         (*coord2)[0].set(0 - ((B - A) / 2.0f), 0 - ((B - A) / 2.0f), D);
 
-        (*texCoord)[0].set(0.0f, 0.0f);
-        (*texCoord)[1].set(1.0f, 0.0f);
-        (*texCoord)[2].set(1.0f, 1.0f);
-        (*texCoord)[3].set(0.0f, 1.0f);
+        (*texCoord)[0].set(0.0f, 1.0f);
+        (*texCoord)[1].set(1.0f, 1.0f);
+        (*texCoord)[2].set(1.0f, 0.0f);
+        (*texCoord)[3].set(0.0f, 0.0f);
 
-        (*normal)[0].set(0.0f, 0.0f, 1.0f);
-    }*/
+        normals = vec3Array::create(4, vec3{ 0.0f, 0.0f, 1.0f });
+        colors = vec4Array::create(4, vec4{ 0.9f, 0.9f, 0.9f, 0.5f });
+
+        coordIndices = uintArray::create(
+            {
+                0,1,2 , 0,2,3
+            }
+        );
+    }
 }
 
 ref_ptr<vsg::Node> VSGVruiFlatButtonGeometry::createBox(const string &textureName)
 {
 
     createSharedLists();
+    
+    // setup using GraphicsPipelineConfigurator, without Options
+    ref_ptr<ShaderSet> shaderSet;
+    shaderSet = createFlatShadedShaderSet();
 
-   /* ref_ptr<StateSet> stateSet = new StateSet();
-    ref_ptr<Geometry> geometry = new Geometry();
-    ref_ptr<Texture2D> texture = 0;
+    // custom setting for PipelineStates, attachments[0] is the default
+    auto colorBlendState = vsg::ColorBlendState::create();
+    colorBlendState->attachments[0].blendEnable = VK_TRUE;
+    colorBlendState->attachments[0].srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+    colorBlendState->attachments[0].dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    colorBlendState->attachments[0].colorBlendOp = VK_BLEND_OP_ADD;
+    colorBlendState->attachments[0].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+    colorBlendState->attachments[0].dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    colorBlendState->attachments[0].alphaBlendOp = VK_BLEND_OP_ADD;
+    colorBlendState->attachments[0].colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
+        VK_COLOR_COMPONENT_G_BIT |
+        VK_COLOR_COMPONENT_B_BIT |
+        VK_COLOR_COMPONENT_A_BIT;
+    colorBlendState->logicOpEnable = VK_FALSE;
 
-    geometry->setVertexArray(coord1.get());
-    geometry->addPrimitiveSet(new DrawArrays(PrimitiveSet::QUADS, 0, 4));
-    geometry->setNormalArray(normal.get());
-    geometry->setNormalBinding(Geometry::BIND_OVERALL);
-    geometry->setTexCoordArray(0, texCoord.get());
+    auto depthStencilState = vsg::DepthStencilState::create();
+    depthStencilState->depthTestEnable = VK_TRUE;
+    depthStencilState->depthWriteEnable = VK_FALSE;
+    depthStencilState->depthCompareOp = VK_COMPARE_OP_GREATER_OR_EQUAL;
 
-    stateSet->setAttributeAndModes(VSGVruiPresets::getMaterial(coUIElement::WHITE), StateAttribute::ON | StateAttribute::PROTECTED);
+    shaderSet->defaultGraphicsPipelineStates.push_back(colorBlendState);
+    shaderSet->defaultGraphicsPipelineStates.push_back(depthStencilState);
+    
+    DataList vertexArrays; 
 
-    VSGVruiTexture *oTex = dynamic_cast<VSGVruiTexture *>(vruiRendererInterface::the()->createTexture(textureName));
-    texture = oTex->getTexture();
+    VSGVruiTexture * oTex = dynamic_cast<VSGVruiTexture*>(vruiRendererInterface::the()->createTexture(textureName));
+    auto image = Image::create(oTex->getTexture()->data);
     vruiRendererInterface::the()->deleteTexture(oTex);
 
-    if (texture.valid())
-    {
-        texture->setFilter(Texture::MIN_FILTER, Texture::LINEAR);
-        texture->setWrap(Texture::WRAP_S, Texture::CLAMP);
-        texture->setWrap(Texture::WRAP_T, Texture::CLAMP);
-        if (defaulTexture == 0)
-        {
-            defaulTexture = texture;
-            defaulTexture->ref();
-        }
-    }
+    ref_ptr<GraphicsPipelineConfigurator> gpConfigurator = GraphicsPipelineConfigurator::create(shaderSet);
+
+    if (image->data)
+        gpConfigurator->assignTexture("diffuseMap", image->data);
     else
-    {
-        //VRUILOG("VSGVruiFlatButtonGeometry::createBox err: texture image " << textureName << " not found")
-        if (defaulTexture != 0)
-            texture = defaulTexture;
-    }
+        cerr << "No texture could be loaded for flat button geometry!" << endl;
 
-    ref_ptr<TexEnv> texEnv = VSGVruiPresets::getTexEnvModulate();
-    ref_ptr<CullFace> cullFace = VSGVruiPresets::getCullFaceBack();
-    ref_ptr<PolygonMode> polyMode = VSGVruiPresets::getPolyModeFill();
+    gpConfigurator->assignArray(vertexArrays, "vsg_Vertex", VK_VERTEX_INPUT_RATE_VERTEX, coord1);
+    gpConfigurator->assignArray(vertexArrays, "vsg_Normal", VK_VERTEX_INPUT_RATE_VERTEX, normals);
+    gpConfigurator->assignArray(vertexArrays, "vsg_TexCoord0", VK_VERTEX_INPUT_RATE_VERTEX, texCoord);
+    gpConfigurator->assignArray(vertexArrays, "vsg_Color", VK_VERTEX_INPUT_RATE_VERTEX, colors);
+     
+    gpConfigurator->init();
 
-    VSGVruiPresets::makeTransparent(stateSet);
-    stateSet->setMode(GL_BLEND, StateAttribute::ON | StateAttribute::PROTECTED);
-    stateSet->setMode(GL_LIGHTING, StateAttribute::ON | StateAttribute::PROTECTED);
-    stateSet->setAttributeAndModes(cullFace.get(), StateAttribute::ON | StateAttribute::PROTECTED);
-    stateSet->setAttributeAndModes(polyMode.get(), StateAttribute::ON | StateAttribute::PROTECTED);
+    ref_ptr<StateGroup> stateGroup = StateGroup::create();
+    gpConfigurator->copyTo(stateGroup);
 
-    stateSet->setTextureAttribute(0, texEnv.get());
-    stateSet->setTextureAttributeAndModes(0, texture.get(), StateAttribute::ON | StateAttribute::PROTECTED);
+    ref_ptr<VertexIndexDraw> vid = VertexIndexDraw::create();
+    vid->assignArrays(vertexArrays);
+    vid->assignIndices(coordIndices);
+    vid->indexCount = static_cast<uint32_t>(coordIndices->size());
+    vid->instanceCount = 1;
 
-    ref_ptr<Geode> geometryNode = new Geode();
+    stateGroup->addChild(vid);
 
-    geometryNode->setStateSet(stateSet.get());
-    geometryNode->addDrawable(geometry.get());
-
-    return geometryNode;*/
     vsg::ref_ptr<vsg::MatrixTransform> node = MatrixTransform::create();
+    node->addChild(stateGroup);
     return node;
+
 
 }
 
@@ -167,60 +187,66 @@ ref_ptr<Node> VSGVruiFlatButtonGeometry::createCheck(const string &textureName)
 
     createSharedLists();
 
-    /*ref_ptr<StateSet> stateSet = new StateSet();
-    ref_ptr<Geometry> geometry = new Geometry();
-    ref_ptr<Texture2D> texture = 0;
+    // setup using GraphicsPipelineConfigurator, without Options
+    ref_ptr<ShaderSet> shaderSet;
+    shaderSet = createFlatShadedShaderSet();
 
-    geometry->setVertexArray(coord2.get()); // use coord2 if you want the checked symbol to be larger
-    geometry->addPrimitiveSet(new DrawArrays(PrimitiveSet::QUADS, 0, 4));
-    geometry->setNormalArray(normal.get());
-    geometry->setNormalBinding(Geometry::BIND_OVERALL);
-    geometry->setTexCoordArray(0, texCoord.get());
+    // custom setting for PipelineStates, attachments[0] is the default
+    auto colorBlendState = vsg::ColorBlendState::create();
+    colorBlendState->attachments[0].blendEnable = VK_TRUE;
+    colorBlendState->attachments[0].srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+    colorBlendState->attachments[0].dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    colorBlendState->attachments[0].colorBlendOp = VK_BLEND_OP_ADD;
+    colorBlendState->attachments[0].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+    colorBlendState->attachments[0].dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    colorBlendState->attachments[0].alphaBlendOp = VK_BLEND_OP_ADD;
+    colorBlendState->attachments[0].colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
+        VK_COLOR_COMPONENT_G_BIT |
+        VK_COLOR_COMPONENT_B_BIT |
+        VK_COLOR_COMPONENT_A_BIT;
+    colorBlendState->logicOpEnable = VK_FALSE;
 
-    stateSet->setAttributeAndModes(VSGVruiPresets::getMaterial(coUIElement::WHITE_NL), StateAttribute::ON | StateAttribute::PROTECTED);
+    auto depthStencilState = vsg::DepthStencilState::create();
+    depthStencilState->depthTestEnable = VK_TRUE;
+    depthStencilState->depthWriteEnable = VK_FALSE;
+    depthStencilState->depthCompareOp = VK_COMPARE_OP_GREATER_OR_EQUAL;
 
-    VSGVruiTexture *oTex = dynamic_cast<VSGVruiTexture *>(vruiRendererInterface::the()->createTexture(textureName));
-    texture = oTex->getTexture();
+    shaderSet->defaultGraphicsPipelineStates.push_back(colorBlendState);
+    shaderSet->defaultGraphicsPipelineStates.push_back(depthStencilState);
+
+    DataList vertexArrays;
+
+    VSGVruiTexture* oTex = dynamic_cast<VSGVruiTexture*>(vruiRendererInterface::the()->createTexture(textureName));
+    auto image = Image::create(oTex->getTexture()->data);
     vruiRendererInterface::the()->deleteTexture(oTex);
 
-    if (texture.valid())
-    {
-        texture->setFilter(Texture::MIN_FILTER, Texture::LINEAR);
-        texture->setWrap(Texture::WRAP_S, Texture::CLAMP);
-        texture->setWrap(Texture::WRAP_T, Texture::CLAMP);
-        if (defaulTexture == 0)
-        {
-            defaulTexture = texture;
-            defaulTexture->ref();
-        }
-    }
+    ref_ptr<GraphicsPipelineConfigurator> gpConfigurator = GraphicsPipelineConfigurator::create(shaderSet);
+
+    if (image->data)
+        gpConfigurator->assignTexture("diffuseMap", image->data);
     else
-    {
-        //VRUILOG("VSGVruiFlatButtonGeometry::createBox err: texture image " << textureName << " not found")
-        if (defaulTexture != 0)
-            texture = defaulTexture;
-    }
+        cerr << "No texture could be loaded for flat button geometry!" << endl;
 
-    ref_ptr<TexEnv> texEnv = VSGVruiPresets::getTexEnvModulate();
-    ref_ptr<CullFace> cullFace = VSGVruiPresets::getCullFaceBack();
-    ref_ptr<PolygonMode> polyMode = VSGVruiPresets::getPolyModeFill();
+    gpConfigurator->assignArray(vertexArrays, "vsg_Vertex", VK_VERTEX_INPUT_RATE_VERTEX, coord2);
+    gpConfigurator->assignArray(vertexArrays, "vsg_Normal", VK_VERTEX_INPUT_RATE_VERTEX, normals);
+    gpConfigurator->assignArray(vertexArrays, "vsg_TexCoord0", VK_VERTEX_INPUT_RATE_VERTEX, texCoord);
+    // gpConfigurator->assignArray(vertexArrays, "vsg_Color", VK_VERTEX_INPUT_RATE_VERTEX, colors);
 
-    VSGVruiPresets::makeTransparent(stateSet);
-    stateSet->setMode(GL_BLEND, StateAttribute::ON | StateAttribute::PROTECTED);
-    stateSet->setMode(GL_LIGHTING, StateAttribute::ON | StateAttribute::PROTECTED);
-    stateSet->setAttributeAndModes(cullFace.get(), StateAttribute::ON | StateAttribute::PROTECTED);
-    stateSet->setAttributeAndModes(polyMode.get(), StateAttribute::ON | StateAttribute::PROTECTED);
+    gpConfigurator->init();
 
-    stateSet->setTextureAttribute(0, texEnv.get());
-    stateSet->setTextureAttributeAndModes(0, texture.get(), StateAttribute::ON | StateAttribute::PROTECTED);
+    ref_ptr<StateGroup> stateGroup = StateGroup::create();
+    gpConfigurator->copyTo(stateGroup);
 
-    ref_ptr<Geode> geometryNode = new Geode();
+    ref_ptr<VertexIndexDraw> vid = VertexIndexDraw::create();
+    vid->assignArrays(vertexArrays);
+    vid->assignIndices(coordIndices);
+    vid->indexCount = static_cast<uint32_t>(coordIndices->size());
+    vid->instanceCount = 1;
 
-    geometryNode->setStateSet(stateSet.get());
-    geometryNode->addDrawable(geometry.get());
+    stateGroup->addChild(vid);
 
-    return geometryNode;*/
     vsg::ref_ptr<vsg::MatrixTransform> node = MatrixTransform::create();
+    node->addChild(stateGroup);
     return node;
 }
 
@@ -275,6 +301,8 @@ void VSGVruiFlatButtonGeometry::createGeometry()
     transformNode->addChild(switchNode);
 
     myDCS = new VSGVruiTransformNode(transformNode);
+    transformNode->setValue("name", "VSGVruiFlatButtonGeometry(" + element->getTextureName() + ")");
+    transformNode->setValue("coButtonGeometry", element);
 }
 
 void VSGVruiFlatButtonGeometry::resizeGeometry()

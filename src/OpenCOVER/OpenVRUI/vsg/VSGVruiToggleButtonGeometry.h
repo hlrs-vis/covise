@@ -69,8 +69,10 @@ private:
     static float B;
     static float D;
     static vsg::ref_ptr<vsg::vec3Array> coord;
-    static vsg::ref_ptr<vsg::vec3Array> normal;
+    static vsg::ref_ptr<vsg::vec3Array> normals;
     static vsg::ref_ptr<vsg::vec2Array> texCoord;
+    static vsg::ref_ptr<vsg::uintArray> coordIndices;
+    static vsg::ref_ptr<vsg::vec4Array> colors;
 
     vsg::ref_ptr<vsg::Sampler> texture;
 };

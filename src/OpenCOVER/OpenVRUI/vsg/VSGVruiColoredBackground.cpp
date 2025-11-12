@@ -58,7 +58,20 @@ void VSGVruiColoredBackground::resizeGeometry()
     (*coord)[2].set(myWidth, myHeight, 0.0f);
     (*coord)[1].set(myWidth, 0.0f, 0.0f);
     (*coord)[0].set(0.0f, 0.0f, 0.0f);
-    //vruiRendererInterface::the()->addToTransfer(coord);
+
+    coord->dirty();
+    //vruiRendererInterface::the()->addToTransfer(BufferInfo::create(coord));
+    if (!initiallyCompiled)
+    {
+        initiallyCompiled = vruiRendererInterface::the()->compileNode(myDCS);
+    }
+    else 
+    {
+        if ((*vertexIndexDraw).arrays[0]->buffer) 
+        {
+            vruiRendererInterface::the()->addToTransfer(vertexIndexDraw->arrays[0]);
+        }
+    }
 }
 
 /** create geometry elements shared by all VSGVruiColoredBackgrounds
@@ -67,6 +80,9 @@ void VSGVruiColoredBackground::createSharedLists()
 {
     normal = vsg::vec3Value::create(vsg::vec3(0.0f, 0.0f, 1.0f));
     config->assignArray(vertexArrays, "vsg_Normal", VK_VERTEX_INPUT_RATE_INSTANCE, normal);
+
+    color = vsg::vec4Value::create(vsg::vec4(1.0f, 1.0f, 1.0f, 0.5f));
+    config->assignArray(vertexArrays, "vsg_Color", VK_VERTEX_INPUT_RATE_INSTANCE, color);
 }
 
 /** create the geometry node
@@ -84,14 +100,12 @@ void VSGVruiColoredBackground::createGeometry()
 
     transform->addChild(fancyDCS);
 
-    material = vsg::PhongMaterialValue::create(VSGVruiPresets::instance()->materials[coUIElement::GREY]);
+    material = vsg::PhongMaterialValue::create(VSGVruiPresets::instance()->materials[background->getBackgroundMaterial()]);
 
-    config = vsg::GraphicsPipelineConfigurator::create(VSGVruiPresets::instance()->getOrCreatePhongShaderSet());
-    config->descriptorConfigurator = vsg::DescriptorConfigurator::create();
-    config->descriptorConfigurator->shaderSet = VSGVruiPresets::instance()->getOrCreatePhongShaderSet();
+    config = vsg::GraphicsPipelineConfigurator::create(createFlatShadedShaderSet());
+
     auto options = VSGVruiPresets::instance()->options;
     if (options) config->assignInheritedState(options->inheritedState);
-
 
     auto indices = vsg::ushortArray::create(6);
 
@@ -101,22 +115,34 @@ void VSGVruiColoredBackground::createGeometry()
     (*coord)[2].set(60.0f, 60.0f, 0.0f);
     (*coord)[1].set(60.0f, 0.0f, 0.0f);
     (*coord)[0].set(0.0f, 0.0f, 0.0f);
+
+    //coord->properties.dataVariance = DYNAMIC_DATA; 
+
     config->assignArray(vertexArrays, "vsg_Vertex", VK_VERTEX_INPUT_RATE_VERTEX, coord);
 
+    config->assignDescriptor("material", material);
 
-    createSharedLists(); // create normals
+    createSharedLists(); // create normals and color
 
+    (*indices).set(0, 0);
+    (*indices).set(1, 1);
+    (*indices).set(2, 2);
+    (*indices).set(3, 0);
+    (*indices).set(4, 2);
+    (*indices).set(5, 3);
 
-
-    auto vid = vsg::VertexIndexDraw::create();
-    vid->assignArrays(vertexArrays);
-    vid->assignIndices(indices);
-    vid->indexCount = static_cast<uint32_t>(indices->valueCount());
-    vid->instanceCount = 1;
+    vertexIndexDraw = vsg::VertexIndexDraw::create();
+    vertexIndexDraw->assignArrays(vertexArrays);
+    vertexIndexDraw->assignIndices(indices);
+    vertexIndexDraw->indexCount = static_cast<uint32_t>(indices->valueCount());
+    vertexIndexDraw->instanceCount = 1;
     //if (!name.empty()) vid->setValue("name", name);
+    vertexIndexDraw->setValue("name", "VSGVruiColoredBackground");
 
+    /*
     bool blending = false;
     bool two_sided = false;
+
     // set the GraphicsPipelineStates to the required values.
     struct SetPipelineStates : public vsg::Visitor
     {
@@ -149,14 +175,18 @@ void VSGVruiColoredBackground::createGeometry()
     else
     {
         config->init();
-    }
+    }*/
+
+    config->init();
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
-    auto stateGroup = vsg::StateGroup::create();
+    stateGroup = vsg::StateGroup::create();
 
-    config->copyTo(stateGroup, VSGVruiPresets::instance()->sharedObjects);
+    //config->copyTo(stateGroup, VSGVruiPresets::instance()->sharedObjects);
 
-    stateGroup->addChild(vid);
+    config->copyTo(stateGroup);
+
+    stateGroup->addChild(vertexIndexDraw);
     /*
     if (material->blending)
     {
@@ -178,7 +208,8 @@ void VSGVruiColoredBackground::createGeometry()
     }
 
     fancyDCS->addChild(node);
-
+    fancyDCS->setValue("name", "VSGVruiColoredBackground");
+    fancyDCS->setValue("coUIElement", background);
     resizeGeometry();
 }
 
@@ -193,18 +224,23 @@ void VSGVruiColoredBackground::setEnabled(bool en)
     {
         if (background->isHighlighted())
         {
-            material->value()= VSGVruiPresets::instance()->materials[coUIElement::ITEM_BACKGROUND_HIGHLIGHTED];
+            material->value()= VSGVruiPresets::instance()->materials[background->getHighlightMaterial()];
         }
         else
         {
-            material->value() = VSGVruiPresets::instance()->materials[coUIElement::ITEM_BACKGROUND_NORMAL];
+            material->value() = VSGVruiPresets::instance()->materials[background->getBackgroundMaterial()];
         }
     }
     else
     {
-        material->value() = VSGVruiPresets::instance()->materials[coUIElement::ITEM_BACKGROUND_DISABLED];
+        material->value() = VSGVruiPresets::instance()->materials[background->getDisableMaterial()];
     }
-    //vruiRendererInterface::the()->addToTransfer(material);
+
+    material->dirty();
+    if (initiallyCompiled && !config->descriptorConfigurator->descriptorSets.empty())
+    {
+        vruiRendererInterface::the()->addToTransfer(cast<DescriptorBuffer>(config->descriptorConfigurator->descriptorSets[1]->descriptors[0])->bufferInfoList[0]);
+    }
 }
 
 void VSGVruiColoredBackground::setHighlighted(bool hl)
@@ -213,17 +249,22 @@ void VSGVruiColoredBackground::setHighlighted(bool hl)
     {
         if (hl)
         {
-            material->value() = VSGVruiPresets::instance()->materials[coUIElement::ITEM_BACKGROUND_HIGHLIGHTED];
+            material->value() = VSGVruiPresets::instance()->materials[background->getHighlightMaterial()];
         }
         else
         {
-            material->value() = VSGVruiPresets::instance()->materials[coUIElement::ITEM_BACKGROUND_NORMAL];
+            material->value() = VSGVruiPresets::instance()->materials[background->getBackgroundMaterial()];
         }
     }
     else
     {
-        material->value() = VSGVruiPresets::instance()->materials[coUIElement::ITEM_BACKGROUND_DISABLED];
+        material->value() = VSGVruiPresets::instance()->materials[background->getDisableMaterial()];
     }
-    //vruiRendererInterface::the()->addToTransfer(material);
+
+    material->dirty();
+    if (initiallyCompiled && !config->descriptorConfigurator->descriptorSets.empty())
+    {
+        vruiRendererInterface::the()->addToTransfer(cast<DescriptorBuffer>(config->descriptorConfigurator->descriptorSets[1]->descriptors[0])->bufferInfoList[0]);
+    }
 }
 }

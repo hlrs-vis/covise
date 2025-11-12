@@ -39,6 +39,7 @@
 #include "trackingbody.h"
 #include "input.h"
 #include <vsg/ui/KeyEvent.h>
+#include <vsg/app/WindowTraits.h>
 
 using namespace vive;
 
@@ -168,6 +169,9 @@ void vvMousePointer::handleEvent(vsg::PointerEvent& pointerEvent, bool queue)
     {
         mouseX = (float)me->x;
         mouseY = (float)me->y;
+
+       /* if (vv->debugLevel(4))
+            std::cerr << "Mouse position on screen: x --> " << mouseX << " y--> " << mouseY << std::endl;*/
     }
     /*
     switch(type)
@@ -226,14 +230,18 @@ vvMousePointer::update()
 
     static int oldWidth = -1, oldHeight = -1;
     int currentW, currentH;
- /*   const osg::GraphicsContext::Traits* traits = NULL;
+
+    // vsg::WindowTraits only used for creating windows, width & height
+    // do not change dynamically, VkExtent2D is used
+    vsg::ref_ptr<vsg::Window> window;
+
     if (vvConfig::instance()->windows[0].window)
-        traits = vvConfig::instance()->windows[0].window->getTraits();
-    if (!traits)
+        window = vvConfig::instance()->windows[0].window;
+    if (!window)
         return;
 
-    currentW = traits->width;
-    currentH = traits->height;
+    currentW = window->extent2D().width;
+    currentH = window->extent2D().height;
     if (oldWidth != currentW || oldHeight != currentH)
     {
         vvConfig::instance()->windows[0].sx = currentW;
@@ -259,7 +267,8 @@ vvMousePointer::update()
     // but physical size might have been adjusted, if aspect ratio changed
     width = vvConfig::instance()->screens[0].hsize;
     height = vvConfig::instance()->screens[0].vsize;
-    if(vvConfig::instance()->channels[0].stereoMode == osg::DisplaySettings::HORIZONTAL_SPLIT)
+    // stereo mode
+    /*if(vvConfig::instance()->channels[0].stereoMode == osg::DisplaySettings::HORIZONTAL_SPLIT)
     {
         mx *=2;
         if(mx > xres)
@@ -270,63 +279,66 @@ vvMousePointer::update()
         my *=2;
         if(my > yres)
             my -= yres;
-    }
+    }*/
 
-    vsg::vec3 mouse2D;
-    vsg::vec3 mouse3D;
+    vsg::dvec3 mouse2D;
+    vsg::dvec3 mouse3D;
     vsg::dmat4 transMat;
 
     mouse2D[0] = ((mx - (xres / 2.0)) / xres) * width;
-    if(mouse2D[0] > width/2.0) // work around for twho viewports in one window
+    if(mouse2D[0] > width/2.0) // work around for two viewports in one window
     {
         mouse2D[0] -= width;
     }
     mouse2D[1] = 0;
-    mouse2D[2] = (my / yres - (0.5)) * height;
-    if(mouse2D[2] > height/2.0)// work around for twho viewports in one window
+    mouse2D[2] = - (my / yres - (0.5)) * height; // NDC origin in Vulkan at the top left corner, 
+                                                 // x points right, y points down
+    if(mouse2D[2] > height/2.0)// work around for two viewports in one window
     {
         mouse2D[2] -= height;
     }
 
-    MAKE_EULER_MAT(transMat, screenH, screenP, screenR);
-    mouse3D = transMat.preMult(mouse2D);
-    transMat= vsg::translate(screenX, screenY, screenZ);
-    mouse3D = transMat.preMult(mouse3D);
-    transMat = rotate(vvConfig::instance()->worldAngle(), osg::X_AXIS);
-    mouse3D = transMat.preMult(mouse3D);
+    transMat = makeEulerMat(screenH, screenP, screenR);
+    mouse3D = transMat * mouse2D;
+    transMat = vsg::translate(screenX, screenY, screenZ);
+    mouse3D = transMat * mouse3D;
+    transMat = vsg::rotate(vvConfig::instance()->worldAngle(), vsg::vec3(1.0f, 0.0f, 0.0f));
+    mouse3D = transMat * mouse3D;
+
     //cerr << mx << " , " << my << endl;
     //cerr << " 3D:" << mouse3D[0] << " , " << mouse3D[1] << " , " << mouse3D[2] << " , "<< endl;
     //cerr << " 2D:" << mouse2D[0] << " , " << mouse2D[1] << " , " << mouse2D[2] << " , "<< endl;
 
-    vsg::vec3 YPos(0, 1, 0);
-    vsg::vec3 direction;
-    vsg::vec3 viewerPos = vvViewer::instance()->getViewerPos();
+    vsg::dvec3 YPos(0, 1, 0);
+    vsg::dvec3 direction;
+    vsg::dvec3 viewerPos = vvViewer::instance()->getViewerPos();
 
     // if orthographic projection: project viewerPos onto screenplane-normal passing through mouse3D
     if (vvConfig::instance()->orthographic())
     {
-        vsg::vec3 normal;
-        MAKE_EULER_MAT(transMat, screenH, screenP, screenR);
-        normal = transMat.preMult(vsg::vec3(0.0, 1.0, 0.0));
-        transMat = rotate(vvConfig::instance()->worldAngle(), osg::X_AXIS);
-        normal = transMat.preMult(normal);
-        normal.normalize();
-        vsg::vec3 projectionOntoNormal = normal * (normal * (viewerPos - mouse3D));
+        vsg::dvec3 normal;
+        transMat = makeEulerMat(screenH, screenP, screenR);
+        normal = transMat * vsg::dvec3(0.0, 1.0, 0.0);
+        transMat = rotate(vvConfig::instance()->worldAngle(), vsg::vec3(1.0f, 0.0f, 0.0f));
+        normal = normalize(transMat * normal);
+        vsg::dvec3 projectionOntoNormal = normal * (normal * (viewerPos - mouse3D));
         viewerPos = mouse3D + projectionOntoNormal;
     }
 
-    direction = mouse3D - viewerPos;
-    direction.normalize();
+    direction = normalize(mouse3D - viewerPos);
     vsg::dmat4 mat;
-    mat = rotate(YPos, direction);
-    mat.rotate(osg::inDegrees(90.0), vsg::vec3(0.0, 1.0, 0.0));
-    vsg::dmat4 tmp;
-    tmp= vsg::translate(direction[0] * wc, direction[1] * wc, direction[2] * wc);
-    mat.postMult(tmp);
+    vsg::dquat quat;
+    quat.set(YPos, direction);
+    mat = vsg::rotate(quat);
+    // mat.rotate(osg::inDegrees(90.0), vsg::vec3(0.0, 1.0, 0.0));
+    // mat = mat * vsg::rotate(vsg::radians(90.0), vsg::dvec3(0.0, 1.0, 0.0));
 
-    tmp= vsg::translate(viewerPos[0], viewerPos[1], viewerPos[2]);
-    mat.postMult(tmp);
-    body->setMat(mat);*/
+    vsg::dmat4 tmp;
+    tmp = vsg::translate(direction[0] * wc, direction[1] * wc, direction[2] * wc);
+    mat = tmp * mat;
+    tmp = vsg::translate(viewerPos[0], viewerPos[1], viewerPos[2]);
+    mat = tmp * mat;
+    body->setMat(mat);
 
     //cerr << " VP:" << viewerPos[0] << " , "<< viewerPos[1] << " , "<< viewerPos[2] << " , "<< endl;
     //mouse3D /=10; // umrechnung in cm (scheisse!!!!!!)

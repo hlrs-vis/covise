@@ -60,7 +60,7 @@ void VSGVruiTransformNode::setRotation(float x, float y, float z, float angle)
 {
 
     
-    dmat4 mat = rotate(double(angle), double(x), double(y), double(z));
+    dmat4 mat = rotate(radians(double(angle)), double(x), double(y), double(z));
     for (int i = 0; i < 3; i++)
         for (int j = 0; j < 3; j++)
             transform->matrix[i][j] = mat[i][j];

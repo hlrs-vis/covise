@@ -13,6 +13,7 @@
 
 #include <vsg/io/Options.h>
 #include <vsg/io/read.h>
+#include <vsg/io/write.h>
 #include <vsg/state/material.h>
 #include <vsgXchange/all.h>
 
@@ -63,6 +64,8 @@ VSGVruiPresets::VSGVruiPresets()
 
     setColorFromConfig("COVER.Background", coUIElement::BACKGROUND, vsg::vec4(9.f, 0.f, 0.f, 1.f));
     options = vsg::Options::create();
+
+    // options->add(vsgXchange::all::create());
     auto fontName = coCoviseConfig::getEntry("value", "COVER.VRUI.Font", "times.vsgb");
 
     fontFile = vruiRendererInterface::the()->getFont(fontName);
@@ -72,6 +75,14 @@ VSGVruiPresets::VSGVruiPresets()
     {
         std::cout << "Failed to read font : " << fontFileName << std::endl;
     }
+
+    std::string font2FileName = vruiRendererInterface::the()->getFont("NotoSans-Regular.vsgb");
+    font2 = vsg::read_cast<vsg::Font>(font2FileName, options);
+    if (!font2) 
+    {
+        std::cout << "Failed to read font : " << font2FileName << std::endl;
+    }
+
     sharedObjects = vsg::SharedObjects::create();
 }
 
