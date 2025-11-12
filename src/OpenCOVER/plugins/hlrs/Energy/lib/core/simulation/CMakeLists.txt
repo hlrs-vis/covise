@@ -6,6 +6,7 @@ set(SOURCES
 
 set(HEADERS
     heating.h
+    unitmap.h
     simulation.h
     power.h
     object.h

@@ -1,4 +1,5 @@
 #include "simulation.h"
+#include "unitmap.h"
 
 #include <algorithm>
 #include <cmath>

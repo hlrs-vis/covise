@@ -8,6 +8,7 @@
 #include <cover/ui/Menu.h>
 #include <lib/core/interfaces/ISystem.h>
 #include <lib/core/simulation/simulation.h>
+#include <lib/core/simulation/unitmap.h>
 #include <lib/core/simulation/power.h>
 #include <lib/core/utils/osgUtils.h>
 #include <utils/read/csv/csv.h>

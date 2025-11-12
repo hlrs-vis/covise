@@ -4,6 +4,7 @@
 #include <lib/core/interfaces/IEnergyGrid.h>
 #include <lib/core/interfaces/ISystem.h>
 #include <lib/core/simulation/simulation.h>
+#include <lib/core/simulation/unitmap.h>
 
 // COVER
 #include <PluginUtil/ColorBar.h>
@@ -248,7 +249,7 @@ private:
     opencover::ui::Menu *m_powerGridMenu;
     opencover::ui::Button *m_updatePowerGridSelection;
 
-    CityGMLSystem *m_cityGMLSystem;
+    CityGMLSystem* m_cityGMLSystem;
     std::unique_ptr<opencover::config::Array<bool>> m_powerGridSelectionPtr;
     std::unique_ptr<opencover::CoverColorBar> m_vmPuColorMap;
 
