@@ -3,8 +3,6 @@
 #include <algorithm>
 #include <cmath>
 
-#include "unitmap.h"
-
 namespace {
 std::pair<double, double> robustMinMax(const std::vector<double> &values,
                                        double trimPercent = 0.01) {
