@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "object.h"
+#include "datastorage.h"
 
 namespace core::simulation {
 
@@ -28,22 +29,12 @@ class Simulation {
  public:
   Simulation() = default;
 
-  void addData(const std::string &key, const std::vector<double> &value) {
-    m_data[key] = value;
-  }
-
-  void addData(const std::string &key, const double &value) {
-    m_data[key].push_back(value);
-  }
-
   const auto &ScalarProp(const std::string &key) const {
     auto it = m_scalarProperties.find(key);
     if (it == m_scalarProperties.end())
       throw std::out_of_range("Key not found Simulation: " + key);
     return it->second;
   }
-
-  auto &getData() { return m_data; }
 
   auto getMax(const std::string &key) const { return ScalarProp(key).max; }
   auto getMin(const std::string &key) const { return ScalarProp(key).min; }
@@ -58,6 +49,7 @@ class Simulation {
   auto getPreferredColorMap(const std::string &key) const {
     return ScalarProp(key).preferredColorMap;
   }
+  auto getDataStorage() {return m_dataStorage; }
   const auto &getScalarProperties() const { return m_scalarProperties; }
   auto &getScalarProperties() { return m_scalarProperties; }
 
@@ -113,7 +105,6 @@ class Simulation {
   virtual void setPreferredColorMap(const std::string &key);
 
   ScalarProperties m_scalarProperties;
-  // general meta data for the simulation
-  Data m_data;
+  DataStorage m_dataStorage;
 };
 }  // namespace core::simulation

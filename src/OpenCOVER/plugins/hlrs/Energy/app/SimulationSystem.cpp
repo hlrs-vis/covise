@@ -1549,7 +1549,7 @@ void SimulationSystem::readSimulationDataStream(
         addDataToMap(core::simulation::ObjectType::Producer, name, valName, val, sim);
       } else {
         if (val == 0) continue;
-        sim->addData(col, val);
+        sim->getDataStorage().addData(col, val);
       }
     }
   }
