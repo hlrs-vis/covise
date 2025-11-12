@@ -11,6 +11,6 @@ class IEnergyGrid : public IDrawable,
                     public ITimedependable,
                     public IUpdateable {
  public:
-  ~IEnergyGrid() = default;
+  virtual ~IEnergyGrid() = default;
 };
 }  // namespace core::interface
