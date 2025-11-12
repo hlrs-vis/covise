@@ -37,4 +37,31 @@ class UnitMap {
   std::unordered_map<std::string, std::string> unit_map;
 };
 
+const core::simulation::UnitMap UNIT_MAP = core::simulation::UnitMap(
+    {{{"kWh", "leistung", "power"}, "kWh"},
+     {{"kW"}, "kW"},
+     {{"q_dem_w", "waermestromdichte"}, "W/m2"},
+     {{"delta_q", "aenderung_stromdichte"}, "W/m2"},
+     {{"mass_flow", "massenstrom"}, "kg/s"},
+     {{"celcius", "temp", "inlet_temp", "outlet_temp"}, "°C"},
+     {{"electricity_selling_price"}, "Cent/kWh"},
+     {{"heating_cost"}, "€"},
+     {{"voltage", "volt"}, "V"},
+     {{"current", "ampere"}, "A"},
+     {{"i_ka"}, "kA"},
+     {{"resistance", "ohm"}, "Ω"},
+     {{"power_factor", "cos_phi"}, ""},
+     {{"efficiency", "eta"}, ""},
+     {{"reactive_power", "q"}, "var"},
+     {{"active_power", "p"}, "W"},
+     {{"apparent_power", "s"}, "VA"},
+     {{"vm_pu"}, "pu (voltage per unit)"},
+     {{"q_mvar"}, "Mvar"},
+     {{"loading_percent", "percent"}, "%"},
+     {{"res_mw"}, "MW"}});
+
+const core::simulation::UnitMap COLORMAP_MAP =
+    core::simulation::UnitMap({{{"res_mw"}, "Power_Grey"},
+                               {{"loading_percent"}, "Utilization"},
+                               {{"vm_pu"}, "Voltage"}});
 }  // namespace core::simulation
