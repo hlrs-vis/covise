@@ -6,50 +6,20 @@
 #include <string>
 #include <vector>
 
-#include "object.h"
 #include "datastorage.h"
+#include "object.h"
+#include "scalarproperties.h"
 
 namespace core::simulation {
 
 using ObjectMap = std::map<std::string, std::unique_ptr<Object>>;
 using ObjectMapView = std::vector<std::reference_wrapper<ObjectMap>>;
 
-struct ScalarProperty {
-  double min;
-  double max;
-  size_t timesteps;
-  std::string unit;
-  std::string species;
-  std::string preferredColorMap;
-};
-
-typedef std::map<std::string, ScalarProperty> ScalarProperties;
-
 class Simulation {
  public:
   Simulation() = default;
 
-  const auto &ScalarProp(const std::string &key) const {
-    auto it = m_scalarProperties.find(key);
-    if (it == m_scalarProperties.end())
-      throw std::out_of_range("Key not found Simulation: " + key);
-    return it->second;
-  }
-
-  auto getMax(const std::string &key) const { return ScalarProp(key).max; }
-  auto getMin(const std::string &key) const { return ScalarProp(key).min; }
-  auto getMinMax(const std::string &key) const {
-    return std::make_pair(getMin(key), getMax(key));
-  }
-  auto getTimesteps(const std::string &key) const {
-    return ScalarProp(key).timesteps;
-  }
-  auto getSpecies(const std::string &key) const { return ScalarProp(key).species; }
-  auto getUnit(const std::string &key) const { return ScalarProp(key).unit; }
-  auto getPreferredColorMap(const std::string &key) const {
-    return ScalarProp(key).preferredColorMap;
-  }
-  auto getDataStorage() {return m_dataStorage; }
+  auto getDataStorage() { return m_dataStorage; }
   const auto &getScalarProperties() const { return m_scalarProperties; }
   auto &getScalarProperties() { return m_scalarProperties; }
 
@@ -74,7 +44,7 @@ class Simulation {
       setPreferredColorMap(key);
       computeMinMax(key, values, trim);  // 1% trimming
       computeMaxTimestep(key, values);
-      m_scalarProperties[key].species = key;
+      m_scalarProperties.ref()[key].species = key;
     }
   }
 

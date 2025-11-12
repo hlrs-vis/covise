@@ -65,11 +65,11 @@ class PowerSimulationUI : public BaseSimulationUI<T> {
   }
 
   float min(const std::string& species) override {
-    return powerSimulationPtr()->getMin(species);
+    return powerSimulationPtr()->getScalarProperties().getMin(species);
   }
 
   float max(const std::string& species) override {
-    return powerSimulationPtr()->getMax(species);
+    return powerSimulationPtr()->getScalarProperties().getMax(species);
   }
 
   void updateTimestepColors(const opencover::ColorMap& colorMap) override {

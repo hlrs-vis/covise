@@ -1,8 +1,9 @@
 #include "simulation.h"
-#include "unitmap.h"
 
 #include <algorithm>
 #include <cmath>
+
+#include "unitmap.h"
 
 namespace {
 std::pair<double, double> robustMinMax(const std::vector<double> &values,
@@ -24,21 +25,21 @@ void Simulation::computeMinMax(const std::string &key,
                                const std::vector<double> &values,
                                const double &trimPercent) {
   auto [min_elem, max_elem] = robustMinMax(values, trimPercent);
-  m_scalarProperties[key].min = min_elem;
-  m_scalarProperties[key].max = max_elem;
+  m_scalarProperties.ref()[key].min = min_elem;
+  m_scalarProperties.ref()[key].max = max_elem;
 }
 
 void Simulation::computeMaxTimestep(const std::string &key,
                                     const std::vector<double> &values) {
-  m_scalarProperties[key].timesteps = values.size();
+  m_scalarProperties.ref()[key].timesteps = values.size();
 }
 
 void Simulation::setUnit(const std::string &key) {
-  m_scalarProperties[key].unit = UNIT_MAP[key];
+  m_scalarProperties.ref()[key].unit = UNIT_MAP[key];
 }
 
 void Simulation::setPreferredColorMap(const std::string &key) {
-  m_scalarProperties[key].preferredColorMap = COLORMAP_MAP[key];
+  m_scalarProperties.ref()[key].preferredColorMap = COLORMAP_MAP[key];
 }
 
 }  // namespace core::simulation

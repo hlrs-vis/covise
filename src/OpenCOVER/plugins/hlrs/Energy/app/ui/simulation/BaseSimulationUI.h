@@ -67,76 +67,64 @@ class BaseSimulationUI {
   static_assert(std::is_base_of_v<core::interface::ITimedependable, T>,
                 "T must be derived from ITimeDependable");
 
-public:
-    BaseSimulationUI(std::shared_ptr<Simulation> sim, std::shared_ptr<T> parent)
-        : m_simulation(sim)
-        , m_parent(parent)
-    {
-        if (auto simulation = m_simulation.lock())
-            simulation->computeParameters();
-    }
+ public:
+  BaseSimulationUI(std::shared_ptr<Simulation> sim, std::shared_ptr<T> parent)
+      : m_simulation(sim), m_parent(parent) {
+    if (auto simulation = m_simulation.lock()) simulation->computeParameters();
+  }
 
-    ~BaseSimulationUI() = default;
-    BaseSimulationUI(const BaseSimulationUI &) = delete;
-    BaseSimulationUI &operator=(const BaseSimulationUI &) = delete;
+  ~BaseSimulationUI() = default;
+  BaseSimulationUI(const BaseSimulationUI &) = delete;
+  BaseSimulationUI &operator=(const BaseSimulationUI &) = delete;
 
-    virtual void updateTime(int timestep) = 0;
-    // TODO: make these const
-    virtual float min(const std::string &species) = 0;
-    virtual float max(const std::string &species) = 0;
-    virtual void updateTimestepColors(const opencover::ColorMap &map) = 0;
+  virtual void updateTime(int timestep) = 0;
+  // TODO: make these const
+  virtual float min(const std::string &species) = 0;
+  virtual float max(const std::string &species) = 0;
+  virtual void updateTimestepColors(const opencover::ColorMap &map) = 0;
 
-protected:
-    void updateEnergyGridColors(int timestep, std::shared_ptr<EnergyGrid> energyGrid,
-        const ObjectMapView &objectMapView)
-    {
-        for (const auto &objectMap : objectMapView)
-        {
-            for (const auto &[nameOfConsumer, consumer] : objectMap.get())
-            {
-                const auto &name = consumer->getName();
-                auto colorIt = this->m_colors.find(name);
-                if (colorIt == this->m_colors.end())
-                    continue;
+ protected:
+  void updateEnergyGridColors(int timestep, std::shared_ptr<EnergyGrid> energyGrid,
+                              const ObjectMapView &objectMapView) {
+    for (const auto &objectMap : objectMapView) {
+      for (const auto &[nameOfConsumer, consumer] : objectMap.get()) {
+        const auto &name = consumer->getName();
+        auto colorIt = this->m_colors.find(name);
+        if (colorIt == this->m_colors.end()) continue;
 
-                const auto &colors = colorIt->second;
-                if (timestep >= colors.size())
-                    continue;
+        const auto &colors = colorIt->second;
+        if (timestep >= colors.size()) continue;
 
-                const auto &color = colors[timestep];
-                if (auto point = energyGrid->getPointByName(name))
-                {
-                    point->updateColor(color);
-                }
-            }
+        const auto &color = colors[timestep];
+        if (auto point = energyGrid->getPointByName(name)) {
+          point->updateColor(color);
         }
+      }
     }
+  }
 
-    const opencover::ColorMap *m_colorMap = nullptr;
-    void computeColors(const opencover::ColorMap &colorMap,
-        const ObjectMapView &objectMapView)
-    {
+  const opencover::ColorMap *m_colorMap = nullptr;
+  void computeColors(const opencover::ColorMap &colorMap,
+                     const ObjectMapView &objectMapView) {
         m_colorMap = &colorMap;
         double minKeyVal = 1000.0, maxKeyVal = 1.0;
 
-        try
-        {
-            auto simulation = m_simulation.lock();
-            if (!simulation)
-            {
-                std::cerr << "Simulation is not available for computation of colors."
-                          << std::endl;
-                return;
-            }
-
-            minKeyVal = simulation->getMin(colorMap.species());
-            maxKeyVal = simulation->getMax(colorMap.species());
-        }
-        catch (const std::out_of_range &e)
-        {
-            std::cerr << "Key not found in minMaxValues: " << colorMap.species()
+        try {
+          auto simulation = m_simulation.lock();
+          if (!simulation) {
+            std::cerr << "Simulation is not available for computation of colors."
                       << std::endl;
             return;
+          }
+
+          const auto &properties = simulation->getScalarProperties();
+
+          minKeyVal = properties.getMin(colorMap.species());
+          maxKeyVal = properties.getMax(colorMap.species());
+        } catch (const std::out_of_range &e) {
+          std::cerr << "Key not found in minMaxValues: " << colorMap.species()
+                    << std::endl;
+          return;
         }
 
         for (const auto &objectMap : objectMapView)

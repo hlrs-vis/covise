@@ -548,10 +548,11 @@ void SimulationSystem::applySimulationDataToPowerGrid(const std::string &simPath
   powerGrid.simUI =
       std::make_unique<PowerSimulationUI<IEnergyGrid>>(sim, powerGrid.grid);
   powerGrid.sim = std::move(sim);
+  const auto &properties = powerGrid.sim->getScalarProperties();
 
   if (m_cityGMLSystem) {
-    const auto &[min, max] = powerGrid.sim->getMinMax("res_mw");
-    const auto &preferredColorMap = powerGrid.sim->getPreferredColorMap("res_mw");
+    const auto &[min, max] = properties.getMinMax("res_mw");
+    const auto &preferredColorMap = properties.getPreferredColorMap("res_mw");
     m_cityGMLSystem->updateInfluxColorMaps(min, max, powerGrid.sim,
                                            preferredColorMap, "res_mw", "MW");
   }
@@ -570,7 +571,7 @@ void SimulationSystem::applySimulationDataToPowerGrid(const std::string &simPath
     m_vmPuColorMap->setName("VmPu");
   }
   if (m_vmPuColorMap) {
-    const auto &[min, max] = powerGrid.sim->getMinMax("vm_pu");
+    const auto &[min, max] = properties.getMinMax("vm_pu");
     m_vmPuColorMap->setMinMax(min, max);
   }
 
@@ -1557,6 +1558,10 @@ void SimulationSystem::readSimulationDataStream(
   heatingGrid.simUI =
       std::make_unique<HeatingSimulationUI<IEnergyGrid>>(sim, heatingGrid.grid);
   heatingGrid.sim = std::move(sim);
+
+  auto timesteps = heatingGrid.sim->getScalarProperties().getTimesteps("mass_flow");
+  std::cout << "Number of timesteps: " << timesteps << std::endl;
+  setAnimationTimesteps(timesteps, heatingGrid.group);
 }
 
 void SimulationSystem::applySimulationDataToHeatingGrid() {

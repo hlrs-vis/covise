@@ -8,6 +8,7 @@ set(HEADERS
     heating.h
     unitmap.h
     datastorage.h
+    scalarproperties.h
     simulation.h
     power.h
     object.h

@@ -49,11 +49,11 @@ class HeatingSimulationUI : public BaseSimulationUI<T> {
   }
 
   float min(const std::string& species) override {
-    return this->heatingSimulationPtr()->getMin(species);
+    return this->heatingSimulationPtr()->getScalarProperties().getMin(species);
   }
 
   float max(const std::string& species) override {
-    return this->heatingSimulationPtr()->getMax(species);
+    return this->heatingSimulationPtr()->getScalarProperties().getMax(species);
   }
 
   void updateTimestepColors(const opencover::ColorMap& colorMap) override {
