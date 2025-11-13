@@ -14,6 +14,7 @@
 #include <osgViewer/Viewer>
 #include <osgViewer/Renderer>
 #include <osgText/Text>
+#include <osg/NodeVisitor>
 
 #include <lamure/ren/model_database.h>
 #include <lamure/ren/cut_database.h>
@@ -258,72 +259,78 @@ struct InitDrawCallback : public osg::Drawable::DrawCallback
             const auto &settings = _plugin->getSettings();
             const auto &modelInfo = _plugin->getModelInfo();
             const auto &models = settings.models;
-            std::cout << "[Lamure] Dump parents (" << models.size() << " models)" << std::endl;
+
+            auto describeNode = [](osg::Node *node) {
+                if (!node)
+                    return std::string("<null>");
+                std::string type = node->className();
+                if (dynamic_cast<osg::MatrixTransform *>(node))
+                    type = "MatrixTransform";
+                else if (dynamic_cast<osg::Group *>(node))
+                    type = "Group";
+                std::ostringstream out;
+                out << type << " '" << node->getName() << "'";
+                return out.str();
+            };
+
+            std::cout << "[Lamure] Dump (models=" << models.size() << ")" << std::endl;
             for (std::size_t idx = 0; idx < models.size(); ++idx) {
                 const auto &modelPath = models[idx];
                 std::cout << "[" << idx << "] " << modelPath << std::endl;
+
                 auto itNode = _plugin->m_model_nodes.find(modelPath);
-                if (itNode == _plugin->m_model_nodes.end()) {
-                    std::cout << " node missing" << std::endl << std::endl;
-                    continue;
-                }
-                osg::Node *node = itNode->second.get();
+                osg::Node *node = (itNode != _plugin->m_model_nodes.end()) ? itNode->second.get() : nullptr;
                 if (!node) {
-                    std::cout << " node expired" << std::endl << std::endl;
+                    std::cout << "  node: <missing>" << std::endl << std::endl;
                     continue;
                 }
-                bool configVisible = idx < modelInfo.model_visible.size() ? modelInfo.model_visible[idx] : true;
-                std::cout << " model_visible=" << (configVisible ? "on" : "off") << std::endl;
+
+                const bool visible = idx < modelInfo.model_visible.size()
+                                         ? modelInfo.model_visible[idx]
+                                         : true;
+                std::cout << "  visible: " << (visible ? "yes" : "no") << std::endl;
+
                 auto itSource = _plugin->m_model_source_keys.find(modelPath);
                 if (itSource != _plugin->m_model_source_keys.end()) {
-                    std::cout << " source=" << (itSource->second.empty() ? "<menu>" : itSource->second) << std::endl;
+                    std::cout << "  source: " << (itSource->second.empty() ? "<menu>" : itSource->second) << std::endl;
                 }
+
+                if (idx < modelInfo.model_transformations.size()) {
+                    std::cout << "  model_matrix:\n" << modelInfo.model_transformations[idx] << std::endl;
+                } else {
+                    std::cout << "  model_matrix: <unavailable>" << std::endl;
+                }
+
                 const unsigned parentCount = node->getNumParents();
-                std::cout << " parents=" << parentCount << std::endl;
+                std::cout << "  parents (" << parentCount << "):" << std::endl;
                 if (parentCount == 0) {
-                    std::cout << std::endl;
+                    std::cout << "    - <none>" << std::endl << std::endl;
                     continue;
                 }
+
                 for (unsigned p = 0; p < parentCount; ++p) {
                     osg::Node *parent = node->getParent(p);
                     if (!parent) {
-                        std::cout << " parent[" << p << "] = null" << std::endl;
+                        std::cout << "    - <null>" << std::endl;
                         continue;
                     }
                     unsigned childCount = 0;
                     if (auto *parentGroup = dynamic_cast<osg::Group *>(parent)) {
                         childCount = parentGroup->getNumChildren();
                     }
-                    std::cout << " parent[" << p << "]:" << std::endl;
-                    std::cout << "  name='" << parent->getName() << "'" << std::endl;
-                    std::cout << "  mask=0x" << std::hex << parent->getNodeMask() << std::dec << std::endl;
-                    std::cout << "  children=" << childCount << std::endl;
-
-                    std::vector<std::pair<const osg::Node*, unsigned>> stack;
-                    stack.emplace_back(parent, 1);
-                    while (!stack.empty()) {
-                        auto [cur, depth] = stack.back();
-                        stack.pop_back();
-                        const unsigned depthCap = 32;
-                        if (depth > depthCap) continue;
-                        const auto mask = cur ? cur->getNodeMask() : 0u;
-                        const std::string curName = cur ? cur->getName() : std::string("<null>");
-                        std::cout << "  depth=" << depth << " name='" << curName << "'" << std::endl;
-                        std::cout << "   mask=0x" << std::hex << mask << std::dec << std::endl;
-                        std::cout << "   parents=" << (cur ? cur->getNumParents() : 0) << std::endl;
-                        if (!cur) continue;
-                        for (unsigned pp = 0; pp < cur->getNumParents(); ++pp) {
-                            stack.emplace_back(cur->getParent(pp), depth + 1);
-                        }
-                    }
-                    std::cout << std::endl;
+                    std::cout << "    - " << describeNode(parent)
+                              << " | children=" << childCount
+                              << " | mask=0x" << std::hex << parent->getNodeMask() << std::dec
+                              << std::endl;
                 }
+
                 std::cout << std::endl;
             }
             if (dumpButton) {
                 dumpButton->setState(false);
             }
         }
+
 
         if (drawable)
             drawable->drawImplementation(renderInfo);
@@ -784,8 +791,7 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
         
         // Use active camera viewport dimensions
         const osg::Viewport* osg_viewport = currentCamera->getViewport();
-        const auto* traits = (currentCamera->getGraphicsContext()) ? currentCamera->getGraphicsContext()->getTraits()
-                                                                   : nullptr;
+        const auto* traits = (currentCamera->getGraphicsContext()) ? currentCamera->getGraphicsContext()->getTraits() : nullptr;
         const double vpW = osg_viewport ? osg_viewport->width() : (traits ? traits->width : 1.0);
         const double vpH = osg_viewport ? osg_viewport->height() : (traits ? traits->height : 1.0);
         const scm::math::mat4d viewport_scale = scm::math::make_scale(vpW * 0.5, vpH * 0.5, 0.5);

@@ -278,8 +278,8 @@ public:
     RenderInfo& getRenderInfo() { return m_render_info; }
     Trackball&  getTrackball()  { return m_trackball; }
     bool initialized = false;
-    bool getProvValid() const { return prov_valid; }
     lamure::ren::Data_Provenance& getDataProvenance() { return m_data_provenance; }
+    bool isResetInProgress() const noexcept { return m_reset_in_progress; }
 
     bool writeSettingsJson(const Lamure::Settings& s, const std::string& outPath);
     bool rendering_{false};
@@ -289,36 +289,26 @@ public:
     void addMarkMs(MarkField f, double ms) noexcept;
     const FrameMarks& getFrameMarks() const noexcept { return m_marks; }
 
-    bool m_bootstrapLoad = false;
-    std::vector<osg::ref_ptr<osg::Group>> m_modelRoots;
-    std::unordered_map<std::string,uint16_t> m_pathToIndex;
-
     void setModelVisible(uint16_t idx, bool v);
     bool isModelVisible(uint16_t idx) const;
 
-    struct PendingModel {
-        std::string path;
-        uint16_t mid;
-    };
-    std::deque<PendingModel> m_pending;
     std::unordered_map<std::string,uint16_t> m_model_idx;
     std::map<std::string, osg::ref_ptr<osg::Group>> m_model_nodes;
-    osg::ref_ptr<osg::Group> m_pluginRootGroup;
 
     struct SceneNodes {
         osg::ref_ptr<osg::Group> root;
         osg::ref_ptr<osg::MatrixTransform> config;
         osg::ref_ptr<osg::MatrixTransform> bvh;
-        osg::ref_ptr<osg::Group> payload;
     };
     std::unordered_map<std::string, SceneNodes> m_scene_nodes;
 
     osg::ref_ptr<osg::Group> getGroup() { return m_lamure_grp; }
 
-    std::unordered_map<std::string, osg::observer_ptr<osg::Node>> m_pendingTransformPrint;
+    std::unordered_map<std::string, osg::observer_ptr<osg::Node>> m_pendingTransformUpdate;
     std::unordered_map<std::string, scm::math::mat4d> m_vrmlTransforms;
     std::unordered_set<std::string> m_registeredFiles;
     std::unordered_map<std::string, std::string> m_model_source_keys;
+    std::unordered_set<std::string> m_reloaded_files;
 
 private:
     std::vector<std::string> m_files_to_load;
@@ -326,8 +316,6 @@ private:
     int m_frames_to_wait = 0;
 
     static Lamure* plugin;
-
-    bool m_initialized = false;
 
     bool m_first_frame = true;
     bool m_models_from_config = false;
@@ -344,10 +332,6 @@ private:
     lamure::ren::Data_Provenance        m_data_provenance;
     osgViewer::ViewerBase::FrameScheme  rendering_scheme{};
     std::unique_ptr<LamureMeasurement>  m_measurement;
-    std::vector<osg::Vec3>              _path;
-    float                               _speed{1.0f};
-    bool                                measurement_running{false};
-    bool                                prov_valid{false};
     bool                                m_silenceMeasureToggle{false};
     float                               prev_frame_rate_ = 0.0f;
     unsigned int                        prev_vsync_frames_ = 0;
@@ -391,8 +375,6 @@ private:
     bool m_renderer_paused_for_reset{false};
     int  m_post_shutdown_delay{0};
     bool m_did_initial_build{false};
-public:
-    bool isResetInProgress() const noexcept { return m_reset_in_progress; }
 };
 
 inline ScopedMark::~ScopedMark() {
