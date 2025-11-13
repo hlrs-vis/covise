@@ -1481,7 +1481,7 @@ void vvSceneGraph::boundingBoxToMatrices(const vsg::dbox &boundingBox,
         vsg::dquat rotation;
         vsg::decompose(m_objectsTransform->matrix, t, rotation, s);
         vsg::dmat4 rotMat;
-        rotMat=rotate(rotation);
+        rotMat = rotate(rotation);
         currentMatrix = rotMat * currentMatrix;
     }
 }
