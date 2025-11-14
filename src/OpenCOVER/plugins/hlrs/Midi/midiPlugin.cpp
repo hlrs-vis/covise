@@ -687,6 +687,45 @@ MidiPlugin::MidiPlugin()
 	lineStateSet->setAttributeAndModes(lineWidth, osg::StateAttribute::ON);
 
 }
+void MidiPlugin::processIncommingMidiEvent(MidiEvent& me)
+{
+	int channel = me.getChannel();
+	if (me.isNoteOn())
+	{
+		for (const auto& f : MidiPlugin::instance()->functions)
+		{
+			if (f->channel == me.getChannel() && f->keyNumber == me.getKeyNumber())
+			{
+				f->handleOn(me);
+			}
+		}
+	}
+	else if (me.isNoteOff())
+	{
+		for (const auto& f : MidiPlugin::instance()->functions)
+		{
+			if (f->channel == me.getChannel() && f->keyNumber == me.getKeyNumber())
+			{
+				f->handleOff(me);
+			}
+		}
+	}
+	else if (me.isController())
+	{
+		handleController(me);
+	}
+	loft->handleEvent(me);
+	if (lTrack[channel]->instrument != nullptr)
+	{
+		lTrack[channel]->handleEvent(me);
+	}
+	else
+	{
+		if (me.getKeyNumber() > 0)
+			fprintf(stderr, "unconfigured instrument channel: %d  key: %02d velo %03d \n", me.getChannel(), me.getKeyNumber(), me.getVelocity());
+
+	}
+}
 MidiPlugin * MidiPlugin::instance()
 {
 	return plugin;
@@ -939,6 +978,9 @@ device_list();
 		FunctionInfo* functionInfo = new FunctionInfo(configName);
 		functions.push_back(functionInfo);
 	}
+
+	loft = new Loft(cover->getObjectsRoot());
+	
 
 	shaderUniforms.push_back(new osg::Uniform("Shader0", (float)(0.0)));
 	shaderUniforms.push_back(new osg::Uniform("Shader1", (float)(0.0)));
@@ -1554,17 +1596,7 @@ void MidiPlugin::preFrame()
 
 				UA_Server_run_iterate(server, true);
 #endif
-
-				if (lTrack[channel]->instrument != nullptr)
-				{
-					lTrack[channel]->handleEvent(me);
-				}
-				else
-				{
-					if (me.getKeyNumber() > 0)
-					fprintf(stderr, "unconfigured instrument channel: %d  key: %02d velo %03d \n", me.getChannel(), me.getKeyNumber(), me.getVelocity());
-
-				}
+                processIncommingMidiEvent(me);
 			}
 		}
 		lTrack[i]->update();
@@ -2289,28 +2321,13 @@ void Track::handleEvent(MidiEvent& me)
 	if (me.isNoteOn())
 	{
 		addNote(new Note(me, this));
-		for (const auto& f : MidiPlugin::instance()->functions)
-		{
-			if (f->channel == me.getChannel() && f->keyNumber == me.getKeyNumber())
-			{
-				f->handleOn(me);
-			}
-		}
 	}
 	else if (me.isNoteOff())
 	{
 		endNote(me);
-		for (const auto& f : MidiPlugin::instance()->functions)
-		{
-			if (f->channel == me.getChannel() && f->keyNumber == me.getKeyNumber())
-            {
-                f->handleOff(me);
-            }
-		}
 	}
 	else if (me.isController())
 	{
-		MidiPlugin::instance()->handleController(me);
 	}
 }
 void Track::store()
@@ -2552,18 +2569,8 @@ void Track::update()
 
 			if(numRead > 0 &&  me.getP0()!=0)
 			{
+				MidiPlugin::instance()->processIncommingMidiEvent(me);
 
-				int channel = me.getChannel();
-				if (MidiPlugin::instance()->lTrack[channel]->instrument != nullptr)
-				{
-					MidiPlugin::instance()->lTrack[channel]->handleEvent(me);
-				}
-				else
-				{
-					if(me.getKeyNumber()>0)
-					fprintf(stderr, "unconfigured instrument channel: %d  key: %02d velo %03d \n", me.getChannel(), me.getKeyNumber(), me.getVelocity());
-
-				}
 			}
 		}
 	}
@@ -2627,7 +2634,7 @@ void Track::setVisible(bool state)
 	}
 }
 
-Note::Note(MidiEvent &me, Track *t)
+Note::Note(const MidiEvent &me, Track *t)
 {
 	event = me;
 	track = t;
@@ -2928,6 +2935,7 @@ void WaveSurface::setType(surfaceType s)
 	}
 }
 osg::ref_ptr <osg::Material >WaveSurface::globalDefaultMaterial = NULL;
+osg::ref_ptr <osg::Material >Loft::globalDefaultMaterial = NULL;
 
 WaveSurface::~WaveSurface()
 {
@@ -3690,3 +3698,155 @@ void MidiPlugin::error(const char *format, ...)
 }
 
 #endif
+
+Loft::Loft(osg::Group* parent)
+{
+	coCoviseConfig::ScopeEntries LoftEntries = coCoviseConfig::getScopeEntries("COVER.Plugin.Midi.Loft", "Instrument");
+	for (const auto& loftEntry : LoftEntries)
+	{
+		const string& n = loftEntry.first;
+
+		std::string configName = "COVER.Plugin.Midi.Loft" + n;
+
+		LoftInstrument* loftInstrument = new LoftInstrument(configName,this);
+		loftInstrument->instrumentNumber = instruments.size();
+		instruments.push_back(loftInstrument);
+	}
+	numSeconds = coCoviseConfig::getInt("COVER.Plugin.Midi.Loft","numSeconds", 30);
+	radius = coCoviseConfig::getFloat("COVER.Plugin.Midi.Loft", "radius", 1.0);
+	zSpacing = coCoviseConfig::getFloat("COVER.Plugin.Midi.Loft", "zSpacing", 1.0);
+
+	geode = new osg::Geode();
+	geode->setName("Loft");
+	parent->addChild(geode.get());
+	osg::Geometry* geom = new osg::Geometry();
+	geode->addDrawable(geom);
+
+	geom->setUseDisplayList(false);
+	geom->setUseVertexBufferObjects(true);
+
+	vert = new osg::Vec3Array;
+	normals = new osg::Vec3Array;
+	texCoord = new osg::Vec2Array;
+    int numInstruments = instruments.size();
+	int numSteps = 40 * numSeconds;
+    float radPerStep = 2.0 * M_PI / (float)numSteps;
+	vert->resize(numSteps * numInstruments);
+	normals->resize(numSteps * numInstruments);
+	texCoord->resize(numSteps * numInstruments);
+	for (int i = 0; i < numInstruments; i++)
+	{
+		for (int j = 0; j < numSteps; j++)
+		{
+			(*vert)[i * numSteps + j] = osg::Vec3(radius * sinf((float)j * radPerStep), instruments[i]->zPosition, radius * cosf((float)j * radPerStep));
+			(*normals)[i * numSteps + j] = osg::Vec3(cosf((float)j * radPerStep), 0, sinf((float)j * radPerStep));
+			(*texCoord)[i * numSteps + j] = osg::Vec2((float)j/(numSteps-1),(float)i/(numInstruments-1));
+		}
+	}
+	osg::DrawElementsUInt* primitives = new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES);
+	primitives->reserve(40 * numSeconds * (instruments.size()-1));
+	geom->addPrimitiveSet(primitives);
+	geom->setVertexArray(vert);
+	geom->setNormalArray(normals);
+	geom->setTexCoordArray(0, texCoord);
+	geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
+
+	osg::StateSet* geoState = geode->getOrCreateStateSet();
+
+	if (globalDefaultMaterial.get() == NULL)
+	{
+		globalDefaultMaterial = new osg::Material;
+		globalDefaultMaterial->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+		globalDefaultMaterial->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.2f, 0.2f, 0.2f, 1.0));
+		globalDefaultMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0f, 1.0f, 1.0f, 1.0));
+		globalDefaultMaterial->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.4f, 0.4f, 0.4f, 1.0));
+		globalDefaultMaterial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
+		globalDefaultMaterial->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
+	}
+
+	geoState->setAttributeAndModes(globalDefaultMaterial.get(), osg::StateAttribute::ON);
+
+	osg::BoundingBox* boundingBox = new osg::BoundingBox(-radius * 2, 0, -radius * 2, radius * 2, zSpacing*instruments.size(), radius * 2);
+	geom->setInitialBound(*boundingBox);
+	parent->addChild(geode);
+}
+
+Loft::~Loft()
+{
+
+}
+
+void Loft::handleEvent(MidiEvent& me)
+{
+    if (timeStamp == 0)
+    {
+        timeStamp = cover->frameTime();
+    }
+
+	for (const auto& i : instruments)
+	{
+		if (i->channel == me.getChannel() && i->keyNumber == me.getKeyNumber())
+		{
+			if (me.isNoteOn())
+			{
+				i->handleOn(me);
+			}
+			else
+			{
+				i->handleOff(me);
+			}
+		}
+	}
+}
+
+LoftInstrument::LoftInstrument(std::string& cn, Loft *l)
+{
+	loft = l;
+	configName = cn;
+	keyNumber = coCoviseConfig::getInt("keyNumber", configName, 0);
+	channel = coCoviseConfig::getInt("channel", configName, 0);
+    zPosition = coCoviseConfig::getFloat("zPosition", configName, -1.0f);
+	if (zPosition == -1.0)
+	{
+		zPosition = loft->zSpacing * loft->instruments.size();
+	}
+    for (auto& e : events)
+    {
+        e.timeStamp = 0.0;
+    }
+}
+
+LoftInstrument::~LoftInstrument()
+{
+
+}
+
+void LoftInstrument::handleOn(MidiEvent& me)
+{
+	double time = cover->frameTime() - loft->timeStamp;
+	int index = int(std::fmod(time, loft->numSeconds));
+	for (int i = lastIndex; i <= index; i++)
+	{
+		if (events[i].timeStamp != 0.0)
+		{
+			//remove triagbles with this vertex
+		}
+		events[i].timeStamp = 0.0;
+	}
+	events[index].timeStamp = time;
+	events[index].me = me;
+	events[index].index = index;
+	events[index].vertexNumber = (instrumentNumber * loft->numSeconds * 40) +index;
+
+	int numInstruments = loft->instruments.size();
+	int numSteps = 40 * loft->numSeconds;
+	float radPerStep = 2.0 * M_PI / (float)numSteps;
+	float radius = loft->radius * me.getVelocity();
+
+	(*(loft->vert))[events[index].vertexNumber] = osg::Vec3(radius * sinf((float)index * radPerStep), loft->instruments[instrumentNumber]->zPosition, radius * cosf((float)index * radPerStep));
+	(*loft->normals)[events[index].vertexNumber] = osg::Vec3(cosf((float)index * radPerStep), 0, sinf((float)index * radPerStep));
+	lastIndex = index;
+}
+void LoftInstrument::handleOff(MidiEvent& me)
+{
+}

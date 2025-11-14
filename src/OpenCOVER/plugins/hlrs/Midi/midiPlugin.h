@@ -74,6 +74,66 @@ using namespace opencover;
 using namespace covise;
 using namespace smf;
 
+class LoftInstrument;
+
+class Loft
+{
+public:
+	Loft(osg::Group* parent);
+	~Loft();
+
+	double timeStamp = 0.0;
+	std::vector<LoftInstrument*>instruments;
+
+	void handleEvent(MidiEvent& me);
+	void update();
+	void show();
+	void hide();
+
+	int numSeconds;
+	float radius;
+	float zSpacing;
+
+	osg::ref_ptr<osg::Geode> geode;
+	osg::Vec3Array* vert;
+	osg::Vec3Array* normals;
+	osg::Vec2Array* texCoord;
+	AudioInStream* stream;
+	static osg::ref_ptr <osg::Material>globalDefaultMaterial;
+	osg::Group* parent;
+};
+
+class EventInfo
+{
+public:
+	EventInfo(MidiEvent& me, double TimeStamp);
+	~EventInfo();
+	MidiEvent me;
+	double timeStamp = 0;
+	int vertexNumber = -1;
+	int index;
+};
+
+class LoftInstrument
+{
+public:
+	LoftInstrument(std::string& configName, Loft* l);
+	~LoftInstrument();
+	Loft* loft;
+	std::vector<EventInfo> events;
+	std::string configName;
+	std::string actionName;
+	std::string typeString;
+	float zPosition = -1;
+	int keyNumber = 0;
+	int channel = 0;
+	void handleOn(MidiEvent& me);
+	void handleOff(MidiEvent& me);
+	void handle(MidiEvent& me);
+	int lastIndex=0;
+	int instrumentNumber;
+};
+
 class ControllerInfo
 {
 public:
@@ -108,7 +168,6 @@ public:
 	void handleOff(MidiEvent& me);
 	void handle(MidiEvent& me);
 };
-
 class UDPMidiMessage
 {
 public:
@@ -291,7 +350,7 @@ class Track;
 class Note
 {
 public:
-    Note(MidiEvent &me, Track *t);
+    Note(const MidiEvent &me, Track *t);
     ~Note();
     Track *track;
     void integrate(double time);
@@ -482,6 +541,7 @@ private:
 
 };
 
+
 class MidiPlugin : public coVRPlugin, public coTUIListener, public ui::Owner
 {
 private:
@@ -495,6 +555,7 @@ private:
 public:
 
 	std::list<FunctionInfo*>functions;
+	Loft* loft;
 	ui::Button* TubeButton = nullptr;
     UDPComm *udp= nullptr;
     static const size_t NUMMidiStreams = 16;
@@ -506,6 +567,7 @@ public:
 	std::list<ControllerInfo *> controllers;
 	std::vector<std::string> streamDeviceNames;
 	std::vector<std::string> midiDeviceNames;
+    void processIncommingMidiEvent(MidiEvent& me);
     static MidiPlugin *instance();
 	void Reset();
 	void store();
