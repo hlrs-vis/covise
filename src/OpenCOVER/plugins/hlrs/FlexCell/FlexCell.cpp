@@ -8,9 +8,7 @@
 #include <iomanip>
 #include <sstream>
 #include <cstdlib>
-
-#include <amqp.h>
-#include <amqp_tcp_socket.h>
+#include <util/threadname.h>
 
 #include <curl/curl.h>
 
@@ -33,19 +31,14 @@ FlexCell::FlexCell()
     }
     m_client->connect();
     
-    // Try SSE first (preferred), then fall back to RabbitMQ
+    // Initialize SSE live streaming
     std::cerr << "FlexCell: Initializing SSE live streaming..." << std::endl;
     initSSE();
-    
-    // Also initialize RabbitMQ as fallback
-    std::cerr << "FlexCell: Initializing RabbitMQ as fallback..." << std::endl;
-    initRabbitMQ();
 }
 
 FlexCell::~FlexCell()
 {
     shutdownSSE();
-    shutdownRabbitMQ();
 }
 
 bool FlexCell::loadRecordedData(const std::string& filepath)
@@ -156,7 +149,12 @@ void FlexCell::updateReplay(double currentTime)
         for (size_t i = 0; i < std::min(currentPos.positions.size(), size_t(7)); ++i)
         {
             // Convert radians to normalized value (0-1) for full rotation
-            vrmlNode->send(i, static_cast<float>(currentPos.positions[i] / (2.0 * M_PI)));
+            auto norm = currentPos.positions[i] / (2.0 * M_PI);
+            if(norm < 0.0) norm += 1.0;
+
+
+            vrmlNode->send(i, static_cast<float>(norm));
+            std::cerr << "axis " << i << " pos: " << norm << std::endl; 
         }
     }
 }
@@ -168,7 +166,7 @@ bool FlexCell::update()
     
     double currentTime = cover->frameTime();
     
-    // Priority: SSE live > RabbitMQ live > replay > dummy client
+    // Priority: SSE live > replay > dummy client
     if (m_sseConnected)
     {
         std::lock_guard<std::mutex> lock(m_rabbitMutex);
@@ -180,32 +178,9 @@ bool FlexCell::update()
             for (size_t i = 0; i < std::min(pos.positions.size(), size_t(7)); ++i)
             {
                 // Positions are in radians, normalize for full rotation
-                vrmlNode->send(i, static_cast<float>(pos.positions[i] / (2.0 * M_PI)));
-            }
-        }
-        if(m_bend)
-        {
-            vrmlNode->bend();
-            m_bend = false;
-        }
-        if(m_variantChanged)
-        {
-            vrmlNode->switchWorkpiece(m_variant);
-            m_variantChanged = false;
-        }
-    }
-    else if (m_rabbitConnected)
-    {
-        std::lock_guard<std::mutex> lock(m_rabbitMutex);
-        auto vrmlNode = *flexCellNodes.begin();
-        if (!m_livePositions.empty())
-        {
-            const auto& pos = m_livePositions.back();  // Always use the latest
-            
-            for (size_t i = 0; i < std::min(pos.positions.size(), size_t(7)); ++i)
-            {
-                // Positions are in radians, normalize for full rotation
-                vrmlNode->send(i, static_cast<float>(pos.positions[i] / (2.0 * M_PI)));
+                auto norm = pos.positions[i] / (2.0 * M_PI);
+                if(norm < 0.0) norm += 1.0;
+                vrmlNode->send(i, static_cast<float>(norm));
             }
         }
         if(m_bend)
@@ -233,260 +208,8 @@ bool FlexCell::update()
             vrmlNode->send(i, static_cast<float>(value / 360));
         }
     }
-    
+
     return true;
-}
-
-void FlexCell::initRabbitMQ()
-{
-    // Read config from environment variables
-    const char* host = std::getenv("RABBITMQ_HOST");
-    const char* portStr = std::getenv("RABBITMQ_PORT");
-    const char* user = std::getenv("RABBITMQ_USER");
-    const char* pass = std::getenv("RABBITMQ_PASS");
-    const char* vhost = std::getenv("RABBITMQ_VHOST");
-    const char* queue = std::getenv("RABBITMQ_QUEUE");
-    
-    std::string hostStr = host ? host : "localhost";
-    int port = portStr ? std::atoi(portStr) : 5672;
-    std::string userStr = user ? user : "guest";
-    std::string passStr = pass ? pass : "guest";
-    std::string vhostStr = vhost ? vhost : "/";
-    std::string queueStr = queue ? queue : "robot.positions";
-    
-    std::cerr << "FlexCell RabbitMQ config:\n"
-              << "  Host:  " << hostStr << ":" << port << "\n"
-              << "  VHost: " << vhostStr << "\n"
-              << "  User:  " << userStr << "\n"
-              << "  Queue: " << queueStr << std::endl;
-    
-    m_rabbitStop = false;
-    m_rabbitThread = std::thread(&FlexCell::rabbitmqConsumerLoop, this);
-}
-
-void FlexCell::shutdownRabbitMQ()
-{
-    m_rabbitStop = true;
-    if (m_rabbitThread.joinable())
-    {
-        m_rabbitThread.join();
-    }
-}
-
-void FlexCell::rabbitmqConsumerLoop()
-{
-    // Read config
-    const char* host = std::getenv("RABBITMQ_HOST");
-    const char* portStr = std::getenv("RABBITMQ_PORT");
-    const char* user = std::getenv("RABBITMQ_USER");
-    const char* pass = std::getenv("RABBITMQ_PASS");
-    const char* vhost = std::getenv("RABBITMQ_VHOST");
-    const char* queue = std::getenv("RABBITMQ_QUEUE");
-    
-    std::string hostStr = host ? host : "localhost";
-    int port = portStr ? std::atoi(portStr) : 5672;
-    std::string userStr = user ? user : "guest";
-    std::string passStr = pass ? pass : "guest";
-    std::string vhostStr = vhost ? vhost : "/";
-    std::string queueStr = queue ? queue : "robot.positions";
-    
-    // Connect to RabbitMQ
-    m_rabbitConn = amqp_new_connection();
-    amqp_socket_t* socket = amqp_tcp_socket_new(m_rabbitConn);
-    if (!socket)
-    {
-        std::cerr << "FlexCell: Failed to create TCP socket" << std::endl;
-        return;
-    }
-    
-    int status = amqp_socket_open(socket, hostStr.c_str(), port);
-    if (status != AMQP_STATUS_OK)
-    {
-        std::cerr << "FlexCell: Failed to open socket: " << amqp_error_string2(status) << std::endl;
-        amqp_destroy_connection(m_rabbitConn);
-        m_rabbitConn = nullptr;
-        return;
-    }
-    
-    amqp_rpc_reply_t reply = amqp_login(m_rabbitConn, vhostStr.c_str(), 0, 131072, 0,
-                                         AMQP_SASL_METHOD_PLAIN,
-                                         userStr.c_str(), passStr.c_str());
-    if (reply.reply_type != AMQP_RESPONSE_NORMAL)
-    {
-        std::cerr << "FlexCell: RabbitMQ login failed" << std::endl;
-        amqp_destroy_connection(m_rabbitConn);
-        m_rabbitConn = nullptr;
-        return;
-    }
-    
-    amqp_channel_open(m_rabbitConn, 1);
-    reply = amqp_get_rpc_reply(m_rabbitConn);
-    if (reply.reply_type != AMQP_RESPONSE_NORMAL)
-    {
-        std::cerr << "FlexCell: Failed to open channel" << std::endl;
-        amqp_connection_close(m_rabbitConn, AMQP_REPLY_SUCCESS);
-        amqp_destroy_connection(m_rabbitConn);
-        m_rabbitConn = nullptr;
-        return;
-    }
-    
-    // Declare queue (durable=1 to match server)
-    amqp_queue_declare(m_rabbitConn, 1, amqp_cstring_bytes(queueStr.c_str()),
-                       0, 1, 0, 0, amqp_empty_table);
-    reply = amqp_get_rpc_reply(m_rabbitConn);
-    if (reply.reply_type != AMQP_RESPONSE_NORMAL)
-    {
-        std::cerr << "FlexCell: Failed to declare queue" << std::endl;
-        amqp_channel_close(m_rabbitConn, 1, AMQP_REPLY_SUCCESS);
-        amqp_connection_close(m_rabbitConn, AMQP_REPLY_SUCCESS);
-        amqp_destroy_connection(m_rabbitConn);
-        m_rabbitConn = nullptr;
-        return;
-    }
-    
-    // Set QoS for minimal latency: prefetch=1 to process messages immediately
-    amqp_basic_qos(m_rabbitConn, 1, 0, 1, 0);
-    reply = amqp_get_rpc_reply(m_rabbitConn);
-    if (reply.reply_type != AMQP_RESPONSE_NORMAL)
-    {
-        std::cerr << "FlexCell: Failed to set QoS" << std::endl;
-    }
-    
-    // Start consuming
-    std::string consumerTag = "flexcell-consumer";
-    amqp_basic_consume(m_rabbitConn, 1, amqp_cstring_bytes(queueStr.c_str()),
-                       amqp_cstring_bytes(consumerTag.c_str()),
-                       0, 0, 0, amqp_empty_table);
-    reply = amqp_get_rpc_reply(m_rabbitConn);
-    if (reply.reply_type != AMQP_RESPONSE_NORMAL)
-    {
-        std::cerr << "FlexCell: Failed to start consumer" << std::endl;
-        amqp_channel_close(m_rabbitConn, 1, AMQP_REPLY_SUCCESS);
-        amqp_connection_close(m_rabbitConn, AMQP_REPLY_SUCCESS);
-        amqp_destroy_connection(m_rabbitConn);
-        m_rabbitConn = nullptr;
-        return;
-    }
-    
-    m_rabbitConnected = true;
-    std::cerr << "FlexCell: Connected to RabbitMQ, consuming from '" << queueStr << "'" << std::endl;
-    
-    uint64_t messageCount = 0;
-    
-    // Consume loop
-    while (!m_rabbitStop.load())
-    {
-        amqp_envelope_t envelope;
-        amqp_maybe_release_buffers(m_rabbitConn);
-        
-        // Short timeout for low latency (100ms) but allow graceful shutdown
-        struct timeval timeout = {0, 100000};  // 100ms timeout
-        reply = amqp_consume_message(m_rabbitConn, &envelope, &timeout, 0);
-        
-        if (reply.reply_type == AMQP_RESPONSE_LIBRARY_EXCEPTION)
-        {
-            if (reply.library_error == AMQP_STATUS_TIMEOUT)
-            {
-                continue;  // Normal timeout
-            }
-            std::cerr << "FlexCell: Consumer error: " << amqp_error_string2(reply.library_error) << std::endl;
-            break;
-        }
-        
-        if (reply.reply_type != AMQP_RESPONSE_NORMAL)
-        {
-            continue;
-        }
-        
-        ++messageCount;
-        
-        // Verify content type
-        bool validContentType = false;
-        if (envelope.message.properties._flags & AMQP_BASIC_CONTENT_TYPE_FLAG)
-        {
-            std::string contentType((char*)envelope.message.properties.content_type.bytes,
-                                   envelope.message.properties.content_type.len);
-            validContentType = (contentType == "application/json");
-        }
-        
-        bool success = false;
-        if (validContentType && envelope.message.body.len > 0)
-        {
-            try
-            {
-                std::string body((char*)envelope.message.body.bytes, envelope.message.body.len);
-                json j = json::parse(body);
-                
-                RobotPosition pos;
-                if(j.contains("bend"))
-                {
-                    m_bend = true;
-                } 
-                if(j.contains("variant") && j["variant"].is_number_integer())
-                {
-                    m_variant = j["variant"].get<int>();
-                    m_variantChanged = true;
-                }
-                if (j.contains("timestampUtc") && j["timestampUtc"].is_string())
-                {
-                    pos.timestampUtc = j["timestampUtc"].get<std::string>();
-                }
-                
-                if (j.contains("positions") && j["positions"].is_array())
-                {
-                    for (const auto& p : j["positions"])
-                    {
-                        if (p.is_number())
-                        {
-                            pos.positions.push_back(p.get<double>());
-                        }
-                    }
-                }
-                
-                // Add to live buffer - keep only latest for minimal latency
-                {
-                    std::lock_guard<std::mutex> lock(m_rabbitMutex);
-                    
-                    // Clear old positions and keep only the latest one
-                    m_livePositions.clear();
-                    m_livePositions.push_back(pos);
-                }
-                
-                if (messageCount % 100 == 0)
-                {
-                    std::cerr << "FlexCell: Received " << messageCount << " messages" << std::endl;
-                }
-                
-                success = true;
-            }
-            catch (const json::parse_error& e)
-            {
-                std::cerr << "FlexCell: JSON parse error: " << e.what() << std::endl;
-            }
-        }
-        
-        // Ack or Nack
-        if (success)
-        {
-            amqp_basic_ack(m_rabbitConn, 1, envelope.delivery_tag, 0);
-        }
-        else
-        {
-            amqp_basic_nack(m_rabbitConn, 1, envelope.delivery_tag, 0, 0);
-        }
-        
-        amqp_destroy_envelope(&envelope);
-    }
-    
-    std::cerr << "FlexCell: Processed " << messageCount << " messages, shutting down..." << std::endl;
-    
-    // Cleanup
-    amqp_basic_cancel(m_rabbitConn, 1, amqp_cstring_bytes(consumerTag.c_str()));
-    amqp_channel_close(m_rabbitConn, 1, AMQP_REPLY_SUCCESS);
-    amqp_connection_close(m_rabbitConn, AMQP_REPLY_SUCCESS);
-    amqp_destroy_connection(m_rabbitConn);
-    m_rabbitConn = nullptr;
-    m_rabbitConnected = false;
 }
 
 void FlexCell::initSSE()
@@ -517,7 +240,7 @@ size_t FlexCell::sseWriteCallback(char* ptr, size_t size, size_t nmemb, void* us
 {
     FlexCell* self = static_cast<FlexCell*>(userdata);
     size_t totalSize = size * nmemb;
-    
+    self->m_sseConnected = true;
     self->m_sseBuffer.append(ptr, totalSize);
     
     // Process complete SSE messages (lines ending with \n\n)
@@ -564,15 +287,19 @@ size_t FlexCell::sseWriteCallback(char* ptr, size_t size, size_t nmemb, void* us
                 
                 RobotPosition pos;
                 
-                if (j.contains("bend"))
+                if (j.contains("partInBendTool") && j["partInBendTool"].is_boolean() && j["partInBendTool"].get<bool>())
                 {
                     self->m_bend = true;
                 }
-                
-                if (j.contains("variant") && j["variant"].is_number_integer())
+
+                if (j.contains("partState") && j["partState"].is_number_integer())
                 {
-                    self->m_variant = j["variant"].get<int>();
+                    self->m_variant = j["partState"].get<int>();
                     self->m_variantChanged = true;
+                }
+                if (j.contains("partAttachedToRobot") && j["partAttachedToRobot"].is_boolean())
+                {
+                    self->m_partAttachedToRobot = j["partAttachedToRobot"].get<bool>();
                 }
                 
                 if (j.contains("timestampUtc") && j["timestampUtc"].is_string())
@@ -606,10 +333,11 @@ size_t FlexCell::sseWriteCallback(char* ptr, size_t size, size_t nmemb, void* us
     }
     
     return totalSize;
-}
+}   
 
 void FlexCell::sseConsumerLoop()
 {
+    covise::setThreadName("sse_listener");
     const char* endpoint = std::getenv("SSE_ENDPOINT");
     std::string endpointStr = endpoint ? endpoint : "http://localhost:8000/events";
     
@@ -628,8 +356,15 @@ void FlexCell::sseConsumerLoop()
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, this);
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
     curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
-    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 0L); // No timeout
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 0L); // No overall timeout for normal streaming
     curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10L);
+
+    // Debugging + robustness options
+    curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);                  // verbose logs to stderr
+    curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4); // force IPv4 if IPv6/route issues
+    curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);            // enable TCP keepalive
+    curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 1L);          // treat almost-idle connection as slow
+    curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 30L);          // ...if below limit for 30s -> abort
     
     // Set headers for SSE
     struct curl_slist* headers = nullptr;

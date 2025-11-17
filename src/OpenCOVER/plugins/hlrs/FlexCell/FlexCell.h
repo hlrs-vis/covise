@@ -11,8 +11,7 @@
 #include <atomic>
 #include <mutex>
 
-// Forward declarations for RabbitMQ types
-typedef struct amqp_connection_state_t_ *amqp_connection_state_t;
+// Mutex protects access to live positions shared between threads
 
 struct RobotPosition {
     std::vector<double> positions;
@@ -52,20 +51,12 @@ private:
     std::atomic<bool> m_sseConnected{false};
     std::string m_sseBuffer;
 
-    // RabbitMQ live streaming (fallback)
-    void initRabbitMQ();
-    void shutdownRabbitMQ();
-    void rabbitmqConsumerLoop();
-    
-    amqp_connection_state_t m_rabbitConn = nullptr;
-    std::thread m_rabbitThread;
-    std::atomic<bool> m_rabbitStop{false};
-    std::atomic<bool> m_rabbitConnected{false};
-    
+    // Shared state for live positions
     mutable std::mutex m_rabbitMutex;
     std::deque<RobotPosition> m_livePositions;
     bool m_bend = false;
     int m_variant = 0;
+    bool m_partAttachedToRobot = false;
     bool m_variantChanged = false;
 };
 
