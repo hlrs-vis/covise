@@ -188,20 +188,23 @@ bool FlexCell::update()
             vrmlNode->bend();
             m_bend = false;
         }
-        if(m_variant != -1)
+        if(m_variantChanged)
         {
-            vrmlNode->switchWorkpiece(m_variant);
+            if(m_partAttachedToRobot)
+            {
+                vrmlNode->switchWorkpiece(m_variant);
+                vrmlNode->switchWorkpieceInBender(-1);
+            } else{
+                vrmlNode->switchWorkpiece(-1);
+                vrmlNode->switchWorkpieceInBender(m_variant);
+
+            }
             m_variantChanged = false;
         }
         if(m_bendAnimation > 0)
         {
             vrmlNode->bendAnimation(m_bendAnimation);
             m_bendAnimation = -1;
-        }
-        if(m_partAttachedToRobot > 0)
-        {
-            m_partAttachedToRobot ? vrmlNode->attachPartToRobot(m_variant) : vrmlNode->detachPartToRobot(m_variant);
-            m_partAttachedToRobot = -1;
         }
     }
     else if (m_isReplaying)
@@ -313,7 +316,9 @@ size_t FlexCell::sseWriteCallback(char* ptr, size_t size, size_t nmemb, void* us
                 }
                 if (j.contains("partAttachedToRobot") && j["partAttachedToRobot"].is_boolean())
                 {
-                    self->m_partAttachedToRobot = j["partAttachedToRobot"].get<bool>();
+                    bool state = j["partAttachedToRobot"].get<bool>();
+                    self->m_partAttachedToRobot = state;
+                    self->m_variantChanged = true;
                 }
                 
                 if (j.contains("timestampUtc") && j["timestampUtc"].is_string())

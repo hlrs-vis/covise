@@ -58,7 +58,7 @@ private:
     int m_variant = -1;
     bool m_variantChanged = false;
     int m_bendAnimation = -1;
-    int m_partAttachedToRobot = -1;
+    bool m_partAttachedToRobot = true;
 };
 
 #endif // COVER_PLUGIN_FLEX_CELL_H
