@@ -11,8 +11,10 @@ void FlexCellNode::initFields(FlexCellNode *node, vrml::VrmlNodeType *t) {
     constexpr int numAxes = 7;
     for(size_t i = 0; i < numAxes; ++i)
         t->addEventOut(("Achse" + std::to_string(i+1)).c_str(), vrml::VrmlField::SFFLOAT);
-    t->addEventOut("Bend", vrml::VrmlField::SFTIME);
     t->addEventOut("Variant", vrml::VrmlField::SFINT32);
+    t->addEventOut("pinch", vrml::VrmlField::SFBOOL);
+    t->addEventOut("bend", vrml::VrmlField::SFBOOL);
+    t->addEventOut("loosen", vrml::VrmlField::SFBOOL);
 }
 
 FlexCellNode::FlexCellNode(vrml::VrmlScene *scene)
@@ -44,4 +46,24 @@ void FlexCellNode::switchWorkpiece(int variant)
 {
     vrml::VrmlSFInt vrmlValue(variant);
     eventOut(opencover::cover->frameTime(), "Variant", vrmlValue);
+}
+
+void FlexCellNode::bendAnimation(int animation)
+{
+    switch (animation)
+    {
+    case 0: //nothing
+        break;
+    case 1: // pinch
+        eventOut(opencover::cover->frameTime(), "pinch", vrml::VrmlSFBool(true));
+        break;
+    case 2: // bend
+        eventOut(opencover::cover->frameTime(), "bend", vrml::VrmlSFBool(true));
+        break;
+    case 3: // loosen
+        eventOut(opencover::cover->frameTime(), "loosen", vrml::VrmlSFBool(true));
+        break;
+    default:
+        break;
+    }
 }

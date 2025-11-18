@@ -17,6 +17,8 @@ public:
     void send(size_t axis, float value);
     void bend();
     void switchWorkpiece(int variant);
+    void bendAnimation(int animation);
+
     // std::array<vrml::VrmlSFFloat, 7> axisNames;
 };
 

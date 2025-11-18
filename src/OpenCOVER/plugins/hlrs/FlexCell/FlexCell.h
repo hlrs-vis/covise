@@ -55,9 +55,9 @@ private:
     mutable std::mutex m_rabbitMutex;
     std::deque<RobotPosition> m_livePositions;
     bool m_bend = false;
-    int m_variant = 0;
+    int m_variant = -1;
+    int m_bendAnimation = -1;
     bool m_partAttachedToRobot = false;
-    bool m_variantChanged = false;
 };
 
 #endif // COVER_PLUGIN_FLEX_CELL_H
