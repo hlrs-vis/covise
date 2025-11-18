@@ -107,7 +107,7 @@ class EventInfo
 {
 public:
 	EventInfo(MidiEvent& me, double TimeStamp);
-	~EventInfo();
+	~EventInfo() {};
 	MidiEvent me;
 	double timeStamp = 0;
 	int vertexNumber = -1;
