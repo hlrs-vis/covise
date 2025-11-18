@@ -15,6 +15,7 @@ void FlexCellNode::initFields(FlexCellNode *node, vrml::VrmlNodeType *t) {
     t->addEventOut("pinch", vrml::VrmlField::SFBOOL);
     t->addEventOut("bend", vrml::VrmlField::SFBOOL);
     t->addEventOut("loosen", vrml::VrmlField::SFBOOL);
+    t->addEventOut("attachPartToRobot", vrml::VrmlField::SFBOOL);
 }
 
 FlexCellNode::FlexCellNode(vrml::VrmlScene *scene)
@@ -46,6 +47,18 @@ void FlexCellNode::switchWorkpiece(int variant)
 {
     vrml::VrmlSFInt vrmlValue(variant);
     eventOut(opencover::cover->frameTime(), "Variant", vrmlValue);
+}
+
+void FlexCellNode::attachPartToRobot(int variant)
+{
+    vrml::VrmlSFInt vrmlValue(variant);
+    eventOut(opencover::cover->frameTime(), "attachPartToRobot", vrmlValue);
+}
+
+void FlexCellNode::detachPartToRobot(int variant)
+{
+    vrml::VrmlSFInt vrmlValue(variant);
+    eventOut(opencover::cover->frameTime(), "detachPartToRobot", vrmlValue);
 }
 
 void FlexCellNode::bendAnimation(int animation)

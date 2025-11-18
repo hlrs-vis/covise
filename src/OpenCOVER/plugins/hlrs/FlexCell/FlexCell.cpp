@@ -191,12 +191,17 @@ bool FlexCell::update()
         if(m_variant != -1)
         {
             vrmlNode->switchWorkpiece(m_variant);
-            m_variant = -1;
+            m_variantChanged = false;
         }
         if(m_bendAnimation > 0)
         {
             vrmlNode->bendAnimation(m_bendAnimation);
             m_bendAnimation = -1;
+        }
+        if(m_partAttachedToRobot > 0)
+        {
+            m_partAttachedToRobot ? vrmlNode->attachPartToRobot(m_variant) : vrmlNode->detachPartToRobot(m_variant);
+            m_partAttachedToRobot = -1;
         }
     }
     else if (m_isReplaying)
@@ -300,6 +305,7 @@ size_t FlexCell::sseWriteCallback(char* ptr, size_t size, size_t nmemb, void* us
                 if (j.contains("partState") && j["partState"].is_number_integer())
                 {
                     self->m_variant = j["partState"].get<int>();
+                    self->m_variantChanged = true;
                 }
                 if (j.contains("bendAnimation") && j["bendAnimation"].is_number_integer())
                 {
