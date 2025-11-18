@@ -201,7 +201,7 @@
                     <!-- Das normale Brillentarget -->
                     <Head device="DTrackPW" bodyIndex="1">
                         <Offset x="0" y="-10" z="-100" />
-                        <Orientation h="-40" p="0" r="64" />
+                        <Orientation h="0" p="-90" r="0" />
                     </Head>
                     
                     <!-- Das Kameratarget -->
@@ -211,8 +211,8 @@
                     </Head-->
                     
                     <Hand device="DTrackPW" bodyIndex="F1">
-                        <Offset x="-60" y="-20" z="-20" />
-                        <Orientation h="37" p="35" r="0" />
+                        <Offset x="-140" y="-20" z="-20" />
+                        <Orientation h="0" p="-90" r="0" />
                     </Hand>
                     <!--Head device="DTrackPW" bodyIndex="1">
                         <Offset x="0" y="0" z="250" />
