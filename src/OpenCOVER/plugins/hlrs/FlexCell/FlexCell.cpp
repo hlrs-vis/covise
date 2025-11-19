@@ -21,10 +21,12 @@ COVERPLUGIN(FlexCell)
 
 FlexCell::FlexCell()
 : opencover::coVRPlugin(COVER_PLUGIN_NAME)
+, ui::Owner("FlexCellPlugin", cover->ui)
+, m_menu(new ui::Menu("FlexCell", this))
 {
     vrml::VrmlNamespace::addBuiltIn(vrml::VrmlNode::defineType<FlexCellNode>());
     
-    m_client = std::make_unique<opencover::dataclient::DummyClient>("FlexCell");
+    m_client = std::make_unique<opencover::dataclient::DummyClient>("FlexCellDummy");
     for (size_t i = 0; i < axisNames.size(); ++i)
     {
         m_axisHandles[i] = m_client->observeNode(axisNames[i]);
@@ -192,9 +194,11 @@ bool FlexCell::update()
         {
             if(m_partAttachedToRobot)
             {
+                std::cerr << "FlexCell: Switching workpiece to variant " << m_variant << std::endl;
                 vrmlNode->switchWorkpiece(m_variant);
                 vrmlNode->switchWorkpieceInBender(-1);
             } else{
+                std::cerr << "FlexCell: Detaching workpiece from robot, switching in bender to variant " << m_variant << std::endl;
                 vrmlNode->switchWorkpiece(-1);
                 vrmlNode->switchWorkpieceInBender(m_variant);
 
@@ -227,12 +231,31 @@ bool FlexCell::update()
 
 void FlexCell::initSSE()
 {
+    m_hostname = new opencover::ui::EditFieldConfigValue(m_menu,"SSEHost", "localhost", *config(), "", config::Flag::PerModel);
+    m_port = new opencover::ui::EditFieldConfigValue(m_menu,"SSEPort", "8000", *config(), "", config::Flag::PerModel);
+    m_url = new opencover::ui::EditFieldConfigValue(m_menu,"SSEEndpoint", "/ext/services/trumpf_flowstate_rabbitmq_sse_adapter/events", *config(), "", config::Flag::PerModel);
+    
+    m_url->setUpdater([this]() {
+        // Restart SSE connection on URL change
+        shutdownSSE();
+        initSSE();
+    });
+    m_port->setUpdater([this]() {
+        // Restart SSE connection on port change
+        shutdownSSE();
+        initSSE();
+    });
+    m_hostname->setUpdater([this]() {
+        // Restart SSE connection on hostname change
+        shutdownSSE();
+        initSSE();
+    });
+    config()->save();
     // Read SSE endpoint from environment variable
     const char* endpoint = std::getenv("SSE_ENDPOINT");
-    std::string endpointStr = endpoint ? endpoint : "http://localhost:8000/events";
-    
+    m_endpointUrl = endpoint ? endpoint : "http://" + m_hostname->getValue() + ":" + m_port->getValue() + m_url->getValue();
     std::cerr << "FlexCell SSE config:\n"
-              << "  Endpoint: " << endpointStr << std::endl;
+              << "  Endpoint: " << m_endpointUrl << std::endl;
     
     curl_global_init(CURL_GLOBAL_ALL);
     m_sseStop = false;
@@ -357,8 +380,7 @@ size_t FlexCell::sseWriteCallback(char* ptr, size_t size, size_t nmemb, void* us
 void FlexCell::sseConsumerLoop()
 {
     covise::setThreadName("sse_listener");
-    const char* endpoint = std::getenv("SSE_ENDPOINT");
-    std::string endpointStr = endpoint ? endpoint : "http://localhost:8000/events";
+
     
     m_curl = curl_easy_init();
     if (!m_curl)
@@ -370,7 +392,7 @@ void FlexCell::sseConsumerLoop()
     CURL* curl = static_cast<CURL*>(m_curl);
     
     // Configure CURL for SSE
-    curl_easy_setopt(curl, CURLOPT_URL, endpointStr.c_str());
+    curl_easy_setopt(curl, CURLOPT_URL, m_endpointUrl.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, sseWriteCallback);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, this);
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
@@ -391,7 +413,7 @@ void FlexCell::sseConsumerLoop()
     headers = curl_slist_append(headers, "Cache-Control: no-cache");
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     
-    std::cerr << "FlexCell: Connecting to SSE endpoint: " << endpointStr << std::endl;
+    std::cerr << "FlexCell: Connecting to SSE endpoint: " << m_endpointUrl << std::endl;
     
     while (!m_sseStop.load())
     {

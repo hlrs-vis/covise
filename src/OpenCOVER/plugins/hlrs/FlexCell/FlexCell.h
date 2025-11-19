@@ -10,7 +10,10 @@
 #include <thread>
 #include <atomic>
 #include <mutex>
+#include <cover/ui/CovconfigLink.h>
 
+#include <cover/ui/Menu.h>
+#include <cover/ui/Owner.h>
 // Mutex protects access to live positions shared between threads
 
 struct RobotPosition {
@@ -19,7 +22,7 @@ struct RobotPosition {
     double timeOffset; // calculated from first timestamp
 };
 
-class FlexCell : public opencover::coVRPlugin
+class FlexCell : public opencover::coVRPlugin, public opencover::ui::Owner
 {
 public:
     FlexCell();
@@ -29,7 +32,8 @@ public:
 private:
     std::unique_ptr<opencover::dataclient::DummyClient> m_client;
     std::array<opencover::dataclient::ObserverHandle, 7> m_axisHandles;
-    
+    opencover::ui::EditFieldConfigValue *m_hostname, *m_port, *m_url;
+    opencover::ui::Menu *m_menu = nullptr;
     // Replay data
     std::vector<RobotPosition> m_recordedPositions;
     size_t m_currentPositionIndex = 0;
@@ -44,7 +48,7 @@ private:
     void shutdownSSE();
     void sseConsumerLoop();
     static size_t sseWriteCallback(char* ptr, size_t size, size_t nmemb, void* userdata);
-    
+    std::string m_endpointUrl;
     void* m_curl = nullptr;  // CURL* without including curl headers
     std::thread m_sseThread;
     std::atomic<bool> m_sseStop{false};
