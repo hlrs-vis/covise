@@ -625,9 +625,9 @@ size_t Input::getActivePerson() const
  */
 bool Input::update()
 {
-    size_t activePerson = getActivePerson();
-    size_t nBodies = trackingbodies.size(), nButtons = buttondevices.size(), nValuators = valuators.size();
-    size_t len = 0;
+    unsigned activePerson = getActivePerson();
+    unsigned nBodies = trackingbodies.size(), nButtons = buttondevices.size(), nValuators = valuators.size();
+    unsigned len = 0;
 
     bool changed = false;
     dD->update();
