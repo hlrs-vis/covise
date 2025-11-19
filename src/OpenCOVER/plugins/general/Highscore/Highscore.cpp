@@ -52,10 +52,6 @@
 
 #include "Highscore.h"
 
-void HSEntry::setStartTime(double t)
-{
-    startTime = t;
-}
 
 void HSEntry::setInterimTime(double t)
 {
@@ -65,17 +61,26 @@ void HSEntry::setInterimTime(double t)
     InterimLabel->setLabel(number);
 }
 
-void HSEntry::setEndTime(double t)
+void HSEntry::setStartTime(double t)
 {
-    endTime = t;
+    startTime = t;
     char number[100];
     sprintf(number, "%03.3f", getLapTime());
     LapLabel->setLabel(number);
 }
 
+void HSEntry::setFinishTime(double t)
+{
+    finishTime = t;
+    char number[100];
+    sprintf(number, "%03.3f", getLapTime());
+    LapLabel->setLabel(number);
+}
+
+
 double HSEntry::getLapTime()
 {
-    return endTime - startTime;
+    return finishTime - startTime;
 }
 
 double HSEntry::getInterimTimeDiff()
@@ -101,17 +106,17 @@ void HSEntry::setPos(int p)
     InterimLabel->setPos((pos / 20) * 4 + 3, (pos % 20));
 }
 
-void HSEntry::reset()
+void HSEntry::reset(double t)
 {
-    startTime = 0;
-    endTime = 0;
+    startTime = t;
+    finishTime = 0;
     interimTime = 0;
 }
 
 HSEntry::HSEntry(Highscore *h)
 {
     startTime = 0;
-    endTime = 0;
+    finishTime = 0;
     interimTime = 0;
     hs = h;
     PosLabel = new coTUILabel("X", hs->HighscoreTab->getID());
@@ -132,8 +137,8 @@ void VrmlNodeHighscore::initFields(VrmlNodeHighscore *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-                    eventInCallBack<VrmlSFTime>("startTime", [node](auto fieldValue){
-                        Highscore::instance()->setStartTime(fieldValue->get());
+                    eventInCallBack<VrmlSFTime>("finishTime", [node](auto fieldValue){
+                        Highscore::instance()->setFinishTime(fieldValue->get());
                     }),
                     eventInCallBack<VrmlSFTime>("interimTime", [node](auto fieldValue){
                         Highscore::instance()->setInterimTime(fieldValue->get());
@@ -180,9 +185,9 @@ void VrmlNodeHighscore::eventIn(double timeStamp,
                                 const char *eventName,
                                 const VrmlField *fieldValue)
 {
-    if (strcmp(eventName, "startTime") == 0)
+    if (strcmp(eventName, "finishTime") == 0)
     {
-        Highscore::instance()->setStartTime(fieldValue->toSFTime()->get());
+        Highscore::instance()->setFinishTime(fieldValue->toSFTime()->get());
     }
     else if (strcmp(eventName, "interimTime") == 0)
     {
@@ -268,11 +273,11 @@ Highscore::~Highscore()
 }
 
 void
-Highscore::setStartTime(double t)
+Highscore::setFinishTime(double t)
 {
     if (passedInterim) // we finised a lap
     {
-        currentEntry->setEndTime(t);
+        currentEntry->setFinishTime(t);
         std::list<HSEntry *>::iterator hs;
         for (hs = hsEntries.begin(); hs != hsEntries.end(); ++hs)
         {
@@ -308,7 +313,7 @@ Highscore::setStartTime(double t)
         }
         save(); // save highscore table
     }
-    currentEntry->setStartTime(t);
+    currentEntry->setFinishTime(t);
     passedInterim = false;
 }
 
@@ -319,10 +324,13 @@ Highscore::setInterimTime(double t)
     passedInterim = true;
 }
 
+
+
 void
-Highscore::setResetTime(double)
+Highscore::setResetTime(double t)
 {
-    currentEntry->reset();
+    currentEntry->reset(t);
+    fprintf(stderr, "Resetting Time to %f \n",t); 
     passedInterim = false;
 }
 
@@ -360,7 +368,7 @@ void Highscore::load()
             char *name = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("name"))); xercesc::XMLString::release(&t1);
             char *startTime = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("startTime"))); xercesc::XMLString::release(&t1);
             char *interimTime = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("interimTime"))); xercesc::XMLString::release(&t1);
-            char *endTime = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("endTime"))); xercesc::XMLString::release(&t1);
+            char *finishTime = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("finishTime"))); xercesc::XMLString::release(&t1);
             HSEntry *he = new HSEntry(this);
             double d;
             int posi;
@@ -372,14 +380,14 @@ void Highscore::load()
             he->setStartTime(d);
             sscanf(interimTime, "%lf", &d);
             he->setInterimTime(d);
-            sscanf(endTime, "%lf", &d);
-            he->setEndTime(d);
+            sscanf(finishTime, "%lf", &d);
+            he->setFinishTime(d);
             hsEntries.push_back(he);
 			xercesc::XMLString::release(&pos);
 			xercesc::XMLString::release(&name);
 			xercesc::XMLString::release(&startTime);
 			xercesc::XMLString::release(&interimTime);
-			xercesc::XMLString::release(&endTime);
+			xercesc::XMLString::release(&finishTime);
         }
     }
 }
@@ -404,8 +412,8 @@ void Highscore::save()
         hsElement->setAttribute(t1 = xercesc::XMLString::transcode("startTime"), t2 = xercesc::XMLString::transcode(number)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
         sprintf(number, "%lf", (*hs)->getInterimTime());
         hsElement->setAttribute(t1 = xercesc::XMLString::transcode("interimTime"), t2 = xercesc::XMLString::transcode(number)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
-        sprintf(number, "%lf", (*hs)->getEndTime());
-        hsElement->setAttribute(t1 = xercesc::XMLString::transcode("endTime"), t2 = xercesc::XMLString::transcode(number)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
+        sprintf(number, "%lf", (*hs)->getFinishTime());
+        hsElement->setAttribute(t1 = xercesc::XMLString::transcode("finishTime"), t2 = xercesc::XMLString::transcode(number)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
         rootElement->appendChild(hsElement);
     }
 

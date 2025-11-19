@@ -59,7 +59,7 @@ public:
     ~HSEntry();
     void setStartTime(double t);
     void setInterimTime(double t);
-    void setEndTime(double t);
+    void setFinishTime(double t);
     double getLapTime();
     double getInterimTimeDiff();
     int getPos()
@@ -70,9 +70,9 @@ public:
     {
         return startTime;
     }
-    double getEndTime()
+    double getFinishTime()
     {
-        return endTime;
+        return finishTime;
     }
     double getInterimTime()
     {
@@ -84,10 +84,11 @@ public:
     }
     void setName(std::string &n);
     void setPos(int p);
-    void reset();
+    void reset(double t);
 
 private:
     double startTime;
+    double finishTime;
     double interimTime;
     double endTime;
     std::string name;
@@ -115,7 +116,7 @@ public:
     void tabletPressEvent(coTUIElement *);
     void tabletEvent(coTUIElement *);
 
-    void setStartTime(double time);
+    void setFinishTime(double time);
     void setInterimTime(double time);
     void setResetTime(double time);
     bool passedInterim;
