@@ -3648,6 +3648,16 @@ void ViewerOsg::setModesByName(const char *objectName)
                         stateset->setRenderBinDetails(-1, "RenderBin");
                         stateset->setAttributeAndModes(cover->getNoFrameBuffer().get(), StateAttribute::ON);
                     }
+                    else if (strncmp(name, "coDepthNormal", 11) == 0)
+                    {
+                        // after Video but before all normal geometry
+
+                        //stateset->setRenderingHint(StateSet::TRANSPARENT_BIN);
+                        stateset->setNestRenderBins(false);
+                        stateset->setRenderBinDetails(1, "RenderBin");
+                        stateset->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
+                        stateset->setAttributeAndModes(cover->getDoFrameBuffer().get(), StateAttribute::ON);
+                    }
                     else if (strncmp(name, "coNoDepthTest", 13) == 0)
                     {   
                         // do no depth test and render as late as possible

@@ -490,6 +490,10 @@ public:
     {
         return NoFrameBuffer;
     }
+    osg::ref_ptr<osg::ColorMask> getDoFrameBuffer()
+    {
+        return DoFrameBuffer;
+    }
 
     // utility
     float getSqrDistance(osg::Node *n, osg::Vec3 &p, osg::MatrixTransform **path, int pathLength) const;
@@ -548,6 +552,7 @@ private:
     osg::Vec3 eyeToScreen; ///< eye to screen center vector
 
     osg::ref_ptr<osg::ColorMask> NoFrameBuffer;
+    osg::ref_ptr<osg::ColorMask> DoFrameBuffer;
 
     osg::ref_ptr<osg::ClipPlane> clipPlanes[MAX_NUM_CLIP_PLANES];
 

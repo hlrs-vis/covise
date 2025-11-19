@@ -885,6 +885,7 @@ coVRPluginSupport::coVRPluginSupport()
         clipPlanes[i]->setClipPlaneNum(i);
     }
     NoFrameBuffer = new osg::ColorMask(false, false, false, false);
+    DoFrameBuffer = new osg::ColorMask(true, true, true, true);
     player = NULL;
 
     pointerButton = NULL;
