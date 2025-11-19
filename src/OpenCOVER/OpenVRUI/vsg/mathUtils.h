@@ -34,13 +34,12 @@ template<typename T>
 constexpr vsg::t_mat4<T> makeEulerMat(T h, T p, T r)
 {
     vsg::t_mat4<T> m;
-    double sr, sp, sh, cr, cp, ch;
-    sr = sin(r / 180.0 * M_PI);
-    sp = sin(p / 180.0 * M_PI);
-    sh = sin(h / 180.0 * M_PI);
-    cr = cos(r / 180.0 * M_PI);
-    cp = cos(p / 180.0 * M_PI);
-    ch = cos(h / 180.0 * M_PI);
+    double sr = sin(r / 180.0 * M_PI);
+    double sp = sin(p / 180.0 * M_PI);
+    double sh = sin(h / 180.0 * M_PI);
+    double cr = cos(r / 180.0 * M_PI);
+    double cp = cos(p / 180.0 * M_PI);
+    double ch = cos(h / 180.0 * M_PI);
     m[0][0] = ch * cr - sh * sr * sp;
     m[1][0] = cr * sh + ch * sr * sp;
     m[2][0] = -sr * cp;
@@ -88,4 +87,3 @@ void VSGVRUIEXPORT snapTo45Degrees(vsg::dmat4 *mat);
 void VSGVRUIEXPORT snapToDegrees(float degree, vsg::dmat4 *mat);
 // modulo for doubles
 double VSGVRUIEXPORT mod(double a, double b);
-
