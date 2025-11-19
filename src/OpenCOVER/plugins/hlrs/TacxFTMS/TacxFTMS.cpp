@@ -88,6 +88,7 @@ bool TacxFTMS::init() {
                 std::cerr << "Devicename found" << i->deviceName << std::endl;
             if (i->deviceName == "TacxNeo") {
                 supportedDeviceFound = true;
+                start();
             }
             else if (i->deviceName == "Alpine")
             {
@@ -128,7 +129,7 @@ void TacxFTMS::addDevice(const opencover::deviceInfo *i)
     //unsigned short localPortAlpine = configInt("Alpine", "localPort", 31322)->value();
     std::string host = "";
     std::cerr << "Devicename found" << i->deviceName << std::endl;
-    if (i->deviceName == "TacxNeo")
+    if (i->deviceName == "TacxNeo" && udpNeo ==nullptr)
     {
         host = i->address;
         std::cerr << "TacxFTMS config: UDP: TacxHost: " << host << std::endl;
@@ -267,12 +268,14 @@ void TacxFTMS::run() {
 }
 
 void TacxFTMS::updateThread() {
+                std::cerr << "ut" << endl;
     if (udpListen) {
         char tmpBuf[10000];
         int status;
 
         status = udpListen->receive(&tmpBuf, 10000);
 
+                std::cerr << "status" << status << endl;
         if (status == -1) {
             if (isEnabled())  // otherwise we are not supposed to receive
                               // anything
@@ -281,16 +284,17 @@ void TacxFTMS::updateThread() {
                           << std::endl;
             }
         } else if (status >= sizeof(FTMSBikeData)) {
-            if (!isEnabled()) {
+           /* if (!isEnabled()) {
                 if (udpNeo)  // still receiving data, send stop
                     udpNeo->send("stop");
                 if (udpAlpine)
                     udpAlpine->send("stop");
                 return;
-            }
+            }*/
             OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
             memcpy(&ftmsData, tmpBuf, sizeof(FTMSBikeData));
             sendIndoorBikeSimulationParameters();
+	    cerr << "speed" << ftmsData.speed << endl;
 
         } else if (status >= sizeof(AlpineData)) {
 

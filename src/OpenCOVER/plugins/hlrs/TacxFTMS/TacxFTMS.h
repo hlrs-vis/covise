@@ -83,7 +83,7 @@ private:
     osg::Matrix TacxFTMSPos;
     void setEnabled(bool) override;
     void updateThread();
-    std::unique_ptr<UDPComm> udpNeo; 
+    std::unique_ptr<UDPComm> udpNeo=nullptr; 
     std::unique_ptr<UDPComm> udpAlpine;
     std::unique_ptr<UDPComm> udpListen; // for listening to all devices
     FTMSBikeData ftmsData;
