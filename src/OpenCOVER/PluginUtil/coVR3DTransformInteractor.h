@@ -52,7 +52,10 @@ public:
     void updateTransform(const osg::Matrix &matrix);
     void updateScale(const osg::Vec3 &scale);
     const osg::Vec3 &getScale() const { return m_scaleVector; }
-    
+    void setOnReleaseCallback(const std::function<void()>& callback)
+    {
+        m_onReleaseCallback = callback;
+    }
 private:
 
     enum TransformMode
@@ -101,7 +104,7 @@ private:
     float m_accumulatedAngle = 0.0f;
     bool m_firstRotationFrame = true;
     float m_grabStartAngle = 0.0f;
-
+    std::function<void()> m_onReleaseCallback;
     osg::ref_ptr<osg::DrawElementsUShort> m_rotationFan;
     struct ComponentColor
     {

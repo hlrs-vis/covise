@@ -266,6 +266,62 @@ osg::Matrix localToWorld(osg::Node *node, osg::Node *world)
     return result;    
 }
 
+osg::Matrix calculateInterMatrix(std::pair<osg::MatrixTransform *const, std::unique_ptr<opencover::coVR3DTransformInteractor>> &pair)
+{
+    osg::MatrixTransform *mt = pair.first;
+    auto &inter = pair.second;
+    auto firstSharedParent = cover->getObjectsScale();
+    // interactor provides a world-space matrix, but the scale is handled separately
+    osg::Matrix interWorld = inter->getMatrix();
+    auto scale = inter->getScale();
+    interWorld.preMultScale(scale);
+    // convert to local matrix
+    const auto localToWorld = ::localToWorld(mt->getParent(0), firstSharedParent);
+    const auto worldToLocal = osg::Matrix::inverse(localToWorld);    
+    const auto interLocal = interWorld * worldToLocal; 
+    return interLocal;
+}
+
+void SGBrowser::applyInteraction(std::pair<osg::MatrixTransform *const, std::unique_ptr<opencover::coVR3DTransformInteractor>> &pair)
+{
+    const auto interLocal = calculateInterMatrix(pair);
+    osg::MatrixTransform *mt = pair.first;
+    mt->setMatrix(interLocal);
+
+    // notify all tuis about updated matrix
+    std::string path = selectionManager->generatePath(mt);
+    std::string pPath = "";
+    if (mt->getNumParents() > 0)
+        pPath = selectionManager->generatePath(mt->getParent(0));
+    float mat[16];
+    for (int i = 0; i < 4; ++i)
+        for (int j = 0; j < 4; ++j)
+            mat[i * 4 + j] = interLocal(i, j);
+
+    for (auto &t : tuis)
+    {
+        t.tab->sendProperties(path, pPath, 0, 0, mat, true, std::sqrt(pair.second->getInteractorSize()));
+    }
+}
+
+void printVrmlTransform(std::pair<osg::MatrixTransform *const, std::unique_ptr<opencover::coVR3DTransformInteractor>> &pair)
+{
+    const auto interLocal = calculateInterMatrix(pair);
+    osg::Vec3d translation;
+    osg::Quat rotation;
+    osg::Vec3d scale;
+    osg::Quat so;
+    interLocal.decompose(translation, rotation, scale, so);
+    std::cout << "Transform {" << std::endl;
+    std::cout << "  translation " << translation.x() << " " << translation.y() << " " << translation.z() << std::endl;
+    osg::Vec3 axis;
+    double angle;
+    rotation.getRotate(angle, axis);
+    std::cout << "  rotation " << axis.x() << " " << axis.y() << " " << axis.z() << " " << angle << std::endl;
+    std::cout << "  scale " << scale.x() << " " << scale.y() << " " << scale.z() << std::endl;
+    std::cout << "}" << std::endl;
+}
+
 std::map<osg::MatrixTransform *, std::unique_ptr<opencover::coVR3DTransformInteractor>>::iterator SGBrowser::addInteractorFor(osg::MatrixTransform *mt)
 {
     if (!mt)
@@ -284,6 +340,9 @@ std::map<osg::MatrixTransform *, std::unique_ptr<opencover::coVR3DTransformInter
         it->second->setTransformChangedCallback([this, it](const osg::Matrix &newMat) {
             applyInteraction(*it);
             it->second->resetChangeFlags();
+        });
+        it->second->setOnReleaseCallback([this, it]() {
+            printVrmlTransform(*it);
         });
         return it;
     }
@@ -925,38 +984,6 @@ void SGBrowser::preFrame()
             assert(pair.first && pair.second);
             pair.second->preFrame();
         }
-    }
-}
-
-void SGBrowser::applyInteraction(std::pair<osg::MatrixTransform *const, std::unique_ptr<opencover::coVR3DTransformInteractor>> &pair)
-{
-    osg::MatrixTransform *mt = pair.first;
-    auto &inter = pair.second;
-    auto firstSharedParent = cover->getObjectsScale();
-    // interactor provides a world-space matrix, but the scale is handled separately
-    osg::Matrix interWorld = inter->getMatrix();
-    auto scale = inter->getScale();
-    interWorld.preMultScale(scale);
-    // convert to local matrix
-    const auto localToWorld = ::localToWorld(mt->getParent(0), firstSharedParent);
-    const auto worldToLocal = osg::Matrix::inverse(localToWorld);    
-    const auto interLocal = interWorld * worldToLocal;
-
-    mt->setMatrix(interLocal);
-
-    // notify all tuis about updated matrix
-    std::string path = selectionManager->generatePath(mt);
-    std::string pPath = "";
-    if (mt->getNumParents() > 0)
-        pPath = selectionManager->generatePath(mt->getParent(0));
-    float mat[16];
-    for (int i = 0; i < 4; ++i)
-        for (int j = 0; j < 4; ++j)
-            mat[i * 4 + j] = interLocal(i, j);
-
-    for (auto &t : tuis)
-    {
-        t.tab->sendProperties(path, pPath, 0, 0, mat, true, std::sqrt(inter->getInteractorSize()));
     }
 }
 

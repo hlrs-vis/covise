@@ -897,6 +897,8 @@ void coVR3DTransformInteractor::stopInteraction()
     m_rotationVisualizationTransform->setNodeMask(0);
     if (cover->debugLevel(3))
         fprintf(stderr, "TransformInteractor::stopInteraction\n");
+    if(m_onReleaseCallback)
+        m_onReleaseCallback();
 }
 
 int coVR3DTransformInteractor::hit(vrui::vruiHit *hit)
