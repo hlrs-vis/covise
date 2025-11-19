@@ -32,7 +32,7 @@ public:
 private:
     std::unique_ptr<opencover::dataclient::DummyClient> m_client;
     std::array<opencover::dataclient::ObserverHandle, 7> m_axisHandles;
-    opencover::ui::EditFieldConfigValue *m_hostname, *m_port, *m_url;
+    opencover::ui::EditFieldConfigValue *m_hostname = nullptr, *m_port = nullptr, *m_url = nullptr;
     opencover::ui::Menu *m_menu = nullptr;
     // Replay data
     std::vector<RobotPosition> m_recordedPositions;

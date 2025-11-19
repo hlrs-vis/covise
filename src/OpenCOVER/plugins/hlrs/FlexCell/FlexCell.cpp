@@ -208,7 +208,7 @@ bool FlexCell::update()
         if(m_bendAnimation > 0)
         {
             vrmlNode->bendAnimation(m_bendAnimation);
-            m_bendAnimation = -1;
+            m_bendAnimation = 0;
         }
     }
     else if (m_isReplaying)
@@ -231,26 +231,33 @@ bool FlexCell::update()
 
 void FlexCell::initSSE()
 {
-    m_hostname = new opencover::ui::EditFieldConfigValue(m_menu,"SSEHost", "localhost", *config(), "", config::Flag::PerModel);
-    m_port = new opencover::ui::EditFieldConfigValue(m_menu,"SSEPort", "8000", *config(), "", config::Flag::PerModel);
-    m_url = new opencover::ui::EditFieldConfigValue(m_menu,"SSEEndpoint", "/ext/services/trumpf_flowstate_rabbitmq_sse_adapter/events", *config(), "", config::Flag::PerModel);
+    if(!m_hostname)
+    {
+        m_hostname = new opencover::ui::EditFieldConfigValue(m_menu,"SSEHost", "localhost", *config(), "", config::Flag::PerModel);
+        m_port = new opencover::ui::EditFieldConfigValue(m_menu,"SSEPort", "8000", *config(), "", config::Flag::PerModel);
+        m_url = new opencover::ui::EditFieldConfigValue(m_menu,"SSEEndpoint", "/ext/services/trumpf_flowstate_rabbitmq_sse_adapter/events", *config(), "", config::Flag::PerModel);
+        m_url->setUpdater([this]() {
+            // Restart SSE connection on URL change
+            shutdownSSE();
+            initSSE();
+            config()->save();
+
+        });
+        m_port->setUpdater([this]() {
+            // Restart SSE connection on port change
+            shutdownSSE();
+            initSSE();
+            config()->save();
+
+        });
+        m_hostname->setUpdater([this]() {
+            // Restart SSE connection on hostname change
+            shutdownSSE();
+            initSSE();
+            config()->save();
+        });
+    }
     
-    m_url->setUpdater([this]() {
-        // Restart SSE connection on URL change
-        shutdownSSE();
-        initSSE();
-    });
-    m_port->setUpdater([this]() {
-        // Restart SSE connection on port change
-        shutdownSSE();
-        initSSE();
-    });
-    m_hostname->setUpdater([this]() {
-        // Restart SSE connection on hostname change
-        shutdownSSE();
-        initSSE();
-    });
-    config()->save();
     // Read SSE endpoint from environment variable
     const char* endpoint = std::getenv("SSE_ENDPOINT");
     m_endpointUrl = endpoint ? endpoint : "http://" + m_hostname->getValue() + ":" + m_port->getValue() + m_url->getValue();
@@ -319,6 +326,7 @@ size_t FlexCell::sseWriteCallback(char* ptr, size_t size, size_t nmemb, void* us
         {
             try
             {
+                std::lock_guard<std::mutex> lock(self->m_rabbitMutex);
                 json j = json::parse(data);
                 
                 RobotPosition pos;
@@ -335,7 +343,9 @@ size_t FlexCell::sseWriteCallback(char* ptr, size_t size, size_t nmemb, void* us
                 }
                 if (j.contains("bendAnimation") && j["bendAnimation"].is_number_integer())
                 {
-                    self->m_bendAnimation = j["bendAnimation"].get<int>();
+                    auto anim = j["bendAnimation"].get<int>();
+                    if(anim > 0)
+                        self->m_bendAnimation = anim;
                 }
                 if (j.contains("partAttachedToRobot") && j["partAttachedToRobot"].is_boolean())
                 {
@@ -362,7 +372,6 @@ size_t FlexCell::sseWriteCallback(char* ptr, size_t size, size_t nmemb, void* us
                 
                 // Update live buffer - keep only latest for minimal latency
                 {
-                    std::lock_guard<std::mutex> lock(self->m_rabbitMutex);
                     self->m_livePositions.clear();
                     self->m_livePositions.push_back(pos);
                 }
