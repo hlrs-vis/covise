@@ -388,7 +388,12 @@ ref_ptr<Node> VSGVruiSlider::createNode(const string& textureName, ref_ptr<vec3A
 
     auto depthStencilState = vsg::DepthStencilState::create();
     depthStencilState->depthTestEnable = VK_TRUE;
-    depthStencilState->depthWriteEnable = VK_FALSE;
+    
+    if (isSlider)
+    {
+        depthStencilState->depthWriteEnable = VK_FALSE;
+    }
+    
     depthStencilState->depthCompareOp = VK_COMPARE_OP_GREATER;
 
     shaderSet->defaultGraphicsPipelineStates.push_back(colorBlendState);
