@@ -13,7 +13,7 @@
 #include <OpenVRUI/vsg/VSGVruiUserDataCollection.h>
 
 #include <OpenVRUI/util/vruiLog.h>
-#include <OpenVRUI/sginterface/vruiRendererInterface.h>
+#include <OpenVRUI/vsg/VSGVruiRendererInterface.h>
 
 using namespace vsg;
 using namespace std;

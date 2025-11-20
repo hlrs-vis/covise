@@ -14,7 +14,7 @@
 #include <OpenVRUI/vsg/VSGVruiPresets.h>
 #include <OpenVRUI/vsg/VSGVruiTexture.h>
 
-#include <OpenVRUI/sginterface/vruiRendererInterface.h>
+#include <OpenVRUI/vsg/VSGVruiRendererInterface.h>
 
 #include <vsg/all.h>
 #include <vsgXchange/all.h>
@@ -396,13 +396,11 @@ ref_ptr<Node> VSGVruiSlider::createNode(const string& textureName, ref_ptr<vec3A
 
     DataList vertexArrays;
 
-    VSGVruiTexture* oTex = dynamic_cast<VSGVruiTexture*>(vruiRendererInterface::the()->createTexture(textureName));
-    auto image = Image::create(oTex->getTexture()->data);
-    vruiRendererInterface::the()->deleteTexture(oTex);
 
     ref_ptr<GraphicsPipelineConfigurator> gpConfigurator = GraphicsPipelineConfigurator::create(shaderSet);
 
-    if (image->data)
+    auto image = VSGVruiRendererInterface::the()->createVsgTexture(textureName);
+    if (image && image->data)
         gpConfigurator->assignTexture("diffuseMap", image->data);
     else
         cerr << "No texture could be loaded for toggle button geometry!" << endl;

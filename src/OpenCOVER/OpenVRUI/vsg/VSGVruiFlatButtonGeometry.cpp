@@ -10,7 +10,7 @@
 #include <OpenVRUI/vsg/VSGVruiPresets.h>
 #include <OpenVRUI/vsg/VSGVruiTransformNode.h>
 #include <OpenVRUI/vsg/VSGVruiTexture.h>
-#include <OpenVRUI/sginterface/vruiRendererInterface.h>
+#include <OpenVRUI/vsg/VSGVruiRendererInterface.h>
 
 #include <OpenVRUI/coFlatButtonGeometry.h>
 
@@ -144,15 +144,13 @@ ref_ptr<vsg::Node> VSGVruiFlatButtonGeometry::createBox(const string &textureNam
     shaderSet->defaultGraphicsPipelineStates.push_back(colorBlendState);
     shaderSet->defaultGraphicsPipelineStates.push_back(depthStencilState);
     
-    DataList vertexArrays; 
+    DataList vertexArrays;
 
-    VSGVruiTexture * oTex = dynamic_cast<VSGVruiTexture*>(vruiRendererInterface::the()->createTexture(textureName));
-    auto image = Image::create(oTex->getTexture()->data);
-    vruiRendererInterface::the()->deleteTexture(oTex);
 
     ref_ptr<GraphicsPipelineConfigurator> gpConfigurator = GraphicsPipelineConfigurator::create(shaderSet);
 
-    if (image->data)
+    auto image = VSGVruiRendererInterface::the()->createVsgTexture(textureName);
+    if (image && image->data)
         gpConfigurator->assignTexture("diffuseMap", image->data);
     else
         cerr << "No texture could be loaded for flat button geometry!" << endl;
@@ -216,13 +214,11 @@ ref_ptr<Node> VSGVruiFlatButtonGeometry::createCheck(const string &textureName)
 
     DataList vertexArrays;
 
-    VSGVruiTexture* oTex = dynamic_cast<VSGVruiTexture*>(vruiRendererInterface::the()->createTexture(textureName));
-    auto image = Image::create(oTex->getTexture()->data);
-    vruiRendererInterface::the()->deleteTexture(oTex);
 
     ref_ptr<GraphicsPipelineConfigurator> gpConfigurator = GraphicsPipelineConfigurator::create(shaderSet);
 
-    if (image->data)
+    auto image = VSGVruiRendererInterface::the()->createVsgTexture(textureName);
+    if (image && image->data)
         gpConfigurator->assignTexture("diffuseMap", image->data);
     else
         cerr << "No texture could be loaded for flat button geometry!" << endl;

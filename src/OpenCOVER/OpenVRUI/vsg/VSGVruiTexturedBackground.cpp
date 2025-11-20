@@ -7,7 +7,7 @@
 
 #include <OpenVRUI/vsg/VSGVruiTexturedBackground.h>
 
-#include <OpenVRUI/sginterface/vruiRendererInterface.h>
+#include <OpenVRUI/vsg/VSGVruiRendererInterface.h>
 
 #include <OpenVRUI/vsg/VSGVruiPresets.h>
 #include <OpenVRUI/vsg/VSGVruiTransformNode.h>
@@ -247,9 +247,8 @@ void VSGVruiTexturedBackground::createGeometry()
  */
 void VSGVruiTexturedBackground::createTexturesFromFiles()
 {
-   /* VSGVruiTexture* oTex = dynamic_cast<VSGVruiTexture*>(vruiRendererInterface::the()->createTexture(background->getNormalTexName()));
-    texNormal = oTex->getTexture();
-    vruiRendererInterface::the()->deleteTexture(oTex);
+    /*
+    texNormal = VSGVruiRendererInterface::the()->createVsgTexture(background->getNormalTexName());
 
     if (texNormal.valid())
     {

@@ -7,7 +7,7 @@
 
 #include <OpenVRUI/vsg/VSGVruiTextureRectBackground.h>
 
-#include <OpenVRUI/sginterface/vruiRendererInterface.h>
+#include <OpenVRUI/vsg/VSGVruiRendererInterface.h>
 
 #include <OpenVRUI/vsg/VSGVruiPresets.h>
 #include <OpenVRUI/vsg/VSGVruiTransformNode.h>
@@ -95,7 +95,7 @@ void VSGVruiTextureRectBackground::resizeGeometry()
 
     createGeometry();
 
-   /* float myHeight = background->getHeight();
+    /* float myHeight = background->getHeight();
     float myWidth = background->getWidth();
 
     (*coord)[3].set(0.0f, myHeight, 0.0f);
@@ -105,7 +105,7 @@ void VSGVruiTextureRectBackground::resizeGeometry()
 
     rescaleTexture();
 
-	coord->dirty();
+    coord->dirty();
     geometryNode->dirtyBound();
     geometry->dirtyBound();
     geometry->dirtyDisplayList();*/

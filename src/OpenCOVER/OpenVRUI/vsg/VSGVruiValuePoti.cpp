@@ -9,7 +9,7 @@
 
 #include <OpenVRUI/coValuePoti.h>
 
-#include <OpenVRUI/sginterface/vruiRendererInterface.h>
+#include <OpenVRUI/vsg/VSGVruiRendererInterface.h>
 
 #include <OpenVRUI/vsg/VSGVruiTransformNode.h>
 #include <OpenVRUI/vsg/VSGVruiPresets.h>
@@ -250,8 +250,7 @@ void VSGVruiValuePoti::update()
 */
 ref_ptr<Node> VSGVruiValuePoti::createPanelNode(const string &textureName)
 {
-
-   /* ref_ptr<vec3Array> coord = new vec3Array(4);
+    /* ref_ptr<vec3Array> coord = new vec3Array(4);
     ref_ptr<vsg::vec4Array> color = new vsg::vec4Array(1);
     ref_ptr<vec3Array> normal = new vec3Array(1);
     ref_ptr<vec2Array> texCoord = new vec2Array(4);
@@ -285,11 +284,9 @@ ref_ptr<Node> VSGVruiValuePoti::createPanelNode(const string &textureName)
 
     //VRUILOG("VSGVruiValuePoti::createPanelNode info: loading texture image " << textureName)
 
-    VSGVruiTexture *oTex = dynamic_cast<VSGVruiTexture *>(vruiRendererInterface::the()->createTexture(textureName));
-    ref_ptr<Texture2D> texture = oTex->getTexture();
-    vruiRendererInterface::the()->deleteTexture(oTex);
+    auto texture = VSGVruiRendererInterface::the()->getVsgTexture(textureName);
 
-    if (texture.valid())
+    if (texture && texture->data)
     {
         texture->setFilter(Texture::MIN_FILTER, Texture::LINEAR);
         texture->setWrap(Texture::WRAP_S, Texture::CLAMP);

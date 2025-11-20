@@ -8,7 +8,7 @@
 #include <OpenVRUI/vsg/VSGVruiHit.h>
 #include <OpenVRUI/vsg/VSGVruiNode.h>
 #include <OpenVRUI/vsg/VSGVruiMatrix.h>
-#include <OpenVRUI/sginterface/vruiRendererInterface.h>
+#include <OpenVRUI/vsg/VSGVruiRendererInterface.h>
 
 #include <vsg/maths/vec3.h>
 

@@ -10,7 +10,7 @@
 #include <OpenVRUI/vsg/VSGVruiPresets.h>
 #include <OpenVRUI/vsg/VSGVruiTransformNode.h>
 #include <OpenVRUI/vsg/VSGVruiTexture.h>
-#include <OpenVRUI/sginterface/vruiRendererInterface.h>
+#include <OpenVRUI/vsg/VSGVruiRendererInterface.h>
 
 #include <OpenVRUI/coRectButtonGeometry.h>
 

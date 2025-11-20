@@ -13,7 +13,7 @@
 #include <OpenVRUI/vsg/VSGVruiPresets.h>
 #include <OpenVRUI/vsg/VSGVruiTexture.h>
 
-#include <OpenVRUI/sginterface/vruiRendererInterface.h>
+#include <OpenVRUI/vsg/VSGVruiRendererInterface.h>
 
 #include <vsg/all.h>
 #include <vsgXchange/all.h>
@@ -221,14 +221,10 @@ void VSGVruiFrame::createGeometry()
         shaderSet->defaultGraphicsPipelineStates.push_back(colorBlendState);
         shaderSet->defaultGraphicsPipelineStates.push_back(depthStencilState);
 
-        // load the texture
-        VSGVruiTexture* oTex = dynamic_cast<VSGVruiTexture*>(vruiRendererInterface::the()->createTexture(frame->getTextureName()));
-        image = Image::create(oTex->getTexture()->data);
-        vruiRendererInterface::the()->deleteTexture(oTex);
-        
         gpConfigurator = GraphicsPipelineConfigurator::create(shaderSet);
 
-        if (image->data)
+        image = VSGVruiRendererInterface::the()->createVsgTexture(frame->getTextureName());
+        if (image && image->data)
         {
             gpConfigurator->assignTexture("diffuseMap", image->data);
         }
