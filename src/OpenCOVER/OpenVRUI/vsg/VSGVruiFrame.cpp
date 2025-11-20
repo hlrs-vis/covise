@@ -117,7 +117,7 @@ void VSGVruiFrame::resizeGeometry()
     {
         if ((*vertexIndexDraw).arrays[0]->buffer) 
         {
-            vruiRendererInterface::the()->addToTransfer(vertexIndexDraw->arrays[0]);
+            VSGVruiRendererInterface::the()->addToTransfer(vertexIndexDraw->arrays[0]);
         }
     }
 }

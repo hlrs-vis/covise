@@ -153,11 +153,11 @@ void VSGVruiSlider::resizeGeometry()
     {
         if ((*positionNodeVid).arrays[0]->buffer)
         {
-            vruiRendererInterface::the()->addToTransfer(positionNodeVid->arrays[0]);
+            VSGVruiRendererInterface::the()->addToTransfer(positionNodeVid->arrays[0]);
         }
         if ((*dialNodeVid).arrays[0]->buffer)
         {
-            vruiRendererInterface::the()->addToTransfer(dialNodeVid->arrays[0]);
+            VSGVruiRendererInterface::the()->addToTransfer(dialNodeVid->arrays[0]);
         }
         
     }
@@ -194,7 +194,7 @@ void VSGVruiSlider::updateDial()
         {
             if ((*dialNodeVid).arrays[2]->buffer)
             {
-                vruiRendererInterface::the()->addToTransfer(dialNodeVid->arrays[2]);
+                VSGVruiRendererInterface::the()->addToTransfer(dialNodeVid->arrays[2]);
             }
         }
     }

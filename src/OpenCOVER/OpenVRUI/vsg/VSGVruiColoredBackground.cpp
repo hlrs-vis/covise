@@ -69,7 +69,7 @@ void VSGVruiColoredBackground::resizeGeometry()
     {
         if ((*vertexIndexDraw).arrays[0]->buffer) 
         {
-            vruiRendererInterface::the()->addToTransfer(vertexIndexDraw->arrays[0]);
+            VSGVruiRendererInterface::the()->addToTransfer(vertexIndexDraw->arrays[0]);
         }
     }
 }
@@ -239,7 +239,8 @@ void VSGVruiColoredBackground::setEnabled(bool en)
     material->dirty();
     if (initiallyCompiled && !config->descriptorConfigurator->descriptorSets.empty())
     {
-        vruiRendererInterface::the()->addToTransfer(cast<DescriptorBuffer>(config->descriptorConfigurator->descriptorSets[1]->descriptors[0])->bufferInfoList[0]);
+        VSGVruiRendererInterface::the()->addToTransfer(
+            cast<DescriptorBuffer>(config->descriptorConfigurator->descriptorSets[1]->descriptors[0])->bufferInfoList[0]);
     }
 }
 
@@ -264,7 +265,8 @@ void VSGVruiColoredBackground::setHighlighted(bool hl)
     material->dirty();
     if (initiallyCompiled && !config->descriptorConfigurator->descriptorSets.empty())
     {
-        vruiRendererInterface::the()->addToTransfer(cast<DescriptorBuffer>(config->descriptorConfigurator->descriptorSets[1]->descriptors[0])->bufferInfoList[0]);
+        VSGVruiRendererInterface::the()->addToTransfer(
+            cast<DescriptorBuffer>(config->descriptorConfigurator->descriptorSets[1]->descriptors[0])->bufferInfoList[0]);
     }
 }
 }

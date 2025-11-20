@@ -25,6 +25,7 @@ class VSGVruiRendererInterface: public vruiRendererInterface
         return static_cast<VSGVruiRendererInterface *>(vrui::vruiRendererInterface::the());
     }
 
+    virtual void addToTransfer(vsg::BufferInfo *bi) = 0;
     virtual vsg::ref_ptr<vsg::Image> createVsgTexture(const std::string &textureName) = 0;
 };
 
