@@ -6,11 +6,14 @@
 #include <cover/VRViewer.h>
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRFileManager.h>
+#include <cover/OpenCOVER.h>
 
 #include <osg/Geometry>
 #include <osg/Vec3>
 #include <osg/State>
 #include <osg/GraphicsContext>
+#include <osg/ClipNode>
+#include <osg/ClipPlane>
 #include <osgViewer/Viewer>
 #include <osgViewer/Renderer>
 #include <osgText/Text>
@@ -28,7 +31,6 @@
 
 #include <chrono>
 #include <algorithm>
-#include <iomanip>
 #include <limits>
 #include <sstream>
 #include <vector>
@@ -84,7 +86,6 @@ namespace {
         float  scale_proj  = 0.0f;
         double k_orient    = 0.70;
     };
-
 
     inline SDStats makeSDStats(const MeasCtx& meas,
         const scm::math::vec2& viewport,
@@ -188,6 +189,30 @@ namespace {
             ? float(sd.sum_area_px / double(rendered_primitives)) : 0.0f;
     }
 
+    class ClipDistanceScope {
+    public:
+        ClipDistanceScope(LamureRenderer* renderer, bool enable)
+            : m_renderer(renderer)
+            , m_enabled(enable && renderer)
+        {
+            if (m_enabled)
+                m_renderer->enableClipDistances();
+        }
+
+        ~ClipDistanceScope()
+        {
+            if (m_enabled)
+                m_renderer->disableClipDistances();
+        }
+
+        ClipDistanceScope(const ClipDistanceScope&) = delete;
+        ClipDistanceScope& operator=(const ClipDistanceScope&) = delete;
+
+    private:
+        LamureRenderer* m_renderer{nullptr};
+        bool m_enabled{false};
+    };
+
 } // namespace
 
 
@@ -204,15 +229,55 @@ LamureRenderer::~LamureRenderer()
 
 }
 
-bool LamureRenderer::isHudCamera(const osg::Camera* camera) const
+void LamureRenderer::updateActiveClipPlanes()
 {
-    if (!camera) {
-        return true;
+    m_clip_plane_count = 0;
+    std::fill(m_clip_planes.begin(), m_clip_planes.end(), scm::math::vec4f(0.f, 0.f, 0.f, 0.f));
+
+    if (!m_plugin || !opencover::cover || !opencover::cover->isClippingOn())
+        return;
+
+    osg::ClipNode* clipNode = dynamic_cast<osg::ClipNode*>(opencover::cover->getObjectsRoot());
+    if (!clipNode)
+        return;
+
+    const int available = std::min<int>(clipNode->getNumClipPlanes(), kMaxClipPlanes);
+    for (int i = 0; i < available; ++i) {
+        osg::ClipPlane* plane = clipNode->getClipPlane(i);
+        if (!plane)
+            continue;
+        const osg::Vec4d eq = plane->getClipPlane();
+        m_clip_planes[m_clip_plane_count++] = scm::math::vec4f(static_cast<float>(eq.x()),
+                                                               static_cast<float>(eq.y()),
+                                                               static_cast<float>(eq.z()),
+                                                               static_cast<float>(eq.w()));
+        if (m_clip_plane_count >= kMaxClipPlanes)
+            break;
     }
-    if (m_hud_camera.valid() && camera == m_hud_camera.get()) {
-        return true;
-    }
-    return false;
+}
+
+void LamureRenderer::enableClipDistances()
+{
+    const int desired = std::min(m_clip_plane_count, kMaxClipPlanes);
+    for (int i = 0; i < desired; ++i)
+        glEnable(GL_CLIP_DISTANCE0 + i);
+    m_enabled_clip_distances = desired;
+}
+
+void LamureRenderer::disableClipDistances()
+{
+    for (int i = 0; i < m_enabled_clip_distances; ++i)
+        glDisable(GL_CLIP_DISTANCE0 + i);
+    m_enabled_clip_distances = 0;
+}
+
+void LamureRenderer::uploadClipPlanes(GLint countLocation, GLint dataLocation) const
+{
+    const GLint planeCount = std::min(m_clip_plane_count, kMaxClipPlanes);
+    if (countLocation >= 0)
+        glUniform1i(countLocation, planeCount);
+    if (dataLocation >= 0 && planeCount > 0)
+        glUniform4fv(dataLocation, planeCount, reinterpret_cast<const GLfloat*>(m_clip_planes.data()));
 }
 
 struct InitDrawCallback : public osg::Drawable::DrawCallback
@@ -225,7 +290,6 @@ struct InitDrawCallback : public osg::Drawable::DrawCallback
 
     void drawImplementation(osg::RenderInfo& renderInfo, const osg::Drawable* drawable) const override
     {
-
         osg::Matrix mv_matrix = opencover::cover->getBaseMat() * _renderer->getOsgCamera()->getViewMatrix();
         scm::math::mat4d modelview_matrix = LamureUtil::matConv4D(mv_matrix);
         scm::math::mat4d projection_matrix = LamureUtil::matConv4D(_renderer->getOsgCamera()->getProjectionMatrix());
@@ -253,84 +317,6 @@ struct InitDrawCallback : public osg::Drawable::DrawCallback
             before.restore();
             _initialized = true;
         }
-
-        if (_plugin && _plugin->getUI() && _plugin->getUI()->getDumpButton()->state()) {
-            auto *dumpButton = _plugin->getUI()->getDumpButton();
-            const auto &settings = _plugin->getSettings();
-            const auto &modelInfo = _plugin->getModelInfo();
-            const auto &models = settings.models;
-
-            auto describeNode = [](osg::Node *node) {
-                if (!node)
-                    return std::string("<null>");
-                std::string type = node->className();
-                if (dynamic_cast<osg::MatrixTransform *>(node))
-                    type = "MatrixTransform";
-                else if (dynamic_cast<osg::Group *>(node))
-                    type = "Group";
-                std::ostringstream out;
-                out << type << " '" << node->getName() << "'";
-                return out.str();
-            };
-
-            std::cout << "[Lamure] Dump (models=" << models.size() << ")" << std::endl;
-            for (std::size_t idx = 0; idx < models.size(); ++idx) {
-                const auto &modelPath = models[idx];
-                std::cout << "[" << idx << "] " << modelPath << std::endl;
-
-                auto itNode = _plugin->m_model_nodes.find(modelPath);
-                osg::Node *node = (itNode != _plugin->m_model_nodes.end()) ? itNode->second.get() : nullptr;
-                if (!node) {
-                    std::cout << "  node: <missing>" << std::endl << std::endl;
-                    continue;
-                }
-
-                const bool visible = idx < modelInfo.model_visible.size()
-                                         ? modelInfo.model_visible[idx]
-                                         : true;
-                std::cout << "  visible: " << (visible ? "yes" : "no") << std::endl;
-
-                auto itSource = _plugin->m_model_source_keys.find(modelPath);
-                if (itSource != _plugin->m_model_source_keys.end()) {
-                    std::cout << "  source: " << (itSource->second.empty() ? "<menu>" : itSource->second) << std::endl;
-                }
-
-                if (idx < modelInfo.model_transformations.size()) {
-                    std::cout << "  model_matrix:\n" << modelInfo.model_transformations[idx] << std::endl;
-                } else {
-                    std::cout << "  model_matrix: <unavailable>" << std::endl;
-                }
-
-                const unsigned parentCount = node->getNumParents();
-                std::cout << "  parents (" << parentCount << "):" << std::endl;
-                if (parentCount == 0) {
-                    std::cout << "    - <none>" << std::endl << std::endl;
-                    continue;
-                }
-
-                for (unsigned p = 0; p < parentCount; ++p) {
-                    osg::Node *parent = node->getParent(p);
-                    if (!parent) {
-                        std::cout << "    - <null>" << std::endl;
-                        continue;
-                    }
-                    unsigned childCount = 0;
-                    if (auto *parentGroup = dynamic_cast<osg::Group *>(parent)) {
-                        childCount = parentGroup->getNumChildren();
-                    }
-                    std::cout << "    - " << describeNode(parent)
-                              << " | children=" << childCount
-                              << " | mask=0x" << std::hex << parent->getNodeMask() << std::dec
-                              << std::endl;
-                }
-
-                std::cout << std::endl;
-            }
-            if (dumpButton) {
-                dumpButton->setState(false);
-            }
-        }
-
 
         if (drawable)
             drawable->drawImplementation(renderInfo);
@@ -736,9 +722,12 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
         GLState before = GLState::capture();
         glDisable(GL_CULL_FACE);
 
+        _renderer->updateActiveClipPlanes();
+        const bool useClipPlanes = (_renderer->clipPlaneCount() > 0);
+        ClipDistanceScope clipScope(_renderer, useClipPlanes);
+
         osg::State* state = renderInfo.getState();
         state->setCheckForGLErrors(osg::State::CheckForGLErrors::NEVER_CHECK_GL_ERRORS);
-
 
         const osg::Matrixd osg_view_matrix = state->getModelViewMatrix();
         const osg::Matrixd osg_projection_matrix = state->getProjectionMatrix();
@@ -1043,7 +1032,7 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
                 scm::math::mat4 mvp_matrix = projection_matrix * model_view_matrix;
                 scm::gl::frustum frustum = _renderer->getScmCamera()->get_frustum_by_model(model_matrix);
 
-                _renderer->setModelUniforms(mvp_matrix);
+                _renderer->setModelUniforms(mvp_matrix, model_matrix);
                 for (auto const& node_slot_aggregate : renderable) {
                     
                     if (_renderer->getScmCamera()->cull_against_frustum(frustum, bounding_box_vector[node_slot_aggregate.node_id_]) != 1) {
@@ -1366,6 +1355,9 @@ void LamureRenderer::initUniforms()
     if (notifyOn(m_plugin)) { std::cout << "[Lamure] LamureRenderer::initUniforms()" << std::endl; }
     glUseProgram(m_point_shader.program);
     m_point_shader.mvp_matrix_loc   = glGetUniformLocation(m_point_shader.program, "mvp_matrix");
+    m_point_shader.model_matrix_loc = glGetUniformLocation(m_point_shader.program, "model_matrix");
+    m_point_shader.clip_plane_count_loc = glGetUniformLocation(m_point_shader.program, "clip_plane_count");
+    m_point_shader.clip_plane_data_loc  = glGetUniformLocation(m_point_shader.program, "clip_planes");
     m_point_shader.max_radius_loc   = glGetUniformLocation(m_point_shader.program, "max_radius");
     m_point_shader.min_radius_loc   = glGetUniformLocation(m_point_shader.program, "min_radius");
     m_point_shader.max_screen_size_loc   = glGetUniformLocation(m_point_shader.program, "max_screen_size");
@@ -1383,6 +1375,9 @@ void LamureRenderer::initUniforms()
 
     glUseProgram(m_point_color_shader.program);
     m_point_color_shader.mvp_matrix_loc   = glGetUniformLocation(m_point_color_shader.program, "mvp_matrix");
+    m_point_color_shader.model_matrix_loc = glGetUniformLocation(m_point_color_shader.program, "model_matrix");
+    m_point_color_shader.clip_plane_count_loc = glGetUniformLocation(m_point_color_shader.program, "clip_plane_count");
+    m_point_color_shader.clip_plane_data_loc  = glGetUniformLocation(m_point_color_shader.program, "clip_planes");
     m_point_color_shader.view_matrix_loc         = glGetUniformLocation(m_point_color_shader.program, "view_matrix");
     m_point_color_shader.normal_matrix_loc     = glGetUniformLocation(m_point_color_shader.program, "normal_matrix");
     m_point_color_shader.max_radius_loc   = glGetUniformLocation(m_point_color_shader.program, "max_radius");
@@ -1408,6 +1403,9 @@ void LamureRenderer::initUniforms()
 
     glUseProgram(m_point_color_lighting_shader.program);
     m_point_color_lighting_shader.mvp_matrix_loc          = glGetUniformLocation(m_point_color_lighting_shader.program, "mvp_matrix");
+    m_point_color_lighting_shader.model_matrix_loc        = glGetUniformLocation(m_point_color_lighting_shader.program, "model_matrix");
+    m_point_color_lighting_shader.clip_plane_count_loc    = glGetUniformLocation(m_point_color_lighting_shader.program, "clip_plane_count");
+    m_point_color_lighting_shader.clip_plane_data_loc     = glGetUniformLocation(m_point_color_lighting_shader.program, "clip_planes");
     m_point_color_lighting_shader.view_matrix_loc         = glGetUniformLocation(m_point_color_lighting_shader.program, "view_matrix");
     m_point_color_lighting_shader.normal_matrix_loc     = glGetUniformLocation(m_point_color_lighting_shader.program, "normal_matrix");
     m_point_color_lighting_shader.max_radius_loc          = glGetUniformLocation(m_point_color_lighting_shader.program, "max_radius");
@@ -1445,6 +1443,9 @@ void LamureRenderer::initUniforms()
 
     glUseProgram(m_point_prov_shader.program);
     m_point_prov_shader.mvp_matrix_loc   = glGetUniformLocation(m_point_prov_shader.program, "mvp_matrix");
+    m_point_prov_shader.model_matrix_loc = glGetUniformLocation(m_point_prov_shader.program, "model_matrix");
+    m_point_prov_shader.clip_plane_count_loc = glGetUniformLocation(m_point_prov_shader.program, "clip_plane_count");
+    m_point_prov_shader.clip_plane_data_loc  = glGetUniformLocation(m_point_prov_shader.program, "clip_planes");
     m_point_prov_shader.max_radius_loc   = glGetUniformLocation(m_point_prov_shader.program, "max_radius");
     m_point_prov_shader.min_radius_loc   = glGetUniformLocation(m_point_prov_shader.program, "min_radius");
     m_point_prov_shader.max_screen_size_loc   = glGetUniformLocation(m_point_prov_shader.program, "max_screen_size");
@@ -1471,6 +1472,9 @@ void LamureRenderer::initUniforms()
 
     glUseProgram(m_surfel_shader.program);
     m_surfel_shader.mvp_matrix_loc          = glGetUniformLocation(m_surfel_shader.program, "mvp_matrix");
+    m_surfel_shader.model_matrix_loc        = glGetUniformLocation(m_surfel_shader.program, "model_matrix");
+    m_surfel_shader.clip_plane_count_loc    = glGetUniformLocation(m_surfel_shader.program, "clip_plane_count");
+    m_surfel_shader.clip_plane_data_loc     = glGetUniformLocation(m_surfel_shader.program, "clip_planes");
     m_surfel_shader.max_radius_loc          = glGetUniformLocation(m_surfel_shader.program, "max_radius");
     m_surfel_shader.min_radius_loc          = glGetUniformLocation(m_surfel_shader.program, "min_radius");
     m_surfel_shader.max_screen_size_loc          = glGetUniformLocation(m_surfel_shader.program, "max_screen_size"); 
@@ -1485,6 +1489,9 @@ void LamureRenderer::initUniforms()
 
     glUseProgram(m_surfel_color_shader.program);
     m_surfel_color_shader.mvp_matrix_loc    = glGetUniformLocation(m_surfel_color_shader.program, "mvp_matrix");
+    m_surfel_color_shader.model_matrix_loc  = glGetUniformLocation(m_surfel_color_shader.program, "model_matrix");
+    m_surfel_color_shader.clip_plane_count_loc = glGetUniformLocation(m_surfel_color_shader.program, "clip_plane_count");
+    m_surfel_color_shader.clip_plane_data_loc  = glGetUniformLocation(m_surfel_color_shader.program, "clip_planes");
     m_surfel_color_shader.view_matrix_loc         = glGetUniformLocation(m_surfel_color_shader.program, "view_matrix");
     m_surfel_color_shader.normal_matrix_loc       = glGetUniformLocation(m_surfel_color_shader.program, "normal_matrix");
     m_surfel_color_shader.max_radius_loc    = glGetUniformLocation(m_surfel_color_shader.program, "max_radius");
@@ -1507,6 +1514,9 @@ void LamureRenderer::initUniforms()
 
     glUseProgram(m_surfel_color_lighting_shader.program);
     m_surfel_color_lighting_shader.mvp_matrix_loc          = glGetUniformLocation(m_surfel_color_lighting_shader.program, "mvp_matrix");
+    m_surfel_color_lighting_shader.model_matrix_loc        = glGetUniformLocation(m_surfel_color_lighting_shader.program, "model_matrix");
+    m_surfel_color_lighting_shader.clip_plane_count_loc    = glGetUniformLocation(m_surfel_color_lighting_shader.program, "clip_plane_count");
+    m_surfel_color_lighting_shader.clip_plane_data_loc     = glGetUniformLocation(m_surfel_color_lighting_shader.program, "clip_planes");
     m_surfel_color_lighting_shader.view_matrix_loc         = glGetUniformLocation(m_surfel_color_lighting_shader.program, "view_matrix");
     m_surfel_color_lighting_shader.normal_matrix_loc       = glGetUniformLocation(m_surfel_color_lighting_shader.program, "normal_matrix");
     m_surfel_color_lighting_shader.max_radius_loc          = glGetUniformLocation(m_surfel_color_lighting_shader.program, "max_radius");
@@ -1539,6 +1549,9 @@ void LamureRenderer::initUniforms()
 
     glUseProgram(m_surfel_prov_shader.program);
     m_surfel_prov_shader.mvp_matrix_loc    = glGetUniformLocation(m_surfel_prov_shader.program, "mvp_matrix");
+    m_surfel_prov_shader.model_matrix_loc  = glGetUniformLocation(m_surfel_prov_shader.program, "model_matrix");
+    m_surfel_prov_shader.clip_plane_count_loc = glGetUniformLocation(m_surfel_prov_shader.program, "clip_plane_count");
+    m_surfel_prov_shader.clip_plane_data_loc  = glGetUniformLocation(m_surfel_prov_shader.program, "clip_planes");
     m_surfel_prov_shader.max_radius_loc    = glGetUniformLocation(m_surfel_prov_shader.program, "max_radius");
     m_surfel_prov_shader.min_radius_loc    = glGetUniformLocation(m_surfel_prov_shader.program, "min_radius");
     m_surfel_prov_shader.min_screen_size_loc    = glGetUniformLocation(m_surfel_prov_shader.program, "min_screen_size");
@@ -1774,6 +1787,7 @@ void LamureRenderer::setFrameUniforms(const scm::math::mat4& projection_matrix, 
         if (prog.viewport_half_y_loc >= 0) glUniform1f(prog.viewport_half_y_loc, viewport_half_y);
         if (prog.use_aniso_loc >= 0)       glUniform1i(prog.use_aniso_loc, useAnisoThisPass ? 1 : 0);
         if (prog.aniso_normalize_loc >= 0) glUniform1f(prog.aniso_normalize_loc, aniso_normalize);
+        uploadClipPlanes(prog.clip_plane_count_loc, prog.clip_plane_data_loc);
         break;
     }
     case ShaderType::PointColor: {
@@ -1800,6 +1814,7 @@ void LamureRenderer::setFrameUniforms(const scm::math::mat4& projection_matrix, 
         if (prog.show_radius_dev_loc >= 0)  glUniform1i(prog.show_radius_dev_loc,  showRadiusDeviationDebug ? 1 : 0);
         if (prog.show_output_sens_loc >= 0) glUniform1i(prog.show_output_sens_loc, showOutputSensitivityDebug ? 1 : 0);
         if (prog.show_accuracy_loc >= 0)    glUniform1i(prog.show_accuracy_loc,    showAccuracyDebug ? 1 : 0);
+        uploadClipPlanes(prog.clip_plane_count_loc, prog.clip_plane_data_loc);
         break;
     }
     case ShaderType::PointColorLighting: {
@@ -1831,6 +1846,7 @@ void LamureRenderer::setFrameUniforms(const scm::math::mat4& projection_matrix, 
         glUniform1f(prog.shininess_loc,             s.shininess);
         glUniform1f(prog.gamma_loc,                 s.gamma);
         glUniform1i(prog.use_tone_mapping_loc,      s.use_tone_mapping ? 1 : 0);
+        uploadClipPlanes(prog.clip_plane_count_loc, prog.clip_plane_data_loc);
         break;
     }
     case ShaderType::PointProv: {
@@ -1856,6 +1872,7 @@ void LamureRenderer::setFrameUniforms(const scm::math::mat4& projection_matrix, 
         glUniform1f(prog.heatmap_max_loc, s.heatmap_max);
         glUniform3fv(prog.heatmap_min_color_loc, 1, s.heatmap_color_min.data_array);
         glUniform3fv(prog.heatmap_max_color_loc, 1, s.heatmap_color_max.data_array);
+        uploadClipPlanes(prog.clip_plane_count_loc, prog.clip_plane_data_loc);
         break;
     }
     case ShaderType::Surfel: {
@@ -1872,6 +1889,7 @@ void LamureRenderer::setFrameUniforms(const scm::math::mat4& projection_matrix, 
         glUniform1f(prog.scale_projection_loc, scale_projection_val);
         if (prog.viewport_loc >= 0) glUniform2fv(prog.viewport_loc, 1, viewport.data_array);
         if (prog.use_aniso_loc >= 0) glUniform1i(prog.use_aniso_loc, useAnisoThisPass ? 1 : 0);
+        uploadClipPlanes(prog.clip_plane_count_loc, prog.clip_plane_data_loc);
         break;
     }
     case ShaderType::SurfelColor: {
@@ -1895,6 +1913,7 @@ void LamureRenderer::setFrameUniforms(const scm::math::mat4& projection_matrix, 
         if (prog.show_radius_dev_loc >= 0)  glUniform1i(prog.show_radius_dev_loc,  showRadiusDeviationDebug ? 1 : 0);
         if (prog.show_output_sens_loc >= 0) glUniform1i(prog.show_output_sens_loc, showOutputSensitivityDebug ? 1 : 0);
         if (prog.show_accuracy_loc >= 0)    glUniform1i(prog.show_accuracy_loc,    showAccuracyDebug ? 1 : 0);
+        uploadClipPlanes(prog.clip_plane_count_loc, prog.clip_plane_data_loc);
         break;
     }
     case ShaderType::SurfelColorLighting: {
@@ -1927,7 +1946,7 @@ void LamureRenderer::setFrameUniforms(const scm::math::mat4& projection_matrix, 
         glUniform1f(prog.shininess_loc,             s.shininess);
         glUniform1f(prog.gamma_loc,                 s.gamma);
         glUniform1i(prog.use_tone_mapping_loc,      s.use_tone_mapping ? 1 : 0);
-        //print_active_uniforms(prog.program, "SurfelColorLighting");
+        uploadClipPlanes(prog.clip_plane_count_loc, prog.clip_plane_data_loc);
         break;
     }
     case ShaderType::SurfelProv: {
@@ -1953,6 +1972,7 @@ void LamureRenderer::setFrameUniforms(const scm::math::mat4& projection_matrix, 
         glUniform1f(prog.heatmap_max_loc, s.heatmap_max);
         glUniform3fv(prog.heatmap_min_color_loc, 1, s.heatmap_color_min.data_array);
         glUniform3fv(prog.heatmap_max_color_loc, 1, s.heatmap_color_max.data_array);
+        uploadClipPlanes(prog.clip_plane_count_loc, prog.clip_plane_data_loc);
         break;
     }
     // Multipass uniforms are set during the draw callback; nothing to do here.
@@ -1962,17 +1982,50 @@ void LamureRenderer::setFrameUniforms(const scm::math::mat4& projection_matrix, 
     }
 }
 
-void LamureRenderer::setModelUniforms(const scm::math::mat4& mvp_matrix) {
+void LamureRenderer::setModelUniforms(const scm::math::mat4& mvp_matrix, const scm::math::mat4& model_matrix) {
     switch (m_plugin->getSettings().shader_type) {
-    case ShaderType::Point:       glUniformMatrix4fv(m_point_shader.mvp_matrix_loc, 1, GL_FALSE, mvp_matrix.data_array); break;
-    case ShaderType::PointColor:  glUniformMatrix4fv(m_point_color_shader.mvp_matrix_loc, 1, GL_FALSE, mvp_matrix.data_array); break;
-    case ShaderType::PointColorLighting: glUniformMatrix4fv(m_point_color_lighting_shader.mvp_matrix_loc, 1, GL_FALSE, mvp_matrix.data_array); break;
-    case ShaderType::PointProv:   glUniformMatrix4fv(m_point_prov_shader.mvp_matrix_loc, 1, GL_FALSE, mvp_matrix.data_array); break;
-    case ShaderType::Surfel:      glUniformMatrix4fv(m_surfel_shader.mvp_matrix_loc, 1, GL_FALSE, mvp_matrix.data_array); break;
-    case ShaderType::SurfelColor: glUniformMatrix4fv(m_surfel_color_shader.mvp_matrix_loc, 1, GL_FALSE, mvp_matrix.data_array); break;
-    case ShaderType::SurfelColorLighting: glUniformMatrix4fv(m_surfel_color_lighting_shader.mvp_matrix_loc, 1, GL_FALSE, mvp_matrix.data_array); break;
-    case ShaderType::SurfelProv:  glUniformMatrix4fv(m_surfel_prov_shader.mvp_matrix_loc, 1, GL_FALSE, mvp_matrix.data_array); break;
-    case ShaderType::SurfelMultipass: break;
+    case ShaderType::Point:
+        glUniformMatrix4fv(m_point_shader.mvp_matrix_loc, 1, GL_FALSE, mvp_matrix.data_array);
+        if (m_point_shader.model_matrix_loc >= 0)
+            glUniformMatrix4fv(m_point_shader.model_matrix_loc, 1, GL_FALSE, model_matrix.data_array);
+        break;
+    case ShaderType::PointColor:
+        glUniformMatrix4fv(m_point_color_shader.mvp_matrix_loc, 1, GL_FALSE, mvp_matrix.data_array);
+        if (m_point_color_shader.model_matrix_loc >= 0)
+            glUniformMatrix4fv(m_point_color_shader.model_matrix_loc, 1, GL_FALSE, model_matrix.data_array);
+        break;
+    case ShaderType::PointColorLighting:
+        glUniformMatrix4fv(m_point_color_lighting_shader.mvp_matrix_loc, 1, GL_FALSE, mvp_matrix.data_array);
+        if (m_point_color_lighting_shader.model_matrix_loc >= 0)
+            glUniformMatrix4fv(m_point_color_lighting_shader.model_matrix_loc, 1, GL_FALSE, model_matrix.data_array);
+        break;
+    case ShaderType::PointProv:
+        glUniformMatrix4fv(m_point_prov_shader.mvp_matrix_loc, 1, GL_FALSE, mvp_matrix.data_array);
+        if (m_point_prov_shader.model_matrix_loc >= 0)
+            glUniformMatrix4fv(m_point_prov_shader.model_matrix_loc, 1, GL_FALSE, model_matrix.data_array);
+        break;
+    case ShaderType::Surfel:
+        glUniformMatrix4fv(m_surfel_shader.mvp_matrix_loc, 1, GL_FALSE, mvp_matrix.data_array);
+        if (m_surfel_shader.model_matrix_loc >= 0)
+            glUniformMatrix4fv(m_surfel_shader.model_matrix_loc, 1, GL_FALSE, model_matrix.data_array);
+        break;
+    case ShaderType::SurfelColor:
+        glUniformMatrix4fv(m_surfel_color_shader.mvp_matrix_loc, 1, GL_FALSE, mvp_matrix.data_array);
+        if (m_surfel_color_shader.model_matrix_loc >= 0)
+            glUniformMatrix4fv(m_surfel_color_shader.model_matrix_loc, 1, GL_FALSE, model_matrix.data_array);
+        break;
+    case ShaderType::SurfelColorLighting:
+        glUniformMatrix4fv(m_surfel_color_lighting_shader.mvp_matrix_loc, 1, GL_FALSE, mvp_matrix.data_array);
+        if (m_surfel_color_lighting_shader.model_matrix_loc >= 0)
+            glUniformMatrix4fv(m_surfel_color_lighting_shader.model_matrix_loc, 1, GL_FALSE, model_matrix.data_array);
+        break;
+    case ShaderType::SurfelProv:
+        glUniformMatrix4fv(m_surfel_prov_shader.mvp_matrix_loc, 1, GL_FALSE, mvp_matrix.data_array);
+        if (m_surfel_prov_shader.model_matrix_loc >= 0)
+            glUniformMatrix4fv(m_surfel_prov_shader.model_matrix_loc, 1, GL_FALSE, model_matrix.data_array);
+        break;
+    case ShaderType::SurfelMultipass:
+        break;
     }
 }
 
@@ -2286,21 +2339,6 @@ void LamureRenderer::initCamera()
     scm::math::vec3f root_max_temp = scm::math::vec3f::zero();
 }
 
-unsigned int LamureRenderer::createShader(const std::string& vertexShader, const std::string& fragmentShader, uint8_t ctx_id)
-{
-    osg::GLExtensions* gl_api = new osg::GLExtensions(ctx_id);
-    unsigned int program = gl_api->glCreateProgram();
-    unsigned int vs = compileShader(GL_VERTEX_SHADER, vertexShader, ctx_id);
-    unsigned int fs = compileShader(GL_FRAGMENT_SHADER, fragmentShader, ctx_id);
-    gl_api->glAttachShader(program, vs);
-    gl_api->glAttachShader(program, fs);
-    gl_api->glLinkProgram(program);
-    gl_api->glValidateProgram(program);
-    gl_api->glDeleteShader(vs);
-    gl_api->glDeleteShader(fs);
-    return program;
-}
-
 unsigned int LamureRenderer::compileShader(unsigned int type, const std::string& source, uint8_t ctx_id)
 {
     osg::GLExtensions* gl_api = new osg::GLExtensions(ctx_id);
@@ -2488,56 +2526,6 @@ void LamureRenderer::initBoxResources() {
                                                               (global_min.y + global_max.y) * 0.5,
                                                               (global_min.z + global_max.z) * 0.5 );
 }
-
-std::string LamureRenderer::glTypeToString(GLenum type) {
-    switch (type) {
-    case GL_FLOAT: return "float";
-    case GL_FLOAT_VEC2: return "vec2";
-    case GL_FLOAT_VEC3: return "vec3";
-    case GL_FLOAT_VEC4: return "vec4";
-    case GL_INT: return "int";
-    case GL_BOOL: return "bool";
-    case GL_FLOAT_MAT3: return "mat3";
-    case GL_FLOAT_MAT4: return "mat4";
-    case GL_SAMPLER_2D: return "sampler2D";
-    default: return "other";
-    }
-}
-
-void LamureRenderer::print_active_uniforms(GLuint programID, const std::string& shaderName) {
-
-    if (programID == 0) {
-        std::cout << "--- Uniforms for " << shaderName << ": INVALID PROGRAM ID (0) ---" << std::endl;
-        return;
-    }
-
-    std::cout << "--- Active Uniforms for Shader: " << shaderName << " (Program ID: " << programID << ") ---" << std::endl;
-    GLint uniformCount = 0;
-    glGetProgramiv(programID, GL_ACTIVE_UNIFORMS, &uniformCount);
-
-    if (uniformCount == 0) {
-        std::cout << "  No active uniforms found." << std::endl;
-        return;
-    }
-
-    GLint maxNameLen = 0;
-    glGetProgramiv(programID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxNameLen);
-    std::vector<GLchar> nameBuffer(maxNameLen);
-
-    std::cout << std::left << std::setw(10) << "Location" << std::setw(10) << "Type" << std::setw(8) << "Size" << "Name" << std::endl;
-    std::cout << "-----------------------------------------------------" << std::endl;
-
-    for (GLint i = 0; i < uniformCount; ++i) {
-        GLsizei nameLen;
-        GLint size;
-        GLenum type;
-        glGetActiveUniform(programID, i, maxNameLen, &nameLen, &size, &type, nameBuffer.data());
-        std::string name(nameBuffer.data(), nameLen);
-        GLint location = glGetUniformLocation(programID, name.c_str());
-        std::cout << std::left << std::setw(10) << location << std::setw(10) << glTypeToString(type) << std::setw(8) << size << name << std::endl;
-    }
-}
-
 
 void LamureRenderer::initPclResources(){
     if(notifyOn(m_plugin)) std::cout<<"[Lamure] initPclResources()\n";

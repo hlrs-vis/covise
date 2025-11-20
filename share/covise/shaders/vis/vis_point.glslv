@@ -1,6 +1,11 @@
 #version 420 core
 
 INCLUDE vis_point_util.glsl
+INCLUDE vis_clip_util.glsl
+
+uniform int clip_plane_count;
+uniform vec4 clip_planes[LAMURE_MAX_CLIP_PLANES];
+uniform mat4 model_matrix;
 
 out VertexData {
     vec3 color;
@@ -29,6 +34,16 @@ uniform float aniso_normalize;
 
 void main() {
     const float EPS = 1e-6;
+
+    if (clip_plane_count > 0)
+    {
+        vec4 world_pos = model_matrix * vec4(in_position, 1.0);
+        lamure_apply_clip_planes(world_pos, clip_plane_count, clip_planes);
+    }
+    else
+    {
+        lamure_apply_clip_planes(vec4(0.0), 0, clip_planes);
+    }
 
     float r_ws = calc_world_radius(
         in_radius, max_radius_cut, scale_radius_gamma, scale_radius, min_radius, max_radius);

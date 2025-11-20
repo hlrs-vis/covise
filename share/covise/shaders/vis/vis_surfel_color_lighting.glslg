@@ -1,6 +1,7 @@
 // ===================== Geometry Shader =====================
 #version 420 core
 INCLUDE vis_surfel_util.glsl
+INCLUDE vis_clip_util.glsl
 
 layout(points) in;
 layout(triangle_strip, max_vertices = 4) out;
@@ -17,11 +18,14 @@ in VertexData {
 } VertexIn[];
 
 uniform mat4  mvp_matrix;
+uniform mat4  model_matrix;
 uniform vec2  viewport;
 uniform float min_screen_size;   // Pixel-Durchmesser
 uniform float max_screen_size;   // Pixel-Durchmesser
 uniform float scale_projection;
 uniform bool  use_aniso;         // anisotrope Skalierung aktiv
+uniform int   clip_plane_count;
+uniform vec4  clip_planes[LAMURE_MAX_CLIP_PLANES];
 
 out FS_IN {
     vec3  pass_point_color;
@@ -88,6 +92,15 @@ void main() {
 
     for (int i = 0; i < 4; ++i) {
         gOut.pass_uv_coords = uvs[i];
+        if (clip_plane_count > 0)
+        {
+            vec4 world_pos = model_matrix * vec4(center + offs[i], 1.0);
+            lamure_apply_clip_planes(world_pos, clip_plane_count, clip_planes);
+        }
+        else
+        {
+            lamure_apply_clip_planes(vec4(0.0), 0, clip_planes);
+        }
         gl_Position = mvp_matrix * vec4(center + offs[i], 1.0);
         EmitVertex();
     }

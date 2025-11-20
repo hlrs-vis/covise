@@ -1,6 +1,12 @@
 // vis_point_prov.glslv (Vertex Shader)
 #version 420 core
 
+INCLUDE vis_clip_util.glsl
+
+uniform int clip_plane_count;
+uniform vec4 clip_planes[LAMURE_MAX_CLIP_PLANES];
+uniform mat4 model_matrix;
+
 // --- Inputs ---
 layout(location = 0) in vec3  in_position;
 layout(location = 1) in float in_r;
@@ -44,6 +50,16 @@ out VertexData {
 
 void main() {
     const float EPS = 1e-6;
+
+    if (clip_plane_count > 0)
+    {
+        vec4 clipWorldPos = model_matrix * vec4(in_position, 1.0);
+        lamure_apply_clip_planes(clipWorldPos, clip_plane_count, clip_planes);
+    }
+    else
+    {
+        lamure_apply_clip_planes(vec4(0.0), 0, clip_planes);
+    }
 
     // Clip-/Gerätekoordinaten
     vec4 clipPos = mvp_matrix * vec4(in_position, 1.0);

@@ -50,7 +50,6 @@ private:
     struct CameraBinding;
     CameraBinding& ensureCameraBinding(const osg::Camera* osgCamera);
     void releaseCameraBindings();
-    bool isHudCamera(const osg::Camera* camera) const;
 
     bool m_rendering{false};
     mutable std::mutex m_renderMutex;
@@ -66,8 +65,8 @@ private:
 
     GLuint compileAndLinkShaders(std::string vsSource, std::string fsSource);
     GLuint compileAndLinkShaders(std::string vsSource, std::string gsSource, std::string fsSource);
-    unsigned int createShader(const std::string& vertexShader, const std::string& fragmentShader, uint8_t ctxId);
     unsigned int compileShader(unsigned int type, const std::string& source, uint8_t ctxId);
+    void uploadClipPlanes(GLint countLocation, GLint dataLocation) const;
 
     // Resource structs
     struct pcl_resource;
@@ -81,6 +80,9 @@ private:
     struct PointShader {
         GLuint program{0};
         GLint  mvp_matrix_loc{-1};
+        GLint  model_matrix_loc{-1};
+        GLint  clip_plane_count_loc{-1};
+        GLint  clip_plane_data_loc{-1};
         GLint  max_radius_loc{-1};
         GLint  min_radius_loc{-1};
         GLint  max_screen_size_loc{-1};
@@ -100,6 +102,9 @@ private:
     struct PointColorShader {
         GLuint program{0};
         GLint mvp_matrix_loc            {-1}; // mat4  mvp_matrix
+        GLint model_matrix_loc          {-1};
+        GLint clip_plane_count_loc      {-1};
+        GLint clip_plane_data_loc       {-1};
         GLint view_matrix_loc           {-1}; // mat4  view_matrix
         GLint normal_matrix_loc         {-1}; // mat3  normal_matrix
         GLint max_radius_loc            {-1}; // float max_radius
@@ -127,6 +132,9 @@ private:
     struct PointColorLightingShader {
         GLuint program{0};
         GLint mvp_matrix_loc            {-1};
+        GLint model_matrix_loc          {-1};
+        GLint clip_plane_count_loc      {-1};
+        GLint clip_plane_data_loc       {-1};
         GLint view_matrix_loc           {-1};
         GLint normal_matrix_loc         {-1};
         GLint max_radius_loc            {-1};
@@ -161,6 +169,9 @@ private:
     struct PointProvShader {
         GLuint program{0};
         GLint mvp_matrix_loc            {-1};
+        GLint model_matrix_loc          {-1};
+        GLint clip_plane_count_loc      {-1};
+        GLint clip_plane_data_loc       {-1};
         GLint max_radius_loc            {-1};
         GLint min_radius_loc            {-1};
         GLint max_screen_size_loc       {-1};
@@ -189,6 +200,9 @@ private:
         GLuint program{0};
         GLint  mvp_matrix_loc           {-1};
         GLint  model_view_matrix_loc    {-1};
+        GLint  model_matrix_loc         {-1};
+        GLint  clip_plane_count_loc     {-1};
+        GLint  clip_plane_data_loc      {-1};
         GLint  max_radius_loc           {-1};
         GLint  min_radius_loc           {-1};
         GLint max_screen_size_loc       {-1};
@@ -207,6 +221,9 @@ private:
         GLint mvp_matrix_loc            {-1}; // mat4  mvp_matrix
         GLint view_matrix_loc           {-1}; // mat4 view_matrix
         GLint model_view_matrix_loc     {-1};
+        GLint model_matrix_loc          {-1};
+        GLint clip_plane_count_loc      {-1};
+        GLint clip_plane_data_loc       {-1};
         GLint normal_matrix_loc         {-1}; // mat3 normal_matrix
         GLint min_radius_loc            {-1}; // float min_radius
         GLint max_radius_loc            {-1}; // float max_radius
@@ -232,6 +249,9 @@ private:
         GLint mvp_matrix_loc            {-1}; // mat4 mvp_matrix
         GLint view_matrix_loc           {-1}; // mat4 view_matrix
         GLint model_view_matrix_loc     {-1};
+        GLint model_matrix_loc          {-1};
+        GLint clip_plane_count_loc      {-1};
+        GLint clip_plane_data_loc       {-1};
         GLint normal_matrix_loc         {-1}; // mat3 normal_matrix
         GLint max_radius_loc            {-1}; // float max_radius
         GLint max_screen_size_loc       {-1};
@@ -263,6 +283,9 @@ private:
     struct SurfelProvShader {
         GLuint program{0};
         GLint mvp_matrix_loc            {-1}; // mat4  mvp_matrix
+        GLint model_matrix_loc          {-1};
+        GLint clip_plane_count_loc      {-1};
+        GLint clip_plane_data_loc       {-1};
         GLint min_radius_loc            {-1}; // float min_radius
         GLint max_radius_loc            {-1}; // float max_radius
         GLint min_screen_size_loc       {-1};
@@ -384,6 +407,11 @@ private:
     };
 
     PclResource m_pcl_resource;
+
+    static constexpr int kMaxClipPlanes = 6;
+    std::array<scm::math::vec4f, kMaxClipPlanes> m_clip_planes;
+    int m_clip_plane_count{0};
+    int m_enabled_clip_distances{0};
 
     struct MultipassTarget {
         GLuint fbo = 0;
@@ -688,14 +716,19 @@ public:
     std::map<uint32_t, std::vector<uint32_t>> m_bvh_node_vertex_offsets;
 
     void setActiveShaderType(ShaderType t) { m_active_shader_type = t; }
+    ShaderType getActiveShaderType() const { return m_active_shader_type; }
     void setFrameUniforms(const scm::math::mat4& projection_matrix, const scm::math::vec2& viewport);
-    void setModelUniforms(const scm::math::mat4& mvp_matrix);
+    void setModelUniforms(const scm::math::mat4& mvp_matrix, const scm::math::mat4& model_matrix);
     void setNodeUniforms(const lamure::ren::bvh* bvh, uint32_t node_id);
     bool isModelVisible(std::size_t modelIndex) const;
 
+    void updateActiveClipPlanes();
+    void enableClipDistances();
+    void disableClipDistances();
+    int clipPlaneCount() const { return m_clip_plane_count; }
+    bool supportsClipPlanes(ShaderType type) const;
 
-    std::string glTypeToString(GLenum type);
-    void print_active_uniforms(GLuint programID, const std::string& shaderName);
+
 
     const PointShader&                  getPointShader()                const { return m_point_shader; }
     const PointColorShader&             getPointColorShader()           const { return m_point_color_shader; }
