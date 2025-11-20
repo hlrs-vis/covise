@@ -69,6 +69,7 @@ SET(VSGVRUI_HEADERS
   VSGVruiUIElement.h
   VSGVruiValuePoti.h
   VSGVruiTextButtonGeometry.h
+  VSGVruiRendererInterface.h
   mathUtils.h
 )
 

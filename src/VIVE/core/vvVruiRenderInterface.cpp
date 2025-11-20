@@ -444,6 +444,11 @@ vruiTexture *vvVruiRenderInterface::createTexture(const string &name)
     return new VSGVruiTexture(vvFileManager::instance()->loadTexture(name.c_str()));
 }
 
+vsg::ref_ptr<vsg::Image> vvVruiRenderInterface::createVsgTexture(const std::string &textureName)
+{
+    return vvFileManager::instance()->loadTexture(textureName.c_str());
+}
+
 coAction::Result vvVruiRenderInterface::hit(coAction *action, vruiHit *)
 {
 

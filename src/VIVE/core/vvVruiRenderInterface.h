@@ -6,7 +6,7 @@
  * License: LGPL 2+ */
 #pragma once
 
-#include <OpenVRUI/sginterface/vruiRendererInterface.h>
+#include <OpenVRUI/vsg/VSGVruiRendererInterface.h>
 #include <vsg/core/Data.h>
 
 #include <stack>
@@ -22,7 +22,7 @@ class coAction;
 namespace vive
 {
 
-class vvVruiRenderInterface : public vrui::vruiRendererInterface
+class vvVruiRenderInterface: public vrui::VSGVruiRendererInterface
 {
 public:
     vvVruiRenderInterface();
@@ -45,6 +45,8 @@ public:
     virtual std::string getFont(const std::string &name) const override;
 
     virtual vrui::vruiTexture *createTexture(const std::string &textureName) override;
+
+    vsg::ref_ptr<vsg::Image> createVsgTexture(const std::string &textureName) override;
 
     virtual vrui::coUpdateManager *getUpdateManager() override;
     virtual vrui::coJoystickManager *getJoystickManager() override;
