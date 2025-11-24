@@ -3,7 +3,7 @@
 namespace core::simulation::power {
 
 void PowerSimulation::computeParameters() {
-  computeParameter(
+  initScalarProperties(
       {std::ref(m_buses), std::ref(m_generators), std::ref(m_transformators),
        std::ref(m_buildings), std::ref(m_cables)},
       0.0f);

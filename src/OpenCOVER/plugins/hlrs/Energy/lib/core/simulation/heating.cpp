@@ -4,7 +4,7 @@
 namespace core::simulation::heating {
 
 void HeatingSimulation::computeParameters() {
-  computeParameter({std::ref(m_consumers), std::ref(m_producers)});
+  initScalarProperties({std::ref(m_consumers), std::ref(m_producers)});
 }
 
 const std::vector<double> *HeatingSimulation::getTimedependentScalar(
