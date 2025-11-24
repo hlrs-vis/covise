@@ -70,7 +70,7 @@ class BaseSimulationUI {
  public:
   BaseSimulationUI(std::shared_ptr<Simulation> sim, std::shared_ptr<T> parent)
       : m_simulation(sim), m_parent(parent) {
-    if (auto simulation = m_simulation.lock()) simulation->computeParameters();
+    if (auto simulation = m_simulation.lock()) simulation->init();
   }
 
   ~BaseSimulationUI() = default;
