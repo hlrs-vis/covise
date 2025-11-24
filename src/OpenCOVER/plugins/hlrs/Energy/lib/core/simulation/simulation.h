@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include "collector.h"
 #include "datastorage.h"
 #include "object.h"
 #include "scalarproperties.h"
@@ -27,7 +28,8 @@ class Simulation {
 
  protected:
   void initScalarProperties(const ObjectMapView &mapView, float trim = 0.01) {
-    auto scalarValues = collectScalarValues(mapView);
+    auto collector = ScalarCollector(mapView);
+    auto scalarValues = collector.collect();
     auto processor = ScalarPropertiesProcessor(trim);
 
     for (const auto &[key, values] : scalarValues)
@@ -54,25 +56,5 @@ class Simulation {
 
   ScalarProperties m_scalarProperties;
   DataStorage m_dataStorage;
-
- private:
-  std::map<std::string, std::vector<double>> collectScalarValues(
-      const ObjectMapView &mapView) {
-    std::map<std::string, std::vector<double>> scalarValues{};
-
-    for (const auto &map : mapView) {
-      const auto &objectMap = map.get();
-      for (const auto &[_, object] : objectMap) {
-        const auto &objectData = object->getData();
-        for (const auto &[key, values] : objectData)
-          scalarValues[key].insert(
-            scalarValues[key].end(),
-            values.begin(),
-            values.end()
-          );
-      }
-    }
-    return scalarValues;
-  }
 };
 }  // namespace core::simulation
