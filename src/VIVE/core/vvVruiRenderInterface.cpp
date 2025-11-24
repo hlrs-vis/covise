@@ -631,6 +631,12 @@ bool vive::vvVruiRenderInterface::compileNode(vruiNode*n)
     return vvViewer::instance()->compileNode(node->node);
 }
 
+void vvVruiRenderInterface::assignVsgNodeParent()
+{
+    vvPluginSupport::instance()->assignVsgNodeParent();
+    // cerr << "Attempting vsg::Node parent assignment... " << endl; 
+}
+
 double vvVruiRenderInterface::getFrameTime() const
 {
     return vv->frameTime();

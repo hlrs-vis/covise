@@ -10,11 +10,17 @@
 #include <vsg/nodes/Group.h>
 #include <OpenVRUI/sginterface/vruiNode.h>
 #include <OpenVRUI/sginterface/vruiMatrix.h>
+#include <vsg/core/observer_ptr.h>
 
 #include <string>
 
 namespace vrui
 {
+    // to be used to store a vsg::Object's parent as Auxiliary 
+struct ParentInfo : public vsg::Inherit<vsg::Object, ParentInfo>
+{
+    vsg::observer_ptr<vsg::Node> parent;
+};
 
 class VSGVRUIEXPORT VSGVruiNode : public virtual vruiNode
 {
@@ -43,8 +49,6 @@ public:
 
     vsg::Node *getNodePtr();
     vsg::ref_ptr<vsg::Node> node;
-
-    void setNodePath(std::vector<const vsg::Node*> hitNodePath);
 
 private:
     VSGVruiNode *parent;

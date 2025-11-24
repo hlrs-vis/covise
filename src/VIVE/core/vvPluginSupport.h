@@ -81,6 +81,7 @@ class coUpdateManager;
 class coMenu;
 class coToolboxMenu;
 class coRowMenu;
+struct ParentInfo;
 }
 namespace vrml
 {
@@ -360,6 +361,9 @@ public:
 
     //! return group node of menus
     vsg::Group *getMenuGroup() const;
+
+    //! uses custom visitor to assign Auxiliary as parent node of the vsg node
+    void assignVsgNodeParent();
 
     // interfacing with plugins
 

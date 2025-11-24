@@ -271,38 +271,29 @@ void vvIntersection::intersect(const vsg::dmat4 &handMat, bool mouseHit)
     {
         ref_ptr<vvIntersector> intersector = vvIntersector::create(ray.start, ray.end);
         
-        if (numIsectAllNodes > 0) 
+        /*if (numIsectAllNodes > 0) 
         {
             intersector->traversalMask = Isect::Pick;
         }
         else 
         {
             intersector->traversalMask = Isect::Intersection;
-        }
+        }*/
         
         vv->getMenuGroup()->accept(*intersector);
-        //vv->getScene()->accept(*intersector);
 
         auto isects = intersector->intersections;
 
-        // sort intersections front to back 
+        // sort intersections, front to back 
         std::sort(isects.begin(), isects.end(), [](auto& lhs, auto& rhs) { return lhs->ratio < rhs->ratio; });
 
-        // this loop should break after processing nearest element
+        // this loop breaks after processing nearest element
         for (const auto& isect : isects) 
         {
-            // logic to process nearest element and call actions accordingly
-            
             vv->intersectionHitPointWorld = isect->worldIntersection;
             vv->intersectionHitPointLocal = isect->localIntersection;
             vv->intersectedNodePath = isect->nodePath;
             vv->intersectedNode = const_cast<Node*>(isect->nodePath.back());
-
-            /*
-            cerr << "The intersected node computed transform is: " << computeTransform(vv->intersectedNodePath) << endl;
-            cerr << "The localToWorld  matrix of the intersected node is: " << isect->localToWorld << endl;
-            cerr << "The world intersection point: " << isect->worldIntersection << endl;
-            */
 
             // callActions goes up through the parents of the node
             // and calls all coActions
@@ -310,134 +301,15 @@ void vvIntersection::intersect(const vsg::dmat4 &handMat, bool mouseHit)
             if (vv->intersectedNode) 
             {
                 VSGVruiNode node(vv->intersectedNode);
-                node.setNodePath(isect->nodePath);
+                //node.setNodePath(isect->nodePath);
                 callActions(&node, &hit);
             }
-            break; // stop this for loop for going through other hits farer away from nearest
+            break; // stop this for loop from going through other hits farer away from nearest
         }
 
-        /*IntersectionVisitor visitor;
-        if (numIsectAllNodes > 0)
-        {
-            visitor.setTraversalMask(Isect::Pick);
-        }
-        else
-        {
-            visitor.setTraversalMask(Isect::Intersection);
-        }
-        vsg::ref_ptr<vvIntersector> intersector = new vvIntersector(ray->start(), ray->end());
-        for (auto h: handlers)
-            intersector->addHandler(h);
-        visitor.setIntersector(intersector.get());
-        //visitor.addLineSegment(ray.get());
-
-        {
-
-            covise::coWristWatch watch;
-            vv->getScene()->accept(visitor);
-
-            if (isVerboseIntersection())
-            {
-                elapsedTimes[0].push_back(watch.elapsed());
-                std::cerr << " avg. intersection times";
-                for (size_t ctr = 0; ctr < elapsedTimes.size(); ++ctr)
-                {
-                    std::cerr << " | " << ctr + 1 << ":"
-                              << std::accumulate(elapsedTimes[ctr].begin(), elapsedTimes[ctr].end(), 0.0f) / elapsedTimes[ctr].size()
-                              << "s";
-                }
-                std::cerr << " | " << std::endl;
-            }
-        }
-
-        auto isects = intersector->getIntersections();
-        //VRUILOG("vvIntersection::intersect info: hit");
-        //fprintf(stderr, " --- HIT \n");
-
-        // check which node in the hit list is also visible
-        bool hasVisibleHit = false;
-        for (const auto &isect: isects)
-        {
-            vsg::Node *node = nullptr;
-            if (isect.drawable && isect.drawable->getNumParents()>0)
-                node = isect.drawable->getParent(0);
-
-            if (node && (node->getNodeMask() & (Isect::Visible)))
-            {
-                //hitInformation = hitList[i];
-                hasVisibleHit = true;
-                // check also parents of this visible node,
-                vsg::Node *parent = NULL;
-                // there could be an invisible dcs above
-                if (node->getNumParents())
-                    parent = node->getParent(0);
-                while (parent && (parent != vv->getObjectsRoot()))
-                {
-
-                    if (parent->getNodeMask() & (Isect::Visible))
-                    {
-
-                        //parent was also visible, get his parent
-                        if (parent->getNumParents())
-                        {
-
-                            parent = parent->getParent(0);
-                        }
-                        else
-                            parent = NULL;
-                    }
-                    else // parent not visible
-                    {
-
-                        //stop this while loop for going ip in sg
-                        hasVisibleHit = false;
-                        break;
-                    }
-                }
-                if (hasVisibleHit) // all parents are also visible
-                {
-                    vv->intersectionHitPointWorld = isect.getWorldIntersectPoint();
-                    vv->intersectionHitPointWorldNormal = isect.getWorldIntersectNormal();
-                    vv->intersectionHitPointLocal = isect.getLocalIntersectPoint();
-                    vv->intersectionHitPointLocalNormal = isect.getLocalIntersectNormal();
-                    vv->intersectionMatrix = isect.matrix;
-                    vv->intersectedDrawable = isect.drawable;
-                    vv->intersectedNode = nullptr;
-                    if (isect.drawable->getNumParents() > 0)
-                        vv->intersectedNode = dynamic_cast<vsg::Node *>(isect.drawable->getParent(0));
-
-                    //if( !vv->intersectedNode.get()->getName().empty())
-                    //    fprintf(stderr,"vvIntersection::intersect hit node %s\n", vv->intersectedNode.get()->getName().c_str());
-                    //else
-                    //    fprintf(stderr,"vvIntersection::intersect hit node without name\n");
-
-                    vv->intersectedNodePath = isect.nodePath;
-                    // walk up to the root and call all coActions
-                    VSGVruiHit hit(isect, mouseHit);
-                    if (vv->intersectedNode.get())
-                    {
-                        VSGVruiNode node(vv->intersectedNode.get());
-                        callActions(&node, &hit);
-                    }
-                    break; // stop this for loop for going through other hits farer away from nearest
-                }
-            }
-
-            //else
-            //{
-            //   if (! (hitList[i]._geode->getName().empty()) )
-            //   {
-            //      fprintf(stderr,"intersceting a unvisible node with name %s\n", hitList[i]._geode->getName().c_str());
-            //   }
-            //}
-        }*/
+       
     }
-   /* // for debug only
-    vvMSController::instance()->agreeInt((int)(vv->intersectedNode!=NULL));
-    if(vv->intersectedNode!=NULL)
-    {
-    vvMSController::instance()->agreeString(vv->intersectedNode.get()->getName());
-    }*/
+
     
 }
 

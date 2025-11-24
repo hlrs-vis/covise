@@ -30,6 +30,7 @@
 #include <../../OpenCOVER/OpenVRUI/sginterface/vruiButtons.h>
 #include <../../OpenCOVER/OpenVRUI/vsg/mathUtils.h>
 #include <../../OpenCOVER/OpenVRUI/vsg/VSGVruiMatrix.h>
+#include <../../OpenCOVER/OpenVRUI/vsg/VSGVruiNode.h>
 #include <../../OpenCOVER/OpenVRUI/coRowMenu.h>
 #include "vvVruiRenderInterface.h"
 #include "input/VRKeys.h"
@@ -180,6 +181,60 @@ vsg::Group *
 vvPluginSupport::getMenuGroup() const
 {
     return (vvSceneGraph::instance()->getMenuGroup());
+}
+
+struct VSGNodeParentAssigner : public vsg::Inherit<vsg::Visitor,VSGNodeParentAssigner>
+{
+    vsg::observer_ptr<vsg::Node> currentParent; 
+
+    void apply(vsg::Node& node) override
+    {
+        // overrideMask is for the vsg::Switch nodes children to be traversed
+        const uint64_t oldOverrideMask = this->overrideMask;
+        this->overrideMask = ~0ul;
+
+        auto auxi = node.getOrCreateAuxiliary();
+        auto parentInfo = ParentInfo::create();
+        parentInfo->parent = currentParent;
+        if (currentParent)
+        {
+            auxi->setObject("parentInfo", parentInfo);
+        }
+
+        auto old = currentParent;
+        currentParent = &node; 
+        node.traverse(*this);
+        this->overrideMask = oldOverrideMask;
+        currentParent = old; 
+    }
+
+    void apply(vsg::TextTechnique& tt) override
+    {
+        vsg::GpuLayoutTechnique* technique  = tt.cast<vsg::GpuLayoutTechnique>();
+        auto auxi = (*technique).getOrCreateAuxiliary();
+        auto parentInfo = ParentInfo::create();
+        parentInfo->parent = currentParent; 
+        auxi->setObject("parentInfo", parentInfo);
+        
+        if (auto node = dynamic_cast<vsg::Node*>(technique))
+        {
+            auto old = currentParent;
+            currentParent = node;
+            technique->traverse(*this);
+            currentParent = old;
+        }
+        else
+        {
+            // fallback: traverse with existing currentParent
+            technique->traverse(*this);
+        }
+    }
+};
+
+void vvPluginSupport::assignVsgNodeParent()
+{
+    vsg::ref_ptr<VSGNodeParentAssigner> pa = VSGNodeParentAssigner::create();
+    vv->getMenuGroup()->accept(*pa);
 }
 
 vsg::MatrixTransform *vvPluginSupport::getPointer() const

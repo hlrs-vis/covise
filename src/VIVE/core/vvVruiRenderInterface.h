@@ -81,6 +81,8 @@ public:
 	virtual bool isRemoteBlockNececcary() override;
 
     virtual bool compileNode(vrui::vruiNode*) override;
+
+    virtual void assignVsgNodeParent() override;
 private:
     vrui::VSGVruiNode *alwaysVisibleNode = nullptr;
     vrui::VSGVruiNode *groupNode = nullptr;
