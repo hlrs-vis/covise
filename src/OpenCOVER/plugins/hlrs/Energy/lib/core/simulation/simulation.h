@@ -9,6 +9,7 @@
 #include "datastorage.h"
 #include "object.h"
 #include "scalarproperties.h"
+#include "scalarpropertiesprocessor.h"
 
 namespace core::simulation {
 
@@ -39,13 +40,10 @@ class Simulation {
       }
     }
 
-    for (const auto &[key, values] : allValues) {
-      m_scalarProperties.setUnit(key);
-      m_scalarProperties.setPreferredColorMap(key);
-      computeMinMax(key, values, trim);  // 1% trimming
-      computeMaxTimestep(key, values);
-      m_scalarProperties.ref()[key].species = key;
-    }
+    auto processor = ScalarPropertiesProcessor();
+
+    for (const auto &[key, values] : allValues)
+      processor.init(m_scalarProperties, key, values);
   }
 
   const std::vector<double> *getTimedependentScalar(const ObjectMap &map,
@@ -65,12 +63,6 @@ class Simulation {
     }
     return nullptr;
   }
-
-  virtual void computeMinMax(const std::string &key,
-                             const std::vector<double> &values,
-                             const double &trimPercent = 0.00);
-  virtual void computeMaxTimestep(const std::string &key,
-                                  const std::vector<double> &values);
 
   ScalarProperties m_scalarProperties;
   DataStorage m_dataStorage;

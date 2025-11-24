@@ -1,7 +1,7 @@
 set(SOURCES
     heating.cpp
     power.cpp
-    simulation.cpp
+    scalarpropertiesprocessor.cpp
 )
 
 set(HEADERS
@@ -9,6 +9,7 @@ set(HEADERS
     unitmap.h
     datastorage.h
     scalarproperties.h
+    scalarpropertiesprocessor.h
     simulation.h
     power.h
     object.h

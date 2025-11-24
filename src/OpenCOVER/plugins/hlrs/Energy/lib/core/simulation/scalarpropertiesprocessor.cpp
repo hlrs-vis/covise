@@ -1,4 +1,4 @@
-#include "simulation.h"
+#include "scalarpropertiesprocessor.h"
 
 #include <algorithm>
 #include <cmath>
@@ -18,18 +18,20 @@ std::pair<double, double> robustMinMax(const std::vector<double> &values,
 }  // namespace
 
 namespace core::simulation {
-
-void Simulation::computeMinMax(const std::string &key,
-                               const std::vector<double> &values,
-                               const double &trimPercent) {
+void ScalarPropertiesProcessor::initMinMax(ScalarProperty &property,
+                                           const std::vector<double> &values) {
   auto [min_elem, max_elem] = robustMinMax(values, trimPercent);
-  m_scalarProperties.ref()[key].min = min_elem;
-  m_scalarProperties.ref()[key].max = max_elem;
+  property.min = min_elem;
+  property.max = max_elem;
 }
 
-void Simulation::computeMaxTimestep(const std::string &key,
-                                    const std::vector<double> &values) {
-  m_scalarProperties.ref()[key].timesteps = values.size();
+void ScalarPropertiesProcessor::init(ScalarProperties &properties,
+                                     const std::string &key,
+                                     const std::vector<double> &values) {
+  initMinMax(properties.ref()[key], values);
+  properties.setUnit(key);
+  properties.setPreferredColorMap(key);
+  properties.setTimesteps(key, values.size());
+  properties.setSpecies(key, key);
 }
-
 }  // namespace core::simulation

@@ -41,6 +41,7 @@ class ScalarProperties {
   void setPreferredColorMap(const std::string &key) {
     m_properties[key].preferredColorMap = COLORMAP_MAP[key];
   }
+  void setTimesteps(const std::string &key, size_t t) { m_properties[key].timesteps = t; }
 
   auto &ref() { return m_properties; }
 
