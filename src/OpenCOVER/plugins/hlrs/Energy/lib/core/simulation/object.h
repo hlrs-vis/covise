@@ -2,6 +2,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace core::simulation {
 typedef std::map<std::string, std::vector<double>> Data;
@@ -35,4 +36,7 @@ class Object {
   std::string m_name;
   Data m_data;  // timestep data
 };
+
+using ObjectMap = std::map<std::string, std::unique_ptr<Object>>;
+using ObjectMapView = std::vector<std::reference_wrapper<ObjectMap>>;
 }  // namespace core::simulation

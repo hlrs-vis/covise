@@ -13,9 +13,6 @@
 
 namespace core::simulation {
 
-using ObjectMap = std::map<std::string, std::unique_ptr<Object>>;
-using ObjectMapView = std::vector<std::reference_wrapper<ObjectMap>>;
-
 class Simulation {
  public:
   Simulation() = default;
