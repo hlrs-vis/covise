@@ -18,7 +18,7 @@ class PowerSimulation : public Simulation {
  public:
   PowerSimulation() = default;
 
-  void computeParameters() override;
+  void init() override;
   auto &Buses() { return m_buses; }
   auto &Generators() { return m_generators; }
   auto &Transformators() { return m_transformators; }

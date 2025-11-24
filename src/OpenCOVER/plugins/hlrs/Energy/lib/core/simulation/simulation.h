@@ -23,7 +23,7 @@ class Simulation {
 
   virtual const std::vector<double> *getTimedependentScalar(
       const std::string &species, const std::string &node) const = 0;
-  virtual void computeParameters() = 0;
+  virtual void init() = 0;
 
  protected:
   void initScalarProperties(const ObjectMapView &mapView, float trim = 0.01) {

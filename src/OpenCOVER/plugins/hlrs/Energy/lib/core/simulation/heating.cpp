@@ -3,8 +3,13 @@
 #include <iostream>
 namespace core::simulation::heating {
 
-void HeatingSimulation::computeParameters() {
-  initScalarProperties({std::ref(m_consumers), std::ref(m_producers)});
+void HeatingSimulation::init() {
+  initScalarProperties(
+    {
+      std::ref(m_consumers),
+      std::ref(m_producers)
+    }
+  );
 }
 
 const std::vector<double> *HeatingSimulation::getTimedependentScalar(
