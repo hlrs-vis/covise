@@ -1,5 +1,9 @@
 #project (TestPipe)
 
+if(NOT Qt5UiTools_FOUND AND NOT Qt6UiTools_FOUND)
+    return()
+endif()
+
 QT_WRAP_CPP(TESTPIPE_MOC_SRCS mainwindow.h)
 QT_WRAP_UI(TESTPIPE_UI_HEADERS mainwindow.ui)
 

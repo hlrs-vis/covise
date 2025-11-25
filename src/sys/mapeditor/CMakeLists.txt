@@ -203,7 +203,7 @@ set_target_properties(${TARGETNAME} PROPERTIES
     MACOSX_BUNDLE_BUNDLE_NAME COVISE
     MACOSX_BUNDLE_GUI_IDENTIFIER de.hlrs.covise
 )
-qt_use_modules(${TARGETNAME} Widgets Xml Network OpenGL Svg SvgWidgets UiTools PrintSupport Quick)
+qt_use_modules(${TARGETNAME} Widgets Xml Network OpenGL Svg SvgWidgets PrintSupport Quick)
 if (COVISE_USE_WEBENGINE)
   qt_use_modules(${TARGETNAME} WebEngineWidgets)
   ADD_DEFINITIONS(-DUSE_WEBENGINE)

@@ -90,7 +90,9 @@
 #include "TUILineEdit.h"
 #include "TUITextEdit.h"
 #include "TUIPopUp.h"
+#ifdef USE_UITOOLS
 #include "TUIUITab.h"
+#endif
 #include "TUIWebview.h"
 
 #include <net/tokenbuffer.h>
@@ -470,7 +472,12 @@ TUIElement *TUIMain::createElement(int id, TabletObjectType type, QWidget *w, in
     case TABLET_POPUP:
         return new TUIPopUp(id, type, w, parent, name);
     case TABLET_UI_TAB:
+#ifdef USE_UITOOLS
         return new TUIUITab(id, type, w, parent, name);
+#else
+        std::cerr << "TUIUiTab requires Qt Uitools, which is not available" << std::endl;
+        break;
+#endif
     case TABLET_WEBVIEW:
 #ifdef USE_WEBENGINE
         return new TUIWebview(id, type, w, parent, name);

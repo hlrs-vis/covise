@@ -17,6 +17,11 @@ ADD_DEFINITIONS(-DCOVISE_TUI)
 
 # set TUI_SOURCES, TUI_HEADERS and TUI_MOC_HEADERS
 
+if(Qt5UiTools_FOUND OR Qt6UiTools_FOUND)
+    set(USE_UITOOLS TRUE)
+    ADD_DEFINITIONS(-DUSE_UITOOLS)
+endif()
+
 
 SET(TUI_SOURCES
   mapviewer.qrc
@@ -61,11 +66,16 @@ SET(TUI_SOURCES
   TUIAnnotationTab.cpp
   TUIColorWidget.cpp
   TUIPopUp.cpp
-  TUIUITab.cpp
-  TUIUI/TUIUIWidget.cpp
-  TUIUI/TUIUIWidgetSet.cpp
-  TUIUI/TUIUIScriptWidget.cpp
 )
+
+if(USE_UITOOLS)
+    SET(TUI_SOURCES ${TUI_SOURCES}
+        TUIUITab.cpp
+        TUIUI/TUIUIWidget.cpp
+        TUIUI/TUIUIWidgetSet.cpp
+        TUIUI/TUIUIScriptWidget.cpp
+    )
+endif()
 
 SET(TUI_HEADERS
   export.h
@@ -113,11 +123,16 @@ SET(TUI_MOC_HEADERS
   TUIAnnotationTab.h
   TUIColorWidget.h
   TUIPopUp.h
+)
+
+if(USE_UITOOLS)
+    SET(TUI_MOC_HEADERS ${TUI_MOC_HEADERS}
   TUIUITab.h
   TUIUI/TUIUIWidget.h
   TUIUI/TUIUIWidgetSet.h
   TUIUI/TUIUIScriptWidget.h
-)
+    )
+endif()
 
 if (WIRINGPI_FOUND)
    SET(TUI_SOURCES ${TUI_SOURCES}
@@ -167,7 +182,7 @@ SET(COTUI_HEADERS  coAbstractTabletUI.h ${TUI_HEADERS})
 
 COVISE_ADD_LIBRARY(coTUI ${COTUI_HEADERS} ${COTUI_SOURCES} ${TUI_MOC_HEADERS} ${TUI_MOC_SRCS})
 
-qt_use_modules(coTUI Xml UiTools Widgets Quick)
+qt_use_modules(coTUI Xml Widgets Quick OpenGLWidgets)
 
 if (COVISE_USE_WEBENGINE)
     qt_use_modules(coTUI WebEngine WebEngineWidgets)
@@ -175,9 +190,13 @@ if (COVISE_USE_WEBENGINE)
 endif()
 
 
-if(Qt5Positioning_FOUND)
+if((Qt5Positioning_FOUND AND Qt5Location_FOUND) OR (Qt6Positioning_FOUND AND Qt6Location_FOUND))
     qt_use_modules(coTUI Positioning Location)
-endif(Qt5Positioning_FOUND)
+endif()
+
+if(USE_UITOOLS)
+    qt_use_modules(coTUI UiTools)
+endif()
 
 if(NOT WIN32)
     add_covise_compile_flags(coTUI "-Wno-error=deprecated-declarations")

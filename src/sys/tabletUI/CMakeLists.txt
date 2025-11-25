@@ -13,7 +13,7 @@ qt_add_resources(RCC_FILES
 
 add_covise_executable(tabletUI MACOSX_BUNDLE tabletUI.cpp ${RCC_FILES})
 target_link_libraries(tabletUI coTUI)
-qt_use_modules(tabletUI Xml UiTools Widgets Quick)
+qt_use_modules(tabletUI Xml Widgets Quick)
 
 set_target_properties(${TARGETNAME} PROPERTIES 
     MACOSX_BUNDLE_BUNDLE_NAME TabletUI
