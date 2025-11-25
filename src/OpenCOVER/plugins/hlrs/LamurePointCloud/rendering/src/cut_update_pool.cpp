@@ -8,6 +8,9 @@
 #include <lamure/ren/cut_update_pool.h>
 #include <lamure/pvs/pvs_database.h>
 
+#include "Lamure.h"
+#include "LamureEditTool.h"
+
 #include <iostream>
 
 namespace lamure
@@ -1208,6 +1211,27 @@ void cut_update_pool::compile_transfer_list()
             
             memset(dest_ptr, 0, global_slot_size);
             memcpy(dest_ptr, node_data, actual_node_size);
+
+            // Apply edit mask: set fake flag for erased surfels (only if Edit-Mode active)
+            if (Lamure::instance() && Lamure::instance()->isEditModeActive()) {
+                LamureEditTool* edit = Lamure::instance()->getEditTool();
+                if (edit && edit->hasNodeEdits(model_id, node_id)) {
+                    const auto* erasedList = edit->erasedInNode(model_id, node_id);
+                    auto* dst = reinterpret_cast<lamure::ren::dataset::serialized_surfel*>(dest_ptr);
+                    const uint32_t surfels_per_node = database->get_primitives_per_node(model_id);
+                    // Default: clear fake for all surfels in this node
+                    std::memset(reinterpret_cast<char*>(dst) + offsetof(lamure::ren::dataset::serialized_surfel, fake),
+                                0,
+                                surfels_per_node * sizeof(uint8_t));
+                    // Sparse set fake=1 for erased indices
+                    if (erasedList && !erasedList->empty()) {
+                        for (auto idx : *erasedList) {
+                            if (idx < surfels_per_node)
+                                dst[idx].fake = 1;
+                        }
+                    }
+                }
+            }
 
             if(_data_provenance.get_size_in_bytes() > 0)
             {

@@ -15,6 +15,7 @@ layout(location = 0) in vec3  in_position;
 layout(location = 1) in float in_r;
 layout(location = 2) in float in_g;
 layout(location = 3) in float in_b;
+layout(location = 4) in float in_fake;
 layout(location = 5) in float in_radius;
 
 uniform mat4  mvp_matrix;
@@ -35,6 +36,13 @@ uniform float aniso_normalize;
 void main() {
     const float EPS = 1e-6;
 
+    // Skip surfels marked as fake/erased
+    if (in_fake > 0.5) {
+        gl_Position = vec4(0.0);
+        gl_PointSize = 0.0;
+        return;
+    }
+
     if (clip_plane_count > 0)
     {
         vec4 world_pos = model_matrix * vec4(in_position, 1.0);
@@ -45,8 +53,7 @@ void main() {
         lamure_apply_clip_planes(vec4(0.0), 0, clip_planes);
     }
 
-    float r_ws = calc_world_radius(
-        in_radius, max_radius_cut, scale_radius_gamma, scale_radius, min_radius, max_radius);
+    float r_ws = calc_world_radius(in_radius, max_radius_cut, scale_radius_gamma, scale_radius, min_radius, max_radius);
 
     vec4 clip = mvp_matrix * vec4(in_position, 1.0);
     VertexOut.color = vec3(in_r, in_g, in_b);

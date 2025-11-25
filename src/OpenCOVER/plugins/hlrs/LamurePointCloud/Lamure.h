@@ -39,6 +39,7 @@
 #include "LamureUI.h"
 #include "LamureUtil.h"
 #include "LamureMeasurement.h"
+#include "LamureEditTool.h"
 #include <osg/observer_ptr>
 
 namespace opencover {
@@ -49,6 +50,7 @@ namespace opencover {
     } }
 
 class Lamure;
+class LamureEditTool;
 
 struct FrameMarks {
     double draw_cb_ms      = -1.0;
@@ -272,6 +274,13 @@ public:
     LamureRenderer* getRenderer() { return m_renderer.get(); }
     LamureMeasurement*       getMeasurement()       noexcept { return m_measurement.get(); }
     const LamureMeasurement* getMeasurement() const noexcept { return m_measurement.get(); }
+    LamureEditTool*          getEditTool()          noexcept { return m_edit_tool.get(); }
+    const LamureEditTool*    getEditTool()    const noexcept { return m_edit_tool.get(); }
+
+    void setEditMode(bool enabled);
+    bool isEditModeActive() const noexcept { return m_edit_mode; }
+    void setEditAction(LamureEditTool::BrushAction action);
+    LamureEditTool::BrushAction getEditAction() const noexcept { return m_edit_action; }
 
     Settings&   getSettings()   { return m_settings; }
     ModelInfo&  getModelInfo()  { return m_model_info; }
@@ -291,6 +300,9 @@ public:
 
     void setModelVisible(uint16_t idx, bool v);
     bool isModelVisible(uint16_t idx) const;
+
+    void setBrushFrozen(bool f) { m_brush_frozen = f; }
+    bool isBrushFrozen() const { return m_brush_frozen; }
 
     std::unordered_map<std::string,uint16_t> m_model_idx;
     std::map<std::string, osg::ref_ptr<osg::Group>> m_model_nodes;
@@ -323,6 +335,7 @@ private:
     std::map<uint16_t, std::unique_ptr<LamureRenderer>> m_rendererMap;
     std::unique_ptr<LamureRenderer> m_renderer;
     std::unique_ptr<LamureUI>       m_ui;
+    std::unique_ptr<LamureEditTool> m_edit_tool;
 
     Settings   m_settings;
     ModelInfo  m_model_info;
@@ -375,6 +388,9 @@ private:
     bool m_renderer_paused_for_reset{false};
     int  m_post_shutdown_delay{0};
     bool m_did_initial_build{false};
+    LamureEditTool::BrushAction m_edit_action{LamureEditTool::BrushAction::None};
+    bool m_edit_mode{false};
+    bool m_brush_frozen{false};
 };
 
 inline ScopedMark::~ScopedMark() {

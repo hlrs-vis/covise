@@ -81,6 +81,7 @@ SET(HEADERS
   LamureUtil.h
   LamureMeasurement.h
   color_converter.h
+  LamureEditTool.h
 )
 
 SET(SOURCES 
@@ -93,6 +94,7 @@ SET(SOURCES
   LamureUtil.cpp
   LamureMeasurement.cpp
   color_converter.cpp
+  LamureEditTool.cpp
 )
 
 

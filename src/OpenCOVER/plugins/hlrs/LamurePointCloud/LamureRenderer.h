@@ -25,8 +25,11 @@
 #include <osg/Geometry>
 #include <osg/StateSet>
 #include <osg/Geode>
+#include <osg/MatrixTransform>
 #include <osg/Camera>
 #include <osg/State>
+#include <osg/Matrix>
+#include <osg/Group>
 #include <osgViewer/Viewer>
 #include <osgViewer/Renderer>
 #include <osgText/Text>
@@ -34,7 +37,10 @@
 #include <lamure/ren/bvh.h>
 #include <lamure/ren/camera.h>
 
+#include "LamureEditTool.h"
+
 class Lamure;
+class LamureEditTool;
 class LamureRenderer {
 
 
@@ -44,8 +50,7 @@ private:
 
     //osg::ref_ptr<osg::Group> m_group;
 
-    void flushGlCommands();
-    void releaseSceneGraph();
+    void syncEditBrushGeometry();
 
     struct CameraBinding;
     CameraBinding& ensureCameraBinding(const osg::Camera* osgCamera);
@@ -521,6 +526,8 @@ private:
     osg::ref_ptr<osg::Geode> m_boundingbox_geode;
     osg::ref_ptr<osg::Geode> m_frustum_geode;
     osg::ref_ptr<osg::Geode> m_text_geode;
+    osg::ref_ptr<osg::Geode> m_edit_brush_geode;
+    osg::ref_ptr<osg::MatrixTransform> m_edit_brush_transform;
 
     // Stateset
     osg::ref_ptr<osg::StateSet> m_init_stateset;
@@ -677,6 +684,17 @@ public:
     osg::ref_ptr<osg::Geode> getBoundingboxGeode() { return m_boundingbox_geode; }
     osg::ref_ptr<osg::Geode> getFrustumGeode() { return m_frustum_geode; }
     osg::ref_ptr<osg::Geode> getTextGeode() { return m_text_geode; }
+    osg::ref_ptr<osg::MatrixTransform> getEditBrushTransform() { return m_edit_brush_transform; }
+    osg::MatrixTransform* ensureEditBrushNode(osg::Group* parent);
+    osg::Matrixd composeEditBrushMatrix(const osg::Matrixd& interactorMat,
+                                        const osg::Matrixd& parentWorld,
+                                        const osg::Matrixd& invRoot,
+                                        double hullScale) const;
+    osg::Matrixd updateEditBrushFromInteractor(const osg::Matrixd& interactorMat,
+                                               const osg::Matrixd& invRoot,
+                                               double hullScale);
+    void setEditBrushTransform(const osg::Matrixd& brushMat);
+    void destroyEditBrushNode(osg::Group* parent);
 
     scm::gl::render_device_ptr getDevice() { return m_device; }
     scm::gl::render_context_ptr getContext() { return m_context; }

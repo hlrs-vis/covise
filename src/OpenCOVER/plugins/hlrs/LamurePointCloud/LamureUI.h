@@ -30,6 +30,7 @@ public:
     opencover::ui::Button* getProvButton() { return m_prov_button; }
     opencover::ui::Button* getMeasureButton() { return m_measure_button; }
     opencover::ui::Button* getNotifyButton() { return m_notify_button; }
+    opencover::ui::Button* getEditModeButton() { return m_edit_button; }
 
     std::vector<bool> getModelVisibility() { return m_model_visible; }
 
@@ -67,11 +68,17 @@ private:
     opencover::ui::Button* m_text_button         = nullptr;
     opencover::ui::Button* m_dump_button         = nullptr;
     opencover::ui::Button* m_prov_button         = nullptr;
+    opencover::ui::Button* m_edit_button         = nullptr;
+    opencover::ui::Button* m_edit_action_move    = nullptr;
+    opencover::ui::Button* m_edit_action_erase   = nullptr;
+    opencover::ui::Button* m_edit_action_restore = nullptr;
 
     // Groups and menus
     opencover::ui::Menu*   m_lamure_menu        = nullptr;
+    opencover::ui::Menu*   m_edit_menu          = nullptr;
     opencover::ui::Group*  m_selection_group    = nullptr;
     opencover::ui::Group*  m_misc_group         = nullptr;
+    opencover::ui::Group*  m_edit_group         = nullptr;
     opencover::ui::Group*  m_model_group        = nullptr;
     opencover::ui::Group*  m_adaption_group     = nullptr;
     opencover::ui::Group*  m_prov_group         = nullptr;

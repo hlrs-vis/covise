@@ -1,4 +1,4 @@
-﻿#include "LamureRenderer.h"
+#include "LamureRenderer.h"
 #include "Lamure.h"
 #include "LamureUtil.h"
 
@@ -7,8 +7,16 @@
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRFileManager.h>
 #include <cover/OpenCOVER.h>
+#include <cover/coVRNavigationManager.h>
+#include <cover/coVRPluginSupport.h>
 
+#include <osg/BlendFunc>
+#include <osg/CullFace>
+#include <osg/Depth>
 #include <osg/Geometry>
+#include <osg/Group>
+#include <osg/MatrixTransform>
+#include <osg/ShapeDrawable>
 #include <osg/Vec3>
 #include <osg/State>
 #include <osg/GraphicsContext>
@@ -25,10 +33,6 @@
 #include <lamure/pvs/pvs_database.h>
 #include <lamure/ren/policy.h>
 
-#include <iostream>
-#include <gl_state.h>
-#include <config/CoviseConfig.h>
-
 #include <chrono>
 #include <algorithm>
 #include <limits>
@@ -40,10 +44,12 @@
 #include <thread>
 #include <stdexcept>
 #include <unordered_set>
+#include <iostream>
+#include <gl_state.h>
+#include <config/CoviseConfig.h>
 
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
-#include <cover/coVRNavigationManager.h>
 
 namespace {
     inline bool notifyOn(Lamure* p) { return p && p->getSettings().show_notify; }
@@ -57,7 +63,7 @@ namespace {
         // Extract the row/column tied to off-axis terms via M * ez (works with our math conversion).
         // Consider anisotropic only if magnitude exceeds a practical threshold.
         const scm::math::vec4 ez(0.0f, 0.0f, 1.0f, 0.0f);
-        const scm::math::vec4 v = projection_matrix * ez; // yields the vector whose x/y encode off-axis
+        const scm::math::vec4 v = projection_matrix * ez;
         const float mag = std::max(std::fabs(v[0]), std::fabs(v[1]));
         return mag > std::max(0.0f, threshold);
     }
@@ -179,7 +185,6 @@ namespace {
         out.est_coverage       = float(coverage_cap);
         out.est_coverage_px    = float(coverage_px_cap);
         out.est_overdraw       = float(overdraw_cap);
-
         out.est_density_raw     = float(density_raw);
         out.est_coverage_raw    = float(coverage_raw);
         out.est_coverage_px_raw = float(coverage_px_raw);
@@ -226,7 +231,6 @@ LamureRenderer::LamureRenderer(Lamure *plugin)
 LamureRenderer::~LamureRenderer()
 {
     releaseMultipassTargets();
-
 }
 
 void LamureRenderer::updateActiveClipPlanes()
@@ -436,11 +440,7 @@ struct TextDrawCallback : public osg::Drawable::DrawCallback
                 std::cerr << "[Lamure] TextDrawCallback: renderer unavailable\n";
             }
         }
-
-        if (drawable)
-        {
-            drawable->drawImplementation(renderInfo);
-        }
+        if (drawable) { drawable->drawImplementation(renderInfo); }
     }
 
 private:
@@ -584,8 +584,6 @@ struct BoundingBoxDrawCallback : public virtual osg::Drawable::DrawCallback
         osg::State* state = renderInfo.getState();
         osg::Matrixd osg_view_matrix = state->getModelViewMatrix();
         osg::Matrixd osg_projection_matrix = state->getProjectionMatrix();
-        const osg::Camera* currentCamera = renderInfo.getCurrentCamera();
-
         const scm::math::mat4 view_matrix = LamureUtil::matConv4F(osg_view_matrix);
         const scm::math::mat4 projection_matrix = LamureUtil::matConv4F(osg_projection_matrix);
 
@@ -786,8 +784,6 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
         const scm::math::mat4d viewport_scale = scm::math::make_scale(vpW * 0.5, vpH * 0.5, 0.5);
         const scm::math::mat4d viewport_translate = scm::math::make_translation(1.0, 1.0, 1.0);
         scm::math::vec2 viewport((float)vpW, (float)vpH);
-
-        // Decide anisotropic scaling for this pass based on projection and user mode
         const bool useAnisoThisPass = decideUseAniso(projection_matrix, settings.anisotropic_surfel_scaling, settings.anisotropic_auto_threshold);
         SDStats sd = makeSDStats(meas, viewport, projection_matrix, settings);
         uint64_t rendered_primitives = 0;
@@ -807,7 +803,6 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
             const int vpHeight = static_cast<int>(vpH);
             lamure::context_t context_id = controller->deduce_context_id(renderInfo.getState()->getContextID());
             auto& target = _renderer->acquireMultipassTarget(context_id, currentCamera, vpWidth, vpHeight);
-
             GLint prev_fbo = 0;
             GLint prev_draw_buffer = 0;
             GLint prev_read_buffer = 0;
@@ -843,7 +838,6 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
             glDrawBuffer(GL_NONE);
             glReadBuffer(GL_NONE);
             glClear(GL_DEPTH_BUFFER_BIT);
-
             glDisable(GL_BLEND);
             glEnable(GL_DEPTH_TEST);
             glDepthMask(GL_TRUE);
@@ -931,7 +925,7 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
 
             // Blending-Uniforms
             if (_renderer->getSurfelPass2Shader().depth_range_loc >= 0) glUniform1f(_renderer->getSurfelPass2Shader().depth_range_loc, s.depth_range);
-            if (_renderer->getSurfelPass2Shader().flank_lift_loc             >= 0) glUniform1f(_renderer->getSurfelPass2Shader().flank_lift_loc,            s.flank_lift);
+            if (_renderer->getSurfelPass2Shader().flank_lift_loc  >= 0) glUniform1f(_renderer->getSurfelPass2Shader().flank_lift_loc, s.flank_lift);
 
             const bool needNodeUniforms = (showRadiusDeviationDebug || showAccuracyDebug);
 
@@ -989,7 +983,6 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
 
             // View-space lighting Setup
             scm::math::mat4 viewMat = view_matrix;
-
             scm::math::vec4 light_ws(s.point_light_pos[0], s.point_light_pos[1], s.point_light_pos[2], 1.0f);
             scm::math::vec4 light_vs4 = viewMat * light_ws;
             scm::math::vec3 light_vs(light_vs4[0], light_vs4[1], light_vs4[2]);
@@ -1007,8 +1000,6 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
             glBindVertexArray(shared.screen_quad_vao);
             glDrawArrays(GL_TRIANGLES, 0, 6);
             glBindVertexArray(0);
-            
-
             glActiveTexture(GL_TEXTURE0);
             glDepthMask(GL_FALSE);
         }
@@ -1088,6 +1079,103 @@ struct PointsGeometry : public osg::Geometry
     osg::BoundingBox _bbox;
 };
 
+void LamureRenderer::syncEditBrushGeometry()
+{
+    if (!m_edit_brush_geode)
+        return;
+
+    m_edit_brush_geode->removeDrawables(0, m_edit_brush_geode->getNumDrawables());
+
+    osg::ref_ptr<osg::Shape> shape;
+    shape = new osg::Sphere(osg::Vec3(), 1.0f);
+
+    osg::ref_ptr<osg::ShapeDrawable> drawable = new osg::ShapeDrawable(shape.get());
+    drawable->setName("LamureEditBrushDrawable");
+    drawable->setColor(osg::Vec4(1.0f, 0.5f, 0.1f, 0.3f));
+    auto* ss = drawable->getOrCreateStateSet();
+    ss->setMode(GL_BLEND, osg::StateAttribute::ON);
+    ss->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+    ss->setAttributeAndModes(new osg::BlendFunc(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA));
+
+    osg::ref_ptr<osg::Depth> depth = new osg::Depth;
+    depth->setWriteMask(false);
+    ss->setAttributeAndModes(depth.get(), osg::StateAttribute::ON);
+    ss->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+    ss->setMode(GL_CULL_FACE, osg::StateAttribute::OFF);
+
+    m_edit_brush_geode->addDrawable(drawable.get());
+}
+
+osg::MatrixTransform* LamureRenderer::ensureEditBrushNode(osg::Group* parent)
+{
+    if (!m_edit_brush_transform) {
+        m_edit_brush_transform = new osg::MatrixTransform();
+        m_edit_brush_transform->setName("LamureEditBrush");
+    }
+    if (parent && m_edit_brush_transform->getNumParents() == 0) {
+        parent->addChild(m_edit_brush_transform.get());
+    }
+
+    if (!m_edit_brush_geode) {
+        m_edit_brush_geode = new osg::Geode();
+        m_edit_brush_transform->addChild(m_edit_brush_geode.get());
+    } else if (m_edit_brush_geode->getNumParents() == 0) {
+        m_edit_brush_transform->addChild(m_edit_brush_geode.get());
+    }
+
+    // Brush should be visible but not intercept pick/intersection.
+    const unsigned int mask = ~opencover::Isect::Intersection & ~opencover::Isect::Pick;
+    m_edit_brush_transform->setNodeMask(m_edit_brush_transform->getNodeMask() & mask);
+    m_edit_brush_geode->setNodeMask(m_edit_brush_geode->getNodeMask() & mask);
+
+    syncEditBrushGeometry();
+    return m_edit_brush_transform.get();
+}
+
+void LamureRenderer::destroyEditBrushNode(osg::Group* parent)
+{
+    if (parent && m_edit_brush_transform) {
+        parent->removeChild(m_edit_brush_transform.get());
+    }
+    m_edit_brush_geode = nullptr;
+    m_edit_brush_transform = nullptr;
+}
+
+osg::Matrixd LamureRenderer::composeEditBrushMatrix(const osg::Matrixd& interactorMat,
+                                                    const osg::Matrixd& parentWorld,
+                                                    const osg::Matrixd& invRoot,
+                                                    double hullScale) const
+{
+    osg::Matrixd brushMat;
+    brushMat.makeScale(osg::Vec3d(hullScale, hullScale, hullScale));
+    brushMat.postMult(interactorMat);
+    brushMat.postMult(parentWorld);
+    brushMat.postMult(invRoot);
+    return brushMat;
+}
+
+osg::Matrixd LamureRenderer::updateEditBrushFromInteractor(const osg::Matrixd& interactorMat,
+                                                           const osg::Matrixd& invRoot,
+                                                           double hullScale)
+{
+    osg::Matrixd parentWorld;
+    parentWorld.makeIdentity();
+    if (auto* objScale = opencover::cover->getObjectsScale()) {
+        osg::MatrixList parentList = objScale->getWorldMatrices();
+        if (!parentList.empty())
+            parentWorld = parentList.front();
+    }
+    osg::Matrixd brushMat = composeEditBrushMatrix(interactorMat, parentWorld, invRoot, hullScale);
+    setEditBrushTransform(brushMat);
+    return brushMat;
+}
+
+void LamureRenderer::setEditBrushTransform(const osg::Matrixd& brushMat)
+{
+    if (m_edit_brush_transform)
+        m_edit_brush_transform->setMatrix(brushMat);
+    syncEditBrushGeometry();
+}
 
 void LamureRenderer::init()
 {
@@ -1104,6 +1192,10 @@ void LamureRenderer::init()
     m_boundingbox_geode  = new osg::Geode();
     m_frustum_geode      = new osg::Geode();
     m_text_geode         = new TextGeode(m_plugin);
+    m_edit_brush_transform = new osg::MatrixTransform();
+    m_edit_brush_transform->setName("LamureEditBrush");
+    m_edit_brush_geode = new osg::Geode();
+    m_edit_brush_transform->addChild(m_edit_brush_geode.get());
 
     m_init_stateset = new osg::StateSet();
     m_pointcloud_stateset = new osg::StateSet();
@@ -1150,6 +1242,7 @@ void LamureRenderer::init()
     m_plugin->getGroup()->addChild(m_boundingbox_geode);
     m_plugin->getGroup()->addChild(m_init_geode);
     m_hud_camera->addChild(m_text_geode.get());
+    m_plugin->getGroup()->addChild(m_edit_brush_transform.get());
 
     // Configure HUD camera for screen-space text (ortho 2D in pixels)
     if (m_hud_camera.valid())
@@ -1220,18 +1313,15 @@ void LamureRenderer::shutdown()
     m_boundingbox_geode = nullptr;
     m_frustum_geode = nullptr;
     m_text_geode = nullptr;
-
     m_init_stateset = nullptr;
     m_pointcloud_stateset = nullptr;
     m_boundingbox_stateset = nullptr;
     m_frustum_stateset = nullptr;
     m_text_stateset = nullptr;
-
     m_init_geometry = nullptr;
     m_pointcloud_geometry = nullptr;
     m_boundingbox_geometry = nullptr;
     m_frustum_geometry = nullptr;
-
     m_osg_camera = nullptr;
     m_hud_camera = nullptr;
     m_scm_camera = nullptr;
@@ -1244,6 +1334,7 @@ void LamureRenderer::shutdown()
     lamure::ren::cut_database::destroy_instance();
     lamure::ren::model_database::destroy_instance();
 }
+
 bool LamureRenderer::beginFrame()
 {
     std::unique_lock<std::mutex> lock(m_renderMutex);
@@ -1332,6 +1423,7 @@ bool LamureRenderer::pauseAndWaitForIdle(uint32_t extraDrainFrames)
 
     return true;
 }
+
 void LamureRenderer::resumeRendering()
 {
     {
@@ -1348,7 +1440,6 @@ bool LamureRenderer::isRendering() const
     std::lock_guard<std::mutex> lock(m_renderMutex);
     return m_rendering;
 }
-
 
 void LamureRenderer::initUniforms() 
 {
@@ -1421,17 +1512,14 @@ void LamureRenderer::initUniforms()
     m_point_color_lighting_shader.aniso_normalize_loc = glGetUniformLocation(m_point_color_lighting_shader.program, "aniso_normalize");
     m_point_color_lighting_shader.max_radius_cut_loc = glGetUniformLocation(m_point_color_lighting_shader.program, "max_radius_cut");
     m_point_color_lighting_shader.scale_radius_gamma_loc    = glGetUniformLocation(m_point_color_lighting_shader.program, "scale_radius_gamma");
-
     m_point_color_lighting_shader.view_matrix_loc         = glGetUniformLocation(m_point_color_lighting_shader.program, "view_matrix");
     m_point_color_lighting_shader.normal_matrix_loc     = glGetUniformLocation(m_point_color_lighting_shader.program, "normal_matrix");
-
     m_point_color_lighting_shader.show_normals_loc        = glGetUniformLocation(m_point_color_lighting_shader.program, "show_normals");
     m_point_color_lighting_shader.show_accuracy_loc       = glGetUniformLocation(m_point_color_lighting_shader.program, "show_accuracy");
     m_point_color_lighting_shader.show_radius_dev_loc     = glGetUniformLocation(m_point_color_lighting_shader.program, "show_radius_deviation");
     m_point_color_lighting_shader.show_output_sens_loc    = glGetUniformLocation(m_point_color_lighting_shader.program, "show_output_sensitivity");
     m_point_color_lighting_shader.accuracy_loc            = glGetUniformLocation(m_point_color_lighting_shader.program, "accuracy");
     m_point_color_lighting_shader.average_radius_loc      = glGetUniformLocation(m_point_color_lighting_shader.program, "average_radius");
-
     m_point_color_lighting_shader.point_light_pos_vs_loc      = glGetUniformLocation(m_point_color_lighting_shader.program, "point_light_pos_vs");
     m_point_color_lighting_shader.point_light_intensity_loc   = glGetUniformLocation(m_point_color_lighting_shader.program, "point_light_intensity");
     m_point_color_lighting_shader.ambient_intensity_loc       = glGetUniformLocation(m_point_color_lighting_shader.program, "ambient_intensity");
@@ -1453,7 +1541,6 @@ void LamureRenderer::initUniforms()
     m_point_prov_shader.scale_radius_loc = glGetUniformLocation(m_point_prov_shader.program, "scale_radius");
     m_point_prov_shader.max_radius_cut_loc = glGetUniformLocation(m_point_prov_shader.program, "max_radius_cut");
     m_point_prov_shader.scale_radius_gamma_loc    = glGetUniformLocation(m_point_prov_shader.program, "scale_radius_gamma");
-
     m_point_prov_shader.scale_projection_loc   = glGetUniformLocation(m_point_prov_shader.program, "scale_projection");
     m_point_prov_shader.show_normals_loc         = glGetUniformLocation(m_point_prov_shader.program, "show_normals");
     m_point_prov_shader.show_accuracy_loc        = glGetUniformLocation(m_point_prov_shader.program, "show_accuracy");
@@ -1461,7 +1548,6 @@ void LamureRenderer::initUniforms()
     m_point_prov_shader.show_output_sens_loc     = glGetUniformLocation(m_point_prov_shader.program, "show_output_sensitivity");
     m_point_prov_shader.accuracy_loc             = glGetUniformLocation(m_point_prov_shader.program, "accuracy");
     m_point_prov_shader.average_radius_loc       = glGetUniformLocation(m_point_prov_shader.program, "average_radius");
-
     m_point_prov_shader.channel_loc              = glGetUniformLocation(m_point_prov_shader.program, "channel");
     m_point_prov_shader.heatmap_loc              = glGetUniformLocation(m_point_prov_shader.program, "heatmap");
     m_point_prov_shader.heatmap_min_loc          = glGetUniformLocation(m_point_prov_shader.program, "heatmap_min");
@@ -1529,15 +1615,12 @@ void LamureRenderer::initUniforms()
     m_surfel_color_lighting_shader.viewport_loc            = glGetUniformLocation(m_surfel_color_lighting_shader.program, "viewport");
     m_surfel_color_lighting_shader.scale_projection_loc   = glGetUniformLocation(m_surfel_color_lighting_shader.program, "scale_projection");
     m_surfel_color_lighting_shader.use_aniso_loc          = glGetUniformLocation(m_surfel_color_lighting_shader.program, "use_aniso");
-
-
     m_surfel_color_lighting_shader.show_normals_loc        = glGetUniformLocation(m_surfel_color_lighting_shader.program, "show_normals");
     m_surfel_color_lighting_shader.show_accuracy_loc       = glGetUniformLocation(m_surfel_color_lighting_shader.program, "show_accuracy");
     m_surfel_color_lighting_shader.show_radius_dev_loc     = glGetUniformLocation(m_surfel_color_lighting_shader.program, "show_radius_deviation");
     m_surfel_color_lighting_shader.show_output_sens_loc    = glGetUniformLocation(m_surfel_color_lighting_shader.program, "show_output_sensitivity");
     m_surfel_color_lighting_shader.accuracy_loc            = glGetUniformLocation(m_surfel_color_lighting_shader.program, "accuracy");
     m_surfel_color_lighting_shader.average_radius_loc      = glGetUniformLocation(m_surfel_color_lighting_shader.program, "average_radius");
-
     m_surfel_color_lighting_shader.point_light_pos_vs_loc      = glGetUniformLocation(m_surfel_color_lighting_shader.program, "point_light_pos_vs");
     m_surfel_color_lighting_shader.point_light_intensity_loc   = glGetUniformLocation(m_surfel_color_lighting_shader.program, "point_light_intensity");
     m_surfel_color_lighting_shader.ambient_intensity_loc       = glGetUniformLocation(m_surfel_color_lighting_shader.program, "ambient_intensity");
@@ -1561,14 +1644,12 @@ void LamureRenderer::initUniforms()
     m_surfel_prov_shader.max_radius_cut_loc     = glGetUniformLocation(m_surfel_prov_shader.program, "max_radius_cut");
     m_surfel_prov_shader.viewport_loc           = glGetUniformLocation(m_surfel_prov_shader.program, "viewport");
     m_surfel_prov_shader.scale_projection_loc   = glGetUniformLocation(m_surfel_prov_shader.program, "scale_projection");
-
     m_surfel_prov_shader.show_normals_loc         = glGetUniformLocation(m_surfel_prov_shader.program, "show_normals");
     m_surfel_prov_shader.show_accuracy_loc        = glGetUniformLocation(m_surfel_prov_shader.program, "show_accuracy");
     m_surfel_prov_shader.show_radius_dev_loc      = glGetUniformLocation(m_surfel_prov_shader.program, "show_radius_deviation");
     m_surfel_prov_shader.show_output_sens_loc     = glGetUniformLocation(m_surfel_prov_shader.program, "show_output_sensitivity");
     m_surfel_prov_shader.accuracy_loc             = glGetUniformLocation(m_surfel_prov_shader.program, "accuracy");
     m_surfel_prov_shader.average_radius_loc       = glGetUniformLocation(m_surfel_prov_shader.program, "average_radius");
-
     m_surfel_prov_shader.channel_loc              = glGetUniformLocation(m_surfel_prov_shader.program, "channel");
     m_surfel_prov_shader.heatmap_loc              = glGetUniformLocation(m_surfel_prov_shader.program, "heatmap");
     m_surfel_prov_shader.heatmap_min_loc          = glGetUniformLocation(m_surfel_prov_shader.program, "heatmap_min");
@@ -1576,7 +1657,6 @@ void LamureRenderer::initUniforms()
     m_surfel_prov_shader.heatmap_min_color_loc    = glGetUniformLocation(m_surfel_prov_shader.program, "heatmap_min_color");
     m_surfel_prov_shader.heatmap_max_color_loc    = glGetUniformLocation(m_surfel_prov_shader.program, "heatmap_max_color");
     glUseProgram(0);
-
 
     glUseProgram(m_line_shader.program);
     m_line_shader.mvp_matrix_location = glGetUniformLocation(m_line_shader.program, "mvp_matrix");
@@ -2029,7 +2109,6 @@ void LamureRenderer::setModelUniforms(const scm::math::mat4& mvp_matrix, const s
     }
 }
 
-
 void LamureRenderer::setNodeUniforms(const lamure::ren::bvh* bvh, uint32_t node_id) {
     const auto &s = m_plugin->getSettings();
     const float gamma = (s.scale_radius_gamma > 0.0f) ? s.scale_radius_gamma : 1.0f;
@@ -2180,8 +2259,6 @@ bool LamureRenderer::readShader(std::string const &path_string, std::string &sha
 void LamureRenderer::initLamureShader()
 {
     if (notifyOn(m_plugin)) { std::cout << "[Lamure] LamureRenderer::initLamureShader()" << std::endl; }
-
-    // Clear shader strings to prevent appending on reload
     vis_point_vs_source.clear();
     vis_point_fs_source.clear();
     vis_point_color_vs_source.clear();
@@ -2673,3 +2750,4 @@ void LamureRenderer::releaseMultipassTargets(){
     }
     m_multipass_targets.clear();
 }
+

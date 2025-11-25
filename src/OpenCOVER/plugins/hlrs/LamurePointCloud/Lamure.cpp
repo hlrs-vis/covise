@@ -1,5 +1,6 @@
 //local
 #include "Lamure.h" 
+#include "LamureEditTool.h"
 #include "gl_state.h"
 #include "osg_util.h"
 
@@ -49,12 +50,13 @@
 #include <cover/coVRFileManager.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRConfig.h>
+#include <cover/coVRNavigationManager.h>
 
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 #include <cover/coVRPluginList.h>
-#include <cover/coVRNavigationManager.h>
 #include <numeric>
+#include <osg/Geode>
 #include <osg/MatrixTransform>
 
 
@@ -141,6 +143,8 @@ Lamure::Lamure() :coVRPlugin(COVER_PLUGIN_NAME), opencover::ui::Owner("LamurePlu
 	plugin = this;
     m_ui = std::make_unique<LamureUI>(this, "LamureUI");
     m_renderer = std::make_unique<LamureRenderer>(this);
+    m_edit_tool = std::make_unique<LamureEditTool>(this);
+    m_edit_tool->setBrushAction(m_edit_action);
 }
 
 
@@ -154,7 +158,11 @@ Lamure::~Lamure()
 {
     fprintf(stderr, "LamurePlugin::~LamurePlugin\n");
 
-    opencover::cover->getObjectsRoot()->removeChild(m_lamure_grp);//TODO: remove all other nodes
+    if (m_edit_tool)
+        m_edit_tool->disable();
+    if (m_renderer && m_lamure_grp)
+        m_renderer->destroyEditBrushNode(m_lamure_grp.get());
+    opencover::cover->getObjectsRoot()->removeChild(m_lamure_grp);
     opencover::coVRFileManager::instance()->unregisterFileHandler(&handler);
 }
 
@@ -170,6 +178,39 @@ bool Lamure::isModelVisible(uint16_t idx) const {
     std::lock_guard<std::mutex> lock(g_settings_mutex);
     const auto &visible = m_model_info.model_visible;
     return idx < visible.size() ? visible[idx] : false;
+}
+
+void Lamure::setEditMode(bool enabled) {
+    if (m_edit_mode == enabled)
+        return;
+    m_edit_mode = enabled;
+
+    if (!m_edit_mode) {
+        if (m_edit_tool)
+            m_edit_tool->disable();
+    } else {
+        if (m_edit_tool) {
+            m_edit_tool->setBrushAction(m_edit_action);
+            m_edit_tool->enable();
+            m_edit_tool->update();
+        }
+    }
+
+    if (m_settings.show_notify) {
+        std::cout << "[Lamure] Edit mode " << (enabled ? "enabled" : "disabled") << std::endl;
+    }
+    if (m_ui) {
+        if (auto* btn = m_ui->getEditModeButton()) {
+            if (btn->state() != enabled)
+                btn->setState(enabled);
+        }
+    }
+}
+
+void Lamure::setEditAction(LamureEditTool::BrushAction action) {
+    m_edit_action = action;
+    if (m_edit_tool)
+        m_edit_tool->setBrushAction(action);
 }
 
 
@@ -370,8 +411,11 @@ int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *covise
     }
     plugin->m_model_nodes[file] = modelNode;
 
+    if (plugin->m_files_to_load.empty()) {
+        plugin->m_frames_to_wait = isMenuReload ? 0 : static_cast<int>(plugin->m_settings.pause_frames);
+        plugin->setBrushFrozen(true);
+    }
     plugin->m_files_to_load.push_back(file);
-    plugin->m_frames_to_wait = isMenuReload ? 0 : static_cast<int>(plugin->m_settings.pause_frames);
 
     return 1;
 }
@@ -465,6 +509,7 @@ void Lamure::preFrame() {
             if (g_is_resetting.compare_exchange_strong(expected, true)) {
                 if (m_settings.show_notify)
                     std::cout << "[Lamure] VRML reload detected" << std::endl;
+                setBrushFrozen(true);
                 perform_system_reset();
             }
         }
@@ -513,6 +558,11 @@ void Lamure::preFrame() {
         stopMeasurement();
     }
 
+    if (m_edit_mode) {
+        if (m_edit_tool)
+            m_edit_tool->update();
+    }
+
 #ifdef _WIN32
     float deltaTime = std::clamp(float(opencover::cover->frameDuration()), 1.0f / 60.0f, 1.0f / 15.0f);
     float moveAmount = 1000.0f * deltaTime;
@@ -549,6 +599,10 @@ void Lamure::preFrame() {
 void Lamure::perform_system_reset()
 {
     std::lock_guard<std::mutex> lock(g_load_bvh_mutex);
+
+    if (m_renderer && m_lamure_grp) {
+        m_renderer->destroyEditBrushNode(m_lamure_grp.get());
+    }
 
     // Phase 1: pause rendering and initiate shutdown
     if (!m_reset_in_progress) {
@@ -674,6 +728,13 @@ void Lamure::perform_system_reset()
 
     if (m_renderer) {
         m_renderer->init();
+        
+        // Unfreeze and force update to apply correct transform to the new renderer node
+        setBrushFrozen(false);
+        if (m_edit_mode && m_edit_tool) {
+            m_edit_tool->update();
+        }
+
         applyShaderToRendererFromSettings();
     }
 
