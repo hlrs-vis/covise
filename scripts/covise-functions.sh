@@ -10,7 +10,7 @@
 #
 guess_archsuffix() {
 
-   if [ "$ARCHSUFFIX" != "" ]; then
+   if [ ! -z ${ARCHSUFFIX+x} ]; then
       check_readme_archsuffix
       return
    fi

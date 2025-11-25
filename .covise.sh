@@ -13,7 +13,7 @@
 # to your covise directory
 #
 
-if [ -z "$COVISEDIR" ]; then
+if [ -z ${COVISEDIR+x} ]; then
    if [ -f .covise.sh ]; then
       export COVISEDIR="`/bin/pwd`"
    elif [ -f "${HOME}"/covise/.covise.sh ]; then
@@ -29,8 +29,8 @@ fi
 export COVISEDIR="`sh -f -c 'cd "$COVISEDIR" ; unset PWD; /bin/pwd'`"
 
 if [ ! -z "$COVISEDIR" ]; then
-    if [ -z "$COVISEDESTDIR" ]; then
-        export COVISEDESTDIR=$COVISEDIR
+    if [ -z ${COVISEDESTDIR+x} ]; then
+        export COVISEDESTDIR="$COVISEDIR"
     fi
 fi
 
@@ -49,18 +49,11 @@ guess_archsuffix
 
 # PATH
 #
-if [ "$COVISE_GLOBALINSTDIR" = "" ]; then
-    export PATH="$COVISEDIR"/bin:"$PATH"
-    if [ "$COVISE_PATH" = "" ]; then
-        export COVISE_PATH="${COVISEDIR}"
-        if [ "$COVISEDESTDIR" != "$COVISEDIR" ]; then
-            export COVISE_PATH="${COVISEDESTDIR}:${COVISE_PATH}"
-        fi
-    fi
-else
-    export PATH="$COVISE_GLOBALINSTDIR"/covise/bin:"$PATH"
-    if [ "$COVISE_PATH" = "" ]; then
-        export COVISE_PATH="$COVISEDIR":"$COVISE_GLOBALINSTDIR/covise"
+export PATH="$COVISEDIR"/bin:"$PATH"
+if [ -z ${COVISE_PATH+x} ]; then
+    export COVISE_PATH="${COVISEDIR}"
+    if [ "$COVISEDESTDIR" != "$COVISEDIR" ]; then
+        export COVISE_PATH="${COVISEDESTDIR}:${COVISE_PATH}"
     fi
 fi
 
@@ -69,7 +62,7 @@ fi
 #
 
 BASEARCH=`echo $ARCHSUFFIX | sed -e 's/opt$//' -e 's/xenomai$//'  `
-if [ -z "$EXTERNLIBS" ]; then
+if [ -z ${EXTERNLIBS+x} ]; then
   extlibs="${COVISEDIR}/extern_libs/${ARCHSUFFIX}"
   if [ ! -d "$extlibs" ]; then
      extlibs="${COVISEDIR}/extern_libs/${BASEARCH}"
@@ -100,10 +93,15 @@ if [ -d "${COVISEDIR}/.git" ]; then
     fi
 fi
 
-if [ -z "${PYTHON_HOME}" ]; then
-   if [ -d "${EXTERNLIBS}/python" ]; then
-       export PYTHON_HOME="${EXTERNLIBS}/python"
-   elif [ -n "$(which python3)" 2> /dev/null ]; then
+if [ -z ${PYTHON_HOME+x} ]; then
+   if [ ! -z ${EXTERNLIBS+x} ]; then
+       if [ -d "${EXTERNLIBS}/python" ]; then
+           export PYTHON_HOME="${EXTERNLIBS}/python"
+       fi
+   fi
+fi
+if [ -z ${PYTHON_HOME+x} ]; then
+   if [ -n "$(which python3)" 2> /dev/null ]; then
        python_bin="$(which python3)"
        export PYTHON_HOME="${python_bin%/*bin/python3}"
    fi
