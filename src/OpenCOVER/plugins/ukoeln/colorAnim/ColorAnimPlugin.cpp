@@ -183,7 +183,9 @@ bool ColorAnimPlugin::init()
 
     // Create scene graph structure
     brainTransform = new osg::MatrixTransform();
+    brainTransform->setName("BrainTransform");
     brainGeode = new osg::Geode();
+    brainGeode->setName("BrainGeode");
 
     if (brainGeometry.valid())
     {
@@ -207,26 +209,34 @@ bool ColorAnimPlugin::init()
     brainTransform->addChild(brainGroup.get());
 
     std::vector<AnatomyModel> anatomyModels = {
-        {"surfaces/static/anatomy/anatomy_L1.obj", 0.8f},
-        {"surfaces/static/anatomy/anatomy_L2.obj", 0.7f},
-        {"surfaces/static/anatomy/anatomy_L3.obj", 0.5f},
-        {"surfaces/static/anatomy/anatomy_L4.obj", 0.5f},
-        {"surfaces/static/anatomy/anatomy_R1.obj", 0.8f},
-        {"surfaces/static/anatomy/anatomy_R2.obj", 0.7f},
-        {"surfaces/static/anatomy/anatomy_R3.obj", 0.5f},
-        {"surfaces/static/anatomy/anatomy_R4.obj", 0.5f},
+        {"surfaces/static/anatomy/anatomy_L1.ive", 0.8f},
+        {"surfaces/static/anatomy/anatomy_L2.ive", 0.7f},
+        {"surfaces/static/anatomy/anatomy_L3.ive", 0.5f},
+        {"surfaces/static/anatomy/anatomy_L4.ive", 0.5f},
+        {"surfaces/static/anatomy/anatomy_R3.ive", 0.5f},
+        {"surfaces/static/anatomy/anatomy_R1.ive", 0.8f},
+        {"surfaces/static/anatomy/anatomy_R2.ive", 0.7f},
+        {"surfaces/static/anatomy/anatomy_R4.ive", 0.5f},
         {"surfaces/static/left_electrode.ply", 1.0f}
     };
 
     for (const auto& model : anatomyModels)
-    {
+    {       
         std::string fn = projectDir + model.filename;
+        std::cout << "Loading Anatomy file: " << fn.c_str() << std::endl << std::flush;
         osg::Node* loadedNode = coVRFileManager::instance()->loadFile(
             fn.c_str(),
             nullptr,
             brainGroup.get(),
             nullptr
         );
+
+        
+        if(loadedNode){
+            brainGroup->addChild(loadedNode);
+        } else {
+            std::cout << "Failed to load: " << fn.c_str() << std::endl << std::flush;
+        }
         /*
         osg::Geode* geode = findFirstGeode(loadedNode);
         if (geode)
