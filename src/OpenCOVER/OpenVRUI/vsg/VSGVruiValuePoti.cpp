@@ -19,6 +19,8 @@
 
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/Switch.h>
+#include <vsg/text/GpuLayoutTechnique.h>
+#include <vsg/nodes/VertexIndexDraw.h>
 #include "mathUtils.h"
 
 using namespace vsg;
@@ -49,21 +51,21 @@ void VSGVruiValuePoti::createGeometry()
     potiTransform = MatrixTransform::create();
     textTransform = MatrixTransform::create();
 
-    //potiTransform->setName("PotiTransform");
-    //textTransform->setName("TextTransform");
+    potiText = Text::create();
+    potiTextLayout = StandardLayout::create();
+    potiTextString = stringValue::create();
 
-    text = Text::create();
-    //textNode->setName("TextNode");
+    potiText->technique = GpuLayoutTechnique::create();
+
+    potiText->font = VSGVruiPresets::instance()->font2;
+    potiText->text = potiTextString;
+    potiText->layout = potiTextLayout;
 
     ref_ptr<MatrixTransform> mainTransform = MatrixTransform::create();
     ref_ptr<MatrixTransform> panelTransform = MatrixTransform::create();
-    //mainTransform->setName("MainTransform");
-    //panelTransform->setName("PanelTransform");
 
     ref_ptr<Group> icon = Group::create();
     ref_ptr<Group> iconDisabled = Group::create();
-    //icon->setName("Icon");
-    //iconDisabled->setName("IconDisabled");
 
     VSGVruiNode *iconNode = dynamic_cast<VSGVruiNode *>(vruiRendererInterface::the()->getIcon("UI/poti2"));
 
@@ -79,14 +81,13 @@ void VSGVruiValuePoti::createGeometry()
         iconDisabled->addChild(iconNode->node);
 
     initText();
-    text->text = vsg::stringValue::create(poti->getButtonText());
 
     mainTransform->addChild(panelTransform);
     mainTransform->addChild(potiTransform);
 
     mainTransform->addChild(textTransform);
 
-    textTransform->addChild(text);
+    textTransform->addChild(potiText);
 
     panelTransform->addChild(createPanelNode(poti->getBackgroundTexture()));
 
@@ -94,17 +95,16 @@ void VSGVruiValuePoti::createGeometry()
     dmat4 s, hm, pm, rm;
     pm = rotate(0.0, 1.0, 0.0, 0.0);
     rm = rotate(0.0, 0.0, 1.0, 0.0);
-    hm = rotate(0.0, 0.0, 0.0, 1.0);
+    hm = rotate(vsg::radians(90.0), 0.0, 0.0, 1.0);
     s = scale(30.0, 30.0, 30.0);
-    panelMatrix = s*hm*pm*rm;
-    setTrans(panelMatrix,dvec3(0.0, 7.0, 1.0));
+    panelMatrix = s * hm * pm * rm;
+    setTrans(panelMatrix,dvec3(0.0, 7.0, 2.0));
     panelTransform->matrix = (panelMatrix);
 
     stateSwitch = Switch::create();
     stateSwitch->addChild(true,icon);
     stateSwitch->addChild(false, iconDisabled);
     stateSwitch->setSingleChildOn(0);
-    //stateSwitch->setName("StateSwitch");
 
     potiTransform->addChild(stateSwitch);
 
@@ -118,45 +118,23 @@ void VSGVruiValuePoti::createGeometry()
 /// Initialize text parameters.
 void VSGVruiValuePoti::initText()
 {
+    potiTextLayout->horizontalAlignment = StandardLayout::CENTER_ALIGNMENT;
+    potiTextLayout->position = vec3(0.0, 1.0, 0.0);
+    potiTextLayout->horizontal = vec3(1.0, 0.0, 0.0);
+    potiTextLayout->vertical = vec3(0.0, 1.0, 0.0);
+    potiTextLayout->color = vec4(0.85, 0.9, 0.8, 1.0);
+    potiTextLayout->outlineWidth = 0.3f;
+    potiTextLayout->billboard = false;
 
-    /*ref_ptr<Material> textMaterial = new Material();
-    textMaterial->setColorMode(Material::AMBIENT_AND_DIFFUSE);
-    textMaterial->setAmbient(Material::FRONT_AND_BACK, vsg::vec4(0.2, 0.2, 0.2, 1.0));
-    textMaterial->setDiffuse(Material::FRONT_AND_BACK, vsg::vec4(0.9, 0.9, 0.9, 1.0));
-    textMaterial->setSpecular(Material::FRONT_AND_BACK, vsg::vec4(0.9, 0.9, 0.9, 1.0));
-    textMaterial->setEmission(Material::FRONT_AND_BACK, vsg::vec4(0.0, 0.0, 0.0, 1.0));
-    textMaterial->setShininess(Material::FRONT_AND_BACK, 80.0f);
+    potiTextString->value() = make_string(poti->getButtonText());
+    potiText->setup(16, VSGVruiPresets::instance()->options);
 
-    ref_ptr<StateSet> textStateSet = textNode->getOrCreateStateSet();
+    dmat4 s, textMatrix;
+    s = scale(12.5, 12.5, 1.);
+    textMatrix = s;
 
-    VSGVruiPresets::makeTransparent(textStateSet);
-    textStateSet->setAttributeAndModes(textMaterial.get(), StateAttribute::ON | StateAttribute::PROTECTED);
-    textStateSet->setMode(GL_LIGHTING, StateAttribute::ON | StateAttribute::PROTECTED);
-
-    text = new Text();
-    text->setFont(VSGVruiPresets::getFontFile());
-    text->setDrawMode(Text::TEXT);
-    text->setAlignment(Text::LEFT_BASE_LINE);
-    text->setColor(vsg::vec4(1.0, 1.0, 1.0, 1.0));
-    text->setCharacterSize(10.0f);
-    text->setText(poti->getButtonText(), String::ENCODING_UTF8);
-    text->setLayout(Text::LEFT_TO_RIGHT);
-    text->setAxisAlignment(Text::YZ_PLANE);
-
-    Matrix textMatrix;
-
-    Matrix s, hm, pm, rm;
-    pm.makeRotate(vsg::inDegrees(0.0), 1.0, 0.0, 0.0);
-    rm.makeRotate(vsg::inDegrees(-90.0), 0.0, 1.0, 0.0);
-    hm.makeRotate(vsg::inDegrees(270.0), 0.0, 0.0, 1.0);
-    s.makeScale(1.4, 1.4, 1.4);
-    textMatrix = rm * pm * hm * s;
-
-    textMatrix.setTrans(-50.0 * 0.4 - 7.0, 50.0 * 0.4 + 7.0, 2.0);
-
-    textTransform->setMatrix(textMatrix);
-
-    textNode->addDrawable(text.get());*/
+    setTrans(textMatrix, dvec3(-2.5, 14., 2.0));
+    textTransform->matrix = textMatrix;
 }
 
 void VSGVruiValuePoti::resizeGeometry()
@@ -166,29 +144,29 @@ void VSGVruiValuePoti::resizeGeometry()
 void VSGVruiValuePoti::update()
 {
 
-   /* if (poti->getValue() != oldValue)
+    if (poti->getValue() != oldValue)
     {
 
         //VRUILOG("VSGVruiValuePoti::update info: updating")
 
         oldValue = poti->getValue();
 
-        Matrix rot1, rot2, trans, result;
+        dmat4 rot1, rot2, trans, result;
 
         float frac;
 
-        trans.makeTranslate(0.0, 0.0, 5.0);
+        setTrans(trans, dvec3(0.0, 0.0, 5.0));
 
-        Matrix s, hm, pm, rm;
-        pm.makeRotate(vsg::inDegrees(270.0), 1.0, 0.0, 0.0);
-        rm.makeRotate(vsg::inDegrees(0.0), 0.0, 1.0, 0.0);
-        hm.makeRotate(vsg::inDegrees(0.0), 0.0, 0.0, 1.0);
-        rot1 = rm * pm * hm;
+        dmat4 s, hm, pm, rm;
+        pm = rotate(vsg::radians(270.0), 1.0, 0.0, 0.0);
+        rm = rotate(vsg::radians(0.0), 0.0, 1.0, 0.0);
+        hm = rotate(vsg::radians(0.0), 0.0, 0.0, 1.0);
+        rot1 = hm * pm * rm;
 
         coSlopePoti *sPoti = dynamic_cast<coSlopePoti *>(poti);
         if (sPoti)
         {
-            pm.makeRotate(vsg::inDegrees((1.0 - sPoti->convertSlopeToLinear(poti->getValue())) * 360), 0.0, 0.0, 1.0);
+            pm = rotate(vsg::radians((1.0 - sPoti->convertSlopeToLinear(poti->getValue())) * 360), 0.0, 0.0, 1.0);
             //pm.makeRotate(sPoti->convertSlopeToLinear(-sPoti->getValue())*2*M_PI, 0.0, 0.0, 1.0);
         }
         else
@@ -209,27 +187,26 @@ void VSGVruiValuePoti::update()
                 frac = (poti->getValue() - poti->getMin()) / (poti->getMax() - poti->getMin());
             }
 
-            pm.makeRotate(vsg::inDegrees((0.5 - frac) * RANGE), 0.0, 0.0, 1.0);
+            pm = rotate(vsg::radians((0.5 - frac) * RANGE), 0.0, 0.0, 1.0);
         }
 
-        s.makeScale(1.2, 1.2, 1.2);
-        //rm.makeRotate(vsg::inDegrees(0.0), 0.0, 1.0, 0.0);
+        s = scale(1.2, 1.2, 1.2);
 
-        rot2 = rm * pm * hm * s;
+        rot2 = s * hm * pm * rm;
 
-        result = rot1 * rot2 * trans;
+        result = trans * rot2 * rot1;
 
-        potiTransform->setMatrix(result);
+        potiTransform->matrix = (result);
     }
 
     if (poti->getButtonText() != oldButtonText)
     {
         oldButtonText = poti->getButtonText();
         //VRUILOG("VSGVruiValuePoti::update info: setting text " << oldButtonText)
-        text->setText(oldButtonText, String::ENCODING_UTF8);
+        //text->setText(oldButtonText, String::ENCODING_UTF8);
+        potiTextString->value() = make_string(oldButtonText);
+        potiText->setup(16, VSGVruiPresets::instance()->options);
     }
-
-    textNode->setNodeMask((poti->isLabelVisible()) ? (~1) : 0);
 
     if (poti->isEnabled() != oldEnabled)
     {
@@ -241,7 +218,7 @@ void VSGVruiValuePoti::update()
         {
             stateSwitch->setSingleChildOn(1);
         }
-    }*/
+    }
 }
 
 /** Create a node for the poti background texture.
@@ -250,86 +227,84 @@ void VSGVruiValuePoti::update()
 */
 ref_ptr<Node> VSGVruiValuePoti::createPanelNode(const string &textureName)
 {
-    /* ref_ptr<vec3Array> coord = new vec3Array(4);
-    ref_ptr<vsg::vec4Array> color = new vsg::vec4Array(1);
-    ref_ptr<vec3Array> normal = new vec3Array(1);
-    ref_ptr<vec2Array> texCoord = new vec2Array(4);
+    ref_ptr<vec3Array> coord = vec3Array::create(4);
+    ref_ptr<vec4Array> color = vec4Array::create(1);
+    ref_ptr<vec3Array> normal = vec3Array::create(1);
+    ref_ptr<vec2Array> texCoord = vec2Array::create(4);
+    ref_ptr<uintArray> coordIndices = uintArray::create(6);
 
-    (*coord)[0].set(-1.0, 1.0, 0.0f);
-    (*coord)[1].set(-1.0, -1.0, 0.0f);
-    (*coord)[2].set(1.0, -1.0, 0.0f);
-    (*coord)[3].set(1.0, 1.0, 0.0f);
+    (*coord)[0].set(-1.0f, 1.0f, 0.0f);
+    (*coord)[1].set(-1.0f, -1.0f, 0.0f);
+    (*coord)[2].set(1.0f, -1.0f, 0.0f);
+    (*coord)[3].set(1.0f, 1.0f, 0.0f);
 
-    (*color)[0].set(1.0, 1.0, 1.0, 1.0);
+    (*color)[0].set(1.0f, 1.0f, 1.0f, 1.0f);
 
     (*normal)[0].set(0.0, 0.0, 1.0);
 
-    (*texCoord)[0].set(0.0, 0.0);
-    (*texCoord)[1].set(1.0, 0.0);
-    (*texCoord)[2].set(1.0, 1.0);
-    (*texCoord)[3].set(0.0, 1.0);
+    (*texCoord)[0].set(0.0, 1.0);
+    (*texCoord)[1].set(1.0, 1.0);
+    (*texCoord)[2].set(1.0, 0.0);
+    (*texCoord)[3].set(0.0, 0.0);
 
-    // Define a material:
-    ref_ptr<Material> material = new Material();
-    material->setColorMode(Material::AMBIENT_AND_DIFFUSE);
-    material->setAmbient(Material::FRONT_AND_BACK, vsg::vec4(0.2, 0.2, 0.2, 1.0));
-    material->setDiffuse(Material::FRONT_AND_BACK, vsg::vec4(1.0, 1.0, 1.0, 1.0));
-    material->setSpecular(Material::FRONT_AND_BACK, vsg::vec4(1.0, 1.0, 1.0, 1.0));
-    material->setEmission(Material::FRONT_AND_BACK, vsg::vec4(0.0, 0.0, 0.0, 1.0));
-    material->setShininess(Material::FRONT_AND_BACK, 80.0f);
+    coordIndices = uintArray::create(
+        {
+            0,1,2 , 0,2,3
+        }
+    );
 
-    ref_ptr<StateSet> stateSet = new StateSet();
+    ref_ptr<ShaderSet> shaderSet;
+    shaderSet = createFlatShadedShaderSet();
 
-    stateSet->setAttributeAndModes(material.get(), StateAttribute::ON | StateAttribute::PROTECTED);
+    auto colorBlendState = vsg::ColorBlendState::create();
+    colorBlendState->attachments[0].blendEnable = VK_TRUE;
+    colorBlendState->attachments[0].srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+    colorBlendState->attachments[0].dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    colorBlendState->attachments[0].colorBlendOp = VK_BLEND_OP_ADD;
+    colorBlendState->attachments[0].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+    colorBlendState->attachments[0].dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    colorBlendState->attachments[0].alphaBlendOp = VK_BLEND_OP_ADD;
+    colorBlendState->attachments[0].colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
+        VK_COLOR_COMPONENT_G_BIT |
+        VK_COLOR_COMPONENT_B_BIT |
+        VK_COLOR_COMPONENT_A_BIT;
+    colorBlendState->logicOpEnable = VK_FALSE;
 
-    //VRUILOG("VSGVruiValuePoti::createPanelNode info: loading texture image " << textureName)
+    auto depthStencilState = vsg::DepthStencilState::create();
+    depthStencilState->depthTestEnable = VK_TRUE;
+    depthStencilState->depthWriteEnable = VK_FALSE;
 
-    auto texture = VSGVruiRendererInterface::the()->getVsgTexture(textureName);
+    shaderSet->defaultGraphicsPipelineStates.push_back(colorBlendState);
+    shaderSet->defaultGraphicsPipelineStates.push_back(depthStencilState);
 
-    if (texture && texture->data)
-    {
-        texture->setFilter(Texture::MIN_FILTER, Texture::LINEAR);
-        texture->setWrap(Texture::WRAP_S, Texture::CLAMP);
-        texture->setWrap(Texture::WRAP_T, Texture::CLAMP);
-    }
+    DataList vertexArrays;
+
+    ref_ptr<GraphicsPipelineConfigurator> gpConfigurator = GraphicsPipelineConfigurator::create(shaderSet);
+
+    auto image = VSGVruiRendererInterface::the()->createVsgTexture(textureName);
+    if (image && image->data)
+        gpConfigurator->assignTexture("diffuseMap", image->data);
     else
-    {
-        VRUILOG("VSGVruiValuePoti::createPanelNode err: texture image " << textureName << " not found")
-    }
+        cerr << "No texture could be loaded for poti panel!" << endl;
 
-    ref_ptr<TexEnv> texEnv = VSGVruiPresets::getTexEnvModulate();
-    ref_ptr<CullFace> cullFace = VSGVruiPresets::getCullFaceBack();
-    ref_ptr<PolygonMode> polyMode = VSGVruiPresets::getPolyModeFill();
+    gpConfigurator->assignArray(vertexArrays, "vsg_Vertex", VK_VERTEX_INPUT_RATE_VERTEX, coord);
+    gpConfigurator->assignArray(vertexArrays, "vsg_Normal", VK_VERTEX_INPUT_RATE_INSTANCE, normal);
+    gpConfigurator->assignArray(vertexArrays, "vsg_TexCoord0", VK_VERTEX_INPUT_RATE_VERTEX, texCoord);
+    gpConfigurator->assignArray(vertexArrays, "vsg_Color", VK_VERTEX_INPUT_RATE_INSTANCE, color);
 
-    ref_ptr<Geode> geometryNode = new Geode();
-    //geometryNode->setName("GeometryNode");
-    ref_ptr<Geometry> geometry = new Geometry();
+    gpConfigurator->init();
 
-    geometry->setVertexArray(coord.get());
-    geometry->addPrimitiveSet(new DrawArrays(PrimitiveSet::QUADS, 0, 4));
-    geometry->setColorArray(color.get());
-    geometry->setColorBinding(Geometry::BIND_OVERALL);
-    geometry->setNormalArray(normal.get());
-    geometry->setNormalBinding(Geometry::BIND_OVERALL);
-    geometry->setTexCoordArray(0, texCoord.get());
+    ref_ptr<StateGroup> stateGroup = StateGroup::create();
+    gpConfigurator->copyTo(stateGroup);
 
-    VSGVruiPresets::makeTransparent(stateSet);
-    stateSet->setMode(GL_BLEND, StateAttribute::ON | StateAttribute::PROTECTED);
-    stateSet->setMode(GL_LIGHTING, StateAttribute::ON | StateAttribute::PROTECTED);
-    stateSet->setAttributeAndModes(cullFace.get(), StateAttribute::ON | StateAttribute::PROTECTED);
-    stateSet->setAttributeAndModes(polyMode.get(), StateAttribute::ON | StateAttribute::PROTECTED);
+    ref_ptr<VertexIndexDraw> vid = VertexIndexDraw::create();
+    vid->assignArrays(vertexArrays);
+    vid->assignIndices(coordIndices);
+    vid->indexCount = static_cast<uint32_t>(coordIndices->size());
+    vid->instanceCount = 1;
 
-    stateSet->setTextureAttribute(0, texEnv.get());
-    stateSet->setTextureAttributeAndModes(0, texture.get(), StateAttribute::ON | StateAttribute::PROTECTED);
+    stateGroup->addChild(vid);
 
-    geometryNode->setName(textureName);
-
-    geometryNode->setStateSet(stateSet.get());
-    geometryNode->addDrawable(geometry.get());
-
-    return geometryNode;*/
-
-    vsg::ref_ptr<vsg::MatrixTransform> node = MatrixTransform::create();
-    return node;
+    return stateGroup;
 }
 }

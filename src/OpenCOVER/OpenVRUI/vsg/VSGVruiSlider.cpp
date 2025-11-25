@@ -285,7 +285,7 @@ ref_ptr<Node> VSGVruiSlider::createText(float xPos)
     sliderTextLayout->position = vec3(0.0, 1.0, 0.0);
     sliderTextLayout->horizontal = vec3(1.0, 0.0, 0.0);
     sliderTextLayout->vertical = vec3(0.0, 1.0, 0.0);
-    sliderTextLayout->color = vec4(1.0, 1.0, 1.0, 1.0);
+    sliderTextLayout->color = vec4(0.85, 0.9, 0.8, 1.0);
     sliderTextLayout->outlineWidth = 0.1f;
     sliderTextLayout->billboard = false;
 
@@ -393,7 +393,7 @@ ref_ptr<Node> VSGVruiSlider::createNode(const string& textureName, ref_ptr<vec3A
     {
         depthStencilState->depthWriteEnable = VK_FALSE;
     }
-    
+
     depthStencilState->depthCompareOp = VK_COMPARE_OP_GREATER;
 
     shaderSet->defaultGraphicsPipelineStates.push_back(colorBlendState);

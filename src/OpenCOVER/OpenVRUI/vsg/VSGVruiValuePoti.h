@@ -14,6 +14,7 @@
 #include <vsg/nodes/Geometry.h>
 #include <vsg/text/Text.h>
 #include <vsg/text/Font.h>
+#include <vsg/text/StandardLayout.h>
 
 namespace vrui
 {
@@ -40,7 +41,9 @@ protected:
     ///< description text orientation
     vsg::ref_ptr<vsg::MatrixTransform> textTransform;
 
-    vsg::ref_ptr<vsg::Text> text;
+    vsg::ref_ptr<vsg::Text> potiText;
+    vsg::ref_ptr<vsg::stringValue> potiTextString;
+    vsg::ref_ptr<vsg::StandardLayout> potiTextLayout;
 
     vsg::ref_ptr<vsg::Switch> stateSwitch; ///< Switch node to switch between enabled and disabled geometry
 

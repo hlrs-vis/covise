@@ -370,6 +370,8 @@ private:
 
     std::vector<vvMeasurement *> measurements;
 
+    ui::Slider *testValuePoti_= nullptr;
+
     void initInteractionDevice();
     void initAxis();
     void initHandDeviceGeometry();

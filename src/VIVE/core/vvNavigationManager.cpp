@@ -517,6 +517,13 @@ void vvNavigationManager::initMenu()
     driveSpeedSlider_->setValue(driveSpeed);
     driveSpeedSlider_->setCallback([this](double val, bool released) { driveSpeed = val; });
 
+    // to test value poti for VIVE 
+    testValuePoti_ = new ui::Slider(navMenu_, "TestPoti");
+    testValuePoti_->setText("Test Poti");
+    testValuePoti_->setBounds(0.1, 30.);
+    testValuePoti_->setIntegral(false);
+    testValuePoti_->setPresentation(ui::Slider::AsDial);
+
     collisionButton_ = new ui::Button(navMenu_, "Collision");
     collisionButton_->setText("Collision detection");
     collisionButton_->setState(collision);
