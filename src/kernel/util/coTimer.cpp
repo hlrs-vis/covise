@@ -97,6 +97,7 @@ void coTimer::flush()
         strcpy(descField + MAX_LEN * actElem, " --- FLUSH --- FLUSH --- FLUSH --- ");
 
         actTval = timeField;
+        auto fl = stream->flags();
         for (i = 0; i <= actElem; i++)
         {
             stream->flags(std::ios::right | std::ios::fixed);
@@ -121,7 +122,7 @@ void coTimer::flush()
 
             actTval++;
         }
-        stream->flags();
+        stream->flags(fl);
         actElem = -1;
         actTval = timeField - 1;
         mark("coTimer::flush() finished: Re-Start");
