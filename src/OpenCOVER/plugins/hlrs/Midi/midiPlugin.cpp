@@ -3744,7 +3744,10 @@ Loft::Loft(osg::Group* parent)
 		}
 	}
 	osg::DrawElementsUInt* primitives = new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES);
-	primitives->reserve(40 * numSeconds * (instruments.size()-1));
+	if (instruments.size() > 0)
+	{
+		primitives->reserve(40 * numSeconds * (instruments.size() - 1));
+	}
 	geom->addPrimitiveSet(primitives);
 	geom->setVertexArray(vert);
 	geom->setNormalArray(normals);
