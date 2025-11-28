@@ -39,6 +39,7 @@ namespace alg = std;
 using namespace std;
 
 bool intensityOnly;
+bool rgba=false;
 bool bTestMode = false;
 bool bShowHeatMap = false;
 bool readScannerPositions = false;
@@ -300,13 +301,18 @@ void readE57(char *filename, std::vector<Point> &vec, formatTypes format,
 
 
 							if (bColor) {			//Normalize color to 0 - 255
-							     if(!intensityOnly)
-							     {
-								int r = ((redData[i] - colorRedOffset)*255.0) / colorRedRange;
-								int g = ((greenData[i] - colorGreenOffset)*255.0) / colorGreenRange;
-								int b = ((blueData[i] - colorBlueOffset)*255.0) / colorBlueRange;
-								point.rgba = r | g << 8 | b << 16;
-							     }
+                                if (!intensityOnly)
+                                {
+                                    int r = ((redData[i] - colorRedOffset) * 255.0) / colorRedRange;
+                                    int g = ((greenData[i] - colorGreenOffset) * 255.0) / colorGreenRange;
+                                    int b = ((blueData[i] - colorBlueOffset) * 255.0) / colorBlueRange;
+                                    point.rgba = r | g << 8 | b << 16;
+                                    if (rgba)
+                                    {
+                                        int intensity = ((intData[i] - intOffset) / intRange) * 255;
+                                        point.rgba |= r | g << 8 | b << 16 | intensity << 24;
+                                    }
+                                }
 
 							}
 							vec.push_back(point);
@@ -887,6 +893,7 @@ void printHelpPage()
     cout << "  -p              max points per cube (default: 100000000)" << endl;
     cout << "                  note: set to -1 if no max points per cube is specified" << endl;
     cout << "  -i              use intensity only" << endl;
+    cout << "  -a              interpret intensity as alpha for rgba color" << endl;
     cout << "  -s              read scanner position" << endl;
     cout << "  -t              test mode to examine point cloud structure" << endl;
     cout << "  -h              heat map representation of point density (only in test mode)" << endl; 
@@ -933,6 +940,11 @@ int main(int argc, char **argv)
                 {
                     intensityOnly=true;
                 }
+                if (argv[i][1] == 'a')
+                {
+                    rgba = true;
+                }
+
 
                 if(argv[i][1] == 't')
                 {

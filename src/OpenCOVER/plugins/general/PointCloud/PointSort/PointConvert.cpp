@@ -30,7 +30,8 @@ using namespace std;
 
 float min_x, min_y, min_z;
 float max_x, max_y, max_z;
-bool intensityOnly;
+bool intensityOnly=false;
+bool rgba = false;
 bool readScannerPosition = false;
 uint32_t fileVersion=1;
 
@@ -348,7 +349,15 @@ void ReadPTX(char *filename, std::vector<Point> &vec, osg::Vec3 &pos)
 				}
 				else
 				{
-					point.rgba = r | g << 8 | b << 16;
+					if (rgba)
+					{
+						unsigned char intensity = (unsigned char)(in * 255.99);
+						point.rgba = r | g << 8 | b << 16 | intensity << 24;
+					}
+					else
+					{
+						point.rgba = r | g << 8 | b << 16;
+					}
 				}
 				vec.push_back(point);
 			}
@@ -534,7 +543,15 @@ void ReadE57(char *filename, std::vector<Point> &vec)
 						int green = ((greenData[i] - colorGreenOffset) * 255) / colorBlueRange;
 						int blue = ((blueData[i] - colorBlueOffset) * 255) / colorBlueRange;
 
-						point.rgba = red | green << 8 | blue << 16;
+						if (rgba)
+						{
+							int intensity = ((intData[i] - intOffset) / intRange) * 255;
+							point.rgba = red | green << 8 | blue << 16 | intensity << 24;
+						}
+						else
+						{
+							point.rgba = red | green << 8 | blue << 16;
+						}
 
 					}
 					vec.push_back(point);
@@ -658,6 +675,7 @@ void printHelpPage()
     cout << "  -h              show this help list" << endl;
     cout << "  -f INPUTFORMAT  use selected input format" << endl;
     cout << "  -i              use intensity only" << endl;
+	cout << "  -a              interpret intensity as alpha for rgba color" << endl;
     cout << "  -s              read scanner position" << endl;
     cout << endl;
     cout << "input formats" << endl;
@@ -732,6 +750,11 @@ int main(int argc, char **argv)
         cout << "using intensity only" << endl;
         intensityOnly = true;
     }
+	if (cmdOptionExists(argv, argv + argc, "-a"))
+	{
+		cout << "using intensity as alpha" << endl;
+		rgba = true;
+	}
 
     if (cmdOptionExists(argv, argv+argc, "-s"))
     {
