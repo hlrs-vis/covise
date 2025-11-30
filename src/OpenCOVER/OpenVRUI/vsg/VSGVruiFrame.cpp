@@ -27,8 +27,8 @@ using namespace std;
 namespace vrui
 {
     //initialize shared variables for all VSGVruiFrame objects
-    ref_ptr<vec4Array> VSGVruiFrame::colors = nullptr;
-    ref_ptr<vec3Array> VSGVruiFrame::normals = nullptr;
+    ref_ptr<vec3Value> VSGVruiFrame::normal = nullptr;
+    ref_ptr<vec4Value> VSGVruiFrame::color = nullptr;
     ref_ptr<vec2Array> VSGVruiFrame::texCoords = vec2Array::create(24);
     ref_ptr<uintArray> VSGVruiFrame::coordIndices = uintArray::create(72);
     ref_ptr<Data> VSGVruiFrame::textureData = nullptr;
@@ -125,7 +125,7 @@ void VSGVruiFrame::resizeGeometry()
 /// allocate shared datastructures that can be used by all frames
 void VSGVruiFrame::createSharedLists()
 {
-    if (!colors || !normals) 
+    if (!color || !normal) 
     {
         // 12 quads * 2 tris * 3 indices
         coordIndices = uintArray::create({
@@ -136,8 +136,8 @@ void VSGVruiFrame::createSharedLists()
             });
 
         // color and normal
-        normals = vec3Array::create(24, vec3{ 0.0f, 0.0f, 1.0f });
-        colors = vec4Array::create(24, vec4{ 0.8f, 0.8f, 0.8f, 1.0f });
+        normal = vec3Value::create(vec3(0.0f, 0.0f, 1.0f));
+        color = vec4Value::create(vec4(0.8f, 0.8f, 0.8f, 1.0f));
 
         // texture coordinates (might be flipped, need to check with another texture)
         texCoords->set(0, vec2{ (1.0f / 32.0f) * 0.0f, (1.0f / 32.0f) * 32.0f });
@@ -230,9 +230,9 @@ void VSGVruiFrame::createGeometry()
         }
 
         gpConfigurator->assignArray(vertexArrays, "vsg_Vertex", VK_VERTEX_INPUT_RATE_VERTEX, coord);
-        gpConfigurator->assignArray(vertexArrays, "vsg_Normal", VK_VERTEX_INPUT_RATE_VERTEX, normals);
+        gpConfigurator->assignArray(vertexArrays, "vsg_Normal", VK_VERTEX_INPUT_RATE_INSTANCE, normal);
         gpConfigurator->assignArray(vertexArrays, "vsg_TexCoord0", VK_VERTEX_INPUT_RATE_VERTEX, texCoords);
-        gpConfigurator->assignArray(vertexArrays, "vsg_Color", VK_VERTEX_INPUT_RATE_VERTEX, colors);
+        gpConfigurator->assignArray(vertexArrays, "vsg_Color", VK_VERTEX_INPUT_RATE_INSTANCE, color);
 
         gpConfigurator->init();
 

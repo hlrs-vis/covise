@@ -43,9 +43,6 @@ public:
 
     void createGeometry();
 
-    // test function
-    void createTestFrameGeometry(const std::string frag);
-
 protected:
     virtual void resizeGeometry();
     void realign();
@@ -61,8 +58,8 @@ private:
 
     //shared color, normal, geometry indices (of the geometry coords)
     //and texture coordinate vectors
-    static vsg::ref_ptr<vsg::vec4Array> colors;
-    static vsg::ref_ptr<vsg::vec3Array> normals;
+    static vsg::ref_ptr <vsg::vec3Value> normal;
+    static vsg::ref_ptr <vsg::vec4Value> color;
     static vsg::ref_ptr<vsg::uintArray> coordIndices;
     static vsg::ref_ptr<vsg::vec2Array> texCoords; 
     static vsg::ref_ptr<vsg::Data> textureData; 
