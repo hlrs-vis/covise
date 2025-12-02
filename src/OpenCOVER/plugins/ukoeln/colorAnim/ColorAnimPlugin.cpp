@@ -204,21 +204,22 @@ bool ColorAnimPlugin::init()
         std::string filename;
         float transparency;
     };
+    
+    
+    electrodeTransform = new osg::MatrixTransform();
+    electrodeTransform->setName("ElectrodeTransform"); 
 
     brainGroup = new osg::Group();
     brainTransform->addChild(brainGroup.get());
 
+    brainGroup->addChild(electrodeTransform.get());
+
     std::vector<AnatomyModel> anatomyModels = {
-        {"surfaces/static/anatomy/anatomy_L1.ive", 0.8f},
-        {"surfaces/static/anatomy/anatomy_L2.ive", 0.7f},
-        {"surfaces/static/anatomy/anatomy_L3.ive", 0.5f},
-        {"surfaces/static/anatomy/anatomy_L4.ive", 0.5f},
-        {"surfaces/static/anatomy/anatomy_R3.ive", 0.5f},
-        {"surfaces/static/anatomy/anatomy_R1.ive", 0.8f},
-        {"surfaces/static/anatomy/anatomy_R2.ive", 0.7f},
-        {"surfaces/static/anatomy/anatomy_R4.ive", 0.5f},
-        {"surfaces/static/left_electrode.ply", 1.0f}
+        {"surfaces/static/anatomy_halb.wrl", 1.0f},
+        {"surfaces/static/left_electrode.wrl", 1.0f}
     };
+
+    
 
     for (const auto& model : anatomyModels)
     {       
@@ -227,16 +228,20 @@ bool ColorAnimPlugin::init()
         osg::Node* loadedNode = coVRFileManager::instance()->loadFile(
             fn.c_str(),
             nullptr,
-            brainGroup.get(),
+            electrodeTransform.get(),
             nullptr
         );
 
         
         if(loadedNode){
-            brainGroup->addChild(loadedNode);
+            //electrodeTransform->addChild(loadedNode);
         } else {
             std::cout << "Failed to load: " << fn.c_str() << std::endl << std::flush;
         }
+
+
+
+
         /*
         osg::Geode* geode = findFirstGeode(loadedNode);
         if (geode)

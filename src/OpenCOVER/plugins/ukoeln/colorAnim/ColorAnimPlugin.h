@@ -71,6 +71,10 @@ private:
     osg::ref_ptr<osg::Geometry> brainGeometry;
     osg::ref_ptr<osg::Group> brainGroup;
 
+    osg::ref_ptr<osg::MatrixTransform> electrodeTransform;
+
+    
+
     // Animation data
     std::vector<osg::ref_ptr<osg::Vec4Array>> colorFrames;
     int numFrames;
