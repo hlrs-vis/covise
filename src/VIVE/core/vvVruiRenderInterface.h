@@ -82,7 +82,7 @@ public:
 
     virtual bool compileNode(vrui::vruiNode*) override;
 
-    virtual void assignVsgNodeParent() override;
+    virtual void assignVsgNodeParent(vsg::Group*) override;
 private:
     vrui::VSGVruiNode *alwaysVisibleNode = nullptr;
     vrui::VSGVruiNode *groupNode = nullptr;

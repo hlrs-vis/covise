@@ -363,7 +363,7 @@ public:
     vsg::Group *getMenuGroup() const;
 
     //! uses custom visitor to assign Auxiliary as parent node of the vsg node
-    void assignVsgNodeParent();
+    void assignVsgNodeParent(vsg::Group*);
 
     // interfacing with plugins
 

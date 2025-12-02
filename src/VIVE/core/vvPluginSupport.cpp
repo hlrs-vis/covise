@@ -231,10 +231,11 @@ struct VSGNodeParentAssigner : public vsg::Inherit<vsg::Visitor,VSGNodeParentAss
     }
 };
 
-void vvPluginSupport::assignVsgNodeParent()
+void vvPluginSupport::assignVsgNodeParent(vsg::Group* subGraph)
 {
     vsg::ref_ptr<VSGNodeParentAssigner> pa = VSGNodeParentAssigner::create();
-    vv->getMenuGroup()->accept(*pa);
+    // vv->getMenuGroup()->accept(*pa);
+    subGraph->accept(*pa);
 }
 
 vsg::MatrixTransform *vvPluginSupport::getPointer() const

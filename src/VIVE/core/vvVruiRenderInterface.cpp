@@ -631,9 +631,9 @@ bool vive::vvVruiRenderInterface::compileNode(vruiNode*n)
     return vvViewer::instance()->compileNode(node->node);
 }
 
-void vvVruiRenderInterface::assignVsgNodeParent()
+void vvVruiRenderInterface::assignVsgNodeParent(vsg::Group* subGraph)
 {
-    vvPluginSupport::instance()->assignVsgNodeParent();
+    vvPluginSupport::instance()->assignVsgNodeParent(subGraph);
     // cerr << "Attempting vsg::Node parent assignment... " << endl; 
 }
 

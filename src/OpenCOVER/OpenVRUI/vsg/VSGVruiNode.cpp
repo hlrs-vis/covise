@@ -53,7 +53,7 @@ void VSGVruiNode::addChild(vruiNode *node)
         group->addChild(newNode);
         VSGVruiNode* childNode = dynamic_cast<VSGVruiNode*>(node);
         childNode->parent = new VSGVruiNode(this->node);
-        VSGVruiRendererInterface::the()->assignVsgNodeParent();
+        VSGVruiRendererInterface::the()->assignVsgNodeParent(group);
     }
     
 }
