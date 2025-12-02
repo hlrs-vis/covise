@@ -186,7 +186,10 @@ Optional Dependencies
 - **Flex** and **Bison**
   Lexer/Parser generators, required to build VRML plugin.
 
-dependencies on Redhat8:
+Install dependencies on Redhat8
+-------------------------------
+
+```
 dnf -y install xerces-c
 dnf -y install xerces-c-devel
 
@@ -233,7 +236,7 @@ dnf --enablerepo=PowerTools install libstdc++-static
 dnf --enablerepo=PowerTools install boost-static
 dnf install python3-pyqt5-sip
 dnf install fuse-devel
-
+```
 
 Tracking Dependencies
 ---------------------
