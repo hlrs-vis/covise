@@ -1,0 +1,99 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "ninja-multi",
+      "generator": "Ninja Multi-Config",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build/ninja-multi",
+      "cacheVariables": {
+        "CMAKE_CONFIGURATION_TYPES": "Debug;Release;RelWithDebInfo"
+      }
+    },
+    {
+      "name": "ninja",
+      "generator": "Ninja",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build/ninja",
+      "cacheVariables": {
+        "CMAKE_CONFIGURATION_TYPES": "Debug;Release;RelWithDebInfo"
+      }
+    },
+    {
+      "name": "ccache",
+      "hidden": true,
+      "cacheVariables": { 
+        "CMAKE_C_COMPILER_LAUNCHER": "ccache",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache"
+      }
+    },
+    {
+      "name": "gcc",
+      "hidden": true,
+      "cacheVariables": { 
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++" 
+      }
+    },
+    {
+      "name": "clang",
+      "hidden": true,
+      "cacheVariables": { 
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++" 
+      }
+    },
+    {
+      "name": "lld",
+      "hidden": true,
+      "displayName": "Use LLD Linker",
+      "cacheVariables": {
+        "CMAKE_LINKER_TYPE": "LLD",
+        "CMAKE_C_USING_LINKER_LLD": "-fuse-ld=lld",
+        "CMAKE_CXX_USING_LINKER_LLD": "-fuse-ld=lld"
+      }
+    },
+    {
+      "name": "ninja-multi-ccache-clang",
+      "inherits": [ "ninja-multi", "clang", "ccache"]
+    },
+    {
+      "name": "ninja-multi-ccache-clang-lld",
+      "inherits": [ "ninja-multi", "clang", "ccache", "lld"]
+    },
+    {
+      "name": "ninja-multi-ccache-gcc",
+      "inherits": [ "ninja-multi", "gcc", "ccache"]
+    },
+    {
+      "name": "ninja-ccache-clang",
+      "inherits": [ "ninja", "clang", "ccache"]
+    },
+    {
+      "name": "ninja-ccache-clang-lld",
+      "inherits": [ "ninja", "clang", "ccache", "lld"]
+    },
+    {
+      "name": "ninja-ccache-gcc",
+      "inherits": [ "ninja", "gcc", "ccache"]
+    }
+
+  ],
+  "buildPresets": [
+    {
+      "name": "debug-build",
+      "configurePreset": "ninja-multi-ccache-clang-lld",
+      "configuration": "Debug"
+    },
+    {
+      "name": "release-build",
+      "configurePreset": "ninja-multi-ccache-clang-lld",
+      "configuration": "Release"
+    },
+    {
+      "name": "relwithdeb-build",
+      "configurePreset": "ninja-multi-ccache-clang-lld",
+      "configuration": "RelWithDebInfo"
+    }
+  ]
+}
