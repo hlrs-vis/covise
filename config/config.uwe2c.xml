@@ -17,7 +17,7 @@
  
   <System>
    <VRB>
-    <Server value="localhost" tcpPort="31252" udpPort="49999"/>
+    <Server value="visper.hlrs.de" tcpPort="31252" udpPort="49999"/>
     <!--Server value="visper.hlrs.de" tcpPort="31252" udpPort="49999"/-->
     <!--Server value="visent.hlrs.de" tcpPort="31251" udpPort="49999"/-->
 	<RemoteFetch value="off" path="C:\src\covise\remoteFetch" />
@@ -32,90 +32,22 @@
     <UseDisplayLists value="false" />
     <UseVertexBufferObjects value="false" />
    <Input>
-        <MouseNav value="true" />
-        <!--Device>
-
-
-           <DTrackCave driver="dtrack" port="5000" serverHost="192.168.1.2">
-              <Offset x="0" y="-0" z="-1327" />
-              <Orientation h="0" p="0" r="0" />
-           </DTrackCave>
-
-           <CaveButtons driver="mousebuttons" device="/dev/input/presenter"/>
-           <CyberstickButtons driver="mousebuttons" device="/dev/input/cyberstick"/>
-
-        </Device>
-
-        <Body>
-           <ConstHead>
-              <Offset x="0" y="-2000" z="0" />
-              <Orientation h="0" p="0" r="0" />
-           </ConstHead>
-
-           <CaveHead device="DTrackCave" device1="DTrackCaveOutside" bodyIndex="1">
-              <Offset x="105" y="-50" z="-60" />
-              <Orientation h="0" p="0" r="0" />
-           </CaveHead>
-
-           <CaveHand device="DTrackCave" device1="DTrackCaveOutside" bodyIndex="0">
-              <Offset x="10" y="-110" z="0" />
-              <Orientation h="-2" p="-2" r="14" />
-           </CaveHand>
-
-           <CaveCamera device="DTrackCave" device1="DTrackCaveOutside" bodyIndex="2">
-              <Offset x="0" y="120" z="-100" />
-              <Orientation h="0" p="0" r="0" />
-           </CaveCamera>
-
-           <CaveCameraOutside device="DTrackCaveOutside" bodyIndex="2">
-              <Offset x="0" y="120" z="-200" />
-              <Orientation h="0" p="0" r="0" />
-           </CaveCameraOutside>
-	   
-           <CaveGloves device="DTrackCave" bodyIndex="3">
-              <Offset x="0" y="0" z="0" />
-              <Orientation h="0" p="0" r="0" />
-           </CaveGloves>
-	   
-           <TripodHead>
-              <Offset x="0" y="-3000" z="0" />
-           </TripodHead>
-
-
-        </Body>
-
-        <Buttons>
-           <CaveMouse device="CaveButtons" >
-              <Map name="0" value="ACTION_BUTTON" />
-              <Map name="1" value="XFORM_BUTTON" />
-              <Map name="2" value="MENU_BUTTON" />
-              <Map name="3" value="DRIVE_BUTTON" />
-           </CaveMouse>
-           <CyberstickMouse device="CyberstickButtons" >
-              <Map name="0" value="ACTION_BUTTON" />
-              <Map name="1" value="XFORM_BUTTON" />
-              <Map name="2" value="MENU_BUTTON" />
-              <Map name="3" value="DRIVE_BUTTON" />
-           </CyberstickMouse>
-        </Buttons>
-
-        <Valuator>
-           <CaveJoyX device="DTrackCave" valuatorIndex="0" />
-           <CaveJoyY device="DTrackCave" valuatorIndex="1" />
-        </Valuator>
-	
+    <DeviceDiscovery broadcastAddress="192.168.0.255" port="31319" />
+    <MouseNav value="ON" />
 	<Device>
-           <joystick driver="joystick" device="/dev/input/js"/>
+           <joystick driver="Joystick" device="/dev/input/cyberstick"/>
 	</Device>
+        <Valuator>
+           <CaveJoyX device="joystick" valuatorIndex="0" />
+           <CaveJoyY device="joystick" valuatorIndex="1" />
+        </Valuator>
 
         <Persons>
-           <Person name="Tracked" default="true" head="CaveHead" hand="CaveHand" buttons="CaveMouse" />
-           <Person name="Tracked2" head="CaveHead2" hand="CaveHand2" buttons="CaveMouse" />
-           <Person name="Tripod" eyeDistance="0.0" head="TripodHead" hand="CaveHand" buttons="CaveMouse" />
-           <Person name="Camera" eyeDistance="0.0" head="CaveCamera" hand="CaveHand" buttons="CaveMouse" />
-           <Person name="Gloves" eyeDistance="0.0" head="CaveGloves" hand="CaveHand" buttons="CaveMouse" />
-        </Persons-->
-     </Input>
+           <Person name="Dummy"  valuator0="CaveJoyX" />
+           <Person name="Dummy"  valuator0="CaveJoyY" />
+        </Persons>
+
+   </Input>
   <Plugin>
    <Browser logLevel="1" logFile="/tmp/browserlog.txt" />
                 <OddlotLink value="off"  /><!-- kills cull performance and sets LODScale to 0 bad for osgEarth-->
@@ -356,152 +288,31 @@
                     <ShowTFE value="on" />
                 </Volume>
             </Plugin>
-			
-   <WindowConfig>
-    <!--Window ARCH="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" top="0" name="0" decoration="false" /-->
-    <!--Window ARCH="unix" width="1280" comment="FRONT" window="0" pipeIndex="0" height="720" left="0" top="0" name="0" decoration="true" /-->
-    <!--Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" decoration="false" /-->
-    <Window type="none" width="1920" comment="FRONT" window="0" pipeIndex="0" height="1200" left="200" top="100" name="0" embedded="false" decoration="true" />
-   </WindowConfig>
-   <NumScreens vaule="2" />
-   <NumWindows vaule="2" />
-   <NumChannels vaule="2" />
-  </COVER>
-  
-  <VIVE>
-   <PipeConfig>
-       <Pipe name="0" useDISPLAY="true" />
-   </PipeConfig>
-   <Input>
-        <MouseNav value="true" />
-        <Device>
-
-           <DTrackCave driver="dtrack" port="5000" serverHost="192.168.1.2">
-              <!--Offset x="-86" y="-3080" z="-1260" /-->
-              <Offset x="0" y="-4075" z="-1260" />
-              <Orientation h="0" p="0" r="0" />
-           </DTrackCave>
-
-
-           <CaveButtons driver="mousebuttons" device="/dev/input/presenter"/>
-           <CyberstickButtons driver="mousebuttons" device="/dev/input/cyberstick"/>
-
-        </Device>
-
-        <Body>
-           <ConstHead>
-              <Offset x="0" y="-2000" z="0" />
-              <Orientation h="0" p="0" r="0" />
-           </ConstHead>
-
-           <CaveHead device="DTrackCave" device1="DTrackCaveOutside" bodyIndex="1">
-              <Offset x="105" y="-50" z="-60" />
-              <Orientation h="0" p="0" r="0" />
-           </CaveHead>
-
-           <CaveHand device="DTrackCave" device1="DTrackCaveOutside" bodyIndex="0">
-              <Offset x="10" y="-110" z="0" />
-              <Orientation h="-2" p="-2" r="14" />
-           </CaveHand>
-
-           <CaveCamera device="DTrackCave" device1="DTrackCaveOutside" bodyIndex="2">
-              <Offset x="0" y="120" z="-100" />
-              <Orientation h="0" p="0" r="0" />
-           </CaveCamera>
-
-           <CaveCameraOutside device="DTrackCaveOutside" bodyIndex="2">
-              <Offset x="0" y="120" z="-200" />
-              <Orientation h="0" p="0" r="0" />
-           </CaveCameraOutside>
-	   
-           <CaveGloves device="DTrackCave" bodyIndex="3">
-              <Offset x="0" y="0" z="0" />
-              <Orientation h="0" p="0" r="0" />
-           </CaveGloves>
-	   
-<!--
-           <CaveHead2 device="DTrackCave" bodyIndex="3">
-              <Offset x="-105" y="-40" z="-50" />
-              <Orientation h="0" p="0" r="0" />
-           </CaveHead2>
-
-           <CaveHand2 device="DTrackCave" bodyIndex="2">
-              <Offset x="0" y="-170" z="0" />
-              <Orientation h="0" p="0" r="0" />
-           </CaveHand2>
--->
-           <TripodHead>
-              <Offset x="0" y="-3000" z="0" />
-           </TripodHead>
-
-
-        </Body>
-
-        <Buttons>
-           <CaveMouse device="CaveButtons" >
-              <Map name="0" value="ACTION_BUTTON" />
-              <Map name="1" value="XFORM_BUTTON" />
-              <Map name="2" value="MENU_BUTTON" />
-              <Map name="3" value="DRIVE_BUTTON" />
-           </CaveMouse>
-           <CyberstickMouse device="CyberstickButtons" >
-              <Map name="0" value="ACTION_BUTTON" />
-              <Map name="1" value="XFORM_BUTTON" />
-              <Map name="2" value="MENU_BUTTON" />
-              <Map name="3" value="DRIVE_BUTTON" />
-           </CyberstickMouse>
-        </Buttons>
-
-        <Valuator>
-           <CaveJoyX device="DTrackCave" valuatorIndex="0" />
-           <CaveJoyY device="DTrackCave" valuatorIndex="1" />
-        </Valuator>
-	
-	<Device>
-           <joystick driver="joystick" device="/dev/input/js"/>
-	</Device>
-
-        <Persons>
-           <Person name="Tracked" default="true" head="CaveHead" hand="CaveHand" buttons="CaveMouse" />
-           <Person name="Tracked2" head="CaveHead2" hand="CaveHand2" buttons="CaveMouse" />
-           <Person name="Tripod" eyeDistance="0.0" head="TripodHead" hand="CaveHand" buttons="CaveMouse" />
-           <Person name="Camera" eyeDistance="0.0" head="CaveCamera" hand="CaveHand" buttons="CaveMouse" />
-           <Person name="CameraOutside" eyeDistance="0.0" head="CaveCameraOutside" hand="CaveHand" buttons="CaveMouse" />
-           <Person name="Gloves" eyeDistance="0.0" head="CaveGloves" hand="CaveHand" buttons="CaveMouse" />
-        </Persons>
-     </Input>
-
-   <WindowConfig>
-    <!--Window ARCH="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" top="0" name="0" decoration="false" /-->
-    <!--Window ARCH="unix" width="1280" comment="FRONT" window="0" pipeIndex="0" height="720" left="0" top="0" name="0" decoration="true" /-->
-    <!--Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" decoration="false" /-->
-    <Window width="2048" comment="FRONT" window="0" pipeIndex="0" height="576" left="200" top="100" name="0" embedded="false" decoration="true" />
-    <Window width="1024" comment="FRONT" window="1" pipeIndex="0" height="576" left="1400" top="100" name="1" embedded="false" decoration="true" />
-   </WindowConfig>
-   
-   <ChannelConfig>
-    <Channel comment="MAIN1" channel="0" stereoMode="LEFT" windowIndex="0" viewportIndex="0" name="0"/>
-    <Channel comment="MAIN2" channel="1" stereoMode="LEFT" windowIndex="0" viewportIndex="1" name="1"/>
-   </ChannelConfig>
-   <NumScreens value="2" />
-   <NumWindows value="1" />
-   <NumChannels value="2" />
-   <NumViewports value="2" />
-
+			<NumChannels value="2"/>
+			<NumViewports value="2"/>
+			<NumWindows value="1"/>
+			<NumScreens value="2"/>
    <ScreenConfig>
-   <!--Screen value="FRONT 400 300 0 0 0 0.0 0.0 0.0" name="0" screen="0" /-->
-   <Screen width="2000" comment="FRONT" h="0.0" originX="0" originY="1000" originZ="0" height="1000" p="0.0" r="0.0" name="0" screen="0" />
-   <Screen width="2000" comment="FRONT" h="-90.0" originX="1000" originY="0" originZ="0" height="1000" p="0.0" r="0.0" name="1" screen="1" />
+    <Screen width="2700" comment="CEILING" h="0.0" originX="0" originY="1350" originZ="0" height="2700" p="0.0" r="0.0" name="0" screen="0" />
+    <Screen width="2700" comment="CEILING" h="0.0" originX="0" originY="0" originZ="-1350" height="2700" p="90.0" r="0.0" name="1" screen="1" />
+    <!--Screen width="2700" comment="CEILING" h="0.0" originX="0" originY="0" originZ="1350" height="2700" p="90.0" r="0.0" name="1" screen="1" /-->
    </ScreenConfig>
-
-
+   <ChannelConfig>
+    <Channel comment="MAIN" channel="0" stereoMode="LEFT" windowIndex="0" viewportIndex="0" screenIndex="0" name="0"/>
+    <Channel comment="MAIN" channel="1" stereoMode="RIGHT" windowIndex="1" viewportIndex="1" screenIndex="1" name="1"/>
+   </ChannelConfig>
    <ViewportConfig>
-      <!-- each channel needs at least one Viewport -->
-    <Viewport width="0.5" height="1" left="0" bottom="0" windowIndex="0" channelIndex="0" name="0"  />
-    <Viewport width="0.5" height="1" left="0.5" bottom="0" windowIndex="0" channelIndex="1" name="1"  />
+    <Viewport width="0.5" left="0" windowIndex="0" bottom="0" name="0" height="1" />
+    <Viewport width="0.5" left="0.5" windowIndex="0" bottom="0" name="1" height="1" />
    </ViewportConfig>
-   <!--Background r="1.0" g="1.0" b="1.0"/-->
-  </VIVE>
+   <WindowConfig>
+    <!--Window ARCH="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" top="0" name="0" decoration="false" /-->
+    <!--Window ARCH="unix" width="1280" comment="FRONT" window="0" pipeIndex="0" height="720" left="0" top="0" name="0" decoration="true" /-->
+    <!--Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" decoration="false" /-->
+    <Window type="none" width="1920" comment="FRONT" window="0" pipeIndex="0" height="1200" left="100" top="100" name="0" embedded="false" decoration="true" />
+    <Window type="none" width="1920" comment="FRONT" window="1" pipeIndex="0" height="1200" left="100" top="1300" name="1" embedded="false" decoration="true" />
+   </WindowConfig>
+  </COVER>
 
 </GLOBAL>
 
