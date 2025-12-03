@@ -16,6 +16,7 @@
 #include <osgDB/FileUtils>
 #include <osgDB/FileNameUtils>
 #include <osgDB/ReaderWriter>
+#include <osgDB/Registry>
 #include <osgUtil/SmoothingVisitor>
 #include <OpenThreads/Mutex>
 
@@ -24,6 +25,7 @@
 #include <assimp/postprocess.h>
 
 #include <unordered_map>
+#include <sstream>
 
 /**
  * Simple convenience construct to make another type "lockable"
@@ -405,9 +407,8 @@ public:
             aiString texPath;
             if (AI_SUCCESS == aiMat->GetTexture(aiTextureType_DIFFUSE, 0, &texPath))
             {
-                std::string fullPath = resolveTexturePath(texPath.C_Str(), env.referrer);
-
-                osg::ref_ptr<osg::Texture2D> tex = loadTexture(fullPath, env);
+                // Load texture (handles both embedded "*N" and external paths)
+                osg::ref_ptr<osg::Texture2D> tex = loadTexture(scene, texPath.C_Str(), env);
                 if (tex.valid())
                 {
                     geometry->getOrCreateStateSet()->setTextureAttributeAndModes(
@@ -436,7 +437,7 @@ public:
         return texPath; // Return original, let OSG try to find it
     }
 
-    osg::Texture2D* loadTexture(const std::string& path, const Env& env) const
+    osg::Texture2D* loadTexture(const aiScene* scene, const std::string& path, const Env& env) const
     {
         osg::ref_ptr<osg::Texture2D> tex;
         osg::ref_ptr<osg::Texture2D>* cachedTex = NULL;
@@ -451,11 +452,93 @@ public:
 
         if (!tex.valid())
         {
-            OSG_DEBUG << "Loading texture: " << path << std::endl;
+            OSG_NOTICE << "  Loading texture: " << path << std::endl;
 
-            // Load image
-            osg::ref_ptr<osg::Image> img = osgDB::readImageFile(path, env.readOptions);
+            osg::ref_ptr<osg::Image> img;
 
+            // Check if this is an embedded texture (format: "*0", "*1", etc.)
+            if (path.length() > 0 && path[0] == '*')
+            {
+                // Parse embedded texture index
+                int texIndex = std::atoi(path.c_str() + 1);
+
+                if (texIndex >= 0 && texIndex < (int)scene->mNumTextures)
+                {
+                    OSG_NOTICE << "    Loading embedded texture at index " << texIndex << std::endl;
+
+                    const aiTexture* aiTex = scene->mTextures[texIndex];
+
+                    if (aiTex->mHeight == 0)
+                    {
+                        // Compressed texture (PNG, JPG, etc.)
+                        OSG_NOTICE << "    Compressed format hint: " << aiTex->achFormatHint << std::endl;
+                        OSG_NOTICE << "    Data size: " << aiTex->mWidth << " bytes" << std::endl;
+
+                        // Get the appropriate ReaderWriter for this format
+                        std::string format = aiTex->achFormatHint;
+                        osgDB::ReaderWriter* rw = osgDB::Registry::instance()->getReaderWriterForExtension(format);
+
+                        if (rw)
+                        {
+                            // Create stream with compressed data
+                            std::stringstream ss(std::ios_base::in | std::ios_base::out | std::ios_base::binary);
+                            ss.write(reinterpret_cast<const char*>(aiTex->pcData), aiTex->mWidth);
+                            ss.seekg(0);
+
+                            // Read image from stream
+                            osgDB::ReaderWriter::ReadResult rr = rw->readImage(ss);
+                            if (rr.success())
+                            {
+                                img = rr.takeImage();
+                                OSG_NOTICE << "    Successfully decoded embedded texture: "
+                                          << img->s() << "x" << img->t() << std::endl;
+                            }
+                            else
+                            {
+                                OSG_WARN << "    Failed to decode embedded texture" << std::endl;
+                            }
+                        }
+                        else
+                        {
+                            OSG_WARN << "    No ReaderWriter found for format: " << format << std::endl;
+                        }
+                    }
+                    else
+                    {
+                        // Uncompressed RGBA8888 texture
+                        OSG_NOTICE << "    Uncompressed RGBA texture: "
+                                  << aiTex->mWidth << "x" << aiTex->mHeight << std::endl;
+
+                        img = new osg::Image();
+
+                        // Allocate and copy pixel data
+                        unsigned char* data = new unsigned char[aiTex->mWidth * aiTex->mHeight * 4];
+                        for (unsigned int i = 0; i < aiTex->mWidth * aiTex->mHeight; i++)
+                        {
+                            data[i*4 + 0] = aiTex->pcData[i].r;
+                            data[i*4 + 1] = aiTex->pcData[i].g;
+                            data[i*4 + 2] = aiTex->pcData[i].b;
+                            data[i*4 + 3] = aiTex->pcData[i].a;
+                        }
+
+                        img->setImage(aiTex->mWidth, aiTex->mHeight, 1,
+                                     GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE,
+                                     data, osg::Image::USE_NEW_DELETE);
+                    }
+                }
+                else
+                {
+                    OSG_WARN << "    Invalid embedded texture index: " << texIndex << std::endl;
+                }
+            }
+            else
+            {
+                // External texture file - resolve path and load
+                std::string fullPath = resolveTexturePath(path, env.referrer);
+                img = osgDB::readImageFile(fullPath, env.readOptions);
+            }
+
+            // Create texture from image
             if (img.valid())
             {
                 tex = new osg::Texture2D(img.get());
@@ -475,7 +558,7 @@ public:
             }
             else
             {
-                OSG_WARN << "Failed to load texture: " << path << std::endl;
+                OSG_WARN << "  Failed to load texture: " << path << std::endl;
             }
         }
 

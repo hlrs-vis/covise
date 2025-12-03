@@ -105,13 +105,13 @@ int AssimpPlugin::unloadFile(const std::string& fileName)
 
 int AssimpPlugin::loadFile(const std::string& fileName, osg::Group *loadParent)
 {
-    std::cout << "AssimpPlugin: loadFile called for " << fileName << std::endl;
+    OSG_NOTICE << "AssimpPlugin: loadFile called for " << fileName << std::endl;
 
     if (loadParent == nullptr)
     {
         loadParent = AssimpRoot.get();
-    }
-
+    } 
+    
     osgDB::ReaderWriter::ReadResult res = readNode(fileName, nullptr);
 
     if (res.success())
@@ -149,7 +149,7 @@ AssimpPlugin::AssimpPlugin()
 
 bool AssimpPlugin::init()
 {   
-    std::cout << "AssimpPlugin::init()" << std::endl;
+    OSG_NOTICE << "AssimpPlugin::init()" << std::endl;
 
     int numHandlers = sizeof(handlers) / sizeof(FileHandler);
     for(int i = 0; i < numHandlers; i++)
@@ -187,6 +187,8 @@ public:
         supportsExtension("blend", "Assimp model loader");
         supportsExtension("stl", "Assimp model loader");
         supportsExtension("ply", "Assimp model loader");
+        supportsExtension("glb", "Assimp model loader");
+        supportsExtension("gltf", "Assimp model loader");
         supportsExtension("dxf", "Assimp model loader");
         supportsExtension("ifc", "Assimp model loader");
         supportsExtension("step", "Assimp model loader");
