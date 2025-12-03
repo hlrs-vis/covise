@@ -15,14 +15,14 @@
       <!--FileType name="pts" plugin="PointRayTracer" /-->
       <!--FileType name="xyz" plugin="PointRayTracer" /-->
       <!--FileType name="ptsb" plugin="PointRayTracer" /-->
-      <FileType name="ply" plugin="ANARI" />
+      <FileType name="ply" plugin="AssimpPlugin" />
       <!--FileType name="ply" plugin="PointRayTracer" /-->
       <!--FileType name="e57" plugin="PointRayTracer" /-->
 
       <!--FileType name="obj" plugin="ANARI" /-->
       <FileType name="pts" plugin="ANARI" />
-      <FileType name="glb" plugin="ANARI" />
-      <FileType name="gltf" plugin="ANARI" /> 
+      <FileType name="glb" plugin="AssimpPlugin" />
+      <FileType name="gltf" plugin="AssimpPlugin" /> 
       <FileType name="ctf" plugin="ANARI" /> 
       <FileType name="fits" plugin="Volume" /> 
     </FileManager>
@@ -30,19 +30,8 @@
     <WelcomeMessage value="Welcome to Daniel's Config" />
 
     <Plugin>
-      <ANARI value="on" menu="on">
-          <Library value="visrtx" />
-          <Renderer subtype="raycast" />
-          <!--PointCloud radius="0.006" Barbarastollen  /-->
-          <PointCloud radius="0.01" />
-          <loadPlyAsPointCloud value="on"/>
-          <AmbientRadiance value="1" />
-      </ANARI>
 
-      <!--ColorAnim value="off">
-        <ProjectDir value="/home/daniel/data/Horn/" />
-        <high_res value="on" />
-      </ColorAnim-->
+      <AssimpPlugin value="on"/>
 
       <OrientationIndicator value="off">
         <Position x="-700.0" y="0.0" z="-400.0" />
