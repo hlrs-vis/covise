@@ -1577,7 +1577,7 @@ namespace assimp {
                                 = (float*)malloc(mesh->mNumVertices*3*sizeof(float));
 
                     float* vertexColors = NULL;
-                    if (mesh->mColors[0] != NULL) // TODO:(?) AI_MAX_NUMBER_OF_COLOR_SETS
+                    if (mesh->HasVertexColors(0)) // TODO:(?) AI_MAX_NUMBER_OF_COLOR_SETS
                         vertexColors
                                 = (float*)malloc(mesh->mNumVertices*4*sizeof(float));
 
@@ -1612,6 +1612,10 @@ namespace assimp {
                             vertexColors[j*4+2] = vc.b;
                             vertexColors[j*4+3] = vc.a;
                         }
+                    }
+
+                    if (vertexColors != NULL) {
+                        std::cout << "  Mesh has " << mesh->mNumVertices << " vertex colors\n";
                     }
 
                     uint32_t* indices = NULL;
@@ -1695,6 +1699,9 @@ namespace assimp {
 ASGError_t asgLoadASSIMP(ASGObject obj, const char* fileName, uint64_t flags)
 {
 #if ASG_HAVE_ASSIMP
+
+    std::cout << "ASG: Loading file '" << fileName << "' via ASSIMP..." << std::endl;
+
     Assimp::DefaultLogger::create("",Assimp::Logger::VERBOSE);
 
     static Assimp::Importer importer;
@@ -3050,6 +3057,21 @@ static void visitANARIWorld(ASGVisitor self, ASGObject obj, void* userData) {
                 anariCommitParameters(anari->device,geom->anariGeometry);
             }
 
+            // Check if geometry has vertex colors
+            bool hasVertexColors = false;
+            if (surf->geometry->type == ASG_TYPE_TRIANGLE_GEOMETRY) {
+                TriangleGeom* geom = (TriangleGeom*)surf->geometry->impl;
+                hasVertexColors = (geom->vertexColors != nullptr);
+            } else if (surf->geometry->type == ASG_TYPE_SPHERE_GEOMETRY) {
+                SphereGeom* geom = (SphereGeom*)surf->geometry->impl;
+                hasVertexColors = (geom->vertexColors != nullptr);
+            } else if (surf->geometry->type == ASG_TYPE_CYLINDER_GEOMETRY) {
+                CylinderGeom* geom = (CylinderGeom*)surf->geometry->impl;
+                hasVertexColors = (geom->vertexColors != nullptr);
+            }
+
+            bool materialHandled = false;
+
             if ((anari->flags & ASG_BUILD_WORLD_FLAG_MATERIALS)
                     && surf->material != nullptr) {
                 Material* mat = (Material*)surf->material->impl;
@@ -3062,24 +3084,12 @@ static void visitANARIWorld(ASGVisitor self, ASGObject obj, void* userData) {
                         if (mat->anariMaterial == nullptr)
                             mat->anariMaterial = anariNewMaterial(anari->device, "matte");
 
-                        // Check if geometry has vertex colors
-                        bool hasVertexColors = false;
-                        if (surf->geometry->type == ASG_TYPE_TRIANGLE_GEOMETRY) {
-                            TriangleGeom* geom = (TriangleGeom*)surf->geometry->impl;
-                            hasVertexColors = (geom->vertexColors != nullptr);
-                        } else if (surf->geometry->type == ASG_TYPE_SPHERE_GEOMETRY) {
-                            SphereGeom* geom = (SphereGeom*)surf->geometry->impl;
-                            hasVertexColors = (geom->vertexColors != nullptr);
-                        } else if (surf->geometry->type == ASG_TYPE_CYLINDER_GEOMETRY) {
-                            CylinderGeom* geom = (CylinderGeom*)surf->geometry->impl;
-                            hasVertexColors = (geom->vertexColors != nullptr);
-                        }
-
                         if (hasVertexColors) {
                             // Use vertex colors from geometry
                             const char* colorAttrib = "color";
                             anariSetParameter(anari->device,mat->anariMaterial,"color",
                                               ANARI_STRING,colorAttrib);
+                            std::cout << "  Using vertex colors for material\n";
                         } else {
                             // Use constant material color
                             float kd[3];
@@ -3090,8 +3100,29 @@ static void visitANARIWorld(ASGVisitor self, ASGObject obj, void* userData) {
                                               ANARI_FLOAT32_VEC3,kd);
                         }
                         anariCommitParameters(anari->device,mat->anariMaterial);
+                        materialHandled = true;
                     }
                 }
+            }
+
+            // If geometry has vertex colors but no material was set up, create a default material
+            if ((anari->flags & ASG_BUILD_WORLD_FLAG_MATERIALS) && hasVertexColors && !materialHandled) {
+                // Create a default material if none exists
+                if (surf->material == nullptr) {
+                    surf->material = asgNewMaterial("matte");
+                }
+
+                Material* mat = (Material*)surf->material->impl;
+                if (mat->anariMaterial == nullptr) {
+                    mat->anariMaterial = anariNewMaterial(anari->device, "matte");
+                }
+
+                // Configure material to use vertex colors
+                const char* colorAttrib = "color";
+                anariSetParameter(anari->device,mat->anariMaterial,"color",
+                                  ANARI_STRING,colorAttrib);
+                anariCommitParameters(anari->device,mat->anariMaterial);
+                std::cout << "  Created default material using vertex colors\n";
             }
 
             if (surf->anariSurface == nullptr)
