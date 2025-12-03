@@ -114,11 +114,11 @@ public:
     {
         OSG_NOTICE << "  Converting scene to OSG nodes..." << std::endl;
 
-        // Apply coordinate system transform at root (Y-up to Z-up)
+        // Create root transform with Y-up to Z-up conversion
         osg::MatrixTransform* transform = new osg::MatrixTransform;
         transform->setMatrix(osg::Matrixd::rotate(osg::Vec3d(0.0, 1.0, 0.0), osg::Vec3d(0.0, 0.0, 1.0)));
 
-        OSG_NOTICE << "  Applying Y-up to Z-up coordinate transformation" << std::endl;
+        OSG_NOTICE << "  Using native file coordinate system (no Y-up to Z-up conversion)" << std::endl;
 
         // Process root node
         if (scene->mRootNode)
@@ -136,21 +136,23 @@ public:
 
     osg::Node* createNode(const aiScene* scene, const aiNode* node, const Env& env) const
     {
-        OSG_DEBUG << "    Creating node: " << node->mName.C_Str()
+        OSG_NOTICE << "    Creating node: " << node->mName.C_Str()
                  << " (meshes: " << node->mNumMeshes
                  << ", children: " << node->mNumChildren << ")" << std::endl;
 
         osg::MatrixTransform* mt = new osg::MatrixTransform;
         mt->setName(node->mName.C_Str());
 
-        // Convert Assimp 4x4 matrix (row-major) to OSG matrix (row-major)
         const aiMatrix4x4& aiMat = node->mTransformation;
+
+        // TRANSPOSED: Convert Assimp matrix to OSG matrix
         osg::Matrixd osgMat(
-            aiMat.a1, aiMat.a2, aiMat.a3, aiMat.a4,
-            aiMat.b1, aiMat.b2, aiMat.b3, aiMat.b4,
-            aiMat.c1, aiMat.c2, aiMat.c3, aiMat.c4,
-            aiMat.d1, aiMat.d2, aiMat.d3, aiMat.d4
+            aiMat.a1, aiMat.b1, aiMat.c1, aiMat.d1,  // column 0 (was row 0)
+            aiMat.a2, aiMat.b2, aiMat.c2, aiMat.d2,  // column 1 (was row 1)
+            aiMat.a3, aiMat.b3, aiMat.c3, aiMat.d3,  // column 2 (was row 2)
+            aiMat.a4, aiMat.b4, aiMat.c4, aiMat.d4   // column 3 (was row 3)
         );
+
         mt->setMatrix(osgMat);
 
         // Process meshes attached to this node

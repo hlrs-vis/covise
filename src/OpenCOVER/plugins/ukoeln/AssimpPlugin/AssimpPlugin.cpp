@@ -40,6 +40,8 @@ static FileHandler handlers[] = {
     {NULL, AssimpPlugin::loadAssimp, AssimpPlugin::unloadAssimp, "blend"},
     {NULL, AssimpPlugin::loadAssimp, AssimpPlugin::unloadAssimp, "stl"},
     {NULL, AssimpPlugin::loadAssimp, AssimpPlugin::unloadAssimp, "ply"},
+    {NULL, AssimpPlugin::loadAssimp, AssimpPlugin::unloadAssimp, "glb"},
+    {NULL, AssimpPlugin::loadAssimp, AssimpPlugin::unloadAssimp, "gltf"},
 
     // CAD formats
     {NULL, AssimpPlugin::loadAssimp, AssimpPlugin::unloadAssimp, "dxf"},
@@ -103,6 +105,8 @@ int AssimpPlugin::unloadFile(const std::string& fileName)
 
 int AssimpPlugin::loadFile(const std::string& fileName, osg::Group *loadParent)
 {
+    std::cout << "AssimpPlugin: loadFile called for " << fileName << std::endl;
+
     if (loadParent == nullptr)
     {
         loadParent = AssimpRoot.get();
