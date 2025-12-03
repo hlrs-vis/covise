@@ -15,7 +15,7 @@
       <!--FileType name="pts" plugin="PointRayTracer" /-->
       <!--FileType name="xyz" plugin="PointRayTracer" /-->
       <!--FileType name="ptsb" plugin="PointRayTracer" /-->
-      <!--FileType name="ply" plugin="ANARI" /-->
+      <FileType name="ply" plugin="ANARI" />
       <!--FileType name="ply" plugin="PointRayTracer" /-->
       <!--FileType name="e57" plugin="PointRayTracer" /-->
 
@@ -27,19 +27,22 @@
       <FileType name="fits" plugin="Volume" /> 
     </FileManager>
 
-
-
-    <WelcomeMessage value="Welcome to Daniel" />
+    <WelcomeMessage value="Welcome to Daniel's Config" />
 
     <Plugin>
-      <ANARI value="off">
-        <loadPlyAsPointCloud value="off" />
+      <ANARI value="on" menu="on">
+          <Library value="visrtx" />
+          <Renderer subtype="raycast" />
+          <!--PointCloud radius="0.006" Barbarastollen  /-->
+          <PointCloud radius="0.01" />
+          <loadPlyAsPointCloud value="on"/>
+          <AmbientRadiance value="1" />
       </ANARI>
 
-      <ColorAnim value="on">
+      <!--ColorAnim value="off">
         <ProjectDir value="/home/daniel/data/Horn/" />
         <high_res value="on" />
-      </ColorAnim>
+      </ColorAnim-->
 
       <OrientationIndicator value="off">
         <Position x="-700.0" y="0.0" z="-400.0" />
@@ -86,39 +89,32 @@
         <plane2 enabled="true" /-->
       </ClipPlane>
 			
-    </Plugin>
-  
-    <!--ViewportConfig>
-      <Viewport width="1200" height="900" left="0" bottom="0" windowIndex="0" channelIndex="0" name="0"  />    
-    </ViewportConfig>
-    
-    <ChannelConfig>
-      <Channel stereoMode="LEFT" comment="FRONT" channel="0" width="1200" left="0" windowIndex="0" screenIndex="0" top="0" name="0" height="900" />  
-    </ChannelConfig>
+    </Plugin>  
+
+    <PipeConfig>
+      <Pipe name="0" useDISPLAY="true" />
+    </PipeConfig>
 
     <WindowConfig>
-      <Window type="None" width="1200" comment="FRONT" window="0" pipeIndex="0" height="900" left="0" top="0" name="0" decoration="false" stereo="false" />
+      <Window RANK="0" type="Qt" width="1600" comment="FRONT" window="0" pipeIndex="0" height="900" left="100" top="100" name="0" embedded="false" decoration="true" />
+      <Window width="1600" comment="FRONT" window="0" pipeIndex="0" height="900" left="100" top="100" name="0" embedded="false" decoration="true" />
     </WindowConfig>
-   
-    <PipeConfig>
-      <Pipe name="0" useDISPLAY="true" screen="0" />
-    </PipeConfig>
-   
-    <NumChannels value="1" />
-    <NumScreens value="1" />
-    <NumViewports value="1" />
-    <NumWindows value="1" />
-    <NumPipes value="1" /-->   
+
+    <ScreenConfig>
+      <Screen width="1920" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="1080" p="0.0" r="0.0" name="0" screen="0" />
+    </ScreenConfig>
+
+    <ViewportConfig>
+      <Viewport width="1" height="1" left="0" bottom="0" windowIndex="0" channelIndex="0" name="0"  />
+    </ViewportConfig>
    
     <SceneSize value="1500" />
     <FloorHeight value="-1000" />
     <Menu>
       <Orientation h="0" p="0" r="0" />
-      <Position x="500" y="0" z="600" />
+      <Position x="500" y="0" z="500" />
+      <Size value="0.7" />
     </Menu>
-
-    <MenuPosition value="600 0 600" />
-    <MenuSize value="0.7" />
   </COVER>	     
 </GLOBAL>
 <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
