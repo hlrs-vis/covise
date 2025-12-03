@@ -105,13 +105,11 @@ int AssimpPlugin::unloadFile(const std::string& fileName)
 
 int AssimpPlugin::loadFile(const std::string& fileName, osg::Group *loadParent)
 {
-    OSG_NOTICE << "AssimpPlugin: loadFile called for " << fileName << std::endl;
-
     if (loadParent == nullptr)
     {
         loadParent = AssimpRoot.get();
     } 
-    
+
     osgDB::ReaderWriter::ReadResult res = readNode(fileName, nullptr);
 
     if (res.success())

@@ -120,8 +120,6 @@ public:
         osg::MatrixTransform* transform = new osg::MatrixTransform;
         transform->setMatrix(osg::Matrixd::rotate(osg::Vec3d(0.0, 1.0, 0.0), osg::Vec3d(0.0, 0.0, 1.0)));
 
-        OSG_NOTICE << "  Using native file coordinate system (no Y-up to Z-up conversion)" << std::endl;
-
         // Process root node
         if (scene->mRootNode)
         {
