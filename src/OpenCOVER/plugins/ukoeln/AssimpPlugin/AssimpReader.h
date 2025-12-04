@@ -88,16 +88,40 @@ public:
         };
 
         static const FlagEntry flagTable[] = {
-            { "COVER.Plugin.AssimpPlugin.Triangulate",            true, aiProcess_Triangulate },
-            { "COVER.Plugin.AssimpPlugin.GenNormals",             true, aiProcess_GenNormals },
-            { "COVER.Plugin.AssimpPlugin.GenSmoothNormals",       true, aiProcess_GenSmoothNormals },
-            { "COVER.Plugin.AssimpPlugin.JoinIdenticalVertices",  true, aiProcess_JoinIdenticalVertices },
-            { "COVER.Plugin.AssimpPlugin.ImproveCacheLocality",   true, aiProcess_ImproveCacheLocality },
-            { "COVER.Plugin.AssimpPlugin.RemoveRedundantMaterials", true, aiProcess_RemoveRedundantMaterials },
-            { "COVER.Plugin.AssimpPlugin.SortByPType",            true, aiProcess_SortByPType },
-            { "COVER.Plugin.AssimpPlugin.FindInvalidData",        true, aiProcess_FindInvalidData },
-            { "COVER.Plugin.AssimpPlugin.GenUVCoords",            true, aiProcess_GenUVCoords },
-            { "COVER.Plugin.AssimpPlugin.OptimizeMeshes",         true, aiProcess_OptimizeMeshes }
+            // Commonly used flags (enabled by default)
+            { "COVER.Plugin.AssimpPlugin.Triangulate",            true,  aiProcess_Triangulate },
+            { "COVER.Plugin.AssimpPlugin.GenNormals",             false,  aiProcess_GenNormals },
+            { "COVER.Plugin.AssimpPlugin.GenSmoothNormals",       true,  aiProcess_GenSmoothNormals },
+            { "COVER.Plugin.AssimpPlugin.JoinIdenticalVertices",  true,  aiProcess_JoinIdenticalVertices },
+            { "COVER.Plugin.AssimpPlugin.ImproveCacheLocality",   true,  aiProcess_ImproveCacheLocality },
+            { "COVER.Plugin.AssimpPlugin.RemoveRedundantMaterials", false, aiProcess_RemoveRedundantMaterials },
+            { "COVER.Plugin.AssimpPlugin.SortByPType",            true,  aiProcess_SortByPType },
+            { "COVER.Plugin.AssimpPlugin.FindInvalidData",        true,  aiProcess_FindInvalidData },
+            { "COVER.Plugin.AssimpPlugin.GenUVCoords",            false,  aiProcess_GenUVCoords },
+            { "COVER.Plugin.AssimpPlugin.OptimizeMeshes",         true,  aiProcess_OptimizeMeshes },
+            { "COVER.Plugin.AssimpPlugin.ValidateDataStructure",  true,  aiProcess_ValidateDataStructure },
+            { "COVER.Plugin.AssimpPlugin.FindDegenerates",        false,  aiProcess_FindDegenerates },
+            { "COVER.Plugin.AssimpPlugin.FindInstances",          false,  aiProcess_FindInstances },
+            { "COVER.Plugin.AssimpPlugin.OptimizeGraph",          false,  aiProcess_OptimizeGraph },
+
+            // Advanced flags (disabled by default)
+            { "COVER.Plugin.AssimpPlugin.CalcTangentSpace",       false, aiProcess_CalcTangentSpace },
+            { "COVER.Plugin.AssimpPlugin.MakeLeftHanded",         false, aiProcess_MakeLeftHanded },
+            { "COVER.Plugin.AssimpPlugin.RemoveComponent",        false, aiProcess_RemoveComponent },
+            { "COVER.Plugin.AssimpPlugin.SplitLargeMeshes",       false, aiProcess_SplitLargeMeshes },
+            { "COVER.Plugin.AssimpPlugin.PreTransformVertices",   false, aiProcess_PreTransformVertices },
+            { "COVER.Plugin.AssimpPlugin.LimitBoneWeights",       false, aiProcess_LimitBoneWeights },
+            { "COVER.Plugin.AssimpPlugin.FixInfacingNormals",     false, aiProcess_FixInfacingNormals },
+            { "COVER.Plugin.AssimpPlugin.PopulateArmatureData",   false, aiProcess_PopulateArmatureData },
+            { "COVER.Plugin.AssimpPlugin.TransformUVCoords",      false, aiProcess_TransformUVCoords },
+            { "COVER.Plugin.AssimpPlugin.FlipUVs",                false, aiProcess_FlipUVs },
+            { "COVER.Plugin.AssimpPlugin.FlipWindingOrder",       false, aiProcess_FlipWindingOrder },
+            { "COVER.Plugin.AssimpPlugin.SplitByBoneCount",       false, aiProcess_SplitByBoneCount },
+            { "COVER.Plugin.AssimpPlugin.Debone",                 false, aiProcess_Debone },
+            { "COVER.Plugin.AssimpPlugin.GlobalScale",            false, aiProcess_GlobalScale },
+            { "COVER.Plugin.AssimpPlugin.EmbedTextures",          false, aiProcess_EmbedTextures },
+            { "COVER.Plugin.AssimpPlugin.DropNormals",            false, aiProcess_DropNormals },
+            { "COVER.Plugin.AssimpPlugin.GenBoundingBoxes",       false, aiProcess_GenBoundingBoxes }
         };
 
         unsigned int flags = 0;
