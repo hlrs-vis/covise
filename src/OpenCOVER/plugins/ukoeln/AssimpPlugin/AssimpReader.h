@@ -81,12 +81,14 @@ public:
     {
         OSG_NOTICE << "AssimpReader: Loading file: " << location << std::endl;
 
+        //Helper Struct to map config keys to Assimp flags
         struct FlagEntry {
             const char* configKey;
             bool defaultValue;
             unsigned int flag;
         };
 
+        // Define the table of Assimp import flags
         static const FlagEntry flagTable[] = {
             // Commonly used flags (enabled by default)
             { "COVER.Plugin.AssimpPlugin.Triangulate",            true,  aiProcess_Triangulate },
@@ -126,7 +128,7 @@ public:
 
         unsigned int flags = 0;
 
-        // Track the two specific flags
+        // Track the two specific flags, because they are mutually exclusive
         bool requestedGenNormals = false;
         bool requestedGenSmoothNormals = false;
 
