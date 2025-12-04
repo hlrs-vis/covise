@@ -27,6 +27,8 @@
 #include <unordered_map>
 #include <sstream>
 
+#include <config/CoviseConfig.h>
+
 /**
  * Simple convenience construct to make another type "lockable"
  * as long as it has a default constructor
@@ -79,20 +81,61 @@ public:
     {
         OSG_NOTICE << "AssimpReader: Loading file: " << location << std::endl;
 
+        struct FlagEntry {
+            const char* configKey;
+            bool defaultValue;
+            unsigned int flag;
+        };
+
+        static const FlagEntry flagTable[] = {
+            { "COVER.Plugin.AssimpPlugin.Triangulate",            true, aiProcess_Triangulate },
+            { "COVER.Plugin.AssimpPlugin.GenNormals",             true, aiProcess_GenNormals },
+            { "COVER.Plugin.AssimpPlugin.GenSmoothNormals",       true, aiProcess_GenSmoothNormals },
+            { "COVER.Plugin.AssimpPlugin.JoinIdenticalVertices",  true, aiProcess_JoinIdenticalVertices },
+            { "COVER.Plugin.AssimpPlugin.ImproveCacheLocality",   true, aiProcess_ImproveCacheLocality },
+            { "COVER.Plugin.AssimpPlugin.RemoveRedundantMaterials", true, aiProcess_RemoveRedundantMaterials },
+            { "COVER.Plugin.AssimpPlugin.SortByPType",            true, aiProcess_SortByPType },
+            { "COVER.Plugin.AssimpPlugin.FindInvalidData",        true, aiProcess_FindInvalidData },
+            { "COVER.Plugin.AssimpPlugin.GenUVCoords",            true, aiProcess_GenUVCoords },
+            { "COVER.Plugin.AssimpPlugin.OptimizeMeshes",         true, aiProcess_OptimizeMeshes }
+        };
+
+        unsigned int flags = 0;
+
+        // Track the two specific flags
+        bool requestedGenNormals = false;
+        bool requestedGenSmoothNormals = false;
+
+        for (const auto& entry : flagTable) {
+            bool value = coCoviseConfig::isOn(entry.configKey, entry.defaultValue);
+
+            OSG_NOTICE << "AssimpReader: " << entry.configKey
+                    << " is " << (value ? "ON" : "OFF") << std::endl;
+
+            if (value) {
+                flags |= entry.flag;
+
+                // Detect which one was requested
+                if (entry.flag == aiProcess_GenNormals)
+                    requestedGenNormals = true;
+
+                if (entry.flag == aiProcess_GenSmoothNormals)
+                    requestedGenSmoothNormals = true;
+            }
+        }
+
+        // Resolve conflict: prefer GenSmoothNormals
+        if (requestedGenNormals && requestedGenSmoothNormals) {
+            OSG_WARN << "AssimpReader: GenNormals and GenSmoothNormals both enabled — "
+                        "using GenSmoothNormals only." << std::endl;
+
+            // Remove the GenNormals bit
+            flags &= ~aiProcess_GenNormals;
+        }
+
+        OSG_NOTICE << "AssimpReader: Using flags: " << flags << std::endl;
+        
         Assimp::Importer importer;
-
-        // Configure post-processing flags for optimal OSG conversion
-        unsigned int flags =
-            aiProcess_Triangulate |              // Convert all primitives to triangles
-            aiProcess_GenSmoothNormals |         // Generate smooth normals if missing
-            aiProcess_JoinIdenticalVertices |    // Optimize vertices
-            aiProcess_ImproveCacheLocality |     // Optimize vertex cache usage
-            aiProcess_RemoveRedundantMaterials | // Remove duplicate materials
-            aiProcess_SortByPType |              // Sort by primitive type
-            aiProcess_FindInvalidData |          // Remove/fix invalid data
-            aiProcess_GenUVCoords |              // Generate UV coords if needed
-            aiProcess_OptimizeMeshes;            // Merge small meshes
-
         const aiScene* scene = importer.ReadFile(location, flags);
 
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
