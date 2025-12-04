@@ -31,7 +31,51 @@
 
     <Plugin>
 
-      <AssimpPlugin value="on"/>
+      <AssimpPlugin value="on">
+        <!-- Commonly used flags (enabled by default) -->
+        <Triangulate              value="on" />
+        <GenNormals               value="off" />
+        <GenSmoothNormals         value="on" />
+        <JoinIdenticalVertices    value="on" />
+        <ImproveCacheLocality     value="on" />
+        <RemoveRedundantMaterials value="on" />
+        <SortByPType              value="on" />
+        <FindInvalidData          value="on" />
+        <GenUVCoords              value="off" />
+        <OptimizeMeshes           value="on" />
+        <ValidateDataStructure    value="on" />
+        <FindDegenerates          value="on" />
+        <FindInstances            value="off" />
+        <OptimizeGraph            value="off" />
+
+        <!-- Advanced flags (disabled by default) -->
+        <CalcTangentSpace         value="off" />
+        <MakeLeftHanded           value="off" />
+        <RemoveComponent          value="off" />
+        <SplitLargeMeshes         value="off" />
+        <PreTransformVertices     value="off" />
+        <LimitBoneWeights         value="off" />
+        <FixInfacingNormals       value="off" />
+        <PopulateArmatureData     value="off" />
+        <TransformUVCoords        value="off" />
+        <FlipUVs                  value="off" />
+        <FlipWindingOrder         value="off" />
+        <SplitByBoneCount         value="off" />
+        <Debone                   value="off" />
+        <GlobalScale              value="off" />
+        <EmbedTextures            value="off" />
+        <DropNormals              value="off" />
+        <GenBoundingBoxes         value="off" />
+      </AssimpPlugin>
+
+      <ANARI value="off" menu="on">
+        <Library value="visrtx" />
+        <Renderer subtype="raycast" />
+        <!--PointCloud radius="0.006" Barbarastollen  /-->
+        <PointCloud radius="0.01" />
+        <loadPlyAsPointCloud value="off"/>
+        <AmbientRadiance value="1" />
+      </ANARI>
 
       <OrientationIndicator value="off">
         <Position x="-700.0" y="0.0" z="-400.0" />
