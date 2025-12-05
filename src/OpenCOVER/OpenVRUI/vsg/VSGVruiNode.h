@@ -16,7 +16,7 @@
 
 namespace vrui
 {
-    // to be used to store a vsg::Object's parent as Auxiliary 
+    // to be used to store a vsg::Node's parent as Auxiliary 
 struct ParentInfo : public vsg::Inherit<vsg::Object, ParentInfo>
 {
     vsg::observer_ptr<vsg::Node> parent;
@@ -52,6 +52,6 @@ public:
 
 private:
     VSGVruiNode *parent;
-    std::vector<const vsg::Node*> nodePath;
+
 };
 }
