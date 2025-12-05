@@ -1572,7 +1572,9 @@ void EventHandler::apply(vsg::MoveEvent& moveEvent)
     Input::instance()->mouse()->handleEvent(moveEvent);
 }
 void EventHandler::apply(vsg::ScrollWheelEvent& scrollWheel)
-{}
+{
+    Input::instance()->mouse()->handleEvent(scrollWheel);
+}
 
 void EventHandler::apply(vsg::CloseWindowEvent&)
 {

@@ -108,7 +108,7 @@ double vvMousePointer::eventTime() const
     return mouseTime;
 }
 
-void vvMousePointer::queueEvent(vsg::PointerEvent& moveEvent)
+void vvMousePointer::queueEvent(vsg::WindowEvent& moveEvent)
 {
     //MouseEvent me = { type, state, code };
     std::cerr << "queueEvent " << std::endl;// type << " " << state << " " << code << std::endl;
@@ -119,7 +119,7 @@ void vvMousePointer::processEvents()
 {
     while (!eventQueue.empty())
     {
-        vsg::PointerEvent &me(eventQueue.front());
+        vsg::WindowEvent &me(eventQueue.front());
         eventQueue.pop_front();
         handleEvent(me, false);
         if (auto pe = dynamic_cast<vsg::ButtonPressEvent*>(&me))
@@ -130,10 +130,14 @@ void vvMousePointer::processEvents()
         {
             break;
         }
+        if (auto re = dynamic_cast<vsg::ScrollWheelEvent*>(&me)) 
+        {
+            break;
+        }
     }
 }
 
-void vvMousePointer::handleEvent(vsg::PointerEvent& pointerEvent, bool queue)
+void vvMousePointer::handleEvent(vsg::WindowEvent& pointerEvent, bool queue)
 {
     mouseTime = vv->frameRealTime();
 
@@ -173,6 +177,22 @@ void vvMousePointer::handleEvent(vsg::PointerEvent& pointerEvent, bool queue)
        /* if (vv->debugLevel(4))
             std::cerr << "Mouse position on screen: x --> " << mouseX << " y--> " << mouseY << std::endl;*/
     }
+
+    if (auto me = dynamic_cast<vsg::ScrollWheelEvent*>(&pointerEvent))
+    {
+        if (!buttonPressed)
+        {
+            if (me->delta.y > 0.0) // up
+                ++newWheelCounter[0];
+            else if (me->delta.y < 0.0) // down
+                --newWheelCounter[0];
+            else if (me->delta.x < 0.0) // left
+                ++newWheelCounter[1];
+            else if (me->delta.x > 0.0) // right
+                --newWheelCounter[1];
+        }
+    }
+
     /*
     switch(type)
     {
