@@ -29,7 +29,7 @@ namespace vrui
 #define STYLE_OUT 2
 
 float VSGVruiFlatButtonGeometry::A = 30.0f;
-float VSGVruiFlatButtonGeometry::B = 50.0f;
+float VSGVruiFlatButtonGeometry::B = 40.0f;
 float VSGVruiFlatButtonGeometry::D = 5.0f;
 
 ref_ptr<vec3Array> VSGVruiFlatButtonGeometry::coord1 = nullptr;
@@ -102,7 +102,7 @@ void VSGVruiFlatButtonGeometry::createSharedLists()
         (*texCoord)[3].set(0.0f, 0.0f);
 
         normals = vec3Array::create(4, vec3{ 0.0f, 0.0f, 1.0f });
-        colors = vec4Array::create(4, vec4{ 0.9f, 0.9f, 0.9f, 0.5f });
+        colors = vec4Array::create(4, vec4{ 0.9f, 0.9f, 0.9f, 0.7f });
 
         coordIndices = uintArray::create(
             {
@@ -206,7 +206,7 @@ ref_ptr<Node> VSGVruiFlatButtonGeometry::createCheck(const string &textureName)
 
     auto depthStencilState = vsg::DepthStencilState::create();
     depthStencilState->depthTestEnable = VK_TRUE;
-    depthStencilState->depthWriteEnable = VK_FALSE;
+    depthStencilState->depthWriteEnable = VK_TRUE;
     depthStencilState->depthCompareOp = VK_COMPARE_OP_GREATER_OR_EQUAL;
 
     shaderSet->defaultGraphicsPipelineStates.push_back(colorBlendState);
