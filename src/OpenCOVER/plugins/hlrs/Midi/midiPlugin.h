@@ -679,8 +679,8 @@ void error(const char *format, ...);
     ui::SelectionList *inputDevice[NUMMidiStreams];
     ui::SelectionList *outputDevice = nullptr;
 	ui::Label* infoLabel = nullptr;
-    float acceleration=-300;
-    float rAcceleration=0.2;
+    float acceleration=-200;
+    float rAcceleration=-0.1;
     float spiralSpeed=0.1;
 	float sphereScale = 1.0;
 #ifdef OPCUA
