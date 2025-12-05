@@ -146,7 +146,7 @@ void VrmlNodeLOD::render(Viewer *viewer)
     {
         firstTime = false;
         int k;
-        for (k = 0; k < n; ++k)
+        for (k = 0; k < d_level.size(); ++k)
         {
             viewer->beginObject(name(), 0, this);
             viewer->setChoice(k);
