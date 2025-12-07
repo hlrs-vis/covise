@@ -1543,6 +1543,7 @@ const char *coVRFileManager::getName(const char *file)
             cerr << "ERROR: COVISE_PATH not defined\n";
         return NULL;
     }
+    osgDB::Registry::instance()->getOptions()->setDatabasePath(std::string(covisepath)+"/share/covise");
     if ((buf == NULL) || (buflen < (int)(strlen(covisepath) + strlen(file) + 20)))
     {
         buflen = strlen(covisepath) + strlen(file) + 100;
