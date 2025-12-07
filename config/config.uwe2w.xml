@@ -30,7 +30,7 @@
     <Font value="Almarai-Regular.ttf" />
     <EnvMapMode value="NONE" />
     <UseDisplayLists value="false" />
-    <UseVertexBufferObjects value="false" />
+    <UseVertexBufferObjects value="true" />
    <Input>
     <DeviceDiscovery broadcastAddress="192.168.0.255" port="31319" />
     <MouseNav value="ON" />
@@ -291,7 +291,14 @@
 			<NumChannels value="2"/>
 			<NumViewports value="2"/>
 			<NumWindows value="2"/>
+			<NumPipes value="2"/>
 			<NumScreens value="1"/>
+			<MultiThreaded value="CullThreadPerCameraDrawThreadPerContext"/>
+			
+   <PipeConfig>
+       <Pipe name="0" useDISPLAY="true" />
+       <Pipe name="1" useDISPLAY="true" />
+   </PipeConfig>
    <ChannelConfig>
     <Channel comment="MAIN" channel="0" stereoMode="LEFT" windowIndex="0" viewportIndex="0" screenIndex="0" name="0"/>
     <Channel comment="MAIN" channel="1" stereoMode="RIGHT" windowIndex="1" viewportIndex="1" screenIndex="0" name="1"/>
@@ -305,7 +312,7 @@
     <!--Window ARCH="unix" width="1280" comment="FRONT" window="0" pipeIndex="0" height="720" left="0" top="0" name="0" decoration="true" /-->
     <!--Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" decoration="false" /-->
     <Window type="none" width="1920" comment="FRONT" window="0" pipeIndex="0" height="1200" left="100" top="100" name="0" embedded="false" decoration="true" />
-    <Window type="none" width="1920" comment="FRONT" window="1" pipeIndex="0" height="1200" left="100" top="1300" name="1" embedded="false" decoration="true" />
+    <Window type="none" width="1920" comment="FRONT" window="1" pipeIndex="^1" height="1200" left="100" top="1300" name="1" embedded="false" decoration="true" />
    </WindowConfig>
   </COVER>
 
