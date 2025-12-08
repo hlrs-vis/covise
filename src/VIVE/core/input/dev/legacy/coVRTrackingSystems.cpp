@@ -94,7 +94,6 @@ float staticViewerZ = 0.0;
 #include "serialcom.h"
 
 #if !defined(_WIN32) && !defined(__APPLE__)
-#include <termio.h>
 #include <termios.h>
 #endif
 
@@ -224,7 +223,7 @@ int openPinch(char *ttyport, int baudRate)
     }
 
 #else
-    struct termio data;
+    struct termios data;
 #define BUF_LEN 100
     unsigned char buf[BUF_LEN];
     int cnt;
@@ -291,7 +290,7 @@ int openPinch(char *ttyport, int baudRate)
     if ((pinchfd = open(ttyport, O_RDWR | O_NDELAY)) == -1)
         return (0);
 
-    if (ioctl(pinchfd, TCSETAF, &data) < 0)
+    if (ioctl(pinchfd, TCSETSF, &data) < 0)
         return (0);
 #ifdef _sgi
     sginap(15);

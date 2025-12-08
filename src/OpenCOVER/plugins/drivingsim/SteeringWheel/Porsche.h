@@ -20,7 +20,7 @@
 #include <sys/stat.h> /* open */
 #include <fcntl.h> /* open */
 #include <termios.h> /* tcsetattr */
-#include <termio.h> /* tcsetattr */
+#include <sys/ioctl.h>
 #include <limits.h> /* sginap */
 #endif
 
@@ -32,7 +32,7 @@ private:
     HWND AWindow;
 #else
     int serialDev;
-    struct termio oldconfig;
+    struct termios oldconfig;
 #endif
     bool isOpen;
     char *devName;

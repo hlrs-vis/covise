@@ -34,7 +34,6 @@
 #define _OLD_TERMIOS
 #endif
 #include <termios.h> /* tcsetattr */
-#include <termio.h> /* tcsetattr */
 #endif
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -20,9 +20,9 @@
 #endif
 
 #ifdef __APPLE__
-#define TCGETA TIOCGETA
-#define TCSETA TIOCSETA
-#define TCSETAF TIOCSETAF
+#define TCGETS TIOCGETA
+#define TCSETS TIOCSETA
+#define TCSETSF TIOCSETAF
 #endif
 
 #endif

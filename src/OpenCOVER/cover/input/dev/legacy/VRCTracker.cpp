@@ -19,7 +19,6 @@
 #include <errno.h>
 #include <signal.h>
 #ifndef _WIN32
-//#include <termio.h>
 #include <sys/socket.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>

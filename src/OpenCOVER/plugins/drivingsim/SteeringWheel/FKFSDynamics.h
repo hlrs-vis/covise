@@ -22,7 +22,6 @@
 #include <sys/stat.h> /* open */
 #include <fcntl.h> /* open */
 #include <termios.h> /* tcsetattr */
-#include <termio.h> /* tcsetattr */
 #include <limits.h> /* sginap */
 #endif
 #define MAX_MOTION_OBJECTS 100
