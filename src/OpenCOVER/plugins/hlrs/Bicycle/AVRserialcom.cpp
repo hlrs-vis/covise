@@ -19,9 +19,9 @@
 #endif
 
 #ifdef __APPLE__
-#define TCGETA TIOCGETA
-#define TCSETA TIOCSETA
-#define TCSETAF TIOCSETAF
+#define TCGETS TIOCGETA
+#define TCSETS TIOCSETA
+#define TCSETSF TIOCSETAF
 #endif
 #include "AVRserialcom.h"
 #ifdef _WIN32
@@ -255,7 +255,7 @@ bool AVRInit(const char *device, int baud_rate)
     else
         SerialBits = CS8;
 
-    if (ioctl(SerialChan, TCGETA, &TermPar) == -1)
+    if (ioctl(SerialChan, TCGETS, &TermPar) == -1)
         return false;
 
     /* change values and flags in term_par struct */
@@ -308,7 +308,7 @@ bool AVRInit(const char *device, int baud_rate)
     };
 
     /* Put back values */
-    if ((ioctl(SerialChan, TCSETAF, &TermPar)) == -1)
+    if ((ioctl(SerialChan, TCSETSF, &TermPar)) == -1)
         return false;
     AVRfd = SerialChan;
     return true;
@@ -319,7 +319,7 @@ bool AVRInit(const char *device, int baud_rate)
 
 void restore_config()
 {
-    if (ioctl(AVRfd, TCSETAF, &AVRoldconfig) == -1)
+    if (ioctl(AVRfd, TCSETSF, &AVRoldconfig) == -1)
         fprintf(stderr, "\n Fehler beim Wiederherstellen der alten Konfig. !\n");
 }
 

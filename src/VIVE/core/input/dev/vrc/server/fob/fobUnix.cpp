@@ -30,7 +30,6 @@
 #include <time.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-#include <termio.h>
 #include <termios.h>
 #include <sys/types.h>
 #include <sys/resource.h>
@@ -76,7 +75,7 @@ fob::fob(const char *portname, int baudrate, int nb, int fmode)
     memset(receivers, 0, maxNumReceivers * sizeof(birdReceiver));
 #endif
 
-    termio termPar;
+    termios termPar;
     int n; // number of flushed bytes
 
     // open serial port
@@ -90,7 +89,7 @@ fob::fob(const char *portname, int baudrate, int nb, int fmode)
     }
     // configure the serial port
     // first get current configuration
-    ioctl(serialChannel, TCGETA, &termPar);
+    ioctl(serialChannel, TCGETS, &termPar);
 
 #if !defined(_OLD_TERMIOS)
     // fprintf(stderr,"CONFIGURE for IRIX 6.4 SPEED=%d\n", baudrate);
@@ -147,7 +146,7 @@ fob::fob(const char *portname, int baudrate, int nb, int fmode)
     termPar.c_cflag = (serialSpeed | CS8 | CREAD | CLOCAL) & (~CSTOPB) & (~PARENB);
 #endif
 
-    ioctl(serialChannel, TCSETA, &termPar);
+    ioctl(serialChannel, TCSETS, &termPar);
     ioctl(serialChannel, FIONREAD, &n);
     fprintf(stderr, "%d bytes in the queue\n", n);
 

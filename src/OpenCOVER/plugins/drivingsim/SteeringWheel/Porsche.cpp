@@ -194,7 +194,7 @@ Porsche::Porsche(const char *devName, int baudrate)
     int SerialSpeed = 0;
     int SerialBits = 0;
 #ifdef _OLD_TERMIOS
-    struct termio TermPar;
+    struct termios TermPar;
 #else
     struct termios TermPar;
 #endif
@@ -241,7 +241,7 @@ Porsche::Porsche(const char *devName, int baudrate)
     else
         SerialBits = CS8;
 
-    if (ioctl(serialDev, TCGETA, &TermPar) == -1)
+    if (ioctl(serialDev, TCGETS, &TermPar) == -1)
         return;
 
     /* change values and flags in term_par struct */
@@ -293,7 +293,7 @@ Porsche::Porsche(const char *devName, int baudrate)
     };
 
     /* Put back values */
-    if ((ioctl(serialDev, TCSETAF, &TermPar)) == -1)
+    if ((ioctl(serialDev, TCSETSF, &TermPar)) == -1)
         return;
     isOpen = true;
 #endif
@@ -309,7 +309,7 @@ Porsche::~Porsche()
 #else
         if (serialDev != -1)
         {
-            if (ioctl(serialDev, TCSETAF, &oldconfig) == -1)
+            if (ioctl(serialDev, TCSETSF, &oldconfig) == -1)
                 fprintf(stderr, "\n Fehler beim Wiederherstellen der alten Konfig. !\n");
         }
         if (close(serialDev) == -1)

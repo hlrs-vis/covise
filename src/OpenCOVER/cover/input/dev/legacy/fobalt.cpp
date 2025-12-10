@@ -89,7 +89,7 @@ fob::fob(const char *portname, int baudrate, int nb, int fmode)
     }
     // configure the serial port
     // first get current configuration
-    ioctl(serialChannel, TCGETA, &termPar);
+    ioctl(serialChannel, TCGETS, &termPar);
 
 #if !defined(_OLD_TERMIOS)
     // fprintf(stderr,"CONFIGURE for IRIX 6.4 SPEED=%d\n", baudrate);
@@ -148,7 +148,7 @@ fob::fob(const char *portname, int baudrate, int nb, int fmode)
     termPar.c_cflag = (serialSpeed | CS8 | CREAD | CLOCAL) & (~CSTOPB) & (~PARENB);
 #endif
 
-    ioctl(serialChannel, TCSETA, &termPar);
+    ioctl(serialChannel, TCSETS, &termPar);
     ioctl(serialChannel, FIONREAD, &n);
     fprintf(stderr, "%d bytes in the queue\n", n);
 

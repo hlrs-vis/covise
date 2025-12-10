@@ -251,7 +251,7 @@ bool Init(char *device, int baud_rate)
     else
         SerialBits = CS8;
 
-    if (ioctl(SerialChan, TCGETA, &TermPar) == -1)
+    if (ioctl(SerialChan, TCGETS, &TermPar) == -1)
         return false;
 
     /* change values and flags in term_par struct */
@@ -304,7 +304,7 @@ bool Init(char *device, int baud_rate)
     };
 
     /* Put back values */
-    if ((ioctl(SerialChan, TCSETAF, &TermPar)) == -1)
+    if ((ioctl(SerialChan, TCSETSF, &TermPar)) == -1)
         return false;
     fd = SerialChan;
     return true;
@@ -315,7 +315,7 @@ bool Init(char *device, int baud_rate)
 
 void restore_config()
 {
-    if (ioctl(fd, TCSETAF, &oldconfig) == -1)
+    if (ioctl(fd, TCSETSF, &oldconfig) == -1)
         fprintf(stderr, "\n Fehler beim Wiederherstellen der alten Konfig. !\n");
 }
 

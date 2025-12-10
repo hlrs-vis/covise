@@ -216,8 +216,8 @@ SerialCom::SerialCom(const char *device, int baudrate, int Parity, int DataBits,
     else
         SerialBits = CS8;
 
-#ifdef TCGETA
-    if (ioctl(d_channel, TCGETA, &TermPar) == -1)
+#ifdef TCGETS
+    if (ioctl(d_channel, TCGETS, &TermPar) == -1)
     {
         sprintf(d_error, "Error serial ioctl: %s", strerror(errno));
         return;
@@ -282,8 +282,8 @@ SerialCom::SerialCom(const char *device, int baudrate, int Parity, int DataBits,
     };
 
     /* Put back values */
-#ifdef TCSETAF
-    if ((ioctl(d_channel, TCSETAF, &TermPar)) == -1)
+#ifdef TCSETSF
+    if ((ioctl(d_channel, TCSETSF, &TermPar)) == -1)
     {
         sprintf(d_error, "Error serial ioctl: %s", strerror(errno));
         return;

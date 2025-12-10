@@ -551,7 +551,7 @@ int set_baud(int sp_fd, int b)
     struct termios tios;
     int st;
 
-    st = ioctl(sp_fd, TCGETA, &tios);
+    st = ioctl(sp_fd, TCGETS, &tios);
     tios.c_iflag = IGNBRK | IXON | IXOFF;
     tios.c_oflag = 0;
     tios.c_lflag = ICANON;
@@ -615,7 +615,7 @@ int set_baud(int sp_fd, int b)
     }
 #endif
 
-    st = ioctl(sp_fd, TCSETAF, &tios);
+    st = ioctl(sp_fd, TCSETSF, &tios);
     return (st);
 #endif
 }
