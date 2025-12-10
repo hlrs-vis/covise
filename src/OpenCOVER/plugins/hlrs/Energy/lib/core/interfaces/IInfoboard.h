@@ -8,6 +8,8 @@ class IInfoboard : public IInformable<InfoType>,
                    public IMoveable {
  public:
   virtual ~IInfoboard() = default;
+  IInfoboard(const IInfoboard&) = delete;
+  IInfoboard& operator=(const IInfoboard&) = delete;
   virtual void initInfoboard() = 0;
   virtual bool enabled() = 0;
   virtual DrawableType& getDrawable() = 0;

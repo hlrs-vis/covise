@@ -7,5 +7,7 @@ class IDrawable {
  public:
   virtual void initDrawable() = 0;
   virtual ~IDrawable() = default;
+  IDrawable(const IDrawable&) = delete;
+  IDrawable& operator=(const IDrawable&) = delete;
 };
 }  // namespace core::interface

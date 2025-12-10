@@ -12,5 +12,7 @@ class IEnergyGrid : public IDrawable,
                     public IUpdateable {
  public:
   virtual ~IEnergyGrid() = default;
+  IEnergyGrid(const IEnergyGrid&) = delete;
+  IEnergyGrid& operator=(const IEnergyGrid&) = delete;
 };
 }  // namespace core::interface
