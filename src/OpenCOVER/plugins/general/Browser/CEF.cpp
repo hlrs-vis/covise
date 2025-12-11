@@ -156,6 +156,7 @@ CEF_client::CEF_client(CEF *c): vruiCollabInterface(CEFCoim.get(), "CEFBrowser",
     interactionA = new coCombinedButtonInteraction(coInteraction::ButtonA, "CEFBrowser", coInteraction::Menu);
     interactionB = new coCombinedButtonInteraction(coInteraction::ButtonB, "CEFBrowser", coInteraction::Menu);
     interactionC = new coCombinedButtonInteraction(coInteraction::ButtonC, "CEFBrowser", coInteraction::Menu);
+    interactionWheel = new coCombinedButtonInteraction(coInteraction::WheelVertical, "CEFBrowser", coInteraction::Menu);
 
     imageBuffer = new unsigned char[(size_t)width * height * 4];
     videoTexture = new vrui::coTexturedBackground((uint *)imageBuffer, NULL, NULL, 4, width, height, 0);
@@ -187,6 +188,7 @@ CEF_client::~CEF_client()
     delete interactionA;
     delete interactionB;
     delete interactionC;
+    delete interactionWheel;
     delete popupHandle;
 }
 
@@ -206,7 +208,11 @@ void CEF_client::update()
         {
             coInteractionManager::the()->unregisterInteraction(interactionC);
         }
-        if ((!interactionA->isRegistered()) && (!interactionB->isRegistered()) && (!interactionC->isRegistered()))
+        if (interactionWheel->isRegistered() && (interactionWheel->getState() != coInteraction::Active))
+        {
+            coInteractionManager::the()->unregisterInteraction(interactionWheel);
+        }
+        if ((!interactionA->isRegistered()) && (!interactionB->isRegistered()) && (!interactionC->isRegistered()) && (!interactionWheel->isRegistered()))
         {
             unregister = false;
         }
@@ -328,6 +334,11 @@ int CEF_client::hit(vruiHit *hit)
         coInteractionManager::the()->registerInteraction(interactionC);
         interactionC->setHitByMouse(hit->isMouseHit());
     }
+    if (!interactionWheel->isRegistered())
+    {
+        coInteractionManager::the()->registerInteraction(interactionWheel);
+        interactionWheel->setHitByMouse(hit->isMouseHit());
+    }
 
     osgUtil::LineSegmentIntersector::Intersection osgHit = dynamic_cast<OSGVruiHit *>(hit)->getHit();
 
@@ -357,7 +368,7 @@ int CEF_client::hit(vruiHit *hit)
         me.x = x * width;
         me.y = y * height;
         if ((interactionA->getState() == coInteraction::Idle) && (interactionB->getState() == coInteraction::Idle) &&
-            (interactionC->getState() == coInteraction::Idle))
+            (interactionC->getState() == coInteraction::Idle) && (interactionWheel->getState() == coInteraction::Idle))
         {
             cef->browser->GetHost()->SetFocus(true);
         }
@@ -387,6 +398,11 @@ int CEF_client::hit(vruiHit *hit)
         {
             cef->browser->GetHost()->SendMouseClickEvent(me, CefBrowserHost::MouseButtonType::MBT_RIGHT, true, 1);
         }
+        else if (interactionWheel->wasStarted() || interactionWheel->isRunning())
+        {
+            auto wheelDelta = (int)(interactionWheel->getWheelCount() * 120.0f);
+            cef->browser->GetHost()->SendMouseWheelEvent(me, 0, wheelDelta);
+        }
         else
         {
             cef->browser->GetHost()->SendMouseMoveEvent(me, false);
@@ -394,7 +410,7 @@ int CEF_client::hit(vruiHit *hit)
     }
 
 
-    if (interactionA->wasStarted() || interactionB->wasStarted() || interactionC->wasStarted())
+    if (interactionA->wasStarted() || interactionB->wasStarted() || interactionC->wasStarted() || interactionWheel->wasStarted())
     {
     }
     return ACTION_CALL_ON_MISS;

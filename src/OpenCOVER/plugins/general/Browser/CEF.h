@@ -58,6 +58,8 @@ private:
     vrui::coCombinedButtonInteraction* interactionA; ///< interaction for first button
     vrui::coCombinedButtonInteraction* interactionB; ///< interaction for second button
     vrui::coCombinedButtonInteraction* interactionC; ///< interaction for third button
+    vrui::coCombinedButtonInteraction* interactionWheel; ///< interaction for mouse wheel
+
     bool unregister = false;
     bool haveFocus = false;
 
