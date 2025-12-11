@@ -29,7 +29,7 @@ guess_archsuffix() {
        fi
    fi
 
-    if [ "$basedir" != "" ]; then
+    if [ "$basedir" != "" -a ! -z ${ARCHSUFFIX+x} ]; then
        case "$ARCHSUFFIX" in
            spack*)
               check_readme_archsuffix
