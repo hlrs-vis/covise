@@ -337,8 +337,7 @@ struct InitDrawCallback : public osg::Drawable::DrawCallback
             bool from_state = false;
 
             if (auto *state = renderInfo.getState()) {
-                view_osg = state->getModelViewMatrix();
-                proj_osg = state->getProjectionMatrix();
+                _renderer->getMatricesFromRenderInfo(renderInfo, view_osg, proj_osg);
                 from_state = true;
                 if (notifyOn(_plugin)) { std::cout << "renderInfo.getState()" << std::endl; }
             }
@@ -359,8 +358,7 @@ struct InitDrawCallback : public osg::Drawable::DrawCallback
             osg::Matrix mv_matrix = from_state ? view_osg : (opencover::cover->getBaseMat() * view_osg);
             scm::math::mat4d modelview_matrix = LamureUtil::matConv4D(mv_matrix);
             scm::math::mat4d projection_matrix = LamureUtil::matConv4D(proj_osg);
-            _renderer->setModelViewMatrix(modelview_matrix);
-            _renderer->setProjectionMatrix(projection_matrix);
+
             res.scm_camera->set_projection_matrix(projection_matrix);
             if (_plugin->getUI()->getSyncButton()->state()) {
                 res.scm_camera->set_view_matrix(modelview_matrix);
@@ -421,8 +419,7 @@ struct TextDrawCallback : public osg::Drawable::DrawCallback
 
                 if (auto *state = renderInfo.getState())
                 {
-                    view_osg = state->getModelViewMatrix();
-                    proj_osg = state->getProjectionMatrix();
+                    _renderer->getMatricesFromRenderInfo(renderInfo, view_osg, proj_osg);
                     haveState = true;
                 }
                 else if (auto osgCam = renderInfo.getCurrentCamera())
@@ -576,7 +573,7 @@ struct FrustumDrawCallback : public osg::Drawable::DrawCallback
         GLState before = GLState::capture();
         auto& res = _renderer->getResources(renderInfo.getContextID());
 
-        scm::math::mat4f mvp_matrix = scm::math::mat4f(_renderer->getProjectionMatrix() * _renderer->getModelViewMatrix());
+        scm::math::mat4f mvp_matrix = res.scm_camera->get_projection_matrix() * res.scm_camera->get_view_matrix();
         std::vector<scm::math::vec3d> corner_values = res.scm_camera->get_frustum_corners();
 
         for (size_t i = 0; i < corner_values.size(); ++i) {
@@ -636,8 +633,12 @@ struct BoundingBoxDrawCallback : public virtual osg::Drawable::DrawCallback
         glGetIntegerv(GL_CURRENT_PROGRAM,      &prevProg);
 
         osg::State* state = renderInfo.getState();
-        osg::Matrixd osg_view_matrix = state->getModelViewMatrix();
-        osg::Matrixd osg_projection_matrix = state->getProjectionMatrix();
+        
+        osg::Matrixd osg_view_matrix;
+        osg::Matrixd osg_projection_matrix;
+        
+        _renderer->getMatricesFromRenderInfo(renderInfo, osg_view_matrix, osg_projection_matrix);
+
         const scm::math::mat4 view_matrix = LamureUtil::matConv4F(osg_view_matrix);
         const scm::math::mat4 projection_matrix = LamureUtil::matConv4F(osg_projection_matrix);
 
@@ -782,53 +783,24 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
 
         osg::State* state = renderInfo.getState();
         state->setCheckForGLErrors(osg::State::CheckForGLErrors::NEVER_CHECK_GL_ERRORS);
-
-        const osg::Matrixd osg_view_matrix = state->getModelViewMatrix();
-        const osg::Matrixd osg_projection_matrix = state->getProjectionMatrix();
         const osg::Camera* currentCamera = renderInfo.getCurrentCamera();
 
-        scm::math::mat4 view_matrix = LamureUtil::matConv4F(osg_view_matrix);
-        scm::math::mat4 projection_matrix = LamureUtil::matConv4F(osg_projection_matrix);
+        osg::Matrixd osg_view_matrix;
+        osg::Matrixd osg_projection_matrix;
+
+        _renderer->getMatricesFromRenderInfo(renderInfo, osg_view_matrix, osg_projection_matrix);
+
+        const scm::math::mat4 view_matrix = LamureUtil::matConv4F(osg_view_matrix);
+        const scm::math::mat4 projection_matrix = LamureUtil::matConv4F(osg_projection_matrix);
         lamure::ren::model_database* database = lamure::ren::model_database::get_instance();
         lamure::ren::cut_database* cuts = lamure::ren::cut_database::get_instance();
         lamure::ren::controller* controller = lamure::ren::controller::get_instance();
         lamure::pvs::pvs_database* pvs = lamure::pvs::pvs_database::get_instance();
 
         lamure::context_t context_id = controller->deduce_context_id(renderInfo.getState()->getContextID());
-        //lamure::view_t    view_id = controller->deduce_view_id(context_id, res.scm_camera->view_id());
+        //lamure::view_t view_id = controller->deduce_view_id(context_id, res.scm_camera->view_id());
         lamure::view_t view_id = res.scm_camera->view_id();
         size_t surfels_per_node = database->get_primitives_per_node();
-
-        if (!_plugin->getUI()->getDumpButton()->state()) {
-            res.dump_done = false;
-        } else if (!res.dump_done) {
-            osg::Matrixd view_osg, proj_osg;
-            if (auto *st = renderInfo.getState()) {
-                view_osg = st->getModelViewMatrix();
-                proj_osg = st->getProjectionMatrix();
-            } else if (auto *cam = renderInfo.getCurrentCamera()) {
-                view_osg = cam->getViewMatrix();
-                proj_osg = cam->getProjectionMatrix();
-            }
-
-            osg::Matrixd inv_view = osg::Matrixd::inverse(view_osg);
-            osg::Vec3d eye(inv_view(3, 0), inv_view(3, 1), inv_view(3, 2));
-            osg::Vec3d normal = osg::Matrix::transform3x3(osg::Vec3d(0.0, 0.0, -1.0), inv_view);
-            if (normal.length2() > 0.0)
-                normal.normalize();
-
-            const auto mv_scm   = LamureUtil::matConv4F(view_osg);
-            const auto proj_scm = LamureUtil::matConv4F(proj_osg);
-
-            std::cout << "[Lamure] dump ctx=" << ctx
-                << " view_id=" << res.view_id
-                << "\nEye: " << eye.x() << " " << eye.y() << " " << eye.z()
-                << "\nNormal: " << normal.x() << " " << normal.y() << " " << normal.z()
-                << "\nMV:\n"   << mv_scm
-                << "\nPROJ:\n" << proj_scm << std::endl << std::endl;
-
-            res.dump_done = true;
-        }
 
         if (database->num_models() == 0) { _renderer->endFrame(ctx); before.restore(); return; }
         for (lamure::model_t model_id = 0; model_id < settings.models.size(); ++model_id) {
@@ -1095,7 +1067,7 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
         }
         else {
             // ================= SINGLE-PASS RENDER PATH =================
-            _renderer->setFrameUniforms(projection_matrix, viewport, res);
+            _renderer->setFrameUniforms(projection_matrix, view_matrix, viewport, res);
             for (uint16_t model_id = 0; model_id < _plugin->getSettings().models.size(); ++model_id) {
                 if (!_renderer->isModelVisible(model_id))
                     continue;
@@ -1325,10 +1297,10 @@ void LamureRenderer::init()
     m_frustum_geode->setStateSet(m_frustum_stateset.get());
     m_text_geode->setStateSet(m_text_stateset.get());
 
+    m_plugin->getGroup()->addChild(m_init_geode);
     m_plugin->getGroup()->addChild(m_frustum_geode);
     m_plugin->getGroup()->addChild(m_pointcloud_geode);
     m_plugin->getGroup()->addChild(m_boundingbox_geode);
-    m_plugin->getGroup()->addChild(m_init_geode);
     m_plugin->getGroup()->addChild(m_edit_brush_transform.get());
 
     m_init_geometry = new InitGeometry(m_plugin);
@@ -1880,7 +1852,7 @@ bool LamureRenderer::isModelVisible(std::size_t modelIndex) const
     return true;
 }
 
-void LamureRenderer::setFrameUniforms(const scm::math::mat4& projection_matrix, const scm::math::vec2& viewport, ContextResources& ctxRes) {
+void LamureRenderer::setFrameUniforms(const scm::math::mat4& projection_matrix, const scm::math::mat4& view_matrix, const scm::math::vec2& viewport, ContextResources& ctxRes) {
     const auto &s = m_plugin->getSettings();
 
     // Decide anisotropic usage based on current projection and mode (0=off,1=auto,2=on)
@@ -1918,10 +1890,9 @@ void LamureRenderer::setFrameUniforms(const scm::math::mat4& projection_matrix, 
 
     auto makeFrameViewContext = [&]() -> FrameViewContext {
         FrameViewContext ctx{};
-        scm::math::mat4d currentViewD = m_renderer->getModelViewMatrix();
-        osg::Matrixd viewOsg = LamureUtil::matConv4D(currentViewD);
-        ctx.viewMat = LamureUtil::matConv4F(viewOsg);
-        auto viewMat3 = LamureUtil::matConv4to3F(currentViewD);
+        ctx.viewMat = view_matrix;
+        scm::math::mat4 viewMatCopy = view_matrix;
+        scm::math::mat3 viewMat3 = LamureUtil::matConv4to3F(viewMatCopy);
         ctx.normalMat = scm::math::transpose(scm::math::inverse(viewMat3));
         scm::math::vec4 light_ws(s.point_light_pos[0], s.point_light_pos[1], s.point_light_pos[2], 1.0f);
         scm::math::vec4 light_vs4 = ctx.viewMat * light_ws;
@@ -2863,5 +2834,31 @@ void LamureRenderer::releaseMultipassTargets(){
             destroyMultipassTarget(entry.second);
         }
         ctx.multipass_targets.clear();
+    }
+}
+
+void LamureRenderer::getMatricesFromRenderInfo(osg::RenderInfo& renderInfo, osg::Matrixd& outView, osg::Matrixd& outProj) {
+    if (auto* state = renderInfo.getState()) {
+        osg::Matrixd state_mv = state->getModelViewMatrix();
+        osg::Matrixd state_proj = state->getProjectionMatrix();
+        const osg::Camera* currentCamera = renderInfo.getCurrentCamera();
+
+        if (opencover::cover && currentCamera && opencover::coVRConfig::instance()->getEnvMapMode() != opencover::coVRConfig::NONE)
+        {
+             osg::Matrixd cam_mv = currentCamera->getViewMatrix();
+             osg::Matrixd rotonly = cam_mv;
+             rotonly(3, 0) = 0.0; rotonly(3, 1) = 0.0; rotonly(3, 2) = 0.0; rotonly(3, 3) = 1.0;
+             
+             osg::Matrixd invRot;
+             invRot.invert(rotonly);
+
+             outView = (state_mv * opencover::cover->envCorrectMat) * rotonly;
+             outProj = invRot * opencover::cover->invEnvCorrectMat * state_proj;
+        }
+        else
+        {
+            outView = state_mv;
+            outProj = state_proj;
+        }
     }
 }

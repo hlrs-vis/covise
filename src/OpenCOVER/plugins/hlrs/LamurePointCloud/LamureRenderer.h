@@ -458,10 +458,6 @@ private:
     std::map<int, ContextResources> m_ctx_res;
     std::mutex m_ctx_mutex;
 
-    // Matrices
-    scm::math::mat4d m_modelview_matrix{scm::math::mat4d::identity()};
-    scm::math::mat4d m_projection_matrix{scm::math::mat4d::identity()};
-
     // Schism objects
     std::unordered_set<int> m_initialized_context_ids;
     std::unordered_set<const void*> m_initialized_context_ptrs;
@@ -617,12 +613,7 @@ public:
         return getResources(ctxId).scm_camera.get();
     }
 
-    scm::math::mat4d getModelViewMatrix() { return m_modelview_matrix; }
-    scm::math::mat4d getProjectionMatrix() { return m_projection_matrix; }
     MultipassTarget& acquireMultipassTarget(lamure::context_t contextID, const osg::Camera* camera, int width, int height);
-
-    void setModelViewMatrix(scm::math::mat4d model_view_matrix) { m_modelview_matrix = model_view_matrix; }
-    void setProjectionMatrix(scm::math::mat4d projection_matrix) { m_projection_matrix = projection_matrix; }
 
     osg::ref_ptr<osg::Geode> getPointcloudGeode() { return m_pointcloud_geode; }
     osg::ref_ptr<osg::Geode> getBoundingboxGeode() { return m_boundingbox_geode; }
@@ -679,10 +670,12 @@ public:
 
     void setActiveShaderType(ShaderType t) { m_active_shader_type = t; }
     ShaderType getActiveShaderType() const { return m_active_shader_type; }
-    void setFrameUniforms(const scm::math::mat4& projection_matrix, const scm::math::vec2& viewport, ContextResources& ctx);
+    void setFrameUniforms(const scm::math::mat4& projection_matrix, const scm::math::mat4& view_matrix, const scm::math::vec2& viewport, ContextResources& ctx);
     void setModelUniforms(const scm::math::mat4& mvp_matrix, const scm::math::mat4& model_matrix, ContextResources& ctx);
     void setNodeUniforms(const lamure::ren::bvh* bvh, uint32_t node_id, ContextResources& ctx);
     bool isModelVisible(std::size_t modelIndex) const;
+    
+    void getMatricesFromRenderInfo(osg::RenderInfo& renderInfo, osg::Matrixd& outView, osg::Matrixd& outProj);
 
     void updateActiveClipPlanes();
     void enableClipDistances();

@@ -4,7 +4,9 @@
 
 <INCLUDE global="1" configname="colormap" >config-colormaps.xml </INCLUDE>
 <INCLUDE global="1" configname="coverGlobal" >config.cover.xml</INCLUDE>
-<!-- <INCLUDE global="1" configname="general" >config.xml</INCLUDE> -->
+<!-- <INCLUDE global="1" configname="general" >config.xml</INCLUDE> 
+      <EnvMapMode value="NONE" />
+-->
 
   <GLOBAL>
     <COVER>
@@ -27,7 +29,6 @@
       <IconSize value="30"/>
       <ScaleWithInteractors value="on"/>
       <TwoSide value="on" />
-      <EnvMapMode value="NONE" />
       <TransparencyMode value="sorted_blended" />
       <Headlight value="on" />
       <RenderOnMaster value="on" />
@@ -56,9 +57,8 @@
       </SmallSceneAxis>
       <TabletUI value="off" host="localhost" /> 
       <NumBlendingTextures value="0" />
+
       <NumPipes value="3" />
-
-
       <NumChannels value="3"/>
       <NumViewports value="3"/>
       <NumWindows value="3"/>
@@ -170,8 +170,11 @@
             <data_dir value="D:/Forschungsarbeit/Data/Data_all"/>
             <initial_selection value="0,1,2,3,4,7,8"/>
             <models value="D:/Forschungsarbeit/Data/myanmar.bvh"/>
+            
              -->
+
             <models value="C:/Users/Daniel/Documents/Studium/Forschungsarbeit/Data/Data_bin/naturkundemuseum_School000.bvh"/>
+            
             <point_light_intensity value="0.6"/>
             <ambient_intensity value="0.6"/>
             <shininess value="0.1"/>
