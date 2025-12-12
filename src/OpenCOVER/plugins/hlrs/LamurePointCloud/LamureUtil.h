@@ -67,6 +67,9 @@ scm::math::mat4d gl_mat(GLdouble mat[16]);
 std::vector<float> getBoxCorners(scm::gl::boxf box);
 std::vector<std::vector<float>> getSerializedBvhMinMax(const std::vector<scm::gl::boxf>& bounding_boxes);
 std::vector<std::string> splitSemicolons(const std::string& s);
+
+bool decideUseAniso(const scm::math::mat4& projection_matrix, int anisoMode, float threshold);
+
 } // namespace LamureUtil
 
 #endif // _LAMURE_UTIL_H

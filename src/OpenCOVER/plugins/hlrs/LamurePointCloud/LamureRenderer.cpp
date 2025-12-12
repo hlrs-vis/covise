@@ -52,22 +52,6 @@
 #include <boost/regex.hpp>
 
 namespace {
-    inline bool notifyOn(Lamure* p) { return p && p->getSettings().show_notify; }
-
-    inline bool decideUseAniso(const scm::math::mat4 &projection_matrix, int anisoMode, float threshold)
-    {
-        // 0=off, 1=auto, 2=on
-        if (anisoMode == 2) return true;
-        if (anisoMode == 0) return false;
-        // Off-axis heuristic: treat small offsets (e.g., stereo eye tiny shifts) as isotropic for performance.
-        // Extract the row/column tied to off-axis terms via M * ez (works with our math conversion).
-        // Consider anisotropic only if magnitude exceeds a practical threshold.
-        const scm::math::vec4 ez(0.0f, 0.0f, 1.0f, 0.0f);
-        const scm::math::vec4 v = projection_matrix * ez;
-        const float mag = std::max(std::fabs(v[0]), std::fabs(v[1]));
-        return mag > std::max(0.0f, threshold);
-    }
-
     struct MeasCtx {
         bool active = false;
         bool sampleThisFrame = false;
@@ -232,6 +216,11 @@ LamureRenderer::~LamureRenderer()
     releaseMultipassTargets();
 }
 
+bool LamureRenderer::notifyOn() const
+{
+    return m_plugin && m_plugin->getSettings().show_notify;
+}
+
 void LamureRenderer::updateActiveClipPlanes()
 {
     m_clip_plane_count = 0;
@@ -334,31 +323,10 @@ struct InitDrawCallback : public osg::Drawable::DrawCallback
         else if (_renderer) {
             osg::Matrixd view_osg;
             osg::Matrixd proj_osg;
-            bool from_state = false;
-
-            if (auto *state = renderInfo.getState()) {
-                _renderer->getMatricesFromRenderInfo(renderInfo, view_osg, proj_osg);
-                from_state = true;
-                if (notifyOn(_plugin)) { std::cout << "renderInfo.getState()" << std::endl; }
-            }
-            else if (auto *cam = renderInfo.getCurrentCamera()) {
-                view_osg = cam->getViewMatrix();
-                proj_osg = cam->getProjectionMatrix();
-                if (notifyOn(_plugin)) { std::cout << "renderInfo.getCurrentCamera()" << std::endl; }
-            }
-            else if (auto *cam = opencover::VRViewer::instance()->getCamera()) {
-                view_osg = cam->getViewMatrix();
-                proj_osg = cam->getProjectionMatrix();
-                if (notifyOn(_plugin)) { std::cout << "opencover::VRViewer::instance()->getCamera()" << std::endl; }
-            }
-            else {
-                return;
-            }
-
-            osg::Matrix mv_matrix = from_state ? view_osg : (opencover::cover->getBaseMat() * view_osg);
+            _renderer->getMatricesFromRenderInfo(renderInfo, view_osg, proj_osg);
+            osg::Matrix mv_matrix = view_osg;
             scm::math::mat4d modelview_matrix = LamureUtil::matConv4D(mv_matrix);
-            scm::math::mat4d projection_matrix = LamureUtil::matConv4D(proj_osg);
-
+            scm::math::mat4d projection_matrix = LamureUtil::matConv4D(proj_osg);        
             res.scm_camera->set_projection_matrix(projection_matrix);
             if (_plugin->getUI()->getSyncButton()->state()) {
                 res.scm_camera->set_view_matrix(modelview_matrix);
@@ -373,8 +341,11 @@ private:
 };
 
 struct InitGeometry : public osg::Geometry {
-    InitGeometry(Lamure* plugin) : _plugin(plugin) {
-        if (notifyOn(_plugin)) { std::cout << "[Lamure] InitGeometry()" << std::endl; }
+    InitGeometry(Lamure* plugin)
+        : _plugin(plugin)
+        , _renderer(plugin ? plugin->getRenderer() : nullptr)
+    {
+        if (_renderer && _renderer->notifyOn()) { std::cout << "[Lamure] InitGeometry()" << std::endl; }
         setUseDisplayList(false);
         setUseVertexBufferObjects(true);
         setUseVertexArrayObject(false);
@@ -383,7 +354,8 @@ struct InitGeometry : public osg::Geometry {
             stateSet->setRenderBinDetails(-10, "RenderBin");
         }
     }
-    Lamure* _plugin;
+    Lamure* _plugin{nullptr};
+    LamureRenderer* _renderer{nullptr};
 };
 
 struct TextDrawCallback : public osg::Drawable::DrawCallback
@@ -400,7 +372,8 @@ struct TextDrawCallback : public osg::Drawable::DrawCallback
 
     void drawImplementation(osg::RenderInfo &renderInfo, const osg::Drawable *drawable) const override
     {
-        if (notifyOn(_plugin)) { std::cout << "[Lamure] TextDrawCallback::drawImplementation" << std::endl; } 
+        const bool verbose = _renderer && _renderer->notifyOn();
+        if (verbose) { std::cout << "[Lamure] TextDrawCallback::drawImplementation" << std::endl; } 
         const auto now = std::chrono::steady_clock::now();
         if (now - _lastUpdateTime >= _minInterval)
         {
@@ -473,12 +446,12 @@ struct TextDrawCallback : public osg::Drawable::DrawCallback
                     _values->setText(value_ss.str(), osgText::String::ENCODING_UTF8);
                     _lastUpdateTime = now;
                 }
-                else if (notifyOn(_plugin))
+                else if (verbose)
                 {
                     std::cerr << "[Lamure] TextDrawCallback: missing renderer state, skip\n";
                 }
             }
-            else if (notifyOn(_plugin))
+            else if (verbose)
             {
                 std::cerr << "[Lamure] TextDrawCallback: renderer unavailable\n";
             }
@@ -499,7 +472,8 @@ struct TextGeode : public osg::Geode
 {
     TextGeode(Lamure* plugin)
     {
-        if (notifyOn(plugin)) { std::cout << "[Lamure] TextGeode()" << std::endl; }
+        LamureRenderer* renderer = plugin ? plugin->getRenderer() : nullptr;
+        if (renderer && renderer->notifyOn()) { std::cout << "[Lamure] TextGeode()" << std::endl; }
         osg::Vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
         std::string font = opencover::coVRFileManager::instance()->getFontFile(NULL);
         float characterSize = 18.0f;
@@ -559,9 +533,9 @@ struct FrustumDrawCallback : public osg::Drawable::DrawCallback
 {
     FrustumDrawCallback(Lamure* plugin)
         : _plugin(plugin)
+        , _renderer(plugin ? plugin->getRenderer() : nullptr)
     {
-        if (notifyOn(_plugin)) { std::cout << "[Lamure] FrustumDrawCallback()" << std::endl; }
-        _renderer = _plugin->getRenderer();
+        if (_renderer && _renderer->notifyOn()) { std::cout << "[Lamure] FrustumDrawCallback()" << std::endl; }
     }
 
     virtual void drawImplementation(osg::RenderInfo& renderInfo, const osg::Drawable* drawable) const override
@@ -569,7 +543,8 @@ struct FrustumDrawCallback : public osg::Drawable::DrawCallback
         int ctx = renderInfo.getContextID();
         const osg::Camera* cam = renderInfo.getCurrentCamera();
 
-        if (notifyOn(_plugin)) { std::cout << "[Lamure] FrustumDrawCallback::drawImplementation" << std::endl; } 
+        const bool verbose = _renderer && _renderer->notifyOn();
+        if (verbose) { std::cout << "[Lamure] FrustumDrawCallback::drawImplementation" << std::endl; } 
         GLState before = GLState::capture();
         auto& res = _renderer->getResources(renderInfo.getContextID());
 
@@ -604,7 +579,8 @@ struct FrustumGeometry : public osg::Geometry
 {
     FrustumGeometry(Lamure* _plugin)
     {
-        if (notifyOn(_plugin)) { std::cout << "[Lamure] FrustumGeometry()" << std::endl; }
+        LamureRenderer* renderer = _plugin ? _plugin->getRenderer() : nullptr;
+        if (renderer && renderer->notifyOn()) { std::cout << "[Lamure] FrustumGeometry()" << std::endl; }
         setUseDisplayList(false);
         setUseVertexBufferObjects(true);
         setUseVertexArrayObject(false);
@@ -616,14 +592,15 @@ struct BoundingBoxDrawCallback : public virtual osg::Drawable::DrawCallback
 {
     BoundingBoxDrawCallback(Lamure* plugin)
         : _plugin(plugin)
+        , _renderer(plugin ? plugin->getRenderer() : nullptr)
     {
-        if (notifyOn(_plugin)) { std::cout << "[Lamure] BoundingBoxDrawCallback()" << std::endl; }
-        _renderer = _plugin->getRenderer();
+        if (_renderer && _renderer->notifyOn()) { std::cout << "[Lamure] BoundingBoxDrawCallback()" << std::endl; }
     }
 
     virtual void drawImplementation(osg::RenderInfo& renderInfo, const osg::Drawable* drawable) const 
     {
-        if (notifyOn(_plugin)) { std::cout << "[Lamure] BoundingBoxDrawCallback::drawImplementation" << std::endl; } 
+        const bool verbose = _renderer && _renderer->notifyOn();
+        if (verbose) { std::cout << "[Lamure] BoundingBoxDrawCallback::drawImplementation" << std::endl; } 
         GLState before = GLState::capture();
         auto& res = _renderer->getResources(renderInfo.getContextID());
         int ctx = renderInfo.getContextID();
@@ -675,7 +652,7 @@ struct BoundingBoxDrawCallback : public virtual osg::Drawable::DrawCallback
                 { controller->dispatch(context_id, _renderer->getDevice(renderInfo.getContextID()), _plugin->getDataProvenance()); }
                 else { controller->dispatch(context_id, _renderer->getDevice(renderInfo.getContextID())); }
             } catch (const std::exception &e) {
-                if (notifyOn(_plugin)) std::cerr << "[Lamure] dispatch skipped: " << e.what() << "\n";
+                if (verbose) std::cerr << "[Lamure] dispatch skipped: " << e.what() << "\n";
             }
         }
 
@@ -732,7 +709,7 @@ struct BoundingBoxDrawCallback : public virtual osg::Drawable::DrawCallback
         _plugin->getRenderInfo().rendered_bounding_boxes = rendered_bounding_boxes;
         before.restore();
 
-        if (notifyOn(_plugin)) {
+        if (verbose) {
             GLState after = GLState::capture();
             GLState::compare(before, after, "[Lamure] BoundingBoxDrawCallback::drawImplementation()");
         }
@@ -746,7 +723,8 @@ struct BoundingBoxGeometry : public osg::Geometry
 {
     BoundingBoxGeometry(Lamure* plugin)
     {
-        if (notifyOn(plugin)) { std::cout << "[Lamure] BoundingBoxGeometry()" << std::endl; }
+        LamureRenderer* renderer = plugin ? plugin->getRenderer() : nullptr;
+        if (renderer && renderer->notifyOn()) { std::cout << "[Lamure] BoundingBoxGeometry()" << std::endl; }
         setUseDisplayList(false);
         setUseVertexBufferObjects(true);
         setUseVertexArrayObject(false);
@@ -758,14 +736,15 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
 {
     PointsDrawCallback(Lamure* plugin)
         : _plugin(plugin)
+        , _renderer(plugin ? plugin->getRenderer() : nullptr)
     {
-        if (notifyOn(_plugin)) { std::cout << "[Lamure] PointsDrawCallback()" << std::endl; } 
-        _renderer = _plugin->getRenderer();
+        if (_renderer && _renderer->notifyOn()) { std::cout << "[Lamure] PointsDrawCallback()" << std::endl; } 
     }
 
     virtual void drawImplementation(osg::RenderInfo& renderInfo, const osg::Drawable* drawable) const
     {
-        if (notifyOn(_plugin)) { std::cout << "[Lamure] PointsDrawCallback::drawImplementation" << std::endl; } 
+        const bool verbose = _renderer && _renderer->notifyOn();
+        if (verbose) { std::cout << "[Lamure] PointsDrawCallback::drawImplementation" << std::endl; } 
         int ctx = renderInfo.getContextID();
         if (!_renderer->beginFrame(ctx)) { return; }
         if (_plugin->getSettings().models.empty()) { _renderer->endFrame(ctx); return; }
@@ -844,7 +823,7 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
         const scm::math::mat4d viewport_scale = scm::math::make_scale(vpW * 0.5, vpH * 0.5, 0.5);
         const scm::math::mat4d viewport_translate = scm::math::make_translation(1.0, 1.0, 1.0);
         scm::math::vec2 viewport((float)vpW, (float)vpH);
-        const bool useAnisoThisPass = decideUseAniso(projection_matrix, settings.anisotropic_surfel_scaling, settings.anisotropic_auto_threshold);
+        const bool useAnisoThisPass = LamureUtil::decideUseAniso(projection_matrix, settings.anisotropic_surfel_scaling, settings.anisotropic_auto_threshold);
         SDStats sd = makeSDStats(meas, viewport, projection_matrix, settings);
         uint64_t rendered_primitives = 0;
         uint64_t rendered_nodes = 0;
@@ -1115,7 +1094,7 @@ struct PointsDrawCallback : public virtual osg::Drawable::DrawCallback
         }
 
         before.restore();
-        if (notifyOn(_plugin)) {
+        if (verbose) {
             GLState after = GLState::capture();
             GLState::compare(before, after, "[Lamure] PointsDrawCallback::drawImplementation()");
         }
@@ -1129,7 +1108,8 @@ struct PointsGeometry : public osg::Geometry
 {
     PointsGeometry(Lamure* plugin) : _plugin(plugin)
     {
-        if (notifyOn(_plugin)) { std::cout << "[Lamure] PointsGeometry()" << std::endl; }
+        LamureRenderer* renderer = plugin ? plugin->getRenderer() : nullptr;
+        if (renderer && renderer->notifyOn()) { std::cout << "[Lamure] PointsGeometry()" << std::endl; }
         setUseDisplayList(false);
         setUseVertexBufferObjects(true);
         setUseVertexArrayObject(false);
@@ -1240,7 +1220,7 @@ void LamureRenderer::setEditBrushTransform(const osg::Matrixd& brushMat)
 
 void LamureRenderer::init()
 {
-    if (notifyOn(m_plugin)) { std::cout << "[Lamure] LamureRenderer::init()" << std::endl; }
+    if (notifyOn()) { std::cout << "[Lamure] LamureRenderer::init()" << std::endl; }
     std::lock_guard<std::mutex> sceneLock(m_sceneMutex);
 
     if (auto* vs = opencover::VRViewer::instance()->getViewerStats()) {
@@ -1524,7 +1504,7 @@ bool LamureRenderer::isRendering() const
 
 void LamureRenderer::initUniforms(ContextResources& ctx) 
 {
-    if (notifyOn(m_plugin)) { std::cout << "[Lamure] LamureRenderer::initUniforms()" << std::endl; }
+    if (notifyOn()) { std::cout << "[Lamure] LamureRenderer::initUniforms()" << std::endl; }
     glUseProgram(ctx.sh_point.program);
     ctx.sh_point.mvp_matrix_loc             = glGetUniformLocation(ctx.sh_point.program, "mvp_matrix");
     ctx.sh_point.model_matrix_loc           = glGetUniformLocation(ctx.sh_point.program, "model_matrix");
@@ -1856,7 +1836,7 @@ void LamureRenderer::setFrameUniforms(const scm::math::mat4& projection_matrix, 
     const auto &s = m_plugin->getSettings();
 
     // Decide anisotropic usage based on current projection and mode (0=off,1=auto,2=on)
-    const bool useAnisoThisPass = decideUseAniso(projection_matrix, s.anisotropic_surfel_scaling, s.anisotropic_auto_threshold);
+    const bool useAnisoThisPass = LamureUtil::decideUseAniso(projection_matrix, s.anisotropic_surfel_scaling, s.anisotropic_auto_threshold);
 
     // Precompute common scalars once per frame
     const float scale_radius_combined = s.scale_radius * s.scale_element;
@@ -2320,7 +2300,7 @@ bool LamureRenderer::readShader(std::string const &path_string, std::string &sha
 
 void LamureRenderer::initLamureShader(ContextResources& res)
 {
-    if (notifyOn(m_plugin)) { std::cout << "[Lamure] LamureRenderer::initLamureShader()" << std::endl; }
+    if (notifyOn()) { std::cout << "[Lamure] LamureRenderer::initLamureShader()" << std::endl; }
     vis_point_vs_source.clear();
     vis_point_fs_source.clear();
     vis_point_color_vs_source.clear();
@@ -2417,7 +2397,7 @@ void LamureRenderer::initLamureShader(ContextResources& res)
 
 void LamureRenderer::initSchismObjects(ContextResources& ctx)
 {
-    if (notifyOn(m_plugin)) { std::cout << "[Lamure] LamureRenderer::initSchismObjects()" << std::endl; }
+    if (notifyOn()) { std::cout << "[Lamure] LamureRenderer::initSchismObjects()" << std::endl; }
     // Per-context device/context to avoid sharing across OSG contexts.
     if (!ctx.scm_device) {
         ctx.scm_device.reset(new scm::gl::render_device());
@@ -2436,7 +2416,7 @@ void LamureRenderer::initSchismObjects(ContextResources& ctx)
 
 void LamureRenderer::initCamera(ContextResources& res)
 {
-    if (notifyOn(m_plugin)) { std::cout << "[Lamure] LamureRenderer::initCamera(" << res.view_id << ")" << std::endl; }
+    if (notifyOn()) { std::cout << "[Lamure] LamureRenderer::initCamera(" << res.view_id << ")" << std::endl; }
     osg::Camera* osg_camera = opencover::VRViewer::instance()->getCamera();
     double look_dist = 1.0;
     double left, right, bottom, top, zNear, zFar;
@@ -2583,7 +2563,7 @@ void LamureRenderer::initFrustumResources(ContextResources& res) {
 }
 
 void LamureRenderer::initBoxResources(ContextResources& res) {
-    if (notifyOn(m_plugin)) { std::cout << "[Lamure] init_box_resources()\n"; }
+    if (notifyOn()) { std::cout << "[Lamure] init_box_resources()\n"; }
 
     if (!m_plugin->getSettings().models.size())
         return;
@@ -2688,7 +2668,7 @@ void LamureRenderer::initBoxResources(ContextResources& res) {
 }
 
 void LamureRenderer::initPclResources(ContextResources& res){
-    if(notifyOn(m_plugin)) std::cout<<"[Lamure] initPclResources()\n";
+    if (notifyOn()) std::cout << "[Lamure] initPclResources()\n";
 
     // Screen-Quad einmalig anlegen
     if(res.geo_screen_quad.vao==0){
@@ -2786,7 +2766,7 @@ void LamureRenderer::initializeMultipassTarget(MultipassTarget& target, int widt
     const GLenum status=glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if(status!=GL_FRAMEBUFFER_COMPLETE){
         std::cerr<<"ERROR::FRAMEBUFFER incomplete ("<<std::hex<<status<<std::dec<<") "<<width<<"x"<<height<<"\n";
-    }else if(notifyOn(m_plugin)){
+    } else if (notifyOn()) {
         std::cout<<"[Lamure] FBO ready "<<width<<"x"<<height<<"\n";
     }
 
@@ -2819,8 +2799,8 @@ LamureRenderer::MultipassTarget& LamureRenderer::acquireMultipassTarget(lamure::
     auto [it, inserted] = res.multipass_targets.try_emplace(key);
     if(inserted){
         initializeMultipassTarget(it->second, width, height);
-    }else if(it->second.width != width || it->second.height != height){
-        if(notifyOn(m_plugin)){
+    } else if(it->second.width != width || it->second.height != height){
+        if (notifyOn()) {
             std::cout<<"[Lamure] FBO resize "<<it->second.width<<"x"<<it->second.height<<" -> "<<width<<"x"<<height<<"\n";
         }
         initializeMultipassTarget(it->second, width, height);

@@ -11,6 +11,7 @@
 #include <sstream> // For std::stringstream
 #include <iomanip> // For std::setprecision
 #include <cmath> // For std::pow, std::round
+#include <algorithm> // For std::max
 #include <GL/glu.h> // For gluErrorString
 
 namespace LamureUtil {
@@ -342,5 +343,19 @@ int CheckGLError(char* file, int line)
 }
 
 #define CHECK_GL_ERROR() CheckGLError(__FILE__, __LINE__)
+
+bool decideUseAniso(const scm::math::mat4& projection_matrix, int anisoMode, float threshold)
+{
+    // 0=off, 1=auto, 2=on
+    if (anisoMode == 2) return true;
+    if (anisoMode == 0) return false;
+    // Off-axis heuristic: treat small offsets (e.g., stereo eye tiny shifts) as isotropic for performance.
+    // Extract the row/column tied to off-axis terms via M * ez (works with our math conversion).
+    // Consider anisotropic only if magnitude exceeds a practical threshold.
+    const scm::math::vec4 ez(0.0f, 0.0f, 1.0f, 0.0f);
+    const scm::math::vec4 v = projection_matrix * ez;
+    const float mag = std::max(std::fabs(v[0]), std::fabs(v[1]));
+    return mag > std::max(0.0f, threshold);
+}
 
 } // namespace LamureUtil

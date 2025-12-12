@@ -170,10 +170,11 @@
             <data_dir value="D:/Forschungsarbeit/Data/Data_all"/>
             <initial_selection value="0,1,2,3,4,7,8"/>
             <models value="D:/Forschungsarbeit/Data/myanmar.bvh"/>
+            <models value="C:/Users/Daniel/Documents/Studium/Forschungsarbeit/Data/Data_bin/naturkundemuseum_School000.bvh"/>
             
              -->
 
-            <models value="C:/Users/Daniel/Documents/Studium/Forschungsarbeit/Data/Data_bin/naturkundemuseum_School000.bvh"/>
+            <models value="C:/Data/ScholaPraekonum/Test_1.bvh"/>
             
             <point_light_intensity value="0.6"/>
             <ambient_intensity value="0.6"/>

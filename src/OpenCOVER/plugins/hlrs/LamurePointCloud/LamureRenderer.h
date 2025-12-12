@@ -583,6 +583,7 @@ private:
 public:
     LamureRenderer(Lamure* lamure_plugin);
     ~LamureRenderer();
+    bool notifyOn() const;
 
     void init();
     void shutdown();
