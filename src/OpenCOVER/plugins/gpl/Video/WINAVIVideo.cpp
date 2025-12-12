@@ -193,7 +193,8 @@ void WINAVIPlugin::Menu(int row)
     HideWMVMenu(true);
 #endif
 
-    myPlugin->helpText = "Format and Codecs Help:\n\n COVISE lists video formats and codecs installed. The Windows Media Video "
+    myPlugin->helpText = "AVI (Audio Video Interleave) + libx264H264/AVC/MPEG-4AVC/MPEG-4 part 10 works on our cluster\n"
+                         "Format and Codecs Help:\n\n COVISE lists video formats and codecs installed. The Windows Media Video "
                          "9 Screen codec is optimized for screen recording. Nevertheless for screen encodings with graphics, "
                          "many different colors and a lot of motion it is preferable to choose another codec. \n If "
                          "WindowsMedia is available predefined Profiles are displayed. Profiles, which are configured to "
