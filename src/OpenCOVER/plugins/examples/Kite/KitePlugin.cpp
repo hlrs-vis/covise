@@ -18,6 +18,8 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cctype>
+#include <cstdio>
 #include <fstream>
 #include <sstream>
 #include <unordered_map>
@@ -97,11 +99,21 @@ bool KitePlugin::loadModel(const std::string &path)
     if (const char *searched = coVRFileManager::instance()->getName(path.c_str()))
         resolved = searched;
 
+    unsigned int childrenBefore = m_transform->getNumChildren();
+
     // Try via file manager first (allows handlers to kick in).
     osg::Node *loaded = coVRFileManager::instance()->loadFile(resolved.c_str(), nullptr, m_transform.get());
     if (loaded)
     {
         m_model = loaded;
+        return true;
+    }
+
+    // Some handlers attach directly to the parent and return nullptr.
+    if (m_transform->getNumChildren() > childrenBefore)
+    {
+        m_model = m_transform->getChild(m_transform->getNumChildren() - 1);
+        fprintf(stderr, "KitePlugin: model loaded via handler into transform (%u children)\n", m_transform->getNumChildren());
         return true;
     }
 
@@ -122,6 +134,7 @@ void KitePlugin::parseCsv(const std::string &path)
         fprintf(stderr, "KitePlugin: cannot open CSV '%s'\n", path.c_str());
         return;
     }
+    fprintf(stderr, "KitePlugin: parsing CSV '%s'\n", path.c_str());
 
     auto split = [](const std::string &s, char delim) {
         std::vector<std::string> out;
@@ -154,27 +167,58 @@ void KitePlugin::parseCsv(const std::string &path)
         }
     }
 
+    auto trim = [](const std::string &s) {
+        size_t b = 0;
+        while (b < s.size() && std::isspace(static_cast<unsigned char>(s[b])))
+            ++b;
+        size_t e = s.size();
+        while (e > b && std::isspace(static_cast<unsigned char>(s[e - 1])))
+            --e;
+        return s.substr(b, e - b);
+    };
+    auto parseNumber = [&](const std::string &s, double &out) {
+        std::string t = trim(s);
+        if (t.empty())
+            return false;
+        char *end = nullptr;
+        out = std::strtod(t.c_str(), &end);
+        if (end == t.c_str())
+            return false;
+        while (end && *end && std::isspace(static_cast<unsigned char>(*end)))
+            ++end;
+        return end && *end == '\0';
+    };
+
     std::string line;
+    size_t parsed = 0, skipped = 0;
     while (std::getline(in, line))
     {
         if (line.empty())
             continue;
         auto toks = split(line, delim);
         if (toks.size() <= idx["kite_0_yaw"])
+        {
+            ++skipped;
             continue;
+        }
 
         Frame f;
-        f.t = std::stod(toks[idx["time"]]);
-        f.pos.set(std::stod(toks[idx["kite_pos_east"]]),
-                  std::stod(toks[idx["kite_pos_north"]]),
-                  std::stod(toks[idx["kite_height"]]));
-        f.roll = std::stod(toks[idx["kite_0_roll"]]);
-        f.pitch = std::stod(toks[idx["kite_0_pitch"]]);
-        f.yaw = std::stod(toks[idx["kite_0_yaw"]]);
+        double v = 0.0;
+        if (!parseNumber(toks[idx["time"]], f.t)) { ++skipped; continue; }
+        if (!parseNumber(toks[idx["kite_pos_east"]], v)) { ++skipped; continue; }
+        f.pos.x() = v;
+        if (!parseNumber(toks[idx["kite_pos_north"]], v)) { ++skipped; continue; }
+        f.pos.y() = v;
+        if (!parseNumber(toks[idx["kite_height"]], v)) { ++skipped; continue; }
+        f.pos.z() = v;
+        if (!parseNumber(toks[idx["kite_0_roll"]], f.roll)) { ++skipped; continue; }
+        if (!parseNumber(toks[idx["kite_0_pitch"]], f.pitch)) { ++skipped; continue; }
+        if (!parseNumber(toks[idx["kite_0_yaw"]], f.yaw)) { ++skipped; continue; }
         m_frames.push_back(f);
+        ++parsed;
     }
 
-    fprintf(stderr, "KitePlugin: loaded %zu frames from '%s'\n", m_frames.size(), path.c_str());
+    fprintf(stderr, "KitePlugin: loaded %zu frames (skipped %zu) from '%s'\n", m_frames.size(), skipped, path.c_str());
 }
 
 void KitePlugin::updateTransform(int frameIndex)
