@@ -9,6 +9,8 @@
 #define KITE_PLUGIN_H
 
 #include <cover/coVRPlugin.h>
+#include <osg/MatrixTransform>
+#include <string>
 
 class KitePlugin : public opencover::coVRPlugin
 {
@@ -17,6 +19,12 @@ public:
     ~KitePlugin() override;
 
     bool init() override;
+
+private:
+    bool loadModel(const std::string &path);
+
+    osg::ref_ptr<osg::MatrixTransform> m_transform;
+    osg::ref_ptr<osg::Node> m_model;
 };
 
 #endif // KITE_PLUGIN_H
