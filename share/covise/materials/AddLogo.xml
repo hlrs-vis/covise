@@ -61,8 +61,7 @@ if(alpha &gt;0.5)
   }          		
       	vec3 E = normalize(nEyeVec);
       	vec3 R = reflect(-L, N);
-      	float specular = pow( max(dot(R, E), 0.0), 
-      		                20 );
+      	float specular = pow( max(dot(R, E), 0.0), 20.0 );
       	//final_color +=  vec4(0.1,0.1,0.1,0.1)*  specular;	
       	}
 	gl_FragColor = final_color;	
