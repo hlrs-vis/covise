@@ -403,8 +403,20 @@ void vvSceneGraph::initSceneGraph()
     // dcs for scaling all objects
     m_scaleTransform = vsg::MatrixTransform::create();
     m_objectsTransform->addChild(m_scaleTransform);
-    m_scene->addChild(m_objectsTransform);
+    //m_scene->addChild(m_objectsTransform);
     m_objectsScene->addChild(m_objectsTransform);
+
+    vsg::ComputeBounds computeBounds;
+    m_objectsTransform->accept(computeBounds);
+    vsg::dvec3 center = (computeBounds.bounds.min + computeBounds.bounds.max) * 0.5;
+    double radius = vsg::length(computeBounds.bounds.max - computeBounds.bounds.min) * 10;
+
+    auto depthSorted = vsg::DepthSorted::create();
+    depthSorted->binNumber = 0;
+    depthSorted->bound.set(center, radius);
+    depthSorted->child = m_objectsTransform;
+
+    m_scene->addChild(depthSorted);
 
     // root node for all objects
     m_objectsRoot = vsg::MatrixTransform::create();

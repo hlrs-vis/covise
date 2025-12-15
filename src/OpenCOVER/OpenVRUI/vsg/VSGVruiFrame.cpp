@@ -54,7 +54,8 @@ VSGVruiFrame::VSGVruiFrame(coFrame *frame, const string &name)
 
     createGeometry();
 
-    transform->addChild(stateGroup);
+    //transform->addChild(stateGroup);
+    transform->addChild(depthSorted);
     
 }
 
@@ -203,7 +204,7 @@ void VSGVruiFrame::createGeometry()
         colorBlendState->attachments[0].blendEnable = VK_TRUE;
         colorBlendState->attachments[0].srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
         colorBlendState->attachments[0].dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-        colorBlendState->attachments[0].colorBlendOp = VK_BLEND_OP_ADD;
+        colorBlendState->attachments[0].colorBlendOp = VK_BLEND_OP_ADD;        
         colorBlendState->attachments[0].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
         colorBlendState->attachments[0].dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
         colorBlendState->attachments[0].alphaBlendOp = VK_BLEND_OP_ADD;
@@ -215,15 +216,20 @@ void VSGVruiFrame::createGeometry()
 
         auto depthStencilState = vsg::DepthStencilState::create();
         depthStencilState->depthTestEnable = VK_TRUE;
-        depthStencilState->depthWriteEnable = VK_FALSE;
+        depthStencilState->depthWriteEnable = VK_TRUE;
         depthStencilState->depthCompareOp = VK_COMPARE_OP_GREATER;
 
+       /* auto multiSampleState = vsg::MultisampleState::create();
+        multiSampleState->alphaToCoverageEnable = VK_TRUE;*/
+        
         shaderSet->defaultGraphicsPipelineStates.push_back(colorBlendState);
         shaderSet->defaultGraphicsPipelineStates.push_back(depthStencilState);
+        //shaderSet->defaultGraphicsPipelineStates.push_back(multiSampleState);
 
         gpConfigurator = GraphicsPipelineConfigurator::create(shaderSet);
 
         image = VSGVruiRendererInterface::the()->createVsgTexture(frame->getTextureName());
+
         if (image && image->data)
         {
             gpConfigurator->assignTexture("diffuseMap", image->data);
@@ -247,6 +253,16 @@ void VSGVruiFrame::createGeometry()
 
         stateGroup->addChild(vertexIndexDraw);
 
+        vsg::ComputeBounds computeBounds;
+        vertexIndexDraw->accept(computeBounds);
+        vsg::dvec3 center = (computeBounds.bounds.min + computeBounds.bounds.max) * 0.5;
+        double radius = vsg::length(computeBounds.bounds.max - computeBounds.bounds.min) * 10;
+
+        depthSorted = vsg::DepthSorted::create();
+        depthSorted->binNumber = 1;
+        depthSorted->bound.set(center, radius);
+        depthSorted->child = stateGroup;
+ 
         resizeGeometry();
     }
  
