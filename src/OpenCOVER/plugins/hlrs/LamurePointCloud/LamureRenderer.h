@@ -38,16 +38,44 @@
 #include <lamure/ren/bvh.h>
 #include <lamure/ren/camera.h>
 
+#include <lamure/types.h>
+#include <osg/NodeCallback>
+
 #include "LamureEditTool.h"
 
 class Lamure;
 class LamureEditTool;
 struct InitDrawCallback;
+
+// Data attached to each model node (Geode) to identify it
+class LamureModelData : public osg::Referenced {
+public:
+    lamure::model_t modelId;
+    LamureModelData(lamure::model_t id) : modelId(id) {}
+};
+
+// Callback to handle culling and matrix updates per model
+class LamureModelCullCallback : public osg::NodeCallback {
+public:
+    virtual void operator()(osg::Node* node, osg::NodeVisitor* nv);
+};
+
+// Callback to handle drawing per model
+class LamureModelDrawCallback : public osg::Drawable::DrawCallback {
+public:
+    LamureModelDrawCallback(LamureRenderer* renderer) : m_renderer(renderer) {}
+    virtual void drawImplementation(osg::RenderInfo& renderInfo, const osg::Drawable* drawable) const;
+private:
+    LamureRenderer* m_renderer;
+};
+
 class LamureRenderer {
 
 
 private:
     friend struct InitDrawCallback;
+    friend class LamureModelCullCallback;
+    friend class LamureModelDrawCallback;
     Lamure* m_plugin{nullptr};
     LamureRenderer* m_renderer{nullptr};
 
@@ -469,25 +497,16 @@ private:
 
     // Geodes
     osg::ref_ptr<osg::Geode> m_init_geode;
-    osg::ref_ptr<osg::Geode> m_pointcloud_geode;
-    osg::ref_ptr<osg::Geode> m_boundingbox_geode;
-    osg::ref_ptr<osg::Geode> m_frustum_geode;
     osg::ref_ptr<osg::Geode> m_text_geode;
     osg::ref_ptr<osg::Geode> m_edit_brush_geode;
     osg::ref_ptr<osg::MatrixTransform> m_edit_brush_transform;
 
     // Stateset
     osg::ref_ptr<osg::StateSet> m_init_stateset;
-    osg::ref_ptr<osg::StateSet> m_pointcloud_stateset;
-    osg::ref_ptr<osg::StateSet> m_boundingbox_stateset;
-    osg::ref_ptr<osg::StateSet> m_frustum_stateset;
     osg::ref_ptr<osg::StateSet> m_text_stateset;
 
     // Geometry
     osg::ref_ptr<osg::Geometry> m_init_geometry;
-    osg::ref_ptr<osg::Geometry> m_pointcloud_geometry;
-    osg::ref_ptr<osg::Geometry> m_boundingbox_geometry;
-    osg::ref_ptr<osg::Geometry> m_frustum_geometry;
 
     // Framebuffers
     scm::gl::frame_buffer_ptr fbo;
@@ -616,9 +635,6 @@ public:
 
     MultipassTarget& acquireMultipassTarget(lamure::context_t contextID, const osg::Camera* camera, int width, int height);
 
-    osg::ref_ptr<osg::Geode> getPointcloudGeode() { return m_pointcloud_geode; }
-    osg::ref_ptr<osg::Geode> getBoundingboxGeode() { return m_boundingbox_geode; }
-    osg::ref_ptr<osg::Geode> getFrustumGeode() { return m_frustum_geode; }
     osg::ref_ptr<osg::Geode> getTextGeode() { return m_text_geode; }
     osg::ref_ptr<osg::MatrixTransform> getEditBrushTransform() { return m_edit_brush_transform; }
     osg::MatrixTransform* ensureEditBrushNode(osg::Group* parent);

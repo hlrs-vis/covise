@@ -686,6 +686,28 @@ void Lamure::perform_system_reset()
             if (sceneIt->second.bvh.valid()) {
                 auto bvhCopy = trafo_bvh;
                 sceneIt->second.bvh->setMatrix(LamureUtil::matConv4D(bvhCopy));
+                
+                // --- New OSG Structure ---
+                osg::Geode* geode = new osg::Geode();
+                geode->setName(model_path + "_geode");
+                
+                osg::Geometry* geom = new osg::Geometry();
+                geom->setUseDisplayList(false);
+                geom->setUseVertexBufferObjects(true);
+                geom->setUseVertexArrayObject(false); 
+                
+                LamureModelData* data = new LamureModelData(model_id);
+                geode->setUserData(data);
+                geom->setUserData(data);
+                
+                geode->addCullCallback(new LamureModelCullCallback());
+                geom->setDrawCallback(new LamureModelDrawCallback(m_renderer.get()));
+                
+                geode->addDrawable(geom);
+                
+                // Replace children of BVH transform
+                sceneIt->second.bvh->removeChildren(0, sceneIt->second.bvh->getNumChildren());
+                sceneIt->second.bvh->addChild(geode);
             }
         }
 
