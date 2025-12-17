@@ -374,19 +374,38 @@ public:
                 }
 
                 //OSG_NOTICE << "values=" << material.values.size() << std::endl;
-                for (tinygltf::ParameterMap::const_iterator paramItr = material.values.begin(); paramItr != material.values.end(); ++paramItr)
+                const auto& color = material.pbrMetallicRoughness.baseColorFactor;
+                if (std::any_of(color.begin(), color.end(), [](double x) { return x != 1.0; })) 
                 {
-                    if (paramItr->first == "baseColorFactor")
+                    baseColorFactor = osg::Vec4(color[0], color[1], color[2], color[3]);
+                } 
+                else 
+                {
+                    for (tinygltf::ParameterMap::const_iterator paramItr = material.values.begin(); paramItr != material.values.end(); ++paramItr)
                     {
-                        tinygltf::ColorValue color = paramItr->second.ColorFactor();
-                        baseColorFactor = osg::Vec4(color[0], color[1], color[2], color[3]);
-                    }
-                    else
-                    {
-                        OSG_DEBUG << "    " << paramItr->first << "=" << paramItr->second.string_value << std::endl;
-                    }
+                        if (paramItr->first == "baseColorFactor")
+                        {
+                            tinygltf::ColorValue color = paramItr->second.ColorFactor();
+                            baseColorFactor = osg::Vec4(color[0], color[1], color[2], color[3]);
+                        }
+                        else
+                        {
+                            OSG_DEBUG << "    " << paramItr->first << "=" << paramItr->second.string_value << std::endl;
+                        }
 
+                    }
                 }
+
+                // Apply the base material color
+                osg::ref_ptr<osg::Material> mat = new osg::Material;
+                mat->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+                mat->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.2f, 0.2f, 0.2f, 1.0)); // where do I get ambient from?
+                mat->setDiffuse(osg::Material::FRONT_AND_BACK, baseColorFactor);
+                mat->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
+                mat->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
+                mat->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
+                geom->getOrCreateStateSet()->setAttributeAndModes(mat, osg::StateAttribute::ON);
+
                 /*
                 OSG_NOTICE << "extPBRValues=" << material.extPBRValues.size() << std::endl;
                 for (ParameterMap::iterator paramItr = material.extPBRValues.begin(); paramItr != material.extPBRValues.end(); ++paramItr)
@@ -396,13 +415,10 @@ public:
                 */
                 if (material.emissiveTexture.index > 0)
                 {
-
-
                     osg::ref_ptr<osg::Texture2D> tex = NULL;
                     osg::ref_ptr<osg::Texture2D>* cachedTex = NULL;
 
                     loadTexture(model, material, material.emissiveTexture.index, tex, cachedTex);
-
 
                     if (tex.valid())
                     {
@@ -496,8 +512,7 @@ public:
                 }
                 else if (it->first.compare("COLOR_0") == 0)
                 {
-                    // TODO:  Multipy by the baseColorFactor here?
-                    OSG_DEBUG << "Setting color array " << arrays[it->second].get() << std::endl;
+                    // OSG_DEBUG << "Setting color array " << arrays[it->second].get() << std::endl;
                     geom->setColorArray(arrays[it->second].get());
                 }
                 else
@@ -506,18 +521,6 @@ public:
                 }
             }
 
-            // If there is no color array just add one that has the base color factor in it.
-            if (!geom->getColorArray())
-            {
-                osg::Vec4Array* colors = new osg::Vec4Array();
-                osg::Vec3Array* verts = static_cast<osg::Vec3Array*>(geom->getVertexArray());
-                for (unsigned int i = 0; i < verts->size(); i++)
-                {
-                    colors->push_back(baseColorFactor);
-                }
-                geom->setColorArray(colors, osg::Array::BIND_PER_VERTEX);
-            }
-            
             const tinygltf::Accessor &indexAccessor =
                 model.accessors[primitive.indices];
 
