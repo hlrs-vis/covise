@@ -21,6 +21,7 @@
 #include <condition_variable>
 #include <memory>
 #include <unordered_set>
+#include <chrono>
 
 #include <scm/core/math.h>
 #include <osg/Geometry>
@@ -45,6 +46,7 @@
 
 class Lamure;
 class LamureEditTool;
+class LamureRenderer;
 struct InitDrawCallback;
 
 // Data attached to each model node (Geode) to identify it
@@ -54,28 +56,66 @@ public:
     LamureModelData(lamure::model_t id) : modelId(id) {}
 };
 
-// Callback to handle culling and matrix updates per model
-class LamureModelCullCallback : public osg::NodeCallback {
-public:
-    virtual void operator()(osg::Node* node, osg::NodeVisitor* nv);
-};
-
 // Callback to handle drawing per model
-class LamureModelDrawCallback : public osg::Drawable::DrawCallback {
+class PointsDrawCallback : public osg::Drawable::DrawCallback {
 public:
-    LamureModelDrawCallback(LamureRenderer* renderer) : m_renderer(renderer) {}
+    PointsDrawCallback(LamureRenderer* renderer) : m_renderer(renderer) {}
     virtual void drawImplementation(osg::RenderInfo& renderInfo, const osg::Drawable* drawable) const;
 private:
     LamureRenderer* m_renderer;
 };
 
-class LamureRenderer {
-
+class InitDrawCallback : public osg::Drawable::DrawCallback {
+public:
+    explicit InitDrawCallback(Lamure* plugin);
+    void drawImplementation(osg::RenderInfo& renderInfo, const osg::Drawable* drawable) const override;
 
 private:
+    Lamure* _plugin{nullptr};
+    LamureRenderer* _renderer{nullptr};
+};
+
+class TextDrawCallback : public osg::Drawable::DrawCallback
+{
+public:
+    TextDrawCallback(Lamure* plugin, osgText::Text* values);
+    void drawImplementation(osg::RenderInfo &renderInfo, const osg::Drawable *drawable) const override;
+
+private:
+    Lamure *_plugin{nullptr};
+    osg::ref_ptr<osgText::Text> _values;
+    LamureRenderer *_renderer{nullptr};
+    mutable std::chrono::steady_clock::time_point _lastUpdateTime;
+    std::chrono::milliseconds _minInterval;
+};
+
+class FrustumDrawCallback : public osg::Drawable::DrawCallback
+{
+public:
+    explicit FrustumDrawCallback(Lamure* plugin);
+    void drawImplementation(osg::RenderInfo& renderInfo, const osg::Drawable* drawable) const override;
+
+private:
+    Lamure* _plugin{nullptr};
+    LamureRenderer* _renderer{nullptr};
+};
+
+// Callback to draw BVH bounding boxes (culling/drawing logic aligned with _ref_LamureRenderer.cpp).
+class BoundingBoxDrawCallback : public osg::Drawable::DrawCallback {
+public:
+    BoundingBoxDrawCallback(LamureRenderer* renderer) : m_renderer(renderer) {}
+    void drawImplementation(osg::RenderInfo& renderInfo, const osg::Drawable* drawable) const override;
+
+private:
+    LamureRenderer* m_renderer;
+};
+
+class LamureRenderer {
+ 
+ 
+private:
     friend struct InitDrawCallback;
-    friend class LamureModelCullCallback;
-    friend class LamureModelDrawCallback;
+    friend class PointsDrawCallback;
     Lamure* m_plugin{nullptr};
     LamureRenderer* m_renderer{nullptr};
 
@@ -494,19 +534,23 @@ private:
     osg::ref_ptr<osg::Camera>   m_hud_camera;
 
 
+    osg::ref_ptr<osg::Group> m_frustum_group;
 
     // Geodes
     osg::ref_ptr<osg::Geode> m_init_geode;
     osg::ref_ptr<osg::Geode> m_text_geode;
+    osg::ref_ptr<osg::Geode> m_frustum_geode;
     osg::ref_ptr<osg::Geode> m_edit_brush_geode;
     osg::ref_ptr<osg::MatrixTransform> m_edit_brush_transform;
 
     // Stateset
     osg::ref_ptr<osg::StateSet> m_init_stateset;
     osg::ref_ptr<osg::StateSet> m_text_stateset;
+    osg::ref_ptr<osg::StateSet> m_frustum_stateset;
 
     // Geometry
     osg::ref_ptr<osg::Geometry> m_init_geometry;
+    osg::ref_ptr<osg::Geometry> m_frustum_geometry;
 
     // Framebuffers
     scm::gl::frame_buffer_ptr fbo;
@@ -600,6 +644,7 @@ private:
     bool m_last_sync_state{false};
 
 public:
+    Lamure* getPlugin() const noexcept { return m_plugin; }
     LamureRenderer(Lamure* lamure_plugin);
     ~LamureRenderer();
     bool notifyOn() const;
@@ -613,6 +658,7 @@ public:
     bool pauseAndWaitForIdle(uint32_t extraDrainFrames);
     void resumeRendering();
     bool isRendering() const;
+    const osg::MatrixTransform* getModelTransform(const osg::Node* node) const;
 
     void initCamera(ContextResources& res);
     void initFrustumResources(ContextResources& res);
@@ -636,6 +682,7 @@ public:
     MultipassTarget& acquireMultipassTarget(lamure::context_t contextID, const osg::Camera* camera, int width, int height);
 
     osg::ref_ptr<osg::Geode> getTextGeode() { return m_text_geode; }
+    osg::ref_ptr<osg::Geode> getFrustumGeode() { return m_frustum_geode; }
     osg::ref_ptr<osg::MatrixTransform> getEditBrushTransform() { return m_edit_brush_transform; }
     osg::MatrixTransform* ensureEditBrushNode(osg::Group* parent);
     osg::Matrixd composeEditBrushMatrix(const osg::Matrixd& interactorMat,

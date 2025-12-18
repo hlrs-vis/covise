@@ -23,11 +23,10 @@
 
 namespace {
 
-    scm::math::mat4f resolveModelMatrix(const Lamure::ModelInfo& info, uint16_t modelIndex) {
-        if (modelIndex < info.model_transformations.size()) {
-            return scm::math::mat4f(info.model_transformations[modelIndex]);
-        }
-        return scm::math::mat4f::identity();
+    scm::math::mat4f resolveModelMatrix(const Lamure* plugin, uint16_t modelIndex) {
+        const auto& nodes = plugin->getSceneNodes();
+        const osg::Matrixd model_osg = nodes[modelIndex].model_transform->getMatrix();
+        return scm::math::mat4f(LamureUtil::matConv4D(model_osg));
     }
 
     constexpr double kBrushHullScale = 10.0;
@@ -617,7 +616,6 @@ std::vector<LamureEditTool::NodeHit> LamureEditTool::collectNodesInBrush(bool re
     if (!controller || !database) return hits;
 
     const auto& settings = m_plugin->getSettings();
-    const auto& modelInfo = m_plugin->getModelInfo();
     const size_t modelCount = settings.models.size();
 
     hits.reserve(32);
@@ -636,7 +634,7 @@ std::vector<LamureEditTool::NodeHit> LamureEditTool::collectNodesInBrush(bool re
         const auto& boxes = bvh->get_bounding_boxes();
         if (boxes.empty()) continue;
 
-        const auto modelMatrix = resolveModelMatrix(modelInfo, m_idx);
+        const auto modelMatrix = resolveModelMatrix(m_plugin, m_idx);
 
         for (lamure::node_t node_id = 0; node_id < static_cast<lamure::node_t>(boxes.size()); ++node_id) {
             hits.push_back(NodeHit{model_id, node_id, m_idx});
@@ -666,8 +664,6 @@ std::vector<LamureEditTool::SurfelKey> LamureEditTool::collectSurfelsInBrush(Bru
     cache->lock_pool();
     cache->refresh();
 
-    const auto& modelInfo = m_plugin->getModelInfo();
-
     for (const auto& hit : nodes) {
         if (!cache->is_node_resident_and_aquired(hit.model_id, hit.node_id)) {
             cache->register_node(hit.model_id, hit.node_id, 0);
@@ -682,7 +678,7 @@ std::vector<LamureEditTool::SurfelKey> LamureEditTool::collectSurfelsInBrush(Bru
             continue;
 
         auto* surfels = reinterpret_cast<lamure::ren::dataset::serialized_surfel*>(raw);
-        const auto modelMatrix = resolveModelMatrix(modelInfo, hit.model_index);
+        const auto modelMatrix = resolveModelMatrix(m_plugin, hit.model_index);
 
         for (uint32_t i = 0; i < surfelsPerNode; ++i) {
             const auto& s = surfels[i];

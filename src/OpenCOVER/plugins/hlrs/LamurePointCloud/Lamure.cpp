@@ -180,6 +180,30 @@ bool Lamure::isModelVisible(uint16_t idx) const {
     return idx < visible.size() ? visible[idx] : false;
 }
 
+void Lamure::setShowPointcloud(bool show)
+{
+    std::lock_guard<std::mutex> lock(g_settings_mutex);
+    m_settings.show_pointcloud = show;
+
+    for (auto& sn : m_scene_nodes) {
+        if (sn.point_geode.valid()) {
+            sn.point_geode->setNodeMask(show ? 0xFFFFFFFF : 0x0);
+        }
+    }
+}
+
+void Lamure::setShowBoundingbox(bool show)
+{
+    std::lock_guard<std::mutex> lock(g_settings_mutex);
+    m_settings.show_boundingbox = show;
+
+    for (auto& sn : m_scene_nodes) {
+        if (sn.box_geode.valid()) {
+            sn.box_geode->setNodeMask(show ? 0xFFFFFFFF : 0x0);
+        }
+    }
+}
+
 void Lamure::setEditMode(bool enabled) {
     if (m_edit_mode == enabled)
         return;
@@ -243,28 +267,16 @@ int Lamure::unloadBvh(const char* filename, const char* /*covise_key*/)
         plugin->m_model_info.model_visible[idx] = false;
     }
 
-    auto it_node = plugin->m_model_nodes.find(path);
-    if (it_node != plugin->m_model_nodes.end()) {
-        osg::Group* node = it_node->second.get();
-        if (node) {
-            while (node->getNumParents() > 0) {
-                osg::Node* parentNode = node->getParent(0);
-                auto* parentGroup = dynamic_cast<osg::Group*>(parentNode);
-                if (!parentGroup) {
-                    break;
-                }
-                parentGroup->removeChild(node);
-            }
-        }
-        plugin->m_model_nodes.erase(it_node);
-    }
-
     plugin->m_model_idx.erase(it_idx);
     plugin->m_pendingTransformUpdate.erase(path);
     plugin->m_vrmlTransforms.erase(path);
-    plugin->m_scene_nodes.erase(path);
+    // m_scene_nodes cleanup happens during reset rebuild
     plugin->m_registeredFiles.erase(path);
     plugin->m_model_source_keys.erase(path);
+
+    // Remove from settings.models to prevent resurrection on reset
+    auto& models = plugin->m_settings.models;
+    models.erase(std::remove(models.begin(), models.end(), path), models.end());
 
     return 1;
 }
@@ -297,46 +309,6 @@ int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *covise
         plugin->m_model_source_keys[file] = std::string();
     }
 
-    SceneNodes *scene_nodes = nullptr;
-    {
-        auto itScene = plugin->m_scene_nodes.find(file);
-        if (itScene == plugin->m_scene_nodes.end()) {
-            SceneNodes nodes;
-            nodes.root = new osg::Group();
-            nodes.root->setName(file);
-            nodes.config = new osg::MatrixTransform();
-            nodes.config->setName(file + "_config");
-            nodes.bvh = new osg::MatrixTransform();
-            nodes.bvh->setName(file + "_bvh");
-            nodes.root->addChild(nodes.config);
-            nodes.config->addChild(nodes.bvh);
-            itScene = plugin->m_scene_nodes.emplace(file, std::move(nodes)).first;
-        }
-        scene_nodes = &itScene->second;
-    }
-
-    auto ensureSceneGraph = [&](SceneNodes &nodes) {
-        if (!nodes.root) {
-            nodes.root = new osg::Group();
-            nodes.root->setName(file);
-        }
-        if (!nodes.config) {
-            nodes.config = new osg::MatrixTransform();
-            nodes.config->setName(file + "_config");
-        }
-        if (!nodes.bvh) {
-            nodes.bvh = new osg::MatrixTransform();
-            nodes.bvh->setName(file + "_bvh");
-        }
-        if (!nodes.root->containsNode(nodes.config))
-            nodes.root->addChild(nodes.config);
-        if (!nodes.config->containsNode(nodes.bvh))
-            nodes.config->addChild(nodes.bvh);
-        };
-
-    ensureSceneGraph(*scene_nodes);
-    osg::Group *modelNode = scene_nodes->root.get();
-
     auto captureVrmlTransform = [&](const osg::Matrix &mat) {
         const auto newMat = LamureUtil::matConv4D(mat);
         bool needsReload = false;
@@ -351,65 +323,38 @@ int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *covise
             plugin->m_reload_imminent = true;
         }
         plugin->ensureFileMenuEntry(file);
-        };
+    };
 
     if (!plugin->initialized) {
         if (std::find(plugin->m_bootstrap_files.begin(), plugin->m_bootstrap_files.end(), file) == plugin->m_bootstrap_files.end())
             plugin->m_bootstrap_files.push_back(file);
 
         if (parent) {
-            bool hasParent = false;
-            for (unsigned i = 0; i < modelNode->getNumParents(); ++i) {
-                if (modelNode->getParent(i) == parent) { hasParent = true; break; }
-            }
-            if (!hasParent)
-                parent->addChild(modelNode);
-            plugin->m_pendingTransformUpdate[file] = modelNode;
+            plugin->m_pendingTransformUpdate[file] = parent;
             if (auto *mt = dynamic_cast<osg::MatrixTransform *>(parent))
                 captureVrmlTransform(mt->getMatrix());
         }
         std::lock_guard<std::mutex> settings_lock(g_settings_mutex);
-        plugin->m_model_nodes[file] = modelNode;
         return 1;
     }
 
     std::lock_guard<std::mutex> settings_lock(g_settings_mutex);
 
-    auto itExisting = plugin->m_model_nodes.find(file);
-    if (!isMenuReload && itExisting != plugin->m_model_nodes.end()) {
-        osg::ref_ptr<osg::Group> node = itExisting->second;
-        if (!node)
+    if (!isMenuReload) {
+        if (std::find(plugin->m_settings.models.begin(), plugin->m_settings.models.end(), file) != plugin->m_settings.models.end())
             return 0;
-
-        if (parent) {
-            bool hasParent = false;
-            for (unsigned i = 0; i < node->getNumParents(); ++i) {
-                if (node->getParent(i) == parent) { hasParent = true; break; }
-            }
-            if (!hasParent)
-                parent->addChild(node);
-            plugin->m_pendingTransformUpdate[file] = node.get();
-            if (auto *mt = dynamic_cast<osg::MatrixTransform *>(parent))
-                captureVrmlTransform(mt->getMatrix());
-        }
-        return 0;
+        if (std::find(plugin->m_bootstrap_files.begin(), plugin->m_bootstrap_files.end(), file) != plugin->m_bootstrap_files.end())
+            return 0;
     }
 
     if (std::find(plugin->m_files_to_load.begin(), plugin->m_files_to_load.end(), file) != plugin->m_files_to_load.end())
         return 0;
 
     if (parent) {
-        bool hasParent = false;
-        for (unsigned i = 0; i < modelNode->getNumParents(); ++i) {
-            if (modelNode->getParent(i) == parent) { hasParent = true; break; }
-        }
-        if (!hasParent)
-            parent->addChild(modelNode);
-        plugin->m_pendingTransformUpdate[file] = modelNode;
+        plugin->m_pendingTransformUpdate[file] = parent;
         if (auto *mt = dynamic_cast<osg::MatrixTransform *>(parent))
             captureVrmlTransform(mt->getMatrix());
     }
-    plugin->m_model_nodes[file] = modelNode;
 
     if (plugin->m_files_to_load.empty()) {
         plugin->m_frames_to_wait = isMenuReload ? 0 : static_cast<int>(plugin->m_settings.pause_frames);
@@ -440,6 +385,10 @@ bool Lamure::init2() {
     m_lamure_grp->setName("LamureGroup");
     opencover::cover->getObjectsRoot()->addChild(m_lamure_grp.get());
 
+    m_models_group = new osg::Group();
+    m_models_group->setName("ModelGroup");
+    m_lamure_grp->addChild(m_models_group.get());
+
     m_ui->setupUi();
 
     opencover::coVRNavigationManager::instance()->setNavMode("Point");
@@ -455,6 +404,10 @@ bool Lamure::init2() {
 
 
 void Lamure::preFrame() {
+
+    m_render_info.rendered_primitives = 0;
+    m_render_info.rendered_nodes = 0;
+    m_render_info.rendered_bounding_boxes = 0;
 
     // First-frame initialization
     if (m_first_frame) {
@@ -529,8 +482,13 @@ void Lamure::preFrame() {
             if (node->getNumParents() == 0)
                 continue;
 
-            osg::Node *parentNode = node->getParent(0);
-            auto *mt = dynamic_cast<osg::MatrixTransform *>(parentNode);
+            auto *mt = dynamic_cast<osg::MatrixTransform *>(node);
+            if (!mt) {
+                if (node->getNumParents() == 0)
+                    continue;
+                osg::Node *parentNode = node->getParent(0);
+                mt = dynamic_cast<osg::MatrixTransform *>(parentNode);
+            }
             if (!mt)
                 continue;
 
@@ -635,10 +593,10 @@ void Lamure::perform_system_reset()
 
         // reset internal tracking structures
         m_model_idx.clear();
-        m_model_info.model_transformations.clear();
         m_model_info.root_bb_min.clear();
         m_model_info.root_bb_max.clear();
         m_model_info.root_center.clear();
+        m_scene_nodes.clear();
 
         // wait a few frames after shutdown
         m_post_shutdown_delay = std::max(0, static_cast<int>(m_settings.pause_frames));
@@ -666,49 +624,66 @@ void Lamure::perform_system_reset()
                                ,-std::numeric_limits<float>::max());
     m_model_info.model_visible.assign(N, true);
     m_model_info.config_transforms.assign(N, scm::math::mat4d::identity());
+    m_scene_nodes.resize(N);
+
+    if (m_models_group.valid()) m_models_group->removeChildren(0, m_models_group->getNumChildren());
 
     for (uint16_t mid = 0; mid < N; ++mid) {
         const std::string &model_path = models[mid];
         m_model_idx.emplace(model_path, mid);
         lamure::model_t model_id = database->add_model(model_path, std::to_string(mid));
-        const auto trafo_config = m_model_info.config_transforms[mid];
         const auto trafo_bvh  = scm::math::mat4d(scm::math::make_translation(database->get_model(model_id)->get_bvh()->get_translation()));
         const auto itVrml = m_vrmlTransforms.find(model_path);
         const auto trafo_vrml = itVrml != m_vrmlTransforms.end() ? itVrml->second : scm::math::mat4d::identity();
-        const auto final_trafo = trafo_vrml * trafo_config * trafo_bvh;
-        m_model_info.model_transformations.push_back(final_trafo);
-        auto sceneIt = m_scene_nodes.find(model_path);
-        if (sceneIt != m_scene_nodes.end()) {
-            if (sceneIt->second.config.valid()) {
-                auto cfgCopy = trafo_config;
-                sceneIt->second.config->setMatrix(LamureUtil::matConv4D(cfgCopy));
-            }
-            if (sceneIt->second.bvh.valid()) {
-                auto bvhCopy = trafo_bvh;
-                sceneIt->second.bvh->setMatrix(LamureUtil::matConv4D(bvhCopy));
-                
-                // --- New OSG Structure ---
-                osg::Geode* geode = new osg::Geode();
-                geode->setName(model_path + "_geode");
-                
-                osg::Geometry* geom = new osg::Geometry();
-                geom->setUseDisplayList(false);
-                geom->setUseVertexBufferObjects(true);
-                geom->setUseVertexArrayObject(false); 
-                
-                LamureModelData* data = new LamureModelData(model_id);
-                geode->setUserData(data);
-                geom->setUserData(data);
-                
-                geode->addCullCallback(new LamureModelCullCallback());
-                geom->setDrawCallback(new LamureModelDrawCallback(m_renderer.get()));
-                
-                geode->addDrawable(geom);
-                
-                // Replace children of BVH transform
-                sceneIt->second.bvh->removeChildren(0, sceneIt->second.bvh->getNumChildren());
-                sceneIt->second.bvh->addChild(geode);
-            }
+        const auto final_trafo = trafo_vrml * trafo_bvh;
+        
+        // --- New Node Construction Logic ---
+        {
+            SceneNodes& sn = m_scene_nodes[mid];
+
+            auto trafo_bvh_copy = trafo_bvh;
+            osg::Matrixd bvh_osg = LamureUtil::matConv4D(trafo_bvh_copy);
+
+            // 1. Shared model transform
+            sn.model_transform = new osg::MatrixTransform();
+            sn.model_transform->setName("ModelTransform_" + std::to_string(model_id));
+            sn.model_transform->setMatrix(bvh_osg);
+            sn.point_geode = new osg::Geode();
+            sn.point_geode->setName("PointGeode_" + std::to_string(model_id));
+             
+            osg::Geometry* pointsGeom = new osg::Geometry();
+            pointsGeom->setName("PointGeometry_" + std::to_string(model_id));
+            pointsGeom->setUseDisplayList(false);
+            pointsGeom->setUseVertexBufferObjects(true);
+            pointsGeom->setUseVertexArrayObject(false); 
+            
+            LamureModelData* data = new LamureModelData(model_id);
+            sn.model_transform->setUserData(data);
+            sn.model_transform->setCullingActive(false);
+            
+            pointsGeom->setUserData(data);
+            pointsGeom->setDrawCallback(new PointsDrawCallback(m_renderer.get()));
+            
+            sn.point_geode->addDrawable(pointsGeom);
+            sn.point_geode->setNodeMask(m_settings.show_pointcloud ? 0xFFFFFFFF : 0x0);
+            sn.model_transform->addChild(sn.point_geode);
+            
+            // 2. Boxes Branch
+            sn.box_geode = new osg::Geode();
+            sn.box_geode->setName("BoundingBoxGeode_" + std::to_string(model_id));
+
+            osg::Geometry* bboxGeom = new osg::Geometry();
+            bboxGeom->setName("BoundingBoxGeometry_" + std::to_string(model_id));
+             bboxGeom->setUseDisplayList(false);
+             bboxGeom->setUseVertexBufferObjects(true);
+             bboxGeom->setUseVertexArrayObject(false);
+             bboxGeom->setUserData(data); 
+             bboxGeom->setDrawCallback(new BoundingBoxDrawCallback(m_renderer.get()));
+             
+            sn.box_geode->addDrawable(bboxGeom);
+            sn.box_geode->setNodeMask(m_settings.show_boundingbox ? 0xFFFFFFFF : 0x0);
+            sn.model_transform->addChild(sn.box_geode);
+            if (m_models_group.valid()) m_models_group->addChild(sn.model_transform.get());
         }
 
         // Compute transformed root bbox min/max/center (approx)
@@ -1648,7 +1623,15 @@ void Lamure::ensureFileMenuEntry(const std::string& path)
     if (m_registeredFiles.count(path)) return;
 
     if (auto *fm = opencover::coVRFileManager::instance()) {
-        fm->loadFile(path.c_str(), nullptr, m_lamure_grp.get(), "");
+        osg::Group *menu_parent = m_lamure_grp.get();
+        if (m_models_group.valid() && m_models_group->getNumParents() > 0) {
+            if (auto *parent = m_models_group->getParent(0)) {
+                menu_parent = parent;
+            }
+        }
+        if (!menu_parent)
+            return;
+        fm->loadFile(path.c_str(), nullptr, menu_parent, "");
         m_registeredFiles.insert(path);
     }
 }

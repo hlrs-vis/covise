@@ -213,7 +213,6 @@ public:
 
     struct ModelInfo
     {
-        std::vector<scm::math::mat4d> model_transformations;
         std::vector<scm::math::vec3f> root_bb_min;
         std::vector<scm::math::vec3f> root_bb_max;
         std::vector<scm::math::vec3f> root_center;
@@ -247,7 +246,6 @@ public:
         float fps                 = -1.0f;
     };
 
-
     struct Trackball
     {
         float dist{0.0f};
@@ -255,6 +253,13 @@ public:
         osg::Vec3 initial_pos;
         osg::Vec3 pos;
     };
+
+    struct SceneNodes {
+        osg::ref_ptr<osg::MatrixTransform> model_transform;
+        osg::ref_ptr<osg::Geode> point_geode;
+        osg::ref_ptr<osg::Geode> box_geode;
+    };
+    std::vector<SceneNodes> m_scene_nodes;
 
     Lamure();
     ~Lamure();
@@ -286,6 +291,7 @@ public:
     ModelInfo&  getModelInfo()  { return m_model_info; }
     RenderInfo& getRenderInfo() { return m_render_info; }
     Trackball&  getTrackball()  { return m_trackball; }
+    const std::vector<SceneNodes>& getSceneNodes() const { return m_scene_nodes; }
     bool initialized = false;
     lamure::ren::Data_Provenance& getDataProvenance() { return m_data_provenance; }
     bool isResetInProgress() const noexcept { return m_reset_in_progress; }
@@ -304,15 +310,12 @@ public:
     void setBrushFrozen(bool f) { m_brush_frozen = f; }
     bool isBrushFrozen() const { return m_brush_frozen; }
 
-    std::unordered_map<std::string,uint16_t> m_model_idx;
-    std::map<std::string, osg::ref_ptr<osg::Group>> m_model_nodes;
+    // Scenegraph visibility toggles (Group-based, use NodeMask toggling).
+    void setShowPointcloud(bool show);
+    void setShowBoundingbox(bool show);
 
-    struct SceneNodes {
-        osg::ref_ptr<osg::Group> root;
-        osg::ref_ptr<osg::MatrixTransform> config;
-        osg::ref_ptr<osg::MatrixTransform> bvh;
-    };
-    std::unordered_map<std::string, SceneNodes> m_scene_nodes;
+    std::unordered_map<std::string,uint16_t> m_model_idx;
+    osg::ref_ptr<osg::Group> m_models_group;
 
     osg::ref_ptr<osg::Group> getGroup() { return m_lamure_grp; }
 
@@ -321,6 +324,7 @@ public:
     std::unordered_set<std::string> m_registeredFiles;
     std::unordered_map<std::string, std::string> m_model_source_keys;
     std::unordered_set<std::string> m_reloaded_files;
+
 
 private:
     std::vector<std::string> m_files_to_load;

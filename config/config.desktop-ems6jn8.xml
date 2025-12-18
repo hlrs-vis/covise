@@ -136,7 +136,7 @@
       </Input>
 
       <Menu>
-        <Visible value="true" />
+        <Visible value="false" />
         <Position x="900" y="0" z="700" />
         <Size value=".7" />
       </Menu>
@@ -155,6 +155,7 @@
         <Revit value="off" />
         <HMI value="off" />
         <ClipPlane value="on" menu="true"/>
+        <SGBrowser value="on" menu="true"/>
       </Plugin>
       <Plugin>
         <Cuttingsurface>
@@ -171,11 +172,12 @@
             <initial_selection value="0,1,2,3,4,7,8"/>
             <models value="D:/Forschungsarbeit/Data/myanmar.bvh"/>
             <models value="C:/Users/Daniel/Documents/Studium/Forschungsarbeit/Data/Data_bin/naturkundemuseum_School000.bvh"/>
+
+            <data_dir value="C:/Users/Daniel/Documents/Studium/Forschungsarbeit/Data/Data_vis"/>
+            <initial_selection value="0,1"/>
             
              -->
 
-            <models value="C:/Data/ScholaPraekonum/Test_1.bvh"/>
-            
             <point_light_intensity value="0.6"/>
             <ambient_intensity value="0.6"/>
             <shininess value="0.1"/>
