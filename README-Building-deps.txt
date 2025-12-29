@@ -773,7 +773,9 @@ cmake .. -G "Visual Studio 17 2022" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/extern
 change runtime library to Debug DLL or DLL -->in visual studio right click libcef_dll_wrapper->properties->c/c++->Code Generation->Runtime Library to Md/MDd
 remove _HAS_ITERATOR_DEBUGGING=0 from preprocessor definitions in the debug config ->properties->c/c++ -> Preprocessor -> Preprocessor Definitions -> remove _HAS_ITERATOR_DEBUGGING=0
 Build 
-copy Release/libcef.ddl or Deubu/libcef.dll and contents of Resources to externlibs/zebu/all
+make sure the runtime finds the right dlls (debug/release) and the resources:
+do not copy Release/libcef.ddl or Deubu/libcef.dll to externlibs/zebu/all
+copy contents of externlibs/zebu/cef/Resources to externlibs/zebu/cef/Rlease and externlibs/zebu/cef/Debug
 
 ########
 vrmlexp
