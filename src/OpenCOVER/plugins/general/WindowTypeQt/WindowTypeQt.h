@@ -73,5 +73,6 @@ private:
     opencover::ui::Button *m_toggleToolbar = nullptr;
     void showKeyboardCommands();
     std::string m_file;
+    bool m_requestQuit = false;
 };
 #endif
