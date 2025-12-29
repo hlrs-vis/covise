@@ -202,6 +202,7 @@ void WINAVIPlugin::Menu(int row)
                          "you have to enter the quality level instead of the bitrate.\n You can change the parameters and save "
                          "a customized profile in your local COVISE directory. Be careful to submit all necessary arguments.\n "
                          "[ALT]g is the shortcut to start capturing in the OpenCover window.";
+                         "Warning. this might not work without hardware acceleration (vglrun)!";
 }
 
 void WINAVIPlugin::videoWrite(int format)

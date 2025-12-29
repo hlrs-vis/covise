@@ -54,9 +54,68 @@ if(NOT WIN32 AND NOT APPLE)
     endif()
 endif()
 
-USING(CEF)
+#find CEF
+  IF (NOT CEF_ROOT)
+    SET(CEF_ROOT $ENV{EXTERNLIBS}/cef)
+    file(TO_CMAKE_PATH "$ENV{EXTERNLIBS}/cef" CEF_ROOT)
+  ENDIF()
 
-message("building cef!!!!!!!!!!")
+  # Require the CEF wrapper build directory
+  if(NOT IS_DIRECTORY "${CEF_ROOT}/build/libcef_dll_wrapper" AND
+     NOT IS_DIRECTORY "${CEF_ROOT}/libcef_dll_wrapper")
+    USING_MESSAGE("Skipping because libcef_dll_wrapper not found at ${CEF_ROOT}/build/libcef_dll_wrapper or ${CEF_ROOT}/libcef_dll_wrapper")
+    return()
+  endif()
+
+ message("looking for CEF in " ${CEF_ROOT}) 
+find_package(CEF)
+if(NOT CEF_INCLUDE_PATH OR 
+   NOT CEF_BINARY_DIR_DEBUG OR 
+   NOT CEF_BINARY_DIR_RELEASE)
+  message(STATUS "Skipping Browser plugin: CEF not found at ${CEF_ROOT}")
+  message(STATUS "Make sure ${CEF_ROOT}/cmake contains cef_variables.cmake and cef_macros.cmake")
+  return()
+endif()
+
+# Check if wrapper library exists
+if(NOT IS_DIRECTORY "${_CEF_ROOT}/libcef_dll_wrapper")
+  message(STATUS "Skipping Browser plugin: libcef_dll_wrapper not found")
+  message(STATUS "Build CEF wrapper: cd ${CEF_ROOT} && cmake . && cmake --build . --config Debug/Release")
+  return()
+endif()
+
+
+message(STATUS "Building Browser plugin with CEF from ${CEF_ROOT}")
+
+if(WIN32)
+  #expect debug cef wrapper to be build with debug post fix 'd'
+  set(CEF_WRAPPER_LIB_DEBUG   "${_CEF_ROOT}/libcef_dll_wrapper/Debug/libcef_dll_wrapperd.lib")
+  set(CEF_WRAPPER_LIB_RELEASE "${_CEF_ROOT}/libcef_dll_wrapper/Release/libcef_dll_wrapper.lib")
+  set(CEF_LIBCEF_LIB          "${CEF_LIB_RELEASE}")  # Import lib for libcef.dll
+  
+  set(CEF_LIBRARIES
+    optimized ${CEF_WRAPPER_LIB_RELEASE}
+    debug     ${CEF_WRAPPER_LIB_DEBUG}
+    ${CEF_LIBCEF_LIB}
+    ${CEF_STANDARD_LIBS}
+  )
+else()
+  set(CEF_WRAPPER_LIB_DEBUG   "${_CEF_ROOT}/libcef_dll_wrapper/libcef_dll_wrapper_debug.a")
+  set(CEF_WRAPPER_LIB_RELEASE "${_CEF_ROOT}/libcef_dll_wrapper/libcef_dll_wrapper.a")
+  
+  set(CEF_LIBRARIES
+    optimized ${CEF_WRAPPER_LIB_RELEASE}
+    debug     ${CEF_WRAPPER_LIB_DEBUG}
+    ${CEF_LIB_RELEASE}
+  )
+  
+  # Set rpath for libcef.so discovery
+  set(CMAKE_BUILD_RPATH   "${CEF_RESOURCE_DIR}")
+  set(CMAKE_INSTALL_RPATH "${CEF_RESOURCE_DIR}")
+endif()
+
+set(EXTRA_LIBS ${EXTRA_LIBS} ${CEF_LIBRARIES})
+message("EXTRA_LIBS: " ${EXTRA_LIBS})
 SET(HEADERS
   CEF.h
   CEFkeyssymdef.h
@@ -64,7 +123,10 @@ SET(HEADERS
 SET(SOURCES
   CEF.cpp
 )
+message("CEF_INCLUDE_PATH: " ${CEF_INCLUDE_PATH})
+message(STATUS "CXX_FLAGS_DEBUG: ${CMAKE_CXX_FLAGS_DEBUG}")
 cover_add_plugin(Browser)
+target_include_directories(Browser PRIVATE ${CEF_INCLUDE_PATH})
 
 # if(${BUILD_CEF})
 #   add_dependencies(Browser cef_build)
@@ -85,5 +147,10 @@ else()
   ADD_COVISE_EXECUTABLE(CEFBrowserHelper ${SOURCES})
 endif()
 COVISE_WNOERROR(CEFBrowserHelper)
-TARGET_LINK_LIBRARIES(CEFBrowserHelper ${EXTRA_LIBS} )
-
+target_include_directories(CEFBrowserHelper PRIVATE ${CEF_INCLUDE_PATH})
+if(MSVC)
+  set_property(TARGET CEFBrowserHelper PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+  set_property(TARGET Browser PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+  target_compile_options(CEFBrowserHelper PRIVATE $<$<CONFIG:Debug>:/MDd> $<$<CONFIG:Release>:/MD>)
+  target_compile_options(Browser PRIVATE $<$<CONFIG:Debug>:/MDd> $<$<CONFIG:Release>:/MD>)
+endif()
