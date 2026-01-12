@@ -37,8 +37,8 @@ UpdateView::UpdateView()
 
         config->setActiveHost(QString(hName));
         float h, p, r;
-        int x, y, z;
-        int hsize, vsize;
+        float x, y, z;
+        float hsize, vsize;
         bool state = coCoverConfig::getScreenConfigEntry(0, screens[i].name, &hsize, &vsize, &x, &y, &z, &h, &p, &r);
         if (!state)
         {
@@ -46,9 +46,9 @@ UpdateView::UpdateView()
         }
         else
         {
-            screens[i].hsize = (float)hsize;
-            screens[i].vsize = (float)vsize;
-            screens[i].xyz.set((float)x, (float)y, (float)z);
+            screens[i].hsize = hsize;
+            screens[i].vsize = vsize;
+            screens[i].xyz.set(x, y, z);
             screens[i].hpr.set(h, p, r);
         }
     }

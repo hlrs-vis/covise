@@ -32,7 +32,7 @@ private:
     virtual ~coCoverConfig();
 
 public:
-    static bool getScreenConfigEntry(int pos, std::string &name, int *hsize, int *vsize, int *x, int *y, int *z, float *h, float *p, float *r);
+    static bool getScreenConfigEntry(int pos, std::string &name, float *hsize, float *vsize, float *x, float *y, float *z, float *h, float *p, float *r);
 };
 }
 #endif

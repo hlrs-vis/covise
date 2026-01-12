@@ -122,8 +122,8 @@ coVRConfig::coVRConfig()
     {
         m_dLevel = coCoviseConfig::getInt("COVER.DebugLevel", 0);
     }
-    
-    int hsize, vsize, x, y, z;
+
+    float hsize, vsize, x, y, z;
     m_passiveStereo = false;
 
     constFrameTime = 0.1;
@@ -331,13 +331,13 @@ coVRConfig::coVRConfig()
         }
         else
         {
-            
+
             screens[i].render = coCoviseConfig::isOn("render", str, true);
-            screens[i].hsize = (float)hsize;
+            screens[i].hsize = hsize;
             screens[i].configuredHsize = screens[i].hsize;
-            screens[i].vsize = (float)vsize;
+            screens[i].vsize = vsize;
             screens[i].configuredVsize = screens[i].vsize;
-            screens[i].xyz.set((float)x, (float)y, (float)z);
+            screens[i].xyz.set(x, y, z);
             screens[i].hpr.set(h, p, r);
         }
         if ((i == 1) && (screens[0].name == screens[1].name))
