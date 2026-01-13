@@ -226,9 +226,8 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
     ClipDistanceScope clipScope(m_renderer, m_renderer->clipPlaneCount() > 0);
 
     osg::State* state = renderInfo.getState();
-    if (state) {
-        state->setCheckForGLErrors(osg::State::CheckForGLErrors::NEVER_CHECK_GL_ERRORS);
-    }
+    if (state) { state->setCheckForGLErrors(osg::State::CheckForGLErrors::NEVER_CHECK_GL_ERRORS); }
+    m_renderer->updateScmCameraFromRenderInfo(renderInfo, ctx);
 
     lamure::ren::cut_database* cuts = lamure::ren::cut_database::get_instance();
     lamure::ren::model_database* database = lamure::ren::model_database::get_instance();
@@ -242,8 +241,7 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
 
     const osg::Camera* cam = renderInfo.getCurrentCamera();
     const osg::Viewport* vp = cam ? cam->getViewport() : nullptr;
-    const osg::GraphicsContext::Traits* traits =
-        (cam && cam->getGraphicsContext()) ? cam->getGraphicsContext()->getTraits() : nullptr;
+    const osg::GraphicsContext::Traits* traits = (cam && cam->getGraphicsContext()) ? cam->getGraphicsContext()->getTraits() : nullptr;
     const double vpW = vp ? vp->width() : (traits ? traits->width : 1.0);
     const double vpH = vp ? vp->height() : (traits ? traits->height : 1.0);
     const scm::math::vec2 viewport((float)vpW, (float)vpH);
@@ -258,9 +256,7 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
         if (corner_values.size() >= 3) {
             const double top_minus_bottom = scm::math::length((corner_values[2]) - (corner_values[0]));
             if (top_minus_bottom > 1e-9) {
-                const float height_divided_by_top_minus_bottom =
-                    opencover::coVRConfig::instance()->windows[0].context->getTraits()->height /
-                    static_cast<float>(top_minus_bottom);
+                const float height_divided_by_top_minus_bottom = opencover::coVRConfig::instance()->windows[0].context->getTraits()->height / static_cast<float>(top_minus_bottom);
                 cuts->send_height_divided_by_top_minus_bottom(context_id, view_id, height_divided_by_top_minus_bottom);
             }
         }
@@ -287,6 +283,32 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
         m_renderer->endFrame(ctx);
         before.restore();
         return;
+    }
+    if (plugin->getUI() && plugin->getUI()->getDumpButton() && plugin->getUI()->getDumpButton()->state()) {
+        const osg::FrameStamp* fs = state ? state->getFrameStamp() : nullptr;
+        const uint64_t frameNumber = fs ? fs->getFrameNumber() : 0;
+        static uint64_t lastDumpFrame = std::numeric_limits<uint64_t>::max();
+        if (frameNumber != lastDumpFrame) {
+            lastDumpFrame = frameNumber;
+            auto matToStr = [](const osg::Matrixd& M) {
+                std::ostringstream o;
+                o.setf(std::ios::fixed);
+                o.precision(6);
+                o << "["
+                  << "[" << M(0,0) << "," << M(0,1) << "," << M(0,2) << "," << M(0,3) << "],"
+                  << "[" << M(1,0) << "," << M(1,1) << "," << M(1,2) << "," << M(1,3) << "],"
+                  << "[" << M(2,0) << "," << M(2,1) << "," << M(2,2) << "," << M(2,3) << "],"
+                  << "[" << M(3,0) << "," << M(3,1) << "," << M(3,2) << "," << M(3,3) << "]"
+                  << "]";
+                return o.str();
+            };
+            std::cout << "[Lamure] dump(draw): scm_view=" << matToStr(view_osg)
+                      << " scm_proj=" << matToStr(proj_osg) << "\n";
+            if (state) {
+                std::cout << "[Lamure] dump(draw): MV(state)=" << matToStr(state->getModelViewMatrix()) << "\n";
+            }
+            plugin->getUI()->getDumpButton()->setState(false);
+        }
     }
     const osg::Matrixd model_osg = modelTransform->getMatrix();
     scm::math::mat4 model_matrix = LamureUtil::matConv4F(model_osg);
@@ -315,27 +337,17 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
     const lamure::ren::bvh* bvh = database->get_model(data->modelId)->get_bvh();
     size_t surfels_per_node = database->get_primitives_per_node();
     const std::vector<scm::gl::boxf>& bbv = bvh->get_bounding_boxes();
-    
-    // We reuse the camera frustum from resources which should be updated by Frame Logic
-    // BUT: m_renderer->setFrameUniforms needs to be called SOMEWHERE.
     scm::gl::frustum frustum = res.scm_camera->get_frustum_by_model(m);
-
-    // Ensure a valid VAO / vertex input binding for point rendering (like _ref_LamureRenderer.cpp).
     if (res.vao_initialized && res.vao_pointcloud) {
         glBindVertexArray(res.vao_pointcloud);
     }
     m_renderer->getSchismContext(ctx)->apply_vertex_input();
     if (lamure::ren::policy::get_instance()->size_of_provenance() > 0 && m_renderer->getPlugin()) {
         m_renderer->getSchismContext(ctx)->bind_vertex_array(
-            controller->get_context_memory(context_id,
-                                           lamure::ren::bvh::primitive_type::POINTCLOUD,
-                                           m_renderer->getDevice(ctx),
-                                           m_renderer->getPlugin()->getDataProvenance()));
+            controller->get_context_memory(context_id, lamure::ren::bvh::primitive_type::POINTCLOUD, m_renderer->getDevice(ctx), m_renderer->getPlugin()->getDataProvenance()));
     } else {
         m_renderer->getSchismContext(ctx)->bind_vertex_array(
-            controller->get_context_memory(context_id,
-                                           lamure::ren::bvh::primitive_type::POINTCLOUD,
-                                           m_renderer->getDevice(ctx)));
+            controller->get_context_memory(context_id, lamure::ren::bvh::primitive_type::POINTCLOUD, m_renderer->getDevice(ctx)));
     }
     const auto& settings = plugin->getSettings();
     const bool useAnisoThisPass = LamureUtil::decideUseAniso(proj, settings.anisotropic_surfel_scaling, settings.anisotropic_auto_threshold);
@@ -348,7 +360,6 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
         const bool showAccuracyDebug = enableColorDebug && settings.show_accuracy;
         const bool showRadiusDeviationDebug = enableColorDebug && settings.show_radius_deviation;
         const bool showOutputSensitivityDebug = enableColorDebug && settings.show_output_sensitivity;
-
         const int vpWidth  = static_cast<int>(vpW);
         const int vpHeight = static_cast<int>(vpH);
         auto& target = m_renderer->acquireMultipassTarget(context_id, cam, vpWidth, vpHeight);
@@ -360,10 +371,8 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
         glGetIntegerv(GL_DRAW_BUFFER, &prev_draw_buffer);
         glGetIntegerv(GL_READ_BUFFER, &prev_read_buffer);
         glGetIntegerv(GL_VIEWPORT, prev_viewport);
-
         const float scale_radius_combined = settings.scale_radius * settings.scale_element;
         const float scale_proj_pass = opencover::cover->getScale() * static_cast<float>(vpHeight) * 0.5f * proj.data_array[5];
-
         const auto bindTexture2DToUnit = [](GLuint unit, GLuint texture) {
 #if defined(GL_VERSION_4_5)
             if (GLEW_VERSION_4_5) {
@@ -568,6 +577,7 @@ void BoundingBoxDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, co
     GLState before = GLState::capture();
     osg::State* state = renderInfo.getState();
     state->setCheckForGLErrors(osg::State::ONCE_PER_FRAME);
+    m_renderer->updateScmCameraFromRenderInfo(renderInfo, ctx);
 
     GLint prevVAO = 0, prevProg = 0;
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &prevVAO);
@@ -1249,7 +1259,11 @@ void LamureRenderer::init()
             std::cout << "[Lamure] Sync " << (state ? "on" : "off") << std::endl;
         }
     });
-    ui->getDumpButton()->setCallback([this](bool state) {  });
+    ui->getDumpButton()->setCallback([this, ui](bool state) {
+        if (!m_plugin) return;
+        if (!state) return;
+        m_plugin->dumpModelParentChains();
+    });
 
     m_plugin->getGroup()->addChild(m_text_geode.get());
     m_plugin->getGroup()->addChild(m_edit_brush_transform.get());
@@ -1440,6 +1454,34 @@ void LamureRenderer::resumeRendering()
         m_renderingAllowed = true;
     }
     m_renderCondition.notify_all();
+}
+
+void LamureRenderer::updateScmCameraFromRenderInfo(osg::RenderInfo& renderInfo, int ctxId)
+{
+    ContextResources& res = getResources(ctxId);
+    osg::State* state = renderInfo.getState();
+    const osg::FrameStamp* fs = state ? state->getFrameStamp() : nullptr;
+    const uint64_t frameNumber = fs ? fs->getFrameNumber() : 0;
+    if (frameNumber == res.last_camera_frame) {
+        return;
+    }
+    res.last_camera_frame = frameNumber;
+
+    osg::Matrixd view_osg;
+    osg::Matrixd proj_osg;
+    getMatricesFromRenderInfo(renderInfo, view_osg, proj_osg);
+
+    if (!res.scm_camera) {
+        return;
+    }
+
+    const scm::math::mat4d view = LamureUtil::matConv4D(view_osg);
+    const scm::math::mat4d proj = LamureUtil::matConv4D(proj_osg);
+    res.scm_camera->set_projection_matrix(proj);
+    if (m_plugin && m_plugin->getUI() && m_plugin->getUI()->getSyncButton()
+        && m_plugin->getUI()->getSyncButton()->state()) {
+        res.scm_camera->set_view_matrix(view);
+    }
 }
 
 bool LamureRenderer::isRendering() const

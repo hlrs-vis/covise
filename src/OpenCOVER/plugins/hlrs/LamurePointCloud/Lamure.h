@@ -274,6 +274,7 @@ public:
     void startMeasurement();
     void stopMeasurement();
     void applyInitialTransforms();
+    void dumpModelParentChains() const;
 
     LamureUI* getUI() { return m_ui.get(); }
     LamureRenderer* getRenderer() { return m_renderer.get(); }
@@ -321,6 +322,8 @@ public:
 
     std::unordered_map<std::string, osg::observer_ptr<osg::Node>> m_pendingTransformUpdate;
     std::unordered_map<std::string, scm::math::mat4d> m_vrmlTransforms;
+    std::vector<osg::ref_ptr<osg::Group>> m_model_parents;
+    std::vector<osg::ref_ptr<osg::Group>> m_bootstrap_parents;
     std::unordered_set<std::string> m_registeredFiles;
     std::unordered_map<std::string, std::string> m_model_source_keys;
     std::unordered_set<std::string> m_reloaded_files;
@@ -382,7 +385,7 @@ private:
     std::vector<std::string> resolveAndNormalizeModels();
     void updateModelDependentSettings();
     void adjustOsgCameraClipping();
-    void ensureFileMenuEntry(const std::string& path);
+    void ensureFileMenuEntry(const std::string& path, osg::Group *parent = nullptr);
 
     // Bootstrap file collection before initialization
     std::vector<std::string> m_bootstrap_files;

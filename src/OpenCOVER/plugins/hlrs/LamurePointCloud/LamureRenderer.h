@@ -22,6 +22,7 @@
 #include <memory>
 #include <unordered_set>
 #include <chrono>
+#include <limits>
 
 #include <scm/core/math.h>
 #include <osg/Geometry>
@@ -521,6 +522,7 @@ private:
 
         std::unique_ptr<lamure::ren::camera> scm_camera;
         bool dump_done = false;
+        uint64_t last_camera_frame{std::numeric_limits<uint64_t>::max()};
     };
 
     std::map<int, ContextResources> m_ctx_res;
@@ -659,6 +661,7 @@ public:
     void resumeRendering();
     bool isRendering() const;
     const osg::MatrixTransform* getModelTransform(const osg::Node* node) const;
+    void updateScmCameraFromRenderInfo(osg::RenderInfo& renderInfo, int ctxId);
 
     void initCamera(ContextResources& res);
     void initFrustumResources(ContextResources& res);
@@ -675,23 +678,15 @@ public:
         return getResources(ctxId).scm_camera.get();
     }
 
-    const lamure::ren::camera* getScmCamera(int ctxId) const {
-        return getResources(ctxId).scm_camera.get();
-    }
+    const lamure::ren::camera* getScmCamera(int ctxId) const { return getResources(ctxId).scm_camera.get(); }
 
     MultipassTarget& acquireMultipassTarget(lamure::context_t contextID, const osg::Camera* camera, int width, int height);
-
     osg::ref_ptr<osg::Geode> getTextGeode() { return m_text_geode; }
     osg::ref_ptr<osg::Geode> getFrustumGeode() { return m_frustum_geode; }
     osg::ref_ptr<osg::MatrixTransform> getEditBrushTransform() { return m_edit_brush_transform; }
     osg::MatrixTransform* ensureEditBrushNode(osg::Group* parent);
-    osg::Matrixd composeEditBrushMatrix(const osg::Matrixd& interactorMat,
-                                        const osg::Matrixd& parentWorld,
-                                        const osg::Matrixd& invRoot,
-                                        double hullScale) const;
-    osg::Matrixd updateEditBrushFromInteractor(const osg::Matrixd& interactorMat,
-                                               const osg::Matrixd& invRoot,
-                                               double hullScale);
+    osg::Matrixd composeEditBrushMatrix(const osg::Matrixd& interactorMat, const osg::Matrixd& parentWorld, const osg::Matrixd& invRoot, double hullScale) const;
+    osg::Matrixd updateEditBrushFromInteractor(const osg::Matrixd& interactorMat, const osg::Matrixd& invRoot, double hullScale);
     void setEditBrushTransform(const osg::Matrixd& brushMat);
     void destroyEditBrushNode(osg::Group* parent);
 
