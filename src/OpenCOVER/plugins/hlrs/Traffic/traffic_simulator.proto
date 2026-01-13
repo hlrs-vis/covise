@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package traffic_simulator;
+
+enum Status {
+  STATUS_UNSPECIFIED = 0;
+  STATUS_PAUSED = 1;
+  STATUS_STEP = 2;
+  STATUS_RUNNING = 3;
+}
+
+message StatusCommand {
+  Status status = 1;
+}
+
+message SpeedCommand {
+  float speed = 1;
+}
+
+message RestartCommand {
+}
+
+message GetEdgeCommand {
+  int32 edge_id = 1;
+}
+
+message GetEdgeResponse {
+  int32 edge_id = 1;
+  float length = 2;
+  float max_speed = 3;
+  uint32 cell_count = 4;
+  uint32 lane_map_offset = 5;
+  uint32 conflict_point_index = 6;
+  uint32 conflict_point_edge_number = 7;
+  bytes lane_map = 8;
+}
+
+message Command {
+  oneof command {
+    StatusCommand status_command = 1;
+    SpeedCommand speed_command = 2;
+    RestartCommand restart_command = 3;
+    GetEdgeCommand get_edge_command = 4;
+  }
+}
+
+message VehicleState {
+  string id = 1;
+  int32 edge_id = 2;
+  double position = 3;
+  double speed = 4;
+  double acceleration = 5;
+  double x = 6;
+  double y = 7;
+  double z = 8;
+  double angle = 9;
+
+  double status = 100;
+}
+
+message SimulationState {
+  Status status = 1;
+  float current_time = 2;
+  float delta_time = 3;
+  float run_speed = 4;
+  repeated VehicleState vehicles = 5;
+}

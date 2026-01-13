@@ -13,35 +13,28 @@
 #include "sumo/TraCIAPI.h"
 #include "sumo/TraCIDefs.h"
 
-struct SimulationState;
+#include "Connector.h"
 
-class Connector {
+class ConnectorSumo : public Connector
+{
 public:
-    bool update(double deltaTime, double simulationDeltaTime); // returns whether new data is there
-    void getSimulationState(SimulationState& state);
-    bool isConnected() const;
-};
-
-class ConnectorSumo : public Connector {
-  public:
     ConnectorSumo();
     ~ConnectorSumo();
 
     void connect();
     void subscribeToSimulation();
     bool update(double deltaTime, double simulationDeltaTime);
-    void getSimulationState(SimulationState& state);
+    void getSimulationState(SimulationState &state);
 
     bool isConnected() const;
 
-
-  private:
+private:
     bool connected = false;
     double tryReconnect = 0.0;
 
-    double simulationTime = 0.0;        // Desired target time
-    double simulationStateTime = 0.0;   // SUMO state time
-    double simulationStepSize = 0.2;    // TODO: fetch from sumo, if possible, or read from config
+    double simulationTime = 0.0; // Desired target time
+    double simulationStateTime = 0.0; // SUMO state time
+    double simulationStepSize = 0.2; // TODO: fetch from sumo, if possible, or read from config
 
     TraCIAPI client;
 };
