@@ -249,11 +249,26 @@ namespace OpenFOAMInterface.BIM.OpenFOAM
             ProcessStartInfo startInfo = new()
             {
                 FileName = m_CommandBat,
-                WorkingDirectory = m_CasePath
+                WorkingDirectory = Directory.Exists(m_CasePath) ? m_CasePath : Path.GetDirectoryName(m_CasePath),
+                UseShellExecute = false
             };
-            using var process = Process.Start(startInfo);
-            await Task.Run(() => process.WaitForExit());
-            if (process.ExitCode != 0)
+
+            using Process process = new Process { StartInfo = startInfo };
+            process.Start();
+
+            TaskCompletionSource<int> tcs = new();
+            process.EnableRaisingEvents = true;
+            process.Exited += (sender, args) => tcs.TrySetResult(process.ExitCode);
+
+            // if process finished before event has been send
+            if (process.HasExited)
+            {
+                tcs.TrySetResult(process.ExitCode);
+            }
+
+            int exitCode = await tcs.Task;
+
+            if (exitCode != 0)
             {
                 OpenFOAMDialogManager.ShowError(OpenFOAMInterfaceResource.ERR_SIM_RUN);
                 return false;
