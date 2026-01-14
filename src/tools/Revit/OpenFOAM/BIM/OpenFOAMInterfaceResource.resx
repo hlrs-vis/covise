@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="CANCEL_FILE_NOT_SAVED" xml:space="preserve">
-    <value>STLFile was not saved.x</value>
+    <value>STLFile was not saved.</value>
     <comment/>
   </data>
   <data name="ERR_EXCEPTION" xml:space="preserve">
