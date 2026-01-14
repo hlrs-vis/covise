@@ -2,11 +2,16 @@
 #define CEF_H_INCLUDED
 
 #include <cover/coVRPluginSupport.h>
-#include <OpenVRUI/coMenuItem.h>
-#include <OpenVRUI/coMenu.h>
-#include <OpenVRUI/sginterface/vruiCollabInterface.h>
 #include <cover/ui/Owner.h>
+#include <OpenVRUI/coMenu.h>
+#include <OpenVRUI/coMenuItem.h>
+#include <OpenVRUI/sginterface/vruiCollabInterface.h>
 
+#include <atomic>
+#include <condition_variable>
+#include <deque>
+#include <mutex>
+#include <thread>
 namespace vrui
 {
     class coRowMenu;
@@ -46,20 +51,61 @@ namespace opencover
 
 using namespace vrui;
 using namespace opencover;
+class CefAppHandler;
 class CEF;
+
+struct ImageBuffer
+{
+    std::vector<unsigned char> buffer;
+    bool bufferChanged = false;
+    std::mutex mutex;
+    ImageBuffer(const std::vector<unsigned char> &v) : buffer(v) {};
+    // ImageBuffer() = default;
+    ImageBuffer(const ImageBuffer &) = delete;
+    ImageBuffer &operator=(const ImageBuffer &) = delete;
+};
+
+struct InputEvent{
+enum Type{
+    None,
+    MouseMove,
+    LeftClick,
+    RightClick,
+    MiddleClick,
+    MouseWheel,
+    KeyEvent, 
+    GoBack,
+    GoForward,
+    Reload, 
+    Text,
+    OpenURL, 
+    SetFocus,
+    CloseBrowser,
+    SelectAll,
+    Copy,
+    Paste,
+} type = None;
+std::string text; // for Text and OpenURL
+int x = 0, y = 0; // for MouseMove and MouseClick
+bool on = true; // for MouseClick and SetFocus
+int wheelDelta = 0; // for MouseWheel
+CefRefPtr<CefBrowser> browser = nullptr; // for CloseBrowser
+CefKeyEvent keyEvent;
+};
+
 
 class CEF_client : public CefClient, public CefRenderHandler, public CefLifeSpanHandler, public CefContextMenuHandler
 {
 
 public:
-    CEF_client(CEF *c);
+    CEF_client(CefAppHandler *c);
     
 
     CefRefPtr<CefRenderHandler> GetRenderHandler() override;
     CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override;
     CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() override;
-
-    virtual bool DoClose(CefRefPtr<CefBrowser> browser) override;
+    void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
+    bool DoClose(CefRefPtr<CefBrowser> browser) override;
 
 #ifdef _WIN32
     void OnBeforeContextMenu(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params, CefRefPtr<CefMenuModel> model) override;
@@ -68,22 +114,15 @@ public:
     void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
     void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList& dirtyRects, const void* buffer, int width, int height) override;
 
-    void setImageBuffer(unsigned char* buffer)
+    void setImageBuffer(ImageBuffer &buffer)
     {
-        imageBuffer = buffer;
+        imageBuffer = &buffer;
     }
     void resize(int resolution, float aspect);
-    bool bufferChanged() const
-    {
-        return bufferChangedFlag;
-    }
-    void setBufferChanged(bool changed)
-    {
-        bufferChangedFlag = changed;
-    }
+
 private:
-    CEF *cef = nullptr;
-    unsigned char*imageBuffer=nullptr;
+    CefAppHandler *cef = nullptr;
+    ImageBuffer *imageBuffer=nullptr;
     int width = 1024;
     int height = 1024;
     bool bufferChangedFlag = false;
@@ -111,21 +150,17 @@ public:
     // miss is called once after a hit, if the button is not intersected
     // anymore
     void miss() override;
-    unsigned char* getImageBuffer()
+    ImageBuffer &getImageBuffer()
     {
         return imageBuffer;
     }
-    void setBufferChanged(bool changed)
-    {
-        bufferChanged = changed;
-    }
 
+    CefAppHandler *cef = nullptr;
 private:
     
     int width = 1024;
     int height = 1024;
-    CEF *cef = nullptr;
-
+    CEF *cefPlugin = nullptr;
     bool unregister = false;
     bool haveFocus = false;
 
@@ -134,14 +169,45 @@ private:
     vrui::coCombinedButtonInteraction* interactionC;     ///< interaction for third button
     vrui::coCombinedButtonInteraction* interactionWheel; ///< interaction for wheel
 
-    unsigned char*imageBuffer=nullptr;
+    ImageBuffer imageBuffer;
     coPopupHandle *popupHandle = nullptr;
     coTexturedBackground* videoTexture = nullptr;
-    bool bufferChanged = false;
 };
 
-class CEF : public coVRPlugin, public coMenuListener, public CefApp, public CefBrowserProcessHandler, public ui::Owner
+class CefAppHandler : public CefApp, public CefBrowserProcessHandler
 {
+public:
+    CefAppHandler(ImageBuffer& imageBuffer);
+    void init(const std::string & frameworkDir, const std::string &browserSubprocessPath, const std::string &logfile, int loglevel);
+    void queueInputEvent(const InputEvent &event);
+    void open(const std::string &url);
+    void loop();
+    void terminate()
+    {
+        m_terminate = true;
+    }   
+    private:
+    CefRefPtr<CefBrowser> browser = nullptr; //only on master
+    CEF* cefPlugin;
+    CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler() override
+    {
+        return this;
+    }
+    void OnContextInitialized() override;
+    CefRefPtr<CefClient> GetDefaultClient() override;
+    CefRefPtr<CEF_client> cef_client = nullptr;
+    ImageBuffer &m_imageBuffer;
+    bool m_initFailed = false;
+    std::mutex m_eventMutex;
+    std::deque<InputEvent> m_pendingInputs;
+    std::atomic<bool> m_terminate = false;
+    IMPLEMENT_REFCOUNTING(CefAppHandler);
+
+};
+
+class CEF : public coVRPlugin, public coMenuListener, public ui::Owner
+{
+
     private:
 
         ui::Menu* menu = nullptr;
@@ -156,41 +222,36 @@ class CEF : public coVRPlugin, public coMenuListener, public CefApp, public CefB
         float aspect = 1;
         bool focus = false;
         bool ctrlUsed = false;
-        bool m_initFailed = false;
         int mX = -1;
         int mY = -1;
 
+        // browser thread
+        std::unique_ptr<std::thread> m_browserThread;
+
+        std::mutex m_cefInitMutex;
+        std::condition_variable m_cefInitCv;
+        
+        
         bool update() override;
-
-        // CefApp methods:
-        CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler() override {
-            return this;
-        }
-
-        // CefBrowserProcessHandler methods:
-        void OnContextInitialized() override;
-        CefRefPtr<CefClient> GetDefaultClient() override;
         void message(int toWhom, int type, int length, const void *data) override;
-
+        
     public:
         CEF();
         bool init() override;
         virtual ~CEF();
-        CefRefPtr<CefBrowser> browser = nullptr; //only on master
-        CefRefPtr<CEF_client> cef_client = nullptr;
+        
         std::unique_ptr<VRUI_client> vrui_client;
-
-        void setResolution(float a);
-        void setAspectRatio(float a);
-
-
-        void open(const std::string &url);
+        
+        // void setResolution(float a);
+        // void setAspectRatio(float a);
+        
+        
         void reload();
         const std::string &getURL();
-        void resize();
+        // void resize();
         virtual void key(int type, int keySym, int mod) override;
+        std::unique_ptr<CefAppHandler> m_cefAppHandler;
 
-        IMPLEMENT_REFCOUNTING(CEF);
 
 };
 
