@@ -47,31 +47,60 @@ namespace opencover
 using namespace vrui;
 using namespace opencover;
 class CEF;
-class CEF_client;
 
-class CEF_client : public CefClient, public CefRenderHandler, public CefLifeSpanHandler, public CefContextMenuHandler, public vrui::vruiCollabInterface, public vrui::coAction
+class CEF_client : public CefClient, public CefRenderHandler, public CefLifeSpanHandler, public CefContextMenuHandler
 {
-private:
-    int width = 1024;
-    int height = 1024;
-    CEF *cef = nullptr;
-    vrui::coCombinedButtonInteraction* interactionA; ///< interaction for first button
-    vrui::coCombinedButtonInteraction* interactionB; ///< interaction for second button
-    vrui::coCombinedButtonInteraction* interactionC; ///< interaction for third button
-    vrui::coCombinedButtonInteraction* interactionWheel; ///< interaction for mouse wheel
-
-    bool unregister = false;
-    bool haveFocus = false;
 
 public:
     CEF_client(CEF *c);
-    virtual ~CEF_client();
+    
 
     CefRefPtr<CefRenderHandler> GetRenderHandler() override;
-    CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
+    CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override;
     CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() override;
 
     virtual bool DoClose(CefRefPtr<CefBrowser> browser) override;
+
+#ifdef _WIN32
+    void OnBeforeContextMenu(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params, CefRefPtr<CefMenuModel> model) override;
+    bool OnContextMenuCommand(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params, int command_id, EventFlags event_flags) override;
+#endif
+    void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
+    void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList& dirtyRects, const void* buffer, int width, int height) override;
+
+    void setImageBuffer(unsigned char* buffer)
+    {
+        imageBuffer = buffer;
+    }
+    void resize(int resolution, float aspect);
+    bool bufferChanged() const
+    {
+        return bufferChangedFlag;
+    }
+    void setBufferChanged(bool changed)
+    {
+        bufferChangedFlag = changed;
+    }
+private:
+    CEF *cef = nullptr;
+    unsigned char*imageBuffer=nullptr;
+    int width = 1024;
+    int height = 1024;
+    bool bufferChangedFlag = false;
+
+    IMPLEMENT_REFCOUNTING(CEF_client);
+};
+
+class VRUI_client: public vrui::vruiCollabInterface, public vrui::coAction
+{
+public:
+   
+    VRUI_client(CEF *c);
+    virtual ~VRUI_client();
+    void update();
+    void show();
+    void hide();
+    void resize(int resolution, float aspect);
 
     // hit is called whenever the button
     // with this action is intersected
@@ -82,29 +111,33 @@ public:
     // miss is called once after a hit, if the button is not intersected
     // anymore
     void miss() override;
-
-
-    void update();
-    void show();
-    void hide();
-
-#ifdef _WIN32
-    void OnBeforeContextMenu(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params, CefRefPtr<CefMenuModel> model) override;
-    bool OnContextMenuCommand(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params, int command_id, EventFlags event_flags) override;
-#endif
-    void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
-    void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList& dirtyRects, const void* buffer, int width, int height) override;
-
-    void resize(int resolution, float aspect);
+    unsigned char* getImageBuffer()
+    {
+        return imageBuffer;
+    }
+    void setBufferChanged(bool changed)
+    {
+        bufferChanged = changed;
+    }
 
 private:
+    
+    int width = 1024;
+    int height = 1024;
+    CEF *cef = nullptr;
+
+    bool unregister = false;
+    bool haveFocus = false;
+
+    vrui::coCombinedButtonInteraction* interactionA;     ///< interaction for first button
+    vrui::coCombinedButtonInteraction* interactionB;     ///< interaction for second button
+    vrui::coCombinedButtonInteraction* interactionC;     ///< interaction for third button
+    vrui::coCombinedButtonInteraction* interactionWheel; ///< interaction for wheel
 
     unsigned char*imageBuffer=nullptr;
     coPopupHandle *popupHandle = nullptr;
-    coTexturedBackground* videoTexture;
+    coTexturedBackground* videoTexture = nullptr;
     bool bufferChanged = false;
-
-    IMPLEMENT_REFCOUNTING(CEF_client);
 };
 
 class CEF : public coVRPlugin, public coMenuListener, public CefApp, public CefBrowserProcessHandler, public ui::Owner
@@ -143,8 +176,9 @@ class CEF : public coVRPlugin, public coMenuListener, public CefApp, public CefB
         CEF();
         bool init() override;
         virtual ~CEF();
-        CefRefPtr<CefBrowser> browser = nullptr;
-        CefRefPtr<CEF_client> client = nullptr;
+        CefRefPtr<CefBrowser> browser = nullptr; //only on master
+        CefRefPtr<CEF_client> cef_client = nullptr;
+        std::unique_ptr<VRUI_client> vrui_client;
 
         void setResolution(float a);
         void setAspectRatio(float a);

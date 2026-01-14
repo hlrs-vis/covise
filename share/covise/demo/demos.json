@@ -979,6 +979,26 @@
       ]
     },
     {
+      "description": "Whineyard in the Nekar valley with simulation of local temperature and rainfall",
+      "headline": "Nekarterassen",
+      "id": 4,
+      "image": "Nekarterassen.png",
+      "launch": [
+        {
+          "args": [
+            "-e",
+            "/data/reallabor/herrenberg/OpenFOAM/covise/HerrenbergAusbreitunglokalCoviseRNewFinal.net"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "whineyard",
+        "photogrammetry",
+        "rain"
+      ]
+    },
+    {
       "description": "",
       "headline": "Campus with Sumo",
       "id": 40,

@@ -149,6 +149,7 @@
 
 	<!--Console value="on" file="/tmp/coverlog"/-->
    <Plugin>
+   <Browser menu="true" />
    <PBufferSnapShot menu="true" />
    <Video menu="true" />
    <CompositorIceT menu="false" />

@@ -169,6 +169,12 @@ static void iceIOErrorHandler(IceConn conn)
 
 bool WindowTypeQtPlugin::update()
 {
+    m_requestQuit = coVRMSController::instance()->syncBool(m_requestQuit);
+    if(m_requestQuit)
+    {
+        OpenCOVER::instance()->requestQuit();
+        m_requestQuit = false;
+    }
     bool checked = VRSceneGraph::instance()->menuVisible();
     checked = coVRMSController::instance()->syncBool(checked);
     for (auto &w: m_windows)
@@ -245,7 +251,7 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     win.window->setWindowFlags(f);
     win.window->show();
     window->connect(win.window, &QtMainWindow::closing, [this](){
-        OpenCOVER::instance()->requestQuit();
+        m_requestQuit = true; // defer to update to sync with slaves
     });
     window->connect(win.window, &QtMainWindow::fullScreenChanged, [this](bool state){
         m_update = true;

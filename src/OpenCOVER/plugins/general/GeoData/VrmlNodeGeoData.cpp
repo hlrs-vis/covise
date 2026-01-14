@@ -64,7 +64,7 @@ void VrmlNodeGeoData::initFields(VrmlNodeGeoData *node, VrmlNodeType *t)
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t, 
                      field("offset", node->d_offset, [node](auto f){
-                            GeoDataLoader::instance()->setOffset(osg::Vec3(node->d_offset.get()[0], node->d_offset.get()[1], node->d_offset.get()[2]));
+                            GeoDataLoader::instance()->setRootOffset(osg::Vec3(node->d_offset.get()[0], node->d_offset.get()[1], node->d_offset.get()[2]));
                      }),
         field("skyName", node->d_skyName, [node](auto f) {
             GeoDataLoader::instance()->setSky(node->d_skyName.get());

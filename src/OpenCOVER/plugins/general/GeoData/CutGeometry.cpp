@@ -137,9 +137,9 @@ void CutGeometry::loaded(osgTerrain::TerrainTile *tile, const osgDB::ReaderWrite
     double tileXInterval = field->getXInterval();
     double tileYInterval = field->getYInterval();
     double tileElementArea = tileXInterval * tileYInterval;
-    double tileXMin = plugin->offset.x() + field->getOrigin().x();
+    double tileXMin = plugin->rootOffset.x() + field->getOrigin().x();
     double tileXMax = tileXMin + tileXInterval * (double)field->getNumColumns();
-    double tileYMin = plugin->offset.y() + field->getOrigin().y();
+    double tileYMin = plugin->rootOffset.y() + field->getOrigin().y();
     double tileYMax = tileYMin + tileYInterval * (double)field->getNumRows();
     //osg::BoundingBox tileBB(tileXMin, tileYMin, -10.000, tileXMax, tileYMax, 10.000);
 
@@ -155,7 +155,7 @@ void CutGeometry::loaded(osgTerrain::TerrainTile *tile, const osgDB::ReaderWrite
    tile->addChild(treeGeodeTransform);
    treeGeodeTransform->setName("TreeGeodeTransform");
    osg::Vec3 tileMin(tileXMin, tileYMin, 0.0);
-   treeGeodeTransform->setPosition(-offset + tileMin);
+   treeGeodeTransform->setPosition(-rootOffset + tileMin);
    osg::Geode* treeGeode = new osg::Geode();
    //tile->addChild(treeGeode);
    treeGeodeTransform->addChild(treeGeode);
@@ -253,8 +253,8 @@ void CutGeometry::loaded(osgTerrain::TerrainTile *tile, const osgDB::ReaderWrite
                   osg::PositionAttitudeTransform* treeTrans = new osg::PositionAttitudeTransform();
                   treeGroup->addChild(treeTrans);
                   //hflayer->getInterpolatedValue(x,y,z);
-                  double x = point.getX() + offset.x();
-                  double y = point.getY() + offset.y();
+                  double x = point.getX() + rootOffset.x();
+                  double y = point.getY() + rootOffset.y();
                   int x_int = floor((x-tileXMin)/tileXInterval+0.5);
                   if(x_int<0) x_int=0; else if(x_int>=field->getNumColumns()) x_int=field->getNumColumns()-1;
                   int y_int = floor((y-tileYMin)/tileYInterval+0.5);
