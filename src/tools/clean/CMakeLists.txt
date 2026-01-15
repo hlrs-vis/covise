@@ -10,7 +10,7 @@ SET(HEADERS
 )
 
 SET(SOURCES
-  clean.c
+  clean.cpp
 )
 
 IF(UNIX)
