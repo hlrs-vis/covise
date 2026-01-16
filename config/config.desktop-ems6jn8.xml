@@ -209,7 +209,7 @@
             <show_coord value="off"/>
             <show_text value="off"/>
             <show_sync value="on"/>
-            <show_notify value="off"/>
+            <show_notify value="on"/>
             <!-- Budgets -->
             <!-- <vram value="1024"/> -->
             <!-- <ram value="4096"/> -->

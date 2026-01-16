@@ -660,7 +660,8 @@ public:
     bool pauseAndWaitForIdle(uint32_t extraDrainFrames);
     void resumeRendering();
     bool isRendering() const;
-    const osg::MatrixTransform* getModelTransform(const osg::Node* node) const;
+    bool getModelMatrix(const osg::Node* node, osg::Matrixd& out) const;
+    bool getModelViewProjectionFromRenderInfo(osg::RenderInfo& renderInfo, const osg::Node* node, osg::Matrixd& outModel, osg::Matrixd& outView, osg::Matrixd& outProj) const;
     void updateScmCameraFromRenderInfo(osg::RenderInfo& renderInfo, int ctxId);
 
     void initCamera(ContextResources& res);

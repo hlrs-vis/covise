@@ -227,7 +227,6 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
 
     osg::State* state = renderInfo.getState();
     if (state) { state->setCheckForGLErrors(osg::State::CheckForGLErrors::NEVER_CHECK_GL_ERRORS); }
-    m_renderer->updateScmCameraFromRenderInfo(renderInfo, ctx);
 
     lamure::ren::cut_database* cuts = lamure::ren::cut_database::get_instance();
     lamure::ren::model_database* database = lamure::ren::model_database::get_instance();
@@ -235,7 +234,15 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
 
     osg::Matrixd view_osg;
     osg::Matrixd proj_osg;
-    m_renderer->getMatricesFromRenderInfo(renderInfo, view_osg, proj_osg);
+    osg::Matrixd model_osg;
+
+    const osg::Node* drawableParent = drawable ? drawable->getParent(0) : nullptr;
+    if (!m_renderer->getModelViewProjectionFromRenderInfo(renderInfo, drawableParent, model_osg, view_osg, proj_osg)) {
+        m_renderer->endFrame(ctx);
+        before.restore();
+        return;
+    }
+
     const scm::math::mat4 view = LamureUtil::matConv4F(view_osg);
     const scm::math::mat4 proj = LamureUtil::matConv4F(proj_osg);
 
@@ -265,6 +272,46 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
         const scm::math::vec3d cam_pos = res.scm_camera->get_cam_pos();
         lamure::pvs::pvs_database::get_instance()->set_viewer_position(cam_pos);
     }
+    scm::math::mat4 model_matrix = LamureUtil::matConv4F(model_osg);
+
+    if (plugin->getUI() && plugin->getUI()->getDumpButton() && plugin->getUI()->getDumpButton()->state()) {
+        const osg::FrameStamp* fs = state ? state->getFrameStamp() : nullptr;
+        const uint64_t frameNumber = fs ? fs->getFrameNumber() : 0;
+        static uint64_t pendingFrame = std::numeric_limits<uint64_t>::max();
+        static std::map<lamure::model_t, scm::math::mat4f> pendingModels;
+
+        if (pendingFrame == std::numeric_limits<uint64_t>::max()) {
+            pendingFrame = frameNumber;
+        }
+
+        if (frameNumber != pendingFrame) {
+            if (res.scm_camera) {
+                const scm::math::mat4f view_scm = res.scm_camera->get_view_matrix();
+                const scm::math::mat4f proj_scm = res.scm_camera->get_projection_matrix();
+                std::cout << "[Lamure] dump(ctx=" << ctx << "): scm_view\n"
+                          << view_scm << std::endl << std::endl;
+                std::cout << "[Lamure] dump(ctx=" << ctx << "): scm_proj\n"
+                          << proj_scm << std::endl << std::endl;
+            }
+            std::cout << "[Lamure] dump: model\n";
+            for (const auto& entry : pendingModels) {
+                std::cout << "model=" << entry.first << "\n"
+                          << entry.second << std::endl << std::endl;
+            }
+            pendingModels.clear();
+            pendingFrame = frameNumber;
+            plugin->getUI()->getDumpButton()->setState(false);
+        }
+
+        pendingModels[data->modelId] = model_matrix;
+    }
+    cuts->send_transform(context_id, data->modelId, model_matrix);
+    if (Lamure::instance()) {
+        cuts->send_threshold(context_id, data->modelId, Lamure::instance()->getSettings().lod_error);
+    }
+    cuts->send_rendered(context_id, data->modelId);
+    database->get_model(data->modelId)->set_transform(model_matrix);
+
     if (plugin->getSettings().lod_update && !plugin->isResetInProgress()) {
         try {
             if (lamure::ren::policy::get_instance()->size_of_provenance() > 0 && plugin) {
@@ -276,49 +323,6 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
             if (m_renderer->notifyOn()) std::cerr << "[Lamure] dispatch skipped: " << e.what() << "\n";
         }
     }
-
-    const osg::Node* drawableParent = drawable ? drawable->getParent(0) : nullptr;
-    const osg::MatrixTransform* modelTransform = m_renderer->getModelTransform(drawableParent);
-    if (!modelTransform) {
-        m_renderer->endFrame(ctx);
-        before.restore();
-        return;
-    }
-    if (plugin->getUI() && plugin->getUI()->getDumpButton() && plugin->getUI()->getDumpButton()->state()) {
-        const osg::FrameStamp* fs = state ? state->getFrameStamp() : nullptr;
-        const uint64_t frameNumber = fs ? fs->getFrameNumber() : 0;
-        static uint64_t lastDumpFrame = std::numeric_limits<uint64_t>::max();
-        if (frameNumber != lastDumpFrame) {
-            lastDumpFrame = frameNumber;
-            auto matToStr = [](const osg::Matrixd& M) {
-                std::ostringstream o;
-                o.setf(std::ios::fixed);
-                o.precision(6);
-                o << "["
-                  << "[" << M(0,0) << "," << M(0,1) << "," << M(0,2) << "," << M(0,3) << "],"
-                  << "[" << M(1,0) << "," << M(1,1) << "," << M(1,2) << "," << M(1,3) << "],"
-                  << "[" << M(2,0) << "," << M(2,1) << "," << M(2,2) << "," << M(2,3) << "],"
-                  << "[" << M(3,0) << "," << M(3,1) << "," << M(3,2) << "," << M(3,3) << "]"
-                  << "]";
-                return o.str();
-            };
-            std::cout << "[Lamure] dump(draw): scm_view=" << matToStr(view_osg)
-                      << " scm_proj=" << matToStr(proj_osg) << "\n";
-            if (state) {
-                std::cout << "[Lamure] dump(draw): MV(state)=" << matToStr(state->getModelViewMatrix()) << "\n";
-            }
-            plugin->getUI()->getDumpButton()->setState(false);
-        }
-    }
-    const osg::Matrixd model_osg = modelTransform->getMatrix();
-    scm::math::mat4 model_matrix = LamureUtil::matConv4F(model_osg);
-
-    cuts->send_transform(context_id, data->modelId, model_matrix);
-    if (Lamure::instance()) {
-        cuts->send_threshold(context_id, data->modelId, Lamure::instance()->getSettings().lod_error);
-    }
-    cuts->send_rendered(context_id, data->modelId);
-    database->get_model(data->modelId)->set_transform(model_matrix);
 
     lamure::ren::cut& cut = cuts->get_cut(context_id, view_id, data->modelId);
     const auto& renderable = cut.complete_set();
@@ -577,7 +581,6 @@ void BoundingBoxDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, co
     GLState before = GLState::capture();
     osg::State* state = renderInfo.getState();
     state->setCheckForGLErrors(osg::State::ONCE_PER_FRAME);
-    m_renderer->updateScmCameraFromRenderInfo(renderInfo, ctx);
 
     GLint prevVAO = 0, prevProg = 0;
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &prevVAO);
@@ -591,14 +594,15 @@ void BoundingBoxDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, co
     lamure::view_t view_id = res.scm_camera->view_id();
 
     const osg::Node* drawableParent = drawable ? drawable->getParent(0) : nullptr;
-    const osg::MatrixTransform* modelTransform = m_renderer->getModelTransform(drawableParent);
-    if (!modelTransform) {
+    osg::Matrixd model_osg;
+    osg::Matrixd view_osg;
+    osg::Matrixd proj_osg;
+    if (!m_renderer->getModelViewProjectionFromRenderInfo(renderInfo, drawableParent, model_osg, view_osg, proj_osg)) {
         glUseProgram(prevProg);
         glBindVertexArray(prevVAO);
         before.restore();
         return;
     }
-    const osg::Matrixd model_osg = modelTransform->getMatrix();
     scm::math::mat4 model_matrix = LamureUtil::matConv4F(model_osg);
 
     cuts->send_transform(context_id, data->modelId, model_matrix);
@@ -659,9 +663,6 @@ void BoundingBoxDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, co
     const std::vector<scm::gl::boxf>& bbv = bvh->get_bounding_boxes();
     const std::vector<uint32_t>& node_offsets = it->second;
 
-    osg::Matrixd view_osg;
-    osg::Matrixd proj_osg;
-    m_renderer->getMatricesFromRenderInfo(renderInfo, view_osg, proj_osg);
     const scm::math::mat4 view_matrix = LamureUtil::matConv4F(view_osg);
     const scm::math::mat4 projection_matrix = LamureUtil::matConv4F(proj_osg);
     const scm::math::mat4 mvp_matrix = projection_matrix * view_matrix * model_matrix;
@@ -1104,6 +1105,7 @@ void LamureRenderer::init()
 
     m_init_geode = new osg::Geode();
     m_init_geode->setName("InitGeode");
+    m_init_geode->setCullingActive(false);
     m_init_stateset = new osg::StateSet();
     m_init_geode->setStateSet(m_init_stateset.get());
     m_plugin->getGroup()->addChild(m_init_geode);
@@ -1112,6 +1114,7 @@ void LamureRenderer::init()
     m_init_geometry->setUseDisplayList(false);
     m_init_geometry->setUseVertexBufferObjects(true);
     m_init_geometry->setUseVertexArrayObject(false);
+    m_init_geometry->setCullingActive(false);
     m_init_geometry->setDrawCallback(new InitDrawCallback(m_plugin));
     if (auto *stateSet = m_init_geometry->getOrCreateStateSet()) {
         stateSet->setRenderBinDetails(-10, "RenderBin");
@@ -1186,6 +1189,7 @@ void LamureRenderer::init()
     m_frustum_geometry->setUseDisplayList(false);
     m_frustum_geometry->setUseVertexBufferObjects(true);
     m_frustum_geometry->setUseVertexArrayObject(false);
+    m_frustum_geometry->setCullingActive(false);
     m_frustum_geometry->setDrawCallback(new FrustumDrawCallback(m_plugin));
     m_frustum_geode->addDrawable(m_frustum_geometry.get());
     m_frustum_group = new osg::Group();
@@ -1491,21 +1495,6 @@ bool LamureRenderer::isRendering() const
         if (kv.second.rendering) return true;
     }
     return false;
-}
-
-const osg::MatrixTransform* LamureRenderer::getModelTransform(const osg::Node* node) const
-{
-    const osg::Node* current = node;
-    while (current) {
-        if (auto* mt = dynamic_cast<const osg::MatrixTransform*>(current)) {
-            return mt;
-        }
-        if (current->getNumParents() == 0) {
-            break;
-        }
-        current = current->getParent(0);
-    }
-    return nullptr;
 }
 
 void LamureRenderer::initUniforms(ContextResources& ctx) 
@@ -2655,17 +2644,11 @@ void LamureRenderer::initBoxResources(ContextResources& res) {
 
     glGenBuffers(1, &ibo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-        res.box_idx.size() * sizeof(GLushort),
-        res.box_idx.data(),
-        GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, res.box_idx.size() * sizeof(GLushort), res.box_idx.data(), GL_STATIC_DRAW);
 
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER,
-        all_box_vertices.size() * sizeof(float),
-        all_box_vertices.data(),
-        GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, all_box_vertices.size() * sizeof(float), all_box_vertices.data(), GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
@@ -2858,4 +2841,81 @@ void LamureRenderer::getMatricesFromRenderInfo(osg::RenderInfo& renderInfo, osg:
             outProj = state_proj;
         }
     }
+}
+
+bool LamureRenderer::getModelViewProjectionFromRenderInfo(osg::RenderInfo& renderInfo, const osg::Node* node,
+    osg::Matrixd& outModel, osg::Matrixd& outView, osg::Matrixd& outProj) const
+{
+    if (!getModelMatrix(node, outModel))
+        return false;
+
+    osg::State* state = renderInfo.getState();
+    if (!state)
+        return false;
+
+    osg::Matrixd state_mv = state->getModelViewMatrix();
+    osg::Matrixd state_proj = state->getProjectionMatrix();
+    osg::Matrixd inv_model;
+    if (!inv_model.invert(outModel))
+        return false;
+    const osg::Matrixd view_base = inv_model * state_mv;
+
+    const osg::Camera* currentCamera = renderInfo.getCurrentCamera();
+    if (opencover::cover && currentCamera && opencover::coVRConfig::instance()->getEnvMapMode() != opencover::coVRConfig::NONE)
+    {
+        osg::Matrixd cam_mv = currentCamera->getViewMatrix();
+        osg::Matrixd rotonly = cam_mv;
+        rotonly(3, 0) = 0.0; rotonly(3, 1) = 0.0; rotonly(3, 2) = 0.0; rotonly(3, 3) = 1.0;
+
+        osg::Matrixd invRot;
+        invRot.invert(rotonly);
+
+        outView = (view_base * opencover::cover->envCorrectMat) * rotonly;
+        outProj = invRot * opencover::cover->invEnvCorrectMat * state_proj;
+    }
+    else
+    {
+        outView = view_base;
+        outProj = state_proj;
+    }
+    return true;
+}
+
+bool LamureRenderer::getModelMatrix(const osg::Node* node, osg::Matrixd& out) const
+{
+    out.makeIdentity();
+    if (!node)
+        return false;
+
+    const osg::Node* objects_root = opencover::cover ? opencover::cover->getObjectsRoot() : nullptr;
+    auto is_objects_root = [objects_root](const osg::Node* n) {
+        return n && ((objects_root && n == objects_root) || n->getName() == "OBJECTS_ROOT");
+    };
+
+    const osg::NodePathList paths = node->getParentalNodePaths();
+    if (paths.empty())
+        return false;
+
+    const osg::NodePath* chosen_path = nullptr;
+    size_t root_index = 0;
+    for (const auto& path : paths) {
+        for (size_t i = 0; i < path.size(); ++i) {
+            if (is_objects_root(path[i])) {
+                chosen_path = &path;
+                root_index = i;
+                break;
+            }
+        }
+        if (chosen_path)
+            break;
+    }
+
+    if (chosen_path) {
+        osg::NodePath subpath(chosen_path->begin() + static_cast<std::ptrdiff_t>(root_index), chosen_path->end());
+        out = osg::computeLocalToWorld(subpath);
+        return true;
+    }
+
+    out = osg::computeLocalToWorld(paths.front());
+    return true;
 }

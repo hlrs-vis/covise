@@ -321,7 +321,6 @@ public:
     osg::ref_ptr<osg::Group> getGroup() { return m_lamure_grp; }
 
     std::unordered_map<std::string, osg::observer_ptr<osg::Node>> m_pendingTransformUpdate;
-    std::unordered_map<std::string, scm::math::mat4d> m_vrmlTransforms;
     std::vector<osg::ref_ptr<osg::Group>> m_model_parents;
     std::vector<osg::ref_ptr<osg::Group>> m_bootstrap_parents;
     std::unordered_set<std::string> m_registeredFiles;
