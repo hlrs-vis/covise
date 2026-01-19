@@ -179,6 +179,7 @@
             
              -->
 
+            <models value="C:/Users/Daniel/Documents/Studium/Forschungsarbeit/Data/Data_bin/naturkundemuseum_School000.bvh"/>
             <point_light_intensity value="0.6"/>
             <ambient_intensity value="0.6"/>
             <shininess value="0.1"/>

@@ -316,7 +316,6 @@ public:
     void setShowBoundingbox(bool show);
 
     std::unordered_map<std::string,uint16_t> m_model_idx;
-    osg::ref_ptr<osg::Group> m_models_group;
 
     osg::ref_ptr<osg::Group> getGroup() { return m_lamure_grp; }
 
@@ -379,6 +378,7 @@ private:
     std::vector<LamureMeasurement::Segment> parseMeasurementSegments(const std::string& cfg) const;
     std::string buildMeasurementOutputPath() const;
     void applyShaderToRendererFromSettings();
+    void resetVrmlRootTransform(osg::Node* node);
 
     // Centralized model resolution and post-processing
     std::vector<std::string> resolveAndNormalizeModels();
