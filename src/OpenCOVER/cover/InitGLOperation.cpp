@@ -105,6 +105,20 @@ InitGLOperation::InitGLOperation()
 
 void InitGLOperation::operator()(osg::GraphicsContext* gc)
 {
+    const int contextId = gc->getState()->getContextID();
+    auto rend = glGetString(GL_RENDERER);
+    if (!rend)
+    {
+        std::cerr << "*****" << std::endl;
+        std::cerr << "InitGLOperation() for context " << contextId << ": could not retrieve value of GL_RENDERER - context not initialised?" << std::endl;
+        std::cerr << "*****" << std::endl;
+    }
+
+    if (cover->debugLevel(2))
+    {
+        std::cerr << "InitGLOperation() for context " << contextId << std::endl;
+    }
+
     if (glewInit() != GLEW_OK)
     {
         std::cerr << "glewInit() failed" << std::endl;
@@ -118,7 +132,21 @@ void InitGLOperation::operator()(osg::GraphicsContext* gc)
     }
 #endif
 
-#define PRINT_STRING(s) std::cerr << "GL_" #s << ": " << glGetString(GL_ ## s) << std::endl
+    auto print_string = [](GLenum tag, const char *desc){
+        std::string s("GL_");
+        s += desc;
+        auto val = glGetString(tag);
+        if (val)
+        {
+            std::cerr << s << ": " << val << std::endl;
+        }
+        else
+        {
+            std::cerr << s << " is NULL" << std::endl;
+        }
+    };
+
+#define PRINT_STRING(n) print_string(GL_ ## n, #n)
     if (cover->debugLevel(2))
     {
         PRINT_STRING(RENDERER);
@@ -141,8 +169,6 @@ void InitGLOperation::operator()(osg::GraphicsContext* gc)
         std::cerr << "VRViewer: enabling GL debugging" << std::endl;
 
         OpenThreads::ScopedLock<OpenThreads::Mutex> lock(m_mutex);
-
-        int contextId = gc->getState()->getContextID();
 
         //create the extensions
         GLDebugMessageControlPROC glDebugMessageControl = NULL;
@@ -238,7 +264,6 @@ void InitGLOperation::operator()(osg::GraphicsContext* gc)
 #endif
 
     OpenThreads::ScopedLock<OpenThreads::Mutex> lock(m_mutex);
-    int contextId = gc->getState()->getContextID();
     osg::GLExtensions *glext = gc->getState()->get<osg::GLExtensions>();
     if (m_extensions.size() <= contextId)
     {
