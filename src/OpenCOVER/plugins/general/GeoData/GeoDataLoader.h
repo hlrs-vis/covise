@@ -65,6 +65,7 @@ public:
 
     static GeoDataLoader *instance();
     osg::Vec3 rootOffset{0.0, 0.0, 0.0};
+    float trueNorthDegree = 0.0f;
     float NorthAngle;
 
     struct geoLocation
@@ -81,7 +82,7 @@ public:
     virtual void message(int toWhom, int type, int length, const void* data);
     void setSky(int num);
     void setSky(std::string fileName);
-    void setRootOffset(osg::Vec3 off);
+    void setRootTransform(const osg::Vec3& offset, float trueNorthDeg);
     std::optional<geoLocation> parseCoordinates(const std::string& jsonData);
     void jumpToLocation(const osg::Vec3d &worldPos);
 

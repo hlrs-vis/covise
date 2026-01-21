@@ -181,6 +181,11 @@ void GeoDataLoader::jumpToLocation(const osg::Vec3d &worldPos)
         osg::Vec3 targetPos(easting, northing, height);
         std::cout << "Target Position in Meters (UTM): " << targetPos.x() << ", " << targetPos.y() << ", " << targetPos.z() << std::endl;
         targetPos += rootOffset;
+
+        float trueNorthRadian = osg::DegreesToRadians(trueNorthDegree);
+        osg::Matrix rot = osg::Matrix::rotate(-trueNorthRadian, osg::Vec3(0,0,1));
+
+        targetPos = targetPos * rot;
         targetPos = targetPos * scale;
         mat.setTrans(-targetPos);
         cover->setXformMat(mat);
@@ -368,7 +373,6 @@ bool GeoDataLoader::init()
     trueNorth->setText("True North (°):");
     trueNorth->setCallback([this](std::string val) 
         {
-            // not used yet
             this->tempTrueNorthText = val;
         });
     
@@ -398,7 +402,7 @@ bool GeoDataLoader::init()
             }
 
             osg::Vec3 origin = osg::Vec3(originEasting, originNorthing, originHeight);
-            setRootOffset(-origin);
+            setRootTransform(-origin, trueNorth);
             applyOffset->setState(false);
         });
 
@@ -631,10 +635,15 @@ void GeoDataLoader::setSky(std::string fileName)
     skys->append(se.name);
 }
 
-void GeoDataLoader::setRootOffset(osg::Vec3 off)
+void GeoDataLoader::setRootTransform(const osg::Vec3& off, float trueNorthDeg)
 {
     rootOffset = off;
-    rootNode->setMatrix(osg::Matrix::translate(rootOffset));
+    trueNorthDegree = trueNorthDeg;
+
+    float trueNorthRad = osg::DegreesToRadians(trueNorthDegree);
+    osg::Matrix trans = osg::Matrix::translate(rootOffset);
+    osg::Matrix rot = osg::Matrix::rotate(-trueNorthRad, osg::Vec3(0,0,1));
+    rootNode->setMatrix(trans * rot);
 }
 
 bool GeoDataLoader::update()
