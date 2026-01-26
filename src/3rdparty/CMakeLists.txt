@@ -99,3 +99,12 @@ target_include_directories(PalSigslot INTERFACE
 install(TARGETS PalSigslot EXPORT covise-targets)
 covise_export_target(PalSigslot)
 add_library(Pal::Sigslot ALIAS PalSigslot)
+
+add_library(STB INTERFACE)
+target_include_directories(STB INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/stb>
+    $<INSTALL_INTERFACE:>
+)
+install(TARGETS STB EXPORT covise-targets)
+covise_export_target(STB)
+add_library(stb::stb ALIAS STB)

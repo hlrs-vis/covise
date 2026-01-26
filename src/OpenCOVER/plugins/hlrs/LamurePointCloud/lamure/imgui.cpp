@@ -7875,10 +7875,12 @@ static bool STB_TEXTEDIT_INSERTCHARS(STB_TEXTEDIT_STRING* obj, int pos, const Im
 #define STB_TEXTEDIT_K_REDO         0x1000B // keyboard input to perform redo
 #define STB_TEXTEDIT_K_WORDLEFT     0x1000C // keyboard input to move cursor left one word
 #define STB_TEXTEDIT_K_WORDRIGHT    0x1000D // keyboard input to move cursor right one word
+#define STB_TEXTEDIT_K_PGUP         0x10012 // keyboard input to move cursor up a page
+#define STB_TEXTEDIT_K_PGDOWN       0x10013 // keyboard input to move cursor down a page
 #define STB_TEXTEDIT_K_SHIFT        0x20000
 
 #define STB_TEXTEDIT_IMPLEMENTATION
-#include "stb_textedit.h"
+#include <stb_textedit.h>
 
 }
 

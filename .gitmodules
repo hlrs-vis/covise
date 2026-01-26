@@ -35,3 +35,6 @@
 [submodule "src/3rdparty/crow"]
 	path = src/3rdparty/crow
 	url = https://github.com/CrowCpp/Crow.git
+[submodule "src/3rdparty/stb"]
+	path = src/3rdparty/stb
+	url = https://github.com/nothings/stb.git

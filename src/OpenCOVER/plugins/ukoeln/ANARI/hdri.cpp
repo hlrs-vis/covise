@@ -10,7 +10,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION 1
 #define TINYEXR_IMPLEMENTATION 1
-#include "stb_image.h"
+#include <stb_image.h>
 #include "tinyexr.h"
 
 #include "hdri.h"

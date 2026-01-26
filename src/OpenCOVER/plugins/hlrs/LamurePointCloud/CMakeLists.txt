@@ -100,5 +100,6 @@ SET(SOURCES
 
 # Adding the LamurePointCloud plugin
 cover_add_plugin(LamurePointCloud)
+target_link_libraries(LamurePointCloud stb::stb)
 covise_wnoerror(LamurePointCloud)
 
