@@ -22,6 +22,8 @@
 #include <osg/ShapeDrawable>   // <-- FIX
 #include <osg/StateSet>
 #include <osg/Vec4>
+#include <osgUtil/IntersectionVisitor>
+#include <osgUtil/LineSegmentIntersector>
 #include <osgDB/ReadFile>
 
 #include <algorithm>
@@ -34,7 +36,6 @@
 #include <unordered_map>
 #include <osg/ComputeBoundsVisitor>
 #include <osg/BoundingBox>
-
 
 using namespace covise;
 using namespace opencover;
@@ -92,6 +93,27 @@ bool KitePlugin::init()
     m_ropeSagMax = coCoviseConfig::getFloat("KitePlugin.RopeSagMax", m_ropeSagMax);
     m_ropeSamplesMain = (int)coCoviseConfig::getFloat("KitePlugin.RopeSamplesMain", (float)m_ropeSamplesMain);
     m_ropeSamplesBridle = (int)coCoviseConfig::getFloat("KitePlugin.RopeSamplesBridle", (float)m_ropeSamplesBridle);
+
+    m_drawFullTether = coCoviseConfig::isOn("KitePlugin.DrawFullTether", m_drawFullTether);
+    m_fullTetherAlpha = coCoviseConfig::getFloat("KitePlugin.FullTetherAlpha", m_fullTetherAlpha);
+    m_focusTetherAlpha = coCoviseConfig::getFloat("KitePlugin.FocusTetherAlpha", m_focusTetherAlpha);
+
+    m_tetherFade = coCoviseConfig::isOn("KitePlugin.TetherFade", m_tetherFade);
+    m_tetherNearLen_m = coCoviseConfig::getFloat("KitePlugin.TetherNearLen_m", m_tetherNearLen_m);
+
+    m_tetherSagBoost = coCoviseConfig::getFloat("KitePlugin.TetherSagBoost", m_tetherSagBoost);
+    m_tetherSagMaxLong_m = coCoviseConfig::getFloat("KitePlugin.TetherSagMaxLong_m", m_tetherSagMaxLong_m);
+
+    m_tetherLineWidthNear = coCoviseConfig::getFloat("KitePlugin.TetherLineWidthNear", m_tetherLineWidthNear);
+    m_tetherLineWidthFar = coCoviseConfig::getFloat("KitePlugin.TetherLineWidthFar", m_tetherLineWidthFar);
+
+    m_tetherAlphaNear = coCoviseConfig::getFloat("KitePlugin.TetherAlphaNear", m_tetherAlphaNear);
+    m_tetherAlphaFar = coCoviseConfig::getFloat("KitePlugin.TetherAlphaFar", m_tetherAlphaFar);
+
+    m_snapAnchorsToSurface = coCoviseConfig::isOn("KitePlugin.SnapAnchorsToSurface", m_snapAnchorsToSurface);
+    m_anchorLift_m = coCoviseConfig::getFloat("KitePlugin.AnchorLift_m", m_anchorLift_m);
+    m_snapRayUp_m = coCoviseConfig::getFloat("KitePlugin.SnapRayUp_m", m_snapRayUp_m);
+    m_snapRayDown_m = coCoviseConfig::getFloat("KitePlugin.SnapRayDown_m", m_snapRayDown_m);
 
     m_groundPos.x() = coCoviseConfig::getFloat("KitePlugin.GroundPosX", m_groundPos.x());
     m_groundPos.y() = coCoviseConfig::getFloat("KitePlugin.GroundPosY", m_groundPos.y());
@@ -218,6 +240,9 @@ bool KitePlugin::init()
                 bb.xMax(), bb.yMax(), bb.zMax(),
                 bb.xMax() - bb.xMin(), bb.yMax() - bb.yMin(), bb.zMax() - bb.zMin(),
                 bb.center().x(), bb.center().y(), bb.center().z());
+
+        m_modelBB = bb;
+        m_haveModelBB = true;
     }
 
     cover->getObjectsRoot()->addChild(m_transform);
@@ -372,48 +397,29 @@ void KitePlugin::parseCsv(const std::string &path)
 
     if (!m_frames.empty())
     {
-        // Use first frame as ground reference in XY. Ground is z=0.
-        m_groundRefCsv = m_frames.front().pos;
-        m_haveGroundRef = true;
+        // DO NOT shift XY here and DO NOT apply target tether scaling here.
+        // Keep positions in meters exactly as in the CSV.
+        // Ground station is (0,0,0) in this coordinate system if the CSV is truly "relative to station".
+        // If the dataset actually has an offset, we can fix that later using GPS columns.
 
-        for (auto &f : m_frames)
+        // Debug: find min/max height in raw meters
+        double minZ = 1e30, maxZ = -1e30;
+        size_t minZi = 0;
+        for (size_t i = 0; i < m_frames.size(); ++i)
         {
-            f.pos.x() = (f.pos.x() - m_groundRefCsv.x()) * m_worldScale;
-            f.pos.y() = (f.pos.y() - m_groundRefCsv.y()) * m_worldScale;
-            f.pos.z() = (f.pos.z() - 0.0f) * m_worldScale;
+            const double z = m_frames[i].pos.z();
+            if (z < minZ)
+            {
+                minZ = z;
+                minZi = i;
+            }
+            if (z > maxZ)
+                maxZ = z;
         }
 
-        m_groundPos = osg::Vec3(0.f, 0.f, 0.f);
-
-        const float targetTether_units = m_targetTether_m * m_unitsPerMeter;
-
-        double sum = 0.0;
-        for (const auto &f : m_frames)
-            sum += f.pos.length();
-        const double meanR = sum / std::max<size_t>(1, m_frames.size());
-
-        const float scale = (meanR > 1e-6) ? (float)(targetTether_units / meanR) : 1.0f;
-        for (auto &f : m_frames)
-            f.pos *= scale;
-
-        fprintf(stderr, "KitePlugin: TargetTether_m=%.1f => units=%.1f, meanR=%.1f, scale=%.3f\n",
-                m_targetTether_m, targetTether_units, meanR, scale);
-
-        fprintf(stderr, "KitePlugin: ground ref CSV=(%.3f %.3f %.3f), scene ground at origin, worldScale=%.3f\n",
-                m_groundRefCsv.x(), m_groundRefCsv.y(), m_groundRefCsv.z(), m_worldScale);
-
-        // ---- DEBUG: trajectory scale sanity ----
-        auto printFrame = [&](size_t idx, const char *tag) {
-            const auto &f = m_frames[idx];
-            fprintf(stderr,
-                    "KitePlugin DBG %s: pos=(%.2f %.2f %.2f) |r|=%.2f roll=%.2f pitch=%.2f yaw=%.2f\n",
-                    tag, f.pos.x(), f.pos.y(), f.pos.z(), f.pos.length(), f.roll, f.pitch, f.yaw);
-        };
-        printFrame(0, "frame0");
-        printFrame(m_frames.size() / 2, "framemid");
-        printFrame(m_frames.size() - 1, "framelast");
-
-        updateGroundAnchor();
+        fprintf(stderr,
+                "KitePlugin: RAW height stats (meters): minZ=%.3f at i=%zu (t=%.3f), maxZ=%.3f\n",
+                minZ, minZi, m_frames[minZi].t, maxZ);
     }
 }
 
@@ -435,15 +441,39 @@ void KitePlugin::updateTransform(int frameIndex)
     const osg::Quat yaw(yawDeg * d2r, osg::Vec3(0, 0, 1));
 
     osg::Quat q = yaw * pitch * roll;
-    osg::Vec3 pos = f.pos;
+    // f.pos is in METERS (CSV units). Convert to scene units here.
+    osg::Vec3 pos = f.pos * (m_unitsPerMeter * m_worldScale * m_globalPosScale);
 
     if (m_useNedFrame)
     {
-        pos = osg::Vec3(f.pos.y(), f.pos.x(), -f.pos.z());
+        pos = osg::Vec3(pos.y(), pos.x(), -pos.z());
         static const osg::Quat nedToEnu =
             osg::Quat(90.0 * d2r, osg::Vec3(0, 0, 1)) *
             osg::Quat(180.0 * d2r, osg::Vec3(1, 0, 0));
         q = nedToEnu * q;
+    }
+
+    if (m_haveModelBB)
+    {
+        const float zGround = m_groundPos.z();
+        const float meshBottom = pos.z() + m_modelBB.zMin();
+        if (meshBottom < zGround - 1e-3f)
+        {
+            fprintf(stderr,
+                    "KitePlugin WARN: below ground: frame=%d posZ=%.2f meshBottom=%.2f ground=%.2f rawHeight(m)=%.3f\n",
+                    frameIndex, pos.z(), meshBottom, zGround, f.pos.z());
+        }
+    }
+
+    // Optional: clamp so the *mesh* never goes below the ground plane.
+    // Ground plane is at m_groundPos.z() (world units), but you also keep a groundXform.
+    // Here we assume your ground plane is z = m_groundPos.z().
+    if (m_clampAboveGround && m_haveModelBB)
+    {
+        const float zGround = m_groundPos.z(); // in units
+        const float minNeeded = zGround - m_modelBB.zMin(); // because zMin is negative
+        if (pos.z() < minNeeded)
+            pos.z() = minNeeded;
     }
 
     q = m_modelOffset * q;
@@ -471,7 +501,7 @@ osg::Quat KitePlugin::quatFromZToDir(const osg::Vec3 &dir)
 }
 
 std::vector<osg::Vec3> KitePlugin::sagCurvePoints(const osg::Vec3 &a, const osg::Vec3 &b,
-                                                  int samples, float sagMeters)
+                                                  int samples, float sagUnits)
 {
     samples = std::max(2, samples);
 
@@ -489,17 +519,18 @@ std::vector<osg::Vec3> KitePlugin::sagCurvePoints(const osg::Vec3 &a, const osg:
         return pts;
     }
 
-    // Reduce sag when near vertical
     const osg::Vec3 d = ab / L;
     const float verticalness = std::fabs(d * up);
-    const float sagScale = 1.0f - verticalness;
-    const float sag = sagMeters * sagScale;
+    // IMPORTANT: keep some sag even if nearly vertical (visual + still plausible)
+    const float sagScale = std::max(0.25f, 1.0f - verticalness);
+    const float sag = sagUnits * sagScale;
 
     for (int i = 0; i < samples; ++i)
     {
         const float t = float(i) / float(samples - 1);
         osg::Vec3 p = a + ab * t;
 
+        // max sag at mid (sin curve) - purely visual
         const float s = std::sin(float(M_PI) * t);
         p -= up * (sag * s);
 
@@ -507,6 +538,163 @@ std::vector<osg::Vec3> KitePlugin::sagCurvePoints(const osg::Vec3 &a, const osg:
     }
 
     return pts;
+}
+
+void KitePlugin::addSaggedLine(osg::Vec3Array *arr,
+                               const osg::Vec3 &a,
+                               const osg::Vec3 &b,
+                               int samples,
+                               float sagUnits) const
+{
+    if (!arr)
+        return;
+
+    samples = std::max(2, samples);
+
+    if (samples <= 2 || sagUnits <= 1e-6f)
+    {
+        arr->push_back(a);
+        arr->push_back(b);
+        return;
+    }
+
+    auto pts = sagCurvePoints(a, b, samples, sagUnits);
+    for (size_t i = 1; i < pts.size(); ++i)
+    {
+        arr->push_back(pts[i - 1]);
+        arr->push_back(pts[i]);
+    }
+}
+
+void KitePlugin::appendPolylineAsLines(osg::Vec3Array *arr, const std::vector<osg::Vec3> &pts)
+{
+    if (!arr || pts.size() < 2)
+        return;
+
+    const float eps2 = 1e-8f;
+    for (size_t i = 0; i + 1 < pts.size(); ++i)
+    {
+        const osg::Vec3 a = pts[i];
+        const osg::Vec3 b = pts[i + 1];
+        if ((b - a).length2() < eps2)
+            continue; // avoid overdraw "bold" segments
+
+        arr->push_back(a);
+        arr->push_back(b);
+    }
+}
+
+// Clips the *tail* (end) of a polyline by arc-length, returning only the last tailLenUnits.
+// Keeps curvature consistent (important for "focus tether" mode).
+std::vector<osg::Vec3> KitePlugin::clipPolylineTailByLength(const std::vector<osg::Vec3> &pts, float tailLenUnits)
+{
+    if (pts.size() < 2 || tailLenUnits <= 0.f)
+        return pts;
+
+    // walk backwards accumulating arc length
+    float acc = 0.f;
+    for (int i = (int)pts.size() - 1; i > 0; --i)
+    {
+        const osg::Vec3 a = pts[i - 1];
+        const osg::Vec3 b = pts[i];
+        const float seg = (b - a).length();
+
+        if (acc + seg >= tailLenUnits)
+        {
+            const float need = tailLenUnits - acc;
+            const float t = (seg > 1e-6f) ? (need / seg) : 0.f;
+            const osg::Vec3 start = b + (a - b) * t; // interpolate towards previous
+
+            std::vector<osg::Vec3> out;
+            out.reserve((pts.size() - (size_t)(i - 1)) + 1);
+            out.push_back(start);
+            for (size_t k = (size_t)i; k < pts.size(); ++k)
+                out.push_back(pts[k]);
+            return out;
+        }
+        acc += seg;
+    }
+
+    // tail longer than total length: return whole thing
+    return pts;
+}
+
+bool KitePlugin::snapPointToModelSurfaceMultiAxis(osg::Node *model, const osg::Vec3 &pModel,
+                                                  float rayUp, float rayDown,
+                                                  osg::Vec3 &hitModel) const
+{
+    if (!model)
+        return false;
+
+    // Try 6 axis directions; pick closest hit to pModel
+    const osg::Vec3 axes[3] = { osg::Vec3(0, 0, 1), osg::Vec3(1, 0, 0), osg::Vec3(0, 1, 0) };
+
+    bool found = false;
+    float bestD2 = 1e30f;
+    osg::Vec3 bestHit;
+
+    auto tryRay = [&](const osg::Vec3 &dir) {
+        osg::Vec3 start = pModel + dir * rayUp;
+        osg::Vec3 end = pModel - dir * rayDown;
+
+        osg::ref_ptr<osgUtil::LineSegmentIntersector> inter =
+            new osgUtil::LineSegmentIntersector(osgUtil::Intersector::MODEL, start, end);
+
+        osgUtil::IntersectionVisitor iv(inter.get());
+        model->accept(iv);
+
+        if (!inter->containsIntersections())
+            return;
+
+        // Closest intersection along segment (first in set)
+        const auto &isect = *inter->getIntersections().begin();
+        osg::Vec3 hit = isect.getLocalIntersectPoint();
+        float d2 = (hit - pModel).length2();
+        if (d2 < bestD2)
+        {
+            bestD2 = d2;
+            bestHit = hit;
+            found = true;
+        }
+    };
+
+    for (int a = 0; a < 3; ++a)
+    {
+        tryRay(axes[a]);
+        tryRay(-axes[a]);
+    }
+
+    if (!found)
+        return false;
+
+    hitModel = bestHit;
+    return true;
+}
+
+void KitePlugin::snapBridleAnchorsToSurface(const osg::BoundingBox &bb)
+{
+    (void)bb;
+    if (!m_snapAnchorsToSurface || !m_model || m_attachLocal.empty())
+        return;
+
+    const float liftUnits = m_anchorLift_m * m_unitsPerMeter;
+    const float rayUpUnits = m_snapRayUp_m * m_unitsPerMeter;
+    const float rayDownUnits = m_snapRayDown_m * m_unitsPerMeter;
+
+    int snapped = 0;
+    for (auto &p : m_attachLocal)
+    {
+        osg::Vec3 hit;
+        if (snapPointToModelSurfaceMultiAxis(m_model.get(), p, rayUpUnits, rayDownUnits, hit))
+        {
+            // lift slightly in +Z model axis to avoid z-fighting/gaps
+            p = hit + osg::Vec3(0.f, 0.f, liftUnits);
+            ++snapped;
+        }
+    }
+
+    fprintf(stderr, "KitePlugin: snapped %d/%zu bridle anchors to surface (multi-axis)\n",
+            snapped, m_attachLocal.size());
 }
 
 void KitePlugin::ensureSegments(RopeVisual &rope, size_t needed)
@@ -599,6 +787,9 @@ void KitePlugin::initRopes()
     if (m_twoRows)
         addRow(m_rearRow_frac);
 
+    // Snap anchor points onto the actual mesh surface so bridles look attached
+    snapBridleAnchorsToSurface(bb);
+
     // ---- DEBUG: model / bridle geometry sanity ----
     {
         const float spanX = bb.xMax() - bb.xMin();
@@ -637,27 +828,49 @@ void KitePlugin::initRopes()
 
     m_groundSize_m = std::max(200.0f, 2.2f * m_targetTether_m);
 
-    // Create line geometries.
     m_ropeGeode = new osg::Geode();
 
+    // ---- FULL tether (faint) ----
+    m_tetherFullGeom = new osg::Geometry();
+    m_tetherFullVerts = new osg::Vec3Array();
+    m_tetherFullColors = new osg::Vec4Array();
+    m_tetherFullGeom->setVertexArray(m_tetherFullVerts.get());
+    m_tetherFullGeom->addPrimitiveSet(new osg::DrawArrays(GL_LINES, 0, 0));
+    m_tetherFullGeom->setDataVariance(osg::Object::DYNAMIC);
+    m_tetherFullColors->push_back(osg::Vec4(1.f, 1.f, 1.f, m_fullTetherAlpha));
+    m_tetherFullGeom->setColorArray(m_tetherFullColors.get(), osg::Array::BIND_OVERALL);
+    m_ropeGeode->addDrawable(m_tetherFullGeom.get());
+
+    // ---- FOCUS tether (bright) ----
     m_tetherGeom = new osg::Geometry();
     m_tetherVerts = new osg::Vec3Array();
+    m_tetherFocusColors = new osg::Vec4Array();
     m_tetherGeom->setVertexArray(m_tetherVerts.get());
     m_tetherGeom->addPrimitiveSet(new osg::DrawArrays(GL_LINES, 0, 0));
     m_tetherGeom->setDataVariance(osg::Object::DYNAMIC);
+    m_tetherFocusColors->push_back(osg::Vec4(1.f, 1.f, 1.f, m_focusTetherAlpha));
+    m_tetherGeom->setColorArray(m_tetherFocusColors.get(), osg::Array::BIND_OVERALL);
     m_ropeGeode->addDrawable(m_tetherGeom.get());
 
+    // ---- Bridles ----
     m_bridleGeom = new osg::Geometry();
     m_bridleVerts = new osg::Vec3Array();
+    m_bridleColors = new osg::Vec4Array();
     m_bridleGeom->setVertexArray(m_bridleVerts.get());
     m_bridleGeom->addPrimitiveSet(new osg::DrawArrays(GL_LINES, 0, 0));
     m_bridleGeom->setDataVariance(osg::Object::DYNAMIC);
+    m_bridleColors->push_back(osg::Vec4(1.f, 1.f, 1.f, 1.f));
+    m_bridleGeom->setColorArray(m_bridleColors.get(), osg::Array::BIND_OVERALL);
     m_ropeGeode->addDrawable(m_bridleGeom.get());
 
-    // Styling: thin lines, no lighting.
+    // Styling: no lighting, blend on
     osg::StateSet *ss = m_ropeGeode->getOrCreateStateSet();
     ss->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
-    ss->setAttributeAndModes(new osg::LineWidth(m_lineWidth), osg::StateAttribute::ON);
+    ss->setMode(GL_BLEND, osg::StateAttribute::ON);
+    ss->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+
+    // Use thinner default to reduce "bold" look
+    ss->setAttributeAndModes(new osg::LineWidth(1.0f), osg::StateAttribute::ON);
 
     if (!m_ropeRoot)
         m_ropeRoot = new osg::Group();
@@ -683,21 +896,27 @@ void KitePlugin::createGround()
 {
     if (!m_showGround)
         return;
+
+    if (!m_groundXform)
+    {
+        m_groundXform = new osg::MatrixTransform();
+        cover->getObjectsRoot()->addChild(m_groundXform.get());
+    }
+
     if (m_groundGeode)
         return;
 
     const float s = m_groundSize_m * m_unitsPerMeter * 0.5f;
-    const float z = 0.0f;
 
     osg::ref_ptr<osg::Geometry> geom = new osg::Geometry;
     osg::ref_ptr<osg::Vec3Array> v = new osg::Vec3Array;
     osg::ref_ptr<osg::Vec4Array> c = new osg::Vec4Array;
     osg::ref_ptr<osg::DrawElementsUInt> idx = new osg::DrawElementsUInt(GL_TRIANGLES);
 
-    v->push_back(osg::Vec3(-s, -s, z));
-    v->push_back(osg::Vec3( s, -s, z));
-    v->push_back(osg::Vec3( s,  s, z));
-    v->push_back(osg::Vec3(-s,  s, z));
+    v->push_back(osg::Vec3(-s, -s, 0.f));
+    v->push_back(osg::Vec3( s, -s, 0.f));
+    v->push_back(osg::Vec3( s,  s, 0.f));
+    v->push_back(osg::Vec3(-s,  s, 0.f));
 
     idx->push_back(0); idx->push_back(1); idx->push_back(2);
     idx->push_back(0); idx->push_back(2); idx->push_back(3);
@@ -733,13 +952,13 @@ void KitePlugin::createGround()
     const float step = 20.0f * m_unitsPerMeter;
     for (float x = -half; x <= half; x += step)
     {
-        gv->push_back(osg::Vec3(x, -half, z));
-        gv->push_back(osg::Vec3(x,  half, z));
+        gv->push_back(osg::Vec3(x, -half, 0.f));
+        gv->push_back(osg::Vec3(x,  half, 0.f));
     }
     for (float y = -half; y <= half; y += step)
     {
-        gv->push_back(osg::Vec3(-half, y, z));
-        gv->push_back(osg::Vec3( half, y, z));
+        gv->push_back(osg::Vec3(-half, y, 0.f));
+        gv->push_back(osg::Vec3( half, y, 0.f));
     }
     grid->addPrimitiveSet(new osg::DrawArrays(GL_LINES, 0, gv->size()));
 
@@ -750,16 +969,29 @@ void KitePlugin::createGround()
 
     m_groundGeode->addDrawable(grid.get());
 
-    if (m_groundXform)
-        m_groundXform->addChild(m_groundGeode.get());
+    // attach to ground transform
+    m_groundXform->addChild(m_groundGeode.get());
+
+    // Place groundXform at world z-offset, and also define ground station origin there.
+    const float zW = m_groundZOffset_m * m_unitsPerMeter;
+    m_groundPos = osg::Vec3(0.f, 0.f, zW);
+    m_groundXform->setMatrix(osg::Matrix::translate(m_groundPos));
 }
 
 void KitePlugin::createGroundStation()
 {
+    if (!m_groundXform)
+    {
+        m_groundXform = new osg::MatrixTransform();
+        cover->getObjectsRoot()->addChild(m_groundXform.get());
+        m_groundXform->setMatrix(osg::Matrix::translate(m_groundPos));
+    }
+
     if (m_stationGeode)
         return;
 
     const float r = 0.5f * m_unitsPerMeter;
+
     osg::ref_ptr<osg::Sphere> sph = new osg::Sphere(osg::Vec3(0, 0, 0), r);
     osg::ref_ptr<osg::ShapeDrawable> sd = new osg::ShapeDrawable(sph.get());
     sd->setColor(osg::Vec4(0.2f, 0.2f, 0.2f, 1.0f));
@@ -768,15 +1000,14 @@ void KitePlugin::createGroundStation()
     m_stationGeode->setName("KitePlugin_GroundStation");
     m_stationGeode->addDrawable(sd.get());
 
-    if (m_groundXform)
-        m_groundXform->addChild(m_stationGeode.get());
+    // attach to same ground transform
+    m_groundXform->addChild(m_stationGeode.get());
 }
 
 osg::Vec3 KitePlugin::groundStationWorld() const
 {
-    return osg::Vec3(m_groundPos.x(),
-                     m_groundPos.y(),
-                     m_groundPos.z() + m_groundZOffset_m * m_unitsPerMeter);
+    // m_groundPos is already in world coords (after our setup)
+    return m_groundPos;
 }
 
 void KitePlugin::updateGroundAnchor()
@@ -789,88 +1020,119 @@ void KitePlugin::updateGroundAnchor()
 
 void KitePlugin::updateRopes()
 {
-    if (!m_ropeEnabled || !m_transform || !m_tetherVerts || !m_bridleVerts)
+    if (!m_ropeEnabled || !m_transform)
         return;
 
     const osg::Vec3 knotWorld = localToWorld(m_knotLocal);
-    static int dbgCount = 0;
-    if ((dbgCount++ % 300) == 0)
-    {
-        fprintf(stderr,
-                "KitePlugin DBG tether: focusMode=%d focusLen_m=%.2f unitsPerMeter=%.3f\n",
-                (int)m_focusMode, m_focusTetherLen_m, m_unitsPerMeter);
-        fprintf(stderr,
-                "KitePlugin DBG tether endpoints: groundPos=(%.2f %.2f %.2f) knotWorld=(%.2f %.2f %.2f) dist=%.2f\n",
-                m_groundPos.x(), m_groundPos.y(), m_groundPos.z(),
-                knotWorld.x(), knotWorld.y(), knotWorld.z(),
-                (knotWorld - m_groundPos).length());
-    }
     const osg::Vec3 knotFrontWorld = localToWorld(m_knotFrontLocal);
     const osg::Vec3 knotRearWorld = localToWorld(m_knotRearLocal);
 
-    const osg::Vec3 groundW = groundStationWorld();
-    auto addLine = [](osg::Vec3Array *arr, const osg::Vec3 &a, const osg::Vec3 &b) {
-        arr->push_back(a);
-        arr->push_back(b);
-    };
+    const osg::Vec3 g = m_groundPos;
+    const osg::Vec3 k = knotWorld;
 
-    // Main tether: ground station -> knot (full or focus segment).
-    m_tetherVerts->clear();
-    if (!m_focusMode)
+    // ---------- FULL tether (faint) ----------
+    if (m_tetherFullVerts && m_tetherFullGeom)
     {
-        addLine(m_tetherVerts.get(), groundW, knotWorld);
+        m_tetherFullVerts->clear();
+
+        const float L_units = (k - g).length();
+        const float L_m = (m_unitsPerMeter > 1e-6f) ? (L_units / m_unitsPerMeter) : L_units;
+        const float sag_m = std::min(m_ropeSagFactor * L_m, m_ropeSagMax);
+        const float sag_units = sag_m * m_unitsPerMeter;
+
+        const int samplesMain = std::max(8, m_ropeSamplesMain);
+        std::vector<osg::Vec3> fullPts = sagCurvePoints(g, k, samplesMain, sag_units);
+
+        if (m_drawFullTether)
+            appendPolylineAsLines(m_tetherFullVerts.get(), fullPts);
+
+        static_cast<osg::DrawArrays *>(m_tetherFullGeom->getPrimitiveSet(0))->setCount((int)m_tetherFullVerts->size());
+        m_tetherFullVerts->dirty();
+        m_tetherFullGeom->dirtyDisplayList();
+        m_tetherFullGeom->dirtyBound();
     }
-    else
+
+    // ---------- FOCUS tether tail (bright) ----------
+    if (m_tetherVerts && m_tetherGeom)
     {
-        const float L = m_focusTetherLen_m * m_unitsPerMeter;
-        osg::Vec3 dir = knotWorld - groundW;
-        const float d = dir.length();
-        if (d < 1e-6f)
+        m_tetherVerts->clear();
+
+        if (m_focusMode)
         {
-            addLine(m_tetherVerts.get(), groundW, knotWorld);
+            const float L_units = (k - g).length();
+            const float L_m = (m_unitsPerMeter > 1e-6f) ? (L_units / m_unitsPerMeter) : L_units;
+            const float sag_m = std::min(m_ropeSagFactor * L_m, m_ropeSagMax);
+            const float sag_units = sag_m * m_unitsPerMeter;
+
+            const int samplesMain = std::max(8, m_ropeSamplesMain);
+            std::vector<osg::Vec3> fullPts = sagCurvePoints(g, k, samplesMain, sag_units);
+
+            // Instead of complex arc-length clipping: choose last segment by parameter,
+            // but keep the *entire* curve visible via full tether already.
+            // This avoids "partial sag" artifacts and keeps the focus tail stable.
+            const float tailUnits = m_focusTetherLen_m * m_unitsPerMeter;
+            float dist = 0.f;
+            int startIdx = 0;
+            for (int i = (int)fullPts.size() - 1; i > 0; --i)
+            {
+                dist += (fullPts[i] - fullPts[i - 1]).length();
+                if (dist >= tailUnits)
+                {
+                    startIdx = i - 1;
+                    break;
+                }
+            }
+
+            std::vector<osg::Vec3> tailPts;
+            tailPts.reserve(fullPts.size() - (size_t)startIdx);
+            for (size_t i = (size_t)startIdx; i < fullPts.size(); ++i)
+                tailPts.push_back(fullPts[i]);
+
+            appendPolylineAsLines(m_tetherVerts.get(), tailPts);
         }
         else
         {
-            dir /= d;
-            const osg::Vec3 a = knotWorld - dir * std::min(L, d);
-            // 1) long part (still connected)
-            addLine(m_tetherVerts.get(), groundW, a);
-            // 2) focus part near kite
-            addLine(m_tetherVerts.get(), a, knotWorld);
+            // if not in focus mode, hide focus tether (full tether already shows it)
         }
+
+        static_cast<osg::DrawArrays *>(m_tetherGeom->getPrimitiveSet(0))->setCount((int)m_tetherVerts->size());
+        m_tetherVerts->dirty();
+        m_tetherGeom->dirtyDisplayList();
+        m_tetherGeom->dirtyBound();
     }
-    static_cast<osg::DrawArrays *>(m_tetherGeom->getPrimitiveSet(0))->setCount((int)m_tetherVerts->size());
-    m_tetherVerts->dirty();
-    m_tetherGeom->dirtyDisplayList();
-    m_tetherGeom->dirtyBound();
 
-    // Bridles: junction -> each anchor.
-    m_bridleVerts->clear();
-    m_bridleVerts->reserve(2 * m_attachLocal.size() + 4);
-
-    const size_t N = m_attachLocal.size();
-    const size_t half = N / 2;
-    for (size_t i = 0; i < N; ++i)
+    // ---------- Bridles (sag) ----------
+    if (m_bridleVerts && m_bridleGeom)
     {
-        const osg::Vec3 aWorld = localToWorld(m_attachLocal[i]);
-        const osg::Vec3 kWorld = (m_useTwoStageKnot && i < half) ? knotFrontWorld
-                                                                 : (m_useTwoStageKnot ? knotRearWorld : knotWorld);
-        m_bridleVerts->push_back(kWorld);
-        m_bridleVerts->push_back(aWorld);
-    }
+        m_bridleVerts->clear();
 
-    if (m_useTwoStageKnot)
-    {
-        m_bridleVerts->push_back(knotWorld);
-        m_bridleVerts->push_back(knotFrontWorld);
-        m_bridleVerts->push_back(knotWorld);
-        m_bridleVerts->push_back(knotRearWorld);
-    }
+        const size_t N = m_attachLocal.size();
+        const size_t half = (N / 2);
+        const int samplesBr = std::max(6, m_ropeSamplesBridle);
 
-    static_cast<osg::DrawArrays *>(m_bridleGeom->getPrimitiveSet(0))->setCount((int)m_bridleVerts->size());
-    m_bridleVerts->dirty();
-    m_bridleGeom->dirtyDisplayList();
-    m_bridleGeom->dirtyBound();
+        for (size_t i = 0; i < N; ++i)
+        {
+            const osg::Vec3 aWorld = localToWorld(m_attachLocal[i]);
+
+            const osg::Vec3 kWorld =
+                (m_useTwoStageKnot && i < half) ? knotFrontWorld :
+                (m_useTwoStageKnot)             ? knotRearWorld  :
+                                                  knotWorld;
+
+            const float brL_units = (aWorld - kWorld).length();
+            const float brL_m = (m_unitsPerMeter > 1e-6f) ? (brL_units / m_unitsPerMeter) : brL_units;
+            const float brSag_m = std::min(m_ropeSagFactor * brL_m, m_ropeSagMax);
+            const float brSag_units = brSag_m * m_unitsPerMeter;
+
+            std::vector<osg::Vec3> brPts = sagCurvePoints(kWorld, aWorld, samplesBr, brSag_units);
+            appendPolylineAsLines(m_bridleVerts.get(), brPts);
+        }
+
+        static_cast<osg::DrawArrays *>(m_bridleGeom->getPrimitiveSet(0))->setCount((int)m_bridleVerts->size());
+        m_bridleVerts->dirty();
+        m_bridleGeom->dirtyDisplayList();
+        m_bridleGeom->dirtyBound();
+    }
 }
 
 void KitePlugin::preFrame()

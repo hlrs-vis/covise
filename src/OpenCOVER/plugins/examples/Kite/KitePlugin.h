@@ -13,11 +13,14 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 #include <osg/Group>
+#include <osg/BoundingBox>
 #include <osg/MatrixTransform>
 #include <osg/Node>
 #include <osg/Quat>
 #include <osg/ShapeDrawable>
 #include <osg/Vec3>
+#include <osgUtil/IntersectionVisitor>
+#include <osgUtil/LineSegmentIntersector>
 
 #include <string>
 #include <vector>
@@ -83,8 +86,23 @@ private:
 
     osg::Vec3 localToWorld(const osg::Vec3 &pLocal) const;
     static osg::Quat quatFromZToDir(const osg::Vec3 &dir);
+
+    // --- Rope curve helpers ---
     static std::vector<osg::Vec3> sagCurvePoints(const osg::Vec3 &a, const osg::Vec3 &b,
-                                                 int samples, float sagMeters);
+                                                 int samples, float sagUnits);
+    static void appendPolylineAsLines(osg::Vec3Array *arr, const std::vector<osg::Vec3> &pts);
+    static std::vector<osg::Vec3> clipPolylineTailByLength(const std::vector<osg::Vec3> &pts, float tailLenUnits);
+    void addSaggedLine(osg::Vec3Array *arr,
+                       const osg::Vec3 &a,
+                       const osg::Vec3 &b,
+                       int samples,
+                       float sagUnits) const;
+
+    // --- Anchor snapping (to attach bridles to the mesh) ---
+    void snapBridleAnchorsToSurface(const osg::BoundingBox &bb);
+    bool snapPointToModelSurfaceMultiAxis(osg::Node *model, const osg::Vec3 &pModel,
+                                          float rayUp, float rayDown,
+                                          osg::Vec3 &hitModel) const;
 
     void createGround();
     void createGroundStation();
@@ -94,13 +112,26 @@ private:
     // Rope config
     bool m_ropeEnabled = true;
 
-    int m_ropeSamplesMain = 28;
-    int m_ropeSamplesBridle = 14;
+    int m_ropeSamplesMain = 32;
+    int m_ropeSamplesBridle = 10;
 
     float m_ropeRadius = 0.015f;
 
-    float m_ropeSagFactor = 0.06f;
-    float m_ropeSagMax = 8.0f;
+    float m_ropeSagFactor = 0.1f;
+    float m_ropeSagMax = 6.0f;
+
+    // ----- Tether visualization tuning -----
+    bool m_tetherFade = true; // draw far part faint, near part strong
+    float m_tetherNearLen_m = 80.0f; // last N meters drawn strong (near the kite)
+
+    float m_tetherSagBoost = 4.0f; // extra sag for long tether segments
+    float m_tetherSagMaxLong_m = 40.0f; // cap for long-tether sag (meters)
+
+    // separate styles for far/near tether
+    float m_tetherLineWidthNear = 3.0f;
+    float m_tetherLineWidthFar = 1.0f;
+    float m_tetherAlphaNear = 0.90f;
+    float m_tetherAlphaFar = 0.15f;
 
     osg::Vec3 m_groundRefCsv = osg::Vec3(0.f, 0.f, 0.f);
     bool m_haveGroundRef = false;
@@ -135,16 +166,41 @@ private:
     std::vector<osg::Vec3> m_attachLocal;
     osg::Vec3 m_junctionLocal = osg::Vec3(0.f, 0.f, -0.2f);
     osg::Vec3 m_groundPos = osg::Vec3(0.f, 0.f, 0.f);
+    osg::BoundingBox m_modelBB;
+    bool m_haveModelBB = false;
+
+    // optional: visualize-safe clamp
+    bool m_clampAboveGround = true; // config toggle later if you want
+    float m_groundZUnits = 0.f; // your ground plane height in *units*
+    float m_globalPosScale = 1.f; // optional global scaling (instead of meanR trick)
 
     // Rope as line geometry.
     osg::ref_ptr<osg::Geode> m_ropeGeode;
+    // --- Tether: draw full + focus tail separately ---
+    osg::ref_ptr<osg::Geometry> m_tetherFullGeom;
+    osg::ref_ptr<osg::Vec3Array> m_tetherFullVerts;
+
     osg::ref_ptr<osg::Geometry> m_tetherGeom;
     osg::ref_ptr<osg::Geometry> m_bridleGeom;
     osg::ref_ptr<osg::Vec3Array> m_tetherVerts;
     osg::ref_ptr<osg::Vec3Array> m_bridleVerts;
 
+    osg::ref_ptr<osg::Vec4Array> m_tetherFullColors;
+    osg::ref_ptr<osg::Vec4Array> m_tetherFocusColors;
+    osg::ref_ptr<osg::Vec4Array> m_bridleColors;
+
+    bool m_drawFullTether = true; // always draw a faint full tether
+    float m_fullTetherAlpha = 0.25f; // faint
+    float m_focusTetherAlpha = 1.0f; // bright
+
+    // --- Anchor snapping ---
+    bool m_snapAnchorsToSurface = true;
+    float m_anchorLift_m = 0.03f;
+    float m_snapRayUp_m = 2.0f;
+    float m_snapRayDown_m = 4.0f;
+
     float m_lineWidth = 2.0f;
-    bool m_focusMode = true;
+    bool m_focusMode = false;
     float m_focusTetherLen_m = 40.0f;
 
     // Bridle layout params (fractions of bbox).
