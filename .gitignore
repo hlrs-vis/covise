@@ -6,6 +6,8 @@
 /extern_libs/
 /.archsuffix-*
 /.envrc
+src/OpenCOVER/plugins/examples/Kite/flight.csv
+*:Zone.Identifier
 /*.vrbreg
 /coviseDaemon.settings
 /.cproject
