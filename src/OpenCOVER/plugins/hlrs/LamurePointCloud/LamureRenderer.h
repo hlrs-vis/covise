@@ -126,10 +126,9 @@ private:
 
     mutable std::mutex m_renderMutex;
     std::condition_variable m_renderCondition;
-    bool m_renderingAllowed{true};
     bool m_pauseRequested{false};
-    uint32_t m_framesPendingDrain{0};
     mutable std::mutex m_sceneMutex;
+    mutable std::mutex m_shader_mutex;
 
     // Private methods
     bool readShader(const std::string& pathString, std::string& shaderString, bool keepOptionalShaderCode);
@@ -474,6 +473,13 @@ private:
         uint8_t ctx = -1;
         int view_id = -1;
         bool rendering = false;
+        bool rendering_allowed = true;
+        uint32_t frames_pending_drain = 0;
+        // Initialization flags
+        bool resources_initialized{false}; // VBOs, VAOs (Volatile: reset on model change)
+        bool shaders_initialized{false};   // Programs (Persistent: keep across model change)
+        bool initialized{false};           // Base context (Schism, Camera)
+
         // Geometry
         GLGeo geo_box;
         GLGeo geo_frustum;
@@ -481,7 +487,6 @@ private:
         GLGeo geo_text;
         GLuint vao_pointcloud{0};
         bool vao_initialized{false};
-        bool initialized{false};
         std::array<unsigned short, 24> box_idx = {{
             0, 1, 2, 3, 4, 5, 6, 7,
             0, 2, 1, 3, 4, 6, 5, 7,
@@ -652,7 +657,8 @@ public:
     bool notifyOn() const;
 
     void init();
-    void shutdown();
+    void shutdown(); // Full shutdown (destructor)
+    void reset();    // Soft reset (reload models, keep shaders)
     void detachCallbacks();
 
     bool beginFrame(int ctxId);
@@ -726,7 +732,13 @@ public:
     ShaderType m_active_shader_type = ShaderType::Point;
 
     const std::vector<ShaderInfo>& getPclShader() const { return pcl_shader; }
+    
+    // Shared CPU data (prepared once, read by all contexts)
     std::map<uint32_t, std::vector<uint32_t>> m_bvh_node_vertex_offsets;
+    std::vector<float> m_shared_box_vertices;
+
+    // Call this from main thread when models change, before rendering resumes
+    void updateSharedBoxData();
 
     void setActiveShaderType(ShaderType t) { m_active_shader_type = t; }
     ShaderType getActiveShaderType() const { return m_active_shader_type; }

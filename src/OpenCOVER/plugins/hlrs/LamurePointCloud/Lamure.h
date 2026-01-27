@@ -19,6 +19,8 @@
 #include <initializer_list>
 #include <algorithm>
 #include <atomic>
+#include <chrono>
+#include <mutex>
 
 #include <osg/Timer>
 #include <osg/Matrix>
@@ -275,6 +277,12 @@ public:
     void stopMeasurement();
     void applyInitialTransforms();
     void dumpModelParentChains() const;
+    void markResetStart();
+    void markResetEnd();
+    bool isResetTimingActive() const noexcept { return m_reset_timing_active; }
+    void logFirstRenderAfterReset();
+    void logRenderFrameDelta(int ctxId);
+    bool shouldTraceResetFrame(int ctxId, uint64_t frameNumber);
 
     LamureUI* getUI() { return m_ui.get(); }
     LamureRenderer* getRenderer() { return m_renderer.get(); }
@@ -324,11 +332,11 @@ public:
     std::vector<osg::ref_ptr<osg::Group>> m_bootstrap_parents;
     std::unordered_set<std::string> m_registeredFiles;
     std::unordered_map<std::string, std::string> m_model_source_keys;
-    std::unordered_set<std::string> m_reloaded_files;
 
 
 private:
     std::vector<std::string> m_files_to_load;
+    std::unordered_set<std::string> m_files_to_load_set;
     bool m_reload_imminent = false;
     int m_frames_to_wait = 0;
 
@@ -397,6 +405,14 @@ private:
     LamureEditTool::BrushAction m_edit_action{LamureEditTool::BrushAction::None};
     bool m_edit_mode{false};
     bool m_brush_frozen{false};
+    std::chrono::steady_clock::time_point m_reset_start_time{};
+    std::chrono::steady_clock::time_point m_reset_end_time{};
+    std::mutex m_reset_timing_mutex;
+    bool m_reset_timing_active{false};
+    bool m_reset_first_render_pending{false};
+    int m_reset_frame_samples_remaining{0};
+    std::unordered_map<int, uint64_t> m_reset_trace_last_frame;
+    std::unordered_map<int, std::chrono::steady_clock::time_point> m_last_render_time;
 };
 
 inline ScopedMark::~ScopedMark() {

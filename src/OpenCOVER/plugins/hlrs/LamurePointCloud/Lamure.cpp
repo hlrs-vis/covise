@@ -433,8 +433,11 @@ int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *covise
         }
     }
 
-    if (std::find(plugin->m_files_to_load.begin(), plugin->m_files_to_load.end(), file) != plugin->m_files_to_load.end())
+    if (!plugin->m_files_to_load_set.insert(file).second) {
+        if (isMenuReload)
+            plugin->m_reload_imminent = true;
         return 0;
+    }
 
     if (!in_model_list) {
         plugin->m_settings.models.push_back(file);
@@ -449,8 +452,19 @@ int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *covise
         plugin->m_pendingTransformUpdate[file] = vrml_parent;
     }
 
-    if (plugin->m_files_to_load.empty()) {
-        plugin->m_frames_to_wait = isMenuReload ? 0 : static_cast<int>(plugin->m_settings.pause_frames);
+    const bool reset_planned_or_running =
+        plugin->m_reset_in_progress || g_is_resetting.load();
+    if (!reset_planned_or_running) {
+        int collectFrames = static_cast<int>(plugin->m_settings.pause_frames);
+        collectFrames = std::max(1, std::min(collectFrames, 5));
+        if (isMenuReload)
+            collectFrames = 0;
+        if (plugin->m_files_to_load.empty())
+            plugin->m_frames_to_wait = collectFrames;
+        else
+            plugin->m_frames_to_wait = std::max(plugin->m_frames_to_wait, collectFrames);
+        plugin->setBrushFrozen(true);
+    } else {
         plugin->setBrushFrozen(true);
     }
     plugin->m_files_to_load.push_back(file);
@@ -527,34 +541,29 @@ void Lamure::preFrame() {
     }
 
     // Dynamic loading after start
-    if (!m_files_to_load.empty()) {
-        if (!g_is_resetting) {
-            if (m_frames_to_wait > 0) {
-                m_frames_to_wait--;
-            }
+    if (m_reload_imminent && m_files_to_load.empty()) {
+        int collectFrames = static_cast<int>(m_settings.pause_frames);
+        collectFrames = std::max(1, std::min(collectFrames, 5));
+        if (m_frames_to_wait == 0)
+            m_frames_to_wait = collectFrames;
+        setBrushFrozen(true);
+    }
+
+    const bool pending_rebuild = !m_files_to_load.empty() || m_reload_imminent;
+    if (pending_rebuild && !g_is_resetting) {
+        if (m_frames_to_wait > 0) {
+            --m_frames_to_wait;
         }
 
         if (m_frames_to_wait == 0) {
             bool expected = false;
             if (g_is_resetting.compare_exchange_strong(expected, true)) {
                 if (m_settings.show_notify)
-                    std::cout << "[Lamure] Dynamic load triggered" << std::endl;
-                perform_system_reset();
-            }
-        }
-    }
-    else if (m_reload_imminent) {
-        if (!g_is_resetting) {
-            bool expected = false;
-            if (g_is_resetting.compare_exchange_strong(expected, true)) {
-                if (m_settings.show_notify)
-                    std::cout << "[Lamure] VRML reload detected" << std::endl;
+                    std::cout << "[Lamure] Pending rebuild triggered" << std::endl;
                 setBrushFrozen(true);
                 perform_system_reset();
             }
         }
-        m_reload_imminent = false;
-        m_reloaded_files.clear();
     }
 
     if (!m_pendingTransformUpdate.empty()) {
@@ -799,6 +808,7 @@ void Lamure::perform_system_reset()
 
     // Phase 1: pause rendering and initiate shutdown
     if (!m_reset_in_progress) {
+        markResetStart();
         if (m_settings.show_notify)
             std::cout << "[Lamure] Reset: pause and shutdown" << std::endl;
         m_renderer_paused_for_reset = m_renderer ? m_renderer->pauseAndWaitForIdle(m_settings.pause_frames) : false;
@@ -825,6 +835,7 @@ void Lamure::perform_system_reset()
                 }
             }
         m_files_to_load.clear();
+        m_files_to_load_set.clear();
 
         // reset internal tracking structures
         m_model_idx.clear();
@@ -1009,11 +1020,89 @@ void Lamure::perform_system_reset()
             std::cout << "[Lamure] Reset: rebuilt " << static_cast<int>(N) << " models" << std::endl;
     }
 
+    markResetEnd();
+    m_files_to_load.clear();
+    m_files_to_load_set.clear();
+    m_frames_to_wait = 0;
+    m_reload_imminent = false;
     m_reset_in_progress = false;
     g_is_resetting = false;
     m_did_initial_build = true;
 }
 
+void Lamure::markResetStart()
+{
+    std::lock_guard<std::mutex> lock(m_reset_timing_mutex);
+    m_reset_start_time = std::chrono::steady_clock::now();
+    m_reset_end_time = m_reset_start_time;
+    m_reset_timing_active = true;
+    m_reset_first_render_pending = true;
+    m_reset_frame_samples_remaining = 20;
+    m_last_render_time.clear();
+    m_reset_trace_last_frame.clear();
+}
+
+void Lamure::markResetEnd()
+{
+    std::lock_guard<std::mutex> lock(m_reset_timing_mutex);
+    if (!m_reset_timing_active)
+        return;
+    m_reset_end_time = std::chrono::steady_clock::now();
+    if (m_settings.show_notify) {
+        const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(m_reset_end_time - m_reset_start_time).count();
+        std::cout << "[Lamure] Reset timing: " << ms << " ms (start->end)\n";
+    }
+}
+
+void Lamure::logFirstRenderAfterReset()
+{
+    std::lock_guard<std::mutex> lock(m_reset_timing_mutex);
+    if (!m_reset_timing_active)
+        return;
+    if (!m_reset_first_render_pending)
+        return;
+    const auto now = std::chrono::steady_clock::now();
+    if (m_settings.show_notify) {
+        const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_reset_start_time).count();
+        std::cout << "[Lamure] Reset timing: " << ms << " ms (start->first render)\n";
+    }
+    m_reset_first_render_pending = false;
+}
+
+void Lamure::logRenderFrameDelta(int ctxId)
+{
+    std::lock_guard<std::mutex> lock(m_reset_timing_mutex);
+    if (!m_reset_timing_active || m_reset_frame_samples_remaining <= 0)
+        return;
+
+    const auto now = std::chrono::steady_clock::now();
+    auto it = m_last_render_time.find(ctxId);
+    if (it != m_last_render_time.end() && m_settings.show_notify) {
+        const auto delta_ms = std::chrono::duration<double, std::milli>(now - it->second).count();
+        std::cout << "[Lamure] Render delta ctx=" << ctxId << ": " << delta_ms << " ms\n";
+    }
+    m_last_render_time[ctxId] = now;
+    if (--m_reset_frame_samples_remaining <= 0) {
+        m_reset_timing_active = false;
+    }
+}
+
+bool Lamure::shouldTraceResetFrame(int ctxId, uint64_t frameNumber)
+{
+    std::lock_guard<std::mutex> lock(m_reset_timing_mutex);
+    if (!m_reset_timing_active)
+        return false;
+    auto& last = m_reset_trace_last_frame[ctxId];
+    if (last == frameNumber)
+        return true;
+    last = frameNumber;
+    if (m_reset_frame_samples_remaining > 0) {
+        if (--m_reset_frame_samples_remaining <= 0) {
+            m_reset_timing_active = false;
+        }
+    }
+    return m_reset_timing_active;
+}
 
 void Lamure::loadSettingsFromCovise() {
     auto& s = m_settings;
@@ -1480,11 +1569,6 @@ bool Lamure::writeSettingsJson(const Lamure::Settings& s, const std::string& out
         return o.str();
         };
     auto mat4_scm = [](const scm::math::mat4d& m){
-        // Wir interpretieren m[0..15] als 4x4 in der sichtbaren Reihenfolge:
-        // [ [m00 m01 m02 m03],
-        //   [m10 m11 m12 m13],
-        //   [m20 m21 m22 m23],
-        //   [m30 m31 m32 m33] ]
         std::ostringstream o; o.setf(std::ios::fixed); o.precision(6);
         o << "["
             << "[" << m[0]  << "," << m[1]  << "," << m[2]  << "," << m[3]  << "],"

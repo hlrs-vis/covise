@@ -38,6 +38,7 @@
 #include <algorithm>
 #include <limits>
 #include <sstream>
+#include <iomanip>
 #include <vector>
 #include <string>
 #include <cmath>
@@ -203,6 +204,126 @@ namespace {
         bool m_enabled{false};
     };
 
+    struct TraceKey {
+        int ctx;
+        lamure::model_t model;
+        bool operator==(const TraceKey& other) const noexcept {
+            return ctx == other.ctx && model == other.model;
+        }
+    };
+
+    struct TraceKeyHash {
+        std::size_t operator()(const TraceKey& key) const noexcept {
+            const std::size_t h1 = std::hash<int>{}(key.ctx);
+            const std::size_t h2 = std::hash<lamure::model_t>{}(key.model);
+            return h1 ^ (h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2));
+        }
+    };
+
+    struct TraceMark {
+        const char* label;
+        std::chrono::steady_clock::time_point time;
+    };
+
+    struct TraceSession {
+        uint64_t frame{std::numeric_limits<uint64_t>::max()};
+        std::vector<TraceMark> marks;
+        bool active{false};
+        uint64_t seq{0};
+        uint64_t active_seq{0};
+        std::chrono::steady_clock::time_point last_begin_time;
+        bool has_last_begin{false};
+        double pending_begin_gap_ms{0.0};
+        bool has_pending_begin_gap{false};
+    };
+
+    std::mutex g_trace_mutex;
+    std::unordered_map<TraceKey, TraceSession, TraceKeyHash> g_trace_sessions;
+
+    void traceMark(int ctx, lamure::model_t model, uint64_t frame, double frame_time_s, const char* label)
+    {
+        (void)frame_time_s;
+        const auto now = std::chrono::steady_clock::now();
+        std::lock_guard<std::mutex> lock(g_trace_mutex);
+        TraceKey key{ctx, model};
+        auto& session = g_trace_sessions[key];
+        static std::unordered_map<TraceKey, uint64_t, TraceKeyHash> s_last_frame;
+        static std::pair<int, lamure::model_t> s_last_logged_key{-1, static_cast<lamure::model_t>(-1)};
+
+        if (std::strcmp(label, "draw_begin") == 0) {
+            double delta_ms = 0.0;
+            TraceKey frame_key{ctx, model};
+            auto it = s_last_frame.find(frame_key);
+            if (it != s_last_frame.end()) {
+                const uint64_t last_frame = it->second;
+                if (frame == last_frame + 1 && session.has_last_begin) {
+                    delta_ms = std::chrono::duration<double, std::milli>(now - session.last_begin_time).count();
+                }
+            }
+            session.pending_begin_gap_ms = delta_ms;
+            session.has_pending_begin_gap = true;
+            session.frame = frame;
+            session.marks.clear();
+            session.marks.push_back({label, now});
+            session.active = true;
+            session.active_seq = ++session.seq;
+            session.last_begin_time = now;
+            session.has_last_begin = true;
+            s_last_frame[frame_key] = frame;
+            return;
+        }
+
+        if (!session.active || session.frame != frame) {
+            return;
+        }
+
+        session.marks.push_back({label, now});
+
+        if (std::strcmp(label, "draw_end") == 0) {
+            auto find_time = [&](const char* needle) -> const std::chrono::steady_clock::time_point* {
+                for (const auto& m : session.marks) {
+                    if (std::strcmp(m.label, needle) == 0) {
+                        return &m.time;
+                    }
+                }
+                return nullptr;
+            };
+            auto delta_ms_or_zero = [&](const char* from, const char* to) -> double {
+                const auto* t0 = find_time(from);
+                const auto* t1 = find_time(to);
+                if (!t0 || !t1) return 0.0;
+                return std::chrono::duration<double, std::milli>(*t1 - *t0).count();
+            };
+
+            const double dt_dispatch = delta_ms_or_zero("dispatch_begin", "dispatch_end");
+            const double dt_total = delta_ms_or_zero("draw_begin", "draw_end");
+
+            const auto emit = [&](const char* from, const char* to, double delta_ms) {
+                if (s_last_logged_key.first != -1 &&
+                    (s_last_logged_key.first != ctx || s_last_logged_key.second != model)) {
+                    std::cout << "\n";
+                }
+                const std::string step = std::string(from) + "->" + to;
+                std::cout << "[Lamure] Trace"
+                          << " ctx=" << ctx
+                          << " model=" << model
+                          << " frame=" << frame
+                          << " step=" << std::left << std::setw(28) << step << "\t"
+                          << "dt_ms=" << std::right << std::fixed << std::setprecision(3) << delta_ms
+                          << "\n";
+                s_last_logged_key = {ctx, model};
+            };
+
+            if (session.has_pending_begin_gap) {
+                emit("draw_begin", "draw_begin", session.pending_begin_gap_ms);
+                session.has_pending_begin_gap = false;
+            }
+            emit("draw_begin", "draw_end", dt_total);
+            emit("dispatch_begin", "dispatch_end", dt_dispatch);
+            session.active = false;
+        }
+    }
+
 } // namespace
 
 void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg::Drawable* drawable) const
@@ -215,9 +336,23 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
 
     int ctx = renderInfo.getContextID();
     if (!m_renderer->beginFrame(ctx)) { return; }
-    if (plugin->getSettings().models.empty()) { m_renderer->endFrame(ctx); return; }
+    if (plugin->getSettings().models.empty()) {
+        m_renderer->endFrame(ctx);
+        return;
+    }
 
     auto& res = m_renderer->getResources(ctx);
+    osg::State* state = renderInfo.getState();
+    const osg::FrameStamp* fs = state ? state->getFrameStamp() : nullptr;
+    const uint64_t frameNumber = fs ? fs->getFrameNumber() : 0;
+    const double frameTime = fs ? fs->getReferenceTime() : -1.0;
+    const bool trace = plugin->shouldTraceResetFrame(ctx, frameNumber) && plugin->getSettings().show_notify;
+    const lamure::model_t modelId = data->modelId;
+    if (trace) { traceMark(ctx, modelId, frameNumber, frameTime, "draw_begin"); }
+    if (trace) { traceMark(ctx, modelId, frameNumber, frameTime, "beginFrame"); }
+    const auto trace_end = [&]() {
+        if (trace) { traceMark(ctx, modelId, frameNumber, frameTime, "draw_end"); }
+    };
 
     GLState before = GLState::capture();
     glDisable(GL_CULL_FACE);
@@ -225,7 +360,6 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
     m_renderer->updateActiveClipPlanes();
     ClipDistanceScope clipScope(m_renderer, m_renderer->clipPlaneCount() > 0);
 
-    osg::State* state = renderInfo.getState();
     if (state) { state->setCheckForGLErrors(osg::State::CheckForGLErrors::NEVER_CHECK_GL_ERRORS); }
 
     lamure::ren::cut_database* cuts = lamure::ren::cut_database::get_instance();
@@ -238,11 +372,12 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
 
     const osg::Node* drawableParent = drawable ? drawable->getParent(0) : nullptr;
     if (!m_renderer->getModelViewProjectionFromRenderInfo(renderInfo, drawableParent, model_osg, view_osg, proj_osg)) {
+        trace_end();
         m_renderer->endFrame(ctx);
         before.restore();
         return;
     }
-
+    if (trace) { traceMark(ctx, modelId, frameNumber, frameTime, "mvp"); }
     const scm::math::mat4 view = LamureUtil::matConv4F(view_osg);
     const scm::math::mat4 proj = LamureUtil::matConv4F(proj_osg);
 
@@ -314,11 +449,13 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
 
     if (plugin->getSettings().lod_update && !plugin->isResetInProgress()) {
         try {
+            if (trace) { traceMark(ctx, modelId, frameNumber, frameTime, "dispatch_begin"); }
             if (lamure::ren::policy::get_instance()->size_of_provenance() > 0 && plugin) {
                 controller->dispatch(context_id, m_renderer->getDevice(ctx), plugin->getDataProvenance());
             } else {
                 controller->dispatch(context_id, m_renderer->getDevice(ctx));
             }
+            if (trace) { traceMark(ctx, modelId, frameNumber, frameTime, "dispatch_end"); }
         } catch (const std::exception& e) {
             if (m_renderer->notifyOn()) std::cerr << "[Lamure] dispatch skipped: " << e.what() << "\n";
         }
@@ -326,10 +463,15 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
 
     lamure::ren::cut& cut = cuts->get_cut(context_id, view_id, data->modelId);
     const auto& renderable = cut.complete_set();
+    if (trace) { traceMark(ctx, modelId, frameNumber, frameTime, "cut_ready"); }
+    if (!renderable.empty() && plugin->isResetTimingActive()) {
+        plugin->logFirstRenderAfterReset();
+    }
 
     if (renderable.empty()) {
         m_renderer->endFrame(ctx);
         before.restore();
+        trace_end();
         return;
     }
 
@@ -337,6 +479,7 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
     const scm::math::mat4 m = model_matrix;
 
     m_renderer->setModelUniforms(mvp, m, res);
+    if (trace) { traceMark(ctx, modelId, frameNumber, frameTime, "uniforms"); }
 
     const lamure::ren::bvh* bvh = database->get_model(data->modelId)->get_bvh();
     size_t surfels_per_node = database->get_primitives_per_node();
@@ -521,6 +664,7 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
         plugin->getRenderInfo().rendered_nodes += rendered_nodes;
         
         m_renderer->endFrame(ctx);
+        trace_end();
         if (!res.vao_initialized) {
             GLState after = GLState::capture();
             if (after.getVertexArrayBinding() != before.getVertexArrayBinding()) {
@@ -549,6 +693,7 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
     plugin->getRenderInfo().rendered_nodes += rendered_nodes;
     
     m_renderer->endFrame(ctx);
+    trace_end();
     if (!res.vao_initialized) {
         GLState after = GLState::capture();
         if (after.getVertexArrayBinding() != before.getVertexArrayBinding()) {
@@ -808,24 +953,50 @@ void InitDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg
     int screenIdx = -1;
     if (cfg && ctx >= 0 && ctx < static_cast<int>(cfg->pipes.size())) { screenIdx = cfg->pipes[ctx].x11ScreenNum; }
     
+    // Check main initialization (Context, Camera)
     if (_renderer && !res.initialized) {
         res.ctx = ctx;
         res.view_id = screenIdx;
-        GLState before = GLState::capture();
-        _renderer->initCamera(res);            
+        _renderer->initCamera(res);
         _renderer->initSchismObjects(res);
+        res.initialized = true;
+    }
+
+    if (_renderer && !res.shaders_initialized) {
+        osg::Timer* timer = osg::Timer::instance();
+        osg::Timer_t t_start = timer->tick();
+        
+        _renderer->initLamureShader(res); // Now sets res.shaders_initialized = true inside
+        _renderer->initUniforms(res);
+        
+        if (_renderer->notifyOn()) {
+             std::cout << "[Lamure] InitDrawCallback(ctx=" << ctx << ") Shaders Compiled: " 
+                       << timer->delta_m(t_start, timer->tick()) << "ms" << std::endl;
+        }
+    }
+
+    if (_renderer && !res.resources_initialized) {
+        osg::Timer* timer = osg::Timer::instance();
+        osg::Timer_t t_start = timer->tick();
+        GLState before = GLState::capture();
+
         _renderer->initFrustumResources(res);
         _renderer->initBoxResources(res);
         _renderer->initPclResources(res);
-        _renderer->initLamureShader(res);
-        _renderer->initUniforms(res);
+        
         if (_renderer->getTextGeode().valid()) {
             _renderer->getTextGeode()->setNodeMask(_plugin->getUI()->getTextButton()->state() ? 0xFFFFFFFF : 0x0);
         }
         before.restore();
-        res.initialized = true;
+        res.resources_initialized = true;
+
+        if (_renderer->notifyOn()) {
+             std::cout << "[Lamure] InitDrawCallback(ctx=" << ctx << ") Resources Uploaded: " 
+                       << timer->delta_m(t_start, timer->tick()) << "ms" << std::endl;
+        }
     }
-    else if (_renderer) {
+    
+    if (_renderer) {
         osg::Matrixd view_osg;
         osg::Matrixd proj_osg;
         _renderer->getMatricesFromRenderInfo(renderInfo, view_osg, proj_osg);
@@ -853,7 +1024,6 @@ TextDrawCallback::TextDrawCallback(Lamure *plugin, osgText::Text *values)
 void TextDrawCallback::drawImplementation(osg::RenderInfo &renderInfo, const osg::Drawable *drawable) const
 {
     const bool verbose = _renderer && _renderer->notifyOn();
-    if (verbose) { std::cout << "[Lamure] TextDrawCallback::drawImplementation" << std::endl; } 
     const auto now = std::chrono::steady_clock::now();
     if (now - _lastUpdateTime >= _minInterval)
     {
@@ -1269,7 +1439,6 @@ void LamureRenderer::init()
         m_plugin->dumpModelParentChains();
     });
 
-    m_plugin->getGroup()->addChild(m_text_geode.get());
     m_plugin->getGroup()->addChild(m_edit_brush_transform.get());
     m_plugin->getGroup()->addChild(m_frustum_group.get());
 }
@@ -1278,6 +1447,57 @@ void LamureRenderer::detachCallbacks()
 {
     if (m_init_geometry.valid())        m_init_geometry->setDrawCallback(nullptr);
     if (m_frustum_geometry.valid())     m_frustum_geometry->setDrawCallback(nullptr);
+}
+
+void LamureRenderer::reset()
+{
+    if (notifyOn()) { std::cout << "[Lamure] LamureRenderer::reset() (Soft Shutdown)" << std::endl; }
+    
+    // Wait for pools (same as shutdown)
+    if (auto* ctrl = lamure::ren::controller::get_instance()) {
+        ctrl->shutdown_pools();
+    }
+    if (auto* cache = lamure::ren::ooc_cache::get_instance()) {
+        cache->wait_for_idle();
+        cache->shutdown_pool();
+    }
+
+    releaseMultipassTargets();
+
+    {
+        std::lock_guard<std::mutex> lock(m_ctx_mutex);
+        for (auto& pair : m_ctx_res) {
+            auto& res = pair.second;
+            // Clear Geometry (Volatile)
+            res.geo_box.destroy();
+            res.geo_frustum.destroy();
+            res.geo_screen_quad.destroy();
+            if (res.vao_pointcloud) {
+                // Warning: Deleting VAO without context current might be unsafe if not shared?
+                // Schism handles pointcloud VAOs usually, but here we track it manually?
+                // Let's reset the flag and let init recreate it. 
+                // Ideally we should delete it, but context binding is tricky here.
+                // Assuming InitDrawCallback handles overwriting or Schism logic prevails.
+                res.vao_pointcloud = 0;
+            }
+            
+            res.resources_initialized = false;
+            res.vao_initialized = false;
+            
+            // Keep: res.initialized (Context/Camera), res.shaders_initialized
+        }
+        // Do NOT clear m_ctx_res map!
+    }
+
+    // Cleanup scenegraph nodes
+    if (m_plugin && m_plugin->getGroup()) {
+        if (m_init_geode.valid())       m_plugin->getGroup()->removeChild(m_init_geode);
+        if (m_frustum_group.valid())    m_plugin->getGroup()->removeChild(m_frustum_group);
+    }
+    // ... keep m_init_geode pointers valid for re-add in init() ...
+    
+    // NOTE: shutdown() cleared everything. reset() keeps the objects but detaches them.
+    // init() will re-add them.
 }
 
 void LamureRenderer::shutdown()
@@ -1334,19 +1554,12 @@ void LamureRenderer::shutdown()
 
 bool LamureRenderer::beginFrame(int ctxId)
 {
+    auto& res = getResources(ctxId);
     std::unique_lock<std::mutex> lock(m_renderMutex);
-    
-    if (!m_renderingAllowed && !m_pauseRequested)
-        return false;
-        
-    if (m_pauseRequested && m_framesPendingDrain == 0)
+
+    if (!res.rendering_allowed)
         return false;
 
-    lock.unlock();
-    
-    // Locks m_ctx_mutex internally
-    auto& res = getResources(ctxId); 
-    
     // We only track that THIS context is active.
     // If it's already active (re-entry), we allow it.
     if (res.rendering) {
@@ -1368,15 +1581,24 @@ void LamureRenderer::endFrame(int ctxId)
 
         if (m_pauseRequested)
         {
-            if (m_framesPendingDrain > 0)
+            if (res.frames_pending_drain > 0)
             {
-                --m_framesPendingDrain;
+                --res.frames_pending_drain;
                 performFinish = true;
             }
 
-            if (m_framesPendingDrain == 0)
+            bool allDrained = true;
+            for (const auto& kv : m_ctx_res) {
+                if (kv.second.frames_pending_drain > 0) {
+                    allDrained = false;
+                    break;
+                }
+            }
+            if (allDrained)
             {
-                m_renderingAllowed = false;
+                for (auto& kv : m_ctx_res) {
+                    kv.second.rendering_allowed = false;
+                }
                 m_pauseRequested = false;
             }
         }
@@ -1389,7 +1611,11 @@ bool LamureRenderer::pauseAndWaitForIdle(uint32_t extraDrainFrames)
 {
     std::unique_lock<std::mutex> lock(m_renderMutex);
 
-    if (!m_renderingAllowed && !m_pauseRequested)
+    bool allPaused = true;
+    for (const auto& kv : m_ctx_res) {
+        if (kv.second.rendering_allowed) { allPaused = false; break; }
+    }
+    if (allPaused && !m_pauseRequested)
     {
         m_renderCondition.wait(lock, [this]() {
             for (const auto& kv : m_ctx_res) {
@@ -1403,15 +1629,21 @@ bool LamureRenderer::pauseAndWaitForIdle(uint32_t extraDrainFrames)
     if (m_pauseRequested)
     {
         const uint32_t framesToDrain = std::max<uint32_t>(extraDrainFrames, 1u);
-        if (m_framesPendingDrain < framesToDrain)
-            m_framesPendingDrain = framesToDrain;
+        for (auto& kv : m_ctx_res) {
+            if (!kv.second.rendering_allowed && kv.second.frames_pending_drain == 0)
+                continue;
+            if (kv.second.frames_pending_drain < framesToDrain)
+                kv.second.frames_pending_drain = framesToDrain;
+        }
         return true;
     }
 
     m_pauseRequested = true;
     uint32_t framesToDrain = std::max<uint32_t>(extraDrainFrames, 1u);
-    if (m_framesPendingDrain < framesToDrain)
-        m_framesPendingDrain = framesToDrain;
+    for (auto& kv : m_ctx_res) {
+        if (kv.second.frames_pending_drain < framesToDrain)
+            kv.second.frames_pending_drain = framesToDrain;
+    }
 
     // Check if any context is currently rendering
     bool anyRendering = false;
@@ -1421,8 +1653,10 @@ bool LamureRenderer::pauseAndWaitForIdle(uint32_t extraDrainFrames)
 
     if (!anyRendering)
     {
-        m_framesPendingDrain = 0;
-        m_renderingAllowed = false;
+        for (auto& kv : m_ctx_res) {
+            kv.second.frames_pending_drain = 0;
+            kv.second.rendering_allowed = false;
+        }
         m_pauseRequested = false;
         
         osg::ref_ptr<osg::GraphicsContext> gc = m_osg_camera.valid() ? m_osg_camera->getGraphicsContext() : nullptr;
@@ -1458,9 +1692,11 @@ void LamureRenderer::resumeRendering()
 {
     {
         std::lock_guard<std::mutex> lock(m_renderMutex);
-        m_framesPendingDrain = 0;
         m_pauseRequested = false;
-        m_renderingAllowed = true;
+        for (auto& kv : m_ctx_res) {
+            kv.second.frames_pending_drain = 0;
+            kv.second.rendering_allowed = true;
+        }
     }
     m_renderCondition.notify_all();
 }
@@ -2306,99 +2542,80 @@ bool LamureRenderer::readShader(std::string const &path_string, std::string &sha
 
 void LamureRenderer::initLamureShader(ContextResources& res)
 {
-    if (notifyOn()) { std::cout << "[Lamure] LamureRenderer::initLamureShader()" << std::endl; }
-    vis_point_vs_source.clear();
-    vis_point_fs_source.clear();
-    vis_point_color_vs_source.clear();
-    vis_point_color_fs_source.clear();
-    vis_point_color_lighting_vs_source.clear();
-    vis_point_color_lighting_fs_source.clear();
-    vis_point_prov_vs_source.clear();
-    vis_point_prov_fs_source.clear();
-    vis_surfel_vs_source.clear();
-    vis_surfel_fs_source.clear();
-    vis_surfel_gs_source.clear();
-    vis_surfel_color_vs_source.clear();
-    vis_surfel_color_gs_source.clear();
-    vis_surfel_color_fs_source.clear();
-    vis_surfel_color_lighting_vs_source.clear();
-    vis_surfel_color_lighting_gs_source.clear();
-    vis_surfel_color_lighting_fs_source.clear();
-    vis_surfel_prov_vs_source.clear();
-    vis_surfel_prov_gs_source.clear();
-    vis_surfel_prov_fs_source.clear();
-    vis_line_vs_source.clear();
-    vis_line_fs_source.clear();
-    vis_surfel_pass1_vs_source.clear();
-    vis_surfel_pass1_gs_source.clear();
-    vis_surfel_pass1_fs_source.clear();
-    vis_surfel_pass2_vs_source.clear();
-    vis_surfel_pass2_gs_source.clear();
-    vis_surfel_pass2_fs_source.clear();
-    vis_surfel_pass3_vs_source.clear();
-    vis_surfel_pass3_fs_source.clear();
-    vis_debug_vs_source.clear();
-    vis_debug_fs_source.clear();
+    if (notifyOn()) { std::cout << "[Lamure] LamureRenderer::initLamureShader() for ctx " << (int)res.ctx << std::endl; }
 
-    try
     {
-        char * val;
-        val = getenv( "COVISEDIR" );
-        std::string shader_root_path=val;
-        shader_root_path=shader_root_path+"/src/OpenCOVER/plugins/hlrs/LamurePointCloud/shaders";
-        shader_root_path=std::string(val)+"/share/covise/shaders";
-        if (!readShader(shader_root_path + "/vis/vis_point.glslv", vis_point_vs_source) ||
-            !readShader(shader_root_path + "/vis/vis_point.glslf", vis_point_fs_source) ||
-            !readShader(shader_root_path + "/vis/vis_point_color.glslv", vis_point_color_vs_source) ||
-            !readShader(shader_root_path + "/vis/vis_point_color.glslf", vis_point_color_fs_source) ||
-            !readShader(shader_root_path + "/vis/vis_point_color_lighting.glslv", vis_point_color_lighting_vs_source) ||
-            !readShader(shader_root_path + "/vis/vis_point_color_lighting.glslf", vis_point_color_lighting_fs_source) ||
-            !readShader(shader_root_path + "/vis/vis_point_prov.glslv", vis_point_prov_vs_source) ||
-            !readShader(shader_root_path + "/vis/vis_point_prov.glslf", vis_point_prov_fs_source) ||
-            !readShader(shader_root_path + "/vis/vis_surfel.glslv", vis_surfel_vs_source) ||
-            !readShader(shader_root_path + "/vis/vis_surfel.glslg", vis_surfel_gs_source) ||
-            !readShader(shader_root_path + "/vis/vis_surfel.glslf", vis_surfel_fs_source) || 
-            !readShader(shader_root_path + "/vis/vis_surfel_color.glslv", vis_surfel_color_vs_source) || 
-            !readShader(shader_root_path + "/vis/vis_surfel_color.glslg", vis_surfel_color_gs_source) || 
-            !readShader(shader_root_path + "/vis/vis_surfel_color.glslf", vis_surfel_color_fs_source) || 
-            !readShader(shader_root_path + "/vis/vis_surfel_color_lighting.glslv", vis_surfel_color_lighting_vs_source) || 
-            !readShader(shader_root_path + "/vis/vis_surfel_color_lighting.glslg", vis_surfel_color_lighting_gs_source) || 
-            !readShader(shader_root_path + "/vis/vis_surfel_color_lighting.glslf", vis_surfel_color_lighting_fs_source) || 
-            !readShader(shader_root_path + "/vis/vis_surfel_prov.glslv", vis_surfel_prov_vs_source) || 
-            !readShader(shader_root_path + "/vis/vis_surfel_prov.glslg", vis_surfel_prov_gs_source) || 
-            !readShader(shader_root_path + "/vis/vis_surfel_prov.glslf", vis_surfel_prov_fs_source) || 
-            !readShader(shader_root_path + "/vis/vis_line.glslv", vis_line_vs_source) || 
-            !readShader(shader_root_path + "/vis/vis_line.glslf", vis_line_fs_source) ||
-            !readShader(shader_root_path + "/vis/vis_surfel_pass1.glslv", vis_surfel_pass1_vs_source) ||
-            !readShader(shader_root_path + "/vis/vis_surfel_pass1.glslg", vis_surfel_pass1_gs_source) ||
-            !readShader(shader_root_path + "/vis/vis_surfel_pass1.glslf", vis_surfel_pass1_fs_source) ||
-            !readShader(shader_root_path + "/vis/vis_surfel_pass2.glslv", vis_surfel_pass2_vs_source) ||
-            !readShader(shader_root_path + "/vis/vis_surfel_pass2.glslg", vis_surfel_pass2_gs_source) ||
-            !readShader(shader_root_path + "/vis/vis_surfel_pass2.glslf", vis_surfel_pass2_fs_source) ||
-            !readShader(shader_root_path + "/vis/vis_surfel_pass3.glslv", vis_surfel_pass3_vs_source) ||
-            !readShader(shader_root_path + "/vis/vis_surfel_pass3.glslf", vis_surfel_pass3_fs_source) ||
-            !readShader(shader_root_path + "/vis/vis_debug.glslv", vis_debug_vs_source) ||
-            !readShader(shader_root_path + "/vis/vis_debug.glslf", vis_debug_fs_source))
-        {
-            std::cout << "error reading shader files" << std::endl;
-            exit(1);
+        std::lock_guard<std::mutex> shader_lock(m_shader_mutex);
+        if (vis_point_vs_source.empty()) {
+            if (notifyOn()) { std::cout << "[Lamure] Loading shader sources from disk..." << std::endl; }
+            try
+            {
+                char * val = getenv( "COVISEDIR" );
+                if (!val) {
+                    std::cerr << "[Lamure] COVISEDIR not set, cannot load shaders!" << std::endl;
+                    return;
+                }
+                std::string shader_root_path = std::string(val) + "/share/covise/shaders";
+                
+                if (!readShader(shader_root_path + "/vis/vis_point.glslv", vis_point_vs_source) ||
+                    !readShader(shader_root_path + "/vis/vis_point.glslf", vis_point_fs_source) ||
+                    !readShader(shader_root_path + "/vis/vis_point_color.glslv", vis_point_color_vs_source) ||
+                    !readShader(shader_root_path + "/vis/vis_point_color.glslf", vis_point_color_fs_source) ||
+                    !readShader(shader_root_path + "/vis/vis_point_color_lighting.glslv", vis_point_color_lighting_vs_source) ||
+                    !readShader(shader_root_path + "/vis/vis_point_color_lighting.glslf", vis_point_color_lighting_fs_source) ||
+                    !readShader(shader_root_path + "/vis/vis_point_prov.glslv", vis_point_prov_vs_source) ||
+                    !readShader(shader_root_path + "/vis/vis_point_prov.glslf", vis_point_prov_fs_source) ||
+                    !readShader(shader_root_path + "/vis/vis_surfel.glslv", vis_surfel_vs_source) ||
+                    !readShader(shader_root_path + "/vis/vis_surfel.glslg", vis_surfel_gs_source) ||
+                    !readShader(shader_root_path + "/vis/vis_surfel.glslf", vis_surfel_fs_source) || 
+                    !readShader(shader_root_path + "/vis/vis_surfel_color.glslv", vis_surfel_color_vs_source) || 
+                    !readShader(shader_root_path + "/vis/vis_surfel_color.glslg", vis_surfel_color_gs_source) || 
+                    !readShader(shader_root_path + "/vis/vis_surfel_color.glslf", vis_surfel_color_fs_source) || 
+                    !readShader(shader_root_path + "/vis/vis_surfel_color_lighting.glslv", vis_surfel_color_lighting_vs_source) || 
+                    !readShader(shader_root_path + "/vis/vis_surfel_color_lighting.glslg", vis_surfel_color_lighting_gs_source) || 
+                    !readShader(shader_root_path + "/vis/vis_surfel_color_lighting.glslf", vis_surfel_color_lighting_fs_source) || 
+                    !readShader(shader_root_path + "/vis/vis_surfel_prov.glslv", vis_surfel_prov_vs_source) || 
+                    !readShader(shader_root_path + "/vis/vis_surfel_prov.glslg", vis_surfel_prov_gs_source) || 
+                    !readShader(shader_root_path + "/vis/vis_surfel_prov.glslf", vis_surfel_prov_fs_source) || 
+                    !readShader(shader_root_path + "/vis/vis_line.glslv", vis_line_vs_source) || 
+                    !readShader(shader_root_path + "/vis/vis_line.glslf", vis_line_fs_source) ||
+                    !readShader(shader_root_path + "/vis/vis_surfel_pass1.glslv", vis_surfel_pass1_vs_source) ||
+                    !readShader(shader_root_path + "/vis/vis_surfel_pass1.glslg", vis_surfel_pass1_gs_source) ||
+                    !readShader(shader_root_path + "/vis/vis_surfel_pass1.glslf", vis_surfel_pass1_fs_source) ||
+                    !readShader(shader_root_path + "/vis/vis_surfel_pass2.glslv", vis_surfel_pass2_vs_source) ||
+                    !readShader(shader_root_path + "/vis/vis_surfel_pass2.glslg", vis_surfel_pass2_gs_source) ||
+                    !readShader(shader_root_path + "/vis/vis_surfel_pass2.glslf", vis_surfel_pass2_fs_source) ||
+                    !readShader(shader_root_path + "/vis/vis_surfel_pass3.glslv", vis_surfel_pass3_vs_source) ||
+                    !readShader(shader_root_path + "/vis/vis_surfel_pass3.glslf", vis_surfel_pass3_fs_source) ||
+                    !readShader(shader_root_path + "/vis/vis_debug.glslv", vis_debug_vs_source) ||
+                    !readShader(shader_root_path + "/vis/vis_debug.glslf", vis_debug_fs_source))
+                {
+                    std::cout << "error reading shader files" << std::endl;
+                    return;
+                }
+            }
+            catch (std::exception &e) { 
+                std::cout << "[Lamure] Exception loading shaders: " << e.what() << std::endl; 
+                return;
+            }
         }
-
-        // Compile shaders for this context
-        res.sh_point.program                 = compileAndLinkShaders(vis_point_vs_source, vis_point_fs_source, res.ctx);
-        res.sh_point_color.program           = compileAndLinkShaders(vis_point_color_vs_source, vis_point_color_fs_source, res.ctx);
-        res.sh_point_color_lighting.program  = compileAndLinkShaders(vis_point_color_lighting_vs_source, vis_point_color_lighting_fs_source, res.ctx);
-        res.sh_point_prov.program            = compileAndLinkShaders(vis_point_prov_vs_source, vis_point_prov_fs_source, res.ctx);
-        res.sh_surfel.program                = compileAndLinkShaders(vis_surfel_vs_source, vis_surfel_gs_source, vis_surfel_fs_source, res.ctx);
-        res.sh_surfel_color.program          = compileAndLinkShaders(vis_surfel_color_vs_source, vis_surfel_color_gs_source, vis_surfel_color_fs_source, res.ctx);
-        res.sh_surfel_color_lighting.program = compileAndLinkShaders(vis_surfel_color_lighting_vs_source, vis_surfel_color_lighting_gs_source, vis_surfel_color_lighting_fs_source, res.ctx);
-        res.sh_surfel_prov.program           = compileAndLinkShaders(vis_surfel_prov_vs_source, vis_surfel_prov_gs_source, vis_surfel_prov_fs_source, res.ctx);
-        res.sh_line.program                  = compileAndLinkShaders(vis_line_vs_source, vis_line_fs_source, res.ctx);
-        res.sh_surfel_pass1.program          = compileAndLinkShaders(vis_surfel_pass1_vs_source, vis_surfel_pass1_gs_source, vis_surfel_pass1_fs_source, res.ctx);
-        res.sh_surfel_pass2.program          = compileAndLinkShaders(vis_surfel_pass2_vs_source, vis_surfel_pass2_gs_source, vis_surfel_pass2_fs_source, res.ctx);
-        res.sh_surfel_pass3.program          = compileAndLinkShaders(vis_surfel_pass3_vs_source, vis_surfel_pass3_fs_source, res.ctx);
     }
-    catch (std::exception &e) { std::cout << e.what() << std::endl; }
+
+    // Compile shaders for this context from the shared sources
+    res.sh_point.program                 = compileAndLinkShaders(vis_point_vs_source, vis_point_fs_source, res.ctx);
+    res.sh_point_color.program           = compileAndLinkShaders(vis_point_color_vs_source, vis_point_color_fs_source, res.ctx);
+    res.sh_point_color_lighting.program  = compileAndLinkShaders(vis_point_color_lighting_vs_source, vis_point_color_lighting_fs_source, res.ctx);
+    res.sh_point_prov.program            = compileAndLinkShaders(vis_point_prov_vs_source, vis_point_prov_fs_source, res.ctx);
+    res.sh_surfel.program                = compileAndLinkShaders(vis_surfel_vs_source, vis_surfel_gs_source, vis_surfel_fs_source, res.ctx);
+    res.sh_surfel_color.program          = compileAndLinkShaders(vis_surfel_color_vs_source, vis_surfel_color_gs_source, vis_surfel_color_fs_source, res.ctx);
+    res.sh_surfel_color_lighting.program = compileAndLinkShaders(vis_surfel_color_lighting_vs_source, vis_surfel_color_lighting_gs_source, vis_surfel_color_lighting_fs_source, res.ctx);
+    res.sh_surfel_prov.program           = compileAndLinkShaders(vis_surfel_prov_vs_source, vis_surfel_prov_gs_source, vis_surfel_prov_fs_source, res.ctx);
+    res.sh_line.program                  = compileAndLinkShaders(vis_line_vs_source, vis_line_fs_source, res.ctx);
+    res.sh_surfel_pass1.program          = compileAndLinkShaders(vis_surfel_pass1_vs_source, vis_surfel_pass1_gs_source, vis_surfel_pass1_fs_source, res.ctx);
+    res.sh_surfel_pass2.program          = compileAndLinkShaders(vis_surfel_pass2_vs_source, vis_surfel_pass2_gs_source, vis_surfel_pass2_fs_source, res.ctx);
+    res.sh_surfel_pass3.program          = compileAndLinkShaders(vis_surfel_pass3_vs_source, vis_surfel_pass3_fs_source, res.ctx);
+
+    res.shaders_initialized = true;
 }
 
 void LamureRenderer::initSchismObjects(ContextResources& ctx)
@@ -2569,23 +2786,27 @@ void LamureRenderer::initFrustumResources(ContextResources& res) {
     glBindVertexArray(0);
 }
 
-void LamureRenderer::initBoxResources(ContextResources& res) {
-    if (notifyOn()) { std::cout << "[Lamure] init_box_resources()\n"; }
+void LamureRenderer::updateSharedBoxData() {
+    if (notifyOn()) { std::cout << "[Lamure] updateSharedBoxData (CPU precalc)\n"; }
 
-    if (!m_plugin->getSettings().models.size())
-        return;
+    std::lock_guard<std::mutex> lock(m_sceneMutex); // Protect shared structures
 
-    std::vector<float> all_box_vertices;
+    m_shared_box_vertices.clear();
     m_bvh_node_vertex_offsets.clear();
+
+    if (!m_plugin || m_plugin->getSettings().models.empty())
+        return;
 
     auto* ctrl = lamure::ren::controller::get_instance();
     auto* db   = lamure::ren::model_database::get_instance();
 
     const auto modelCount = static_cast<uint32_t>(m_plugin->getSettings().models.size());
-    // Prepare aggregation for scene AABB (optional meta)
+    
+    // Prepare aggregation for scene AABB
     const float fmax = std::numeric_limits<float>::max();
     scm::math::vec3f global_min(fmax, fmax, fmax);
     scm::math::vec3f global_max(-fmax, -fmax, -fmax);
+
     for (uint32_t model_idx = 0; model_idx < modelCount; ++model_idx) {
         const lamure::model_t m_id = ctrl->deduce_model_id(std::to_string(model_idx));
         const auto* bvh = db->get_model(m_id)->get_bvh();
@@ -2595,53 +2816,74 @@ void LamureRenderer::initBoxResources(ContextResources& res) {
         current_offsets.reserve(boxes.size());
 
         for (uint64_t node_id = 0; node_id < boxes.size(); ++node_id) {
-            current_offsets.push_back(static_cast<uint32_t>(all_box_vertices.size() / 3));
+            // Offset in UNITS OF VERTICES (3 floats per vertex)
+            current_offsets.push_back(static_cast<uint32_t>(m_shared_box_vertices.size() / 3));
+            
             std::vector<float> corners = LamureUtil::getBoxCorners(boxes[node_id]);
-            all_box_vertices.insert(all_box_vertices.end(), corners.begin(), corners.end());
+            m_shared_box_vertices.insert(m_shared_box_vertices.end(), corners.begin(), corners.end());
         }
         m_bvh_node_vertex_offsets[m_id] = std::move(current_offsets);
 
         // Compute per-model root AABB in world (exact axis-aligned AABB via 8 corners)
         if (!boxes.empty()) {
             const auto& scene_nodes = m_plugin->getSceneNodes();
-            if (model_idx >= scene_nodes.size() || !scene_nodes[model_idx].model_transform) {
-                continue;
+            if (model_idx < scene_nodes.size() && scene_nodes[model_idx].model_transform.valid()) {
+                const osg::Matrixd model_osg = scene_nodes[model_idx].model_transform->getMatrix();
+                const scm::math::mat4f M = scm::math::mat4f(LamureUtil::matConv4D(model_osg));
+
+                const auto corners = LamureUtil::getBoxCorners(boxes[0]); // 8 corners * 3 floats
+                const float inf = std::numeric_limits<float>::infinity();
+                scm::math::vec3f bbw_min(+inf, +inf, +inf);
+                scm::math::vec3f bbw_max(-inf, -inf, -inf);
+                for (size_t i = 0; i < 8; ++i) {
+                    const size_t k = i * 3;
+                    scm::math::vec4f v(corners[k+0], corners[k+1], corners[k+2], 1.f);
+                    const scm::math::vec4f tv = M * v;
+                    bbw_min.x = std::min(bbw_min.x, tv.x);
+                    bbw_min.y = std::min(bbw_min.y, tv.y);
+                    bbw_min.z = std::min(bbw_min.z, tv.z);
+                    bbw_max.x = std::max(bbw_max.x, tv.x);
+                    bbw_max.y = std::max(bbw_max.y, tv.y);
+                    bbw_max.z = std::max(bbw_max.z, tv.z);
+                }
+                scm::math::vec3f Cw = (bbw_min + bbw_max) * 0.5f;
+
+                // Store into plugin meta (keeps vectors aligned with models)
+                auto &mi = m_plugin->getModelInfo();
+                if (mi.root_bb_min.size() <= m_id) {
+                    mi.root_bb_min.resize(m_id+1);
+                    mi.root_bb_max.resize(m_id+1);
+                    mi.root_center.resize(m_id+1);
+                }
+                mi.root_bb_min[m_id] = bbw_min;
+                mi.root_bb_max[m_id] = bbw_max;
+                mi.root_center[m_id]  = Cw;
+
+                global_min = scm::math::vec3f(std::min(global_min.x, bbw_min.x), std::min(global_min.y, bbw_min.y), std::min(global_min.z, bbw_min.z));
+                global_max = scm::math::vec3f(std::max(global_max.x, bbw_max.x), std::max(global_max.y, bbw_max.y), std::max(global_max.z, bbw_max.z));
             }
-            const osg::Matrixd model_osg = scene_nodes[model_idx].model_transform->getMatrix();
-            const scm::math::mat4f M = scm::math::mat4f(LamureUtil::matConv4D(model_osg));
-
-            const auto corners = LamureUtil::getBoxCorners(boxes[0]); // 8 corners * 3 floats
-            const float inf = std::numeric_limits<float>::infinity();
-            scm::math::vec3f bbw_min(+inf, +inf, +inf);
-            scm::math::vec3f bbw_max(-inf, -inf, -inf);
-            for (size_t i = 0; i < 8; ++i) {
-                const size_t k = i * 3;
-                scm::math::vec4f v(corners[k+0], corners[k+1], corners[k+2], 1.f);
-                const scm::math::vec4f tv = M * v;
-                bbw_min.x = std::min(bbw_min.x, tv.x);
-                bbw_min.y = std::min(bbw_min.y, tv.y);
-                bbw_min.z = std::min(bbw_min.z, tv.z);
-                bbw_max.x = std::max(bbw_max.x, tv.x);
-                bbw_max.y = std::max(bbw_max.y, tv.y);
-                bbw_max.z = std::max(bbw_max.z, tv.z);
         }
-            scm::math::vec3f Cw = (bbw_min + bbw_max) * 0.5f;
-
-            // Store into plugin meta (keeps vectors aligned with models)
-            auto &mi = m_plugin->getModelInfo();
-            if (mi.root_bb_min.size() <= m_id) {
-                mi.root_bb_min.resize(m_id+1);
-                mi.root_bb_max.resize(m_id+1);
-                mi.root_center.resize(m_id+1);
-        }
-            mi.root_bb_min[m_id] = bbw_min;
-            mi.root_bb_max[m_id] = bbw_max;
-            mi.root_center[m_id]  = Cw;
-
-            global_min = scm::math::vec3f(std::min(global_min.x, bbw_min.x), std::min(global_min.y, bbw_min.y), std::min(global_min.z, bbw_min.z));
-            global_max = scm::math::vec3f(std::max(global_max.x, bbw_max.x), std::max(global_max.y, bbw_max.y), std::max(global_max.z, bbw_max.z));
     }
+
+    // Write aggregated scene AABB
+    m_plugin->getModelInfo().models_min = global_min;
+    m_plugin->getModelInfo().models_max = global_max;
+    m_plugin->getModelInfo().models_center = scm::math::vec3d( (global_min.x + global_max.x) * 0.5,
+                                                              (global_min.y + global_max.y) * 0.5,
+                                                              (global_min.z + global_max.z) * 0.5 );
 }
+
+void LamureRenderer::initBoxResources(ContextResources& res) {
+    if (notifyOn()) { std::cout << "[Lamure] init_box_resources() for ctx " << (int)res.ctx << "\n"; }
+
+    // No CPU calculation here anymore! Just upload the shared data.
+    
+    // Safety check if updateSharedBoxData was called
+    if (m_shared_box_vertices.empty() && !m_plugin->getSettings().models.empty()) {
+         // Fallback if empty (should not happen with correct order)
+         if (notifyOn()) std::cout << "[Lamure] Warning: Shared box vertices empty, triggering update.\n";
+         updateSharedBoxData(); 
+    }
 
     GLuint vao = 0, vbo = 0, ibo = 0;
     glGenVertexArrays(1, &vao);
@@ -2653,7 +2895,9 @@ void LamureRenderer::initBoxResources(ContextResources& res) {
 
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, all_box_vertices.size() * sizeof(float), all_box_vertices.data(), GL_STATIC_DRAW);
+    
+    // Upload precomputed data
+    glBufferData(GL_ARRAY_BUFFER, m_shared_box_vertices.size() * sizeof(float), m_shared_box_vertices.data(), GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
@@ -2663,13 +2907,6 @@ void LamureRenderer::initBoxResources(ContextResources& res) {
     res.geo_box.ibo = ibo;
 
     glBindVertexArray(0);
-
-    // Write aggregated scene AABB
-    m_plugin->getModelInfo().models_min = global_min;
-    m_plugin->getModelInfo().models_max = global_max;
-    m_plugin->getModelInfo().models_center = scm::math::vec3d( (global_min.x + global_max.x) * 0.5,
-                                                              (global_min.y + global_max.y) * 0.5,
-                                                              (global_min.z + global_max.z) * 0.5 );
 }
 
 void LamureRenderer::initPclResources(ContextResources& res){
