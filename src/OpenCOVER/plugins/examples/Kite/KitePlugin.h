@@ -54,6 +54,7 @@ private:
     std::string m_csvPath;
 
     bool m_useNedFrame = false;
+    bool m_frameAuto = true;
     osg::Quat m_modelOffset;
 
     double m_rollSign = 1.0;

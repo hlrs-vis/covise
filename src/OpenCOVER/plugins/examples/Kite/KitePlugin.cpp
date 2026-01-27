@@ -74,7 +74,42 @@ bool KitePlugin::init()
     auto modelEntry = coCoviseConfig::getEntry("value", "KitePlugin.Model", "");
     m_csvPath = coCoviseConfig::getEntry("value", "KitePlugin.CSV", "");
 
-    m_useNedFrame = coCoviseConfig::isOn("KitePlugin.NED", m_useNedFrame);
+    auto toLowerCopy = [](std::string s) {
+        std::transform(s.begin(), s.end(), s.begin(),
+                       [](unsigned char c){ return std::tolower(c); });
+        return s;
+    };
+    auto applyFrameMode = [&](const std::string &mode) {
+        const std::string val = toLowerCopy(mode);
+        if (val == "ned")
+        {
+            m_useNedFrame = true;
+            m_frameAuto = false;
+            return true;
+        }
+        if (val == "enu")
+        {
+            m_useNedFrame = false;
+            m_frameAuto = false;
+            return true;
+        }
+        if (val == "auto")
+        {
+            m_frameAuto = true;
+            return true;
+        }
+        return false;
+    };
+
+    const std::string nedEntry = coCoviseConfig::getEntry("value", "KitePlugin.NED", "");
+    if (!nedEntry.empty())
+    {
+        m_useNedFrame = coCoviseConfig::isOn("KitePlugin.NED", m_useNedFrame);
+        m_frameAuto = false;
+    }
+    const std::string frameEntry = coCoviseConfig::getEntry("value", "KitePlugin.Frame", "");
+    if (!frameEntry.empty())
+        applyFrameMode(frameEntry);
     m_rollSign = coCoviseConfig::getFloat("KitePlugin.RollSign", m_rollSign);
     m_pitchSign = coCoviseConfig::getFloat("KitePlugin.PitchSign", m_pitchSign);
     m_yawSign = coCoviseConfig::getFloat("KitePlugin.YawSign", m_yawSign);
@@ -172,17 +207,13 @@ bool KitePlugin::init()
             m_csvPath = env;
     }
 
-    m_useNedFrame = envToBool("KITE_NED", m_useNedFrame);
-    if (const char *env = std::getenv("KITE_FRAME"))
+    if (std::getenv("KITE_NED"))
     {
-        std::string val(env);
-        std::transform(val.begin(), val.end(), val.begin(),
-                       [](unsigned char c){ return std::tolower(c); });
-        if (val == "ned")
-            m_useNedFrame = true;
-        else if (val == "enu")
-            m_useNedFrame = false;
+        m_useNedFrame = envToBool("KITE_NED", m_useNedFrame);
+        m_frameAuto = false;
     }
+    if (const char *env = std::getenv("KITE_FRAME"))
+        applyFrameMode(env);
 
     m_rollSign = envToDouble("KITE_ROLL_SIGN", m_rollSign);
     m_pitchSign = envToDouble("KITE_PITCH_SIGN", m_pitchSign);
@@ -340,6 +371,16 @@ void KitePlugin::parseCsv(const std::string &path)
         }
     }
 
+    const auto itElev = idx.find("kite_elevation");
+    const auto itDist = idx.find("kite_distance");
+    const int idxElev = (itElev != idx.end()) ? (int)itElev->second : -1;
+    const int idxDist = (itDist != idx.end()) ? (int)itDist->second : -1;
+    const bool autoDetectFrame = m_frameAuto && idxElev >= 0 && idxDist >= 0;
+    int autoSamples = 0;
+    int autoSame = 0;
+    int autoOpp = 0;
+    const int autoMaxSamples = 200;
+
     auto trim = [](const std::string &s) {
         size_t b = 0;
         while (b < s.size() && std::isspace(static_cast<unsigned char>(s[b])))
@@ -389,11 +430,60 @@ void KitePlugin::parseCsv(const std::string &path)
         if (!parseNumber(toks[idx["kite_0_pitch"]], f.pitch)) { ++skipped; continue; }
         if (!parseNumber(toks[idx["kite_0_yaw"]], f.yaw)) { ++skipped; continue; }
 
+        if (autoDetectFrame && autoSamples < autoMaxSamples)
+        {
+            const size_t need = (size_t)std::max(idxElev, idxDist);
+            if (toks.size() > need)
+            {
+                double elev = 0.0;
+                double dist = 0.0;
+                if (parseNumber(toks[idxElev], elev) && parseNumber(toks[idxDist], dist))
+                {
+                    const double pred = std::sin(elev) * dist;
+                    const double h = f.pos.z();
+                    if (std::fabs(pred) > 1e-3 && std::fabs(h) > 1e-3)
+                    {
+                        ++autoSamples;
+                        if ((pred > 0.0) == (h > 0.0))
+                            ++autoSame;
+                        else
+                            ++autoOpp;
+                    }
+                }
+            }
+        }
+
         m_frames.push_back(f);
     }
 
     fprintf(stderr, "KitePlugin: loaded %zu frames (skipped %zu) from '%s'\n",
             m_frames.size(), skipped, path.c_str());
+
+    if (autoDetectFrame && autoSamples >= 10)
+    {
+        const double sameRatio = (double)autoSame / (double)autoSamples;
+        const double oppRatio = (double)autoOpp / (double)autoSamples;
+        const bool detectedNed = (oppRatio >= 0.7);
+        const bool detectedEnu = (sameRatio >= 0.7);
+
+        if (detectedNed || detectedEnu)
+        {
+            const bool newUseNed = detectedNed;
+            if (m_useNedFrame != newUseNed)
+            {
+                fprintf(stderr,
+                        "KitePlugin: auto frame detect (elev vs height) samples=%d same=%d opp=%d -> %s (override)\n",
+                        autoSamples, autoSame, autoOpp, newUseNed ? "NED" : "ENU");
+            }
+            else
+            {
+                fprintf(stderr,
+                        "KitePlugin: auto frame detect (elev vs height) samples=%d same=%d opp=%d -> %s\n",
+                        autoSamples, autoSame, autoOpp, newUseNed ? "NED" : "ENU");
+            }
+            m_useNedFrame = newUseNed;
+        }
+    }
 
     if (!m_frames.empty())
     {
@@ -478,7 +568,7 @@ void KitePlugin::updateTransform(int frameIndex)
 
     q = m_modelOffset * q;
 
-    osg::Matrix m = osg::Matrix::translate(pos) * osg::Matrix::rotate(q);
+    osg::Matrix m = osg::Matrix::rotate(q) * osg::Matrix::translate(pos);
     m_transform->setMatrix(m);
 }
 
