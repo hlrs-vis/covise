@@ -749,7 +749,7 @@ bool OpenCOVER::init()
     // initialize movable screen if there (IWR)
     hud->setText3("Tracking");
 
-    bool showHud = coCoviseConfig::isOn("COVER.SplashScreen", true);
+    bool showHud = coCoviseConfig::isOn("enabled", "COVER.SplashScreen", true);
     if (showHud)
     {
         hud->show();
