@@ -47,6 +47,7 @@ void coUIContainer::addElement(coUIElement *el)
         if (test == el)
         {
             VRUILOG("coUIContainer::addElement warn: circular parentship prevented")
+            VRUILOG("   tried to add " << el->getUniqueName() << " to " << getUniqueName())
             assert(test != el);
             return;
         }
