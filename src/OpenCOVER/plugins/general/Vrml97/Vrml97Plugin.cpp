@@ -448,6 +448,60 @@ Vrml97Plugin::preFrame()
 #ifdef HAVE_VRMLNODEPHOTOMETRICLIGHT
     VrmlNodePhotometricLight::updateAll();
 #endif
+    if (theCOVER)
+    {
+#define CB(btn) \
+    { \
+        VrmlNodeCOVER::KeyEventType vrmlType = VrmlNodeCOVER::Unknown; \
+        if (pb->wasPressed(vrui::vruiButtons::btn)) \
+        { \
+            vrmlType = VrmlNodeCOVER::Press; \
+        } \
+        if (pb->wasReleased(vrui::vruiButtons::btn)) \
+        { \
+            vrmlType = VrmlNodeCOVER::Release; \
+        } \
+        if (vrmlType != VrmlNodeCOVER::Unknown) \
+        { \
+            std::string name = #btn; \
+            theCOVER->keyEvent(vrmlType, name.c_str()); \
+        } \
+    }
+
+        std::set<coPointerButton *> seen;
+        for (auto *pb: {cover->getPointerButton(), cover->getMouseButton(), cover->getRelativeButton()})
+        {
+            if (!pb)
+                continue;
+            if (seen.find(pb) != seen.end())
+                continue;
+            seen.insert(pb);
+
+            CB(ACTION_BUTTON)
+            CB(DRIVE_BUTTON)
+            CB(XFORM_BUTTON)
+            CB(FORWARD_BUTTON)
+            CB(BACKWARD_BUTTON)
+            CB(TOGGLE_DOCUMENTS)
+            CB(DRAG_BUTTON)
+            CB(ZOOM_BUTTON)
+            CB(MENU_BUTTON)
+            CB(QUIT_BUTTON)
+            CB(INTER_NEXT)
+            CB(INTER_PREV)
+            CB(PERSON_NEXT)
+            CB(PERSON_PREV)
+            CB(WHEEL_UP)
+            CB(WHEEL_DOWN)
+            CB(WHEEL_LEFT)
+            CB(WHEEL_RIGHT)
+            CB(JOYSTICK_RIGHT)
+            CB(JOYSTICK_DOWN)
+            CB(JOYSTICK_LEFT)
+            CB(JOYSTICK_UP)
+        }
+#undef CB
+    }
     if (plugin->viewer)
 	{
 		if (plugin->viewer->VRMLRoot && (plugin->isNewVRML || coSensiveSensor::modified))
