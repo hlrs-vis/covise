@@ -34,6 +34,7 @@
 #include <osg/Vec4>
 #include <osg/Matrix>
 #include "ui/Owner.h"
+#include <atomic>
 
 namespace osg
 {
@@ -164,7 +165,7 @@ public:
 
     void config();
     void unconfig();
-
+    std::atomic_bool softwareRendering{false};
     void getCameras(Cameras &cameras, bool onlyActive = true) override;
     void getContexts(Contexts &contexts, bool onlyValid = true) override;
     void getScenes(Scenes &scenes, bool onlyValid = true) override;

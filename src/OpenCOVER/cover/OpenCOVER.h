@@ -108,7 +108,7 @@ public:
     }
     static OpenCOVER *instance();
     void handleEvents(int type, int state, int code);
-    coHud *hud;
+    coHud *hud = nullptr;
     double beginAppTraversal;
     double endAppTraversal;
     double lastUpdateTime = -1.0, lastFrameTime = -1.0;

@@ -701,9 +701,9 @@ bool OpenCOVER::init()
     cover->vruiView = new ui::VruiView;
     cover->ui->addView(cover->vruiView);
 
-    hud = coHud::instance();
-
+    
     VRViewer::instance()->config();
+    hud = coHud::instance();
     coVRShaderList::instance()->init(VRViewer::instance()->getExtensions());
 
     hud->setText2("loading plugins");
@@ -812,6 +812,13 @@ bool OpenCOVER::init()
     {
         m_quit->setEnabled(false);
         m_quit->setVisible(false);
+    }
+    if(VRViewer::instance()->softwareRendering)
+    {
+        hud->setText2("Warning: llvmpipe detected!");
+        hud->setText3("COVER may run very slow and some shaders may not work.");
+        hud->redraw();
+        std::this_thread::sleep_for(std::chrono::seconds(5));
     }
 
     hud->setText2("initialising plugins");

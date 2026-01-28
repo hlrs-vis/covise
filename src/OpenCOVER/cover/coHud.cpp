@@ -140,8 +140,14 @@ coHud::coHud()
         geom->addPrimitiveSet(new osg::DrawArrays(GL_QUADS, 0, 4));
 
         osg::StateSet *stateset = geom->getOrCreateStateSet();
-
-        string logoFile = coCoviseConfig::getEntry("value", "COVER.SplashScreen", "share/covise/icons/OpenCOVERLogo.tif");
+        auto defaultSplashScreen = "share/covise/icons/OpenCOVERLogo.tif";
+        if(VRViewer::instance()->softwareRendering)
+        {
+            auto waringScreen = coVRFileManager::instance()->getName("/data/hlrsDemo/static/screenshots/coverVglrun.tif");
+            if(waringScreen)
+                defaultSplashScreen = waringScreen;
+        }
+        string logoFile = coCoviseConfig::getEntry("value", "COVER.SplashScreen", defaultSplashScreen);
         const char *logoName = coVRFileManager::instance()->getName(logoFile.c_str());
         osg::Image *image = NULL;
         if (logoName && (image = osgDB::readImageFile(logoName)) != NULL)
