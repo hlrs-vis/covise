@@ -152,6 +152,48 @@
    
   </Plugin>
   
+   <LamurePointCloud>
+    <!-- Budgets -->
+    <upload value="64" />
+    <vram value="2000" />
+    <ram value="10000" />
+    <!-- Shader -->
+    <point value="on"/>
+    <surfel value="off"/>
+    <splatting value="off"/>
+    <!-- LOD -->
+    <lod_error value="3.0"/>
+    <!-- scaling -->
+    <scale_radius value="0.05" />
+    <scale_radius_gamma value="0.5" />
+    <scale_points value="1.0"/>
+    <scale_surfel value="1.75"/>
+    <max_radius value="1.0" />
+    <min_radius value="0.0" />
+    <max_screen_size value="10000" />
+    <min_screen_size value="1.0" />
+    <!-- modes -->
+    <lighting value="off"/>
+    <color value="off"/>
+    <color_mode value="accuracy"/>
+    <!-- lighting -->
+    <point_light_intensity value="0.6"/>
+    <ambient_intensity value="0.6"/>
+    <shininess value="0.1"/>
+    <specular_intensity value="0.1"/>
+    <gamma value="1.0"/>
+    <point_light_pos_x value="300"/>
+    <point_light_pos_y value="300"/>
+    <point_light_pos_z value="1000"/>
+    <!-- shows -->
+    <show_pointcloud value="on"/>
+    <show_boundingbox value="off"/>
+    <show_frustum value="off"/>
+    <show_coord value="off"/>
+    <show_text value="off"/>
+    <show_sync value="on"/>
+    <show_notify value="off"/>
+   </LamurePointCloud>
   
     <AnimationSpeed max="60" />
             <Plugin>
