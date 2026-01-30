@@ -38,3 +38,6 @@
 [submodule "src/3rdparty/stb"]
 	path = src/3rdparty/stb
 	url = https://github.com/nothings/stb.git
+[submodule "src/3rdparty/oscpp"]
+	path = src/3rdparty/oscpp
+	url = https://github.com/kaoskorobase/oscpp.git
