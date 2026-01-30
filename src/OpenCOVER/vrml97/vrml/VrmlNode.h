@@ -214,7 +214,7 @@ private:
         // std::function<vrml::VrmlNode*(const VrmlNode*)> clone;
         vrml::VrmlNode*(*clone)(const VrmlNode*);
     };
-    static std::map<std::string, Constructors> m_constructors;
+    static std::map<std::string, Constructors> s_constructors;
     const std::map<std::string, Constructors>::const_iterator m_constructor;
 
 
@@ -345,7 +345,7 @@ private:
                 Derived::initFields(newNode, nullptr);
                 return static_cast<vrml::VrmlNode*>(newNode);
             };
-            m_constructors[Derived::typeName()] = cs;
+            s_constructors[Derived::typeName()] = cs;
         }
 
         initFields(nullptr, t);

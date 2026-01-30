@@ -243,7 +243,7 @@ public:
 //VrmlNode
 //--------------------------------------------------------------------------------------------------
 
-std::map<std::string, VrmlNode::Constructors> VrmlNode::m_constructors;
+std::map<std::string, VrmlNode::Constructors> VrmlNode::s_constructors;
 
 std::ostream &operator<<(std::ostream &os, const VrmlNode &f)
 {
@@ -258,9 +258,9 @@ void VrmlNode::initFields(VrmlNode *node, VrmlNodeType *t)
 
 VrmlNode::VrmlNode(VrmlScene *scene, const std::string &name)
 : d_scene(scene)
-, m_constructor(m_constructors.find(name))
+, m_constructor(s_constructors.find(name))
 , m_impl(std::make_unique<VrmlNodeUpdateRegistry>(this)) {
-    assert(m_constructor != m_constructors.end());
+    assert(m_constructor != s_constructors.end());
 }
 
 // use new pointers with this inital values of other
@@ -269,7 +269,7 @@ VrmlNode::VrmlNode(const VrmlNode& other)
 , d_scene(other.d_scene)
 , m_impl(std::make_unique<VrmlNodeUpdateRegistry>(*other.m_impl))
 , m_constructor(other.m_constructor) {
-    assert(m_constructor != m_constructors.end());
+    assert(m_constructor != s_constructors.end());
 }
 
 VrmlNode::~VrmlNode()
