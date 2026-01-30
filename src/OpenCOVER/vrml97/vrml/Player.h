@@ -107,7 +107,7 @@ public:
     virtual Source *newSource(const Audio *);
     virtual void removeSource(int handle);
 
-    virtual void restart(){};
+    virtual void restart() { };
 
 protected:
     virtual int checkHandle(int handle) const;
