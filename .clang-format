@@ -1,0 +1,4 @@
+BasedOnStyle: WebKit
+PointerBindsToType: false
+BreakBeforeBraces: Allman
+SortIncludes: false
