@@ -36,6 +36,9 @@ MACRO(USE_GLFW)
         list(APPEND EXTRA_LIBS glfw)  # nur GCC/Clang Fallback
       endif()
     endif()
+    if(GLFW_LIBRARY_DIRS)
+      link_directories(${GLFW_LIBRARY_DIRS})
+    endif()
   ENDIF()
 ENDMACRO()
   
