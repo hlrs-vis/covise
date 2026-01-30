@@ -87,5 +87,15 @@ private:
 };
 
 extern VRMLEXPORT VrmlNodeCOVER *theCOVER;
+
+template<>
+inline VrmlNode *VrmlNode::creator<VrmlNodeCOVER>(vrml::VrmlScene *scene)
+{
+    if (theCOVER == NULL)
+    {
+        theCOVER = new VrmlNodeCOVER(scene);
+    }
+    return theCOVER;
+}
 }
 #endif //_VrmlNodeCOVER_

@@ -109,19 +109,6 @@ VrmlNodeCOVER *theCOVER = NULL;
 
 using namespace vrml;
 
-//  COVER factory.
-//  Since NavInfo is a bindable child node, the first one created needs
-//  to notify its containing scene.
-
-static VrmlNode *creator(VrmlScene *scene)
-{
-    if (theCOVER == NULL)
-    {
-        theCOVER = new VrmlNodeCOVER(scene);
-    }
-    return theCOVER;
-}
-
 void VrmlNodeCOVER::initFields(VrmlNodeCOVER *node, VrmlNodeType *t)
 {
     for (size_t i = 0; i < NUM_POSITIONS; i++)
