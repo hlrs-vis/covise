@@ -14,6 +14,7 @@
 #include "PlayerEsd.h"
 #include "PlayerOpenAL.h"
 #include "PlayerOSS.h"
+#include "PlayerOsc.h"
 #include <cstring>
 
 using std::endl;
@@ -70,6 +71,11 @@ Player *PlayerFactory::createPlayer()
     {
         // CERR << "PlayerFactory::createPlayer() - going to use OSS!" << endl;
         return new PlayerOSS(listener, threaded, channels, rate, bps, device);
+    }
+    else if (!strcasecmp(type.c_str(), "Osc"))
+    {
+        // CERR << "PlayerFactory::createPlayer() - going to use OSC!" << endl;
+        return new PlayerOsc(listener, host, port);
     }
     else if (!strcasecmp(type.c_str(), "None"))
     {

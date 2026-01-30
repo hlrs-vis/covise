@@ -85,6 +85,7 @@ ADD_FLEX_BISON_DEPENDENCY(VrmlScanner VrmlParser)
 INCLUDE_DIRECTORIES(
   ${EXTRA_INCS}
   "${CMAKE_CURRENT_BINARY_DIR}/../js"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../../../3rdparty/oscpp/include"
 )
 set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 
@@ -105,6 +106,7 @@ SET(VRML_SOURCES
   PlayerFactory.cpp
   PlayerMix.cpp
   PlayerOpenAL.cpp
+  PlayerOsc.cpp
   PlayerOSS.cpp
   pngread.c
   ScriptJDK.cpp
@@ -226,6 +228,7 @@ SET(VRML_HEADERS
   PlayerFactory.h
   PlayerMix.h
   PlayerOpenAL.h
+  PlayerOsc.h
   PlayerOSS.h
   pngread.h
   ScriptJDK.h
@@ -390,7 +393,7 @@ endif()
 COVISE_WNOERROR(coVRML BASEARCH zebu)
 
 TARGET_LINK_LIBRARIES(coVRML
-  coJS ${COVISE_UTIL_LIBRARY}
+  coJS coNet ${COVISE_UTIL_LIBRARY}
   ${EXTRA_LIBS}
   ${CMAKE_THREAD_LIBS_INIT}
 )

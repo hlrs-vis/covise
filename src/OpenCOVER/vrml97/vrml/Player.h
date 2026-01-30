@@ -27,6 +27,7 @@ public:
         friend class PlayerMix;
         friend class PlayerOpenAL;
         friend class PlayerAServer;
+        friend class PlayerOsc;
 
     public:
         Source(const Audio *audio);
@@ -53,12 +54,8 @@ public:
             (void)bufsiz;
             return -1;
         }
-        virtual void stopForRestart()
-        {
-        }
-        virtual void restart()
-        {
-        }
+        virtual void stopForRestart() { }
+        virtual void restart() { }
 
     protected:
         const Audio *audio;
@@ -74,20 +71,13 @@ public:
 
     Player(const Listener *listener);
     virtual ~Player();
-    virtual bool isPlayerMix()
-    {
-        return false;
-    }
+    virtual bool isPlayerMix() { return false; }
 
-    virtual void update()
-    {
-    }
+    virtual void update() { }
 
     // mm/second
     virtual void setSpeedOfSound(float speed = 343000.0);
-    virtual void setEAXEnvironment(int /*environment*/)
-    {
-    }
+    virtual void setEAXEnvironment(int /*environment*/) { }
 
     // Listener related
     virtual vec getListenerPositionWC() const;
@@ -119,5 +109,5 @@ protected:
     virtual int addSource(Source *src);
     virtual float calculateDoppler(const Source *src) const;
 };
-}
+} // namespace vrml
 #endif
