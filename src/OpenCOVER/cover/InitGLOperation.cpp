@@ -106,19 +106,12 @@ InitGLOperation::InitGLOperation()
 void InitGLOperation::operator()(osg::GraphicsContext* gc)
 {
     const int contextId = gc->getState()->getContextID();
-    auto rend = glGetString(GL_RENDERER);
-    if (!rend)
-    {
-        std::cerr << "*****" << std::endl;
-        std::cerr << "InitGLOperation() for context " << contextId << ": could not retrieve value of GL_RENDERER - context not initialised?" << std::endl;
-        std::cerr << "*****" << std::endl;
-    }
-
     if (cover->debugLevel(2))
     {
         std::cerr << "InitGLOperation() for context " << contextId << std::endl;
     }
 
+    glewExperimental = GL_TRUE; // for ARB_vertex_array_object on macOS
     if (glewInit() != GLEW_OK)
     {
         std::cerr << "glewInit() failed" << std::endl;
@@ -131,6 +124,14 @@ void InitGLOperation::operator()(osg::GraphicsContext* gc)
         std::cerr << "glxewInit() failed" << std::endl;
     }
 #endif
+
+    auto rend = glGetString(GL_RENDERER);
+    if (!rend)
+    {
+        std::cerr << "*****" << std::endl;
+        std::cerr << "InitGLOperation() for context " << contextId << ": could not retrieve value of GL_RENDERER - context not initialised?" << std::endl;
+        std::cerr << "*****" << std::endl;
+    }
 
     auto print_string = [](GLenum tag, const char *desc){
         std::string s("GL_");
