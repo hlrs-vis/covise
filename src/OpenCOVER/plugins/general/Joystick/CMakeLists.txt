@@ -1,4 +1,6 @@
-#OpenCOVER plugins general Joystick
+if(APPLE)
+    return()
+endif()
 
 USING(vrml)
 

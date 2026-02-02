@@ -18,7 +18,6 @@
 #include <osgUtil/IntersectionVisitor>
 #include <osgUtil/LineSegmentIntersector>
 #include "cover/coIntersection.h"
-#include <cover/input/dev/Joystick/Joystick.h>
 #include <cover/input/input.h>
 #include <cover/input/deviceDiscovery.h>
 
@@ -78,7 +77,6 @@ bool Wheelchair::init()
     xScale = configFloat("Scale", "xScale", 0.02)->value();
     debugPrint = configBool("Wheelchair", "debugPrint", false)->value();
     udp = nullptr;
-    dev = nullptr;
     if (coVRMSController::instance()->isMaster())
     {
         std::string host = "";
@@ -110,8 +108,7 @@ bool Wheelchair::init()
     }
 
 
-    dev = (Joystick*)(Input::instance()->getDevice("joystick"));
-        return true;
+    return true;
         
 }
 

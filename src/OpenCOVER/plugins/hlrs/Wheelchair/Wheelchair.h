@@ -19,7 +19,6 @@
 #include <cover/coVRNavigationManager.h>
 #include <cover/coVRPlugin.h>
 #include <OpenThreads/Thread>
-#include <cover/input/dev/Joystick/Joystick.h>
 #include <util/UDPComm.h>
 
 
@@ -81,7 +80,6 @@ private:
     osg::NodePath oldNodePath;
     osg::Matrix oldFloorMatrix;
     osg::Matrix TransformMat;
-    Joystick* dev;
     int joystickNumber;
     int xIndex;
     int yIndex;
