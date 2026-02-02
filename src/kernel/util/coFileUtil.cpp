@@ -667,6 +667,9 @@ char *coDirectory::dirOf(const char *name)
 
 int coDirectory::match(const char *name, const char *patternToMatch)
 {
+    if (!name)
+        return FALSE;
+
     if (!patternToMatch || *patternToMatch == '\0')
         return FALSE;
 
