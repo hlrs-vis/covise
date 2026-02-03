@@ -7,7 +7,9 @@
 #include <open62541/client.h>
 #include <open62541/common.h>
 #include <open62541/plugin/log_stdout.h>
+#if UA_OPEN62514_VER_MAJOR == 1 && UA_OPEN62514_VER_MINOR < 5
 #include <open62541/plugin/pki_default.h>
+#endif
 
 #include <cover/coVRMSController.h>
 #include <cover/coVRPluginSupport.h>
@@ -643,5 +645,3 @@ std::vector<std::string> Client::getNodesWith(bool isArithmetic, bool isScalar) 
     }
     return msController->syncVector(vec); 
 }
-
-
