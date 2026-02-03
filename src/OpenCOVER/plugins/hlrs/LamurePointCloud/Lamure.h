@@ -1,4 +1,4 @@
-﻿#ifndef _Lamure_H
+#ifndef _Lamure_H
 #define _Lamure_H
 
 #ifdef _WIN32
@@ -266,11 +266,11 @@ public:
     ~Lamure();
 
     static Lamure* instance();
-    bool init2();
+    bool init2() override;
     static int loadBvh(const char* filename, osg::Group* parent, const char* ck = "");
     static int unloadBvh(const char* filename, const char* ck = "");
     void loadSettingsFromCovise();
-    void preFrame();
+    void preFrame() override;
     void rebuildRenderer();
     void startMeasurement();
     void stopMeasurement();
