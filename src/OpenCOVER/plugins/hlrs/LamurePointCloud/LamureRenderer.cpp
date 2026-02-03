@@ -2363,9 +2363,25 @@ void LamureRenderer::setNodeUniforms(const lamure::ren::bvh* bvh, uint32_t node_
     }
 }
 
-
-bool LamureRenderer::readShader(std::string const &path_string, std::string &shader_string, bool keep_optional_shader_code = false)
+bool LamureRenderer::readShader(std::string const &filename_string, std::string &shader_string, bool keep_optional_shader_code = false)
 {
+    const char *covisedir = getenv("COVISEDIR");
+    if (!covisedir)
+    {
+        std::cerr << "[Lamure][ERR] COVISEDIR not set, cannot load shaders!\n";
+        return false;
+    }
+    std::string shader_root_path = covisedir;
+    shader_root_path += "/share/covise/shaders";
+    shader_root_path += "/vis";
+    std::string path_string = shader_root_path + "/" + filename_string;
+#ifdef __APPLE__
+    path_string = shader_root_path + "/legacy/" + filename_string;
+    if (!boost::filesystem::exists(path_string))
+    {
+        path_string = shader_root_path + "/" + filename_string;
+    }
+#endif
     if (!boost::filesystem::exists(path_string))
     {
         std::cerr << "[Lamure][WARN] File " << path_string << " does not exist.\n";
@@ -2376,8 +2392,6 @@ bool LamureRenderer::readShader(std::string const &path_string, std::string &sha
     std::string include_prefix("INCLUDE");
     std::string optional_begin_prefix("OPTIONAL_BEGIN");
     std::string optional_end_prefix("OPTIONAL_END");
-    std::size_t slash_position = path_string.find_last_of("/\\");
-    std::string const base_path = path_string.substr(0, slash_position + 1);
 
     bool disregard_code = false;
     while (std::getline(shader_source, line_buffer))
@@ -2388,7 +2402,7 @@ bool LamureRenderer::readShader(std::string const &path_string, std::string &sha
             if (!disregard_code || keep_optional_shader_code)
             {
                 std::string filename_string = line_buffer;
-                readShader(base_path + filename_string, shader_string);
+                readShader(filename_string, shader_string);
             }
         }
         else if (LamureUtil::parsePrefix(line_buffer, optional_begin_prefix))
@@ -2421,45 +2435,38 @@ void LamureRenderer::initLamureShader(ContextResources& res)
             if (notifyOn()) { std::cout << "[Lamure] Loading shader sources from disk..." << std::endl; }
             try
             {
-                char * val = getenv( "COVISEDIR" );
-                if (!val) {
-                    std::cerr << "[Lamure][ERR] COVISEDIR not set, cannot load shaders!\n";
-                    return;
-                }
-                std::string shader_root_path = std::string(val) + "/share/covise/shaders";
-                
-                if (!readShader(shader_root_path + "/vis/vis_point.glslv", vis_point_vs_source) ||
-                    !readShader(shader_root_path + "/vis/vis_point.glslf", vis_point_fs_source) ||
-                    !readShader(shader_root_path + "/vis/vis_point_color.glslv", vis_point_color_vs_source) ||
-                    !readShader(shader_root_path + "/vis/vis_point_color.glslf", vis_point_color_fs_source) ||
-                    !readShader(shader_root_path + "/vis/vis_point_color_lighting.glslv", vis_point_color_lighting_vs_source) ||
-                    !readShader(shader_root_path + "/vis/vis_point_color_lighting.glslf", vis_point_color_lighting_fs_source) ||
-                    !readShader(shader_root_path + "/vis/vis_point_prov.glslv", vis_point_prov_vs_source) ||
-                    !readShader(shader_root_path + "/vis/vis_point_prov.glslf", vis_point_prov_fs_source) ||
-                    !readShader(shader_root_path + "/vis/vis_surfel.glslv", vis_surfel_vs_source) ||
-                    !readShader(shader_root_path + "/vis/vis_surfel.glslg", vis_surfel_gs_source) ||
-                    !readShader(shader_root_path + "/vis/vis_surfel.glslf", vis_surfel_fs_source) || 
-                    !readShader(shader_root_path + "/vis/vis_surfel_color.glslv", vis_surfel_color_vs_source) || 
-                    !readShader(shader_root_path + "/vis/vis_surfel_color.glslg", vis_surfel_color_gs_source) || 
-                    !readShader(shader_root_path + "/vis/vis_surfel_color.glslf", vis_surfel_color_fs_source) || 
-                    !readShader(shader_root_path + "/vis/vis_surfel_color_lighting.glslv", vis_surfel_color_lighting_vs_source) || 
-                    !readShader(shader_root_path + "/vis/vis_surfel_color_lighting.glslg", vis_surfel_color_lighting_gs_source) || 
-                    !readShader(shader_root_path + "/vis/vis_surfel_color_lighting.glslf", vis_surfel_color_lighting_fs_source) || 
-                    !readShader(shader_root_path + "/vis/vis_surfel_prov.glslv", vis_surfel_prov_vs_source) || 
-                    !readShader(shader_root_path + "/vis/vis_surfel_prov.glslg", vis_surfel_prov_gs_source) || 
-                    !readShader(shader_root_path + "/vis/vis_surfel_prov.glslf", vis_surfel_prov_fs_source) || 
-                    !readShader(shader_root_path + "/vis/vis_line.glslv", vis_line_vs_source) || 
-                    !readShader(shader_root_path + "/vis/vis_line.glslf", vis_line_fs_source) ||
-                    !readShader(shader_root_path + "/vis/vis_surfel_pass1.glslv", vis_surfel_pass1_vs_source) ||
-                    !readShader(shader_root_path + "/vis/vis_surfel_pass1.glslg", vis_surfel_pass1_gs_source) ||
-                    !readShader(shader_root_path + "/vis/vis_surfel_pass1.glslf", vis_surfel_pass1_fs_source) ||
-                    !readShader(shader_root_path + "/vis/vis_surfel_pass2.glslv", vis_surfel_pass2_vs_source) ||
-                    !readShader(shader_root_path + "/vis/vis_surfel_pass2.glslg", vis_surfel_pass2_gs_source) ||
-                    !readShader(shader_root_path + "/vis/vis_surfel_pass2.glslf", vis_surfel_pass2_fs_source) ||
-                    !readShader(shader_root_path + "/vis/vis_surfel_pass3.glslv", vis_surfel_pass3_vs_source) ||
-                    !readShader(shader_root_path + "/vis/vis_surfel_pass3.glslf", vis_surfel_pass3_fs_source) ||
-                    !readShader(shader_root_path + "/vis/vis_debug.glslv", vis_debug_vs_source) ||
-                    !readShader(shader_root_path + "/vis/vis_debug.glslf", vis_debug_fs_source))
+                if (!readShader("vis_point.glslv", vis_point_vs_source) ||
+                    !readShader("vis_point.glslf", vis_point_fs_source) ||
+                    !readShader("vis_point_color.glslv", vis_point_color_vs_source) ||
+                    !readShader("vis_point_color.glslf", vis_point_color_fs_source) ||
+                    !readShader("vis_point_color_lighting.glslv", vis_point_color_lighting_vs_source) ||
+                    !readShader("vis_point_color_lighting.glslf", vis_point_color_lighting_fs_source) ||
+                    !readShader("vis_point_prov.glslv", vis_point_prov_vs_source) ||
+                    !readShader("vis_point_prov.glslf", vis_point_prov_fs_source) ||
+                    !readShader("vis_surfel.glslv", vis_surfel_vs_source) ||
+                    !readShader("vis_surfel.glslg", vis_surfel_gs_source) ||
+                    !readShader("vis_surfel.glslf", vis_surfel_fs_source) || 
+                    !readShader("vis_surfel_color.glslv", vis_surfel_color_vs_source) || 
+                    !readShader("vis_surfel_color.glslg", vis_surfel_color_gs_source) || 
+                    !readShader("vis_surfel_color.glslf", vis_surfel_color_fs_source) || 
+                    !readShader("vis_surfel_color_lighting.glslv", vis_surfel_color_lighting_vs_source) || 
+                    !readShader("vis_surfel_color_lighting.glslg", vis_surfel_color_lighting_gs_source) || 
+                    !readShader("vis_surfel_color_lighting.glslf", vis_surfel_color_lighting_fs_source) || 
+                    !readShader("vis_surfel_prov.glslv", vis_surfel_prov_vs_source) || 
+                    !readShader("vis_surfel_prov.glslg", vis_surfel_prov_gs_source) || 
+                    !readShader("vis_surfel_prov.glslf", vis_surfel_prov_fs_source) || 
+                    !readShader("vis_line.glslv", vis_line_vs_source) || 
+                    !readShader("vis_line.glslf", vis_line_fs_source) ||
+                    !readShader("vis_surfel_pass1.glslv", vis_surfel_pass1_vs_source) ||
+                    !readShader("vis_surfel_pass1.glslg", vis_surfel_pass1_gs_source) ||
+                    !readShader("vis_surfel_pass1.glslf", vis_surfel_pass1_fs_source) ||
+                    !readShader("vis_surfel_pass2.glslv", vis_surfel_pass2_vs_source) ||
+                    !readShader("vis_surfel_pass2.glslg", vis_surfel_pass2_gs_source) ||
+                    !readShader("vis_surfel_pass2.glslf", vis_surfel_pass2_fs_source) ||
+                    !readShader("vis_surfel_pass3.glslv", vis_surfel_pass3_vs_source) ||
+                    !readShader("vis_surfel_pass3.glslf", vis_surfel_pass3_fs_source) ||
+                    !readShader("vis_debug.glslv", vis_debug_vs_source) ||
+                    !readShader("vis_debug.glslf", vis_debug_fs_source))
                 {
                     std::cerr << "[Lamure][ERR] error reading shader files\n";
                     return;
