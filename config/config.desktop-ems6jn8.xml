@@ -58,6 +58,7 @@
       <TabletUI value="off" host="localhost" /> 
       <NumBlendingTextures value="0" />
 
+
       <NumPipes value="3" />
       <NumChannels value="3"/>
       <NumViewports value="3"/>
@@ -93,22 +94,14 @@
         <Window type="Qt" width="853" comment="Right" window="1" pipeIndex="1" height="800" left="1706" top="0" name="1" embedded="false" decoration="true" />
         <Window type="Qt" width="853" comment="Left" window="2" pipeIndex="2" height="800" left="0" top="0" name="2" embedded="false" decoration="true" />
       </WindowConfig>
+     <!--
 
-
-      <!--
+ 
       <NumPipes value="1" />
       <NumChannels value="1" />
       <NumScreens value="1" />
       <NumViewports value="1" />
       <NumWindows value="1" />
-      
-      <PipeConfig>
-        <Pipe name="0" useDISPLAY="false" />
-      </PipeConfig>
-
-      <WindowConfig>
-        <Window type="Qt" arch="windows" width="1280" height="800" left="0" top="0" comment="FRONT" window="0" pipeIndex="0" name="0" embedded="true" decoration="false" /> 
-      </WindowConfig>
       
       <ScreenConfig>
         <Screen width="2560" height="1600" comment="FRONT" originX="0" originY="0" originZ="0"  h="0.0" p="0.0" r="0.0" name="0" screen="0" />
@@ -121,6 +114,14 @@
       <ViewportConfig>
         <Viewport mode="channel" width="1" height="1" windowIndex="0" channelIndex="0" />
       </ViewportConfig>
+      
+      <PipeConfig>
+        <Pipe name="0" useDISPLAY="false" />
+      </PipeConfig>
+
+      <WindowConfig>
+        <Window type="Qt" arch="windows" width="1280" height="800" left="0" top="0" comment="FRONT" window="0" pipeIndex="0" name="0" embedded="true" decoration="false" /> 
+      </WindowConfig>
       -->
       
       <UI>
@@ -211,10 +212,17 @@
             <show_text value="off"/>
             <show_sync value="on"/>
             <show_notify value="on"/>
+
             <!-- Budgets -->
-            <!-- <vram value="1024"/> -->
-            <!-- <ram value="4096"/> -->
-            <!-- <upload value="32"/> -->
+            <vram value="1024"/>
+            <ram value="4096"/>
+            <upload value="32"/>
+
+            <min_vram value="128"/>
+            <min_ram value="512"/>
+            <min_upload value="16"/>
+            <size_of_provenance value="0"/>
+
             <!-- Startpose -->
             <!-- Measurement Struktur: Segment  = dx,dy,dz | rx,ry,rz | v_trans | v_rot -->
             <measurement_dir value="C:/Users/Daniel/Documents/Studium/Forschungsarbeit/Measurement/all/"/>

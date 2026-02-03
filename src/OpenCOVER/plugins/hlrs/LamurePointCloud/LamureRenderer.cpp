@@ -204,127 +204,108 @@ namespace {
         bool m_enabled{false};
     };
 
-    struct TraceKey {
-        int ctx;
-        lamure::model_t model;
-        bool operator==(const TraceKey& other) const noexcept {
-            return ctx == other.ctx && model == other.model;
+} // namespace
+
+DispatchDrawCallback::DispatchDrawCallback(Lamure* plugin)
+    : _plugin(plugin)
+    , _renderer(plugin ? plugin->getRenderer() : nullptr)
+{
+}
+
+void DispatchDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg::Drawable* drawable) const
+{
+    if (!_plugin || !_renderer) return;
+
+    int ctx = renderInfo.getContextID();
+    auto& res = _renderer->getResources(ctx);
+
+    // Ensure initialization happened
+    if (!res.initialized || !res.scm_camera) return;
+    if (!_renderer->gpuOrganizationReady()) return;
+
+    if (_plugin->getSettings().lod_update && !_plugin->isRebuildInProgress()) {
+        lamure::ren::cut_database* cuts = lamure::ren::cut_database::get_instance();
+        lamure::ren::controller* controller = lamure::ren::controller::get_instance();
+
+        lamure::context_t context_id = controller->deduce_context_id(ctx);
+        lamure::view_t view_id = res.scm_camera->view_id();
+
+        cuts->send_camera(context_id, view_id, *res.scm_camera);
+
+        const auto corner_values = res.scm_camera->get_frustum_corners();
+        if (corner_values.size() >= 3) {
+            const double top_minus_bottom = scm::math::length((corner_values[2]) - (corner_values[0]));
+            if (top_minus_bottom > 1e-9) {
+                const float height_divided_by_top_minus_bottom = opencover::coVRConfig::instance()->windows[0].context->getTraits()->height / static_cast<float>(top_minus_bottom);
+                cuts->send_height_divided_by_top_minus_bottom(context_id, view_id, height_divided_by_top_minus_bottom);
+            }
         }
-    };
 
-    struct TraceKeyHash {
-        std::size_t operator()(const TraceKey& key) const noexcept {
-            const std::size_t h1 = std::hash<int>{}(key.ctx);
-            const std::size_t h2 = std::hash<lamure::model_t>{}(key.model);
-            return h1 ^ (h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2));
+        if (_plugin->getSettings().use_pvs) {
+            lamure::pvs::pvs_database::get_instance()->set_viewer_position(res.scm_camera->get_cam_pos());
         }
-    };
 
-    struct TraceMark {
-        const char* label;
-        std::chrono::steady_clock::time_point time;
-    };
-
-    struct TraceSession {
-        uint64_t frame{std::numeric_limits<uint64_t>::max()};
-        std::vector<TraceMark> marks;
-        bool active{false};
-        uint64_t seq{0};
-        uint64_t active_seq{0};
-        std::chrono::steady_clock::time_point last_begin_time;
-        bool has_last_begin{false};
-        double pending_begin_gap_ms{0.0};
-        bool has_pending_begin_gap{false};
-    };
-
-    std::mutex g_trace_mutex;
-    std::unordered_map<TraceKey, TraceSession, TraceKeyHash> g_trace_sessions;
-
-    void traceMark(int ctx, lamure::model_t model, uint64_t frame, double frame_time_s, const char* label)
-    {
-        (void)frame_time_s;
-        const auto now = std::chrono::steady_clock::now();
-        std::lock_guard<std::mutex> lock(g_trace_mutex);
-        TraceKey key{ctx, model};
-        auto& session = g_trace_sessions[key];
-        static std::unordered_map<TraceKey, uint64_t, TraceKeyHash> s_last_frame;
-        static std::pair<int, lamure::model_t> s_last_logged_key{-1, static_cast<lamure::model_t>(-1)};
-
-        if (std::strcmp(label, "draw_begin") == 0) {
-            double delta_ms = 0.0;
-            TraceKey frame_key{ctx, model};
-            auto it = s_last_frame.find(frame_key);
-            if (it != s_last_frame.end()) {
-                const uint64_t last_frame = it->second;
-                if (frame == last_frame + 1 && session.has_last_begin) {
-                    delta_ms = std::chrono::duration<double, std::milli>(now - session.last_begin_time).count();
+        if (!_plugin->getSettings().models.empty()) {
+            try {
+                if (lamure::ren::policy::get_instance()->size_of_provenance() > 0) {
+                    controller->dispatch(context_id, _renderer->getDevice(ctx), _plugin->getDataProvenance());
+                }
+                else {
+                    controller->dispatch(context_id, _renderer->getDevice(ctx));
                 }
             }
-            session.pending_begin_gap_ms = delta_ms;
-            session.has_pending_begin_gap = true;
-            session.frame = frame;
-            session.marks.clear();
-            session.marks.push_back({label, now});
-            session.active = true;
-            session.active_seq = ++session.seq;
-            session.last_begin_time = now;
-            session.has_last_begin = true;
-            s_last_frame[frame_key] = frame;
-            return;
-        }
-
-        if (!session.active || session.frame != frame) {
-            return;
-        }
-
-        session.marks.push_back({label, now});
-
-        if (std::strcmp(label, "draw_end") == 0) {
-            auto find_time = [&](const char* needle) -> const std::chrono::steady_clock::time_point* {
-                for (const auto& m : session.marks) {
-                    if (std::strcmp(m.label, needle) == 0) {
-                        return &m.time;
-                    }
-                }
-                return nullptr;
-            };
-            auto delta_ms_or_zero = [&](const char* from, const char* to) -> double {
-                const auto* t0 = find_time(from);
-                const auto* t1 = find_time(to);
-                if (!t0 || !t1) return 0.0;
-                return std::chrono::duration<double, std::milli>(*t1 - *t0).count();
-            };
-
-            const double dt_dispatch = delta_ms_or_zero("dispatch_begin", "dispatch_end");
-            const double dt_total = delta_ms_or_zero("draw_begin", "draw_end");
-
-            const auto emit = [&](const char* from, const char* to, double delta_ms) {
-                if (s_last_logged_key.first != -1 &&
-                    (s_last_logged_key.first != ctx || s_last_logged_key.second != model)) {
-                    std::cout << "\n";
-                }
-                const std::string step = std::string(from) + "->" + to;
-                std::cout << "[Lamure] Trace"
-                          << " ctx=" << ctx
-                          << " model=" << model
-                          << " frame=" << frame
-                          << " step=" << std::left << std::setw(28) << step << "\t"
-                          << "dt_ms=" << std::right << std::fixed << std::setprecision(3) << delta_ms
-                          << "\n";
-                s_last_logged_key = {ctx, model};
-            };
-
-            if (session.has_pending_begin_gap) {
-                emit("draw_begin", "draw_begin", session.pending_begin_gap_ms);
-                session.has_pending_begin_gap = false;
+            catch (const std::exception& e) {
+                if (_renderer->notifyOn()) std::cerr << "[Lamure][WARN] dispatch skipped: " << e.what() << "\n";
             }
-            emit("draw_begin", "draw_end", dt_total);
-            emit("dispatch_begin", "dispatch_end", dt_dispatch);
-            session.active = false;
         }
     }
 
-} // namespace
+    if (drawable) drawable->drawImplementation(renderInfo);
+}
+
+void CutsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg::Drawable* drawable) const
+{
+    auto* data = dynamic_cast<const LamureModelData*>(drawable->getUserData());
+    if (!data || !m_renderer) return;
+
+    Lamure* plugin = m_renderer->getPlugin();
+    if (!plugin) return;
+
+    if (!plugin->getSettings().lod_update || plugin->isRebuildInProgress()) {
+        return;
+    }
+
+    int ctx = renderInfo.getContextID();
+    auto& res = m_renderer->getResources(ctx);
+    
+    // We assume InitDrawCallback has run and updated the camera if needed,
+    // but the Cut update relies on Model Matrices which we get here.
+    
+    lamure::ren::cut_database* cuts = lamure::ren::cut_database::get_instance();
+    lamure::ren::model_database* database = lamure::ren::model_database::get_instance();
+    lamure::ren::controller* controller = lamure::ren::controller::get_instance();
+
+    osg::Matrixd view_osg;
+    osg::Matrixd proj_osg;
+    osg::Matrixd model_osg;
+
+    const osg::Node* drawableParent = drawable ? drawable->getParent(0) : nullptr;
+    if (!m_renderer->getModelViewProjectionFromRenderInfo(renderInfo, drawableParent, model_osg, view_osg, proj_osg)) {
+        return;
+    }
+    
+    const scm::math::mat4 model_matrix = LamureUtil::matConv4F(model_osg);
+    lamure::context_t context_id = controller->deduce_context_id(ctx);
+
+    cuts->send_transform(context_id, data->modelId, model_matrix);
+    if (Lamure::instance()) {
+        cuts->send_threshold(context_id, data->modelId, Lamure::instance()->getSettings().lod_error);
+    }
+    cuts->send_rendered(context_id, data->modelId);
+    database->get_model(data->modelId)->set_transform(model_matrix);
+    
+    if (drawable) drawable->drawImplementation(renderInfo);
+}
 
 void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg::Drawable* drawable) const
 {
@@ -342,17 +323,12 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
     }
 
     auto& res = m_renderer->getResources(ctx);
+    if (!m_renderer->gpuOrganizationReady() || !res.initialized || !res.scm_camera ||
+        !res.shaders_initialized || !res.resources_initialized) {
+        m_renderer->endFrame(ctx);
+        return;
+    }
     osg::State* state = renderInfo.getState();
-    const osg::FrameStamp* fs = state ? state->getFrameStamp() : nullptr;
-    const uint64_t frameNumber = fs ? fs->getFrameNumber() : 0;
-    const double frameTime = fs ? fs->getReferenceTime() : -1.0;
-    const bool trace = plugin->shouldTraceResetFrame(ctx, frameNumber) && plugin->getSettings().show_notify;
-    const lamure::model_t modelId = data->modelId;
-    if (trace) { traceMark(ctx, modelId, frameNumber, frameTime, "draw_begin"); }
-    if (trace) { traceMark(ctx, modelId, frameNumber, frameTime, "beginFrame"); }
-    const auto trace_end = [&]() {
-        if (trace) { traceMark(ctx, modelId, frameNumber, frameTime, "draw_end"); }
-    };
 
     GLState before = GLState::capture();
     glDisable(GL_CULL_FACE);
@@ -372,12 +348,10 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
 
     const osg::Node* drawableParent = drawable ? drawable->getParent(0) : nullptr;
     if (!m_renderer->getModelViewProjectionFromRenderInfo(renderInfo, drawableParent, model_osg, view_osg, proj_osg)) {
-        trace_end();
         m_renderer->endFrame(ctx);
         before.restore();
         return;
     }
-    if (trace) { traceMark(ctx, modelId, frameNumber, frameTime, "mvp"); }
     const scm::math::mat4 view = LamureUtil::matConv4F(view_osg);
     const scm::math::mat4 proj = LamureUtil::matConv4F(proj_osg);
 
@@ -392,21 +366,9 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
 
     lamure::context_t context_id = controller->deduce_context_id(ctx);
     lamure::view_t view_id = res.scm_camera->view_id();
-    cuts->send_camera(context_id, view_id, *res.scm_camera);
-    {
-        const auto corner_values = res.scm_camera->get_frustum_corners();
-        if (corner_values.size() >= 3) {
-            const double top_minus_bottom = scm::math::length((corner_values[2]) - (corner_values[0]));
-            if (top_minus_bottom > 1e-9) {
-                const float height_divided_by_top_minus_bottom = opencover::coVRConfig::instance()->windows[0].context->getTraits()->height / static_cast<float>(top_minus_bottom);
-                cuts->send_height_divided_by_top_minus_bottom(context_id, view_id, height_divided_by_top_minus_bottom);
-            }
-        }
-    }
-    if (plugin->getSettings().use_pvs) {
-        const scm::math::vec3d cam_pos = res.scm_camera->get_cam_pos();
-        lamure::pvs::pvs_database::get_instance()->set_viewer_position(cam_pos);
-    }
+    
+    // NOTE: Cuts and Dispatch are now handled in separate callbacks!
+    
     scm::math::mat4 model_matrix = LamureUtil::matConv4F(model_osg);
 
     if (plugin->getUI() && plugin->getUI()->getDumpButton() && plugin->getUI()->getDumpButton()->state()) {
@@ -423,55 +385,30 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
             if (res.scm_camera) {
                 const scm::math::mat4f view_scm = res.scm_camera->get_view_matrix();
                 const scm::math::mat4f proj_scm = res.scm_camera->get_projection_matrix();
-                std::cout << "[Lamure] dump(ctx=" << ctx << "): scm_view\n"
-                          << view_scm << std::endl << std::endl;
-                std::cout << "[Lamure] dump(ctx=" << ctx << "): scm_proj\n"
-                          << proj_scm << std::endl << std::endl;
+                plugin->dump("[Lamure] dump(ctx=", ctx, "): scm_view\n",
+                             view_scm, "\n\n");
+                plugin->dump("[Lamure] dump(ctx=", ctx, "): scm_proj\n",
+                             proj_scm, "\n\n");
             }
-            std::cout << "[Lamure] dump: model\n";
+            plugin->dump("[Lamure] dump: model\n", 1);
             for (const auto& entry : pendingModels) {
-                std::cout << "model=" << entry.first << "\n"
-                          << entry.second << std::endl << std::endl;
+                plugin->dump("model=", entry.first, "\n",
+                             entry.second, "\n\n");
             }
             pendingModels.clear();
             pendingFrame = frameNumber;
-            plugin->getUI()->getDumpButton()->setState(false);
+            plugin->dump("", 0);
         }
 
         pendingModels[data->modelId] = model_matrix;
     }
-    cuts->send_transform(context_id, data->modelId, model_matrix);
-    if (Lamure::instance()) {
-        cuts->send_threshold(context_id, data->modelId, Lamure::instance()->getSettings().lod_error);
-    }
-    cuts->send_rendered(context_id, data->modelId);
-    database->get_model(data->modelId)->set_transform(model_matrix);
-
-    if (plugin->getSettings().lod_update && !plugin->isResetInProgress()) {
-        try {
-            if (trace) { traceMark(ctx, modelId, frameNumber, frameTime, "dispatch_begin"); }
-            if (lamure::ren::policy::get_instance()->size_of_provenance() > 0 && plugin) {
-                controller->dispatch(context_id, m_renderer->getDevice(ctx), plugin->getDataProvenance());
-            } else {
-                controller->dispatch(context_id, m_renderer->getDevice(ctx));
-            }
-            if (trace) { traceMark(ctx, modelId, frameNumber, frameTime, "dispatch_end"); }
-        } catch (const std::exception& e) {
-            if (m_renderer->notifyOn()) std::cerr << "[Lamure] dispatch skipped: " << e.what() << "\n";
-        }
-    }
 
     lamure::ren::cut& cut = cuts->get_cut(context_id, view_id, data->modelId);
     const auto& renderable = cut.complete_set();
-    if (trace) { traceMark(ctx, modelId, frameNumber, frameTime, "cut_ready"); }
-    if (!renderable.empty() && plugin->isResetTimingActive()) {
-        plugin->logFirstRenderAfterReset();
-    }
 
     if (renderable.empty()) {
         m_renderer->endFrame(ctx);
         before.restore();
-        trace_end();
         return;
     }
 
@@ -479,7 +416,6 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
     const scm::math::mat4 m = model_matrix;
 
     m_renderer->setModelUniforms(mvp, m, res);
-    if (trace) { traceMark(ctx, modelId, frameNumber, frameTime, "uniforms"); }
 
     const lamure::ren::bvh* bvh = database->get_model(data->modelId)->get_bvh();
     size_t surfels_per_node = database->get_primitives_per_node();
@@ -664,7 +600,6 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
         plugin->getRenderInfo().rendered_nodes += rendered_nodes;
         
         m_renderer->endFrame(ctx);
-        trace_end();
         if (!res.vao_initialized) {
             GLState after = GLState::capture();
             if (after.getVertexArrayBinding() != before.getVertexArrayBinding()) {
@@ -693,7 +628,6 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
     plugin->getRenderInfo().rendered_nodes += rendered_nodes;
     
     m_renderer->endFrame(ctx);
-    trace_end();
     if (!res.vao_initialized) {
         GLState after = GLState::capture();
         if (after.getVertexArrayBinding() != before.getVertexArrayBinding()) {
@@ -720,6 +654,8 @@ void BoundingBoxDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, co
         return;
     const int ctx = renderInfo.getContextID();
     auto& res = m_renderer->getResources(ctx);
+    if (!m_renderer->gpuOrganizationReady())
+        return;
     if (!res.scm_camera || res.geo_box.vao == 0 || res.sh_line.program == 0)
         return;
 
@@ -775,7 +711,7 @@ void BoundingBoxDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, co
         pvs->set_viewer_position(cam_pos);
     }
 
-    if (plugin->getSettings().lod_update && !plugin->isResetInProgress()) {
+    if (plugin->getSettings().lod_update && !plugin->isRebuildInProgress()) {
         try {
             if (lamure::ren::policy::get_instance()->size_of_provenance() > 0) {
                 controller->dispatch(context_id, m_renderer->getDevice(ctx), plugin->getDataProvenance());
@@ -783,7 +719,7 @@ void BoundingBoxDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, co
                 controller->dispatch(context_id, m_renderer->getDevice(ctx));
             }
         } catch (const std::exception& e) {
-            if (m_renderer->notifyOn()) std::cerr << "[Lamure] dispatch skipped (BB): " << e.what() << "\n";
+            if (m_renderer->notifyOn()) std::cerr << "[Lamure][WARN] dispatch skipped (BB): " << e.what() << "\n";
         }
     }
 
@@ -860,7 +796,6 @@ void BoundingBoxDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, co
 
 LamureRenderer::LamureRenderer(Lamure *plugin)
 : m_plugin(plugin)
-, m_renderer(this)
 {
 }
 
@@ -903,7 +838,7 @@ void LamureRenderer::updateActiveClipPlanes()
 
 void LamureRenderer::enableClipDistances()
 {
-    const int desired = std::min(m_clip_plane_count, kMaxClipPlanes);
+    const int desired = (std::min)(m_clip_plane_count, kMaxClipPlanes);
     for (int i = 0; i < desired; ++i)
         glEnable(GL_CLIP_DISTANCE0 + i);
     m_enabled_clip_distances = desired;
@@ -918,7 +853,7 @@ void LamureRenderer::disableClipDistances()
 
 void LamureRenderer::uploadClipPlanes(GLint countLocation, GLint dataLocation) const
 {
-    const GLint planeCount = std::min(m_clip_plane_count, kMaxClipPlanes);
+    const GLint planeCount = (std::min)(m_clip_plane_count, kMaxClipPlanes);
     if (countLocation >= 0)
         glUniform1i(countLocation, planeCount);
     if (dataLocation >= 0 && planeCount > 0)
@@ -954,7 +889,7 @@ void InitDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg
     if (cfg && ctx >= 0 && ctx < static_cast<int>(cfg->pipes.size())) { screenIdx = cfg->pipes[ctx].x11ScreenNum; }
     
     // Check main initialization (Context, Camera)
-    if (_renderer && !res.initialized) {
+    if (!res.initialized) {
         res.ctx = ctx;
         res.view_id = screenIdx;
         _renderer->initCamera(res);
@@ -962,53 +897,42 @@ void InitDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg
         res.initialized = true;
     }
 
-    if (_renderer && !res.shaders_initialized) {
-        osg::Timer* timer = osg::Timer::instance();
-        osg::Timer_t t_start = timer->tick();
-        
-        _renderer->initLamureShader(res); // Now sets res.shaders_initialized = true inside
-        _renderer->initUniforms(res);
-        
-        if (_renderer->notifyOn()) {
-             std::cout << "[Lamure] InitDrawCallback(ctx=" << ctx << ") Shaders Compiled: " 
-                       << timer->delta_m(t_start, timer->tick()) << "ms" << std::endl;
+    osg::Matrixd view_osg;
+    osg::Matrixd proj_osg;
+    _renderer->getMatricesFromRenderInfo(renderInfo, view_osg, proj_osg);
+    osg::Matrix mv_matrix = view_osg;
+    scm::math::mat4d modelview_matrix = LamureUtil::matConv4D(mv_matrix);
+    scm::math::mat4d projection_matrix = LamureUtil::matConv4D(proj_osg);
+
+    if (res.scm_camera) {
+        res.scm_camera->set_projection_matrix(projection_matrix);
+        if (_plugin->getUI()->getSyncButton()->state()) {
+            res.scm_camera->set_view_matrix(modelview_matrix);
         }
     }
 
-    if (_renderer && !res.resources_initialized) {
-        osg::Timer* timer = osg::Timer::instance();
-        osg::Timer_t t_start = timer->tick();
+    if (!_renderer->initGpus(res)) {
+        if (drawable) { drawable->drawImplementation(renderInfo); }
+        return;
+    }
+
+    if (!res.shaders_initialized) {
+        _renderer->initLamureShader(res); // Now sets res.shaders_initialized = true inside
+        _renderer->initUniforms(res);
+    }
+
+    if (!res.resources_initialized) {
         GLState before = GLState::capture();
 
         _renderer->initFrustumResources(res);
         _renderer->initBoxResources(res);
         _renderer->initPclResources(res);
         
-        if (_renderer->getTextGeode().valid()) {
-            _renderer->getTextGeode()->setNodeMask(_plugin->getUI()->getTextButton()->state() ? 0xFFFFFFFF : 0x0);
-        }
         before.restore();
         res.resources_initialized = true;
 
-        if (_renderer->notifyOn()) {
-             std::cout << "[Lamure] InitDrawCallback(ctx=" << ctx << ") Resources Uploaded: " 
-                       << timer->delta_m(t_start, timer->tick()) << "ms" << std::endl;
-        }
     }
     
-    if (_renderer) {
-        osg::Matrixd view_osg;
-        osg::Matrixd proj_osg;
-        _renderer->getMatricesFromRenderInfo(renderInfo, view_osg, proj_osg);
-        osg::Matrix mv_matrix = view_osg;
-        scm::math::mat4d modelview_matrix = LamureUtil::matConv4D(mv_matrix);
-        scm::math::mat4d projection_matrix = LamureUtil::matConv4D(proj_osg);
-
-        res.scm_camera->set_projection_matrix(projection_matrix);
-        if (_plugin->getUI()->getSyncButton()->state()) {
-            res.scm_camera->set_view_matrix(modelview_matrix);
-        }
-    }
     if (drawable) { drawable->drawImplementation(renderInfo); }
 }
 
@@ -1034,7 +958,6 @@ void TextDrawCallback::drawImplementation(osg::RenderInfo &renderInfo, const osg
         osg::Matrix transformMatrix = opencover::VRSceneGraph::instance()->getTransform()->getMatrix();
         baseMatrix.postMult(transformMatrix);
 
-        if (_renderer)
         {
             osg::Matrixd view_osg;
             osg::Matrixd proj_osg;
@@ -1081,11 +1004,13 @@ void TextDrawCallback::drawImplementation(osg::RenderInfo &renderInfo, const osg
                 }
 
                 const double primMio = static_cast<double>(render_info.rendered_primitives) / 1e6;
+                const double primPerSecMio = primMio * fpsAvg;
                 value_ss << "\n"
                     << std::fixed << std::setprecision(2)
                     << fpsAvg << "\n"
                     << render_info.rendered_nodes << "\n"
                     << primMio << "\n"
+                    << primPerSecMio << "\n"
                     << render_info.rendered_bounding_boxes << "\n\n\n"
                     << pos.x << "\n"
                     << pos.y << "\n"
@@ -1099,12 +1024,8 @@ void TextDrawCallback::drawImplementation(osg::RenderInfo &renderInfo, const osg
             }
             else if (verbose)
             {
-                std::cerr << "[Lamure] TextDrawCallback: missing renderer state, skip\n";
+                std::cerr << "[Lamure][WARN] TextDrawCallback: missing renderer state, skip\n";
             }
-        }
-        else if (verbose)
-        {
-            std::cerr << "[Lamure] TextDrawCallback: renderer unavailable\n";
         }
     }
     if (drawable) { drawable->drawImplementation(renderInfo); }
@@ -1132,7 +1053,7 @@ void FrustumDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const 
     glGetIntegerv(GL_CURRENT_PROGRAM, &prevProg);
 
     const auto corner_values = res.scm_camera->get_frustum_corners();
-    const size_t corner_count = std::min(corner_values.size(), res.frustum_vertices.size() / 3);
+    const size_t corner_count = (std::min)(corner_values.size(), res.frustum_vertices.size() / 3);
     for (size_t i = 0; i < corner_count; ++i) {
         const auto vv = scm::math::vec3f(corner_values[i]);
         res.frustum_vertices[i * 3 + 0] = vv.x;
@@ -1291,6 +1212,22 @@ void LamureRenderer::init()
     }
     m_init_geode->addDrawable(m_init_geometry);
 
+    m_dispatch_geode = new osg::Geode();
+    m_dispatch_geode->setName("DispatchGeode");
+    m_dispatch_geode->setCullingActive(false);
+    m_dispatch_stateset = new osg::StateSet();
+    m_dispatch_stateset->setRenderBinDetails(-5, "RenderBin");
+    m_dispatch_geode->setStateSet(m_dispatch_stateset.get());
+    m_plugin->getGroup()->addChild(m_dispatch_geode);
+    m_dispatch_geometry = new osg::Geometry();
+    m_dispatch_geometry->setName("DispatchGeometry");
+    m_dispatch_geometry->setUseDisplayList(false);
+    m_dispatch_geometry->setUseVertexBufferObjects(true);
+    m_dispatch_geometry->setUseVertexArrayObject(false);
+    m_dispatch_geometry->setCullingActive(false);
+    m_dispatch_geometry->setDrawCallback(new DispatchDrawCallback(m_plugin));
+    m_dispatch_geode->addDrawable(m_dispatch_geometry);
+
     if (notifyOn()) { std::cout << "[Lamure] TextGeode()" << std::endl; }
     m_text_geode = new osg::Geode();
     m_text_geode->setName("TextGeode");
@@ -1316,6 +1253,7 @@ void LamureRenderer::init()
         label_ss << "FPS:" << "\n"
             << "Nodes:" << "\n"
             << "Primitives (Mio):" << "\n"
+            << "Primitives / s (Mio):" << "\n"
             << "Boxes:" << "\n\n"
             << "Frustum Position" << "\n"
             << "X:" << "\n"
@@ -1338,6 +1276,7 @@ void LamureRenderer::init()
         std::stringstream value_ss;
         value_ss << "\n"
             << "0.00:" << "\n"
+            << "0.00" << "\n"
             << "0.00" << "\n"
             << "0.00" << "\n"
             << "0.00:" << "\n\n\n"
@@ -1385,12 +1324,16 @@ void LamureRenderer::init()
     
     auto ui = m_plugin->getUI();
 
+    const bool show_text = m_plugin->getSettings().show_text;
     ui->getPointcloudButton()->setState(   m_plugin->getSettings().show_pointcloud );
     ui->getBoundingboxButton()->setState(  m_plugin->getSettings().show_boundingbox );
     ui->getFrustumButton()->setState(      m_plugin->getSettings().show_frustum );
-    ui->getTextButton()->setState(         m_plugin->getSettings().show_text );
+    ui->getTextButton()->setState(         show_text );
     ui->getSyncButton()->setState(         m_plugin->getSettings().show_sync );
     ui->getNotifyButton()->setState(       m_plugin->getSettings().show_notify );
+    if (m_text_geode.valid()) {
+        m_text_geode->setNodeMask(show_text ? 0xFFFFFFFF : 0x0);
+    }
 
     ui->getPointcloudButton()->setCallback([this](bool state) {
         if (!m_plugin) return;
@@ -1446,63 +1389,13 @@ void LamureRenderer::init()
 void LamureRenderer::detachCallbacks()
 {
     if (m_init_geometry.valid())        m_init_geometry->setDrawCallback(nullptr);
+    if (m_dispatch_geometry.valid())    m_dispatch_geometry->setDrawCallback(nullptr);
     if (m_frustum_geometry.valid())     m_frustum_geometry->setDrawCallback(nullptr);
-}
-
-void LamureRenderer::reset()
-{
-    if (notifyOn()) { std::cout << "[Lamure] LamureRenderer::reset() (Soft Shutdown)" << std::endl; }
-    
-    // Wait for pools (same as shutdown)
-    if (auto* ctrl = lamure::ren::controller::get_instance()) {
-        ctrl->shutdown_pools();
-    }
-    if (auto* cache = lamure::ren::ooc_cache::get_instance()) {
-        cache->wait_for_idle();
-        cache->shutdown_pool();
-    }
-
-    releaseMultipassTargets();
-
-    {
-        std::lock_guard<std::mutex> lock(m_ctx_mutex);
-        for (auto& pair : m_ctx_res) {
-            auto& res = pair.second;
-            // Clear Geometry (Volatile)
-            res.geo_box.destroy();
-            res.geo_frustum.destroy();
-            res.geo_screen_quad.destroy();
-            if (res.vao_pointcloud) {
-                // Warning: Deleting VAO without context current might be unsafe if not shared?
-                // Schism handles pointcloud VAOs usually, but here we track it manually?
-                // Let's reset the flag and let init recreate it. 
-                // Ideally we should delete it, but context binding is tricky here.
-                // Assuming InitDrawCallback handles overwriting or Schism logic prevails.
-                res.vao_pointcloud = 0;
-            }
-            
-            res.resources_initialized = false;
-            res.vao_initialized = false;
-            
-            // Keep: res.initialized (Context/Camera), res.shaders_initialized
-        }
-        // Do NOT clear m_ctx_res map!
-    }
-
-    // Cleanup scenegraph nodes
-    if (m_plugin && m_plugin->getGroup()) {
-        if (m_init_geode.valid())       m_plugin->getGroup()->removeChild(m_init_geode);
-        if (m_frustum_group.valid())    m_plugin->getGroup()->removeChild(m_frustum_group);
-    }
-    // ... keep m_init_geode pointers valid for re-add in init() ...
-    
-    // NOTE: shutdown() cleared everything. reset() keeps the objects but detaches them.
-    // init() will re-add them.
 }
 
 void LamureRenderer::shutdown()
 {
-    // Wait for pools to idle before shutdown to avoid races
+    // Wait for pools to drain before shutdown to avoid races
     if (auto* ctrl = lamure::ren::controller::get_instance()) {
         //if (m_osg_camera.valid() && m_osg_camera->getGraphicsContext() && m_osg_camera->getGraphicsContext()->getState()) {
         //    lamure::context_t ctx = m_osg_camera->getGraphicsContext()->getState()->getContextID();
@@ -1521,10 +1414,12 @@ void LamureRenderer::shutdown()
         std::lock_guard<std::mutex> lock(m_ctx_mutex);
         m_ctx_res.clear();
     }
+    m_gpu_org_ready.store(false, std::memory_order_release);
 
 
     if (m_plugin && m_plugin->getGroup()) {
         if (m_init_geode.valid())       m_plugin->getGroup()->removeChild(m_init_geode);
+        if (m_dispatch_geode.valid())   m_plugin->getGroup()->removeChild(m_dispatch_geode);
         if (m_frustum_group.valid())    m_plugin->getGroup()->removeChild(m_frustum_group);
     }
 
@@ -1535,13 +1430,16 @@ void LamureRenderer::shutdown()
         m_hud_camera->removeChildren(0, m_hud_camera->getNumChildren());
 
     m_init_geode = nullptr;
+    m_dispatch_geode = nullptr;
     m_text_geode = nullptr;
     m_frustum_geode = nullptr;
     m_frustum_group = nullptr;
     m_init_stateset = nullptr;
+    m_dispatch_stateset = nullptr;
     m_text_stateset = nullptr;
     m_frustum_stateset = nullptr;
     m_init_geometry = nullptr;
+    m_dispatch_geometry = nullptr;
     m_frustum_geometry = nullptr;
     m_osg_camera = nullptr;
     m_hud_camera = nullptr;
@@ -1607,7 +1505,7 @@ void LamureRenderer::endFrame(int ctxId)
     m_renderCondition.notify_all();
 }
 
-bool LamureRenderer::pauseAndWaitForIdle(uint32_t extraDrainFrames)
+bool LamureRenderer::pauseAndDrainFrames(uint32_t extraDrainFrames)
 {
     std::unique_lock<std::mutex> lock(m_renderMutex);
 
@@ -1701,33 +1599,6 @@ void LamureRenderer::resumeRendering()
     m_renderCondition.notify_all();
 }
 
-void LamureRenderer::updateScmCameraFromRenderInfo(osg::RenderInfo& renderInfo, int ctxId)
-{
-    ContextResources& res = getResources(ctxId);
-    osg::State* state = renderInfo.getState();
-    const osg::FrameStamp* fs = state ? state->getFrameStamp() : nullptr;
-    const uint64_t frameNumber = fs ? fs->getFrameNumber() : 0;
-    if (frameNumber == res.last_camera_frame) {
-        return;
-    }
-    res.last_camera_frame = frameNumber;
-
-    osg::Matrixd view_osg;
-    osg::Matrixd proj_osg;
-    getMatricesFromRenderInfo(renderInfo, view_osg, proj_osg);
-
-    if (!res.scm_camera) {
-        return;
-    }
-
-    const scm::math::mat4d view = LamureUtil::matConv4D(view_osg);
-    const scm::math::mat4d proj = LamureUtil::matConv4D(proj_osg);
-    res.scm_camera->set_projection_matrix(proj);
-    if (m_plugin && m_plugin->getUI() && m_plugin->getUI()->getSyncButton()
-        && m_plugin->getUI()->getSyncButton()->state()) {
-        res.scm_camera->set_view_matrix(view);
-    }
-}
 
 bool LamureRenderer::isRendering() const
 {
@@ -2497,7 +2368,7 @@ bool LamureRenderer::readShader(std::string const &path_string, std::string &sha
 {
     if (!boost::filesystem::exists(path_string))
     {
-        std::cout << "WARNING: File " << path_string << "does not exist." << std::endl;
+        std::cerr << "[Lamure][WARN] File " << path_string << " does not exist.\n";
         return false;
     }
     std::ifstream shader_source(path_string, std::ios::in);
@@ -2552,7 +2423,7 @@ void LamureRenderer::initLamureShader(ContextResources& res)
             {
                 char * val = getenv( "COVISEDIR" );
                 if (!val) {
-                    std::cerr << "[Lamure] COVISEDIR not set, cannot load shaders!" << std::endl;
+                    std::cerr << "[Lamure][ERR] COVISEDIR not set, cannot load shaders!\n";
                     return;
                 }
                 std::string shader_root_path = std::string(val) + "/share/covise/shaders";
@@ -2590,12 +2461,12 @@ void LamureRenderer::initLamureShader(ContextResources& res)
                     !readShader(shader_root_path + "/vis/vis_debug.glslv", vis_debug_vs_source) ||
                     !readShader(shader_root_path + "/vis/vis_debug.glslf", vis_debug_fs_source))
                 {
-                    std::cout << "error reading shader files" << std::endl;
+                    std::cerr << "[Lamure][ERR] error reading shader files\n";
                     return;
                 }
             }
             catch (std::exception &e) { 
-                std::cout << "[Lamure] Exception loading shaders: " << e.what() << std::endl; 
+                std::cerr << "[Lamure][ERR] Exception loading shaders: " << e.what() << "\n";
                 return;
             }
         }
@@ -2625,16 +2496,100 @@ void LamureRenderer::initSchismObjects(ContextResources& ctx)
     if (!ctx.scm_device) {
         ctx.scm_device.reset(new scm::gl::render_device());
         if (!ctx.scm_device) {
-            std::cout << "error creating device" << std::endl;
+            std::cerr << "[Lamure][ERR] error creating device\n";
             return;
         }
     }
     if (!ctx.scm_context) {
         ctx.scm_context = ctx.scm_device->main_context();
         if (!ctx.scm_context) {
-            std::cout << "error creating context" << std::endl;
+            std::cerr << "[Lamure][ERR] error creating context\n";
         }
     }
+}
+
+bool LamureRenderer::initGpus(ContextResources& res)
+{
+    if (m_gpu_org_ready.load(std::memory_order_acquire)) {
+        return true;
+    }
+
+    if (!res.gpu_info_logged) {
+        LamureUtil::GpuInfo info = LamureUtil::queryGpuInfo();
+        res.gpu_vendor = info.vendor;
+        res.gpu_renderer = info.renderer;
+        res.gpu_version = info.version;
+        res.gpu_uuid = info.device_uuid;
+        res.driver_uuid = info.driver_uuid;
+        res.gpu_key = info.key.empty()
+            ? res.gpu_vendor + "|" + res.gpu_renderer + "|" + res.gpu_version
+            : info.key;
+
+        res.gpu_info_logged = true;
+    }
+
+    auto* controller = lamure::ren::controller::get_instance();
+    if (!controller) {
+        return false;
+    }
+
+    int context_count = 0;
+    if (auto* viewer = opencover::VRViewer::instance()) {
+        osgViewer::ViewerBase::Cameras cameras;
+        viewer->getCameras(cameras, true);
+        std::unordered_set<osg::GraphicsContext*> unique_contexts;
+        for (auto* cam : cameras) {
+            if (!cam) continue;
+            osg::GraphicsContext* gc = cam->getGraphicsContext();
+            if (!gc) continue;
+            unique_contexts.insert(gc);
+        }
+        context_count = static_cast<int>(unique_contexts.size());
+    }
+    if (context_count <= 0) {
+        return false;
+    }
+
+    std::unordered_map<std::string, uint32_t> counts;
+    std::vector<std::string> keys(static_cast<size_t>(context_count));
+    {
+        std::lock_guard<std::mutex> lock(m_ctx_mutex);
+        if (static_cast<int>(m_ctx_res.size()) < context_count) {
+            return false;
+        }
+        for (int ctx_id = 0; ctx_id < context_count; ++ctx_id) {
+            auto it = m_ctx_res.find(ctx_id);
+            if (it == m_ctx_res.end()) {
+                return false;
+            }
+            const auto& r = it->second;
+            if (!r.gpu_info_logged || r.gpu_key.empty()) {
+                return false;
+            }
+            keys[static_cast<size_t>(ctx_id)] = r.gpu_key;
+            ++counts[r.gpu_key];
+        }
+    }
+
+    for (int ctx_id = 0; ctx_id < context_count; ++ctx_id) {
+        const std::string& key = keys[static_cast<size_t>(ctx_id)];
+        auto it = counts.find(key);
+        if (it == counts.end()) {
+            continue;
+        }
+        lamure::context_t context_id = controller->deduce_context_id(ctx_id);
+        controller->set_contexts(context_id, it->second);
+    }
+
+    std::cout << "[Lamure] GPU organization: gpus=" << counts.size()
+              << " contexts=" << context_count << std::endl;
+
+    std::lock_guard<std::mutex> lock(m_ctx_mutex);
+    for (auto& kv : m_ctx_res) {
+        kv.second.gpu_consistency_checked = true;
+    }
+    m_gpu_org_ready.store(true, std::memory_order_release);
+    return true;
 }
 
 void LamureRenderer::initCamera(ContextResources& res)
@@ -2704,8 +2659,8 @@ unsigned int LamureRenderer::compileShader(unsigned int type, const std::string&
         gl_api->glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
         char* message = (char*)alloca(length * sizeof(char));
         gl_api->glGetShaderInfoLog(id, length, &length, message);
-        std::cout << "Failed to compile " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader!" << std::endl;
-        std::cout << message << std::endl;
+        std::cerr << "[Lamure][ERR] Failed to compile " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader!\n";
+        std::cerr << "[Lamure][ERR] " << message << "\n";
         gl_api->glDeleteShader(id);
         return 0;
     };
@@ -2747,7 +2702,7 @@ GLuint LamureRenderer::compileAndLinkShaders(std::string vs_source, std::string 
 void LamureRenderer::initFrustumResources(ContextResources& res) {
     const auto corner_values = res.scm_camera->get_frustum_corners();
     if (!corner_values.empty()) {
-        const size_t corner_count = std::min(corner_values.size(), res.frustum_vertices.size() / 3);
+        const size_t corner_count = (std::min)(corner_values.size(), res.frustum_vertices.size() / 3);
         for (size_t i = 0; i < corner_count; ++i) {
             const auto vv = scm::math::vec3f(corner_values[i]);
             res.frustum_vertices[i * 3 + 0] = vv.x;
@@ -2881,7 +2836,6 @@ void LamureRenderer::initBoxResources(ContextResources& res) {
     // Safety check if updateSharedBoxData was called
     if (m_shared_box_vertices.empty() && !m_plugin->getSettings().models.empty()) {
          // Fallback if empty (should not happen with correct order)
-         if (notifyOn()) std::cout << "[Lamure] Warning: Shared box vertices empty, triggering update.\n";
          updateSharedBoxData(); 
     }
 
@@ -3007,7 +2961,8 @@ void LamureRenderer::initializeMultipassTarget(MultipassTarget& target, int widt
 
     const GLenum status=glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if(status!=GL_FRAMEBUFFER_COMPLETE){
-        std::cerr<<"ERROR::FRAMEBUFFER incomplete ("<<std::hex<<status<<std::dec<<") "<<width<<"x"<<height<<"\n";
+        std::cerr << "[Lamure][ERR] Framebuffer incomplete (" << std::hex << status << std::dec << ") "
+                  << width << "x" << height << "\n";
     } else if (notifyOn()) {
         std::cout<<"[Lamure] FBO ready "<<width<<"x"<<height<<"\n";
     }

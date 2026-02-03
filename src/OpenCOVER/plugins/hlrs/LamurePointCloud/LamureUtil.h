@@ -4,7 +4,15 @@
 // std
 #include <string>
 #include <vector>
+#include <functional>
+#include <utility>
 
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#endif
 #include <GL/glew.h>
 #include <scm/core/math.h>
 #include <scm/gl_core/primitives/primitives_fwd.h>
@@ -69,6 +77,30 @@ std::vector<std::vector<float>> getSerializedBvhMinMax(const std::vector<scm::gl
 std::vector<std::string> splitSemicolons(const std::string& s);
 
 bool decideUseAniso(const scm::math::mat4& projection_matrix, int anisoMode, float threshold);
+
+struct GpuInfo {
+    std::string vendor;
+    std::string renderer;
+    std::string version;
+    std::string device_uuid;
+    std::string driver_uuid;
+    std::string key;
+    std::string extra;
+};
+
+struct GpuContextInfo {
+    int ctx_id;
+    std::string gpu_key;
+    std::string vendor;
+    std::string renderer;
+    std::string version;
+    GpuContextInfo(int ctx, const std::string& key,
+                   const std::string& v, const std::string& r, const std::string& ver)
+        : ctx_id(ctx), gpu_key(key), vendor(v), renderer(r), version(ver) {}
+};
+
+GpuInfo queryGpuInfo();
+std::string formatGpuInfoLine(const GpuInfo& info, int ctx, int view_id);
 
 } // namespace LamureUtil
 

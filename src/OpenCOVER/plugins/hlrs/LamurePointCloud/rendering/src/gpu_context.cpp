@@ -11,8 +11,8 @@
 #include <lamure/ren/model_database.h>
 #include <lamure/ren/policy.h>
 #include <scm/gl_core/render_device/opengl/gl_core.h>
-
-static bool vram_budget_determined = false;
+#include <algorithm>
+#include <iostream>
 
 namespace lamure
 {
@@ -20,7 +20,7 @@ namespace ren
 {
 gpu_context::gpu_context(const context_t context_id)
     : context_id_(context_id), is_created_(false), temp_buffer_a_(nullptr), temp_buffer_b_(nullptr), primary_buffer_(nullptr), temporary_storages_(temporary_storages(nullptr, nullptr)),
-      temporary_storages_provenance_(temporary_storages(nullptr, nullptr)), upload_budget_in_nodes_(LAMURE_DEFAULT_UPLOAD_BUDGET), render_budget_in_nodes_(LAMURE_DEFAULT_VIDEO_MEMORY_BUDGET)
+      temporary_storages_provenance_(temporary_storages(nullptr, nullptr)), upload_budget_in_nodes_(0), render_budget_in_nodes_(0)
 {
 }
 
@@ -46,6 +46,11 @@ gpu_context::~gpu_context()
         delete primary_buffer_;
         primary_buffer_ = nullptr;
     }
+}
+
+void gpu_context::set_contexts(uint32_t contexts)
+{
+    contexts_ = contexts > 0 ? contexts : 1u;
 }
 
 void gpu_context::create(scm::gl::render_device_ptr device)
@@ -100,78 +105,87 @@ void gpu_context::test_video_memory(scm::gl::render_device_ptr device)
 {
     model_database *database = model_database::get_instance();
     policy *policy = policy::get_instance();
+    size_t render_budget_in_mb = policy->render_budget_in_mb();
 
-    if (!vram_budget_determined) {
-        float safety = 0.75;
-        size_t video_ram_free_in_mb = gpu_access::query_video_memory_in_mb(device) * safety;
-        size_t render_budget_in_mb = policy->render_budget_in_mb();
+    float safety = 0.75f;
+    size_t video_ram_free_in_mb = gpu_access::query_video_memory_in_mb(device) * safety;
 
-        if(policy->out_of_core_budget_in_mb() == 0 || video_ram_free_in_mb < render_budget_in_mb)
-        {
-            if (policy->out_of_core_budget_in_mb() > 0) {
-                std::cout << "##### The specified render budget is too large! " << video_ram_free_in_mb << " MB will be used for the render budget #####" << std::endl;
-            }
-            render_budget_in_mb = video_ram_free_in_mb;
-            policy->set_render_budget_in_mb(render_budget_in_mb);
+    if (policy->out_of_core_budget_in_mb() == 0 || video_ram_free_in_mb < render_budget_in_mb)
+    {
+        if (policy->out_of_core_budget_in_mb() > 0) {
+            std::cout << "##### The specified render budget is too large! " << video_ram_free_in_mb << " MB will be used for the render budget #####" << std::endl;
         }
-        else
-        {
-            std::cout << "##### " << policy->render_budget_in_mb() << " MB will be used for the render budget #####" << std::endl;
-        }
-        vram_budget_determined = true;
+        render_budget_in_mb = video_ram_free_in_mb;
+    }
+    else
+    {
+        std::cout << "##### " << render_budget_in_mb << " MB will be used for the render budget #####" << std::endl;
+    }
+
+    if (contexts_ > 1) {
+        render_budget_in_mb = std::max<size_t>(1, render_budget_in_mb / contexts_);
     }
 
     long node_size_total = database->get_slot_size();
     if(node_size_total==0)
         render_budget_in_nodes_ = 0;
     else
-        render_budget_in_nodes_ = (policy->render_budget_in_mb() * 1024 * 1024) / node_size_total;
+        render_budget_in_nodes_ = (render_budget_in_mb * 1024 * 1024) / node_size_total;
 
     size_t max_upload_budget_in_mb = policy->max_upload_budget_in_mb();
-    max_upload_budget_in_mb = max_upload_budget_in_mb < LAMURE_MIN_UPLOAD_BUDGET ? LAMURE_MIN_UPLOAD_BUDGET : max_upload_budget_in_mb;
     
     if(node_size_total==0)
         upload_budget_in_nodes_ = 0;
     else
         upload_budget_in_nodes_ = (max_upload_budget_in_mb * 1024u * 1024u) / node_size_total;
+
+    std::cout << "[Lamure] ctx=" << context_id_
+              << " contexts=" << contexts_
+              << " render_budget_mb=" << render_budget_in_mb
+              << " upload_budget_mb=" << max_upload_budget_in_mb
+              << std::endl;
 }
 
 void gpu_context::test_video_memory(scm::gl::render_device_ptr device, Data_Provenance const &data_provenance)
 {
     model_database *database = model_database::get_instance();
     policy *policy = policy::get_instance();
+    size_t render_budget_in_mb = policy->render_budget_in_mb();
 
-    if (!vram_budget_determined) {
-        float safety = 0.75;
-        size_t video_ram_free_in_mb = gpu_access::query_video_memory_in_mb(device) * safety;
-        size_t render_budget_in_mb = policy->render_budget_in_mb();
+    float safety = 0.75f;
+    size_t video_ram_free_in_mb = gpu_access::query_video_memory_in_mb(device) * safety;
 
-        if(policy->out_of_core_budget_in_mb() == 0 || video_ram_free_in_mb < render_budget_in_mb)
-        {
-            if (policy->out_of_core_budget_in_mb() > 0) {
-                std::cout << "##### The specified render budget is too large! " << video_ram_free_in_mb << " MB will be used for the render budget #####" << std::endl;
-            }
-            render_budget_in_mb = video_ram_free_in_mb;
-            policy->set_render_budget_in_mb(render_budget_in_mb);
+    if (policy->out_of_core_budget_in_mb() == 0 || video_ram_free_in_mb < render_budget_in_mb)
+    {
+        if (policy->out_of_core_budget_in_mb() > 0) {
+            std::cout << "##### The specified render budget is too large! " << video_ram_free_in_mb << " MB will be used for the render budget #####" << std::endl;
         }
-        else
-        {
-            std::cout << "##### " << policy->render_budget_in_mb() << " MB will be used for the render budget #####" << std::endl;
-        }
-        vram_budget_determined = true;
+        render_budget_in_mb = video_ram_free_in_mb;
+    }
+    else
+    {
+        std::cout << "##### " << render_budget_in_mb << " MB will be used for the render budget #####" << std::endl;
     }
 
     long node_size_total = database->get_primitives_per_node() * data_provenance.get_size_in_bytes() + database->get_slot_size();
-    render_budget_in_nodes_ = (policy->render_budget_in_mb() * 1024 * 1024) / node_size_total;
+    if (contexts_ > 1) {
+        render_budget_in_mb = std::max<size_t>(1, render_budget_in_mb / contexts_);
+    }
+    render_budget_in_nodes_ = (render_budget_in_mb * 1024 * 1024) / node_size_total;
 
     size_t max_upload_budget_in_mb = policy->max_upload_budget_in_mb();
-    max_upload_budget_in_mb = max_upload_budget_in_mb < LAMURE_MIN_UPLOAD_BUDGET ? LAMURE_MIN_UPLOAD_BUDGET : max_upload_budget_in_mb;
 
     upload_budget_in_nodes_ = (max_upload_budget_in_mb * 1024u * 1024u) / node_size_total;
 
+    std::cout << "[Lamure] ctx=" << context_id_
+              << " contexts=" << contexts_
+              << " render_budget_mb=" << render_budget_in_mb
+              << " upload_budget_mb=" << max_upload_budget_in_mb
+              << " (provenance bytes=" << data_provenance.get_size_in_bytes() << ")"
+              << std::endl;
 
 #ifdef LAMURE_ENABLE_INFO
-    std::cout << "lamure: context " << context_id_ << " render budget (MB): " << policy->render_budget_in_mb() << std::endl;
+    std::cout << "lamure: context " << context_id_ << " render budget (MB): " << render_budget_in_mb << std::endl;
     std::cout << "lamure: context " << context_id_ << " upload budget (MB): " << max_upload_budget_in_mb << std::endl;
 #endif
 }

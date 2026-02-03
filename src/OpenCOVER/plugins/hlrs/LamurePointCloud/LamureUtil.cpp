@@ -12,7 +12,166 @@
 #include <iomanip> // For std::setprecision
 #include <cmath> // For std::pow, std::round
 #include <algorithm> // For std::max
+#include <cstring> // For std::strcmp, std::strstr, std::strlen
 #include <GL/glu.h> // For gluErrorString
+#include <unordered_map>
+
+namespace {
+#ifndef GL_DEVICE_UUID_EXT
+#define GL_DEVICE_UUID_EXT 0x9597
+#define GL_DRIVER_UUID_EXT 0x9598
+#define GL_UUID_SIZE_EXT 16
+#endif
+typedef void (*GetUnsignedBytevExtProc)(GLenum pname, GLubyte* data);
+#ifndef GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX
+#define GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX 0x9047
+#define GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX 0x9048
+#define GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX 0x9049
+#define GL_GPU_MEMORY_INFO_EVICTION_COUNT_NVX 0x904A
+#define GL_GPU_MEMORY_INFO_EVICTED_MEMORY_NVX 0x904B
+#endif
+#ifndef GL_TEXTURE_FREE_MEMORY_ATI
+#define GL_TEXTURE_FREE_MEMORY_ATI 0x87FC
+#define GL_VBO_FREE_MEMORY_ATI 0x87FB
+#define GL_RENDERBUFFER_FREE_MEMORY_ATI 0x87FD
+#endif
+
+#ifdef _WIN32
+#ifndef WGL_GPU_VENDOR_AMD
+#define WGL_GPU_VENDOR_AMD 0x1F00
+#define WGL_GPU_RENDERER_STRING_AMD 0x1F01
+#define WGL_GPU_OPENGL_VERSION_STRING_AMD 0x1F02
+#define WGL_GPU_RAM_AMD 0x21A3
+#endif
+typedef UINT(WINAPI* PFNWGLGETCONTEXTGPUIDAMDPROC)(HGLRC hglrc);
+typedef UINT(WINAPI* PFNWGLGETGPUIDSAMDPROC)(UINT maxCount, UINT* ids);
+typedef int (WINAPI* PFNWGLGETGPUINFOAMDPROC)(UINT id, int property, GLenum dataType, UINT size, void* data);
+#endif
+
+bool hasExtension(const char* ext)
+{
+    if (!ext || !*ext) return false;
+    if (GLEW_VERSION_3_0) {
+        GLint count = 0;
+        glGetIntegerv(GL_NUM_EXTENSIONS, &count);
+        for (GLint i = 0; i < count; ++i) {
+            const char* name = reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i));
+            if (name && std::strcmp(name, ext) == 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+    const char* ext_list = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
+    if (!ext_list) return false;
+    const char* pos = std::strstr(ext_list, ext);
+    if (!pos) return false;
+    const char* end = pos + std::strlen(ext);
+    const bool start_ok = (pos == ext_list) || (*(pos - 1) == ' ');
+    const bool end_ok = (*end == ' ' || *end == '\0');
+    return start_ok && end_ok;
+}
+
+std::string bytesToHex(const GLubyte* data, std::size_t len)
+{
+    std::ostringstream oss;
+    oss << std::hex << std::setfill('0');
+    for (std::size_t i = 0; i < len; ++i) {
+        oss << std::setw(2) << static_cast<unsigned int>(data[i]);
+    }
+    return oss.str();
+}
+
+struct UuidInfo {
+    std::string device;
+    std::string driver;
+};
+
+UuidInfo queryUuidInfo()
+{
+    UuidInfo info;
+    if (!hasExtension("GL_EXT_memory_object") &&
+        !hasExtension("GL_EXT_memory_object_win32") &&
+        !hasExtension("GL_EXT_memory_object_fd")) {
+        return info;
+    }
+    GetUnsignedBytevExtProc getUnsignedBytevExt = nullptr;
+#ifdef _WIN32
+    getUnsignedBytevExt = reinterpret_cast<GetUnsignedBytevExtProc>(wglGetProcAddress("glGetUnsignedBytevEXT"));
+#else
+    getUnsignedBytevExt = reinterpret_cast<GetUnsignedBytevExtProc>(
+        glXGetProcAddress(reinterpret_cast<const GLubyte*>("glGetUnsignedBytevEXT")));
+#endif
+    if (!getUnsignedBytevExt) {
+        return info;
+    }
+    GLubyte device_uuid[GL_UUID_SIZE_EXT] = {};
+    GLubyte driver_uuid[GL_UUID_SIZE_EXT] = {};
+    getUnsignedBytevExt(GL_DEVICE_UUID_EXT, device_uuid);
+    getUnsignedBytevExt(GL_DRIVER_UUID_EXT, driver_uuid);
+    info.device = bytesToHex(device_uuid, GL_UUID_SIZE_EXT);
+    info.driver = bytesToHex(driver_uuid, GL_UUID_SIZE_EXT);
+    return info;
+}
+
+#ifdef _WIN32
+void appendAmdGpuAssociationInfo(std::ostream& os)
+{
+    auto get_ctx_gpu_id = reinterpret_cast<PFNWGLGETCONTEXTGPUIDAMDPROC>(wglGetProcAddress("wglGetContextGPUIDAMD"));
+    auto get_gpu_info = reinterpret_cast<PFNWGLGETGPUINFOAMDPROC>(wglGetProcAddress("wglGetGPUInfoAMD"));
+    if (!get_ctx_gpu_id || !get_gpu_info) {
+        return;
+    }
+    HGLRC hglrc = wglGetCurrentContext();
+    if (!hglrc) {
+        return;
+    }
+    UINT gpu_id = get_ctx_gpu_id(hglrc);
+    if (gpu_id == 0) {
+        return;
+    }
+    char renderer[256] = {};
+    char vendor[256] = {};
+    GLuint ram_mb = 0;
+    get_gpu_info(gpu_id, WGL_GPU_RENDERER_STRING_AMD, GL_UNSIGNED_BYTE, sizeof(renderer), renderer);
+    get_gpu_info(gpu_id, WGL_GPU_VENDOR_AMD, GL_UNSIGNED_BYTE, sizeof(vendor), vendor);
+    get_gpu_info(gpu_id, WGL_GPU_RAM_AMD, GL_UNSIGNED_INT, sizeof(ram_mb), &ram_mb);
+    os << " amd_gpu_id=" << gpu_id
+       << " amd_vendor=" << (vendor[0] ? vendor : "unknown")
+       << " amd_renderer=" << (renderer[0] ? renderer : "unknown")
+       << " amd_vram_mb=" << ram_mb;
+}
+#endif
+
+void appendVendorSpecificInfo(std::ostream& os, const char* vendor)
+{
+    if (!vendor) {
+        return;
+    }
+    if (std::strstr(vendor, "NVIDIA")) {
+        if (hasExtension("GL_NVX_gpu_memory_info")) {
+            GLint total_kb = 0;
+            GLint avail_kb = 0;
+            glGetIntegerv(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &total_kb);
+            glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &avail_kb);
+            os << " nvx_total_mb=" << (total_kb / 1024)
+               << " nvx_avail_mb=" << (avail_kb / 1024);
+        }
+        return;
+    }
+    if (std::strstr(vendor, "AMD") || std::strstr(vendor, "ATI")) {
+#ifdef _WIN32
+        appendAmdGpuAssociationInfo(os);
+#endif
+        if (hasExtension("GL_ATI_meminfo")) {
+            GLint tex_mem[4] = {0,0,0,0};
+            glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, tex_mem);
+            os << " ati_tex_free_mb=" << (tex_mem[0] / 1024);
+        }
+        return;
+    }
+}
+} // namespace
 
 namespace LamureUtil {
 
@@ -356,6 +515,52 @@ bool decideUseAniso(const scm::math::mat4& projection_matrix, int anisoMode, flo
     const scm::math::vec4 v = projection_matrix * ez;
     const float mag = std::max(std::fabs(v[0]), std::fabs(v[1]));
     return mag > std::max(0.0f, threshold);
+}
+
+GpuInfo queryGpuInfo()
+{
+    GpuInfo info;
+    const char* vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+    const char* renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+    const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+
+    info.vendor = vendor ? vendor : "unknown";
+    info.renderer = renderer ? renderer : "unknown";
+    info.version = version ? version : "unknown";
+
+    UuidInfo uuid_info = queryUuidInfo();
+    info.device_uuid = uuid_info.device;
+    info.driver_uuid = uuid_info.driver;
+    if (!info.device_uuid.empty()) {
+        info.key = info.device_uuid;
+    } else {
+        info.key = info.vendor + "|" + info.renderer + "|" + info.version;
+    }
+
+    std::ostringstream extra;
+    appendVendorSpecificInfo(extra, vendor);
+    info.extra = extra.str();
+    return info;
+}
+
+std::string formatGpuInfoLine(const GpuInfo& info, int ctx, int view_id)
+{
+    std::ostringstream os;
+    os << "[Lamure] ctx=" << ctx
+       << " view=" << view_id
+       << " gpu_vendor=" << info.vendor
+       << " gpu_renderer=" << info.renderer
+       << " gpu_version=" << info.version;
+    if (!info.device_uuid.empty()) {
+        os << " gpu_uuid=" << info.device_uuid;
+    }
+    if (!info.driver_uuid.empty()) {
+        os << " driver_uuid=" << info.driver_uuid;
+    }
+    if (!info.extra.empty()) {
+        os << info.extra;
+    }
+    return os.str();
 }
 
 } // namespace LamureUtil

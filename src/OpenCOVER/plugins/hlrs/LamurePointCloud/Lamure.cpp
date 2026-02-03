@@ -82,37 +82,12 @@ namespace {
         return covise::coCoviseConfig::isOn(std::string("value"), std::string(path), def);
     }
 
-    class RenderPauseGuard {
-    public:
-        RenderPauseGuard(LamureRenderer* renderer, uint32_t extraDrainFrames)
-            : m_renderer(renderer)
-        {
-            if (m_renderer)
-                m_shouldResume = m_renderer->pauseAndWaitForIdle(extraDrainFrames);
-        }
-
-        ~RenderPauseGuard()
-        {
-            if (m_renderer && m_shouldResume)
-                m_renderer->resumeRendering();
-        }
-
-        RenderPauseGuard(const RenderPauseGuard&) = delete;
-        RenderPauseGuard& operator=(const RenderPauseGuard&) = delete;
-
-    private:
-        LamureRenderer* m_renderer;
-        bool m_shouldResume{false};
-    };
 } // namespace
 
 namespace {
     constexpr const char* kLamureRegistrationKey = "LamureRegister";
 }
 
-static std::mutex g_settings_mutex;
-static std::mutex g_load_bvh_mutex;
-static std::atomic<bool> g_is_resetting(false);
 // replaced by Lamure members (m_bootstrap_files and resolver)
 
 #if 0
@@ -139,13 +114,14 @@ static opencover::FileHandler handler = {
 
 Lamure::Lamure() :coVRPlugin(COVER_PLUGIN_NAME), opencover::ui::Owner("LamurePlugin", opencover::cover->ui)
 {
-    fprintf(stderr, "LamurePlugin\n");
+    logInfo("LamurePlugin");
     opencover::coVRFileManager::instance()->registerFileHandler(&handler);
 	plugin = this;
     m_ui = std::make_unique<LamureUI>(this, "LamureUI");
     m_renderer = std::make_unique<LamureRenderer>(this);
     m_edit_tool = std::make_unique<LamureEditTool>(this);
     m_edit_tool->setBrushAction(m_edit_action);
+    //applyBudgetSettings();
 }
 
 
@@ -157,7 +133,7 @@ Lamure* Lamure::instance()
 
 Lamure::~Lamure()
 {
-    fprintf(stderr, "LamurePlugin::~LamurePlugin\n");
+    logInfo("LamurePlugin::~LamurePlugin");
 
     if (m_edit_tool)
         m_edit_tool->disable();
@@ -167,23 +143,22 @@ Lamure::~Lamure()
     opencover::coVRFileManager::instance()->unregisterFileHandler(&handler);
 }
 
-
 void Lamure::setModelVisible(uint16_t idx, bool v) {
-    std::lock_guard<std::mutex> lock(g_settings_mutex);
+    std::lock_guard<std::mutex> lock(m_settings_mutex);
     auto &visible = m_model_info.model_visible;
     if (idx >= visible.size()) return;
     visible[idx] = v;
 }
 
 bool Lamure::isModelVisible(uint16_t idx) const {
-    std::lock_guard<std::mutex> lock(g_settings_mutex);
+    std::lock_guard<std::mutex> lock(m_settings_mutex);
     const auto &visible = m_model_info.model_visible;
     return idx < visible.size() ? visible[idx] : false;
 }
 
 void Lamure::setShowPointcloud(bool show)
 {
-    std::lock_guard<std::mutex> lock(g_settings_mutex);
+    std::lock_guard<std::mutex> lock(m_settings_mutex);
     m_settings.show_pointcloud = show;
 
     for (auto& sn : m_scene_nodes) {
@@ -195,7 +170,7 @@ void Lamure::setShowPointcloud(bool show)
 
 void Lamure::setShowBoundingbox(bool show)
 {
-    std::lock_guard<std::mutex> lock(g_settings_mutex);
+    std::lock_guard<std::mutex> lock(m_settings_mutex);
     m_settings.show_boundingbox = show;
 
     for (auto& sn : m_scene_nodes) {
@@ -221,9 +196,7 @@ void Lamure::setEditMode(bool enabled) {
         }
     }
 
-    if (m_settings.show_notify) {
-        std::cout << "[Lamure] Edit mode " << (enabled ? "enabled" : "disabled") << std::endl;
-    }
+    logInfo("Edit mode ", (enabled ? "enabled" : "disabled"));
     if (m_ui) {
         if (auto* btn = m_ui->getEditModeButton()) {
             if (btn->state() != enabled)
@@ -241,8 +214,8 @@ void Lamure::setEditAction(LamureEditTool::BrushAction action) {
 
 int Lamure::unloadBvh(const char* filename, const char* /*covise_key*/)
 {
-    if (plugin && plugin->getSettings().show_notify) {
-        std::cout << "[Lamure] unloadBvh: filename=" << (filename ? filename : "null") << std::endl;
+    if (plugin) {
+        plugin->logInfo("unloadBvh: filename=", (filename ? filename : "null"));
     }
     
     if (!filename || !Lamure::plugin) return 0;
@@ -253,13 +226,11 @@ int Lamure::unloadBvh(const char* filename, const char* /*covise_key*/)
 #endif
     if (path.empty()) return 0;
 
-    std::lock_guard<std::mutex> lock(g_settings_mutex);
+    std::lock_guard<std::mutex> lock(plugin->m_settings_mutex);
 
     auto it_idx = plugin->m_model_idx.find(path);
     if (it_idx == plugin->m_model_idx.end()) {
-        if (plugin->m_settings.show_notify) {
-            std::printf("[Lamure] unloadBvh: '%s' not found (no-op)\n", path.c_str());
-        }
+        plugin->logInfo("unloadBvh: '", path, "' not found (no-op)");
         return 0;
     }
     uint16_t idx = it_idx->second;
@@ -268,30 +239,21 @@ int Lamure::unloadBvh(const char* filename, const char* /*covise_key*/)
         plugin->m_model_info.model_visible[idx] = false;
     }
 
-    auto detachFromParents = [](osg::Node* node) {
-        if (!node)
-            return;
-        while (node->getNumParents() > 0) {
-            osg::Node* parentNode = node->getParent(0);
-            auto* parentGroup = dynamic_cast<osg::Group*>(parentNode);
-            if (!parentGroup)
-                break;
-            parentGroup->removeChild(node);
-        }
-    };
-
     if (idx < plugin->m_scene_nodes.size()) {
         auto& sn = plugin->m_scene_nodes[idx];
         if (sn.point_geode.valid())
             sn.point_geode->setNodeMask(0x0);
+        if (sn.cut_geode.valid())
+            sn.cut_geode->setNodeMask(0x0);
         if (sn.box_geode.valid())
             sn.box_geode->setNodeMask(0x0);
         if (sn.model_transform.valid()) {
             sn.model_transform->setNodeMask(0x0);
-            detachFromParents(sn.model_transform.get());
+            Lamure::detachFromParents(sn.model_transform.get());
         }
         sn.model_transform = nullptr;
         sn.point_geode = nullptr;
+        sn.cut_geode = nullptr;
         sn.box_geode = nullptr;
     }
 
@@ -306,9 +268,9 @@ int Lamure::unloadBvh(const char* filename, const char* /*covise_key*/)
 
 int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *covise_key)
 {
-    std::lock_guard<std::mutex> lock(g_load_bvh_mutex);
     if (!filename || !plugin)
         return 0;
+    std::lock_guard<std::mutex> lock(plugin->m_load_bvh_mutex);
 
     std::string file = std::filesystem::absolute(std::filesystem::path(filename)).string();
 #ifdef _WIN32
@@ -374,11 +336,11 @@ int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *covise
             parent = ensureAnchor(parent, plugin->m_bootstrap_parents[bootstrap_idx]);
             plugin->m_pendingTransformUpdate[file] = vrml_parent;
         }
-        std::lock_guard<std::mutex> settings_lock(g_settings_mutex);
+        std::lock_guard<std::mutex> settings_lock(plugin->m_settings_mutex);
         return 1;
     }
 
-    std::lock_guard<std::mutex> settings_lock(g_settings_mutex);
+    std::lock_guard<std::mutex> settings_lock(plugin->m_settings_mutex);
 
     auto it_loaded = plugin->m_model_idx.find(file);
     const bool loaded = (it_loaded != plugin->m_model_idx.end());
@@ -452,9 +414,9 @@ int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *covise
         plugin->m_pendingTransformUpdate[file] = vrml_parent;
     }
 
-    const bool reset_planned_or_running =
-        plugin->m_reset_in_progress || g_is_resetting.load();
-    if (!reset_planned_or_running) {
+    const bool rebuild_planned_or_running =
+        plugin->m_rebuild_in_progress || plugin->m_is_rebuilding.load();
+    if (!rebuild_planned_or_running) {
         int collectFrames = static_cast<int>(plugin->m_settings.pause_frames);
         collectFrames = std::max(1, std::min(collectFrames, 5));
         if (isMenuReload)
@@ -478,13 +440,26 @@ bool Lamure::init2() {
         return false;
 
     loadSettingsFromCovise();
-    m_settings.models = resolveAndNormalizeModels();
-    updateModelDependentSettings();
+    {
+        int vram = m_settings.vram;
+        int ram = m_settings.ram;
+        int upload = m_settings.upload;
 
-    lamure::ren::policy* policy = lamure::ren::policy::get_instance();
-    policy->set_max_upload_budget_in_mb(m_settings.upload);
-    policy->set_render_budget_in_mb(m_settings.vram);
-    policy->set_out_of_core_budget_in_mb(m_settings.ram);
+        if (vram < 0) vram = 0;
+        if (ram < 0) ram = 0;
+        if (upload < 0) upload = 0;
+
+        if (m_settings.min_vram > 0) vram = std::max(vram, m_settings.min_vram);
+        if (m_settings.min_ram > 0) ram = std::max(ram, m_settings.min_ram);
+        if (m_settings.min_upload > 0) upload = std::max(upload, m_settings.min_upload);
+
+        auto* policy = lamure::ren::policy::get_instance();
+        policy->set_render_budget_in_mb(static_cast<size_t>(vram));
+        policy->set_out_of_core_budget_in_mb(static_cast<size_t>(ram));
+        policy->set_max_upload_budget_in_mb(static_cast<size_t>(upload));
+        policy->set_size_of_provenance(static_cast<size_t>(std::max(0, m_settings.size_of_provenance)));
+    }
+
 
     m_lamure_grp = new osg::Group();
     m_lamure_grp->setName("LamureGroup");
@@ -497,11 +472,11 @@ bool Lamure::init2() {
     m_first_frame = true;
     initialized = true;
 
-    if (m_settings.show_notify)
-        std::cout << "[Lamure] Init complete; defer model load to first preFrame" << std::endl;
+    logInfo("Init complete; defer model load to first preFrame");
 
     return true;
 }
+
 
 
 void Lamure::preFrame() {
@@ -515,8 +490,7 @@ void Lamure::preFrame() {
         m_first_frame = false;
 
         if (!m_settings.models.empty()) {
-            if (m_settings.show_notify)
-                std::cout << "[Lamure] First frame: start initial model load" << std::endl;
+            logInfo("First frame: start initial model load");
 
             // Load phase: when using config, register nodes via FileManager for UI
             if (m_models_from_config) {
@@ -526,8 +500,8 @@ void Lamure::preFrame() {
                 }
             }
 
-            // Perform initial full reset
-            perform_system_reset();
+            // Perform initial full rebuild
+            rebuildRenderer();
 
             if (m_settings.use_initial_view || m_settings.use_initial_navigation) {
                 applyInitialTransforms();
@@ -535,9 +509,9 @@ void Lamure::preFrame() {
         }
     }
 
-    // Continue staged reset if in progress
-    if (m_reset_in_progress) {
-        perform_system_reset();
+    // Continue staged rebuild if in progress
+    if (m_rebuild_in_progress) {
+        rebuildRenderer();
     }
 
     // Dynamic loading after start
@@ -550,18 +524,17 @@ void Lamure::preFrame() {
     }
 
     const bool pending_rebuild = !m_files_to_load.empty() || m_reload_imminent;
-    if (pending_rebuild && !g_is_resetting) {
+    if (pending_rebuild && !m_is_rebuilding) {
         if (m_frames_to_wait > 0) {
             --m_frames_to_wait;
         }
 
         if (m_frames_to_wait == 0) {
             bool expected = false;
-            if (g_is_resetting.compare_exchange_strong(expected, true)) {
-                if (m_settings.show_notify)
-                    std::cout << "[Lamure] Pending rebuild triggered" << std::endl;
+            if (m_is_rebuilding.compare_exchange_strong(expected, true)) {
+                logInfo("Pending rebuild triggered");
                 setBrushFrozen(true);
-                perform_system_reset();
+                rebuildRenderer();
             }
         }
     }
@@ -587,7 +560,7 @@ void Lamure::preFrame() {
 
             bool updated = false;
             {
-                std::lock_guard<std::mutex> settings_lock(g_settings_mutex);
+                std::lock_guard<std::mutex> settings_lock(m_settings_mutex);
                 size_t idx = 0;
                 bool have_idx = false;
                 auto it_idx = m_model_idx.find(path);
@@ -699,12 +672,11 @@ void Lamure::preFrame() {
 
 void Lamure::dumpModelParentChains() const
 {
+    const bool dumpMatrices = (m_ui && m_ui->getDumpButton() && m_ui->getDumpButton()->state());
     if (m_scene_nodes.empty()) {
-        std::cout << "[Lamure] dump: no scene nodes\n";
+        dump("[Lamure] dump: no scene nodes\n", 0);
         return;
     }
-
-    const bool dumpMatrices = (m_ui && m_ui->getDumpButton() && m_ui->getDumpButton()->state());
 
     auto matToStr = [](const osg::Matrixd& M) {
         std::ostringstream o;
@@ -720,7 +692,7 @@ void Lamure::dumpModelParentChains() const
         };
 
     const size_t count = m_scene_nodes.size();
-    std::cout << "[Lamure] dump: model parent chains (" << count << ")\n";
+    dump("[Lamure] dump: model parent chains (", count, ")\n");
 
     for (size_t i = 0; i < count; ++i) {
         const auto &sn = m_scene_nodes[i];
@@ -728,8 +700,7 @@ void Lamure::dumpModelParentChains() const
             (i < m_settings.models.size()) ? m_settings.models[i] : std::string();
 
         osg::Node *node = sn.model_transform.get();
-        std::cout << "[Lamure] model[" << i << "] '" << model_path
-            << "' node=" << node << "\n";
+        dump("[Lamure] model[", i, "] '", model_path, "' node=", node, "\n");
 
         int depth = 0;
 
@@ -748,10 +719,10 @@ void Lamure::dumpModelParentChains() const
             osg::Node *parent0 = (num_parents > 0) ? node->getParent(0) : nullptr;
 
             // 1) Parent-Kette ohne Matrixausgabe
-            std::cout << "  [" << depth << "] " << node
-                << " name='" << name << "'"
-                << " parents=" << num_parents
-                << " parent0=" << parent0 << "\n";
+            dump("  [", depth, "] ", node,
+                " name='", name, "'",
+                " parents=", num_parents,
+                " parent0=", parent0, "\n");
 
             // 2) MatrixTransform-Infos nur sammeln
             if (dumpMatrices) {
@@ -769,16 +740,17 @@ void Lamure::dumpModelParentChains() const
 
         // 3) Matrizenblock erst danach ausgeben
         if (dumpMatrices && !matrices.empty()) {
-            std::cout << "  matrices (MatrixTransform nodes only):\n";
+            dump("  matrices (MatrixTransform nodes only):\n", 1);
             for (size_t mi = 0; mi < matrices.size(); ++mi) {
                 const auto &e = matrices[mi];
-                std::cout << "[" << mi << "] depth=" << e.depth
-                    << " node=" << e.nodePtr
-                    << " name='" << e.name << "'\n"
-                    << LamureUtil::matConv4D(e.matrix) << "\n\n";
+                dump("[", mi, "] depth=", e.depth,
+                    " node=", e.nodePtr,
+                    " name='", e.name, "'\n",
+                    LamureUtil::matConv4D(e.matrix), "\n\n");
             }
         }
     }
+    dump("", 0);
 }
 
 void Lamure::resetVrmlRootTransform(osg::Node* node)
@@ -797,21 +769,31 @@ void Lamure::resetVrmlRootTransform(osg::Node* node)
     }
 }
 
-
-void Lamure::perform_system_reset()
+void Lamure::detachFromParents(osg::Node* node)
 {
-    std::lock_guard<std::mutex> lock(g_load_bvh_mutex);
+    if (!node)
+        return;
+    while (node->getNumParents() > 0) {
+        osg::Node* parentNode = node->getParent(0);
+        auto* parentGroup = dynamic_cast<osg::Group*>(parentNode);
+        if (!parentGroup)
+            break;
+        parentGroup->removeChild(node);
+    }
+}
+
+void Lamure::rebuildRenderer()
+{
+    std::lock_guard<std::mutex> lock(m_load_bvh_mutex);
 
     if (m_renderer && m_lamure_grp) {
         m_renderer->destroyEditBrushNode(m_lamure_grp.get());
     }
 
     // Phase 1: pause rendering and initiate shutdown
-    if (!m_reset_in_progress) {
-        markResetStart();
-        if (m_settings.show_notify)
-            std::cout << "[Lamure] Reset: pause and shutdown" << std::endl;
-        m_renderer_paused_for_reset = m_renderer ? m_renderer->pauseAndWaitForIdle(m_settings.pause_frames) : false;
+    if (!m_rebuild_in_progress) {
+        logInfo("Rebuild: pause and shutdown");
+        m_renderer_paused_for_rebuild = m_renderer ? m_renderer->pauseAndDrainFrames(m_settings.pause_frames) : false;
         if (m_renderer) {
             m_renderer->detachCallbacks();
             m_renderer->shutdown();
@@ -837,22 +819,11 @@ void Lamure::perform_system_reset()
         m_files_to_load.clear();
         m_files_to_load_set.clear();
 
-        // reset internal tracking structures
+        // rebuild internal tracking structures
         m_model_idx.clear();
         m_model_info.root_bb_min.clear();
         m_model_info.root_bb_max.clear();
         m_model_info.root_center.clear();
-        auto detachFromParents = [](osg::Node* node) {
-            if (!node)
-                return;
-            while (node->getNumParents() > 0) {
-                osg::Node* parentNode = node->getParent(0);
-                auto* parentGroup = dynamic_cast<osg::Group*>(parentNode);
-                if (!parentGroup)
-                    break;
-                parentGroup->removeChild(node);
-            }
-        };
         for (auto &sn : m_scene_nodes) {
             if (sn.model_transform.valid()) {
                 sn.model_transform->setNodeMask(0x0);
@@ -863,7 +834,7 @@ void Lamure::perform_system_reset()
 
         // wait a few frames after shutdown
         m_post_shutdown_delay = std::max(0, static_cast<int>(m_settings.pause_frames));
-        m_reset_in_progress = true;
+        m_rebuild_in_progress = true;
         return;
     }
 
@@ -886,7 +857,6 @@ void Lamure::perform_system_reset()
                                ,-std::numeric_limits<float>::max()
                                ,-std::numeric_limits<float>::max());
     m_model_info.model_visible.assign(N, true);
-    m_model_info.config_transforms.assign(N, scm::math::mat4d::identity());
     m_scene_nodes.resize(N);
 
     for (uint16_t mid = 0; mid < N; ++mid) {
@@ -929,6 +899,24 @@ void Lamure::perform_system_reset()
             sn.point_geode->setNodeMask(m_settings.show_pointcloud ? 0xFFFFFFFF : 0x0);
             sn.model_transform->addChild(sn.point_geode);
             
+            // 1.5 Cuts Node
+            sn.cut_geode = new osg::Geode();
+            sn.cut_geode->setName("CutGeode_" + std::to_string(model_id));
+            sn.cut_geode->setCullingActive(false);
+            auto* cut_ss = sn.cut_geode->getOrCreateStateSet();
+            cut_ss->setRenderBinDetails(-8, "RenderBin");
+
+            osg::Geometry* cutGeom = new osg::Geometry();
+            cutGeom->setName("CutGeometry_" + std::to_string(model_id));
+            cutGeom->setUseDisplayList(false);
+            cutGeom->setUseVertexBufferObjects(true);
+            cutGeom->setUseVertexArrayObject(false);
+            cutGeom->setCullingActive(false);
+            cutGeom->setUserData(data);
+            cutGeom->setDrawCallback(new CutsDrawCallback(m_renderer.get()));
+            sn.cut_geode->addDrawable(cutGeom);
+            sn.model_transform->addChild(sn.cut_geode);
+
             // 2. Boxes Branch
             sn.box_geode = new osg::Geode();
             sn.box_geode->setName("BoundingBoxGeode_" + std::to_string(model_id));
@@ -1009,99 +997,22 @@ void Lamure::perform_system_reset()
 
     controller->signal_system_reset();
 
-    if (m_renderer && m_renderer_paused_for_reset) {
+    if (m_renderer && m_renderer_paused_for_rebuild) {
         m_renderer->resumeRendering();
     }
 
-    if (m_settings.show_notify) {
-        if (!m_did_initial_build)
-            std::cout << "[Lamure] Built " << static_cast<int>(N) << " models" << std::endl;
-        else
-            std::cout << "[Lamure] Reset: rebuilt " << static_cast<int>(N) << " models" << std::endl;
-    }
+    if (!m_did_initial_build)
+        logInfo("Built ", static_cast<int>(N), " models");
+    else
+        logInfo("Rebuild: rebuilt ", static_cast<int>(N), " models");
 
-    markResetEnd();
     m_files_to_load.clear();
     m_files_to_load_set.clear();
     m_frames_to_wait = 0;
     m_reload_imminent = false;
-    m_reset_in_progress = false;
-    g_is_resetting = false;
+    m_rebuild_in_progress = false;
+    m_is_rebuilding = false;
     m_did_initial_build = true;
-}
-
-void Lamure::markResetStart()
-{
-    std::lock_guard<std::mutex> lock(m_reset_timing_mutex);
-    m_reset_start_time = std::chrono::steady_clock::now();
-    m_reset_end_time = m_reset_start_time;
-    m_reset_timing_active = true;
-    m_reset_first_render_pending = true;
-    m_reset_frame_samples_remaining = 20;
-    m_last_render_time.clear();
-    m_reset_trace_last_frame.clear();
-}
-
-void Lamure::markResetEnd()
-{
-    std::lock_guard<std::mutex> lock(m_reset_timing_mutex);
-    if (!m_reset_timing_active)
-        return;
-    m_reset_end_time = std::chrono::steady_clock::now();
-    if (m_settings.show_notify) {
-        const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(m_reset_end_time - m_reset_start_time).count();
-        std::cout << "[Lamure] Reset timing: " << ms << " ms (start->end)\n";
-    }
-}
-
-void Lamure::logFirstRenderAfterReset()
-{
-    std::lock_guard<std::mutex> lock(m_reset_timing_mutex);
-    if (!m_reset_timing_active)
-        return;
-    if (!m_reset_first_render_pending)
-        return;
-    const auto now = std::chrono::steady_clock::now();
-    if (m_settings.show_notify) {
-        const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_reset_start_time).count();
-        std::cout << "[Lamure] Reset timing: " << ms << " ms (start->first render)\n";
-    }
-    m_reset_first_render_pending = false;
-}
-
-void Lamure::logRenderFrameDelta(int ctxId)
-{
-    std::lock_guard<std::mutex> lock(m_reset_timing_mutex);
-    if (!m_reset_timing_active || m_reset_frame_samples_remaining <= 0)
-        return;
-
-    const auto now = std::chrono::steady_clock::now();
-    auto it = m_last_render_time.find(ctxId);
-    if (it != m_last_render_time.end() && m_settings.show_notify) {
-        const auto delta_ms = std::chrono::duration<double, std::milli>(now - it->second).count();
-        std::cout << "[Lamure] Render delta ctx=" << ctxId << ": " << delta_ms << " ms\n";
-    }
-    m_last_render_time[ctxId] = now;
-    if (--m_reset_frame_samples_remaining <= 0) {
-        m_reset_timing_active = false;
-    }
-}
-
-bool Lamure::shouldTraceResetFrame(int ctxId, uint64_t frameNumber)
-{
-    std::lock_guard<std::mutex> lock(m_reset_timing_mutex);
-    if (!m_reset_timing_active)
-        return false;
-    auto& last = m_reset_trace_last_frame[ctxId];
-    if (last == frameNumber)
-        return true;
-    last = frameNumber;
-    if (m_reset_frame_samples_remaining > 0) {
-        if (--m_reset_frame_samples_remaining <= 0) {
-            m_reset_timing_active = false;
-        }
-    }
-    return m_reset_timing_active;
 }
 
 void Lamure::loadSettingsFromCovise() {
@@ -1113,11 +1024,14 @@ void Lamure::loadSettingsFromCovise() {
     s.vram      = getNum<int>("value", (std::string(root) + ".vram").c_str(),      s.vram);
     s.ram       = getNum<int>("value", (std::string(root) + ".ram").c_str(),       s.ram);
     s.upload    = getNum<int>("value", (std::string(root) + ".upload").c_str(),    s.upload);
+    s.min_vram  = getNum<int>("value", (std::string(root) + ".min_vram").c_str(),  s.min_vram);
+    s.min_ram   = getNum<int>("value", (std::string(root) + ".min_ram").c_str(),   s.min_ram);
+    s.min_upload= getNum<int>("value", (std::string(root) + ".min_upload").c_str(), s.min_upload);
+    s.size_of_provenance = getNum<int>("value", (std::string(root) + ".size_of_provenance").c_str(), s.size_of_provenance);
     s.pause_frames = static_cast<uint32_t>(std::max(0, getNum<int>("value", (std::string(root) + ".pause_frames").c_str(), s.pause_frames)));
     s.lod_error = getNum<float>("value", (std::string(root) + ".lod_error").c_str(), s.lod_error);
 
     // ---- Tuning / Flags ----
-    s.face_eye             = getOn((std::string(root) + ".face_eye").c_str(),             s.face_eye);
     s.pvs_culling          = getOn((std::string(root) + ".pvs_culling").c_str(),          s.pvs_culling);
     s.use_pvs              = getOn((std::string(root) + ".use_pvs").c_str(),              s.use_pvs);
     s.create_aux_resources = getOn((std::string(root) + ".create_aux_resources").c_str(), s.create_aux_resources);
@@ -1128,15 +1042,9 @@ void Lamure::loadSettingsFromCovise() {
     s.show_pointcloud         = getOn((std::string(root) + ".show_pointcloud").c_str(),        s.show_pointcloud);
     s.show_boundingbox        = getOn((std::string(root) + ".show_boundingbox").c_str(),       s.show_boundingbox);
     s.show_frustum            = getOn((std::string(root) + ".show_frustum").c_str(),           s.show_frustum);
-    s.show_coord              = getOn((std::string(root) + ".show_coord").c_str(),             s.show_coord);
     s.show_text               = getOn((std::string(root) + ".show_text").c_str(),              s.show_text);
     s.show_sync               = getOn((std::string(root) + ".show_sync").c_str(),              s.show_sync);
     s.show_notify             = getOn((std::string(root) + ".show_notify").c_str(),            s.show_notify);
-    s.show_sparse             = getOn((std::string(root) + ".show_sparse").c_str(),            s.show_sparse);
-    s.show_views              = getOn((std::string(root) + ".show_views").c_str(),             s.show_views);
-    s.show_photos             = getOn((std::string(root) + ".show_photos").c_str(),            s.show_photos);
-    s.show_octrees            = getOn((std::string(root) + ".show_octrees").c_str(),           s.show_octrees);
-    s.show_bvhs               = getOn((std::string(root) + ".show_bvhs").c_str(),              s.show_bvhs);
     s.show_pvs                = getOn((std::string(root) + ".show_pvs").c_str(),               s.show_pvs);
 
     // ---- Attachment behavior ----
@@ -1259,7 +1167,6 @@ void Lamure::loadSettingsFromCovise() {
 
     // ---- Dateien / Pfade ----
     s.pvs              = getStr((std::string(root) + ".pvs").c_str(),              s.pvs);
-    s.background_image = getStr((std::string(root) + ".background_image").c_str(), s.background_image);
 
     // ---- Initial matrices ----
     {
@@ -1271,7 +1178,7 @@ void Lamure::loadSettingsFromCovise() {
         osg::Matrixd M;
         auto tryParse = [](const std::string& label, const std::string& s, osg::Matrixd& out)->bool{
             if (!LamureUtil::readIndexedMatrix(s, out)) {
-                if (!s.empty()) std::cerr << "[Lamure] " << label << " parse failed: " << s << "\n";
+                if (!s.empty()) std::cerr << "[Lamure][WARN] " << label << " parse failed: " << s << "\n";
                 return false;
             }
             return true;
@@ -1309,9 +1216,12 @@ void Lamure::loadSettingsFromCovise() {
         };
     }
 
+    // ---- Modelle ----
+    s.models = resolveAndNormalizeModels();
+
     // ---- Provenance & JSON ----
     s.json = getStr((std::string(root) + ".json").c_str(), "");
-    if (!s.json.empty() && !std::filesystem::exists(s.json)) { std::cerr << "[Lamure] config json not found: " << s.json << " -> ignore\n"; s.json.clear(); }
+    if (!s.json.empty() && !std::filesystem::exists(s.json)) { std::cerr << "[Lamure][WARN] config json not found: " << s.json << " -> ignore\n"; s.json.clear(); }
 
     bool prov_valid = true; std::string first_json;
     if(!s.models.empty()){
@@ -1325,11 +1235,21 @@ void Lamure::loadSettingsFromCovise() {
     s.provenance = prov_valid;
     if (s.json.empty() && !first_json.empty()) s.json = first_json;
 
-    // ---- Transforms default ----
-    m_model_info.config_transforms.clear();
-    m_model_info.config_transforms.resize(s.models.size(), scm::math::mat4d::identity());
+    // ---- Model visibility default ----
     m_model_info.model_visible.clear();
     m_model_info.model_visible.resize(s.models.size(), true);
+    m_model_parents.assign(s.models.size(), nullptr);
+    if (!m_bootstrap_files.empty() && !m_bootstrap_parents.empty()) {
+        for (size_t i = 0; i < s.models.size(); ++i) {
+            const auto it = std::find(m_bootstrap_files.begin(), m_bootstrap_files.end(), s.models[i]);
+            if (it == m_bootstrap_files.end())
+                continue;
+            const size_t idx = static_cast<size_t>(std::distance(m_bootstrap_files.begin(), it));
+            if (idx < m_bootstrap_parents.size())
+                m_model_parents[i] = m_bootstrap_parents[idx];
+        }
+        m_bootstrap_parents.clear();
+    }
     m_model_source_keys.clear();
 
     // ---- Hintergrundfarbe ----
@@ -1341,9 +1261,9 @@ void Lamure::loadSettingsFromCovise() {
 }
 
 void Lamure::startMeasurement() {
-    std::cout << "startMeasurement(): " << m_ui->getMeasureButton()->state() << std::endl;
+    logInfo("startMeasurement(): ", (m_ui ? m_ui->getMeasureButton()->state() : false));
     if (m_settings.measurement_segments.empty()) {
-        std::cerr << "[Lamure] No measurement segments.\n";
+        std::cerr << "[Lamure][WARN] No measurement segments.\n";
         return;
     }
 
@@ -1375,7 +1295,7 @@ void Lamure::startMeasurement() {
 }
 
 void Lamure::stopMeasurement() {
-    std::cout << "stopMeasurement(): " << m_ui->getMeasureButton()->state() << std::endl;
+    logInfo("stopMeasurement(): ", (m_ui ? m_ui->getMeasureButton()->state() : false));
     if (!m_measurement) return;
     if (opencover::VRViewer::instance() && opencover::VRViewer::instance()->getCamera()) {
         opencover::VRViewer::instance()->getCamera()->setPreDrawCallback(nullptr);
@@ -1389,7 +1309,6 @@ void Lamure::stopMeasurement() {
     if (fps_cap_modified_) { opencover::coVRConfig::instance()->setFrameRate(prev_frame_rate_); }
     if (vsync_modified_) { osg::DisplaySettings::instance()->setSyncSwapBuffers(prev_vsync_frames_); }
 }
-
 
 void Lamure::addMarkMs(MarkField f, double ms) noexcept
 {
@@ -1471,12 +1390,12 @@ Lamure::parseMeasurementSegments(const std::string& cfg) const {
         if (segStr.empty()) continue;
         auto parts = split(segStr, '|');
         if (parts.size() != 4) { 
-            std::cerr << "[Lamure] Bad segment (need 4 parts): \"" << segStr << "\"\n";
+            std::cerr << "[Lamure][WARN] Bad segment (need 4 parts): \"" << segStr << "\"\n";
             continue; 
         }
         osg::Vec3 tra, rot; float vt = 0.f, vr = 0.f;
         if (!parseVec3(parts[0], tra) || !parseVec3(parts[1], rot) || !parseF(parts[2], vt) || !parseF(parts[3], vr)) {
-            std::cerr << "[Lamure] Bad segment tokens: \"" << segStr << "\" (dx,dy,dz|rx,ry,rz|v_trans|v_rot)\n";
+            std::cerr << "[Lamure][WARN] Bad segment tokens: \"" << segStr << "\" (dx,dy,dz|rx,ry,rz|v_trans|v_rot)\n";
             continue;
         }
         out.push_back(LamureMeasurement::Segment{tra, rot, vt, vr});
@@ -1489,7 +1408,7 @@ Lamure::parseMeasurementSegments(const std::string& cfg) const {
 std::string Lamure::buildMeasurementOutputPath() const {
     namespace fs = std::filesystem;
     fs::path dir = m_settings.measurement_dir.empty() ? fs::current_path() : fs::path(m_settings.measurement_dir);
-    std::error_code ec; fs::create_directories(dir, ec); if (ec) std::cerr << "[Lamure] create_directories " << dir << " failed: " << ec.message() << "\n";
+    std::error_code ec; fs::create_directories(dir, ec); if (ec) std::cerr << "[Lamure][WARN] create_directories " << dir << " failed: " << ec.message() << "\n";
 
     std::string name = m_settings.measurement_name.empty() ? "measurement.txt" : m_settings.measurement_name;
     fs::path np(name);
@@ -1568,29 +1487,6 @@ bool Lamure::writeSettingsJson(const Lamure::Settings& s, const std::string& out
             <<"]";
         return o.str();
         };
-    auto mat4_scm = [](const scm::math::mat4d& m){
-        std::ostringstream o; o.setf(std::ios::fixed); o.precision(6);
-        o << "["
-            << "[" << m[0]  << "," << m[1]  << "," << m[2]  << "," << m[3]  << "],"
-            << "[" << m[4]  << "," << m[5]  << "," << m[6]  << "," << m[7]  << "],"
-            << "[" << m[8]  << "," << m[9]  << "," << m[10] << "," << m[11] << "],"
-            << "[" << m[12] << "," << m[13] << "," << m[14] << "," << m[15] << "]"
-            << "]";
-        return o.str();
-        };
-
-    // --- NEU: transforms-Map serialisieren mit obigem Helfer ---
-    auto mapTransforms = [&](const std::map<uint32_t, scm::math::mat4d>& m){
-        std::ostringstream o; o << '{';
-        bool first = true;
-        for (const auto& [id, mat] : m) {
-            if (!first) o << ',';
-            first = false;
-            o << '\"' << id << '\"' << ':' << mat4_scm(mat);
-        }
-        o << '}';
-        return o.str();
-        };
     auto segs = [](const std::vector<LamureMeasurement::Segment>& S){
         std::ostringstream o; o.setf(std::ios::fixed); o.precision(6);
         o<<'[';
@@ -1638,7 +1534,7 @@ bool Lamure::writeSettingsJson(const Lamure::Settings& s, const std::string& out
             std::error_code ec;
             fs::create_directories(p.parent_path(), ec);
             if (ec) {
-                std::cerr << "[LamureUtil] create_directories failed: "
+                std::cerr << "[Lamure][WARN] create_directories failed: "
                     << p.parent_path().string() << " : " << ec.message() << "\n";
             }
         }
@@ -1646,7 +1542,7 @@ bool Lamure::writeSettingsJson(const Lamure::Settings& s, const std::string& out
 
     std::ofstream js(outPath, std::ios::out | std::ios::trunc);
     if (!js) {
-        std::cerr << "[LamureUtil] Failed to open settings JSON: " << outPath << "\n";
+        std::cerr << "[Lamure][ERR] Failed to open settings JSON: " << outPath << "\n";
         return false;
     }
 
@@ -1695,13 +1591,15 @@ bool Lamure::writeSettingsJson(const Lamure::Settings& s, const std::string& out
     add_i ("vram",      s.vram);
     add_i ("ram",       s.ram);
     add_i ("upload",    s.upload);
+    add_i ("min_vram",  s.min_vram);
+    add_i ("min_ram",   s.min_ram);
+    add_i ("min_upload", s.min_upload);
+    add_i ("size_of_provenance", s.size_of_provenance);
     add_bool("lod_update", s.lod_update);
     add_f ("lod_error", s.lod_error);
 
     // GUI / Travel
     add_i ("gui",          s.gui);
-    add_i ("travel",       s.travel);
-    add_f ("travel_speed", s.travel_speed);
 
     // Shader / Primitive & Skalen
     add_str("shader",      s.shader);
@@ -1720,17 +1618,11 @@ bool Lamure::writeSettingsJson(const Lamure::Settings& s, const std::string& out
     // Flags / Visual toggles
     add_bool("provenance",              s.provenance);
     add_bool("create_aux_resources",    s.create_aux_resources);
-    add_bool("face_eye",                s.face_eye);
     add_i   ("vis",                     s.vis);
     add_i   ("show_normals",            s.show_normals); // int32_t im Struct -> als Zahl schreiben
     add_bool("show_accuracy",           s.show_accuracy);
     add_bool("show_radius_deviation",   s.show_radius_deviation);
     add_bool("show_output_sensitivity", s.show_output_sensitivity);
-    add_bool("show_sparse",             s.show_sparse);
-    add_bool("show_views",              s.show_views);
-    add_bool("show_photos",             s.show_photos);
-    add_bool("show_octrees",            s.show_octrees);
-    add_bool("show_bvhs",               s.show_bvhs);
     add_bool("show_pvs",                s.show_pvs);
     add_bool("pvs_culling",             s.pvs_culling);
     add_bool("use_pvs",                 s.use_pvs);
@@ -1764,10 +1656,8 @@ bool Lamure::writeSettingsJson(const Lamure::Settings& s, const std::string& out
     add_f ("flank_lift",  s.flank_lift);
 
     // Pfade / Dateien
-    add_str("atlas_file",       s.atlas_file);
     add_str("json",             s.json);
     add_str("pvs",              s.pvs);
-    add_str("background_image", s.background_image);
 
     // Farben / Background
     add_raw("bvh_color",        vecF(s.bvh_color));
@@ -1778,7 +1668,6 @@ bool Lamure::writeSettingsJson(const Lamure::Settings& s, const std::string& out
     add_bool("show_pointcloud",  s.show_pointcloud);
     add_bool("show_boundingbox", s.show_boundingbox);
     add_bool("show_frustum",     s.show_frustum);
-    add_bool("show_coord",       s.show_coord);
     add_bool("show_text",        s.show_text);
     add_bool("show_sync",        s.show_sync);
     add_bool("show_notify",      s.show_notify);
@@ -1786,19 +1675,8 @@ bool Lamure::writeSettingsJson(const Lamure::Settings& s, const std::string& out
     // Initial Matrices
     add_bool("use_initial_navigation", s.use_initial_navigation);
     add_bool("use_initial_view",       s.use_initial_view);
-    add_bool("initial_tf_overrides",   s.initial_tf_overrides);
     add_raw ("initial_navigation",     mat4_osg(s.initial_navigation));
     add_raw ("initial_view",           mat4_osg(s.initial_view));
-
-    // Per-model data
-    {
-        std::map<uint32_t, scm::math::mat4d> cfg;
-        const auto &modelInfo = m_model_info;
-        for (uint32_t i = 0; i < modelInfo.config_transforms.size(); ++i) {
-            cfg[i] = modelInfo.config_transforms[i];
-        }
-        add_raw("transforms", mapTransforms(cfg));
-    }
 
     // Measurement paths
     add_raw("measurement_segments", segs(s.measurement_segments));
@@ -1821,7 +1699,7 @@ bool Lamure::writeSettingsJson(const Lamure::Settings& s, const std::string& out
     js << "}\n";
     js.flush();
 
-    std::cout << "[LamureUtil] Settings JSON written: " << outPath << "\n";
+    std::cout << "[Lamure] Settings JSON written: " << outPath << "\n";
     return true;
 }
 
@@ -1887,7 +1765,7 @@ std::vector<std::string> Lamure::resolveAndNormalizeModels()
         std::string abs = normalize(mp);
         if (abs.empty()) continue;
         if (!std::filesystem::exists(abs)) {
-            std::cerr << "[Lamure] Warning: Model path from config not found, skipping: " << abs << std::endl;
+            std::cerr << "[Lamure][WARN] Model path from config not found, skipping: " << abs << std::endl;
             continue;
         }
         const std::string k = make_key(abs);
@@ -1927,48 +1805,6 @@ std::vector<std::string> Lamure::resolveAndNormalizeModels()
     return out;
 }
 
-void Lamure::updateModelDependentSettings()
-{
-    auto &s = m_settings;
-    // JSON path preference
-    s.json = getStr("COVER.Plugin.LamurePointCloud.json", s.json);
-    if (!s.json.empty() && !std::filesystem::exists(s.json)) {
-        std::cerr << "[Lamure] config json not found: " << s.json << " -> ignore\n";
-        s.json.clear();
-    }
-
-    bool prov_valid = true; std::string first_json;
-    if(!s.models.empty()){
-        for(const auto& model_path: s.models){
-            std::filesystem::path p(model_path), prov_file=p; prov_file.replace_extension(".prov");
-            std::filesystem::path json_file=p; json_file.replace_extension(".json");
-            if(!std::filesystem::exists(prov_file) || !std::filesystem::exists(json_file)){ prov_valid=false; break; }
-            if(first_json.empty()) first_json=json_file.string();
-        }
-    }
-    s.provenance = prov_valid;
-    if (s.json.empty() && !first_json.empty()) s.json = first_json;
-
-    // Reset transforms to identity for each model
-    m_model_info.config_transforms.clear();
-    m_model_info.config_transforms.resize(s.models.size(), scm::math::mat4d::identity());
-    m_model_info.model_visible.clear();
-    m_model_info.model_visible.resize(s.models.size(), true);
-    m_model_parents.assign(s.models.size(), nullptr);
-    if (!m_bootstrap_files.empty() && !m_bootstrap_parents.empty()) {
-        for (size_t i = 0; i < s.models.size(); ++i) {
-            const auto it = std::find(m_bootstrap_files.begin(), m_bootstrap_files.end(), s.models[i]);
-            if (it == m_bootstrap_files.end())
-                continue;
-            const size_t idx = static_cast<size_t>(std::distance(m_bootstrap_files.begin(), it));
-            if (idx < m_bootstrap_parents.size())
-                m_model_parents[i] = m_bootstrap_parents[idx];
-        }
-        m_bootstrap_parents.clear();
-    }
-    m_model_source_keys.clear();
-}
-
 void Lamure::ensureFileMenuEntry(const std::string& path, osg::Group *parent)
 {
     if (path.empty()) return;
@@ -1981,6 +1817,7 @@ void Lamure::ensureFileMenuEntry(const std::string& path, osg::Group *parent)
         fm->loadFile(path.c_str(), nullptr, target_parent, "");
     }
 }
+
 
 
 

@@ -57,6 +57,7 @@ class gpu_context
     bool update_primary_buffer(const cut_database_record::temporary_buffer &from_buffer, scm::gl::render_device_ptr device_);
     bool update_primary_buffer_fix(const cut_database_record::temporary_buffer &from_buffer, scm::gl::render_device_ptr device, Data_Provenance const &data_provenance);
 
+    void set_contexts(uint32_t contexts);
     fix_struct get_fix_a() { return fix_a_; };
     fix_struct get_fix_b() { return fix_b_; };
 
@@ -83,6 +84,7 @@ class gpu_context
     temporary_storages temporary_storages_provenance_;
     node_t upload_budget_in_nodes_;
     node_t render_budget_in_nodes_;
+    uint32_t contexts_{1};
 };
 }
 }

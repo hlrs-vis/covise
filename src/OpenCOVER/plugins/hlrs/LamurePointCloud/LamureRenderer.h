@@ -8,6 +8,9 @@
 
 // Platform-specific headers
 #ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include <windows.h>
 #endif
 
@@ -23,6 +26,7 @@
 #include <unordered_set>
 #include <chrono>
 #include <limits>
+#include <atomic>
 
 #include <scm/core/math.h>
 #include <osg/Geometry>
@@ -49,6 +53,24 @@ class Lamure;
 class LamureEditTool;
 class LamureRenderer;
 struct InitDrawCallback;
+
+class DispatchDrawCallback : public osg::Drawable::DrawCallback {
+public:
+    explicit DispatchDrawCallback(Lamure* plugin);
+    void drawImplementation(osg::RenderInfo& renderInfo, const osg::Drawable* drawable) const override;
+
+private:
+    Lamure* _plugin{ nullptr };
+    LamureRenderer* _renderer{ nullptr };
+};
+
+class CutsDrawCallback : public osg::Drawable::DrawCallback {
+public:
+    CutsDrawCallback(LamureRenderer* renderer) : m_renderer(renderer) {}
+    void drawImplementation(osg::RenderInfo& renderInfo, const osg::Drawable* drawable) const override;
+private:
+    LamureRenderer* m_renderer;
+};
 
 // Data attached to each model node (Geode) to identify it
 class LamureModelData : public osg::Referenced {
@@ -116,9 +138,10 @@ class LamureRenderer {
  
 private:
     friend struct InitDrawCallback;
+    friend class DispatchDrawCallback;
+    friend class CutsDrawCallback;
     friend class PointsDrawCallback;
     Lamure* m_plugin{nullptr};
-    LamureRenderer* m_renderer{nullptr};
 
     //osg::ref_ptr<osg::Group> m_group;
 
@@ -528,10 +551,20 @@ private:
         std::unique_ptr<lamure::ren::camera> scm_camera;
         bool dump_done = false;
         uint64_t last_camera_frame{std::numeric_limits<uint64_t>::max()};
+        bool gpu_info_logged{false};
+        bool gpu_consistency_checked{false};
+        std::string gpu_uuid;
+        std::string driver_uuid;
+        std::string gpu_vendor;
+        std::string gpu_renderer;
+        std::string gpu_version;
+        std::string gpu_key;
     };
+
 
     std::map<int, ContextResources> m_ctx_res;
     std::mutex m_ctx_mutex;
+    std::atomic<bool> m_gpu_org_ready{false};
 
     // Schism objects
     std::unordered_set<int> m_initialized_context_ids;
@@ -545,6 +578,7 @@ private:
 
     // Geodes
     osg::ref_ptr<osg::Geode> m_init_geode;
+    osg::ref_ptr<osg::Geode> m_dispatch_geode;
     osg::ref_ptr<osg::Geode> m_text_geode;
     osg::ref_ptr<osg::Geode> m_frustum_geode;
     osg::ref_ptr<osg::Geode> m_edit_brush_geode;
@@ -552,11 +586,13 @@ private:
 
     // Stateset
     osg::ref_ptr<osg::StateSet> m_init_stateset;
+    osg::ref_ptr<osg::StateSet> m_dispatch_stateset;
     osg::ref_ptr<osg::StateSet> m_text_stateset;
     osg::ref_ptr<osg::StateSet> m_frustum_stateset;
 
     // Geometry
     osg::ref_ptr<osg::Geometry> m_init_geometry;
+    osg::ref_ptr<osg::Geometry> m_dispatch_geometry;
     osg::ref_ptr<osg::Geometry> m_frustum_geometry;
 
     // Framebuffers
@@ -655,15 +691,15 @@ public:
     LamureRenderer(Lamure* lamure_plugin);
     ~LamureRenderer();
     bool notifyOn() const;
+    bool gpuOrganizationReady() const { return m_gpu_org_ready.load(std::memory_order_acquire); }
 
     void init();
-    void shutdown(); // Full shutdown (destructor)
-    void reset();    // Soft reset (reload models, keep shaders)
+    void shutdown();
     void detachCallbacks();
 
     bool beginFrame(int ctxId);
     void endFrame(int ctxId);
-    bool pauseAndWaitForIdle(uint32_t extraDrainFrames);
+    bool pauseAndDrainFrames(uint32_t extraDrainFrames);
     void resumeRendering();
     bool isRendering() const;
     bool getModelMatrix(const osg::Node* node, osg::Matrixd& out) const;
@@ -674,6 +710,7 @@ public:
     void initFrustumResources(ContextResources& res);
     void initLamureShader(ContextResources& res);
     void initSchismObjects(ContextResources& res);
+    bool initGpus(ContextResources& res);
     void initUniforms(ContextResources& res);
     void initBoxResources(ContextResources& res);
     void initPclResources(ContextResources& res);

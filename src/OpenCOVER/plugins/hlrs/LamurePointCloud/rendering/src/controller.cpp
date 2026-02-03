@@ -245,6 +245,16 @@ void controller::reset_system(Data_Provenance const &data_provenance)
     }
 }
 
+void controller::set_contexts(const context_t context_id, uint32_t contexts)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto it = gpu_contexts_.find(context_id);
+    if (it == gpu_contexts_.end()) {
+        return;
+    }
+    it->second->set_contexts(contexts);
+}
+
 context_t controller::deduce_context_id(const gua_context_desc_t context_desc)
 {
     auto context_it = context_map_.find(context_desc);
@@ -430,7 +440,6 @@ void controller::dispatch(const context_t context_id, scm::gl::render_device_ptr
             // throw std::runtime_error(
             //    "lamure: controller::Gpu Context not created for context: " + context_id);
 
-            // fix for gua:
             ctx->create(device, data_provenance);
             //int first_error = device->opengl_api().glGetError();
 
@@ -490,7 +499,6 @@ void controller::dispatch(const context_t context_id, scm::gl::render_device_ptr
             // throw std::runtime_error(
             //    "lamure: controller::Gpu Context not created for context: " + context_id);
 
-            // fix for gua:
             ctx->create(device);
         }
 

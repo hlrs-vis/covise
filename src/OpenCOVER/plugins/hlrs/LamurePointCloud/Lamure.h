@@ -2,6 +2,9 @@
 #define _Lamure_H
 
 #ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include <windows.h>
 #endif
 #include <GL/glew.h>
@@ -9,6 +12,9 @@
 #include <cstdint>
 #include <vector>
 #include <string>
+#include <iostream>
+#include <utility>
+#include <type_traits>
 #include <functional>
 #include <memory>
 #include <map>
@@ -118,12 +124,13 @@ public:
         int32_t vram{ 1024 };
         int32_t ram{ 4096 };
         int32_t upload{ 32 };
+        int32_t min_vram{ 0 };
+        int32_t min_ram{ 0 };
+        int32_t min_upload{ 0 };
+        int32_t size_of_provenance{ 0 };
         bool provenance{ 1 };
         bool create_aux_resources{ 1 };
-        bool face_eye{ 0 };
         int32_t gui{ 1 };
-        int32_t travel{ 2 };
-        float travel_speed{ 20.5f };
         int32_t max_brush_size{ 4096 };
         bool lod_update{ 1 };
         float lod_error{ 1.0f };
@@ -139,11 +146,6 @@ public:
         bool show_accuracy{ 0 };
         bool show_radius_deviation{ 0 };
         bool show_output_sensitivity{ 0 };
-        bool show_sparse{ 0 };
-        bool show_views{ 0 };
-        bool show_photos{ 0 };
-        bool show_octrees{ 0 };
-        bool show_bvhs{ 0 };
         bool show_pvs{ 0 };
         int32_t channel{ 0 };
         scm::math::vec3f point_light_pos{ 0.0f, 1000.0f, 0.0f };
@@ -160,10 +162,8 @@ public:
         scm::math::vec3f background_color{ 68.0f / 255.0f, 0.0f, 84.0f / 255.0f };
         scm::math::vec3f heatmap_color_min{ 68.0f / 255.0f, 0.0f, 84.0f / 255.0f };
         scm::math::vec3f heatmap_color_max{ 251.f / 255.f, 231.f / 255.f, 35.f / 255.f };
-        std::string atlas_file{};
         std::string json{};
         std::string pvs{};
-        std::string background_image{};
         std::vector<std::string> models;
         std::vector<uint32_t> initial_selection;
         float scale_radius{ 0.05f };
@@ -188,7 +188,6 @@ public:
         bool show_pointcloud{ true };
         bool show_boundingbox{ false };
         bool show_frustum{ false };
-        bool show_coord{ false };
         bool show_text{ false };
         bool show_sync{ true };
         bool show_notify{ true };
@@ -196,7 +195,6 @@ public:
         osg::Matrix initial_navigation;
         bool use_initial_view{ false };
         osg::Matrix initial_view;
-        bool initial_tf_overrides{ false };
         std::vector<LamureMeasurement::Segment> measurement_segments;
         std::string measurement_dir;
         std::string measurement_name;
@@ -213,6 +211,7 @@ public:
         bool prefer_parent{ true };
     };
 
+
     struct ModelInfo
     {
         std::vector<scm::math::vec3f> root_bb_min;
@@ -222,7 +221,6 @@ public:
         scm::math::vec3f models_max;
         scm::math::vec3d models_center;
         std::vector<bool> model_visible;
-        std::vector<scm::math::mat4d> config_transforms;
     };
 
     struct RenderInfo
@@ -259,6 +257,7 @@ public:
     struct SceneNodes {
         osg::ref_ptr<osg::MatrixTransform> model_transform;
         osg::ref_ptr<osg::Geode> point_geode;
+        osg::ref_ptr<osg::Geode> cut_geode;
         osg::ref_ptr<osg::Geode> box_geode;
     };
     std::vector<SceneNodes> m_scene_nodes;
@@ -272,17 +271,12 @@ public:
     static int unloadBvh(const char* filename, const char* ck = "");
     void loadSettingsFromCovise();
     void preFrame();
-    void perform_system_reset();
+    void rebuildRenderer();
     void startMeasurement();
     void stopMeasurement();
     void applyInitialTransforms();
     void dumpModelParentChains() const;
-    void markResetStart();
-    void markResetEnd();
-    bool isResetTimingActive() const noexcept { return m_reset_timing_active; }
-    void logFirstRenderAfterReset();
-    void logRenderFrameDelta(int ctxId);
-    bool shouldTraceResetFrame(int ctxId, uint64_t frameNumber);
+    void markRebuildEnd();
 
     LamureUI* getUI() { return m_ui.get(); }
     LamureRenderer* getRenderer() { return m_renderer.get(); }
@@ -303,11 +297,63 @@ public:
     const std::vector<SceneNodes>& getSceneNodes() const { return m_scene_nodes; }
     bool initialized = false;
     lamure::ren::Data_Provenance& getDataProvenance() { return m_data_provenance; }
-    bool isResetInProgress() const noexcept { return m_reset_in_progress; }
+    bool isRebuildInProgress() const noexcept { return m_rebuild_in_progress; }
 
     bool writeSettingsJson(const Lamure::Settings& s, const std::string& outPath);
     bool rendering_{false};
     void dumpSettings(const char* tag = "");
+    template <typename... Args>
+    void logInfo(Args&&... args) const {
+        if (!m_settings.show_notify)
+            return;
+        std::cout << "[Lamure] ";
+        using expander = int[];
+        (void)expander{0, ((std::cout << std::forward<Args>(args)), 0)...};
+        std::cout << "\n";
+    }
+
+    template <typename T1>
+    void dump(T1&& first) const {
+        dump(std::forward<T1>(first), 0);
+    }
+
+    template <typename T1, typename T2,
+              typename std::enable_if<
+                  std::is_integral<typename std::remove_reference<T2>::type>::value ||
+                  std::is_enum<typename std::remove_reference<T2>::type>::value,
+                  int>::type = 0>
+    void dump(T1&& first, T2&& second) const {
+        auto* dumpBtn = (m_ui ? m_ui->getDumpButton() : nullptr);
+        if (!dumpBtn || !dumpBtn->state())
+            return;
+        std::cout << std::forward<T1>(first);
+        if (second == 0)
+            dumpBtn->setState(false);
+    }
+
+    template <typename T1, typename T2,
+              typename std::enable_if<
+                  !std::is_integral<typename std::remove_reference<T2>::type>::value &&
+                  !std::is_enum<typename std::remove_reference<T2>::type>::value,
+                  int>::type = 0>
+    void dump(T1&& first, T2&& second) const {
+        auto* dumpBtn = (m_ui ? m_ui->getDumpButton() : nullptr);
+        if (!dumpBtn || !dumpBtn->state())
+            return;
+        std::cout << std::forward<T1>(first);
+        std::cout << std::forward<T2>(second);
+    }
+
+    template <typename T1, typename T2, typename... Rest>
+    void dump(T1&& first, T2&& second, Rest&&... rest) const {
+        auto* dumpBtn = (m_ui ? m_ui->getDumpButton() : nullptr);
+        if (!dumpBtn || !dumpBtn->state())
+            return;
+        std::cout << std::forward<T1>(first);
+        std::cout << std::forward<T2>(second);
+        using expander = int[];
+        (void)expander{0, ((std::cout << std::forward<Rest>(rest)), 0)...};
+    }
 
     void beginFrameMarks() noexcept { m_marks.reset(); }
     void addMarkMs(MarkField f, double ms) noexcept;
@@ -341,6 +387,9 @@ private:
     int m_frames_to_wait = 0;
 
     static Lamure* plugin;
+
+    mutable std::mutex m_settings_mutex;
+    mutable std::mutex m_load_bvh_mutex;
 
     bool m_first_frame = true;
     bool m_models_from_config = false;
@@ -387,32 +436,25 @@ private:
     std::string buildMeasurementOutputPath() const;
     void applyShaderToRendererFromSettings();
     void resetVrmlRootTransform(osg::Node* node);
+    static void detachFromParents(osg::Node* node);
 
-    // Centralized model resolution and post-processing
+    // Centralized model resolution
     std::vector<std::string> resolveAndNormalizeModels();
-    void updateModelDependentSettings();
     void adjustOsgCameraClipping();
     void ensureFileMenuEntry(const std::string& path, osg::Group *parent = nullptr);
 
     // Bootstrap file collection before initialization
     std::vector<std::string> m_bootstrap_files;
 
-    // Reset state machine for safer multi-frame shutdown/rebuild
-    bool m_reset_in_progress{false};
-    bool m_renderer_paused_for_reset{false};
+    // Rebuild state machine for safer multi-frame shutdown/rebuild
+    bool m_rebuild_in_progress{false};
+    std::atomic<bool> m_is_rebuilding{false};
+    bool m_renderer_paused_for_rebuild{false};
     int  m_post_shutdown_delay{0};
     bool m_did_initial_build{false};
     LamureEditTool::BrushAction m_edit_action{LamureEditTool::BrushAction::None};
     bool m_edit_mode{false};
     bool m_brush_frozen{false};
-    std::chrono::steady_clock::time_point m_reset_start_time{};
-    std::chrono::steady_clock::time_point m_reset_end_time{};
-    std::mutex m_reset_timing_mutex;
-    bool m_reset_timing_active{false};
-    bool m_reset_first_render_pending{false};
-    int m_reset_frame_samples_remaining{0};
-    std::unordered_map<int, uint64_t> m_reset_trace_last_frame;
-    std::unordered_map<int, std::chrono::steady_clock::time_point> m_last_render_time;
 };
 
 inline ScopedMark::~ScopedMark() {

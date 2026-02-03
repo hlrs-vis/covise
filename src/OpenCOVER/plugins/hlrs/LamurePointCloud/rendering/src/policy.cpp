@@ -22,10 +22,10 @@ policy* policy::single_ = nullptr;
 policy::
 policy()
 : reset_system_(true),
-  max_upload_budget_in_mb_(LAMURE_DEFAULT_UPLOAD_BUDGET),
-  render_budget_in_mb_(LAMURE_DEFAULT_VIDEO_MEMORY_BUDGET),
-  out_of_core_budget_in_mb_(LAMURE_DEFAULT_MAIN_MEMORY_BUDGET),
-  size_of_provenance_(LAMURE_DEFAULT_SIZE_OF_PROVENANCE),
+  max_upload_budget_in_mb_(0),
+  render_budget_in_mb_(0),
+  out_of_core_budget_in_mb_(0),
+  size_of_provenance_(0),
   window_width_(800),
   window_height_(600) {
 

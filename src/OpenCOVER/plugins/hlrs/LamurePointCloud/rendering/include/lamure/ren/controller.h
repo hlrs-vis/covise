@@ -41,6 +41,7 @@ class controller
     void reset_system();
     void reset_system(Data_Provenance const &data_provenance);
     const bool is_system_reset_signaled(const context_t context_id);
+    void set_contexts(const context_t context_id, uint32_t contexts);
 
     context_t deduce_context_id(const gua_context_desc_t context_desc);
     view_t deduce_view_id(const gua_context_desc_t context_desc, const gua_view_desc_t view_desc);
