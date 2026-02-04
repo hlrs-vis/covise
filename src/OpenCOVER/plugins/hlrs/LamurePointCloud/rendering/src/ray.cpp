@@ -802,7 +802,7 @@ const bool ray::intersect_surfel(const dataset::serialized_surfel &surfel, const
 ray_queue::ray_queue() : is_shutdown_(false)
 {
     semaphore_.set_min_signal_count(1);
-    semaphore_.set_max_signal_count(std::numeric_limits<float>::max());
+    semaphore_.set_max_signal_count(std::numeric_limits<size_t>::max());
 }
 
 ray_queue::~ray_queue() {}
