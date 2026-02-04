@@ -425,13 +425,6 @@ void APIENTRY openglCallbackFunction(GLenum source, GLenum type, GLuint id, GLen
 	std::cerr << "---------------------" << std::endl;
 }
 
-float *gl_mat_to_array(GLdouble mat[16])
-{
-    scm::math::mat4d gl_mat = scm::math::mat4d(mat[0], mat[1], mat[2], mat[3], mat[4], mat[5], mat[6], mat[7], mat[8], mat[9], mat[10], mat[11], mat[12], mat[13], mat[14], mat[15]);
-    float *gl_array = scm::math::mat4f(gl_mat).data_array;
-    return gl_array;
-}
-
 scm::math::mat4d gl_mat(GLdouble mat[16])
 {
     scm::math::mat4d gl_mat = scm::math::mat4d(mat[0], mat[1], mat[2], mat[3], mat[4], mat[5], mat[6], mat[7], mat[8], mat[9], mat[10], mat[11], mat[12], mat[13], mat[14], mat[15]);
