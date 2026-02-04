@@ -156,9 +156,9 @@ private:
     // Private methods
     bool readShader(const std::string& pathString, std::string& shaderString, bool keepOptionalShaderCode);
 
-    GLuint compileAndLinkShaders(std::string vsSource, std::string fsSource, uint8_t ctxId);
-    GLuint compileAndLinkShaders(std::string vsSource, std::string gsSource, std::string fsSource, uint8_t ctxId);
-    unsigned int compileShader(unsigned int type, const std::string& source, uint8_t ctxId);
+    GLuint compileAndLinkShaders(std::string vsSource, std::string fsSource, uint8_t ctxId, std::string desc = "");
+    GLuint compileAndLinkShaders(std::string vsSource, std::string gsSource, std::string fsSource, uint8_t ctxId, std::string desc = "");
+    unsigned int compileShader(unsigned int type, const std::string &source, uint8_t ctxId, std::string desc = "");
     void uploadClipPlanes(GLint countLocation, GLint dataLocation) const;
 
     // --- OpenGL helper structs for context-local resources ---

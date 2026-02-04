@@ -2651,7 +2651,7 @@ void LamureRenderer::initCamera(ContextResources& res)
     }
 }
 
-unsigned int LamureRenderer::compileShader(unsigned int type, const std::string& source, uint8_t ctx_id)
+unsigned int LamureRenderer::compileShader(unsigned int type, const std::string &source, uint8_t ctx_id, std::string desc)
 {
     osg::GLExtensions* gl_api = new osg::GLExtensions(ctx_id);
     unsigned int id = gl_api->glCreateShader(type);
@@ -2666,7 +2666,7 @@ unsigned int LamureRenderer::compileShader(unsigned int type, const std::string&
         gl_api->glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
         char* message = (char*)alloca(length * sizeof(char));
         gl_api->glGetShaderInfoLog(id, length, &length, message);
-        std::cerr << "[Lamure][ERR] Failed to compile " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader!\n";
+        std::cerr << "[Lamure][ERR] Failed to compile " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader " << desc << "!\n";
         std::cerr << "[Lamure][ERR] " << message << "\n";
         gl_api->glDeleteShader(id);
         return 0;
@@ -2674,11 +2674,11 @@ unsigned int LamureRenderer::compileShader(unsigned int type, const std::string&
     return id;
 }
 
-GLuint LamureRenderer::compileAndLinkShaders(std::string vs_source, std::string fs_source, uint8_t ctx_id)
+GLuint LamureRenderer::compileAndLinkShaders(std::string vs_source, std::string fs_source, uint8_t ctx_id, std::string desc)
 {
     GLuint program = glCreateProgram();
-    GLuint vs = compileShader(GL_VERTEX_SHADER, vs_source, ctx_id);
-    GLuint fs = compileShader(GL_FRAGMENT_SHADER, fs_source, ctx_id);
+    GLuint vs = compileShader(GL_VERTEX_SHADER, vs_source, ctx_id, desc);
+    GLuint fs = compileShader(GL_FRAGMENT_SHADER, fs_source, ctx_id, desc);
     glAttachShader(program, vs);
     glAttachShader(program, fs);
     glLinkProgram(program);
@@ -2688,12 +2688,12 @@ GLuint LamureRenderer::compileAndLinkShaders(std::string vs_source, std::string 
     return program;
 }
 
-GLuint LamureRenderer::compileAndLinkShaders(std::string vs_source, std::string gs_source, std::string fs_source, uint8_t ctx_id)
+GLuint LamureRenderer::compileAndLinkShaders(std::string vs_source, std::string gs_source, std::string fs_source, uint8_t ctx_id, std::string desc)
 {
     GLuint program = glCreateProgram();
-    GLuint vs = compileShader(GL_VERTEX_SHADER, vs_source, ctx_id);
-    GLuint gs = compileShader(GL_GEOMETRY_SHADER, gs_source, ctx_id);
-    GLuint fs = compileShader(GL_FRAGMENT_SHADER, fs_source, ctx_id);
+    GLuint vs = compileShader(GL_VERTEX_SHADER, vs_source, ctx_id, desc);
+    GLuint gs = compileShader(GL_GEOMETRY_SHADER, gs_source, ctx_id, desc);
+    GLuint fs = compileShader(GL_FRAGMENT_SHADER, fs_source, ctx_id, desc);
     glAttachShader(program, vs);
     glAttachShader(program, gs);
     glAttachShader(program, fs);
