@@ -16,6 +16,10 @@
 #include <GL/glu.h> // For gluErrorString
 #include <unordered_map>
 
+#ifdef USE_X11
+#include <GL/glx.h>
+#endif
+
 namespace {
 #ifndef GL_DEVICE_UUID_EXT
 #define GL_DEVICE_UUID_EXT 0x9597
@@ -98,7 +102,7 @@ UuidInfo queryUuidInfo()
     GetUnsignedBytevExtProc getUnsignedBytevExt = nullptr;
 #ifdef _WIN32
     getUnsignedBytevExt = reinterpret_cast<GetUnsignedBytevExtProc>(wglGetProcAddress("glGetUnsignedBytevEXT"));
-#else
+#elif defined(USE_X11)
     getUnsignedBytevExt = reinterpret_cast<GetUnsignedBytevExtProc>(
         glXGetProcAddress(reinterpret_cast<const GLubyte*>("glGetUnsignedBytevEXT")));
 #endif
