@@ -112,18 +112,22 @@ void InitGLOperation::operator()(osg::GraphicsContext* gc)
     }
 
     glewExperimental = GL_TRUE; // for ARB_vertex_array_object on macOS
-    if (glewInit() != GLEW_OK)
+    auto glewResult = glewInit();
+    if (glewResult != GLEW_OK && glewResult != GLEW_ERROR_NO_GLX_DISPLAY)
     {
-        std::cerr << "glewInit() failed" << std::endl;
+        std::string err;
+        switch(glewResult) {
+        case GLEW_ERROR_NO_GLX_DISPLAY: err="no GLX display"; break;
+        case GLEW_ERROR_NO_GL_VERSION: err="no GL version"; break;
+        case GLEW_ERROR_GL_VERSION_10_ONLY: err="only GL version 1.0"; break;
+        case GLEW_ERROR_GLX_VERSION_11_ONLY: err="only GLX version 1.1"; break;
+        default: err = std::string("unknown error ") + std::to_string(glewResult); break;
+        }
+        if (!err.empty())
+            err = std::string(": ") + err;
+        std::cerr << "glewInit() failed" << err << std::endl;
         return;
     }
-
-#if defined(USE_X11) && defined(glxewInit)
-    if (glxewInit() != GLEW_OK)
-    {
-        std::cerr << "glxewInit() failed" << std::endl;
-    }
-#endif
 
     auto rend = glGetString(GL_RENDERER);
     if (!rend)
