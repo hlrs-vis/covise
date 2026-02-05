@@ -31,12 +31,6 @@
 void QtGraphicsWindow::setSyncToVBlank(bool flag)
 {
 #if defined(USE_X11)
-    GLenum err = glewInit();
-    if (err != GLEW_OK)
-    {
-        std::cerr << "setSyncToVBlank: failed to initialize GLEW. Error: " << glewGetErrorString(err) << std::endl;
-    }
-
     auto wid = m_glWidget->effectiveWinId();
     if (wid == 0)
     {
@@ -54,7 +48,7 @@ void QtGraphicsWindow::setSyncToVBlank(bool flag)
 
     // Detect session type
     QByteArray sessionType = qgetenv("XDG_SESSION_TYPE");
-    if (sessionType == "x11") {
+    if (sessionType == "x11" || sessionType == "tty") {
         auto x11App = qGuiApp->nativeInterface<QNativeInterface::QX11Application>();
         if (!x11App) {
             std::cerr << "setSyncToVBlank: QX11Application native interface is nullptr" << std::endl;
