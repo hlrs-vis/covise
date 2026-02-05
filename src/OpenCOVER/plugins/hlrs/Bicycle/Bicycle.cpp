@@ -19,7 +19,6 @@
 #include <osgUtil/IntersectionVisitor>
 
 #if !defined(_WIN32) && !defined(__APPLE__)
-//#define USE_X11
 #define USE_LINUX
 #endif
 
@@ -38,12 +37,6 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <time.h>
-
-#ifdef USE_X11
-#include <X11/Xlib.h>
-#include <X11/extensions/XInput.h>
-#include <X11/cursorfont.h>
-#endif
 
 #include <PluginUtil/PluginMessageTypes.h>
 
