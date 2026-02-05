@@ -123,7 +123,6 @@ int main(int argc, char* argv[])
     char* d = datamgr->get_list_of_interfaces();//  datamgr allocated data without delete
     msg.data = DataHandle{ d, strlen(d) + 1 };
     datamgr->send_ctl_msg(&msg);
-    free(d);
 
     while (1)
     {
