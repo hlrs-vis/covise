@@ -137,27 +137,10 @@ void InitGLOperation::operator()(osg::GraphicsContext* gc)
         std::cerr << "InitGLOperation() for context " << contextId << ": could not retrieve value of GL_RENDERER - context not initialised?" << std::endl;
         std::cerr << "*****" << std::endl;
     }
-    if(strncmp((const char*)rend, "llvmpipe", 8) == 0)
+    else if (strncmp((const char *)rend, "llvmpipe", 8) == 0)
     {
         VRViewer::instance()->softwareRendering = true;
     }
-    if (cover->debugLevel(2))
-    {
-        std::cerr << "InitGLOperation() for context " << contextId << std::endl;
-    }
-
-    if (glewInit() != GLEW_OK)
-    {
-        std::cerr << "glewInit() failed" << std::endl;
-        return;
-    }
-
-#if defined(USE_X11) && defined(glxewInit)
-    if (glxewInit() != GLEW_OK)
-    {
-        std::cerr << "glxewInit() failed" << std::endl;
-    }
-#endif
 
     auto print_string = [](GLenum tag, const char *desc){
         std::string s("GL_");
