@@ -1,5 +1,5 @@
 <MapColorsSpheres>
-<version min="120" max="120" profile="compatibility" />
+<version min="120" max="330" profile="compatibility" />
 <attribute name="dataAttrib" type="float" value="10"/>
 <attribute name="radiusAttrib" type="float" value="11"/>
 
@@ -42,8 +42,21 @@ void main (void)
 }
 </vertexProgram>
 
-<geometryProgram inputType="POINTS" outputType="TRIANGLE_STRIP" numVertices="4">
-#extension GL_EXT_geometry_shader4 : enable
+<geometryProgram inputType="POINTS" outputType="TRIANGLE_STRIP" numVertices="4"><![CDATA[
+#if __VERSION__ > 120
+layout (points) in;
+layout (triangle_strip, max_vertices = 4) out;
+
+in vec4 color[];
+in float radius[];
+
+out vec4 vColor;
+out float vRadius;
+out vec3 vObj;
+out vec3 vDir;
+out vec3 vCam;
+#else
+#extension GL_EXT_geometry_shader4: enable
 
 varying in vec4 color[];
 varying in float radius[];
@@ -53,15 +66,20 @@ varying out float vRadius;
 varying out vec3 vObj;
 varying out vec3 vDir;
 varying out vec3 vCam;
+#endif
 
 void main()
 {
     mat4 MVP = gl_ModelViewProjectionMatrix;
 
+#if __VERSION__ > 120
+    vObj = gl_in[0].gl_Position.xyz;
+#else
     vObj = gl_PositionIn[0].xyz;
+#endif
     vColor = color[0];
     vRadius = radius[0];
-	vCam = gl_ModelViewMatrixInverse[3].xyz;
+    vCam = gl_ModelViewMatrixInverse[3].xyz;
 
     vec3 camUp = gl_ModelViewMatrix[1].xyz;
 
@@ -95,7 +113,7 @@ void main()
 
     EndPrimitive();
 }
-</geometryProgram>
+]]></geometryProgram>
 <fragmentProgram>
 varying vec4 vColor;
 varying vec3 vObj;
