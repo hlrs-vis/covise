@@ -357,6 +357,7 @@ void QtOsgWidget::paintGL()
 void QtOsgWidget::resizeGL(int width, int height)
 {
     auto pr = pixelRatio();
+    //std::cerr << "resizeGL to " << width << " x " << height << ", pr=" << pr << std::endl;
     getEventQueue()->windowResize(x()*pr, y()*pr, width*pr, height*pr);
     m_graphicsWindow->resized(x()*pr, y()*pr, width*pr, height*pr);
 }
@@ -489,13 +490,20 @@ osgGA::EventQueue* QtOsgWidget::getEventQueue() const
     return m_graphicsWindow->getEventQueue();
 }
 
-float QtOsgWidget::pixelRatio() const
+float QtOsgWidget::pixelRatio()
 {
+    float ratio = 1.f;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
-    return devicePixelRatioF();
+    ratio = devicePixelRatioF();
 #else
-    return devicePixelRatio();
+    ratio = devicePixelRatio();
 #endif
+    if (m_pixelRatio != ratio)
+    {
+        m_pixelRatio = ratio;
+        resizeGL(width(), height());
+    }
+    return ratio;
 }
 
 #include "moc_QtOsgWidget.cpp"
