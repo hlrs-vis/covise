@@ -501,9 +501,11 @@ bool OpenCOVER::init()
 
 #ifndef _WIN32
 #ifdef USE_X11
+    bool forceX11 = getenv("DISPLAY") != nullptr;
     bool useDISPLAY = coCoviseConfig::isOn("COVER.HonourDisplay", false);
     if (useVirtualGL)
     {
+        forceX11 = true;
         useDISPLAY = true;
         cerr << "Apparently running with VirtualGL, using DISPLAY environment variable" << endl;
     }
@@ -512,10 +514,11 @@ bool OpenCOVER::init()
     if (useDISPLAY && getenv("DISPLAY") == NULL)
     {
         useDISPLAY = false;
-        cerr << "DISPLAY not set, defaulting to DISPLAY=:0" << endl;
+        cerr << "DISPLAY not set, using fallbacks" << endl;
     }
     else if (useDISPLAY)
     {
+        forceX11 = true;
         if (debugLevel > 1)
             cerr << "DISPLAY set to " << getenv("DISPLAY") << endl;
     }
@@ -530,6 +533,10 @@ bool OpenCOVER::init()
             if (firstPipe.empty())
             {
                 cerr << "No PipeConfig for Pipe 0 found, using " << envDisplay << endl;
+            }
+            else
+            {
+                forceX11 = true;
             }
 
             // do NOT use cover->debugLevel here : cover is not yet created!
@@ -546,6 +553,15 @@ bool OpenCOVER::init()
         }
     }
     coVRConfig::instance()->m_useDISPLAY = useDISPLAY;
+    if (forceX11 && !getenv("QT_QPA_PLATFORM"))
+    {
+        char *platform = strdup("QT_QPA_PLATFORM=xcb");
+        if (debugLevel > 0)
+        {
+            fprintf(stderr, "Setting '%s' in order to prefer X11/Xwayland over Wayland for Qt windows\n", platform);
+        }
+        putenv(platform);
+    }
 #endif
 #endif
 
