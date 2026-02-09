@@ -25,6 +25,8 @@
 #include <osgUtil/IntersectionVisitor>
 #include <osgUtil/LineSegmentIntersector>
 #include <osgDB/ReadFile>
+#include <osgDB/Options>
+#include <osgDB/Registry>
 
 #include <algorithm>
 #include <cctype>
@@ -59,6 +61,8 @@ KitePlugin::~KitePlugin()
         m_groundGeode->getParent(0)->removeChild(m_groundGeode);
     if (m_stationGeode && m_stationGeode->getNumParents() > 0)
         m_stationGeode->getParent(0)->removeChild(m_stationGeode);
+    if (m_geoXform && m_geoXform->getNumParents() > 0)
+        m_geoXform->getParent(0)->removeChild(m_geoXform);
 }
 
 static osg::BoundingBox computeLocalBBox(osg::Node *n)
@@ -66,6 +70,14 @@ static osg::BoundingBox computeLocalBBox(osg::Node *n)
     osg::ComputeBoundsVisitor cbv;
     n->accept(cbv);
     return cbv.getBoundingBox();
+}
+
+static osg::Matrix geoTransformMatrix(const osg::Vec3 &pos, float scale, float yawDeg)
+{
+    const double d2r = M_PI / 180.0;
+    return osg::Matrix::scale(osg::Vec3(scale, scale, scale)) *
+           osg::Matrix::rotate(yawDeg * d2r, osg::Vec3(0, 0, 1)) *
+           osg::Matrix::translate(pos);
 }
 
 
@@ -153,10 +165,20 @@ bool KitePlugin::init()
     m_groundPos.x() = coCoviseConfig::getFloat("KitePlugin.GroundPosX", m_groundPos.x());
     m_groundPos.y() = coCoviseConfig::getFloat("KitePlugin.GroundPosY", m_groundPos.y());
     m_groundPos.z() = coCoviseConfig::getFloat("KitePlugin.GroundPosZ", m_groundPos.z());
+    m_showGround = coCoviseConfig::isOn("KitePlugin.ShowGround", m_showGround);
     m_worldScale = coCoviseConfig::getFloat("KitePlugin.WorldScale", m_worldScale);
     m_targetTether_m = coCoviseConfig::getFloat("KitePlugin.TargetTether_m", m_targetTether_m);
     m_focusMode = coCoviseConfig::isOn("KitePlugin.FocusMode", m_focusMode);
     m_focusTetherLen_m = coCoviseConfig::getFloat("KitePlugin.FocusTetherLen_m", m_focusTetherLen_m);
+
+    m_geoModelPath = coCoviseConfig::getEntry("value", "KitePlugin.GeoModel", "");
+    m_geoPos.x() = coCoviseConfig::getFloat("KitePlugin.GeoPosX", m_geoPos.x());
+    m_geoPos.y() = coCoviseConfig::getFloat("KitePlugin.GeoPosY", m_geoPos.y());
+    m_geoPos.z() = coCoviseConfig::getFloat("KitePlugin.GeoPosZ", m_geoPos.z());
+    m_geoScale = coCoviseConfig::getFloat("KitePlugin.GeoScale", m_geoScale);
+    m_geoYawDeg = coCoviseConfig::getFloat("KitePlugin.GeoYawDeg", m_geoYawDeg);
+    m_geoAutoCenter = coCoviseConfig::isOn("KitePlugin.GeoAutoCenter", m_geoAutoCenter);
+    m_geoAutoGround = coCoviseConfig::isOn("KitePlugin.GeoAutoGround", m_geoAutoGround);
 
     m_junctionLocal.x() = coCoviseConfig::getFloat("KitePlugin.JunctionLocalX", m_junctionLocal.x());
     m_junctionLocal.y() = coCoviseConfig::getFloat("KitePlugin.JunctionLocalY", m_junctionLocal.y());
@@ -206,6 +228,11 @@ bool KitePlugin::init()
         if (const char *env = std::getenv("KITE_CSV"))
             m_csvPath = env;
     }
+    if (m_geoModelPath.empty())
+    {
+        if (const char *env = std::getenv("KITE_GEO_MODEL"))
+            m_geoModelPath = env;
+    }
 
     if (std::getenv("KITE_NED"))
     {
@@ -228,6 +255,15 @@ bool KitePlugin::init()
     m_ropeSagMax = envToFloat("KITE_ROPE_SAG_MAX", m_ropeSagMax);
     m_focusMode = envToBool("KITE_FOCUS_MODE", m_focusMode);
     m_focusTetherLen_m = envToFloat("KITE_FOCUS_TETHER_LEN", m_focusTetherLen_m);
+
+    m_showGround = envToBool("KITE_SHOW_GROUND", m_showGround);
+    m_geoPos.x() = envToFloat("KITE_GEO_POS_X", m_geoPos.x());
+    m_geoPos.y() = envToFloat("KITE_GEO_POS_Y", m_geoPos.y());
+    m_geoPos.z() = envToFloat("KITE_GEO_POS_Z", m_geoPos.z());
+    m_geoScale = envToFloat("KITE_GEO_SCALE", m_geoScale);
+    m_geoYawDeg = envToFloat("KITE_GEO_YAW_DEG", m_geoYawDeg);
+    m_geoAutoCenter = envToBool("KITE_GEO_AUTO_CENTER", m_geoAutoCenter);
+    m_geoAutoGround = envToBool("KITE_GEO_AUTO_GROUND", m_geoAutoGround);
 
     double modelRollDeg = coCoviseConfig::getFloat("KitePlugin.ModelOffsetRoll", 0.0);
     double modelPitchDeg = coCoviseConfig::getFloat("KitePlugin.ModelOffsetPitch", 0.0);
@@ -274,6 +310,81 @@ bool KitePlugin::init()
 
         m_modelBB = bb;
         m_haveModelBB = true;
+    }
+
+    if (!m_geoModelPath.empty())
+    {
+        std::string resolved = m_geoModelPath;
+        if (const char *searched = coVRFileManager::instance()->getName(m_geoModelPath.c_str()))
+            resolved = searched;
+
+        if (!m_geoXform)
+            m_geoXform = new osg::MatrixTransform();
+        cover->getObjectsRoot()->addChild(m_geoXform.get());
+
+        auto getDir = [](const std::string &path) {
+            const size_t pos = path.find_last_of("/\\");
+            return (pos == std::string::npos) ? std::string() : path.substr(0, pos);
+        };
+        const std::string geoBase = getDir(resolved);
+        if (!geoBase.empty())
+        {
+            auto &paths = osgDB::Registry::instance()->getDataFilePathList();
+            if (std::find(paths.begin(), paths.end(), geoBase) == paths.end())
+                paths.push_back(geoBase);
+        }
+
+        osg::ref_ptr<osgDB::Options> geoOptions = new osgDB::Options();
+        geoOptions->setDatabasePath(geoBase);
+
+        // Prefer direct read so VRML Inline paths resolve relative to the .wrl directory.
+        m_geoModel = osgDB::readNodeFile(resolved, geoOptions.get());
+        if (m_geoModel)
+        {
+            m_geoXform->addChild(m_geoModel.get());
+        }
+        else
+        {
+            unsigned int geoChildrenBefore = m_geoXform->getNumChildren();
+            osg::Node *geoLoaded = coVRFileManager::instance()->loadFile(resolved.c_str(), nullptr, m_geoXform.get());
+            if (geoLoaded)
+            {
+                m_geoModel = geoLoaded;
+            }
+            else if (m_geoXform->getNumChildren() > geoChildrenBefore)
+            {
+                m_geoModel = m_geoXform->getChild(m_geoXform->getNumChildren() - 1);
+            }
+        }
+
+        if (m_geoModel)
+        {
+            const double d2r = M_PI / 180.0;
+            m_geoXform->setMatrix(geoTransformMatrix(m_geoPos, m_geoScale, m_geoYawDeg));
+
+            osg::BoundingBox gbb = computeLocalBBox(m_geoModel.get());
+            if (gbb.valid())
+            {
+                m_geoBBox = gbb;
+                m_haveGeoBBox = true;
+                fprintf(stderr,
+                        "KitePlugin: loaded geodata '%s'\n"
+                        "  geo bbox min=(%.3f %.3f %.3f) max=(%.3f %.3f %.3f)\n",
+                        resolved.c_str(),
+                        gbb.xMin(), gbb.yMin(), gbb.zMin(),
+                        gbb.xMax(), gbb.yMax(), gbb.zMax());
+            }
+            else
+            {
+                fprintf(stderr,
+                        "KitePlugin: loaded geodata '%s' but bbox is invalid (likely missing inlines)\n",
+                        resolved.c_str());
+            }
+        }
+        else
+        {
+            fprintf(stderr, "KitePlugin: could not load geodata '%s'\n", resolved.c_str());
+        }
     }
 
     cover->getObjectsRoot()->addChild(m_transform);
@@ -510,6 +621,34 @@ void KitePlugin::parseCsv(const std::string &path)
         fprintf(stderr,
                 "KitePlugin: RAW height stats (meters): minZ=%.3f at i=%zu (t=%.3f), maxZ=%.3f\n",
                 minZ, minZi, m_frames[minZi].t, maxZ);
+    }
+
+    if (m_geoXform && m_geoModel && m_geoAutoCenter && m_haveGeoBBox && !m_frames.empty())
+    {
+        const auto &f0 = m_frames.front();
+        osg::Vec3 pos = f0.pos * (m_unitsPerMeter * m_worldScale * m_globalPosScale);
+        if (m_useNedFrame)
+            pos = osg::Vec3(pos.y(), pos.x(), -pos.z());
+
+        const double d2r = M_PI / 180.0;
+        osg::Matrix rot = osg::Matrix::rotate(m_geoYawDeg * d2r, osg::Vec3(0, 0, 1));
+        osg::Vec3 centerLocal = m_geoBBox.center();
+        osg::Vec3 centerScaled = centerLocal * m_geoScale;
+        osg::Vec3 centerRot = rot.preMult(centerScaled);
+
+        osg::Vec3 newPos = m_geoPos;
+        newPos.x() += pos.x() - centerRot.x();
+        newPos.y() += pos.y() - centerRot.y();
+        if (m_geoAutoGround)
+            newPos.z() += m_groundPos.z() - (m_geoBBox.zMin() * m_geoScale);
+
+        m_geoPos = newPos;
+        m_geoXform->setMatrix(geoTransformMatrix(m_geoPos, m_geoScale, m_geoYawDeg));
+
+        fprintf(stderr,
+                "KitePlugin: geo auto-center applied: pos=(%.2f %.2f %.2f) target=(%.2f %.2f %.2f)\n",
+                m_geoPos.x(), m_geoPos.y(), m_geoPos.z(),
+                pos.x(), pos.y(), pos.z());
     }
 }
 

@@ -226,6 +226,18 @@ private:
     float m_groundSize_m = 600.0f;
     float m_groundZOffset_m = 0.0f;
     float m_targetTether_m = 300.0f;
+
+    // Optional geodata (terrain/VRML/etc)
+    std::string m_geoModelPath;
+    osg::ref_ptr<osg::MatrixTransform> m_geoXform;
+    osg::ref_ptr<osg::Node> m_geoModel;
+    osg::Vec3 m_geoPos = osg::Vec3(0.f, 0.f, 0.f);
+    float m_geoScale = 1.0f;
+    float m_geoYawDeg = 0.0f;
+    bool m_geoAutoCenter = false;
+    bool m_geoAutoGround = false;
+    osg::BoundingBox m_geoBBox;
+    bool m_haveGeoBBox = false;
 };
 
 #endif // KITE_PLUGIN_H
