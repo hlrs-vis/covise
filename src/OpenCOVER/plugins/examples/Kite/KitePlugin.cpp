@@ -83,8 +83,8 @@ static osg::Matrix geoTransformMatrix(const osg::Vec3 &pos, float scale, float y
 
 bool KitePlugin::init()
 {
-    auto modelEntry = coCoviseConfig::getEntry("value", "KitePlugin.Model", "");
-    m_csvPath = coCoviseConfig::getEntry("value", "KitePlugin.CSV", "");
+    auto modelEntry = coCoviseConfig::getEntry("value", "COVER.Plugin.KitePlugin.Model", "");
+    m_csvPath = coCoviseConfig::getEntry("value", "COVER.Plugin.KitePlugin.CSV", "");
 
     auto toLowerCopy = [](std::string s) {
         std::transform(s.begin(), s.end(), s.begin(),
@@ -113,76 +113,76 @@ bool KitePlugin::init()
         return false;
     };
 
-    const std::string nedEntry = coCoviseConfig::getEntry("value", "KitePlugin.NED", "");
+    const std::string nedEntry = coCoviseConfig::getEntry("value", "COVER.Plugin.KitePlugin.NED", "");
     if (!nedEntry.empty())
     {
-        m_useNedFrame = coCoviseConfig::isOn("KitePlugin.NED", m_useNedFrame);
+        m_useNedFrame = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.NED", m_useNedFrame);
         m_frameAuto = false;
     }
-    const std::string frameEntry = coCoviseConfig::getEntry("value", "KitePlugin.Frame", "");
+    const std::string frameEntry = coCoviseConfig::getEntry("value", "COVER.Plugin.KitePlugin.Frame", "");
     if (!frameEntry.empty())
         applyFrameMode(frameEntry);
-    m_rollSign = coCoviseConfig::getFloat("KitePlugin.RollSign", m_rollSign);
-    m_pitchSign = coCoviseConfig::getFloat("KitePlugin.PitchSign", m_pitchSign);
-    m_yawSign = coCoviseConfig::getFloat("KitePlugin.YawSign", m_yawSign);
-    m_rollOffsetDeg = coCoviseConfig::getFloat("KitePlugin.RollOffset", m_rollOffsetDeg);
-    m_pitchOffsetDeg = coCoviseConfig::getFloat("KitePlugin.PitchOffset", m_pitchOffsetDeg);
-    m_yawOffsetDeg = coCoviseConfig::getFloat("KitePlugin.YawOffset", m_yawOffsetDeg);
+    m_rollSign = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.RollSign", m_rollSign);
+    m_pitchSign = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.PitchSign", m_pitchSign);
+    m_yawSign = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.YawSign", m_yawSign);
+    m_rollOffsetDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.RollOffset", m_rollOffsetDeg);
+    m_pitchOffsetDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.PitchOffset", m_pitchOffsetDeg);
+    m_yawOffsetDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.YawOffset", m_yawOffsetDeg);
 
     // Rope config (optional)
-    m_ropeEnabled = coCoviseConfig::isOn("KitePlugin.RopeEnabled", m_ropeEnabled);
-    // m_ropeRadius = coCoviseConfig::getFloat("KitePlugin.RopeRadius", m_ropeRadius);
-    m_ropeRadius = coCoviseConfig::getFloat("KitePlugin.RopeRadius", m_ropeRadius);
+    m_ropeEnabled = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.RopeEnabled", m_ropeEnabled);
+    // m_ropeRadius = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.RopeRadius", m_ropeRadius);
+    m_ropeRadius = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.RopeRadius", m_ropeRadius);
     if (m_ropeRadius <= 0.f)
         m_ropeRadius = 0.05f; // force visible default
 
-    m_ropeSagFactor = coCoviseConfig::getFloat("KitePlugin.RopeSagFactor", m_ropeSagFactor);
-    m_ropeSagMax = coCoviseConfig::getFloat("KitePlugin.RopeSagMax", m_ropeSagMax);
-    m_ropeSamplesMain = (int)coCoviseConfig::getFloat("KitePlugin.RopeSamplesMain", (float)m_ropeSamplesMain);
-    m_ropeSamplesBridle = (int)coCoviseConfig::getFloat("KitePlugin.RopeSamplesBridle", (float)m_ropeSamplesBridle);
+    m_ropeSagFactor = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.RopeSagFactor", m_ropeSagFactor);
+    m_ropeSagMax = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.RopeSagMax", m_ropeSagMax);
+    m_ropeSamplesMain = (int)coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.RopeSamplesMain", (float)m_ropeSamplesMain);
+    m_ropeSamplesBridle = (int)coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.RopeSamplesBridle", (float)m_ropeSamplesBridle);
 
-    m_drawFullTether = coCoviseConfig::isOn("KitePlugin.DrawFullTether", m_drawFullTether);
-    m_fullTetherAlpha = coCoviseConfig::getFloat("KitePlugin.FullTetherAlpha", m_fullTetherAlpha);
-    m_focusTetherAlpha = coCoviseConfig::getFloat("KitePlugin.FocusTetherAlpha", m_focusTetherAlpha);
+    m_drawFullTether = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.DrawFullTether", m_drawFullTether);
+    m_fullTetherAlpha = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.FullTetherAlpha", m_fullTetherAlpha);
+    m_focusTetherAlpha = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.FocusTetherAlpha", m_focusTetherAlpha);
 
-    m_tetherFade = coCoviseConfig::isOn("KitePlugin.TetherFade", m_tetherFade);
-    m_tetherNearLen_m = coCoviseConfig::getFloat("KitePlugin.TetherNearLen_m", m_tetherNearLen_m);
+    m_tetherFade = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.TetherFade", m_tetherFade);
+    m_tetherNearLen_m = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.TetherNearLen_m", m_tetherNearLen_m);
 
-    m_tetherSagBoost = coCoviseConfig::getFloat("KitePlugin.TetherSagBoost", m_tetherSagBoost);
-    m_tetherSagMaxLong_m = coCoviseConfig::getFloat("KitePlugin.TetherSagMaxLong_m", m_tetherSagMaxLong_m);
+    m_tetherSagBoost = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.TetherSagBoost", m_tetherSagBoost);
+    m_tetherSagMaxLong_m = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.TetherSagMaxLong_m", m_tetherSagMaxLong_m);
 
-    m_tetherLineWidthNear = coCoviseConfig::getFloat("KitePlugin.TetherLineWidthNear", m_tetherLineWidthNear);
-    m_tetherLineWidthFar = coCoviseConfig::getFloat("KitePlugin.TetherLineWidthFar", m_tetherLineWidthFar);
+    m_tetherLineWidthNear = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.TetherLineWidthNear", m_tetherLineWidthNear);
+    m_tetherLineWidthFar = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.TetherLineWidthFar", m_tetherLineWidthFar);
 
-    m_tetherAlphaNear = coCoviseConfig::getFloat("KitePlugin.TetherAlphaNear", m_tetherAlphaNear);
-    m_tetherAlphaFar = coCoviseConfig::getFloat("KitePlugin.TetherAlphaFar", m_tetherAlphaFar);
+    m_tetherAlphaNear = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.TetherAlphaNear", m_tetherAlphaNear);
+    m_tetherAlphaFar = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.TetherAlphaFar", m_tetherAlphaFar);
 
-    m_snapAnchorsToSurface = coCoviseConfig::isOn("KitePlugin.SnapAnchorsToSurface", m_snapAnchorsToSurface);
-    m_anchorLift_m = coCoviseConfig::getFloat("KitePlugin.AnchorLift_m", m_anchorLift_m);
-    m_snapRayUp_m = coCoviseConfig::getFloat("KitePlugin.SnapRayUp_m", m_snapRayUp_m);
-    m_snapRayDown_m = coCoviseConfig::getFloat("KitePlugin.SnapRayDown_m", m_snapRayDown_m);
+    m_snapAnchorsToSurface = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.SnapAnchorsToSurface", m_snapAnchorsToSurface);
+    m_anchorLift_m = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.AnchorLift_m", m_anchorLift_m);
+    m_snapRayUp_m = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.SnapRayUp_m", m_snapRayUp_m);
+    m_snapRayDown_m = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.SnapRayDown_m", m_snapRayDown_m);
 
-    m_groundPos.x() = coCoviseConfig::getFloat("KitePlugin.GroundPosX", m_groundPos.x());
-    m_groundPos.y() = coCoviseConfig::getFloat("KitePlugin.GroundPosY", m_groundPos.y());
-    m_groundPos.z() = coCoviseConfig::getFloat("KitePlugin.GroundPosZ", m_groundPos.z());
-    m_showGround = coCoviseConfig::isOn("KitePlugin.ShowGround", m_showGround);
-    m_worldScale = coCoviseConfig::getFloat("KitePlugin.WorldScale", m_worldScale);
-    m_targetTether_m = coCoviseConfig::getFloat("KitePlugin.TargetTether_m", m_targetTether_m);
-    m_focusMode = coCoviseConfig::isOn("KitePlugin.FocusMode", m_focusMode);
-    m_focusTetherLen_m = coCoviseConfig::getFloat("KitePlugin.FocusTetherLen_m", m_focusTetherLen_m);
+    m_groundPos.x() = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.GroundPosX", m_groundPos.x());
+    m_groundPos.y() = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.GroundPosY", m_groundPos.y());
+    m_groundPos.z() = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.GroundPosZ", m_groundPos.z());
+    m_showGround = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.ShowGround", m_showGround);
+    m_worldScale = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.WorldScale", m_worldScale);
+    m_targetTether_m = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.TargetTether_m", m_targetTether_m);
+    m_focusMode = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.FocusMode", m_focusMode);
+    m_focusTetherLen_m = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.FocusTetherLen_m", m_focusTetherLen_m);
 
-    m_geoModelPath = coCoviseConfig::getEntry("value", "KitePlugin.GeoModel", "");
-    m_geoPos.x() = coCoviseConfig::getFloat("KitePlugin.GeoPosX", m_geoPos.x());
-    m_geoPos.y() = coCoviseConfig::getFloat("KitePlugin.GeoPosY", m_geoPos.y());
-    m_geoPos.z() = coCoviseConfig::getFloat("KitePlugin.GeoPosZ", m_geoPos.z());
-    m_geoScale = coCoviseConfig::getFloat("KitePlugin.GeoScale", m_geoScale);
-    m_geoYawDeg = coCoviseConfig::getFloat("KitePlugin.GeoYawDeg", m_geoYawDeg);
-    m_geoAutoCenter = coCoviseConfig::isOn("KitePlugin.GeoAutoCenter", m_geoAutoCenter);
-    m_geoAutoGround = coCoviseConfig::isOn("KitePlugin.GeoAutoGround", m_geoAutoGround);
+    m_geoModelPath = coCoviseConfig::getEntry("value", "COVER.Plugin.KitePlugin.GeoModel", "");
+    m_geoPos.x() = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.GeoPosX", m_geoPos.x());
+    m_geoPos.y() = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.GeoPosY", m_geoPos.y());
+    m_geoPos.z() = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.GeoPosZ", m_geoPos.z());
+    m_geoScale = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.GeoScale", m_geoScale);
+    m_geoYawDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.GeoYawDeg", m_geoYawDeg);
+    m_geoAutoCenter = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.GeoAutoCenter", m_geoAutoCenter);
+    m_geoAutoGround = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.GeoAutoGround", m_geoAutoGround);
 
-    m_junctionLocal.x() = coCoviseConfig::getFloat("KitePlugin.JunctionLocalX", m_junctionLocal.x());
-    m_junctionLocal.y() = coCoviseConfig::getFloat("KitePlugin.JunctionLocalY", m_junctionLocal.y());
-    m_junctionLocal.z() = coCoviseConfig::getFloat("KitePlugin.JunctionLocalZ", m_junctionLocal.z());
+    m_junctionLocal.x() = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.JunctionLocalX", m_junctionLocal.x());
+    m_junctionLocal.y() = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.JunctionLocalY", m_junctionLocal.y());
+    m_junctionLocal.z() = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.JunctionLocalZ", m_junctionLocal.z());
 
     auto envToBool = [](const char *name, bool value) {
         if (const char *env = std::getenv(name))
@@ -220,18 +220,15 @@ bool KitePlugin::init()
 
     if (modelEntry.empty())
     {
-        if (const char *env = std::getenv("KITE_MODEL"))
-            modelEntry = env;
+        modelEntry = coCoviseConfig::getEntry("value", "COVER.Plugin.KitePlugin.Model", "");
     }
     if (m_csvPath.empty())
     {
-        if (const char *env = std::getenv("KITE_CSV"))
-            m_csvPath = env;
+        m_csvPath = coCoviseConfig::getEntry("value", "COVER.Plugin.KitePlugin.CSV", "");
     }
     if (m_geoModelPath.empty())
     {
-        if (const char *env = std::getenv("KITE_GEO_MODEL"))
-            m_geoModelPath = env;
+        m_geoModelPath = coCoviseConfig::getEntry("value", "COVER.Plugin.KitePlugin.GeoModel", "");
     }
 
     if (std::getenv("KITE_NED"))
@@ -265,9 +262,9 @@ bool KitePlugin::init()
     m_geoAutoCenter = envToBool("KITE_GEO_AUTO_CENTER", m_geoAutoCenter);
     m_geoAutoGround = envToBool("KITE_GEO_AUTO_GROUND", m_geoAutoGround);
 
-    double modelRollDeg = coCoviseConfig::getFloat("KitePlugin.ModelOffsetRoll", 0.0);
-    double modelPitchDeg = coCoviseConfig::getFloat("KitePlugin.ModelOffsetPitch", 0.0);
-    double modelYawDeg = coCoviseConfig::getFloat("KitePlugin.ModelOffsetYaw", 0.0);
+    double modelRollDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.ModelOffsetRoll", 0.0);
+    double modelPitchDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.ModelOffsetPitch", 0.0);
+    double modelYawDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.ModelOffsetYaw", 0.0);
     modelRollDeg = envToDouble("KITE_MODEL_OFFSET_ROLL", modelRollDeg);
     modelPitchDeg = envToDouble("KITE_MODEL_OFFSET_PITCH", modelPitchDeg);
     modelYawDeg = envToDouble("KITE_MODEL_OFFSET_YAW", modelYawDeg);
