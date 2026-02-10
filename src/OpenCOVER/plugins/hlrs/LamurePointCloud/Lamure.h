@@ -301,7 +301,6 @@ public:
 
     bool writeSettingsJson(const Lamure::Settings& s, const std::string& outPath);
     bool rendering_{false};
-    void dumpSettings(const char* tag = "");
     template <typename... Args>
     void logInfo(Args&&... args) const {
         if (!m_settings.show_notify)
