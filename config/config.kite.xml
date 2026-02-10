@@ -21,8 +21,8 @@
       <!-- Kite Plugin Configuration -->
       <KitePlugin>
         <!-- Model and data files -->
-        <Model value="/home/hpcsmand/kite-data/kite.stl" />
-        <CSV value="/home/hpcsmand/kite-data/flight.csv" />
+        <Model value="/data/MERIDIONAL/kitedata/kite.stl" />
+        <CSV value="/data/MERIDIONAL/kitedata/flight.csv" />
         
         <!-- Geographic model settings -->
         <GeoModel value="/data/StuttgartForecast/stuttgart_offset.wrl" />
