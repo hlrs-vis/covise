@@ -26,10 +26,23 @@
 #include "QtOsgWidget.h"
 
 #include <QOpenGLWidget>
+#include <QOpenGLContext>
+#include <QWindow>
 #include <iostream>
+#include <cstdlib>
 
 void QtGraphicsWindow::setSyncToVBlank(bool flag)
 {
+    // Set NVIDIA-specific environment variable for VSync
+    // This works with __NV_PRIME_RENDER_OFFLOAD and hybrid GPU setups
+    if (flag) {
+        putenv((char *)"__GL_SYNC_TO_VBLANK=1");
+        std::cout << "setSyncToVBlank: Set __GL_SYNC_TO_VBLANK=1 (GPU global)" << std::endl;
+    } else {
+        putenv((char *)"__GL_SYNC_TO_VBLANK=0");
+        std::cout << "setSyncToVBlank: Set __GL_SYNC_TO_VBLANK=0 (GPU global)" << std::endl;
+    }
+
 #if defined(USE_X11)
     auto wid = m_glWidget->effectiveWinId();
     if (wid == 0)
@@ -56,7 +69,10 @@ void QtGraphicsWindow::setSyncToVBlank(bool flag)
         }
         dpy = x11App->display();
     } else if (sessionType == "wayland") {
-        std::cerr << "setSyncToVBlank: Wayland detected, VSync via GLX is not supported." << std::endl;
+        // On Wayland, the environment variable should be sufficient
+        // EGL swap interval control would require active EGL context which we don't have here
+        std::cout << "setSyncToVBlank: Wayland detected, VSync control via __GL_SYNC_TO_VBLANK environment variable" << std::endl;
+        std::cout << "setSyncToVBlank: Note: Actual VSync scheduling depends on Wayland compositor" << std::endl;
         return;
     } else {
         std::cerr << "setSyncToVBlank: Unknown session type: " << sessionType.constData() << std::endl;
@@ -78,8 +94,15 @@ void QtGraphicsWindow::setSyncToVBlank(bool flag)
     const char *s = glXQueryExtensionsString(dpy, screenNumber);
     if(s==nullptr)
     {
-        std::cerr << "no extensions, probably running MESA" << std::endl;
+        std::cerr << "setSyncToVBlank: no GLX extensions, probably running MESA" << std::endl;
         return;
+    }
+
+    // Check for NVIDIA-specific extensions
+    std::string extensions(s);
+    bool hasNvidiaSwap = extensions.find("GLX_NV_swap_group") != std::string::npos;
+    if (hasNvidiaSwap) {
+        std::cout << "setSyncToVBlank: NVIDIA GPU detected (GLX_NV_swap_group present)" << std::endl;
     }
 
     if (!glXSwapIntervalEXT)
@@ -89,6 +112,7 @@ void QtGraphicsWindow::setSyncToVBlank(bool flag)
     }
 
     glXSwapIntervalEXT(dpy, wid, flag ? 1 : 0);
-    std::cout << "setSyncToVBlank: " << (flag ? "enabled" : "disabled") << " for XScreen " << screenNumber << std::endl;
+    std::cout << "setSyncToVBlank: " << (flag ? "enabled" : "disabled") 
+              << " via GLX for XScreen " << screenNumber << std::endl;
 #endif
 }
