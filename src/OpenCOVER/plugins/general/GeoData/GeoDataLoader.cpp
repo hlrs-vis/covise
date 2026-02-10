@@ -37,11 +37,13 @@
 #include <osg/Group>
 #include <osg/Geode>
 #include <osg/Geometry>
+#include <osg/CullFace>
 #include <osg/Texture2D>
+#include <osg/TexMat>
 #include <osg/StateSet>
 #include <osg/Material>
 #include <osg/LOD>
-#include <osg/PolygonOffset>
+#include <osg/ShapeDrawable>
 #include <osgUtil/Optimizer>
 #include <osgTerrain/Terrain>
 #include <osgViewer/Renderer>
@@ -56,6 +58,8 @@
 #include <rapidjson/rapidjson.h>
 #include "cover/coVRConfig.h"
 #include <PluginUtil/PluginMessageTypes.h>
+#include <../../../../3rdparty/easyexif/exif.h>
+#include <stdio.h>
 namespace opencover
 {
     namespace ui
@@ -85,7 +89,14 @@ skyEntry::skyEntry(const skyEntry& se)
     name = se.name;
     fileName = se.fileName;
     skyNode = se.skyNode;
+    skyTexture = se.skyTexture;
+    type = se.type;
 }
+
+std::string name;
+std::string fileName;
+osg::ref_ptr<osg::Node> skyNode;
+osg::ref_ptr<osg::Texture2D> skyTexture;
 
 std::string getCoordinates(const std::string& address) {
     using namespace opencover::httpclient::curl;
@@ -235,6 +246,41 @@ bool GeoDataLoader::init()
     datasetList->setText("Choose Datasets");
     datasetList->append("None");
     datasets.clear();
+    TexturedSphere = new osg::Geode;
+    osg::Sphere *_Sphere = new osg::Sphere();
+    _Sphere->setRadius(8000);
+    osg::TessellationHints* hint = new osg::TessellationHints();
+    hint->setDetailRatio(1.0);
+    hint->setCreateBackFace(true);
+    hint->setCreateFrontFace(false);
+    hint->setCreateTextureCoords(true);
+    //hint->setCreateNormals(true);
+    osg::ShapeDrawable *_sphereDrawable = new osg:: ShapeDrawable(_Sphere, hint);
+    _sphereDrawable->setColor(osg::Vec4(1,1,1,1));
+    _sphereDrawable->setUseDisplayList(false); // turn off display list so that we can change the pointer length
+    TexturedSphere->addDrawable(_sphereDrawable);
+    osg::StateSet * stateset = TexturedSphere->getOrCreateStateSet();
+    stateset->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+    osg::Material* spheremtl = new osg::Material;
+    spheremtl->setColorMode(osg::Material::OFF);
+    spheremtl->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(1,1,1,1));
+    spheremtl->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(1, 1, 1, 1));
+    spheremtl->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
+    spheremtl->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
+    spheremtl->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
+    stateset->setAttributeAndModes(spheremtl, osg::StateAttribute::ON);
+    texMat = new osg::TexMat();
+    osg::Matrixd tMat;
+    tMat.makeIdentity();
+    tMat(0, 0) = -1;
+    tMat(1, 1) = 1;
+    tMat(2, 2) = 1;
+    texMat->setMatrix(tMat);
+    stateset->setTextureAttributeAndModes(0,texMat, osg::StateAttribute::ON);
+    osg::CullFace* cF = new osg::CullFace();
+    cF->setMode(osg::CullFace::BACK);
+    stateset->setAttributeAndModes(cF, osg::StateAttribute::OFF);
+        TexturedSphere->setStateSet(stateset);
 
     auto datasetEntries = configFile->entries("datasets");
     
@@ -509,15 +555,52 @@ bool GeoDataLoader::init()
     try {
         for (const auto& entry : fs::directory_iterator(skyPath))
         {
-            if (entry.is_regular_file() && entry.path().extension() == ".wrl") {
+            if (entry.is_regular_file() && ((entry.path().extension() == ".wrl") || (entry.path().extension() == ".WRL"))) {
                 std::string name = entry.path().filename().string();
                 skyEntry se(name.substr(0, name.length() - 4),entry.path().string());
+                se.fileName = name;
                 skyEntries.push_back(se);
                 skys->append(se.name);
                 if (skyNumber == defaultSky)
                 {
-                    currentSkyNode = coVRFileManager::instance()->loadFile(entry.path().string().c_str(), nullptr, skyRootNode);
-                    se.skyNode = currentSkyNode;
+                    setSky(skyNumber);
+                }
+                skyNumber++;
+            }
+            if (entry.is_regular_file() && ((entry.path().extension() == ".jpg") || (entry.path().extension() == ".JPG"))) {
+                std::string name = entry.path().filename().string();
+                skyEntry se(name.substr(0, name.length() - 4), entry.path().string());
+                se.fileName = name;
+                se.type = skyEntry::texture;
+                FILE* fp = fopen(entry.path().string().c_str(), "rb");
+                if(fp == nullptr) {
+                    printf("Can't open file %s.\n",entry.path().string().c_str());
+                    return -1;
+                }
+                else
+                {
+
+                    int toread = 400000;
+                    //fseek(fp, -toread, SEEK_END);
+                    //unsigned long fsize = ftell(fp);
+                    int bsize;
+                    unsigned char* buf = new unsigned char[toread];
+                    bsize = fread(buf, 1, toread, fp);
+                    fclose(fp);
+
+                    // Parse EXIF
+                    easyexif::EXIFInfo result;
+                    int code = result.parseFrom(buf, bsize);
+                    delete[] buf;
+                    if (code) {
+                        printf("Error parsing EXIF: code %d\n", code);
+                    }
+                }
+                skyEntries.push_back(se);
+                skys->append(se.name);
+                if (skyNumber == defaultSky)
+                {
+                    setSky(skyNumber);
                 }
                 skyNumber++;
             }
@@ -599,17 +682,43 @@ void GeoDataLoader::setSky(int selection)
         {
             if (n == selection)
             {
-                if (sky.skyNode != nullptr)
+                if (sky.type == skyEntry::geometry)
                 {
-                    skyRootNode->addChild(sky.skyNode);
-                    currentSkyNode = sky.skyNode;
+                    if (sky.skyNode != nullptr)
+                    {
+                        skyRootNode->addChild(sky.skyNode);
+                    }
+                    else
+                    {
+                        sky.skyNode = coVRFileManager::instance()->loadFile((skyPath + "/" + sky.fileName).c_str(), nullptr, skyRootNode);
+                        skyRootNode->addChild(sky.skyNode);
+                    }
                 }
                 else
                 {
-                    sky.skyNode = coVRFileManager::instance()->loadFile((skyPath + "/" + skys->items()[selection] + ".wrl").c_str(), nullptr, skyRootNode);
+                    sky.skyNode = TexturedSphere;
+                    if (sky.skyTexture == nullptr)
+                    {
+                        sky.skyTexture = coVRFileManager::instance()->loadTexture((skyPath + "/" + sky.fileName).c_str());
+                        sky.skyTexture->setWrap(osg::Texture::WRAP_R, osg::Texture::REPEAT);
+                        sky.skyTexture->setWrap(osg::Texture::WRAP_S, osg::Texture::REPEAT);
+                        sky.skyTexture->setWrap(osg::Texture::WRAP_T, osg::Texture::REPEAT);
+                        sky.skyTexture->setResizeNonPowerOfTwoHint(false);
+                    }
+                    osg::StateSet* stateset = TexturedSphere->getOrCreateStateSet();
+                    stateset->setTextureAttributeAndModes(0, sky.skyTexture, osg::StateAttribute::ON);
 
-                    currentSkyNode = sky.skyNode;
+                    osg::Matrixd tMat;
+                    tMat.makeIdentity();
+                    tMat(0, 0) = -1.0;
+                    tMat(1, 1) = 1.0;
+                    tMat(2, 2) = 1.0;
+                    texMat->setMatrix(tMat);
+                    stateset->setTextureAttributeAndModes(0,texMat, osg::StateAttribute::ON);
+                    skyRootNode->addChild(sky.skyNode);
+
                 }
+                currentSkyNode = sky.skyNode;
             }
             n++;
         }
@@ -726,11 +835,6 @@ osg::ref_ptr<osg::Node> GeoDataLoader::loadTerrain(std::string filename, osg::Ve
         terrainStateSet->setMode(GL_LIGHT0, osg::StateAttribute::ON);
         //terrainStateSet->setMode ( GL_LIGHT1, osg::StateAttribute::ON);
 
-        /*osg::StateSet* terrainStateSet = terrain->getOrCreateStateSet();
-      osg::PolygonOffset* offset = new osg::PolygonOffset(1.0, 1.0);
-      osg::PolygonOffset* offset = new osg::PolygonOffset(0.0, 0.0);
-      terrainStateSet->setAttributeAndModes(offset, osg::StateAttribute::OVERRIDE|osg::StateAttribute::ON
-      */
         //osgUtil::Optimizer optimizer;
         //optimizer.optimize(terrain);
 
