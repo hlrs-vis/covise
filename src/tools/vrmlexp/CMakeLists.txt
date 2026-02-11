@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 3.5)
 project (VRMLEXP)
 
 SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../../../cmake;${CMAKE_MODULE_PATH}")
@@ -181,9 +181,9 @@ set_property(TARGET Vrmlexp PROPERTY CXX_STANDARD 17)
       "$<TARGET_FILE:Vrmlexp>"
       ${3DSMAX_STDPLUGS_DIR} 
    COMMENT "Copying lib to output directory")
- add_custom_command(TARGET Vrmlexp POST_BUILD debug
+ add_custom_command(TARGET Vrmlexp POST_BUILD
    COMMAND "${CMAKE_COMMAND}" -E copy 
-      "$<TARGET_FILE_DIR:Vrmlexp>\\vrmlexp.pdb"
+      "$<TARGET_PDB_FILE:Vrmlexp>"
       ${3DSMAX_STDPLUGS_DIR} 
    COMMENT "Copying pdb to output directory")
 

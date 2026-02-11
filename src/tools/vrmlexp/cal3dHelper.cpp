@@ -19,7 +19,6 @@ HISTORY: created 25 Apr. 2011
 **********************************************************************/
 #ifndef NO_CAL3D
 #include "vrml.h"
-#include "bookmark.h"
 #include "cal3dHelper.h"
 
 // Parameter block indices

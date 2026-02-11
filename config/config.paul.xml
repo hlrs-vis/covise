@@ -1,0 +1,314 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+    <GLOBAL>
+        <Module>
+            <IHS>
+                <DataPath value="/data/IHS/" />
+                <GateBladeMin value="-20" />
+                <GateBladeMax value="8" />
+            </IHS>
+
+            <Material>
+                <MaterialDefinition name="bronze" ambient="0.0787879 0.0186424 0" diffuse="0.315152 0.0745695 0" specular="0.508861 0.684007 0.326263"  emissive="0 0 0" shininess="0.0363636" transparency="0" />
+            </Material>
+        </Module>
+
+        <System>
+            <WSInterface value="false" />
+
+            <CRB>
+                <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/Renderer" />
+                <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/VRRenderer" />
+                <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER" />
+                <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER_VRML" />
+                <ModuleAlias value="IO/ReadCGNS-spbgpu" name="IO/ReadCGNS" />
+            </CRB>
+        </System>
+
+        <COVER>
+            <UI>
+                <VRUI toolbar="false" />
+                <NavigationManager>
+                    <Navigation>
+                        <!--MoveWorld parent="" /-->
+                        <ViewAll parent="" />
+                        <Snap parent="" />
+                        <Modes>
+                            <Scale parent="" />
+                            <SelectInteract parent="" />
+                            <!--Drive parent="" /-->
+                        </Modes>
+                    </Navigation>
+                </NavigationManager>
+                <Manager>
+                    <ViewOptions>
+                        <TrackHead parent="" />
+                        <!--Lighting parent="" /-->
+                    </ViewOptions>
+                </Manager>
+            </UI>
+
+            <!--GLVersion value="3.0" /-->
+            <!--GLDebug value="true" level="2" /-->
+            <Snap value="ON" />
+            <DebugTUI value="OFF" />
+
+            <!--LODScale value="0.000000000001" /-->
+            <DepthPeeling value="false" />
+            <LODScale value="1" />
+
+            <SyncToVBlank value="OFF" device="DFP-0" />
+
+            <!-- <CudaNumThreads value="128" />         -->
+            <!-- <TabletUI host="127.0.0.1" port="31802" /> -->
+            <CheckForOpenGLErrors value="true" />
+            <!-- <ContinuousRendering value="true" /> -->
+            <!-- <UseVertexBufferObjects value="false" /> -->
+            <!-- <UseDisplayLists value="true" /> -->
+            <NavigationMode value="XForm" />
+            <AnimationSpeed min="0.0" max="25.0" default="24.0" />
+            <MultiThreaded value="off" />
+            <FramebufferSRGB value="false" />
+            <StencilBits value="8" />
+            <Stencil value="true" />
+
+            <VRUI>
+                <!-- position of transfer editor menu /-->
+                <!--TFE>
+                    <Menu>
+                    <Orientation h="-90" p="0" r="0" />
+                    <Position x="1400" y="-500" z="500" />
+                    </Menu>
+                </TFE-->
+                <!--position of error message window (PDBplugin) /-->
+                <!--Messages>
+                    <Menu>
+                    <Size value="0.15" />
+                    <Position x="100" y="0" z="120" />
+                    </Menu>
+                </Messages-->
+                <VNC>
+                    <Menu>
+                        <Orientation h="-90" p="0" r="0" />
+                        <Position x="1400" y="-500" z="500" />
+                    </Menu>
+                </VNC>
+            </VRUI>
+
+            <Input>
+                <MouseNav value="ON" />
+                <!-- <Keyboard terminal="on" evdev="/dev/input/coverkeys" /> -->
+            </Input>
+
+            <!--Console value="on" file="/tmp/coverlog"/-->
+            <Plugin>
+                <PBufferSnapShot menu="true" />
+                <Video menu="true" />
+                <CompositorIceT menu="false" />
+                <ViewPoint value="true" />
+                <Measure menu="true" />
+                <PointCloud shared="true">
+                    <PointSize value="4" />
+                </PointCloud>
+                <Bullet value="off" />
+                <Earth value="off" />
+                <COVERScript value="off" />
+                <cuCuttingSurface value="off" />
+                <cuIsoSurface value="off" />
+                <SGBrowser value="on" />
+                <Volume value="off" />
+                <TouchTable value="off" />
+                <CaveCAD>
+                    <DataDir value="/data/calit2/CaveCAD" />
+                </CaveCAD>
+                <Maze>
+                    <DataDir value="/data/calit2/maze" />
+                </Maze>
+
+                <Vrml97 value="on" >    
+                    <!--SmallTextures value="true" /-->
+                    <!--MaxTextureSize value="1024" /-->
+                    <ViewpointType value = "standardNoFov"/>
+                    <Audio value="Osc">
+                        <Host value="localhost" port="8000" />
+                    </Audio>
+                    <ViewpointType value = "standardNoFov"/>
+                    <!--<UseFieldOfViewForScaling value="on" />-->
+                </Vrml97>
+
+                <DistortViewer value="off" />
+                <Move value="off" menu="true" />
+                <ClipPlane value="on" />
+                <PLMXML value="off">
+                    <LoadSTL value="false" />
+                    <LoadVRML value="true" />
+                    <UndoVRMLRotate value="false" />
+                </PLMXML>
+
+                <AKToolbar value="false" menu="false">
+                    <Attachment value="TOP" />
+                    <Scale value=".7" />
+                    <MinClickTime value="0.2" />
+                    <Position x="-900" y="0" z="360" />
+                    <ShortCut value="viewall" name="viewall" />
+                    <ShortCut value="scale" name="scale" />
+                    <ShortCut value="xform" name="xform" />
+                    <ShortCut value="walk" name="walk" />
+                    <ShortCut value="drive" name="drive" />
+                    <ShortCut value="fly" name="fly" />
+                </AKToolbar>
+
+                <Amber value="off"/>  
+                <StereoVideoPlayer>
+                    <MoviePlayer value="ffmpeg"/>
+                    <AudioOffset value="0.0"/>
+                </StereoVideoPlayer>
+
+                <StereoVideoPlayer>
+                    <AudioOffset value="0.0" />
+                </StereoVideoPlayer>
+
+                <Revit value="off" shared="on"/>
+
+
+
+                <Traffic>
+                    <VehicleClasses>
+                        <pedestrian>
+                            <GeometryType value="character" />
+
+                            <Models>
+                                <CH02_01 value="0.04" />
+                                <CH02_02 value="0.04" />
+                                <CH02_03 value="0.04" />
+                                <CH02_04 value="0.04" />
+                                <CH02_05 value="0.04" />
+                                <CH02_06 value="0.04" />
+                                <CH02_07 value="0.04" />
+                                <CH02_08 value="0.04" />
+                                <CH02_09 value="0.04" />
+                                <CH02_10 value="0.04" />
+
+                                <CP01_01 value="0.02" />
+                                <CP01_02 value="0.04" />
+                                <CP01_03 value="0.04" />
+                                <CP01_04 value="0.04" />
+                                <CP01_05 value="0.04" />
+                                <CP01_06 value="0.04" />
+                                <CP01_07 value="0.04" />
+                                <CP01_08 value="0.04" />
+                                <CP01_09 value="0.04" />
+                                <CP01_10 value="0.04" />
+
+                                <CW_01 value="0.04" />
+                                <CW_02 value="0.04" />
+                                <CW_03 value="0.04" />
+                                <CW_04 value="0.04" />
+                                <CW_05 value="0.04" />
+                                <CW_06 value="0.04" />
+                                <CW_07 value="0.04" />
+                                <CW_08 value="0.04" />
+                                <CW_09 value="0.04" />
+                                <CW_10 value="0.04" />
+
+                                <ST01_01 value="0.04" />
+                                <ST01_02 value="0.04" />
+                                <ST01_03 value="0.04" />
+                                <ST01_04 value="0.04" />
+                                <ST01_05 value="0.04" />
+                                <ST01_06 value="0.04" />
+                                <ST01_07 value="0.04" />
+                                <ST01_08 value="0.04" />
+                                <ST01_09 value="0.04" />
+                                <ST01_10 value="0.04" />
+                            </Models>
+                        </pedestrian>
+
+                        <bicycle>
+                            <Models>
+                                <bicycle value="/data/vehicles/bicycle/bicycle.glb" />
+                            </Models>
+                        </bicycle>
+
+                        <passenger>
+                            <Models>
+                                <audi_a4 value="/data/vehicles/car/audi_a4.glb" />
+                                <audi_r8 value="/data/vehicles/car/audi_r8.glb" />
+                                <audi_tt value="/data/vehicles/car/audi_tt.glb" />
+                                <bmw_z3 value="/data/vehicles/car/bmw_z3.glb" />
+                                <ford_ka value="/data/vehicles/car/ford_ka.glb" />
+                                <honda_civic value="/data/vehicles/car/honda_civic.glb" />
+                                <renault_clio value="/data/vehicles/car/renault_clio.glb" />
+                                <seat_ibiza value="/data/vehicles/car/seat_ibiza.glb" />
+                                <smart value="/data/vehicles/car/smart.glb" />
+                                <toyota_landcruiser value="/data/vehicles/car/toyota_landcruiser.glb" />
+                                <volvo value="/data/vehicles/car/volvo.glb" />
+                                <vw_golf3 value="/data/vehicles/car/vw_golf3.glb" />
+                            </Models>
+                        </passenger>
+
+                        <truck>
+                            <Models>
+                                <daf_low value="/data/vehicles/truck/daf_low.glb" />
+                            </Models>
+                        </truck>
+
+                        <bus>
+                            <Models>
+                                <shuttle value="/data/vehicles/bus/shuttle.glb" />
+                                <citaro value="/data/vehicles/bus/citaro.glb" />
+                            </Models>
+                        </bus>
+
+                        <escooter>
+                            <Models>
+                                <ElectricScooter value="/data/campus/Scooter/scooterOnly.WRL"/>
+                                <ElectricScooter_ST01_09 value="/data/campus/Scooter/scooterFemaleRiderScaleNew.WRL"/>
+                            </Models>
+                        </escooter>
+                    </VehicleClasses>
+                </Traffic>
+            </Plugin>
+
+            <Menu>
+                <Position x="800" y="0" z="500" />
+            </Menu>
+            <ViewerPosition x="0" y="-400" z="0" />
+            <SceneSize value="100" />
+            <DebugLevel value="1" />
+            <StereoSeparation value="false" />
+            <FPS value="true" />
+
+            <PipeConfig>
+                <Pipe name="0" useDISPLAY="true" />
+            </PipeConfig>
+
+            <WindowConfig>
+                <!--Window ARCH="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" top="0" name="0" decoration="false" /-->
+                <!--Window ARCH="unix" width="1280" comment="FRONT" window="0" pipeIndex="0" height="720" left="0" top="0" name="0" decoration="true" /-->
+                <!--Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" decoration="false" /-->
+                <Window type="Qt" width="1024" comment="FRONT" window="0" pipeIndex="0" height="576" left="100" top="100" name="0" embedded="false" decoration="true" />
+            </WindowConfig>
+
+            <ScreenConfig>
+                <!--Screen value="FRONT 400 300 0 0 0 0.0 0.0 0.0" name="0" screen="0" /-->
+                <Screen width="595" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="335" p="0.0" r="0.0" name="0" screen="0" />
+            </ScreenConfig>
+
+
+            <ViewportConfig>
+                <!-- each channel needs at least one Viewport -->
+                <Viewport width="1" height="1" left="0" bottom="0" windowIndex="0" channelIndex="0" name="0"  />
+            </ViewportConfig>
+            <!--Background r="1.0" g="1.0" b="1.0"/-->
+        </COVER>
+    </GLOBAL>
+
+    <INCLUDE global="1" configname="sumo" >config-sumo.xml</INCLUDE>
+    <INCLUDE global="1" configname="colormap">config-colormaps.xml</INCLUDE>
+    <!-- <INCLUDE global="1" configname="spray">config-spray.xml</INCLUDE> -->
+    <!-- <INCLUDE global="1" configname="ar">config-ar.xml</INCLUDE> -->
+    <!-- this config is required by the ViNCE Renderer-->
+    <!-- <INCLUDE global="1" configname="vince-base">config-vince-base.xml</INCLUDE> -->
+</COCONFIG>

@@ -113,7 +113,7 @@ public:
 #define CAL3D_CLASS_ID1 0xACA3567
 #define CAL3D_CLASS_ID2 0x0
 
-extern ClassDesc *GetCal3DDesc();
+//extern ClassDesc *GetCal3DDesc();
 
 class Cal3DCreateCallBack;
 

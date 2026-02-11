@@ -14,6 +14,7 @@
 #include "PlayerEsd.h"
 #include "PlayerOpenAL.h"
 #include "PlayerOSS.h"
+#include "PlayerOsc.h"
 #include <cstring>
 
 using std::endl;
@@ -37,43 +38,48 @@ Player *PlayerFactory::createPlayer()
 {
     if (type.empty())
     {
-        //CERR <<  "have to set type" << endl;
+        // CERR <<  "have to set type" << endl;
         return NULL;
     }
 
     if (!strcasecmp(type.c_str(), "Alsa"))
     {
-        //CERR << "PlayerFactory::createPlayer() - going to use Alsa!" << endl;
+        // CERR << "PlayerFactory::createPlayer() - going to use Alsa!" << endl;
         return new PlayerAlsa(listener, threaded, channels, rate, bps, device);
     }
     else if (!strcasecmp(type.c_str(), "Arts"))
     {
-        //CERR << "PlayerFactory::createPlayer() - going to use Arts!" << endl;
+        // CERR << "PlayerFactory::createPlayer() - going to use Arts!" << endl;
         return new PlayerArts(listener, threaded, channels, rate, bps);
     }
     else if (!strcasecmp(type.c_str(), "AServer"))
     {
-        //CERR << "PlayerFactory::createPlayer() - going to use AServer!" << endl;
+        // CERR << "PlayerFactory::createPlayer() - going to use AServer!" << endl;
         return new PlayerAServer(listener, host, port);
     }
     else if (!strcasecmp(type.c_str(), "Esd"))
     {
-        //CERR << "PlayerFactory::createPlayer() - going to use Esd!" << endl;
+        // CERR << "PlayerFactory::createPlayer() - going to use Esd!" << endl;
         return new PlayerEsd(listener, threaded, host);
     }
     else if (!strcasecmp(type.c_str(), "OpenAL"))
     {
-        //CERR << "PlayerFactory::createPlayer() - going to use OpenAL!" << endl;
+        // CERR << "PlayerFactory::createPlayer() - going to use OpenAL!" << endl;
         return new PlayerOpenAL(listener);
     }
     else if (!strcasecmp(type.c_str(), "OSS"))
     {
-        //CERR << "PlayerFactory::createPlayer() - going to use OSS!" << endl;
+        // CERR << "PlayerFactory::createPlayer() - going to use OSS!" << endl;
         return new PlayerOSS(listener, threaded, channels, rate, bps, device);
+    }
+    else if (!strcasecmp(type.c_str(), "Osc"))
+    {
+        // CERR << "PlayerFactory::createPlayer() - going to use OSC!" << endl;
+        return new PlayerOsc(listener, host, port);
     }
     else if (!strcasecmp(type.c_str(), "None"))
     {
-        //CERR << "PlayerFactory::createPlayer() - no audio!" << endl;
+        // CERR << "PlayerFactory::createPlayer() - no audio!" << endl;
         return NULL;
     }
 

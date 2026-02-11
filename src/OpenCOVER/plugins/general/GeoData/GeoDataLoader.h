@@ -23,6 +23,7 @@
 #include <vector>
 #include <osg/PositionAttitudeTransform>
 #include <osgTerrain/Terrain>
+#include <osg/TexMat>
 #include <cover/coVRPlugin.h>
 #include "CutGeometry.h"
 #include <proj.h>
@@ -45,12 +46,15 @@ namespace fs = std::filesystem;
 class skyEntry
 {
 public:
+    enum skyType {texture=0,geometry};
     skyEntry(const std::string& n, const std::string& fn);
     ~skyEntry();
     skyEntry(const skyEntry &se);
     std::string name;
     std::string fileName;
     osg::ref_ptr<osg::Node> skyNode;
+    osg::ref_ptr<osg::Texture2D> skyTexture;
+    skyType type = geometry;
 };
 
 class  GeoDataLoader: public opencover::coVRPlugin, public opencover::ui::Owner
@@ -67,6 +71,8 @@ public:
     osg::Vec3 rootOffset{0.0, 0.0, 0.0};
     float trueNorthDegree = 0.0f;
     float NorthAngle;
+    osg::ref_ptr<osg::Geode> TexturedSphere;
+    osg::TexMat* texMat;
 
     struct geoLocation
     {

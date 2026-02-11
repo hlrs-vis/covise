@@ -233,8 +233,8 @@
    <WindowConfig>
     <!--Window ARCH="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" top="0" name="0" decoration="false" /-->
     <!--Window ARCH="unix" width="1280" comment="FRONT" window="0" pipeIndex="0" height="720" left="0" top="0" name="0" decoration="true" /-->
-    <Window width="3840" comment="FRONT" window="0" pipeIndex="0" height="2160" left="0" top="0" name="0" decoration="true" />
-    <!--Window width="1024" comment="FRONT" window="0" pipeIndex="0" height="576" left="100" top="100" name="0" decoration="true" /-->
+    <!--Window width="3840" comment="FRONT" window="0" pipeIndex="0" height="2160" left="0" top="0" name="0" decoration="true" /-->
+    <Window width="1024" comment="FRONT" window="0" pipeIndex="0" height="576" left="100" top="100" name="0" decoration="true" />
    </WindowConfig>
 
    <ScreenConfig>
@@ -348,7 +348,7 @@
 					<markerBorderBits value="1" />
 					<minSideLengthCanonicalImg value="20" />
 					
-                    <VideoDevice value="1" width="1920" height="1080" />
+                    <VideoDevice value="0" width="1920" height="1080" />
                     <CameraCalibrationFile value="/data/MarkerTracking/default.yaml" />
                     <!--
                     <VideoDevice value="0" width="640" height="480" />

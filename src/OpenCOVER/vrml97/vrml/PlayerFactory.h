@@ -9,6 +9,7 @@
 #define _VRML_PLAYER_FACTORY_
 
 #include "vrmlexport.h"
+#include <string>
 
 namespace vrml
 {
@@ -32,5 +33,5 @@ public:
     PlayerFactory(Listener *listener);
     Player *createPlayer();
 };
-}
+} // namespace vrml
 #endif
