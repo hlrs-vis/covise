@@ -409,16 +409,14 @@ bool WindowTypeQtPlugin::windowCreate(int i)
 
     // Color bit depth: limit to 8-bit on Wayland (EGL config availability)
     int bpc = covise::coCoviseConfig::getInt("bpc", "COVER.Framebuffer", 10);
-    if (isWayland && bpc > 8)
-        bpc = 8;
+    if (isWayland)
+        bpc = covise::coCoviseConfig::getInt("bpc", "COVER.Framebuffer", 8);
     format.setRedBufferSize(bpc);
     format.setGreenBufferSize(bpc);
     format.setBlueBufferSize(bpc);
 
-    // Alpha channel: default to 8-bit on Wayland
+    // Alpha channel
     int alpha = covise::coCoviseConfig::getInt("alpha", "COVER.Framebuffer", -1);
-    if (isWayland && alpha < 0)
-        alpha = 8;
     if (alpha >= 0)
         format.setAlphaBufferSize(alpha);
 
@@ -430,17 +428,12 @@ bool WindowTypeQtPlugin::windowCreate(int i)
         format.setDepthBufferSize(depth);
 
     format.setRenderableType(QSurfaceFormat::OpenGL);
-    format.setStencilBufferSize(conf.numStencilBits());
-    // Stereo not supported on Wayland EGL
-    format.setStereo(isWayland ? false : conf.windows[i].stereo);
 
     // sRGB color space: disable on Wayland (limited EGL config support)
     bool found = false;
     bool sRGB = covise::coCoviseConfig::isOn("srgb", "COVER.Framebuffer", false, &found);
     if (!found)
         sRGB = covise::coCoviseConfig::isOn("COVER.FramebufferSRGB", false);
-    if (isWayland)
-        sRGB = false; // Force sRGB off on Wayland EGL
 
     if (sRGB)
     {

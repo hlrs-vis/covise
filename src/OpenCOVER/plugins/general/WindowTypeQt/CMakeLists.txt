@@ -14,12 +14,6 @@ if (COVISE_USE_X11)
             add_definitions(-DUSE_X11_ICE)
         endif()
     endif()
-    
-    # Find EGL for Wayland VSync support
-    find_package(EGL)
-    if (EGL_FOUND)
-        include_directories(${EGL_INCLUDE_DIRS})
-    endif()
 endif()
 
 set(CMAKE_AUTOMOC ON)
@@ -59,10 +53,5 @@ if (COVISE_USE_X11)
         if (X11_ICE_FOUND)
             target_link_libraries(WindowTypeQt ${X11_ICE_LIB})
         endif()
-    endif()
-    
-    # Link EGL for Wayland support
-    if (EGL_FOUND)
-        target_link_libraries(WindowTypeQt ${EGL_LIBRARIES})
     endif()
 endif()
