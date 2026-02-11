@@ -26,15 +26,34 @@
 #include "QtOsgWidget.h"
 
 #include <QOpenGLWidget>
+#include <QOpenGLContext>
+#include <QWindow>
 #include <iostream>
+#include <cstdlib>
+#include <cover/coVRPluginSupport.h>
 
 void QtGraphicsWindow::setSyncToVBlank(bool flag)
 {
 #if defined(USE_X11)
+    if (flag) {
+        // Set NVIDIA-specific environment variable for VSync
+        // This works with __NV_PRIME_RENDER_OFFLOAD and hybrid GPU setups
+        putenv((char *)"__GL_SYNC_TO_VBLANK=1");
+        if (opencover::cover->debugLevel(2))
+            std::cerr << "setSyncToVBlank: Set __GL_SYNC_TO_VBLANK=1 (GPU global)" << std::endl;
+    }
+    else
+    {
+        putenv((char *)"__GL_SYNC_TO_VBLANK=0");
+        if (opencover::cover->debugLevel(2))
+            std::cerr << "setSyncToVBlank: Set __GL_SYNC_TO_VBLANK=0 (GPU global)" << std::endl;
+    }
+
     auto wid = m_glWidget->effectiveWinId();
     if (wid == 0)
     {
-        std::cerr << "setSyncToVBlank: did not find ID of native window for QWidget" << std::endl;
+        if (opencover::cover->debugLevel(1))
+            std::cerr << "setSyncToVBlank: did not find ID of native window for QWidget" << std::endl;
         return;
     }
 
@@ -42,7 +61,8 @@ void QtGraphicsWindow::setSyncToVBlank(bool flag)
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
     if (!qGuiApp) {
-        std::cerr << "setSyncToVBlank: qGuiApp is nullptr" << std::endl;
+        if (opencover::cover->debugLevel(1))
+            std::cerr << "setSyncToVBlank: qGuiApp is nullptr" << std::endl;
         return;
     }
 
@@ -51,15 +71,22 @@ void QtGraphicsWindow::setSyncToVBlank(bool flag)
     if (sessionType == "x11" || sessionType == "tty") {
         auto x11App = qGuiApp->nativeInterface<QNativeInterface::QX11Application>();
         if (!x11App) {
-            std::cerr << "setSyncToVBlank: QX11Application native interface is nullptr" << std::endl;
+            if (opencover::cover->debugLevel(1))
+                std::cerr << "setSyncToVBlank: QX11Application native interface is nullptr" << std::endl;
             return;
         }
         dpy = x11App->display();
     } else if (sessionType == "wayland") {
-        std::cerr << "setSyncToVBlank: Wayland detected, VSync via GLX is not supported." << std::endl;
+        // On Wayland, the environment variable should be sufficient
+        // EGL swap interval control would require active EGL context which we don't have here
+        if (opencover::cover->debugLevel(2)) {
+            std::cerr << "setSyncToVBlank: Wayland detected, VSync control via __GL_SYNC_TO_VBLANK environment variable" << std::endl;
+            std::cerr << "setSyncToVBlank: Note: Actual VSync scheduling depends on Wayland compositor" << std::endl;
+        }
         return;
     } else {
-        std::cerr << "setSyncToVBlank: Unknown session type: " << sessionType.constData() << std::endl;
+        if (opencover::cover->debugLevel(2))
+            std::cerr << "setSyncToVBlank: Unknown session type: " << sessionType.constData() << std::endl;
         return;
     }
 #else
@@ -70,7 +97,8 @@ void QtGraphicsWindow::setSyncToVBlank(bool flag)
 
     if (!dpy)
     {
-        std::cerr << "setSyncToVBlank: did not find Display for application" << std::endl;
+        if (opencover::cover->debugLevel(1))
+            std::cerr << "setSyncToVBlank: did not find Display for application" << std::endl;
         return;
     }
 
@@ -78,17 +106,28 @@ void QtGraphicsWindow::setSyncToVBlank(bool flag)
     const char *s = glXQueryExtensionsString(dpy, screenNumber);
     if(s==nullptr)
     {
-        std::cerr << "no extensions, probably running MESA" << std::endl;
+        if (opencover::cover->debugLevel(1))
+            std::cerr << "setSyncToVBlank: no GLX extensions, probably running MESA" << std::endl;
         return;
+    }
+
+    // Check for NVIDIA-specific extensions
+    std::string extensions(s);
+    bool hasNvidiaSwap = extensions.find("GLX_NV_swap_group") != std::string::npos;
+    if (hasNvidiaSwap && opencover::cover->debugLevel(2)) {
+        std::cerr << "setSyncToVBlank: NVIDIA GPU detected (GLX_NV_swap_group present)" << std::endl;
     }
 
     if (!glXSwapIntervalEXT)
     {
-        std::cerr << "setSyncToVBlank: no glXSwapIntervalEXT" << std::endl;
+        if (opencover::cover->debugLevel(1))
+            std::cerr << "setSyncToVBlank: no glXSwapIntervalEXT" << std::endl;
         return;
     }
 
+    if (opencover::cover->debugLevel(2))
+        std::cerr << "setSyncToVBlank: " << (flag ? "enabled" : "disabled")
+                  << " via GLX for XScreen " << screenNumber << std::endl;
     glXSwapIntervalEXT(dpy, wid, flag ? 1 : 0);
-    std::cout << "setSyncToVBlank: " << (flag ? "enabled" : "disabled") << " for XScreen " << screenNumber << std::endl;
 #endif
 }
