@@ -101,5 +101,11 @@ SET(SOURCES
 # Adding the LamurePointCloud plugin
 cover_add_plugin(LamurePointCloud)
 target_link_libraries(LamurePointCloud stb::stb)
+
+find_package(OpenMP)
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(LamurePointCloud OpenMP::OpenMP_CXX)
+endif()
+
 covise_wnoerror(LamurePointCloud)
 

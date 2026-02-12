@@ -2,6 +2,10 @@
 #include "Lamure.h"
 #include "LamureUtil.h"
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 #include <cover/coVRConfig.h>
 #include <cover/VRViewer.h>
 #include <cover/VRSceneGraph.h>
@@ -225,53 +229,63 @@ namespace {
         GLboolean depth_mask = GL_TRUE;
         GLint viewport[4] = { 0, 0, 0, 0 };
 
-        static FastState capture() {
+        bool isFullCapture = false;
+
+        static FastState capture(bool full = false) {
             FastState s;
+            s.isFullCapture = full;
+            
+            // Common state
             glGetIntegerv(GL_CURRENT_PROGRAM, &s.program);
             glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &s.vao);
-            glGetIntegerv(GL_FRAMEBUFFER_BINDING, &s.fbo);
-            glGetIntegerv(GL_ACTIVE_TEXTURE, &s.active_tex);
-            glGetIntegerv(GL_TEXTURE_BINDING_2D, &s.tex_binding);
             glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &s.arrayBuffer);
             glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &s.elem_buf);
-
-            s.blend = glIsEnabled(GL_BLEND);
-            s.depth = glIsEnabled(GL_DEPTH_TEST);
             s.cull  = glIsEnabled(GL_CULL_FACE);
 
-            glGetIntegerv(GL_BLEND_SRC_RGB, &s.blend_src_rgb);
-            glGetIntegerv(GL_BLEND_DST_RGB, &s.blend_dst_rgb);
-            glGetIntegerv(GL_BLEND_SRC_ALPHA, &s.blend_src_alpha);
-            glGetIntegerv(GL_BLEND_DST_ALPHA, &s.blend_dst_alpha);
-            glGetIntegerv(GL_BLEND_EQUATION_RGB, &s.blend_eq_rgb);
-            glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &s.blend_eq_alpha);
+            if (full) {
+                glGetIntegerv(GL_FRAMEBUFFER_BINDING, &s.fbo);
+                glGetIntegerv(GL_ACTIVE_TEXTURE, &s.active_tex);
+                glGetIntegerv(GL_TEXTURE_BINDING_2D, &s.tex_binding);
 
-            glGetIntegerv(GL_DEPTH_FUNC, &s.depth_func);
-            glGetBooleanv(GL_DEPTH_WRITEMASK, &s.depth_mask);
-            glGetIntegerv(GL_VIEWPORT, s.viewport);
+                s.blend = glIsEnabled(GL_BLEND);
+                s.depth = glIsEnabled(GL_DEPTH_TEST);
 
+                glGetIntegerv(GL_BLEND_SRC_RGB, &s.blend_src_rgb);
+                glGetIntegerv(GL_BLEND_DST_RGB, &s.blend_dst_rgb);
+                glGetIntegerv(GL_BLEND_SRC_ALPHA, &s.blend_src_alpha);
+                glGetIntegerv(GL_BLEND_DST_ALPHA, &s.blend_dst_alpha);
+                glGetIntegerv(GL_BLEND_EQUATION_RGB, &s.blend_eq_rgb);
+                glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &s.blend_eq_alpha);
+
+                glGetIntegerv(GL_DEPTH_FUNC, &s.depth_func);
+                glGetBooleanv(GL_DEPTH_WRITEMASK, &s.depth_mask);
+                glGetIntegerv(GL_VIEWPORT, s.viewport);
+            }
             return s;
         }
 
         void restore() const {
             glUseProgram(program);
             glBindVertexArray(vao);
-            glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-            glActiveTexture(active_tex);
-            glBindTexture(GL_TEXTURE_2D, tex_binding);
             glBindBuffer(GL_ARRAY_BUFFER, arrayBuffer);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elem_buf);
+            if (cull) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
 
-            if (blend) glEnable(GL_BLEND); else glDisable(GL_BLEND);
-            if (depth) glEnable(GL_DEPTH_TEST); else glDisable(GL_DEPTH_TEST);
-            if (cull)  glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
+            if (isFullCapture) {
+                glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+                glActiveTexture(active_tex);
+                glBindTexture(GL_TEXTURE_2D, tex_binding);
 
-            glBlendFuncSeparate(blend_src_rgb, blend_dst_rgb, blend_src_alpha, blend_dst_alpha);
-            glBlendEquationSeparate(blend_eq_rgb, blend_eq_alpha);
+                if (blend) glEnable(GL_BLEND); else glDisable(GL_BLEND);
+                if (depth) glEnable(GL_DEPTH_TEST); else glDisable(GL_DEPTH_TEST);
 
-            glDepthFunc(depth_func);
-            glDepthMask(depth_mask);
-            glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+                glBlendFuncSeparate(blend_src_rgb, blend_dst_rgb, blend_src_alpha, blend_dst_alpha);
+                glBlendEquationSeparate(blend_eq_rgb, blend_eq_alpha);
+
+                glDepthFunc(depth_func);
+                glDepthMask(depth_mask);
+                glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+            }
         }
     };
 
@@ -406,7 +420,10 @@ void CutsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg
     osg::State* state = renderInfo.getState();
 
     // Use FastState instead of GLState::capture()
-    FastState before = FastState::capture();
+    const auto& settings = plugin->getSettings();
+    bool isMultipass = (settings.shader_type == LamureRenderer::ShaderType::SurfelMultipass && res.vao_initialized);
+    FastState before = FastState::capture(isMultipass);
+    
     glDisable(GL_CULL_FACE);
 
     m_renderer->updateActiveClipPlanes();
@@ -423,6 +440,20 @@ void CutsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg
     osg::Matrixd model_osg;
 
     const osg::Node* drawableParent = drawable ? drawable->getParent(0) : nullptr;
+
+    static bool loggedOpenMP = false;
+    if (!loggedOpenMP) {
+        loggedOpenMP = true;
+#ifdef _OPENMP
+        if (m_renderer->notifyOn()) { 
+             std::cout << "[Lamure] OpenMP is ENABLED. Max threads: " << omp_get_max_threads() << std::endl; 
+        }
+#else
+        if (m_renderer->notifyOn()) { 
+            std::cout << "[Lamure] OpenMP is DISABLED." << std::endl; 
+        }
+#endif
+    }
 
     if (!m_renderer->getModelViewProjectionFromRenderInfo(renderInfo, drawableParent, model_osg, view_osg, proj_osg)) {
         m_renderer->endFrame(ctx);
@@ -509,7 +540,6 @@ void CutsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg
         m_renderer->getSchismContext(ctx)->bind_vertex_array(
             controller->get_context_memory(context_id, lamure::ren::bvh::primitive_type::POINTCLOUD, m_renderer->getDevice(ctx)));
     }
-    const auto& settings = plugin->getSettings();
     const bool useAnisoThisPass = LamureUtil::decideUseAniso(proj, settings.anisotropic_surfel_scaling, settings.anisotropic_auto_threshold);
     uint64_t rendered_primitives = 0;
     uint64_t rendered_nodes = 0;
@@ -589,6 +619,68 @@ void CutsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg
             static std::vector<GLsizei> counts;
             firsts.clear();
             counts.clear();
+
+#ifdef _OPENMP
+            // Thread-local storage
+            int max_threads = omp_get_max_threads();
+            static std::vector<std::vector<GLint>> tls_firsts;
+            static std::vector<std::vector<GLsizei>> tls_counts;
+
+            if (tls_firsts.size() < max_threads) {
+                tls_firsts.resize(max_threads);
+                tls_counts.resize(max_threads);
+            }
+            // Clear TLS vectors
+            for(int t=0; t<max_threads; ++t) {
+                tls_firsts[t].clear();
+                tls_counts[t].clear();
+                 // Heuristic reservation
+                tls_firsts[t].reserve(renderable.size() / max_threads);
+                tls_counts[t].reserve(renderable.size() / max_threads);
+            }
+
+            #pragma omp parallel
+            {
+                int t = omp_get_thread_num();
+                auto& local_firsts = tls_firsts[t];
+                auto& local_counts = tls_counts[t];
+                
+                #pragma omp for schedule(dynamic, 64) reduction(+:rendered_primitives, rendered_nodes)
+                for (int i = 0; i < (int)renderable.size(); ++i) {
+                    const auto& node_slot = renderable[i];
+                    if (res.scm_camera->cull_against_frustum(frustum, bbv[node_slot.node_id_]) != 1) {
+                        local_firsts.push_back((GLint)(node_slot.slot_id_ * surfels_per_node));
+                        local_counts.push_back((GLsizei)surfels_per_node);
+                        rendered_primitives += surfels_per_node;
+                        ++rendered_nodes;
+                    }
+                }
+            }
+
+            // Redundant Culling Check Logging
+            static int log_counter = 0;
+            if (m_renderer->notifyOn() && ++log_counter > 100) {
+                 log_counter = 0;
+                 if (!renderable.empty()) {
+                     float pass_ratio = (float)rendered_nodes / (float)renderable.size();
+                     std::cout << "[Lamure] Culling Stats (Pass 1): Total=" << renderable.size() 
+                               << " Passed=" << rendered_nodes 
+                               << " Ratio=" << pass_ratio << std::endl;
+                 }
+            }
+
+            // Merge TLS results
+            size_t total_size = 0;
+            for(int t=0; t<max_threads; ++t) total_size += tls_firsts[t].size();
+            
+            firsts.reserve(total_size);
+            counts.reserve(total_size);
+            for(int t=0; t<max_threads; ++t) {
+                firsts.insert(firsts.end(), tls_firsts[t].begin(), tls_firsts[t].end());
+                counts.insert(counts.end(), tls_counts[t].begin(), tls_counts[t].end());
+            }
+
+#else
             firsts.reserve(renderable.size());
             counts.reserve(renderable.size());
 
@@ -600,6 +692,7 @@ void CutsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg
                     ++rendered_nodes;
                 }
             }
+#endif
 
             if (!firsts.empty()) {
                 glMultiDrawArrays(scm::gl::PRIMITIVE_POINT_LIST, firsts.data(), counts.data(), (GLsizei)firsts.size());
@@ -749,6 +842,68 @@ void CutsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg
         firsts.reserve(renderable.size());
         counts.reserve(renderable.size());
 
+        // Batch Rendering for Default Pass
+#ifdef _OPENMP
+        // Thread-local storage
+        int max_threads = omp_get_max_threads();
+        static std::vector<std::vector<GLint>> tls_firsts;
+        static std::vector<std::vector<GLsizei>> tls_counts;
+
+        if (tls_firsts.size() < max_threads) {
+            tls_firsts.resize(max_threads);
+            tls_counts.resize(max_threads);
+        }
+        // Clear TLS vectors
+        for(int t=0; t<max_threads; ++t) {
+            tls_firsts[t].clear();
+            tls_counts[t].clear();
+             // Heuristic reservation
+            tls_firsts[t].reserve(renderable.size() / max_threads);
+            tls_counts[t].reserve(renderable.size() / max_threads);
+        }
+
+            #pragma omp parallel
+            {
+                int t = omp_get_thread_num();
+                auto& local_firsts = tls_firsts[t];
+                auto& local_counts = tls_counts[t];
+                
+                #pragma omp for schedule(dynamic, 64) reduction(+:rendered_primitives, rendered_nodes)
+                for (int i = 0; i < (int)renderable.size(); ++i) {
+                    const auto& node_slot = renderable[i];
+                    if (res.scm_camera->cull_against_frustum(frustum, bbv[node_slot.node_id_]) != 1) {
+                        local_firsts.push_back((GLint)(node_slot.slot_id_ * surfels_per_node));
+                        local_counts.push_back((GLsizei)surfels_per_node);
+                        rendered_primitives += surfels_per_node;
+                        ++rendered_nodes;
+                    }
+                }
+            }
+
+            // Redundant Culling Check Logging (Default Pass)
+            static int log_counter_def = 0;
+            if (m_renderer->notifyOn() && ++log_counter_def > 100) {
+                 log_counter_def = 0;
+                 if (!renderable.empty()) {
+                     float pass_ratio = (float)rendered_nodes / (float)renderable.size();
+                     std::cout << "[Lamure] Culling Stats (Default Pass): Total=" << renderable.size() 
+                               << " Passed=" << rendered_nodes 
+                               << " Ratio=" << pass_ratio << std::endl;
+                 }
+            }
+
+            // Merge TLS results
+        size_t total_size = 0;
+        for(int t=0; t<max_threads; ++t) total_size += tls_firsts[t].size();
+        
+        firsts.reserve(total_size);
+        counts.reserve(total_size);
+        for(int t=0; t<max_threads; ++t) {
+            firsts.insert(firsts.end(), tls_firsts[t].begin(), tls_firsts[t].end());
+            counts.insert(counts.end(), tls_counts[t].begin(), tls_counts[t].end());
+        }
+
+#else
         for (const auto& node_slot : renderable) {
             if (res.scm_camera->cull_against_frustum(frustum, bbv[node_slot.node_id_]) != 1) {
                 firsts.push_back((GLint)(node_slot.slot_id_ * surfels_per_node));
@@ -757,6 +912,7 @@ void CutsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg
                 ++rendered_nodes;
             }
         }
+#endif
         
         if (!firsts.empty()) {
             glMultiDrawArrays(scm::gl::PRIMITIVE_POINT_LIST, firsts.data(), counts.data(), (GLsizei)firsts.size());
