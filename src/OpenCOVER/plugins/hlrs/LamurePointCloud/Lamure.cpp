@@ -639,6 +639,63 @@ void Lamure::preFrame() {
 
 #ifdef _WIN32
     float deltaTime = std::clamp(float(opencover::cover->frameDuration()), 1.0f / 60.0f, 1.0f / 15.0f);
+
+    if (m_settings.lod_auto_fps) {
+         double realDur = opencover::cover->frameDuration();
+         if (realDur < 1e-4) realDur = 1e-4; // Cap at 10000 FPS to avoid div by zero
+         float current_fps = float(1.0 / realDur);
+        
+        if (current_fps < m_smoothed_fps_) {
+            m_smoothed_fps_ = 0.5f * m_smoothed_fps_ + 0.5f * current_fps; // Fast reaction to drops
+        } else {
+            m_smoothed_fps_ = 0.9f * m_smoothed_fps_ + 0.1f * current_fps; // Slow recovery
+        }
+
+        // Logging every 60 frames (approx 1 sec)
+        static int log_counter = 0;
+        if (++log_counter >= 60) {
+            log_counter = 0;
+            logInfo("AutoFPS: FPS=", m_smoothed_fps_, " Error=", m_settings.lod_error);
+        }
+
+        // PID Controller (Velocity Form)
+        // u[k] = u[k-1] + delta_u
+        // delta_u = Kp*(e[k]-e[k-1]) + Ki*e[k]*dt + Kd*(e[k]-2e[k-1]+e[k-2])/dt
+
+        float dt = (float)realDur;
+        if (dt < 1e-4f) dt = 1e-4f;
+
+        float error = m_settings.lod_fps_target - m_smoothed_fps_;
+        
+        // Prevent action if within tolerance (deadband)
+        if (std::abs(error) < m_settings.lod_fps_tolerance) {
+            error = 0.0f;
+        }
+
+        float delta_error = error - m_pid_prev_error;
+        float delta_error_2 = error - 2.0f * m_pid_prev_error + m_pid_prev_error_2;
+
+        float p_term = m_settings.pid_kp * delta_error;
+        float i_term = m_settings.pid_ki * error * dt; 
+        float d_term = 0.0f;
+        if (dt > 0.0f) {
+             d_term = m_settings.pid_kd * delta_error_2 / dt;
+        }
+
+        float output_change = p_term + i_term + d_term;
+
+        m_settings.lod_error += output_change;
+        
+        // Update state
+        m_pid_prev_error_2 = m_pid_prev_error;
+        m_pid_prev_error = error;
+
+        m_settings.lod_error = std::clamp(m_settings.lod_error, m_settings.lod_error_min, m_settings.lod_error_max);
+        
+        // Sync UI with new values
+        if (m_ui) m_ui->update();
+    }
+
     float moveAmount = 1000.0f * deltaTime;
     osg::Matrix m = opencover::VRSceneGraph::instance()->getTransform()->getMatrix();
     if (GetAsyncKeyState(VK_NUMPAD4) & 0x8000) m.postMult(osg::Matrix::translate(+moveAmount, 0.0, 0.0));
@@ -1030,6 +1087,11 @@ void Lamure::loadSettingsFromCovise() {
     s.size_of_provenance = getNum<int>("value", (std::string(root) + ".size_of_provenance").c_str(), s.size_of_provenance);
     s.pause_frames = static_cast<uint32_t>(std::max(0, getNum<int>("value", (std::string(root) + ".pause_frames").c_str(), s.pause_frames)));
     s.lod_error = getNum<float>("value", (std::string(root) + ".lod_error").c_str(), s.lod_error);
+    s.lod_auto_fps = getOn((std::string(root) + ".lod_auto_fps").c_str(), s.lod_auto_fps);
+    s.lod_fps_target = getNum<float>("value", (std::string(root) + ".lod_fps_target").c_str(), s.lod_fps_target);
+    s.lod_fps_tolerance = getNum<float>("value", (std::string(root) + ".lod_fps_tolerance").c_str(), s.lod_fps_tolerance);
+    s.lod_error_min = getNum<float>("value", (std::string(root) + ".lod_error_min").c_str(), s.lod_error_min);
+    s.lod_error_max = getNum<float>("value", (std::string(root) + ".lod_error_max").c_str(), s.lod_error_max);
 
     // ---- Tuning / Flags ----
     s.pvs_culling          = getOn((std::string(root) + ".pvs_culling").c_str(),          s.pvs_culling);
@@ -1597,6 +1659,11 @@ bool Lamure::writeSettingsJson(const Lamure::Settings& s, const std::string& out
     add_i ("size_of_provenance", s.size_of_provenance);
     add_bool("lod_update", s.lod_update);
     add_f ("lod_error", s.lod_error);
+    add_bool("lod_auto_fps", s.lod_auto_fps);
+    add_f ("lod_fps_target", s.lod_fps_target);
+    add_f ("lod_fps_tolerance", s.lod_fps_tolerance);
+    add_f ("lod_error_min", s.lod_error_min);
+    add_f ("lod_error_max", s.lod_error_max);
 
     // GUI / Travel
     add_i ("gui",          s.gui);

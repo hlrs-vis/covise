@@ -134,6 +134,14 @@ public:
         int32_t max_brush_size{ 4096 };
         bool lod_update{ 1 };
         float lod_error{ 1.0f };
+        bool lod_auto_fps{ false };
+        float lod_fps_target{ 60.0f };
+        float lod_fps_tolerance{ 3.0f };
+        float lod_error_min{ 1.0f };
+        float lod_error_max{ 20.0f };
+        float pid_kp{ 0.05f };
+        float pid_ki{ 0.01f };
+        float pid_kd{ 0.01f };
         LamureRenderer::ShaderType shader_type{ LamureRenderer::ShaderType::Point };
         bool use_pvs{ 0 };
         bool pvs_culling{ 0 };
@@ -378,6 +386,9 @@ public:
     std::unordered_set<std::string> m_registeredFiles;
     std::unordered_map<std::string, std::string> m_model_source_keys;
 
+    void saveLODToBackup() { m_lod_error_backup = m_settings.lod_error; }
+    void restoreLODFromBackup() { m_settings.lod_error = m_lod_error_backup; }
+
 
 private:
     std::vector<std::string> m_files_to_load;
@@ -408,6 +419,12 @@ private:
     std::unique_ptr<LamureMeasurement>  m_measurement;
     bool                                m_silenceMeasureToggle{false};
     float                               prev_frame_rate_ = 0.0f;
+    float                               m_smoothed_fps_ = 60.0f;
+
+    float m_pid_integral = 0.0f;
+    float m_pid_prev_error = 0.0f;
+    float m_pid_prev_error_2 = 0.0f;
+    float m_lod_error_backup = 1.0f;
     unsigned int                        prev_vsync_frames_ = 0;
     bool                                fps_cap_modified_ = false;
     bool                                vsync_modified_   = false;

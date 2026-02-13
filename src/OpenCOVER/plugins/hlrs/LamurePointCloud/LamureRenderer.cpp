@@ -1311,6 +1311,7 @@ void TextDrawCallback::drawImplementation(osg::RenderInfo &renderInfo, const osg
                 value_ss << "\n"
                     << std::fixed << std::setprecision(2)
                     << fpsAvg << "\n"
+                    << _plugin->getSettings().lod_error << "\n"
                     << render_info.rendered_nodes << "\n"
                     << primMio << "\n"
                     << primPerSecMio << "\n"
@@ -1548,6 +1549,7 @@ void LamureRenderer::init()
         label->setPosition(pos_label);
         std::stringstream label_ss;
         label_ss << "FPS:" << "\n"
+            << "LOD Error:" << "\n"
             << "Nodes:" << "\n"
             << "Primitives (Mio):" << "\n"
             << "Primitives / s (Mio):" << "\n"
@@ -1573,6 +1575,7 @@ void LamureRenderer::init()
         std::stringstream value_ss;
         value_ss << "\n"
             << "0.00:" << "\n"
+            << "0.00" << "\n"
             << "0.00" << "\n"
             << "0.00" << "\n"
             << "0.00" << "\n"

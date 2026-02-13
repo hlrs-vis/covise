@@ -160,7 +160,7 @@ emit_node_visibility(grid* visibility_grid)
     // Advance node visibility downwards and upwards in the LOD-hierarchy.
     // Since only a single LOD-level was rendered in the visibility test, this is necessary to produce a complete PVS.
     #pragma omp parallel for
-    for(size_t cell_index = 0; cell_index < visibility_grid->get_cell_count(); ++cell_index)
+    for(int64_t cell_index = 0; cell_index < (int64_t)visibility_grid->get_cell_count(); ++cell_index)
     {
         const view_cell* current_cell = visibility_grid->get_cell_at_index(cell_index);
         std::map<model_t, std::vector<node_t>> visible_indices = current_cell->get_visible_indices();

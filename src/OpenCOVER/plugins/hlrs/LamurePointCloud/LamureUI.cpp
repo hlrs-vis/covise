@@ -137,6 +137,30 @@ void LamureUI::setupUi() {
         m_plugin->getSettings().lod_error = static_cast<float>(value);
         });
 
+    m_lod_auto_fps_btn = new opencover::ui::Button(m_lod_menu, "lod_auto_fps");
+    m_lod_auto_fps_btn->setText("Auto FPS");
+    m_lod_auto_fps_btn->setShared(true);
+    m_lod_auto_fps_btn->setState(m_plugin->getSettings().lod_auto_fps);
+    m_lod_auto_fps_btn->setCallback([this](bool state) {
+        if (state) {
+            m_plugin->saveLODToBackup();
+        } else {
+            m_plugin->restoreLODFromBackup();
+        }
+        m_plugin->getSettings().lod_auto_fps = state;
+        update(); // Trigger immediate update when toggled
+        });
+
+    m_lod_fps_target_slider = new opencover::ui::Slider(m_lod_menu, "lod_fps_target");
+    m_lod_fps_target_slider->setText("Target FPS");
+    m_lod_fps_target_slider->setBounds(15.0f, 90.0f);
+    m_lod_fps_target_slider->setValue(m_plugin->getSettings().lod_fps_target);
+    m_lod_fps_target_slider->setShared(true);
+    m_lod_fps_target_slider->setCallback([this](double value, bool released) {
+        m_plugin->getSettings().lod_fps_target = static_cast<float>(value);
+        });
+
+
     m_scaling_menu = new opencover::ui::Menu(m_lamure_menu, "Scaling");
 
     // Anisotropic scaling mode (Off / Auto / On) at top of Scaling
@@ -691,4 +715,22 @@ void LamureUI::setupUi() {
         else    m_plugin->stopMeasurement();
         });
 
+}
+
+void LamureUI::update()
+{
+    if (!m_plugin || !m_lod_error_slider || !m_lod_auto_fps_btn)
+        return;
+
+    const auto& s = m_plugin->getSettings();
+
+    // Sync Auto FPS button (in case it was changed externally, though unlikely)
+    m_lod_auto_fps_btn->setState(s.lod_auto_fps);
+
+    // Sync LOD Error slider
+    // We use setValue with false to NOT trigger the callback loop
+    m_lod_error_slider->setValue(s.lod_error); 
+
+    // Visual feedback: Disable slider if Auto FPS is regulating it
+    m_lod_error_slider->setEnabled(!s.lod_auto_fps); 
 }

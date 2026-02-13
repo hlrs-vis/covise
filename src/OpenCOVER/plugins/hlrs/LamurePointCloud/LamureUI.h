@@ -20,6 +20,7 @@ public:
     LamureUI(Lamure* lamure_plugin, const std::string& name);
     ~LamureUI();
 
+    void update();
     void setupUi();
     opencover::ui::Button* getPointcloudButton() { return m_pointcloud_button; }
     opencover::ui::Button* getBoundingboxButton() { return m_boundingbox_button; }
@@ -117,6 +118,8 @@ private:
     opencover::ui::Menu*   m_lod_menu                       = nullptr;
     opencover::ui::Group*  m_lod_group                      = nullptr;
     opencover::ui::Button* m_lod_button                     = nullptr;
+    opencover::ui::Button* m_lod_auto_fps_btn               = nullptr;
+    opencover::ui::Slider* m_lod_fps_target_slider          = nullptr;
 
     opencover::ui::Menu*   m_lighting_menu                  = nullptr;
     opencover::ui::Button* m_lighting_button                = nullptr;
