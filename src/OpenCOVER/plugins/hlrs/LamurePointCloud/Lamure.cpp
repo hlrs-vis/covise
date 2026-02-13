@@ -667,33 +667,37 @@ void Lamure::preFrame() {
             m_smoothed_fps_ = 0.9f * m_smoothed_fps_ + 0.1f * current_fps; // Slow recovery.
         }
 
-        // Logging every 60 frames (approx 1 sec).
-        static int log_counter = 0;
-        if (++log_counter >= 60) {
-            log_counter = 0;
-            logInfo("AutoFPS: FPS=", m_smoothed_fps_, " Error=", m_settings.lod_error);
-        }
+        const float raw_error = m_settings.lod_fps_target - m_smoothed_fps_;
+        const float deadband = std::max(0.0f, m_settings.lod_fps_tolerance);
+        const bool outside_deadband = std::abs(raw_error) > deadband;
+        const float error = outside_deadband ? raw_error : 0.0f;
 
-        float error = m_settings.lod_fps_target - m_smoothed_fps_;
-        if (std::abs(error) < m_settings.lod_fps_tolerance) {
-            error = 0.0f;
-        }
+        const float target_fps = std::max(1.0f, m_settings.lod_fps_target);
+        const float normalized_error = std::clamp(std::abs(raw_error) / target_fps, 0.0f, 1.0f);
+
+        const float gain_boost = 1.0f + 3.0f * normalized_error;
+        const float kp_eff = m_settings.pid_kp * gain_boost;
+        const float ki_eff = m_settings.pid_ki * (1.0f + 2.0f * normalized_error);
+        const float kd_eff = m_settings.pid_kd;
 
         const float derivative = (error - m_pid_prev_error) / dt;
         const float integral_candidate = m_pid_integral + error * dt;
 
         const float output_span = std::max(1e-3f, m_settings.lod_error_max - m_settings.lod_error_min);
         float integral_limit = output_span;
-        if (std::abs(m_settings.pid_ki) > 1e-6f) {
-            integral_limit = output_span / std::abs(m_settings.pid_ki);
+        if (std::abs(ki_eff) > 1e-6f) {
+            integral_limit = output_span / std::abs(ki_eff);
         }
         const float bounded_integral = std::clamp(integral_candidate, -integral_limit, integral_limit);
 
+        // Recenter controller output around current state each frame so
+        // persistent FPS errors cannot get "stuck" near low LOD thresholds.
+        m_pid_output_bias = m_settings.lod_error;
         const auto pid_output = [&](float integral_value) -> float {
             return m_pid_output_bias
-                + m_settings.pid_kp * error
-                + m_settings.pid_ki * integral_value
-                + m_settings.pid_kd * derivative;
+                + kp_eff * error
+                + ki_eff * integral_value
+                + kd_eff * derivative;
         };
 
         const float unclamped_output = pid_output(bounded_integral);
@@ -702,8 +706,25 @@ void Lamure::preFrame() {
         if (!saturating_high && !saturating_low) {
             m_pid_integral = bounded_integral;
         }
+        if (!outside_deadband) {
+            m_pid_integral *= 0.98f;
+        }
 
-        m_settings.lod_error = std::clamp(pid_output(m_pid_integral), m_settings.lod_error_min, m_settings.lod_error_max);
+        const float requested_output = std::clamp(pid_output(m_pid_integral), m_settings.lod_error_min, m_settings.lod_error_max);
+        float delta_output = requested_output - m_settings.lod_error;
+        const float min_step_per_sec = (0.05f + 0.30f * normalized_error) * output_span;
+        const float max_step_per_sec = (0.35f + 1.65f * normalized_error) * output_span;
+        const float min_step = min_step_per_sec * dt;
+        const float max_step = std::max(min_step, max_step_per_sec * dt);
+        if (outside_deadband) {
+            if (error > 0.0f && delta_output < min_step) {
+                delta_output = min_step;
+            } else if (error < 0.0f && delta_output > -min_step) {
+                delta_output = -min_step;
+            }
+        }
+        delta_output = std::clamp(delta_output, -max_step, max_step);
+        m_settings.lod_error = std::clamp(m_settings.lod_error + delta_output, m_settings.lod_error_min, m_settings.lod_error_max);
         m_pid_prev_error = error;
 
         // Sync UI with new values.

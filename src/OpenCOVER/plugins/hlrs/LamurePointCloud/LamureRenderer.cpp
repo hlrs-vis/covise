@@ -657,18 +657,6 @@ void CutsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg
                 }
             }
 
-            // Redundant Culling Check Logging
-            static int log_counter = 0;
-            if (m_renderer->notifyOn() && ++log_counter > 100) {
-                 log_counter = 0;
-                 if (!renderable.empty()) {
-                     float pass_ratio = (float)rendered_nodes / (float)renderable.size();
-                     std::cout << "[Lamure] Culling Stats (Pass 1): Total=" << renderable.size() 
-                               << " Passed=" << rendered_nodes 
-                               << " Ratio=" << pass_ratio << std::endl;
-                 }
-            }
-
             // Merge TLS results
             size_t total_size = 0;
             for(int t=0; t<max_threads; ++t) total_size += tls_firsts[t].size();
@@ -878,18 +866,6 @@ void CutsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg
                         ++rendered_nodes;
                     }
                 }
-            }
-
-            // Redundant Culling Check Logging (Default Pass)
-            static int log_counter_def = 0;
-            if (m_renderer->notifyOn() && ++log_counter_def > 100) {
-                 log_counter_def = 0;
-                 if (!renderable.empty()) {
-                     float pass_ratio = (float)rendered_nodes / (float)renderable.size();
-                     std::cout << "[Lamure] Culling Stats (Default Pass): Total=" << renderable.size() 
-                               << " Passed=" << rendered_nodes 
-                               << " Ratio=" << pass_ratio << std::endl;
-                 }
             }
 
             // Merge TLS results
