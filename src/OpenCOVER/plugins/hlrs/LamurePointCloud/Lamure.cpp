@@ -652,6 +652,9 @@ void Lamure::preFrame() {
             m_pid_prev_error = 0.0f;
             m_pid_output_bias = m_settings.lod_error;
             m_pid_prev_target_fps = m_settings.lod_fps_target;
+            m_prev_lod_error_for_sensitivity = m_settings.lod_error;
+            m_prev_smoothed_fps_for_sensitivity = m_smoothed_fps_;
+            m_lod_fps_sensitivity = 0.0f;
         }
 
         if (std::abs(m_settings.lod_fps_target - m_pid_prev_target_fps) > 1e-4f) {
@@ -667,23 +670,43 @@ void Lamure::preFrame() {
             m_smoothed_fps_ = 0.9f * m_smoothed_fps_ + 0.1f * current_fps; // Slow recovery.
         }
 
+        const float output_span = std::max(1e-3f, m_settings.lod_error_max - m_settings.lod_error_min);
         const float raw_error = m_settings.lod_fps_target - m_smoothed_fps_;
         const float deadband = std::max(0.0f, m_settings.lod_fps_tolerance);
         const bool outside_deadband = std::abs(raw_error) > deadband;
         const float error = outside_deadband ? raw_error : 0.0f;
 
+        const float d_lod = m_settings.lod_error - m_prev_lod_error_for_sensitivity;
+        const float d_fps = m_smoothed_fps_ - m_prev_smoothed_fps_for_sensitivity;
+        const float lod_delta_eps = std::max(1e-3f, 0.0025f * output_span);
+        if (std::abs(d_lod) > lod_delta_eps) {
+            const float sensitivity_inst = d_fps / d_lod;
+            if (std::isfinite(sensitivity_inst)) {
+                if (!std::isfinite(m_lod_fps_sensitivity) || std::abs(m_lod_fps_sensitivity) < 1e-6f) {
+                    m_lod_fps_sensitivity = sensitivity_inst;
+                } else {
+                    m_lod_fps_sensitivity = 0.90f * m_lod_fps_sensitivity + 0.10f * sensitivity_inst;
+                }
+            }
+        }
+        m_prev_lod_error_for_sensitivity = m_settings.lod_error;
+        m_prev_smoothed_fps_for_sensitivity = m_smoothed_fps_;
+
+        const float sensitivity_mag = std::abs(m_lod_fps_sensitivity);
+        const float sensitivity_norm = std::clamp(sensitivity_mag / (sensitivity_mag + 0.5f), 0.0f, 1.0f);
+        const float sensitivity_factor = 0.15f + 0.85f * sensitivity_norm;
+
         const float target_fps = std::max(1.0f, m_settings.lod_fps_target);
         const float normalized_error = std::clamp(std::abs(raw_error) / target_fps, 0.0f, 1.0f);
 
         const float gain_boost = 1.0f + 3.0f * normalized_error;
-        const float kp_eff = m_settings.pid_kp * gain_boost;
-        const float ki_eff = m_settings.pid_ki * (1.0f + 2.0f * normalized_error);
-        const float kd_eff = m_settings.pid_kd;
+        const float kp_eff = m_settings.pid_kp * gain_boost * sensitivity_factor;
+        const float ki_eff = m_settings.pid_ki * (1.0f + 2.0f * normalized_error) * sensitivity_factor;
+        const float kd_eff = m_settings.pid_kd * sensitivity_factor;
 
         const float derivative = (error - m_pid_prev_error) / dt;
         const float integral_candidate = m_pid_integral + error * dt;
 
-        const float output_span = std::max(1e-3f, m_settings.lod_error_max - m_settings.lod_error_min);
         float integral_limit = output_span;
         if (std::abs(ki_eff) > 1e-6f) {
             integral_limit = output_span / std::abs(ki_eff);
@@ -701,6 +724,15 @@ void Lamure::preFrame() {
         };
 
         const float unclamped_output = pid_output(bounded_integral);
+        const float limit_eps = std::max(1e-4f, 0.002f * output_span);
+        const bool at_upper_limit = m_settings.lod_error >= (m_settings.lod_error_max - limit_eps);
+        const bool at_lower_limit = m_settings.lod_error <= (m_settings.lod_error_min + limit_eps);
+        const bool unreachable_by_limits =
+            (at_upper_limit && raw_error > deadband) || (at_lower_limit && raw_error < -deadband);
+        if (unreachable_by_limits) {
+            m_pid_integral *= 0.90f;
+        }
+
         const bool saturating_high = unclamped_output > m_settings.lod_error_max && error > 0.0f;
         const bool saturating_low = unclamped_output < m_settings.lod_error_min && error < 0.0f;
         if (!saturating_high && !saturating_low) {
@@ -712,11 +744,11 @@ void Lamure::preFrame() {
 
         const float requested_output = std::clamp(pid_output(m_pid_integral), m_settings.lod_error_min, m_settings.lod_error_max);
         float delta_output = requested_output - m_settings.lod_error;
-        const float min_step_per_sec = (0.05f + 0.30f * normalized_error) * output_span;
-        const float max_step_per_sec = (0.35f + 1.65f * normalized_error) * output_span;
+        const float min_step_per_sec = (0.05f + 0.30f * normalized_error) * output_span * sensitivity_factor;
+        const float max_step_per_sec = (0.35f + 1.65f * normalized_error) * output_span * sensitivity_factor;
         const float min_step = min_step_per_sec * dt;
         const float max_step = std::max(min_step, max_step_per_sec * dt);
-        if (outside_deadband) {
+        if (outside_deadband && !unreachable_by_limits && sensitivity_factor > 0.2f) {
             if (error > 0.0f && delta_output < min_step) {
                 delta_output = min_step;
             } else if (error < 0.0f && delta_output > -min_step) {

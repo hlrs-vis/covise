@@ -426,6 +426,9 @@ private:
     float m_pid_output_bias = 1.0f;
     float m_pid_prev_target_fps = 60.0f;
     bool  m_lod_auto_fps_was_enabled = false;
+    float m_prev_lod_error_for_sensitivity = 1.0f;
+    float m_prev_smoothed_fps_for_sensitivity = 60.0f;
+    float m_lod_fps_sensitivity = 0.0f;      // d(FPS) / d(LOD error)
     float m_lod_error_backup = 1.0f;
     unsigned int                        prev_vsync_frames_ = 0;
     bool                                fps_cap_modified_ = false;
