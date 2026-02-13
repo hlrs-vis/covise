@@ -423,7 +423,9 @@ private:
 
     float m_pid_integral = 0.0f;
     float m_pid_prev_error = 0.0f;
-    float m_pid_prev_error_2 = 0.0f;
+    float m_pid_output_bias = 1.0f;
+    float m_pid_prev_target_fps = 60.0f;
+    bool  m_lod_auto_fps_was_enabled = false;
     float m_lod_error_backup = 1.0f;
     unsigned int                        prev_vsync_frames_ = 0;
     bool                                fps_cap_modified_ = false;
@@ -451,7 +453,6 @@ private:
     std::vector<LamureMeasurement::Segment> parseMeasurementSegments(const std::string& cfg) const;
     std::string buildMeasurementOutputPath() const;
     void applyShaderToRendererFromSettings();
-    void resetVrmlRootTransform(osg::Node* node);
     static void detachFromParents(osg::Node* node);
 
     // Centralized model resolution

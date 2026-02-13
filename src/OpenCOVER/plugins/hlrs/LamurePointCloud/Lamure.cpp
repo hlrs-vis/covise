@@ -637,64 +637,88 @@ void Lamure::preFrame() {
             m_edit_tool->update();
     }
 
-#ifdef _WIN32
-    float deltaTime = std::clamp(float(opencover::cover->frameDuration()), 1.0f / 60.0f, 1.0f / 15.0f);
-
     if (m_settings.lod_auto_fps) {
-         double realDur = opencover::cover->frameDuration();
-         if (realDur < 1e-4) realDur = 1e-4; // Cap at 10000 FPS to avoid div by zero
-         float current_fps = float(1.0 / realDur);
-        
-        if (current_fps < m_smoothed_fps_) {
-            m_smoothed_fps_ = 0.5f * m_smoothed_fps_ + 0.5f * current_fps; // Fast reaction to drops
-        } else {
-            m_smoothed_fps_ = 0.9f * m_smoothed_fps_ + 0.1f * current_fps; // Slow recovery
+        double realDur = opencover::cover->frameDuration();
+        if (realDur < 1e-4) {
+            realDur = 1e-4; // Cap at 10000 FPS to avoid div by zero.
+        }
+        const float dt = std::max(1e-4f, static_cast<float>(realDur));
+        const float current_fps = static_cast<float>(1.0 / realDur);
+
+        if (!m_lod_auto_fps_was_enabled) {
+            m_lod_auto_fps_was_enabled = true;
+            m_smoothed_fps_ = current_fps;
+            m_pid_integral = 0.0f;
+            m_pid_prev_error = 0.0f;
+            m_pid_output_bias = m_settings.lod_error;
+            m_pid_prev_target_fps = m_settings.lod_fps_target;
         }
 
-        // Logging every 60 frames (approx 1 sec)
+        if (std::abs(m_settings.lod_fps_target - m_pid_prev_target_fps) > 1e-4f) {
+            m_pid_integral = 0.0f;
+            m_pid_prev_error = 0.0f;
+            m_pid_output_bias = m_settings.lod_error;
+            m_pid_prev_target_fps = m_settings.lod_fps_target;
+        }
+
+        if (current_fps < m_smoothed_fps_) {
+            m_smoothed_fps_ = 0.5f * m_smoothed_fps_ + 0.5f * current_fps; // Fast reaction to drops.
+        } else {
+            m_smoothed_fps_ = 0.9f * m_smoothed_fps_ + 0.1f * current_fps; // Slow recovery.
+        }
+
+        // Logging every 60 frames (approx 1 sec).
         static int log_counter = 0;
         if (++log_counter >= 60) {
             log_counter = 0;
             logInfo("AutoFPS: FPS=", m_smoothed_fps_, " Error=", m_settings.lod_error);
         }
 
-        // PID Controller (Velocity Form)
-        // u[k] = u[k-1] + delta_u
-        // delta_u = Kp*(e[k]-e[k-1]) + Ki*e[k]*dt + Kd*(e[k]-2e[k-1]+e[k-2])/dt
-
-        float dt = (float)realDur;
-        if (dt < 1e-4f) dt = 1e-4f;
-
         float error = m_settings.lod_fps_target - m_smoothed_fps_;
-        
-        // Prevent action if within tolerance (deadband)
         if (std::abs(error) < m_settings.lod_fps_tolerance) {
             error = 0.0f;
         }
 
-        float delta_error = error - m_pid_prev_error;
-        float delta_error_2 = error - 2.0f * m_pid_prev_error + m_pid_prev_error_2;
+        const float derivative = (error - m_pid_prev_error) / dt;
+        const float integral_candidate = m_pid_integral + error * dt;
 
-        float p_term = m_settings.pid_kp * delta_error;
-        float i_term = m_settings.pid_ki * error * dt; 
-        float d_term = 0.0f;
-        if (dt > 0.0f) {
-             d_term = m_settings.pid_kd * delta_error_2 / dt;
+        const float output_span = std::max(1e-3f, m_settings.lod_error_max - m_settings.lod_error_min);
+        float integral_limit = output_span;
+        if (std::abs(m_settings.pid_ki) > 1e-6f) {
+            integral_limit = output_span / std::abs(m_settings.pid_ki);
+        }
+        const float bounded_integral = std::clamp(integral_candidate, -integral_limit, integral_limit);
+
+        const auto pid_output = [&](float integral_value) -> float {
+            return m_pid_output_bias
+                + m_settings.pid_kp * error
+                + m_settings.pid_ki * integral_value
+                + m_settings.pid_kd * derivative;
+        };
+
+        const float unclamped_output = pid_output(bounded_integral);
+        const bool saturating_high = unclamped_output > m_settings.lod_error_max && error > 0.0f;
+        const bool saturating_low = unclamped_output < m_settings.lod_error_min && error < 0.0f;
+        if (!saturating_high && !saturating_low) {
+            m_pid_integral = bounded_integral;
         }
 
-        float output_change = p_term + i_term + d_term;
-
-        m_settings.lod_error += output_change;
-        
-        // Update state
-        m_pid_prev_error_2 = m_pid_prev_error;
+        m_settings.lod_error = std::clamp(pid_output(m_pid_integral), m_settings.lod_error_min, m_settings.lod_error_max);
         m_pid_prev_error = error;
 
-        m_settings.lod_error = std::clamp(m_settings.lod_error, m_settings.lod_error_min, m_settings.lod_error_max);
-        
-        // Sync UI with new values
-        if (m_ui) m_ui->update();
+        // Sync UI with new values.
+        if (m_ui) {
+            m_ui->update();
+        }
+    } else if (m_lod_auto_fps_was_enabled) {
+        m_lod_auto_fps_was_enabled = false;
+        m_pid_integral = 0.0f;
+        m_pid_prev_error = 0.0f;
+        m_pid_output_bias = m_settings.lod_error;
     }
+
+#ifdef _WIN32
+    float deltaTime = std::clamp(float(opencover::cover->frameDuration()), 1.0f / 60.0f, 1.0f / 15.0f);
 
     float moveAmount = 1000.0f * deltaTime;
     osg::Matrix m = opencover::VRSceneGraph::instance()->getTransform()->getMatrix();
@@ -808,22 +832,6 @@ void Lamure::dumpModelParentChains() const
         }
     }
     dump("", 0);
-}
-
-void Lamure::resetVrmlRootTransform(osg::Node* node)
-{
-    osg::Node* current = node;
-    while (current) {
-        if (current->getName() == "VRMLRoot") {
-            if (auto* mt = dynamic_cast<osg::MatrixTransform*>(current)) {
-                mt->setMatrix(osg::Matrixd::identity());
-            }
-            break;
-        }
-        if (current->getNumParents() == 0)
-            break;
-        current = current->getParent(0);
-    }
 }
 
 void Lamure::detachFromParents(osg::Node* node)
@@ -995,7 +1003,6 @@ void Lamure::rebuildRenderer()
             if (mid < m_model_parents.size())
                 parent = m_model_parents[mid].get();
             if (parent) {
-                resetVrmlRootTransform(parent);
                 parent->addChild(sn.model_transform.get());
             }
         }
