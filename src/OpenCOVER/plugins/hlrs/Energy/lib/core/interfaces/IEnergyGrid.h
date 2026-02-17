@@ -11,6 +11,7 @@ class IEnergyGrid : public IDrawable,
                     public ITimedependable,
                     public IUpdateable {
  public:
+  IEnergyGrid() = default;
   virtual ~IEnergyGrid() = default;
   IEnergyGrid(const IEnergyGrid&) = delete;
   IEnergyGrid& operator=(const IEnergyGrid&) = delete;

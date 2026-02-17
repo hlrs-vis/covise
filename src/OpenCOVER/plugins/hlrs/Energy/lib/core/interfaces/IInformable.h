@@ -5,6 +5,7 @@ namespace core::interface {
 template <typename InfoType>
 class IInformable : public IDrawable {
  public:
+  IInformable() = default;
   virtual ~IInformable() = default;
   IInformable(const IInformable&) = delete;
   IInformable& operator=(const IInformable&) = delete;

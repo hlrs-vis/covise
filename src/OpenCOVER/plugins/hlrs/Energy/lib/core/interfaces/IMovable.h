@@ -4,6 +4,7 @@
 namespace core::interface {
 class IMoveable {
  public:
+  IMoveable() = default;
   virtual ~IMoveable() = default; // only for polymorphe destruction and not for ressource management
   IMoveable(const IMoveable&) = delete;
   IMoveable& operator=(const IMoveable&) = delete;

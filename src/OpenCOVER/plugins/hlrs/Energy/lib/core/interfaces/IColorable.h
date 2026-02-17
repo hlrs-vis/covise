@@ -4,6 +4,7 @@
 namespace core::interface {
 class IColorable {
  public:
+  IColorable() = default;
   virtual ~IColorable() = default;
   IColorable(const IColorable&) = delete;
   IColorable& operator=(const IColorable&) = delete;

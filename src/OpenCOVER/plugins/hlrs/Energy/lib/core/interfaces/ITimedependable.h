@@ -2,6 +2,7 @@
 namespace core::interface {
 class ITimedependable {
  public:
+  ITimedependable() = default;
   virtual ~ITimedependable() = default;
   ITimedependable(const ITimedependable&) = delete;
   ITimedependable operator=(const ITimedependable&) = delete;

@@ -7,6 +7,7 @@ template <typename InfoType, typename DrawableType>
 class IInfoboard : public IInformable<InfoType>,
                    public IMoveable {
  public:
+  IInfoboard() = default;
   virtual ~IInfoboard() = default;
   IInfoboard(const IInfoboard&) = delete;
   IInfoboard& operator=(const IInfoboard&) = delete;

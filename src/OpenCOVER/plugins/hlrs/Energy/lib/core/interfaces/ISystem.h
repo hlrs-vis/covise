@@ -6,6 +6,7 @@
 namespace core::interface {
 class ISystem : public ITimedependable, public IUpdateable {
  public:
+  ISystem() = default;
   virtual ~ISystem() = default;
   ISystem(const ISystem&) = delete;
   ISystem& operator=(const ISystem&) = delete;

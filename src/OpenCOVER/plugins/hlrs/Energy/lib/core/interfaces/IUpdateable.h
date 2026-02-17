@@ -2,6 +2,7 @@
 namespace core::interface {
 class IUpdateable {
  public:
+  IUpdateable() = default;
   virtual ~IUpdateable() = default;
   IUpdateable(const IUpdateable&) = delete;
   IUpdateable operator=(const IUpdateable&) = delete;
