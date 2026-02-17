@@ -80,11 +80,11 @@ private:
     std::pair<std::map<std::string, core::simulation::power::PVData>, float>
     loadPVData(opencover::utils::read::CSVStream &pvStream);
 
-    SolarPanel createSolarPanel(
-        const std::string &name, osg::ref_ptr<osg::Group> parent,
-        const std::vector<core::utils::osgUtils::instancing::GeometryData>
-            &masterGeometryData,
-        const osg::Matrix &matrix, const osg::Vec4 &colorIntensity);
+  std::unique_ptr<SolarPanel> createSolarPanel(
+      const std::string &name, osg::ref_ptr<osg::Group> parent,
+      const std::vector<core::utils::osgUtils::instancing::GeometryData>
+          &masterGeometryData,
+      const osg::Matrix &matrix, const osg::Vec4 &colorIntensity);
 
     void processPVRow(
         const opencover::utils::read::CSVStream::CSVRow &row,

@@ -4,6 +4,7 @@
 
 #include <cover/coVRAnimationManager.h>
 
+#include <memory>
 #include <osg/ClipNode>
 #include <osg/MatrixTransform>
 
@@ -291,7 +292,7 @@ osg::ref_ptr<osg::Node> CityGMLSystem::readPVModel(
   return masterPanel;
 }
 
-SolarPanel CityGMLSystem::createSolarPanel(
+std::unique_ptr<SolarPanel> CityGMLSystem::createSolarPanel(
     const std::string &name, osg::ref_ptr<osg::Group> parent,
     const std::vector<core::utils::osgUtils::instancing::GeometryData>
         &masterGeometryData,
@@ -300,10 +301,10 @@ SolarPanel CityGMLSystem::createSolarPanel(
   auto solarPanelInstance = instancing::createInstance(masterGeometryData, matrix);
   solarPanelInstance->setName(name);
 
-  SolarPanel solarPanel(solarPanelInstance);
-  solarPanel.updateColor(colorIntensity);
+  auto solarPanel = std::make_unique<SolarPanel>(solarPanelInstance);
+  solarPanel->updateColor(colorIntensity);
   parent->addChild(solarPanelInstance);
-  return solarPanel;
+  return std::move(solarPanel);
 }
 
 void CityGMLSystem::processSolarPanelDrawable(SolarPanelList &solarPanels,
@@ -366,7 +367,7 @@ void CityGMLSystem::processSolarPanelDrawable(SolarPanelList &solarPanels,
     auto solarPanel =
         createSolarPanel("SolarPanel_" + std::to_string(i), pvPanelsTransform,
                          config.masterGeometryData, matrix, config.colorIntensity);
-    solarPanels.push_back(std::make_unique<SolarPanel>(solarPanel));
+    solarPanels.push_back(std::move(solarPanel));
   }
 
   config.parent->addChild(pvPanelsTransform);

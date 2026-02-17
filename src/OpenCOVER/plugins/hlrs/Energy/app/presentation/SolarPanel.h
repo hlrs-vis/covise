@@ -35,8 +35,12 @@ struct SolarPanelConfig {
 class SolarPanel : public core::interface::ISolarPanel {
  public:
   SolarPanel(osg::ref_ptr<osg::Node> node) : m_node(node) { init(); }
-
-  ~SolarPanel() {};
+  ~SolarPanel() {
+    if (m_node && m_node->getNumParents() > 0) {
+      // This removes the visual from the scene when the C++ object dies
+      m_node->getParent(0)->removeChild(m_node);
+    }
+  }
   void initDrawable() override;
   void updateColor(const osg::Vec4 &color) override;
 
