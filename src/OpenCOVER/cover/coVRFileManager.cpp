@@ -1387,11 +1387,11 @@ class coReadFileCallback : public osgDB::Registry::ReadFileCallback
 public:
     virtual osgDB::ReaderWriter::ReadResult readNode(const std::string &fileName, const osgDB::ReaderWriter::Options *options)
     {
-        std::cout << "before readNode" << std::endl;
+        //std::cout << "before readNode" << std::endl;
         // note when calling the Registry to do the read you have to call readNodeImplementation NOT readNode, as this will
         // cause on infinite recusive loop.
         osgDB::ReaderWriter::ReadResult result = osgDB::Registry::instance()->readNodeImplementation(fileName, options);
-        std::cout << "after readNode" << std::endl;
+        //std::cout << "after readNode" << std::endl;
         if (result.getNode())
         {
             if (result.getNode()->getName().length() == 0)
@@ -1402,7 +1402,7 @@ public:
         return result;
     }
 };
-coReadFileCallback rfcb;
+osg::ref_ptr<coReadFileCallback> rfcb;
 
 
 coVRFileManager::coVRFileManager()
@@ -1467,8 +1467,8 @@ coVRFileManager::coVRFileManager()
 
     osgDB::Registry::instance()->addFileExtensionAlias("gml", "citygml");
     osgDB::Registry::instance()->addFileExtensionAlias("3mxb", "3mx");
-
-    osgDB::Registry::instance()->setReadFileCallback(&rfcb);
+    rfcb = new coReadFileCallback;
+    osgDB::Registry::instance()->setReadFileCallback(rfcb);
     updateSupportedFormats();
     options = new osgDB::ReaderWriter::Options;
     options->setOptionString(coCoviseConfig::getEntry("options", "COVER.File"));
