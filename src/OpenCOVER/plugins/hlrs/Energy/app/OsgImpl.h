@@ -11,6 +11,7 @@ typedef std::vector<Drawable> Drawables;
 class OsgBuildingImpl
     : public core::interface::IBuilding<Drawable, std::vector> {
  public:
+  OsgBuildingImpl() = default;
   Drawables &getDrawables() override { return m_drawables; };
   Drawable &getDrawable(size_t idx) override {
     if (idx >= m_drawables.size()) {
@@ -25,5 +26,6 @@ class OsgBuildingImpl
 
 class OsgBuildingTimedependImpl : public OsgBuildingImpl, public core::interface::ITimedependable {
     public:
+     OsgBuildingTimedependImpl() = default;
      virtual ~OsgBuildingTimedependImpl() = default;
 };
