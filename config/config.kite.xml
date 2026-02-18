@@ -25,12 +25,20 @@
         <CSV value="/data/MERIDIONAL/kitedata/flight.csv" />
         
         <!-- Geographic model settings -->
-        <GeoModel value="/data/StuttgartForecast/stuttgart_offset.wrl" />
-        <GeoPosX value="-665465" />
-        <GeoPosY value="-5420261" />
-        <GeoPosZ value="5134" />
-        <GeoAutoCenter value="true" />
-        <GeoAutoGround value="true" />
+        <GeoModel value="/data/MERIDIONAL/simonsSensordata/MultiSensorSWE1/winsent_terrain_yup.obj" />
+        <GeoScale value="20" />
+        <GeoPosX value="0" />
+        <GeoPosY value="0" />
+        <GeoPosZ value="0" />
+        <GeoAutoCenter value="false" />
+        <GeoAutoGround value="false" />
+
+        <!-- Ground / placement settings -->
+        <ShowGround value="true" />
+        <GroundPosX value="15000" />
+        <GroundPosY value="0" />
+        <GroundPosZ value="13500" />
+        <GroundSize_m value="220" />
         
         <!-- Optional: Frame and orientation settings (defaults are usually fine) -->
         <!-- <Frame value="auto" /> -->
