@@ -4,7 +4,7 @@
 #include <cmath>
 
 namespace {
-std::pair<double, double> robustMinMax(const std::vector<double> &values,
+std::pair<double, double> robustMinMax(const core::simulation::ScalarVec &values,
                                        double trimPercent = 0.01) {
   if (values.empty()) return {0.0, 0.0};
   std::vector<double> sorted = values;
@@ -19,7 +19,7 @@ std::pair<double, double> robustMinMax(const std::vector<double> &values,
 
 namespace core::simulation {
 void ScalarPropertiesProcessor::initMinMax(ScalarProperty &property,
-                                           const std::vector<double> &values) {
+                                           const ScalarVec &values) {
   auto [min_elem, max_elem] = robustMinMax(values, trimPercent);
   property.min = min_elem;
   property.max = max_elem;
@@ -27,7 +27,7 @@ void ScalarPropertiesProcessor::initMinMax(ScalarProperty &property,
 
 void ScalarPropertiesProcessor::init(ScalarProperties &properties,
                                      const std::string &key,
-                                     const std::vector<double> &values) {
+                                     const ScalarVec &values) {
   initMinMax(properties.ref()[key], values);
   properties.setUnit(key);
   properties.setPreferredColorMap(key);

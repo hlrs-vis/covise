@@ -3,9 +3,10 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include "type.h"
 
 namespace core::simulation {
-typedef std::map<std::string, std::vector<double>> Data;
+typedef std::map<std::string, ScalarVec, std::less<>> Data;
 
 class Object {
  public:

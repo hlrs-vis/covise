@@ -5,15 +5,16 @@
 #include <utility>
 
 #include "unitmap.h"
+#include "type.h"
 
 namespace core::simulation {
 
 struct ScalarProperty {
   double min;
   double max;
-  size_t timesteps;
-  std::string unit;
-  std::string species;
+  Timestep timesteps;
+  Unit unit;
+  Species species;
   std::string preferredColorMap;
 };
 
@@ -34,14 +35,14 @@ class ScalarProperties {
     return get(key).preferredColorMap;
   }
 
-  void setSpecies(const std::string &key, const std::string &species) {
+  void setSpecies(const std::string &key, const Species &species) {
     m_properties[key].species = species;
   }
   void setUnit(const std::string &key) { m_properties[key].unit = UNIT_MAP[key]; }
   void setPreferredColorMap(const std::string &key) {
     m_properties[key].preferredColorMap = COLORMAP_MAP[key];
   }
-  void setTimesteps(const std::string &key, size_t t) { m_properties[key].timesteps = t; }
+  void setTimesteps(const std::string &key, Timestep t) { m_properties[key].timesteps = t; }
 
   auto &ref() { return m_properties; }
 

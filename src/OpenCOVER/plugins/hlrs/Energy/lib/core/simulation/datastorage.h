@@ -4,11 +4,11 @@
 namespace core::simulation {
 class DataStorage {
  public:
-  void addData(const std::string &key, const std::vector<double> &value) {
+  void addData(const std::string &key, const ScalarVec &value) {
     m_data[key] = value;
   }
 
-  void addData(const std::string &key, const double &value) {
+  void addData(const std::string &key, const Scalar &value) {
     m_data[key].push_back(value);
   }
   auto &getData() { return m_data; }

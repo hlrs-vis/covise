@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "scalarproperties.h"
+#include "type.h"
 
 namespace core::simulation {
 
@@ -11,10 +12,10 @@ class ScalarPropertiesProcessor {
   ScalarPropertiesProcessor(const float &trimPercent = 0.01)
       : trimPercent(trimPercent) {}
   void init(ScalarProperties &properties, const std::string &key,
-            const std::vector<double> &values);
+            const ScalarVec &values);
 
  private:
-  void initMinMax(ScalarProperty &property, const std::vector<double> &values);
+  void initMinMax(ScalarProperty &property, const ScalarVec &values);
   // trim values by percent
   float trimPercent;
 };

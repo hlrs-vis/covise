@@ -3,13 +3,14 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include "type.h"
 
 namespace core::simulation {
 
 constexpr auto INVALID_UNIT = "unknown";
 struct UnitPair {
   std::vector<std::string> names;
-  std::string unit;
+  Unit unit;
 };
 
 class UnitMap {
@@ -22,7 +23,7 @@ class UnitMap {
     }
   }
 
-  const std::string operator[](const std::string &key) const {
+  const Unit operator[](const std::string &key) const {
     auto it = unit_map.find(key);
     if (it != unit_map.end()) {
       return it->second;
@@ -34,7 +35,7 @@ class UnitMap {
   auto end() { return unit_map.end(); }
 
  private:
-  std::unordered_map<std::string, std::string> unit_map;
+  std::unordered_map<std::string, Unit> unit_map;
 };
 
 const UnitMap UNIT_MAP =
