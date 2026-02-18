@@ -168,6 +168,12 @@ bool KitePlugin::init()
     m_showGround = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.ShowGround", m_showGround);
     m_worldScale = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.WorldScale", m_worldScale);
     m_targetTether_m = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.TargetTether_m", m_targetTether_m);
+    const std::string groundSizeEntry = coCoviseConfig::getEntry("value", "COVER.Plugin.KitePlugin.GroundSize_m", "");
+    if (!groundSizeEntry.empty())
+    {
+        m_groundSize_m = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.GroundSize_m", m_groundSize_m);
+        m_groundSizeAuto = false;
+    }
     m_focusMode = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.FocusMode", m_focusMode);
     m_focusTetherLen_m = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.FocusTetherLen_m", m_focusTetherLen_m);
 
@@ -254,6 +260,14 @@ bool KitePlugin::init()
     m_focusTetherLen_m = envToFloat("KITE_FOCUS_TETHER_LEN", m_focusTetherLen_m);
 
     m_showGround = envToBool("KITE_SHOW_GROUND", m_showGround);
+    m_groundPos.x() = envToFloat("KITE_GROUND_POS_X", m_groundPos.x());
+    m_groundPos.y() = envToFloat("KITE_GROUND_POS_Y", m_groundPos.y());
+    m_groundPos.z() = envToFloat("KITE_GROUND_POS_Z", m_groundPos.z());
+    if (std::getenv("KITE_GROUND_SIZE_M"))
+    {
+        m_groundSize_m = envToFloat("KITE_GROUND_SIZE_M", m_groundSize_m);
+        m_groundSizeAuto = false;
+    }
     m_geoPos.x() = envToFloat("KITE_GEO_POS_X", m_geoPos.x());
     m_geoPos.y() = envToFloat("KITE_GEO_POS_Y", m_geoPos.y());
     m_geoPos.z() = envToFloat("KITE_GEO_POS_Z", m_geoPos.z());
@@ -626,6 +640,7 @@ void KitePlugin::parseCsv(const std::string &path)
         osg::Vec3 pos = f0.pos * (m_unitsPerMeter * m_worldScale * m_globalPosScale);
         if (m_useNedFrame)
             pos = osg::Vec3(pos.y(), pos.x(), -pos.z());
+        pos += m_groundPos;
 
         const double d2r = M_PI / 180.0;
         osg::Matrix rot = osg::Matrix::rotate(m_geoYawDeg * d2r, osg::Vec3(0, 0, 1));
@@ -678,6 +693,9 @@ void KitePlugin::updateTransform(int frameIndex)
             osg::Quat(180.0 * d2r, osg::Vec3(1, 0, 0));
         q = nedToEnu * q;
     }
+
+    // CSV trajectory is ground-station relative; move whole setup in world.
+    pos += m_groundPos;
 
     if (m_haveModelBB)
     {
@@ -1052,7 +1070,8 @@ void KitePlugin::initRopes()
         }
     }
 
-    m_groundSize_m = std::max(200.0f, 2.2f * m_targetTether_m);
+    if (m_groundSizeAuto)
+        m_groundSize_m = std::max(200.0f, 2.2f * m_targetTether_m);
 
     m_ropeGeode = new osg::Geode();
 
@@ -1198,9 +1217,9 @@ void KitePlugin::createGround()
     // attach to ground transform
     m_groundXform->addChild(m_groundGeode.get());
 
-    // Place groundXform at world z-offset, and also define ground station origin there.
+    // Place groundXform at configured ground station position plus optional z-offset.
     const float zW = m_groundZOffset_m * m_unitsPerMeter;
-    m_groundPos = osg::Vec3(0.f, 0.f, zW);
+    m_groundPos = osg::Vec3(m_groundPos.x(), m_groundPos.y(), m_groundPos.z() + zW);
     m_groundXform->setMatrix(osg::Matrix::translate(m_groundPos));
 }
 

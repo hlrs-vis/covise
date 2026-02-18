@@ -224,6 +224,7 @@ private:
 
     bool m_showGround = true;
     float m_groundSize_m = 600.0f;
+    bool m_groundSizeAuto = true;
     float m_groundZOffset_m = 0.0f;
     float m_targetTether_m = 300.0f;
 
