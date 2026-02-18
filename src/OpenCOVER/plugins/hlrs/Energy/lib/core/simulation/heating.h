@@ -1,7 +1,9 @@
 #pragma once
 
 #include <string>
+#include <array>
 
+#include "object.h"
 #include "simulation.h"
 
 namespace core::simulation::heating {

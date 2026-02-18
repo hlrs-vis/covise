@@ -1,6 +1,5 @@
 #include "heating.h"
 
-#include <iostream>
 namespace core::simulation::heating {
 
 void HeatingSimulation::init() {
@@ -14,12 +13,11 @@ void HeatingSimulation::init() {
 
 const std::vector<double> *HeatingSimulation::getTimedependentScalar(
     const std::string &species, const std::string &node) const {
-  if (auto result = Simulation::getTimedependentScalar(m_consumers, species, node))
-    return result;
-  if (auto result = Simulation::getTimedependentScalar(m_producers, species, node))
-    return result;
-  std::cerr << "No data found for species: " << species << " in node: " << node
-            << "\n";
-  return nullptr;
+    ObjectMapView view =
+    {
+      std::ref(m_consumers),
+      std::ref(m_producers)
+    };
+    return ScalarByNameCollector(view, node, species).collect();
 }
 }  // namespace core::simulation::heating

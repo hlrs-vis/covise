@@ -38,6 +38,6 @@ class Object {
   Data m_data;  // timestep data
 };
 
-using ObjectMap = std::map<std::string, std::unique_ptr<Object>>;
-using ObjectMapView = std::vector<std::reference_wrapper<ObjectMap>>;
+using ObjectMap = std::map<std::string, std::unique_ptr<Object>, std::less<>>;
+using ObjectMapView = std::vector<std::reference_wrapper<const ObjectMap>>;
 }  // namespace core::simulation

@@ -175,9 +175,10 @@ private:
 
     m_config.infoboardAttributes.position = center;
     m_config.infoboardAttributes.title = name;
-    OsgTxtInfoboard infoboard(m_config.infoboardAttributes);
+    // OsgTxtInfoboard infoboard(m_config.infoboardAttributes);
+    auto infoboard = std::make_unique<OsgTxtInfoboard>(m_config.infoboardAttributes);
     m_infoboards.push_back(std::make_unique<InfoboardSensor>(
-        gridObj, std::make_unique<OsgTxtInfoboard>(infoboard), toPrint));
+        gridObj, std::move(infoboard), toPrint));
   }
 
     std::string createDataString(const grid::Data &data) const;
