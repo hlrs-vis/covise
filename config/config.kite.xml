@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1">
+
+<GLOBAL>
+  <COVER>
+    
+    <!-- Basic COVER settings -->
+    <NavigationMode value="XForm" />
+    <SceneSize value="1000" />
+    <DebugLevel value="1" />
+    
+    <Input>
+      <MouseNav value="ON" />
+      <TrackingSystem value="MOUSE" />
+    </Input>
+
+    <!-- Plugin Configuration -->
+    <Plugin>
+      
+      <!-- Kite Plugin Configuration -->
+      <KitePlugin>
+        <!-- Model and data files -->
+        <Model value="/data/MERIDIONAL/kitedata/kite.stl" />
+        <CSV value="/data/MERIDIONAL/kitedata/flight.csv" />
+        
+        <!-- Geographic model settings -->
+        <GeoModel value="/data/MERIDIONAL/simonsSensordata/MultiSensorSWE1/winsent_terrain_yup.obj" />
+        <GeoScale value="20" />
+        <GeoPosX value="0" />
+        <GeoPosY value="0" />
+        <GeoPosZ value="0" />
+        <GeoAutoCenter value="false" />
+        <GeoAutoGround value="false" />
+
+        <!-- Ground / placement settings -->
+        <ShowGround value="true" />
+        <GroundPosX value="15000" />
+        <GroundPosY value="0" />
+        <GroundPosZ value="13500" />
+        <GroundSize_m value="220" />
+        
+        <!-- Optional: Frame and orientation settings (defaults are usually fine) -->
+        <!-- <Frame value="auto" /> -->
+        <!-- <RollSign value="1.0" /> -->
+        <!-- <PitchSign value="1.0" /> -->
+        <!-- <YawSign value="1.0" /> -->
+        
+        <!-- Optional: Rope/tether visualization settings -->
+        <!-- <RopeEnabled value="true" /> -->
+        <!-- <RopeRadius value="0.05" /> -->
+        <!-- <RopeSagFactor value="0.1" /> -->
+        <!-- <DrawFullTether value="false" /> -->
+      </KitePlugin>
+      
+      <!-- Enable the Kite plugin -->
+      <Kite value="on" />
+      
+    </Plugin>
+
+    <!-- Window and Screen Configuration -->
+    <WindowConfig>
+      <Window width="1920" comment="Main Window" window="0" pipeIndex="0" 
+              height="1080" left="0" top="0" name="0" decoration="true" />
+    </WindowConfig>
+
+    <ScreenConfig>
+      <Screen width="1920" comment="Main Screen" h="0.0" originX="0" originY="0" 
+              originZ="0" height="1080" p="0.0" r="0.0" name="0" screen="0" />
+    </ScreenConfig>
+
+    <PipeConfig>
+      <Pipe name="0" useDISPLAY="true" />
+    </PipeConfig>
+
+    <ViewportConfig>
+      <Viewport width="1" height="1" left="0" bottom="0" 
+                windowIndex="0" channelIndex="0" name="0" />
+    </ViewportConfig>
+
+  </COVER>
+</GLOBAL>
+
+</COCONFIG>
