@@ -282,6 +282,8 @@ void KitePlugin::initRopes()
     cogLocal.x() = bb.xMin() + m_cogX_frac * chordX;
     cogLocal.y() = 0.0f;
     cogLocal.z() = bb.zMin() + m_cogZ_frac * spanZ;
+    m_cogLocal = cogLocal;
+    m_haveCogLocal = true;
 
     // Knot / KCU attach point: bridle height below CoG (down is toward zMin).
     m_knotLocal = cogLocal;
@@ -437,11 +439,59 @@ void KitePlugin::updateRopes()
     if (!m_ropeEnabled || !m_transform)
         return;
 
-    const osg::Vec3 knotWorld = localToWorld(m_knotLocal);
-    const osg::Vec3 knotFrontWorld = localToWorld(m_knotFrontLocal);
-    const osg::Vec3 knotRearWorld = localToWorld(m_knotRearLocal);
-
     const osg::Vec3 g = m_groundPos;
+    osg::Vec3 cogWorld;
+    if (m_haveCogLocal)
+        cogWorld = localToWorld(m_cogLocal);
+    else
+    {
+        const osg::Vec3d t = m_transform->getMatrix().getTrans();
+        cogWorld = osg::Vec3((float)t.x(), (float)t.y(), (float)t.z());
+    }
+
+    osg::Vec3 knotWorld = localToWorld(m_knotLocal);
+    osg::Vec3 knotFrontWorld = localToWorld(m_knotFrontLocal);
+    osg::Vec3 knotRearWorld = localToWorld(m_knotRearLocal);
+
+    if (m_knotFollowTether)
+    {
+        osg::Vec3 toGround = g - cogWorld;
+        float L = toGround.length();
+        if (L < 1e-6f)
+            toGround = osg::Vec3(0.f, 0.f, -1.f);
+        else
+            toGround /= L;
+
+        const float bridleDistUnits = m_bridleHeight_m * m_unitsPerMeter;
+        knotWorld = cogWorld + toGround * bridleDistUnits;
+
+        if (m_useTwoStageKnot)
+        {
+            osg::Vec3 chordDir;
+            if (m_haveCogLocal)
+                chordDir = localToWorld(m_cogLocal + osg::Vec3(1.f, 0.f, 0.f)) - cogWorld;
+            else
+            {
+                const osg::Matrix M = m_transform->getMatrix();
+                chordDir = M.preMult(osg::Vec3(1.f, 0.f, 0.f)) - M.getTrans();
+            }
+            float cL = chordDir.length();
+            if (cL < 1e-6f)
+                chordDir = osg::Vec3(1.f, 0.f, 0.f);
+            else
+                chordDir /= cL;
+
+            const float knotSplit = m_knotSplit_m * m_unitsPerMeter * 0.5f;
+            knotFrontWorld = knotWorld - chordDir * knotSplit;
+            knotRearWorld = knotWorld + chordDir * knotSplit;
+        }
+        else
+        {
+            knotFrontWorld = knotWorld;
+            knotRearWorld = knotWorld;
+        }
+    }
+
     const osg::Vec3 k = knotWorld;
 
     // ---------- FULL tether (faint) ----------
@@ -524,6 +574,18 @@ void KitePlugin::updateRopes()
         const size_t half = (N / 2);
         const int samplesBr = std::max(6, m_ropeSamplesBridle);
 
+        // Draw short Y-junction connectors so the parent tether visibly
+        // attaches to both bridle bundles when two-stage knot mode is used.
+        if (m_useTwoStageKnot)
+        {
+            appendPolylineAsLines(
+                m_bridleVerts.get(),
+                sagCurvePoints(knotWorld, knotFrontWorld, std::max(4, samplesBr / 2), 0.0f));
+            appendPolylineAsLines(
+                m_bridleVerts.get(),
+                sagCurvePoints(knotWorld, knotRearWorld, std::max(4, samplesBr / 2), 0.0f));
+        }
+
         for (size_t i = 0; i < N; ++i)
         {
             const osg::Vec3 aWorld = localToWorld(m_attachLocal[i]);
@@ -548,4 +610,3 @@ void KitePlugin::updateRopes()
         m_bridleGeom->dirtyBound();
     }
 }
-
