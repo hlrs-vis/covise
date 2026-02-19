@@ -29,7 +29,7 @@ class PowerSimulation : public Simulation {
   const auto &Transformators() const { return m_transformators; }
   const auto &Cables() const { return m_cables; }
   const auto &Buildings() const { return m_buildings; }
-  const std::vector<double> *getTimedependentScalar(
+  const_ScalarVecs getTimedependentScalar(
       const std::string &species, const std::string &node) const override;
 
  private:

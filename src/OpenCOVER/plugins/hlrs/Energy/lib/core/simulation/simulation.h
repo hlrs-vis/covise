@@ -1,10 +1,6 @@
 #pragma once
 
-// #include <iostream>
-// #include <map>
-// #include <memory>
 #include <string>
-#include <vector>
 
 #include "collector.h"
 #include "datastorage.h"
@@ -22,7 +18,7 @@ class Simulation {
   const auto &getScalarProperties() const { return m_scalarProperties; }
   auto &getScalarProperties() { return m_scalarProperties; }
 
-  virtual const std::vector<double> *getTimedependentScalar(
+  virtual const_ScalarVecs getTimedependentScalar(
       const std::string &species, const std::string &node) const = 0;
   virtual void init() = 0;
 

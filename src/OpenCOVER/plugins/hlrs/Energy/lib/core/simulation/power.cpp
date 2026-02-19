@@ -16,7 +16,7 @@ void PowerSimulation::init() {
   );
 }
 
-const std::vector<double> *PowerSimulation::getTimedependentScalar(
+const_ScalarVecs PowerSimulation::getTimedependentScalar(
     const std::string &species, const std::string &node) const {
     return ScalarByNameCollector(
       {
