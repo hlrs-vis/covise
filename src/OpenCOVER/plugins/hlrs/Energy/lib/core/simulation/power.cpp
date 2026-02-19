@@ -18,14 +18,15 @@ void PowerSimulation::init() {
 
 const std::vector<double> *PowerSimulation::getTimedependentScalar(
     const std::string &species, const std::string &node) const {
-    ObjectMapView view = {
-        std::ref(m_buses),
-        std::ref(m_generators),
-        std::ref(m_transformators),
-        std::ref(m_buildings),
-        std::ref(m_cables)
-    };
-    return ScalarByNameCollector(view, node, species).collect();
+    return ScalarByNameCollector(
+      {
+          std::ref(m_buses),
+          std::ref(m_generators),
+          std::ref(m_transformators),
+          std::ref(m_buildings),
+          std::ref(m_cables)
+      },
+      node, species).collect();
 }
 
 }  // namespace core::simulation::power
