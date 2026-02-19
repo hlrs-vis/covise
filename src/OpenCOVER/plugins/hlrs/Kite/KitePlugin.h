@@ -65,6 +65,19 @@ private:
     double m_pitchOffsetDeg = 0.0;
     double m_yawOffsetDeg = 0.0;
 
+    bool m_smoothPose = true;
+    double m_posSmoothAlpha = 0.25;
+    double m_rotSmoothAlpha = 0.20;
+    bool m_haveSmoothedPose = false;
+    int m_lastFrameIndex = -1;
+    osg::Vec3 m_smoothedPos;
+    osg::Quat m_smoothedRot;
+
+    bool m_despikeOrientation = true;
+    bool m_despikeYawOnly = true;
+    double m_despikeJumpDeg = 120.0;
+    double m_despikeSettleDeg = 25.0;
+
     // ----------------------------
     // Rope rendering (procedural)
     // ----------------------------
@@ -159,6 +172,9 @@ private:
 
     // Key point (knot / KCU attach) in kite-local coords
     osg::Vec3 m_knotLocal;
+    osg::Vec3 m_cogLocal;
+    bool m_haveCogLocal = false;
+    bool m_knotFollowTether = true;
     bool m_useTwoStageKnot = true;
     float m_knotSplit_m = 1.2f;
     osg::Vec3 m_knotFrontLocal;

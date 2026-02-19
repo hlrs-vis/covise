@@ -13,6 +13,14 @@
 #include <cmath>
 #include <cstdio>
 
+namespace
+{
+double quatDot(const osg::Quat &a, const osg::Quat &b)
+{
+    return (double)a.x() * b.x() + (double)a.y() * b.y() + (double)a.z() * b.z() + (double)a.w() * b.w();
+}
+}
+
 void KitePlugin::updateTransform(int frameIndex)
 {
     if (!m_transform || m_frames.empty())
@@ -71,7 +79,31 @@ void KitePlugin::updateTransform(int frameIndex)
 
     q = m_modelOffset * q;
 
-    osg::Matrix m = osg::Matrix::rotate(q) * osg::Matrix::translate(pos);
+    const bool frameJump = (m_lastFrameIndex >= 0 && std::abs(frameIndex - m_lastFrameIndex) > 1);
+    if (!m_smoothPose || !m_haveSmoothedPose || frameJump)
+    {
+        m_smoothedPos = pos;
+        m_smoothedRot = q;
+        m_haveSmoothedPose = true;
+    }
+    else
+    {
+        const float aPos = (float)m_posSmoothAlpha;
+        const float aRot = (float)m_rotSmoothAlpha;
+
+        m_smoothedPos = m_smoothedPos * (1.0f - aPos) + pos * aPos;
+
+        osg::Quat target = q;
+        if (quatDot(m_smoothedRot, target) < 0.0)
+            target = osg::Quat(-target.x(), -target.y(), -target.z(), -target.w());
+
+        osg::Quat blended;
+        blended.slerp(aRot, m_smoothedRot, target);
+        m_smoothedRot = blended;
+    }
+    m_lastFrameIndex = frameIndex;
+
+    osg::Matrix m = osg::Matrix::rotate(m_smoothedRot) * osg::Matrix::translate(m_smoothedPos);
     m_transform->setMatrix(m);
 }
 
@@ -92,4 +124,3 @@ osg::Quat KitePlugin::quatFromZToDir(const osg::Vec3 &dir)
     q.makeRotate(osg::Vec3(0, 0, 1), d);
     return q;
 }
-
