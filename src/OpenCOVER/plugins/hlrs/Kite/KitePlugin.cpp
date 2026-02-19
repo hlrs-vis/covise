@@ -128,6 +128,14 @@ bool KitePlugin::init()
     m_rollOffsetDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.RollOffset", m_rollOffsetDeg);
     m_pitchOffsetDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.PitchOffset", m_pitchOffsetDeg);
     m_yawOffsetDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.YawOffset", m_yawOffsetDeg);
+    m_smoothPose = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.SmoothPose", m_smoothPose);
+    m_posSmoothAlpha = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.PositionSmoothing", (float)m_posSmoothAlpha);
+    m_rotSmoothAlpha = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.RotationSmoothing", (float)m_rotSmoothAlpha);
+    m_despikeOrientation = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.DespikeOrientation", m_despikeOrientation);
+    m_despikeYawOnly = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.DespikeYawOnly", m_despikeYawOnly);
+    m_despikeJumpDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.DespikeJumpDeg", (float)m_despikeJumpDeg);
+    m_despikeSettleDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.DespikeSettleDeg", (float)m_despikeSettleDeg);
+    m_knotFollowTether = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.KnotFollowTether", m_knotFollowTether);
 
     // Rope config (optional)
     m_ropeEnabled = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.RopeEnabled", m_ropeEnabled);
@@ -251,6 +259,17 @@ bool KitePlugin::init()
     m_rollOffsetDeg = envToDouble("KITE_ROLL_OFFSET", m_rollOffsetDeg);
     m_pitchOffsetDeg = envToDouble("KITE_PITCH_OFFSET", m_pitchOffsetDeg);
     m_yawOffsetDeg = envToDouble("KITE_YAW_OFFSET", m_yawOffsetDeg);
+    m_smoothPose = envToBool("KITE_SMOOTH_POSE", m_smoothPose);
+    m_posSmoothAlpha = envToDouble("KITE_POSITION_SMOOTHING", m_posSmoothAlpha);
+    m_rotSmoothAlpha = envToDouble("KITE_ROTATION_SMOOTHING", m_rotSmoothAlpha);
+    m_despikeOrientation = envToBool("KITE_DESPIKE_ORIENTATION", m_despikeOrientation);
+    m_despikeYawOnly = envToBool("KITE_DESPIKE_YAW_ONLY", m_despikeYawOnly);
+    m_despikeJumpDeg = envToDouble("KITE_DESPIKE_JUMP_DEG", m_despikeJumpDeg);
+    m_despikeSettleDeg = envToDouble("KITE_DESPIKE_SETTLE_DEG", m_despikeSettleDeg);
+    m_knotFollowTether = envToBool("KITE_KNOT_FOLLOW_TETHER", m_knotFollowTether);
+
+    m_posSmoothAlpha = std::max(0.0, std::min(1.0, m_posSmoothAlpha));
+    m_rotSmoothAlpha = std::max(0.0, std::min(1.0, m_rotSmoothAlpha));
 
     m_ropeEnabled = envToBool("KITE_ROPE", m_ropeEnabled);
     m_ropeRadius = envToFloat("KITE_ROPE_RADIUS", m_ropeRadius);

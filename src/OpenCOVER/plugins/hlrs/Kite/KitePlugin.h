@@ -172,6 +172,9 @@ private:
 
     // Key point (knot / KCU attach) in kite-local coords
     osg::Vec3 m_knotLocal;
+    osg::Vec3 m_cogLocal;
+    bool m_haveCogLocal = false;
+    bool m_knotFollowTether = true;
     bool m_useTwoStageKnot = true;
     float m_knotSplit_m = 1.2f;
     osg::Vec3 m_knotFrontLocal;

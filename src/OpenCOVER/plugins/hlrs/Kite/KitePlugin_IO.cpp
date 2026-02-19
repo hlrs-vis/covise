@@ -32,6 +32,47 @@ osg::Matrix geoTransformMatrix(const osg::Vec3 &pos, float scale, float yawDeg)
            osg::Matrix::rotate(yawDeg * d2r, osg::Vec3(0, 0, 1)) *
            osg::Matrix::translate(pos);
 }
+
+double wrapDeg180(double a)
+{
+    while (a > 180.0)
+        a -= 360.0;
+    while (a <= -180.0)
+        a += 360.0;
+    return a;
+}
+
+double signedDeltaDeg(double a, double b)
+{
+    return wrapDeg180(a - b);
+}
+
+int fixSingleFrameSpikes(std::vector<double> &anglesDeg, double jumpDeg, double settleDeg)
+{
+    if (anglesDeg.size() < 3)
+        return 0;
+
+    int fixed = 0;
+    for (size_t i = 1; i + 1 < anglesDeg.size(); ++i)
+    {
+        const double prev = anglesDeg[i - 1];
+        const double cur = anglesDeg[i];
+        const double next = anglesDeg[i + 1];
+
+        const double dPrev = std::fabs(signedDeltaDeg(cur, prev));
+        const double dNext = std::fabs(signedDeltaDeg(next, cur));
+        const double dBridge = std::fabs(signedDeltaDeg(next, prev));
+
+        // Heal one-frame spikes: large jump in/out, but neighbors stay consistent.
+        if (dPrev > jumpDeg && dNext > jumpDeg && dBridge < settleDeg)
+        {
+            const double mid = prev + 0.5 * signedDeltaDeg(next, prev);
+            anglesDeg[i] = wrapDeg180(mid);
+            ++fixed;
+        }
+    }
+    return fixed;
+}
 } // namespace
 
 bool KitePlugin::loadModel(const std::string &path)
@@ -221,6 +262,44 @@ void KitePlugin::parseCsv(const std::string &path)
 
     if (!m_frames.empty())
     {
+        if (m_despikeOrientation)
+        {
+            std::vector<double> roll, pitch, yaw;
+            roll.reserve(m_frames.size());
+            pitch.reserve(m_frames.size());
+            yaw.reserve(m_frames.size());
+            for (const auto &f : m_frames)
+            {
+                roll.push_back(f.roll);
+                pitch.push_back(f.pitch);
+                yaw.push_back(f.yaw);
+            }
+
+            int fixRoll = 0;
+            int fixPitch = 0;
+            const int fixYaw = fixSingleFrameSpikes(yaw, m_despikeJumpDeg, m_despikeSettleDeg);
+            if (!m_despikeYawOnly)
+            {
+                fixRoll = fixSingleFrameSpikes(roll, m_despikeJumpDeg, m_despikeSettleDeg);
+                fixPitch = fixSingleFrameSpikes(pitch, m_despikeJumpDeg, m_despikeSettleDeg);
+            }
+
+            for (size_t i = 0; i < m_frames.size(); ++i)
+            {
+                m_frames[i].roll = roll[i];
+                m_frames[i].pitch = pitch[i];
+                m_frames[i].yaw = yaw[i];
+            }
+
+            const int totalFix = fixRoll + fixPitch + fixYaw;
+            if (totalFix > 0)
+            {
+                fprintf(stderr,
+                        "KitePlugin: orientation despike fixed %d samples (roll=%d pitch=%d yaw=%d, yawOnly=%d jump=%.1f settle=%.1f)\n",
+                        totalFix, fixRoll, fixPitch, fixYaw, m_despikeYawOnly ? 1 : 0, m_despikeJumpDeg, m_despikeSettleDeg);
+            }
+        }
+
         // DO NOT shift XY here and DO NOT apply target tether scaling here.
         // Keep positions in meters exactly as in the CSV.
         // Ground station is (0,0,0) in this coordinate system if the CSV is truly "relative to station".
@@ -275,4 +354,3 @@ void KitePlugin::parseCsv(const std::string &path)
                 pos.x(), pos.y(), pos.z());
     }
 }
-
