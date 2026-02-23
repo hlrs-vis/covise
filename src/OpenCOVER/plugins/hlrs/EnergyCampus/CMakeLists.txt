@@ -1,5 +1,5 @@
-option(BUILD_ENERGY "Build Energy Campus plugin" OFF)
-if (NOT BUILD_ENERGY)
+option(BUILD_ENERGYCAMPUS "Build Energy Campus plugin" OFF)
+if (NOT BUILD_ENERGYCAMPUS)
     return()
 else()
     set(BUILD_ARROW ON CACHE BOOL "Build Apache Arrow for Energy Campus plugin" FORCE)
