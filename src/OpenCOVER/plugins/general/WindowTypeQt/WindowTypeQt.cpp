@@ -393,19 +393,8 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     const bool isWayland = sessionType && std::strcmp(sessionType, "wayland") == 0;
 
     QSurfaceFormat format;
-    if (isWayland)
-    {
-        // Wayland: Use simpler OpenGL compatibility profile - EGL configs are stricter
-        format.setVersion(3, 3);
-        format.setProfile(QSurfaceFormat::CompatibilityProfile);
-        format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
-    }
-    else
-    {
-        // X11: Use traditional 2.1 compatibility profile
-        format.setVersion(2, 1);
-        format.setProfile(QSurfaceFormat::CompatibilityProfile);
-    }
+    format.setVersion(2, 1);
+    format.setProfile(QSurfaceFormat::CompatibilityProfile);
 
     // Color bit depth: limit to 8-bit on Wayland (EGL config availability)
     int bpc = covise::coCoviseConfig::getInt("bpc", "COVER.Framebuffer", 10);
