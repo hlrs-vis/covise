@@ -1,6 +1,4 @@
 #pragma once
-#include <osg/Node>
-#include <osg/ref_ptr>
 
 namespace core::interface {
 class IDrawable {
