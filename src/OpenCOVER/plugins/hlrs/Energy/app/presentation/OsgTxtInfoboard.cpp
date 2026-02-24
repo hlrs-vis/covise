@@ -22,7 +22,9 @@ using namespace core;
 
 void OsgTxtInfoboard::initDrawable() {
   osg::ref_ptr<osg::MatrixTransform> trans = new osg::MatrixTransform;
-  trans->setMatrix(osg::Matrix::translate(m_attributes.position));
+  const auto &pos = m_attributes.position;
+  const auto translation = osg::Vec3(pos.x, pos.y, pos.z);
+  trans->setMatrix(osg::Matrix::translate(translation));
   trans->addChild(m_BBoard);
   trans->setName("Billboard");
   m_drawable = trans;
@@ -90,7 +92,7 @@ void OsgTxtInfoboard::showInfo() {
   m_enabled = true;
 }
 
-void OsgTxtInfoboard::move(const osg::Vec3 &pos) {
+void OsgTxtInfoboard::move(const core::interface::Pos &pos) {
   m_attributes.position = pos;
   if (m_enabled) updateInfo(m_info);
 }

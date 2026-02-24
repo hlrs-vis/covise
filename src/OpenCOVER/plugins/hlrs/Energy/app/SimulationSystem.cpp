@@ -1075,7 +1075,7 @@ void SimulationSystem::buildPowerGrid() {
   powerGroup = new osg::MatrixTransform;
   auto font = m_plugin->configString("Billboard", "font", "default")->value();
   OsgTxtBoxAttributes infoboardAttributes = OsgTxtBoxAttributes(
-      osg::Vec3(0, 0, 0), "EnergyGridText", font, 50, 50, 2.0f, 0.1, 2);
+      {0, 0, 0}, "EnergyGridText", font, 50, 50, 2.0f, 0.1, 2);
   powerGroup->setName("PowerGrid");
 
   EnergyGridConfig econfig("POWER", {}, grid::Indices(), mergedPoints, powerGroup,
@@ -1373,7 +1373,7 @@ void SimulationSystem::readHeatingGridStream(CSVStream &heatingStream) {
   m_energyGrids[egridIdx].group = new osg::MatrixTransform;
   auto font = m_plugin->configString("Billboard", "font", "default")->value();
   OsgTxtBoxAttributes infoboardAttributes = OsgTxtBoxAttributes(
-      osg::Vec3(0, 0, 0), "EnergyGridText", font, 50, 50, 2.0f, 0.1, 2);
+      {0, 0, 0}, "EnergyGridText", font, 50, 50, 2.0f, 0.1, 2);
 
   std::map<int, std::string> connectionStrings;
   auto [points, pointData] =

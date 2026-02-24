@@ -45,7 +45,7 @@ struct EnergyGridConfig {
                    const grid::ConnectionDataList &extraConnectionData =
                        grid::ConnectionDataList(),
                    const OsgTxtBoxAttributes &gridInfoAttributes =
-                       OsgTxtBoxAttributes(osg::Vec3(0, 0, 0), "EnergyGridText",
+                       OsgTxtBoxAttributes({0, 0, 0}, "EnergyGridText",
                                            "DejaVuSans-Bold.ttf", 50, 50, 2.0f, 0.1,
                                            2),
                    const EnergyGridConnectionType &gridConnectionType =
@@ -167,7 +167,7 @@ class EnergyGrid : public interface::IEnergyGrid {
     center.z() += 30;
     auto name = gridObj->getName();
 
-    m_config.infoboardAttributes.position = center;
+    m_config.infoboardAttributes.position = core::interface::Pos(center.x(), center.y(), center.z());
     m_config.infoboardAttributes.title = name;
     // OsgTxtInfoboard infoboard(m_config.infoboardAttributes);
     auto infoboard = std::make_unique<OsgTxtInfoboard>(m_config.infoboardAttributes);

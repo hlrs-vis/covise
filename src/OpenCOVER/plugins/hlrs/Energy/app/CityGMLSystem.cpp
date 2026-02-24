@@ -766,8 +766,8 @@ void CityGMLSystem::addCityGMLObject(const std::string &name,
   saveCityGMLObjectDefaultStateSet(name, *geodes);
 
   auto boundingbox = core::utils::osgUtils::getBoundingBox(*geodes);
-  auto infoboardPos = boundingbox.center();
-  infoboardPos.z() +=
+  auto infoboardPos = core::interface::Pos(boundingbox.center().x(), boundingbox.center().y(), boundingbox.center().z());
+  infoboardPos.z +=
       (boundingbox.zMax() - boundingbox.zMin()) / 2 + boundingbox.zMin();
   auto infoboard = std::make_unique<OsgTxtInfoboard>(
       infoboardPos, name, "DroidSans-Bold.ttf", 50, 50, 2.0f, 0.1, 2);
