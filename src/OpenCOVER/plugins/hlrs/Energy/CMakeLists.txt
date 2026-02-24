@@ -42,7 +42,7 @@ SET(SOURCES
     app/presentation/grid.cpp
 )
 
-set(Name "EnergyCampus")
+set(Name "Energy")
 add_subdirectory(lib)
 cover_add_plugin(
     ${Name} 
