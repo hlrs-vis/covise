@@ -48,6 +48,7 @@ cover_add_plugin(
     ${Name} 
     EnergyCore
     coApacheArrow
+    coReadCSVUtil
     ${HEADERS} ${SOURCES})
 
 set_target_properties(${Name} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
