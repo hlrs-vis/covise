@@ -29,7 +29,7 @@ jobs:
         BUILD_energy: [ON]
         build_arrow: [ON]
         test_energy: [ON]
-        debug_ennovatis: [ON]
+        debug_ennovatis: [OFF]
         drivingsim: [OFF]
         include:
           - os: 'ubuntu-latest'
@@ -185,7 +185,7 @@ jobs:
         -DCOVISE_USE_CUDA=${{matrix.use_cuda}}
         -DBUILD_ENERGY=${{matrix.build_energy}}
         -DBUILD_ARROW=${{matrix.build_arrow}}
-        -DTEST_ENERGYCAMPUS=${{matrix.test_energy}}
+        -DTEST_ENERGY=${{matrix.test_energy}}
         -DDEBUG_ENNOVATIS=${{matrix.debug_ennovatis}}
         -Wno-dev
 
