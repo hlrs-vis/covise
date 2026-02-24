@@ -21,6 +21,7 @@
 #include <variant>
 
 #include "cover/VRViewer.h"
+#include "lib/core/interfaces/IColorable.h"
 
 namespace {
 
@@ -245,7 +246,7 @@ void EnergyGrid::initDrawable() {
   initDrawablePoints();
 }
 
-void EnergyGrid::updateColor(const osg::Vec4 &color) {
+void EnergyGrid::updateColor(const core::interface::Color &color) {
   for (auto &connection : m_connections)
     utils::color::overrideGeodeColor(connection->getGeode(), color);
   for (auto &point : m_config.points)

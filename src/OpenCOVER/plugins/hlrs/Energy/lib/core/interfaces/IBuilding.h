@@ -1,8 +1,8 @@
 #pragma once
-#include <osg/Vec4>
 
 #include "IColorable.h"
 #include "IDrawable.h"
+#include <cstddef>
 
 namespace core::interface {
 template <typename DrawableType, template <typename> class Container>

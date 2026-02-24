@@ -39,13 +39,14 @@ void SolarPanel::initDrawable() {
   m_drawables.push_back(m_node);
 }
 
-void SolarPanel::updateColor(const osg::Vec4 &color) {
+void SolarPanel::updateColor(const core::interface::Color &color) {
   for (auto &node : m_drawables) {
     auto geode = dynamic_cast<osg::Geode *>(node.get());
     if (geode) {
       core::utils::color::overrideGeodeColor(geode, color);
       continue;
     }
+    auto c = osg::Vec4(color.r, color.g, color.b, color.a);
 
     auto group = dynamic_cast<osg::Group *>(node.get());
     if (group) {
@@ -53,9 +54,9 @@ void SolarPanel::updateColor(const osg::Vec4 &color) {
       for (auto &geode : *geodes) {
         osg::ref_ptr<osg::Material> mat = new osg::Material;
         osg::Material::Face face = osg::Material::FRONT_AND_BACK;
-        mat->setDiffuse(face, color);
-        mat->setAmbient(face, color);
-        mat->setEmission(face, color);
+        mat->setDiffuse(face, c);
+        mat->setAmbient(face, c);
+        mat->setEmission(face, c);
         osg::ref_ptr<osg::StateSet> stateset = geode->getOrCreateStateSet();
         if (!stateset) continue;
         stateset->setAttribute(mat, osg::StateAttribute::OVERRIDE);

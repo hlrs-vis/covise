@@ -83,7 +83,7 @@ class CityGMLSystem final : public core::interface::ISystem {
       const std::string &name, osg::ref_ptr<osg::Group> parent,
       const std::vector<core::utils::osgUtils::instancing::GeometryData>
           &masterGeometryData,
-      const osg::Matrix &matrix, const osg::Vec4 &colorIntensity);
+      const osg::Matrix &matrix, const core::interface::Color &colorIntensity);
 
   void processPVRow(
       const opencover::utils::read::CSVStream::CSVRow &row,

@@ -8,7 +8,7 @@
 
 using namespace core;
 
-void PrototypeBuilding::updateColor(const osg::Vec4 &color) {
+void PrototypeBuilding::updateColor(const core::interface::Color &color) {
   for (auto drawable : m_drawables)
     if (auto geode = dynamic_cast<osg::Geode *>(drawable.get()))
       utils::color::overrideGeodeColor(geode, color);

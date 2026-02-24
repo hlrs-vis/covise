@@ -3,6 +3,7 @@
 #include <lib/core/utils/osgUtils.h>
 
 #include "app/typedefs.h"
+#include "lib/core/interfaces/IColorable.h"
 
 /**
  * @class CityGMLBuilding
@@ -41,7 +42,7 @@ class CityGMLBuilding : public BuildingTimedependImpl {
  public:
   CityGMLBuilding(const core::utils::osgUtils::Geodes &geodes);
   void initDrawable() override;
-  void updateColor(const osg::Vec4 &color) override;
+  void updateColor(const core::interface::Color &color) override;
   void updateTime(int timestep) override;
 
   void setColorMapInShader(const opencover::ColorMap &colorMap);

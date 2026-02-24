@@ -17,6 +17,7 @@
 #include "PluginUtil/coSensor.h"
 #include "grid.h"
 #include "app/typedefs.h"
+#include "lib/core/interfaces/IColorable.h"
 
 using namespace core;
 
@@ -137,7 +138,7 @@ class EnergyGrid : public interface::IEnergyGrid {
   void update() override {
     for (auto &infoboard : m_infoboards) infoboard->update();
   }
-  void updateColor(const osg::Vec4 &color) override;
+  void updateColor(const core::interface::Color &color) override;
   void updateTime(int timestep) override;
 
   void setColorMap(const opencover::ColorMap &colorMap,

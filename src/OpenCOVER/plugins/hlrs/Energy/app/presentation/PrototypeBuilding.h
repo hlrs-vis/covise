@@ -36,7 +36,7 @@ class PrototypeBuilding : public BuildingImpl {
   PrototypeBuilding(const CylinderAttributes &cylinderAttributes)
       : m_attributes(cylinderAttributes) {};
   void initDrawable() override;
-  void updateColor(const osg::Vec4 &color) override;
+  void updateColor(const core::interface::Color &color) override;
   std::unique_ptr<osg::Vec4> getColorInRange(float value, float maxValue);
 
  private:

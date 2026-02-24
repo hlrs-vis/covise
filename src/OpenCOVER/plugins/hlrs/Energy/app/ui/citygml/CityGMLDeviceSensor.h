@@ -68,7 +68,7 @@ class CityGMLDeviceSensor : public coPickSensor {
   void disactivate() override;
   void updateTime(int timestep);
   void updateColorOfBuilding(const osg::Vec4 &color) {
-    m_cityGMLBuilding->updateColor(color);
+    m_cityGMLBuilding->updateColor({color.r(), color.g(), color.b(), color.b()});
   }
 
   auto getDrawables() const { return m_cityGMLBuilding->getDrawables(); }
