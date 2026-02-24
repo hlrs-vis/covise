@@ -53,7 +53,7 @@ add_subdirectory(lib)
 cover_add_plugin(
     ${Name} 
     Ennovatis 
-    EnergyCore
+    EnergyCampusCore
     coApacheArrow
     ${HEADERS} ${SOURCES})
 
