@@ -1,24 +1,3 @@
-/****************************************************************************\
-**                                                          (C)2024 HLRS  **
-**                                                                        **
-** Description: OpenCOVER Plug-In for reading building energy data        **
-**                                                                        **
-**                                                                        **
-** Author: Leyla Kern, Marko Djuric                                       **
-**                                                                        **
-** TODO:                                                                  **
-**  [ ] fetch lat lon from googlemaps                                     **
-**                                                                        **
-** History:                                                               **
-**  2024  v1                                                              **
-**  Marko Djuric 02.2024: add ennovatis client                            **
-**  Marko Djuric 10.2024: add citygml interface                           **
-**  2025  v1.1                                                            **
-**  Marko Djuric 07.2025: refactor EnergyPlugin                           **
-**                                                                        **
-**                                                                        **
-\****************************************************************************/
-
 #include "Energy.h"
 
 // COVER
