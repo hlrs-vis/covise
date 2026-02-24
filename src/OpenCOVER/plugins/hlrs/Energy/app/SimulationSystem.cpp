@@ -7,6 +7,7 @@
 // includes. In our case before everything else we can resolve the issue.
 // utils
 #include <utils/read/apache/arrow.h>
+#include <utils/read/csv/csv.h>
 #include "SimulationSystem.h"
 
 // cover
