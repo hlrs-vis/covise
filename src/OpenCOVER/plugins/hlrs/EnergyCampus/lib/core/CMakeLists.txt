@@ -1,4 +1,4 @@
-set(Name "EnergyCore")
+set(Name "EnergyCampusCore")
 add_subdirectory(interfaces)
 add_subdirectory(simulation)
 add_subdirectory(utils)
