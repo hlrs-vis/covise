@@ -4,6 +4,7 @@
 #include <PluginUtil/colors/coColorMap.h>
 #include <cover/coVRSelectionManager.h>
 #include <lib/core/constants.h>
+#include <lib/core/interfaces/IColorable.h>
 #include <lib/core/utils/color.h>
 #include <lib/core/utils/osgUtils.h>
 
@@ -21,7 +22,6 @@
 #include <variant>
 
 #include "cover/VRViewer.h"
-#include "lib/core/interfaces/IColorable.h"
 
 namespace {
 
@@ -246,7 +246,7 @@ void EnergyGrid::initDrawable() {
   initDrawablePoints();
 }
 
-void EnergyGrid::updateColor(const core::interface::Color &color) {
+void EnergyGrid::applyColor(const Color &color) {
   for (auto &connection : m_connections)
     utils::color::overrideGeodeColor(connection->getGeode(), color);
   for (auto &point : m_config.points)

@@ -48,6 +48,6 @@ public:
     virtual ~IColorable() = default;
     IColorable(const IColorable &) = delete;
     IColorable &operator=(const IColorable &) = delete;
-    virtual void updateColor(const Color &color) = 0;
+    virtual void applyColor(const Color &color) = 0;
 };
 } // namespace core::interface

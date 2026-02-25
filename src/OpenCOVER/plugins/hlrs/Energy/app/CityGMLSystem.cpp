@@ -296,13 +296,13 @@ std::unique_ptr<SolarPanel> CityGMLSystem::createSolarPanel(
     const std::string &name, osg::ref_ptr<osg::Group> parent,
     const std::vector<core::utils::osgUtils::instancing::GeometryData>
         &masterGeometryData,
-    const osg::Matrix &matrix, const core::interface::Color &colorIntensity) {
+    const osg::Matrix &matrix, const Color &colorIntensity) {
   using namespace core::utils::osgUtils;
   auto solarPanelInstance = instancing::createInstance(masterGeometryData, matrix);
   solarPanelInstance->setName(name);
 
   auto solarPanel = std::make_unique<SolarPanel>(solarPanelInstance);
-  solarPanel->updateColor(colorIntensity);
+  solarPanel->applyColor(colorIntensity);
   parent->addChild(solarPanelInstance);
   return std::move(solarPanel);
 }

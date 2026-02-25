@@ -1,7 +1,7 @@
 #pragma once
-#include "lib/core/interfaces/IColorable.h"
 #include <lib/core/interfaces/ISolarPanel.h>
 #include <lib/core/utils/osgUtils.h>
+#include "app/typedefs.h"
 
 #include <osg/CopyOp>
 #include <osg/Geode>
@@ -14,7 +14,7 @@ struct SolarPanelConfig {
   float numMaxPanels;
   float panelWidth;
   float panelHeight;
-  core::interface::Color colorIntensity;
+  Color colorIntensity;
   osg::Matrixd rotation;
   osg::ref_ptr<osg::Group> parent;
   osg::ref_ptr<osg::Geode> geode;
@@ -43,7 +43,7 @@ class SolarPanel : public core::interface::ISolarPanel {
     }
   }
   void initDrawable() override;
-  void updateColor(const core::interface::Color &color) override;
+  void applyColor(const Color &color) override;
 
  private:
   void init();

@@ -22,7 +22,7 @@ CityGMLBuilding::CityGMLBuilding(const osgUtils::Geodes &geodes)
 
 void CityGMLBuilding::initDrawable() {}
 
-void CityGMLBuilding::updateColor(const core::interface::Color &color) {
+void CityGMLBuilding::applyColor(const Color &color) {
   for (auto drawable : m_drawables) {
     if (auto geo = drawable->asGeode()) color::overrideGeodeColor(geo, color);
   }

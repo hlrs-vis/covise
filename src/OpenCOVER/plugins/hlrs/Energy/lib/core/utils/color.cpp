@@ -4,26 +4,22 @@
 namespace core::utils::color
 {
 
-core::interface::Color getTrafficLightColor(float val, float max)
+Color getTrafficLightColor(float val, float max)
 {
-    core::interface::Color red(1.0f, 0.0f, 0.0f, 1.0f);
-    core::interface::Color yellow(1.0f, 1.0f, 0.0f, 1.0f);
-    core::interface::Color green(0.0f, 1.0f, 0.0f, 1.0f);
-
     float greenThreshold = max * 0.33f;
     float yellowThreshold = max * 0.66f;
 
     if (val <= greenThreshold)
     {
-        return green;
+        return {0.0f, 1.0f, 0.0f, 1.0f}; // green
     }
     else if (val <= yellowThreshold)
     {
-        return yellow;
+        return {1.0f, 1.0f, 0.0f, 1.0f}; // yellow
     }
     else
     {
-        return red;
+        return {1.0f, 0.0f, 0.0f, 1.0f}; // red
     }
 };
 
@@ -34,7 +30,7 @@ auto createMaterial(const osg::Vec4 &color, osg::Material::Face faceMask)
     mat->setAmbient(faceMask, color);
     return mat;
 }
-void overrideGeodeColor(osg::Geode *geode, const core::interface::Color &color,
+void overrideGeodeColor(osg::Geode *geode, const Color &color,
     osg::Material::Face faceMask)
 {
     overrideGeodeColor(geode, osg::Vec4(color.r, color.g, color.b, color.a));

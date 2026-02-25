@@ -2,6 +2,7 @@
 #include <PluginUtil/colors/coColorMap.h>
 #include <lib/core/interfaces/IEnergyGrid.h>
 #include <lib/core/interfaces/IInfoboard.h>
+#include <lib/core/interfaces/IInfoboard.h>
 #include <lib/core/simulation/simulation.h>
 
 #include <memory>
@@ -138,7 +139,7 @@ class EnergyGrid : public interface::IEnergyGrid {
   void update() override {
     for (auto &infoboard : m_infoboards) infoboard->update();
   }
-  void updateColor(const core::interface::Color &color) override;
+  void applyColor(const Color &color) override;
   void updateTime(int timestep) override;
 
   void setColorMap(const opencover::ColorMap &colorMap,

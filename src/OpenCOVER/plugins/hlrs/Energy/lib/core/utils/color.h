@@ -6,9 +6,10 @@
 namespace core::utils::color
 {
 
+typedef core::interface::Color Color;
 core::interface::Color getTrafficLightColor(float val, float max);
 auto createMaterial(const osg::Vec4 &color, osg::Material::Face faceMask);
-void overrideGeodeColor(osg::Geode *geode, const core::interface::Color &color,
+void overrideGeodeColor(osg::Geode *geode, const Color &color,
     osg::Material::Face faceMask = osg::Material::FRONT);
 void overrideGeodeColor(osg::Geode *geode, const osg::Vec4 &color,
     osg::Material::Face faceMask = osg::Material::FRONT);
