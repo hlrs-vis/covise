@@ -18,7 +18,6 @@
 #include "PluginUtil/coSensor.h"
 #include "grid.h"
 #include "app/typedefs.h"
-#include "lib/core/interfaces/IColorable.h"
 
 using namespace core;
 
