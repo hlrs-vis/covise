@@ -1,25 +1,10 @@
 #pragma once
 #include "../interfaces/IColorable.h"
-#include <memory>
 #include <osg/Geode>
 #include <osg/Material>
 
 namespace core::utils::color
 {
-
-struct ColorMap
-{
-    ColorMap(const osg::Vec4 &max, const osg::Vec4 &min, const osg::Vec4 &def)
-        : max(max)
-        , min(min)
-        , defaultColor(def)
-    {
-    }
-    osg::Vec4 max;
-    osg::Vec4 min;
-    osg::Vec4 defaultColor;
-    std::unique_ptr<osg::Vec4> getColor(float value, float maxValue) const;
-};
 
 core::interface::Color getTrafficLightColor(float val, float max);
 auto createMaterial(const osg::Vec4 &color, osg::Material::Face faceMask);

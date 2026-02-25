@@ -4,20 +4,6 @@
 namespace core::utils::color
 {
 
-std::unique_ptr<osg::Vec4> ColorMap::getColor(float value, float maxValue) const
-{
-    // RGB Colors 1,1,1 = white, 0,0,0 = black
-    maxValue = std::max(maxValue, 1.f);
-    float valueNormiert = value / maxValue;
-
-    auto col = std::make_unique<osg::Vec4>(
-        max.r() * valueNormiert + min.r() * (1 - valueNormiert),
-        max.g() * valueNormiert + min.g() * (1 - valueNormiert),
-        max.b() * valueNormiert + min.b() * (1 - valueNormiert),
-        max.a() * valueNormiert + min.a() * (1 - valueNormiert));
-    return col;
-}
-
 core::interface::Color getTrafficLightColor(float val, float max)
 {
     core::interface::Color red(1.0f, 0.0f, 0.0f, 1.0f);
