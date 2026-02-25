@@ -1,4 +1,4 @@
-# Contributing to EnergyCampus Plugin
+# Contributing to Energy Plugin
 
 Thank you for your interest in contributing!  
 
@@ -34,7 +34,7 @@ Please follow these guidelines to ensure a smooth and collaborative development 
 
 ## Testing Workflow
 
-To add and run tests for the EnergyCampus plugin, follow these steps:
+To add and run tests for the Energy plugin, follow these steps:
 
 ### 1. Enable Testing
 
