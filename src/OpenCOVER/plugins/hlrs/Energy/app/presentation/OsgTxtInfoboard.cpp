@@ -2,6 +2,7 @@
 
 #include <cover/coVRFileManager.h>
 #include <lib/core/utils/osgUtils.h>
+#include <lib/core/utils/color.h>
 
 #include <osg/Billboard>
 #include <osg/BlendFunc>
@@ -16,7 +17,7 @@
 #include <osg/ref_ptr>
 
 #include "cover/coBillboard.h"
-#include "lib/core/utils/color.h"
+#include "app/typedefs.h"
 
 using namespace core;
 
@@ -92,7 +93,7 @@ void OsgTxtInfoboard::showInfo() {
   m_enabled = true;
 }
 
-void OsgTxtInfoboard::move(const core::interface::Pos &pos) {
+void OsgTxtInfoboard::move(const Pos &pos) {
   m_attributes.position = pos;
   if (m_enabled) updateInfo(m_info);
 }

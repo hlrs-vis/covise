@@ -168,7 +168,7 @@ class EnergyGrid : public interface::IEnergyGrid {
     center.z() += 30;
     auto name = gridObj->getName();
 
-    m_config.infoboardAttributes.position = core::interface::Pos(center.x(), center.y(), center.z());
+    m_config.infoboardAttributes.position = Pos(center.x(), center.y(), center.z());
     m_config.infoboardAttributes.title = name;
     // OsgTxtInfoboard infoboard(m_config.infoboardAttributes);
     auto infoboard = std::make_unique<OsgTxtInfoboard>(m_config.infoboardAttributes);

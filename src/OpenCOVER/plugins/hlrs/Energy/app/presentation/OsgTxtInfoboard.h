@@ -3,9 +3,10 @@
 #include <lib/core/interfaces/IInfoboard.h>
 
 #include <osg/ref_ptr>
+#include "app/typedefs.h"
 
 struct OsgTxtBoxAttributes {
-  OsgTxtBoxAttributes(const core::interface::Pos &pos, const std::string &title,
+  OsgTxtBoxAttributes(const Pos &pos, const std::string &title,
                    const std::string &font, const float &width, const float &height,
                    const float &margin, const float &titleHeightPercentage,
                    int charSize = 2)
@@ -17,7 +18,7 @@ struct OsgTxtBoxAttributes {
         margin(margin),
         titleHeightPercentage(titleHeightPercentage),
         charSize(charSize) {}
-  core::interface::Pos position;
+  Pos position;
   std::string title;
   std::string fontFile;
   float maxWidth;
@@ -51,7 +52,7 @@ class OsgTxtInfoboard : public core::interface::IInfoboard<std::string, osg::ref
         m_drawable(nullptr),
         m_enabled(false),
         m_info("") {};
-  OsgTxtInfoboard(const core::interface::Pos &position, const std::string &title,
+  OsgTxtInfoboard(const Pos &position, const std::string &title,
                const std::string &font, const float &maxWidth, const float &height,
                const float &margin, const float &titleHeightPercentage,
                int charSize = 2)
@@ -64,7 +65,7 @@ class OsgTxtInfoboard : public core::interface::IInfoboard<std::string, osg::ref
   void initDrawable() override;
   void initInfoboard() override;
   void updateInfo(const std::string &info) override;
-  void move(const core::interface::Pos &pos) override;
+  void move(const Pos &pos) override;
 //   void move(const osg::Vec3 &pos) override;
   bool enabled() override { return m_enabled; }
 

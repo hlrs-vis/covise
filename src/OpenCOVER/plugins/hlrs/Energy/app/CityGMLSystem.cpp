@@ -766,7 +766,7 @@ void CityGMLSystem::addCityGMLObject(const std::string &name,
   saveCityGMLObjectDefaultStateSet(name, *geodes);
 
   auto boundingbox = core::utils::osgUtils::getBoundingBox(*geodes);
-  auto infoboardPos = core::interface::Pos(boundingbox.center().x(), boundingbox.center().y(), boundingbox.center().z());
+  auto infoboardPos = Pos(boundingbox.center().x(), boundingbox.center().y(), boundingbox.center().z());
   infoboardPos.z +=
       (boundingbox.zMax() - boundingbox.zMin()) / 2 + boundingbox.zMin();
   auto infoboard = std::make_unique<OsgTxtInfoboard>(
