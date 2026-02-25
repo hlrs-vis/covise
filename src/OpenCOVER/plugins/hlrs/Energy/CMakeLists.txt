@@ -22,7 +22,6 @@ SET(HEADERS
     app/ui/simulation/BaseSimulationUI.h
     app/ui/simulation/HeatingSimulationUI.h
     app/ui/simulation/PowerSimulationUI.h
-    app/presentation/PrototypeBuilding.h
     app/presentation/CityGMLBuilding.h
     app/presentation/OsgTxtInfoboard.h
     app/presentation/EnergyGrid.h
@@ -34,7 +33,6 @@ SET(SOURCES
     app/CityGMLSystem.cpp
     app/SimulationSystem.cpp
     app/ui/citygml/CityGMLDeviceSensor.cpp
-    app/presentation/PrototypeBuilding.cpp
     app/presentation/CityGMLBuilding.cpp
     app/presentation/OsgTxtInfoboard.cpp
     app/presentation/EnergyGrid.cpp
