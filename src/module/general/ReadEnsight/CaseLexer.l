@@ -1,267 +1,282 @@
-/*  -*-Mode: C++;-*-
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// LEX file   CaseLexer.l
+//
+// Description: lexographic analysis for EnSight case files
+//
+// Initial version: 2001
+//
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// LEX file   CaseLexer.l                         
-//
-// Description: lexograpic analysis for Ensight case files
-//
-// Initial version: 2001-  
-//                                               
+// (C) 2001 by VirCinity IT Consulting
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// (C) 2001 by VirCinity IT Consulting 
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
-// Changes:
-//
 */
 
-%{
-#ifdef _WIN32
-#define YY_NO_UNISTD_H
-#endif
-
-#include "CaseLexer.h"
-
-// define new name for yylex method
-#undef YY_DECL
-#define YY_DECL int CaseLexer::scan( MyTokenType *pToken )
-
-      void CaseLexer::LexerError( const char msg[] )
-      {
-      cerr << msg << endl;
-      }
-%}
-
-
-/** 
+/**
   Don't allow yywrap. There are no multibuffers allowed.
-  */
+*/
 %option noyywrap
 %option yylineno
+%option nounistd
+%option nodefault
+
+/* Enable for debugging
+%option warn
+%option debug
+%option verbose
+%option trace
+*/
 
 /**
   Use new Name for flexer class
 */
+%option c++
 %option yyclass="CaseLexer"
 %option prefix="Case"
 
-%x VARS
 %{
+#undef YY_DECL
+#include "CaseParser.h"
+#include "CaseLexer.h"
+#include "CaseParserDriver.h"
 
+CaseLexer::CaseLexer(std::istream *pDesc): CaseFlexLexer(pDesc) {}
+CaseLexer::~CaseLexer() = default;
+
+#define CERR std::cerr << "CaseLexer: "
+
+#ifdef NDEBUG
+#define YY_USER_ACTION \
+driver.setLineNumber(yylineno); \
+driver.setText(yytext); \
+driver.setState(YY_START);
+#else
+#define YY_USER_ACTION \
+driver.setLineNumber(yylineno); \
+driver.setText(yytext); \
+driver.setState(YY_START); \
+CERR << "state=" << YY_START << ", line " << driver.lineNumber() << ": " << yytext << std::endl;
+#endif
 %}
 
+/* inclusive start conditions:
+   TOKENS: for keywords in FORMAT, SCRIPTS, GEOMETRY, VARIABLE, TIME, FILE sections - before colon
+   VALUES: for values in FORMAT, SCRIPTS, GEOMETRY, VARIABLE, TIME, FILE sections - after colon
+   MULTILINE_VALUES: for values in TIME section which span several lines - after "time values:" or "filename numbers:" */
+%s TOKENS VALUES MULTILINE_VALUES
+
+Dig   [0-9]
+Start [^\.\'!@#$^()\[\]*/+,\\\"<>?|[:space:]0-9-]
+Char  [^\.\'!@#$^()\[\]*/+,\\\"<>?|[:space:]-]
+
 %%
-FORMAT[ \t]* {
-    return( CaseParser::FORMAT_SEC );
+<INITIAL,TOKENS>FORMAT {
+BEGIN TOKENS;
+return CaseParser::token::FORMAT_SEC;
 }
 
-type[ \t]*: {
-    return( CaseParser::TYPE );
+<TOKENS>type {
+    return CaseParser::token::TYPE;
 }
 
-ensight[ \t]* {
-    return( CaseParser::ENSIGHTV);
+<VALUES>ensight {
+    return CaseParser::token::ENSIGHT;
 }
 
-gold[ \t]* {
-    return( CaseParser::ENSIGHT_GOLD );
+<VALUES>gold {
+    return CaseParser::token::ENSIGHT_GOLD;
 }
 
-
-GEOMETRY[ \t]* {
-    return( CaseParser::GEOMETRY_SEC );
+<INITIAL,TOKENS>SCRIPTS {
+    BEGIN TOKENS;
+    return CaseParser::token::SCRIPTS_SEC;
 }
 
-model[ \t]*: {
-    return( CaseParser::MODEL );
+<TOKENS>metadata {
+    return CaseParser::token::METADATA;
 }
 
-measured[ \t]*: {
-    return( CaseParser::MEASURED );
+<TOKENS>python {
+    return CaseParser::token::PYTHON;
 }
 
-match[ \t]*: {
-    return( CaseParser::MATCH );
+<INITIAL,TOKENS>GEOMETRY {
+    BEGIN TOKENS;
+    return CaseParser::token::GEOMETRY_SEC;
 }
 
-change_coords_only {
-    return( CaseParser::CH_CO_ONLY );
+<TOKENS>model {
+    return CaseParser::token::MODEL;
 }
 
-VARIABLE[ \t]* {
-    return( CaseParser::VARIABLE_SEC );
+<TOKENS>measured {
+    return CaseParser::token::MEASURED;
 }
 
-constant {
-    return( CaseParser::CONSTANT );
+<TOKENS>match {
+    return CaseParser::token::MATCH;
 }
 
-
-complex {
-    return( CaseParser::COMPLEX );
+<VALUES>change_coords_only {
+    return CaseParser::token::CH_CO_ONLY;
 }
 
-scalar {
-    return( CaseParser::SCALAR );
+<VALUES>changing_geometry_per_part {
+    return CaseParser::token::CH_GEOM_PER_PART;
 }
 
-vector {
-    return( CaseParser::VECTOR );
+<INITIAL,TOKENS>VARIABLE {
+    BEGIN TOKENS;
+    return CaseParser::token::VARIABLE_SEC;
 }
 
-"tensor symm" {
-    return( CaseParser::TENSOR_SYMM );
-}
-
-"per case"[ \t]*: {
-    return( CaseParser::PER_CASE );
-}
-
-"per node"[ \t]*: {
-    BEGIN VARS;
-    return( CaseParser::PER_NODE );
-}
- 
-"per measured node"[ \t]*: {
-    BEGIN VARS;
-    return( CaseParser::PER_M_NODE );
-}
-
-"per element"[ \t]*: {
-    BEGIN VARS;
-    return( CaseParser::PER_ELEMENT );
-}
-
-"per measured element"[ \t]*: {
-    BEGIN VARS;
-    return( CaseParser::PER_M_ELEMENT );
-}
-
-TIME[ \t]* {
-    return( CaseParser::TIME_SEC );
-}
-"time set"[ \t]*: {
-    return( CaseParser::TIME_SET );
-}
-
-"number of steps"[ \t]*: {
-    return( CaseParser::NUM_OF_STEPS );
-}
-
-"filename start number"[ \t]*: {
-    return( CaseParser::FN_ST_NUM );
-}
-
-"filename increment"[ \t]*: {
-    return( CaseParser::FN_INCR );
-}
-
-"filename numbers"[ \t]*: {
-    return( CaseParser::FN_NUMS );
-}
-
-"time values"[ \t]*: {
-    return( CaseParser::TIME_VAL );
-}
-
-FILE[ \t]* {
-    return( CaseParser::FILE_SEC );
-}
-"file set"[ \t]*: {
-    return( CaseParser::FILE_SET );
+<TOKENS>constant {
+    return CaseParser::token::CONSTANT;
 }
 
 
-<VARS>[^ ]{1,99}[ \t]+[\.a-zA-Z0-9]+[^ ^\n]+[ \t\n]*$ {
-    strncpy( pToken->token.szValue, yytext, yyleng );
-    pToken->token.szValue[ yyleng ] = '\0';
-    BEGIN 0;
-    return( CaseParser::VAR_POST );
-} 
+<TOKENS>complex {
+    return CaseParser::token::COMPLEX;
+}
+
+<TOKENS>scalar {
+    return CaseParser::token::SCALAR;
+}
+
+<TOKENS>vector {
+    return CaseParser::token::VECTOR;
+}
+
+<TOKENS>"tensor symm" {
+    return CaseParser::token::TENSOR_SYMM;
+}
+
+<TOKENS>"tensor asym" {
+    return CaseParser::token::TENSOR_ASYMM;
+}
+
+<TOKENS>"per case" {
+    return CaseParser::token::PER_CASE;
+}
+
+<TOKENS>"per node" {
+    return CaseParser::token::PER_NODE;
+}
+
+<TOKENS>"per measured node" {
+    return CaseParser::token::PER_M_NODE;
+}
+
+<TOKENS>"per element" {
+    return CaseParser::token::PER_ELEMENT;
+}
+
+<TOKENS>"per measured element" {
+    return CaseParser::token::PER_M_ELEMENT;
+}
+
+<TOKENS>: {
+    BEGIN VALUES;
+}
+
+<INITIAL,TOKENS>TIME {
+    BEGIN TOKENS;
+    return CaseParser::token::TIME_SEC;
+}
+<TOKENS,MULTILINE_VALUES>"time set" {
+    BEGIN TOKENS;
+    return CaseParser::token::TIME_SET;
+}
+
+<TOKENS,MULTILINE_VALUES>"number of steps" {
+    BEGIN TOKENS;
+    return CaseParser::token::NUM_OF_STEPS;
+}
+
+<TOKENS,MULTILINE_VALUES>"filename start number" {
+    BEGIN TOKENS;
+    return CaseParser::token::FN_ST_NUM;
+}
+
+<TOKENS,MULTILINE_VALUES>"filename increment" {
+    BEGIN TOKENS;
+    return CaseParser::token::FN_INCR;
+}
+
+<TOKENS,MULTILINE_VALUES>"filename numbers:" {
+    BEGIN MULTILINE_VALUES;
+    return CaseParser::token::FN_NUMS;
+}
+
+<TOKENS,MULTILINE_VALUES>"time values:" {
+    BEGIN MULTILINE_VALUES;
+    return CaseParser::token::TIME_VAL;
+}
+
+<INITIAL,TOKENS>FILE {
+    BEGIN TOKENS;
+    return CaseParser::token::FILE_SEC;
+}
+
+<TOKENS>"file set" {
+    return CaseParser::token::FILE_SET;
+}
 
 
-<VARS>[0-9]+[ \t]* {
+
+<VALUES>{Start}+{Char}* {
+    // read characters as IDENTIFIER for variable descriptions
+    pToken->String = std::string(yytext, yytext+yyleng );
+    return CaseParser::token::IDENTIFIER;
+}
+
+<VALUES,MULTILINE_VALUES>[+-]?{Dig}+ {
     // read integer digits
-    pToken->token.iVal = atoi(yytext);
+    pToken->Int = atol(yytext);
+    pToken->Double = static_cast<double>(pToken->Int);
     // also provide characters
-    strncpy( pToken->token.szValue, yytext, yyleng );
-    pToken->token.szValue[ yyleng ] = '\0';
-    return( CaseParser::VAR_INT );
+    pToken->String = std::string(yytext, yytext+yyleng);
+    return CaseParser::token::INTEGER;
 }
 
-[0-9]*[a-zA-Z_@]+[a-zA-Z0-9_@]* { 
-    // read characters as IDENTIFIER
-    strncpy( pToken->token.szValue, yytext, yyleng );
-    pToken->token.szValue[ yyleng ] = '\0';
-    return( CaseParser::IDENTIFIER );
-}
-
-([^ \n\t])+([*])+[^ \n\t]* {
-    strncpy( pToken->token.szValue, yytext, yyleng );
-    pToken->token.szValue[ yyleng ] = '\0';
-   return( CaseParser::ASTNOTFN );
-}
-
-
-[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]?\.[0-9][0-9]?[0-9]? {
-    // read integer digits
-    strncpy( pToken->token.szValue, yytext, yyleng );
-    pToken->token.szValue[ yyleng ] = '\0';
-    return( CaseParser::IPADDRESS );
-}
-
-[0-9\-]*[\.a-zA-Z_@]+[\.a-zA-Z0-9_@\-]* { 
-    // read characters as IDENTIFIER
-    strncpy( pToken->token.szValue, yytext, yyleng );
-    pToken->token.szValue[ yyleng ] = '\0';
-    return( CaseParser::POINT_IDENTIFIER );
-}
-
-
-[0-9]+[ \n\t] {
-    // read integer digits
-    pToken->token.iVal = atoi(yytext);
-    // also provide characters
-    strncpy( pToken->token.szValue, yytext, yyleng );
-    pToken->token.szValue[ yyleng ] = '\0';
-    return( CaseParser::INTEGER );
-}
-
-[-+]?([0-9]+|[0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([eE][-+]?[0-9]+)?[ \n\t] {
+<VALUES,MULTILINE_VALUES>[-+]?({Dig}+\.?|{Dig}*\.{Dig}+)([eE][-+]?{Dig}+)? {
     // read double
-    pToken->token.dVal = atof(yytext);
-    return( CaseParser::DOUBLE );
+    pToken->Double = atof(yytext);
+    // also provide characters
+    pToken->String = std::string(yytext, yytext+yyleng);
+    return CaseParser::token::DOUBLE;
 }
 
-
-[^\"\n\t #]* {
-    // accept anything except "#
-    strncpy( pToken->token.szValue, yytext, yyleng );
-    pToken->token.szValue[ yyleng ] = '\0';
-    return( CaseParser::FILENAME );
+<VALUES>["]([^"\\\n]|\\.)*["] {
+    // read a string value in quotes
+    pToken->String = std::string(yytext+1, yytext+yyleng-1 );
+    return CaseParser::token::QUOTED;
 }
 
-
-\"[^\"\n]*\" {
-    // read a string value without the quotes
-    strncpy( pToken->token.szValue, yytext+1, yyleng-2 );
-    pToken->token.szValue[ yyleng-2 ] = '\0';
-    return( CaseParser::STRING );
+<*>"#"[^\n]* {
+    // suppress comments - from # until end of line
 }
 
-"#"[^\n]* {   
-    // suppress comments - all lines start with a #
-} 
+<*>[\t\r\f ]+ {
+    // suppress blanks,tabs
+}
 
-[ \x0d \t]+  ;            // suppress blanks,tabs
-
-\n {
+<*>\n {
     // let flex handle incrementing yylineno
+    if (YY_START == VALUES) {
+        BEGIN TOKENS;
+    }
 }
 
-. {     
+. {
+    CERR << "line=" << yylineno << ", state=" << YY_START << ": " << yytext << std::endl;
+    std::cerr << "   Unknown character: " << yytext[0] << std::endl;
     // all single characters which not match the rules below
-    // will be return as single characters
-    return( yytext[ 0 ] );
+    // will be returned as single characters
+    return yytext[0];
+}
+
+<VALUES>[^[:space:]\"\']+ {
+    pToken->String = std::string(yytext, yytext+yyleng );
+    return CaseParser::token::TEXT;
 }
 
 %%

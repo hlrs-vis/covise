@@ -30,7 +30,7 @@
 #include <reader/ReaderControl.h>
 
 #include "ReadEnsight.h"
-#include "CaseParser.hpp"
+#include "CaseParserDriver.h"
 #include "GeoFileAsc.h"
 #include "EnFile.h"
 #include "EnPart.h"
@@ -94,7 +94,7 @@ ReadEnsight::ReadEnsight(int argc, char *argv[])
 	// Turn on CRT block checking bit.
 	tmpFlag |= _CRTDBG_CHECK_CRT_DF;
 	tmpFlag |= _CRTDBG_CHECK_ALWAYS_DF;
-	
+
 
 	// Set flag to the new value.
 	_CrtSetDbgFlag(tmpFlag);*/
@@ -173,23 +173,20 @@ ReadEnsight::param(const char *paramName, bool inMapLoading)
                 {
                     // cerr << "ReadEnsight::param(..) filename " << caseNm << endl;
                     // we parse the case file
-                    CaseParser *parser;
-                    parser = new CaseParser(caseNm);
+                    CaseParserDriver parser(caseNm);
                     // uncomment this line to see more debug output
                     //parser->yydebug=1;
-                    if (!parser->isOpen())
+                    if (!parser.isOpen())
                     {
                         Covise::sendError("case file not found");
                         return;
                     }
 
-                    parser->yyparse();
+                    parser.parse();
 
-                    case_ = parser->getCaseObj();
+                    case_ = parser.getCaseObj();
 
                     case_.setFullFilename(caseNm);
-
-                    delete parser;
 
                     // feed choice parameters
 
@@ -213,8 +210,7 @@ ReadEnsight::param(const char *paramName, bool inMapLoading)
                         coModule::sendInfo("Found Dataset with %d timesteps", numTs);
 
                         // Get data fields
-                        DataList dl = case_.getDataIts();
-                        DataList::iterator it;
+                        auto dl = case_.getDataIts();
 
                         // lists for Choice Labels
                         vector<string> vectChoices;
@@ -226,17 +222,18 @@ ReadEnsight::param(const char *paramName, bool inMapLoading)
                         vectChoices.push_back(noneStr);
 
                         // fill in all species for the appropriate Ports/Choices
-                        for (it = dl.begin(); it != dl.end(); ++it)
+                        for (auto it = dl.begin(); it != dl.end(); ++it)
                         {
+                            auto &file = it->second;
                             // fill choice parameter of out-port for scalar data
                             // that is token  DPORT1 DPORT2
-                            switch ((*it).getType())
+                            switch (file.getType())
                             {
                             case DataItem::scalar:
-                                scalChoices.push_back((*it).getDesc());
+                                scalChoices.push_back(file.getDesc());
                                 break;
                             case DataItem::vector:
-                                vectChoices.push_back((*it).getDesc());
+                                vectChoices.push_back(file.getDesc());
                                 break;
                             case DataItem::tensor:
                                 // fill in ports for tensor data
@@ -386,7 +383,7 @@ ReadEnsight::readGeometry(const int &portTok2d, const int &portTok3d)
 	size_t size = numTs + 1;
 	if (numTs == 0)
 		size = 2;
-		
+
     coDistributedObject **objects2d = new coDistributedObject *[size];
     coDistributedObject **objects3d = new coDistributedObject *[size];
 
@@ -853,14 +850,14 @@ ReadEnsight::compute(const char *)
     // pos 0 is by definition NONE
     if (pos > 0)
     {
-        DataList dl = case_.getDataIts();
-        DataList::iterator it;
+        auto dl = case_.getDataIts();
         string dataFileName;
 
         int cnt(0);
-        for (it = dl.begin(); it != dl.end(); ++it)
+        for (auto it = dl.begin(); it != dl.end(); ++it)
         {
-            switch ((*it).getType())
+            auto &file = it->second;
+            switch (file.getType())
             {
             case DataItem::scalar:
                 cnt++;
@@ -873,9 +870,9 @@ ReadEnsight::compute(const char *)
             }
             if (cnt == pos)
             {
-                dataFileName = case_.getDir() + string("/") + trim((*it).getFileName());
-                vertexData = (*it).perVertex();
-                desc = (*it).getDesc();
+                dataFileName = case_.getDir() + string("/") + file.getFileName();
+                vertexData = file.perVertex();
+                desc = file.getDesc();
                 break;
             }
         }
@@ -892,14 +889,14 @@ ReadEnsight::compute(const char *)
     // pos 0 is by definition NONE
     if (pos > 0)
     {
-        DataList dl = case_.getDataIts();
-        DataList::iterator it;
+        auto dl = case_.getDataIts();
         string dataFileName;
 
         int cnt(0);
-        for (it = dl.begin(); it != dl.end(); ++it)
+        for (auto it = dl.begin(); it != dl.end(); ++it)
         {
-            switch ((*it).getType())
+            auto &file = it->second;
+            switch (file.getType())
             {
             case DataItem::scalar:
                 cnt++;
@@ -912,9 +909,9 @@ ReadEnsight::compute(const char *)
             }
             if (cnt == pos)
             {
-                dataFileName = case_.getDir() + string("/") + trim((*it).getFileName());
-                vertexData = (*it).perVertex();
-                desc = (*it).getDesc();
+                dataFileName = case_.getDir() + string("/") + file.getFileName();
+                vertexData = file.perVertex();
+                desc = file.getDesc();
                 break;
             }
         }
@@ -931,14 +928,14 @@ ReadEnsight::compute(const char *)
     // pos 0 is by definition NONE
     if (pos > 0)
     {
-        DataList dl = case_.getDataIts();
-        DataList::iterator it;
+        auto dl = case_.getDataIts();
         string dataFileName;
 
         int cnt(0);
-        for (it = dl.begin(); it != dl.end(); ++it)
+        for (auto it = dl.begin(); it != dl.end(); ++it)
         {
-            switch ((*it).getType())
+            auto &file = it->second;
+            switch (file.getType())
             {
             case DataItem::scalar:
                 cnt++;
@@ -951,9 +948,9 @@ ReadEnsight::compute(const char *)
             }
             if (cnt == pos)
             {
-                dataFileName = case_.getDir() + string("/") + trim((*it).getFileName());
-                vertexData = (*it).perVertex();
-                desc = (*it).getDesc();
+                dataFileName = case_.getDir() + string("/") + file.getFileName();
+                vertexData = file.perVertex();
+                desc = file.getDesc();
                 break;
             }
         }
@@ -970,14 +967,14 @@ ReadEnsight::compute(const char *)
     // pos 0 is by definition NONE
     if (pos > 0)
     {
-        DataList dl = case_.getDataIts();
-        DataList::iterator it;
+        auto dl = case_.getDataIts();
         string dataFileName;
 
         int cnt(0);
-        for (it = dl.begin(); it != dl.end(); ++it)
+        for (auto it = dl.begin(); it != dl.end(); ++it)
         {
-            switch ((*it).getType())
+            auto &file = it->second;
+            switch (file.getType())
             {
             case DataItem::scalar:
                 cnt++;
@@ -990,9 +987,9 @@ ReadEnsight::compute(const char *)
             }
             if (cnt == pos)
             {
-                dataFileName = case_.getDir() + string("/") + trim((*it).getFileName());
-                vertexData = (*it).perVertex();
-                desc = (*it).getDesc();
+                dataFileName = case_.getDir() + string("/") + file.getFileName();
+                vertexData = file.perVertex();
+                desc = file.getDesc();
                 break;
             }
         }
@@ -1009,14 +1006,14 @@ ReadEnsight::compute(const char *)
     // pos 0 is by definition NONE
     if (pos > 0)
     {
-        DataList dl = case_.getDataIts();
-        DataList::iterator it;
+        auto dl = case_.getDataIts();
         string dataFileName;
 
         int cnt(0);
-        for (it = dl.begin(); it != dl.end(); ++it)
+        for (auto it = dl.begin(); it != dl.end(); ++it)
         {
-            switch ((*it).getType())
+            auto &file = it->second;
+            switch (file.getType())
             {
             case DataItem::scalar:
                 cnt++;
@@ -1029,9 +1026,9 @@ ReadEnsight::compute(const char *)
             }
             if (cnt == pos)
             {
-                dataFileName = case_.getDir() + string("/") + trim((*it).getFileName());
-                vertexData = (*it).perVertex();
-                desc = (*it).getDesc();
+                dataFileName = case_.getDir() + string("/") + file.getFileName();
+                vertexData = file.perVertex();
+                desc = file.getDesc();
                 break;
             }
         }
@@ -1047,14 +1044,14 @@ ReadEnsight::compute(const char *)
     // pos 0 is by definition NONE
     if (pos > 0)
     {
-        DataList dl = case_.getDataIts();
-        DataList::iterator it;
+        auto dl = case_.getDataIts();
         string dataFileName;
 
         int cnt(0);
-        for (it = dl.begin(); it != dl.end(); ++it)
+        for (auto it = dl.begin(); it != dl.end(); ++it)
         {
-            switch ((*it).getType())
+            auto &file = it->second;
+            switch (file.getType())
             {
             case DataItem::scalar:
                 cnt++;
@@ -1067,9 +1064,9 @@ ReadEnsight::compute(const char *)
             }
             if (cnt == pos)
             {
-                dataFileName = case_.getDir() + string("/") + trim((*it).getFileName());
-                vertexData = (*it).perVertex();
-                desc = (*it).getDesc();
+                dataFileName = case_.getDir() + string("/") + file.getFileName();
+                vertexData = file.perVertex();
+                desc = file.getDesc();
                 break;
             }
         }
@@ -1085,14 +1082,14 @@ ReadEnsight::compute(const char *)
     // pos 0 is by definition NONE
     if (pos > 0)
     {
-        DataList dl = case_.getDataIts();
-        DataList::iterator it;
+        auto dl = case_.getDataIts();
         string dataFileName;
 
         int cnt(0);
-        for (it = dl.begin(); it != dl.end(); ++it)
+        for (auto it = dl.begin(); it != dl.end(); ++it)
         {
-            switch ((*it).getType())
+            auto &file = it->second;
+            switch (file.getType())
             {
             case DataItem::scalar:
                 cnt++;
@@ -1105,9 +1102,9 @@ ReadEnsight::compute(const char *)
             }
             if (cnt == pos)
             {
-                dataFileName = case_.getDir() + string("/") + trim((*it).getFileName());
-                vertexData = (*it).perVertex();
-                desc = (*it).getDesc();
+                dataFileName = case_.getDir() + string("/") + file.getFileName();
+                vertexData = file.perVertex();
+                desc = file.getDesc();
                 break;
             }
         }
@@ -1124,14 +1121,14 @@ ReadEnsight::compute(const char *)
     // pos 0 is by definition NONE
     if (pos > 0)
     {
-        DataList dl = case_.getDataIts();
-        DataList::iterator it;
+        auto dl = case_.getDataIts();
         string dataFileName;
 
         int cnt(0);
-        for (it = dl.begin(); it != dl.end(); ++it)
+        for (auto it = dl.begin(); it != dl.end(); ++it)
         {
-            switch ((*it).getType())
+            auto &file = it->second;
+            switch (file.getType())
             {
             case DataItem::scalar:
                 cnt++;
@@ -1144,9 +1141,9 @@ ReadEnsight::compute(const char *)
             }
             if (cnt == pos)
             {
-                dataFileName = case_.getDir() + string("/") + trim((*it).getFileName());
-                vertexData = (*it).perVertex();
-                desc = (*it).getDesc();
+                dataFileName = case_.getDir() + string("/") + file.getFileName();
+                vertexData = file.perVertex();
+                desc = file.getDesc();
                 break;
             }
         }
@@ -1162,14 +1159,14 @@ ReadEnsight::compute(const char *)
     // pos 0 is by definition NONE
     if (pos > 0)
     {
-        DataList dl = case_.getDataIts();
-        DataList::iterator it;
+        auto dl = case_.getDataIts();
         string dataFileName;
 
         int cnt(0);
-        for (it = dl.begin(); it != dl.end(); ++it)
+        for (auto it = dl.begin(); it != dl.end(); ++it)
         {
-            switch ((*it).getType())
+            auto &file = it->second;
+            switch (file.getType())
             {
             case DataItem::scalar:
                 cnt++;
@@ -1182,9 +1179,9 @@ ReadEnsight::compute(const char *)
             }
             if (cnt == pos)
             {
-                dataFileName = case_.getDir() + string("/") + trim((*it).getFileName());
-                vertexData = (*it).perVertex();
-                desc = (*it).getDesc();
+                dataFileName = case_.getDir() + string("/") + file.getFileName();
+                vertexData = file.perVertex();
+                desc = file.getDesc();
                 break;
             }
         }
@@ -1200,14 +1197,14 @@ ReadEnsight::compute(const char *)
     // pos 0 is by definition NONE
     if (pos > 0)
     {
-        DataList dl = case_.getDataIts();
-        DataList::iterator it;
+        auto dl = case_.getDataIts();
         string dataFileName;
 
         int cnt(0);
-        for (it = dl.begin(); it != dl.end(); ++it)
+        for (auto it = dl.begin(); it != dl.end(); ++it)
         {
-            switch ((*it).getType())
+            auto &file = it->second;
+            switch (file.getType())
             {
             case DataItem::scalar:
                 cnt++;
@@ -1220,9 +1217,9 @@ ReadEnsight::compute(const char *)
             }
             if (cnt == pos)
             {
-                dataFileName = case_.getDir() + string("/") + trim((*it).getFileName());
-                vertexData = (*it).perVertex();
-                desc = (*it).getDesc();
+                dataFileName = case_.getDir() + string("/") + file.getFileName();
+                vertexData = file.perVertex();
+                desc = file.getDesc();
                 break;
             }
         }
@@ -1241,14 +1238,14 @@ ReadEnsight::compute(const char *)
     // pos 1 is by definition NONE
     if (pos > 0)
     {
-        DataList dl = case_.getDataIts();
-        DataList::iterator it;
+        auto dl = case_.getDataIts();
         string dataFileName;
 
         int cnt(0);
-        for (it = dl.begin(); it != dl.end(); ++it)
+        for (auto it = dl.begin(); it != dl.end(); ++it)
         {
-            switch ((*it).getType())
+            auto &file = it->second;
+            switch (file.getType())
             {
             case DataItem::scalar:
                 break;
@@ -1261,9 +1258,9 @@ ReadEnsight::compute(const char *)
             }
             if (cnt == pos)
             {
-                dataFileName = case_.getDir() + string("/") + trim((*it).getFileName());
-                vertexData = (*it).perVertex();
-                desc = (*it).getDesc();
+                dataFileName = case_.getDir() + string("/") + file.getFileName();
+                vertexData = file.perVertex();
+                desc = file.getDesc();
                 break;
             }
         }
@@ -1282,14 +1279,14 @@ ReadEnsight::compute(const char *)
     // pos 1 is by definition NONE
     if (pos > 0)
     {
-        DataList dl = case_.getDataIts();
-        DataList::iterator it;
+        auto dl = case_.getDataIts();
         string dataFileName;
 
         int cnt(0);
-        for (it = dl.begin(); it != dl.end(); ++it)
+        for (auto it = dl.begin(); it != dl.end(); ++it)
         {
-            switch ((*it).getType())
+            auto &file = it->second;
+            switch (file.getType())
             {
             case DataItem::scalar:
                 break;
@@ -1302,9 +1299,9 @@ ReadEnsight::compute(const char *)
             }
             if (cnt == pos)
             {
-                dataFileName = case_.getDir() + string("/") + trim((*it).getFileName());
-                vertexData = (*it).perVertex();
-                desc = (*it).getDesc();
+                dataFileName = case_.getDir() + string("/") + file.getFileName();
+                vertexData = file.perVertex();
+                desc = file.getDesc();
                 break;
             }
         }
@@ -1320,14 +1317,14 @@ ReadEnsight::compute(const char *)
     // pos 0 is by definition NONE
     if (pos > 0)
     {
-        DataList dl = case_.getDataIts();
-        DataList::iterator it;
+        auto dl = case_.getDataIts();
         string dataFileName;
 
         int cnt(0);
-        for (it = dl.begin(); it != dl.end(); ++it)
+        for (auto it = dl.begin(); it != dl.end(); ++it)
         {
-            switch ((*it).getType())
+            auto &file = it->second;
+            switch (file.getType())
             {
             case DataItem::scalar:
                 cnt++;
@@ -1340,9 +1337,9 @@ ReadEnsight::compute(const char *)
             }
             if (cnt == pos)
             {
-                dataFileName = case_.getDir() + string("/") + trim((*it).getFileName());
-                vertexData = (*it).perVertex();
-                desc = (*it).getDesc();
+                dataFileName = case_.getDir() + string("/") + file.getFileName();
+                vertexData = file.perVertex();
+                desc = file.getDesc();
                 break;
             }
         }
@@ -1360,14 +1357,14 @@ ReadEnsight::compute(const char *)
     // pos 0 is by definition NONE
     if (pos > 0)
     {
-        DataList dl = case_.getDataIts();
-        DataList::iterator it;
+        auto dl = case_.getDataIts();
         string dataFileName;
 
         int cnt(0);
-        for (it = dl.begin(); it != dl.end(); ++it)
+        for (auto it = dl.begin(); it != dl.end(); ++it)
         {
-            switch ((*it).getType())
+            auto &file = it->second;
+            switch (file.getType())
             {
             case DataItem::scalar:
                 break;
@@ -1380,9 +1377,9 @@ ReadEnsight::compute(const char *)
             }
             if (cnt == pos)
             {
-                dataFileName = case_.getDir() + string("/") + trim((*it).getFileName());
-                vertexData = (*it).perVertex();
-                desc = (*it).getDesc();
+                dataFileName = case_.getDir() + string("/") + file.getFileName();
+                vertexData = file.perVertex();
+                desc = file.getDesc();
                 break;
             }
         }
@@ -1399,14 +1396,14 @@ ReadEnsight::compute(const char *)
     // pos 0 is by definition NONE
     if (pos > 0)
     {
-        DataList dl = case_.getDataIts();
-        DataList::iterator it;
+        auto dl = case_.getDataIts();
         string dataFileName;
 
         int cnt(0);
-        for (it = dl.begin(); it != dl.end(); ++it)
+        for (auto it = dl.begin(); it != dl.end(); ++it)
         {
-            switch ((*it).getType())
+            auto &file = it->second;
+            switch (file.getType())
             {
             case DataItem::scalar:
                 break;
@@ -1419,9 +1416,9 @@ ReadEnsight::compute(const char *)
             }
             if (cnt == pos)
             {
-                dataFileName = case_.getDir() + string("/") + trim((*it).getFileName());
-                vertexData = (*it).perVertex();
-                desc = (*it).getDesc();
+                dataFileName = case_.getDir() + string("/") + file.getFileName();
+                vertexData = file.perVertex();
+                desc = file.getDesc();
                 break;
             }
         }
@@ -2178,7 +2175,7 @@ ReadEnsight::createDataOutObj(EnFile::dimType dim, const string &baseName,
                 uint64_t numElem;
                 if (dim == EnFile::DIM2D)
                 {
-                    dx_ = it->d2dx_; dy_ = it->d2dy_; dz_ = it->d2dz_; 
+                    dx_ = it->d2dx_; dy_ = it->d2dy_; dz_ = it->d2dz_;
                     numElem = it->numEleRead2d();
                 }
                 if (dim == EnFile::DIM3D)
@@ -2435,7 +2432,7 @@ ReadEnsight::readData1d(const int &portTok1d,
                 ++cnt;
                 objects1d[cnt] = NULL;
             }
-            
+
             ddc = dFile->getDataCont();
             ddc.cleanAll();*/
 
@@ -2601,7 +2598,7 @@ ReadEnsight::readData2d(const int &portTok2d,
         {
             coModule::sendInfo("number of time-sets greater than one - COVISE can handle only one time-set");
         }
-        
+
         objects2d[cnt] = NULL;
         vector<float> rTimes(ts[0]->getRealTimes());
         if(ts[0]->getRealTimes().size() >= cnt)
@@ -2616,7 +2613,7 @@ ReadEnsight::readData2d(const int &portTok2d,
         }
 
         coDoSet *outSet2d = new coDoSet(objNameBase2d.c_str(), (coDistributedObject **)objects2d);
-        
+
         char ch[64];
         // set attribute - timesteps
         sprintf(ch, "1 %d", cnt);

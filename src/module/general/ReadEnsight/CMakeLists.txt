@@ -1,21 +1,27 @@
-COVISE_FIND_PACKAGE(BISON++)
+COVISE_FIND_PACKAGE(BISON 3.8)
 using(FLEX)
 
 if(NOT FLEX_INCLUDE_DIR)
    return()
 endif()
-IF(NOT BISON++_FOUND)
+IF(NOT BISON_FOUND)
    RETURN()
 ENDIF()
 
-BISONPP_TARGET(CaseParser CaseParser.y ${CMAKE_CURRENT_BINARY_DIR}/CaseParser.cpp COMPILE_FLAGS "-h ${CMAKE_CURRENT_BINARY_DIR}/CaseParser.hpp -y -dt")
-FLEX_TARGET(CaseScanner CaseLexer.l  ${CMAKE_CURRENT_BINARY_DIR}/CaseLexer.cpp COMPILE_FLAGS "-c++")
+bison_target(
+    CaseParser CaseParser.y ${CMAKE_CURRENT_BINARY_DIR}/CaseParser.cpp
+    COMPILE_FLAGS --header=${CMAKE_CURRENT_BINARY_DIR}/CaseParser.h
+    DEFINES_FILE ${CMAKE_CURRENT_BINARY_DIR}/CaseParser.h)
+flex_target(CaseScanner CaseLexer.l ${CMAKE_CURRENT_BINARY_DIR}/CaseLexer.cpp)
+add_flex_bison_dependency(CaseScanner CaseParser)
 
-ADD_FLEX_BISONPP_DEPENDENCY(CaseScanner CaseParser)
+set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
+include_directories(SYSTEM ${FLEX_INCLUDE_DIRS})
 
 SET(HEADERS
   CaseFile.h
   CaseLexer.h
+  CaseParserDriver.h
   DataFileAsc.h
   DataFileBin.h
   DataItem.h
@@ -32,6 +38,7 @@ SET(HEADERS
 
 SET(SOURCES
   CaseFile.cpp
+  CaseParserDriver.cpp
   DataFileAsc.cpp
   DataFileBin.cpp
   DataFileGold.cpp
@@ -59,7 +66,7 @@ SET(EXTRASOURCES
 
 INCLUDE_DIRECTORIES(${FLEX_INCLUDE_DIRS})
 
-ADD_COVISE_MODULE(IO ReadEnsight ${EXTRASOURCES} ${BISONPP_CaseParser_OUTPUTS} ${FLEX_CaseScanner_OUTPUTS})
+ADD_COVISE_MODULE(IO ReadEnsight ${EXTRASOURCES} ${BISON_CaseParser_OUTPUTS} ${FLEX_CaseScanner_OUTPUTS})
 covise_wnoerror(ReadEnsight)
 TARGET_LINK_LIBRARIES(ReadEnsight  coReader coAlg coApi coAppl coCore )
 
