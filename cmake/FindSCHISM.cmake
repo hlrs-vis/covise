@@ -22,7 +22,6 @@ SET(SCHISM_LIBRARY_SEARCH_DIRS
 # check for schism
 ##############################################################################
 
-    MESSAGE("SEARCHING")
         FIND_PATH(SCHISM_INCLUDE_DIR
                 NAMES scm_gl_core/src/scm/gl_core.h
                 PATHS ${SCHISM_INCLUDE_SEARCH_DIRS}

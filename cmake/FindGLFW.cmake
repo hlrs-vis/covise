@@ -37,9 +37,7 @@
 #  first, and then if nothing found, we repeat search for dynamic
 
 find_package(PkgConfig)
-if(PKG_CONFIG_FOUND)
-  message(STATUS "PkgConfig found")
-else()
+if(NOT PKG_CONFIG_FOUND)
   message(STATUS "PkgConfig not found, if you have only static glfw library, you build can fail")
 endif()
 
@@ -65,8 +63,6 @@ if(PKG_CONFIG_FOUND)
     # also we include glfw3.h header, not GLFW/glfw3.h :(
     find_path(GLFW3_INCLUDE_DIRS glfw3.h GLFW/glfw PATH_SUFFIXES GLFW PATHS ${PC_GLFW3_INCLUDE_DIRS} NO_DEFAULT_PATH)
     find_path(GLFW3_INCLUDE_DIRS glfw3.h PATH_SUFFIXES GLFW PATHS ${PC_GLFW3_INCLUDE_DIRS})
-MESSAGE("${GLFW3_STATIC_LIBRARY}")
-MESSAGE(${GLFW3_STATIC_LIBRARY})
     if(GLFW3_STATIC_LIBRARY)
       # glfw3 is static
       set(GLFW_LIBRARIES ${PC_GLFW3_STATIC_LIBRARIES})
