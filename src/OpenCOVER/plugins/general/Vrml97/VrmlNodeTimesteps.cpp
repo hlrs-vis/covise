@@ -69,6 +69,9 @@ void VrmlNodeTimesteps::initFields(VrmlNodeTimesteps *node, VrmlNodeType *t)
                      field("enabled", node->d_enabled, [](auto f){
                             coVRAnimationManager::instance()->enableAnimation(f->get());
                      }),
+                     field("timestep", node->d_currentTimestep, [](auto f){
+                            coVRAnimationManager::instance()->setAnimationFrame(f->get());
+                     }),
                      field("loop", node->d_loop),
                      field("maxFrameRate", node->d_maxFrameRate, [](auto f){
                             coVRAnimationManager::instance()->setMaxFrameRate(f->get());
@@ -77,8 +80,6 @@ void VrmlNodeTimesteps::initFields(VrmlNodeTimesteps *node, VrmlNodeType *t)
     if(t)
     {
         t->addEventOut("fraction_changed", VrmlField::SFFLOAT);
-        t->addEventOut("timestep_changed", VrmlField::SFINT32);
-        t->addEventIn("timestep", VrmlField::SFINT32); //event might not be handled
     }                     
 
 }
