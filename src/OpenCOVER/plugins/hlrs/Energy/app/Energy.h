@@ -1,6 +1,6 @@
 #pragma once
-#include "app/CityGMLSystem.h"
-#include "app/SimulationSystem.h"
+#include "app/system/CityGMLSystem.h"
+#include "app/system/SimulationSystem.h"
 
 #include <cover/ui/Action.h>
 #include <cover/ui/Button.h>

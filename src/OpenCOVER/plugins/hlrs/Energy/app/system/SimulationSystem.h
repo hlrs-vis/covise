@@ -26,8 +26,9 @@
 #include <osg/Switch>
 
 // ui
+// TODO: remove tight coupling to citygmlsystem
 #include "CityGMLSystem.h"
-#include "ui/simulation/BaseSimulationUI.h"
+#include "app/osg/ui/simulation/BaseSimulationUI.h"
 
 using namespace opencover::utils::read;
 

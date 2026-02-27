@@ -1,6 +1,6 @@
 #include "CityGMLSystem.h"
-#include "app/presentation/CityGMLBuilding.h"
-#include "app/presentation/OsgTxtInfoboard.h"
+#include "app/osg/presentation/CityGMLBuilding.h"
+#include "app/osg/presentation/OsgTxtInfoboard.h"
 
 #include <cover/coVRAnimationManager.h>
 

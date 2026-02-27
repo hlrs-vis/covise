@@ -6,8 +6,8 @@
 #include <memory>
 #include <osg/Vec4>
 
-#include "app/presentation/EnergyGrid.h"
-#include "app/ui/simulation/BaseSimulationUI.h"
+#include "app/osg/presentation/EnergyGrid.h"
+#include "app/osg/ui/simulation/BaseSimulationUI.h"
 
 using namespace core::simulation::heating;
 

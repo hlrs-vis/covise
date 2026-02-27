@@ -19,16 +19,16 @@
 #include <regex>
 
 // ui
-#include "ui/simulation/HeatingSimulationUI.h"
-#include "ui/simulation/PowerSimulationUI.h"
+#include "app/osg/ui/simulation/HeatingSimulationUI.h"
+#include "app/osg/ui/simulation/PowerSimulationUI.h"
+
+// presentation
+#include "app/osg/presentation/EnergyGrid.h"
+#include "app/osg/presentation/OsgTxtInfoboard.h"
 
 // PluginUtil
 #include <PluginUtil/coShaderUtil.h>
 #include <util/string_util.h>
-
-// presentation
-#include <app/presentation/EnergyGrid.h>
-#include <app/presentation/OsgTxtInfoboard.h>
 
 // core
 #include <lib/core/constants.h>

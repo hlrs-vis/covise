@@ -3,8 +3,8 @@
 #include <PluginUtil/coSensor.h>
 #include <PluginUtil/coShaderUtil.h>
 #include <PluginUtil/colors/coColorMap.h>
-#include <app/presentation/CityGMLBuilding.h>
-#include <app/presentation/OsgTxtInfoboard.h>
+#include <app/osg/presentation/CityGMLBuilding.h>
+#include <app/osg/presentation/OsgTxtInfoboard.h>
 
 #include <algorithm>
 #include <memory>

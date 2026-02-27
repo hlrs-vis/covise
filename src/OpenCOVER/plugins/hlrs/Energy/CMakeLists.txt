@@ -14,30 +14,30 @@ endif()
 
 SET(HEADERS
     app/Energy.h
-    app/CityGMLSystem.h
-    app/SimulationSystem.h
+    app/system/CityGMLSystem.h
+    app/system/SimulationSystem.h
     app/typedefs.h
-    app/OsgImpl.h
-    app/ui/citygml/CityGMLDeviceSensor.h
-    app/ui/simulation/BaseSimulationUI.h
-    app/ui/simulation/HeatingSimulationUI.h
-    app/ui/simulation/PowerSimulationUI.h
-    app/presentation/CityGMLBuilding.h
-    app/presentation/OsgTxtInfoboard.h
-    app/presentation/EnergyGrid.h
-    app/presentation/SolarPanel.h
-    app/presentation/grid.h
+    app/osg/OsgImpl.h
+    app/osg/ui/citygml/CityGMLDeviceSensor.h
+    app/osg/ui/simulation/BaseSimulationUI.h
+    app/osg/ui/simulation/HeatingSimulationUI.h
+    app/osg/ui/simulation/PowerSimulationUI.h
+    app/osg/presentation/CityGMLBuilding.h
+    app/osg/presentation/OsgTxtInfoboard.h
+    app/osg/presentation/EnergyGrid.h
+    app/osg/presentation/SolarPanel.h
+    app/osg/presentation/grid.h
 )
 SET(SOURCES
     app/Energy.cpp
-    app/CityGMLSystem.cpp
-    app/SimulationSystem.cpp
-    app/ui/citygml/CityGMLDeviceSensor.cpp
-    app/presentation/CityGMLBuilding.cpp
-    app/presentation/OsgTxtInfoboard.cpp
-    app/presentation/EnergyGrid.cpp
-    app/presentation/SolarPanel.cpp
-    app/presentation/grid.cpp
+    app/system/CityGMLSystem.cpp
+    app/system/SimulationSystem.cpp
+    app/osg/ui/citygml/CityGMLDeviceSensor.cpp
+    app/osg/presentation/CityGMLBuilding.cpp
+    app/osg/presentation/OsgTxtInfoboard.cpp
+    app/osg/presentation/EnergyGrid.cpp
+    app/osg/presentation/SolarPanel.cpp
+    app/osg/presentation/grid.cpp
 )
 
 set(Name "Energy")

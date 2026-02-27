@@ -13,7 +13,7 @@
 #include <iostream>
 #include <memory>
 
-#include "app/presentation/EnergyGrid.h"
+#include "app/osg/presentation/EnergyGrid.h"
 
 using namespace core::simulation;
 

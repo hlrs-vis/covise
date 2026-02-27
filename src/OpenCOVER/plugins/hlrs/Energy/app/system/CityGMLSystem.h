@@ -21,8 +21,8 @@
 #include <string>
 #include <vector>
 
-#include "presentation/SolarPanel.h"
-#include "ui/citygml/CityGMLDeviceSensor.h"
+#include "app/osg/presentation/SolarPanel.h"
+#include "app/osg/ui/citygml/CityGMLDeviceSensor.h"
 
 /**
  * @brief A list of unique pointers to ISolarPanel interfaces.
