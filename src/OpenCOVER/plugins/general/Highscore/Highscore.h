@@ -8,19 +8,6 @@
 #ifndef HIGHSCORE_PLUGIN
 #define HIGHSCORE_PLUGIN
 
-/****************************************************************************\ 
- **                                                            (C)2008 HLRS  **
- **                                                                          **
- ** Description: Highscore Plugin collects lap times                         **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                  **
- **                                                                          **
- ** History:  								                                         **
- ** March-08  v1	    				       		                                **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRPlugin.h>
 
@@ -30,6 +17,7 @@ using namespace covise;
 using namespace opencover;
 using namespace vrml;
 
+// collects lap times
 class VrmlNodeHighscore : public VrmlNodeChild
 {
 

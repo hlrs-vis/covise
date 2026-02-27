@@ -7,19 +7,7 @@
 
 #ifndef _SGBROWSER_PLUGIN_H
 #define _SGBROWSER_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2007/8 HLRS **
- **                                                                           **
- ** Description: Scenegraph Browser											            **
- **																		                     **
- **                                                                           **
- ** Author: Mario Baalcke	                                                   **
- **                                                                           **
- ** History:  								                                          **
- ** Jun-07   v1	    				       		                                 **
- ** April-08 v2                                                               **
- **                                                                           **
-\****************************************************************************/
+
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRPlugin.h>
 
@@ -124,6 +112,7 @@ private:
     bool texFound;
 };
 
+// SceneGraph Browser for tabletUI
 class SGBrowser : public coVRPlugin, public coTUIListener, public coSelectionListener
 {
 public:

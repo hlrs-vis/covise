@@ -7,24 +7,7 @@
 
 #ifndef _SURFEDGE_H
 #define _SURFEDGE_H
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description:  COVISE Surface edge collapse class                       **
- **                     for Surface Reduction Methods                      **
- **                                                                        **
- **                                                                        **
- **                             (C) 1998                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Karin Frank                                                   **
- **                                                                        **
- **                                                                        **
- ** Date:  April 1998  V1.0                                                **
-\**************************************************************************/
+
 #include <appl/ApplInterface.h>
 using namespace covise;
 #include "PQ.h"

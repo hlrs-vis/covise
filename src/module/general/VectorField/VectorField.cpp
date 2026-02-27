@@ -5,25 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1998 RUS  **
- **                                                                        **
- ** Description:  COVISE TubeNew     application module                    **
- **                                                                        **
- **                                                                        **
- **                             (C) Vircinity 2000                         **
- **                                                                        **
- **                                                                        **
- ** Author:  Uwe Woessner, Sasha Cioringa                                  **
- **                                                                        **
- **                                                                        **
- ** Date: oct  2002 no reference systems (Sergio Leseduarte)               **
- ** Date: july 2001 reference systems (Sergio Leseduarte)                  **
- ** Date: june 2001 arrow points for vectors (Sergio Leseduarte)           **
- ** Date:  27.09.94  V1.0                                                  **
- ** Date:  08.11.00                                                        **
-\**************************************************************************/
-
 #include "VectorField.h"
 #include <util/coviseCompat.h>
 #include <do/coDoTriangleStrips.h>

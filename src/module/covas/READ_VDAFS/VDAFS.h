@@ -7,24 +7,6 @@
 
 #ifndef VDAFS_H
 #define VDAFS_H
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description:  Class-Declaration of VDAFS Data Objects                  **
- **               (+ Declaration of Non-member Help Functions)             **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                            Reiner Beller                               **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  09.05.97  V1.0                                                  **
-\**************************************************************************/
 
 // include files
 #include <iostream.h>

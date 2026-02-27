@@ -5,19 +5,7 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2007/8 HLRS **
- **                                                                           **
- ** Description: Scenegraph Browser											            **
- **																		                     **
- **                                                                           **
- ** Author: Mario Baalcke	                                                   **
- **                                                                           **
- ** History:  								                                          **
- ** Jun-07   v1	    				       		                                 **
- ** April-08 v2                                                               **
- **                                                                           **
-\****************************************************************************/
+
 #include "SGBrowser.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>

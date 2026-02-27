@@ -7,28 +7,12 @@
 
 #ifndef _AVS_Triangles_H
 #define _AVS_Triangles_H
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description:  COVISE Surface reduction application module              **
- **                                                                        **
- **                                                                        **
- **                             (C) 1997                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Karin Frank                                                   **
- **                                                                        **
- **                                                                        **
- ** Date:  January 1998  V1.0                                              **
-\**************************************************************************/
 
 #include <appl/ApplInterface.h>
 using namespace covise;
 #include <util/coviseCompat.h>
 
+// Surface reduction application module
 class RW_TriangleMesh
 {
 private:

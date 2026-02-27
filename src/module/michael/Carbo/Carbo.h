@@ -10,34 +10,13 @@
 #ifndef _CARBO_H
 #define _CARBO_H
 
-/***************************************************************************\ 
- **                                                           (C)2001 RUS **
- **                                                                       **
- ** Description:   COVISE LineIntegralConvolution application module      **
- **                                                                       **
- **                                                                       **
- **                                                                       **
- **                                                                       **
- **                                                                       **
- ** Author: M. Muench                                                     **
- **                                                                       **
- ** History:                                                              **
- ** xx. ???? 01         v1                                                **
- ** xxxxxxxx         new covise api                                       **
-\***************************************************************************/
-
 #include "nrutil.h"
-
-/***********************************\ 
- *                                 *
- *  place the #include files here  *
- *                                 *
-\***********************************/
 
 #include <api/coModule.h>
 using namespace covise;
 //#include "Carbo.h"
 
+// LineIntegralConvolution
 class Carbo : public coModule
 {
 

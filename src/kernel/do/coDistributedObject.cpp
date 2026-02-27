@@ -20,34 +20,6 @@
 
 #undef DEBUG
 
-/***********************************************************************\ 
- **                                                                     **
- **   Distributed Object class Routines            Version: 1.0         **
- **                                                                     **
- **                                                                     **
- **   Description  : The base class for all objects that are            **
- **                  distributed between processes.                     **
- **                  Basic functionality to use shared storage is       **
- **                  provided for its subclasses.                       **
- **                                                                     **
- **   Classes      : coDistributedObject                                  **
- **                                                                     **
- **   Copyright (C) 1993     by University of Stuttgart                 **
- **                             Computer Center (RUS)                   **
- **                             Allmandring 30                          **
- **                             7000 Stuttgart 80                       **
- **                                                                     **
- **                                                                     **
- **   Author       : A. Wierse   (RUS)                                  **
- **                                                                     **
- **   History      :                                                    **
- **                  15.04.93  Ver 1.0                                  **
- **                  26.05.93  Ver 1.1 new structure of data in shm     **
- **                                    type handling                    **
- **                                    recursive objects                **
- **                                                                     **
-\***********************************************************************/
-
 static int object_exists;
 static int *free_list;
 static int current_free;

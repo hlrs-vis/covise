@@ -5,17 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                           (C)2008 HLRS **
- **                                                                        **
- ** Description: Iso-surface generation using CUDA on nVidia GPUs          **
- **                                                                        **
- **                                                                        **
- ** Name:        cuIsoSurfaceUSG                                           **
- ** Category:    Tools                                                     **
- **                                                                        **
- **                                                                        **
-\****************************************************************************/
 #include <GL/glew.h>
 #include <GL/glut.h>
 

@@ -5,26 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1995 RUS  **
- **                                                    (C) 2000 VirCinity  **
- **                                                                        **
- **                                                                        **
- ** Description: Read/Write module for COVISE data     	                   **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                             Uwe Woessner                               **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  17.11.95  V1.0 						                           **
- ** Modified: 06.12.2000 B.Teplitski:                                      **
- **     working with datatype coDoTexture                                   **
-\**************************************************************************/
 #include <config/CoviseConfig.h>
 #include "RWCovise.h"
 

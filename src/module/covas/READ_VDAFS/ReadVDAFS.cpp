@@ -5,24 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description: Read module for VDAFS data         	                  **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                            Reiner Beller                               **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  09.10.97  V1.0                                                  **
-\**************************************************************************/
 
 #include <appl/ApplInterface.h>
 #include "ReadVDAFS.h"

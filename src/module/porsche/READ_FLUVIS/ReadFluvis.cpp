@@ -5,17 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1999 RUS  **
- **                                                                        **
- ** Description: Read module for FLUVIS data format         	              **
- **                                                                        **
- ** Author: D. Rainer                                                      **
- **                                                                        **
- ** Date: August 99                                                        **
- **                                                                        **
- *\**************************************************************************/
-
 #include <appl/ApplInterface.h>
 #include "ReadFluvis.h"
 #define NUM_SCALAR_PORTS 3

@@ -5,22 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                   	      (C)1999 RUS **
- **                                                                        **
- ** Description: Interface to Matthias Muellers Simulation    	          **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author: Uwe Woessner		                                          **
- **                                                                        **
- ** History:  								  **
- ** 27-Sep-00	v1						          **
- **                                                                        **
- **                                                                        **
-\**************************************************************************/
 #ifndef FALSE
 #define FALSE 0
 #endif

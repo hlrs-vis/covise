@@ -5,21 +5,6 @@
 
  * License: LGPL 2+ */
 
-
-/****************************************************************************\ 
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: WiiYourself Plugin support for wiimote as buttonsystem      **
- ** based on a bsd licensed lib called wiiyourself                           **
- **                                                                          **
- ** Author: U.Woessner		                                                  **
- **                                                                          **
- ** History:  								                                         **
- ** dec-09  v1	    				       		                                   **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #include "WiiYourselfPlugin.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>

@@ -5,20 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2008 HLRS  **
- **                                                                          **
- ** Description: Encoder OpenCOVER Plugin (is polite)                          **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                  **
- **                                                                          **
- ** History:  								                                         **
- ** June 2008  v1	    				       		                                **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #include "Encoder.h"
 #include <cover/coVRPluginSupport.h>
 #include <config/CoviseConfig.h>

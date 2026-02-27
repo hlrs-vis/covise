@@ -5,41 +5,34 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2007 ZAIK  **
- **                                                                          **
- ** Description:  BillboardSwitch Plugin                                     **
- **        implements a new VRML Node Type BillboardSwitch.                  **
- **        it is a mashup between / and based upon                           **
- **                the Billboard and Switch Nodes.                           **
- **                                                                          **
- **        Based on the angle under which the BillboardSwitch is watched,    **
- **        the node switches between its childs and billboards them.         **
- **                                                                          **
- **                         structure for BillboardSwitch node:              **
- **                 BillboardSwitch {                                        **
- **                     exposedField   SFVec3f axisOfRotation                **
- **                     field          MFFloat angle  []                     **
- **                     eventOut       MFInt   activeChildChanged            **
- **                     exposedFields  MFNode  choice  []                    **
- **                     exposedFields  MFNode  alternative  []               **
- **                 }                                                        **
- **                                                                          **
- **        with axisOfRotation like Axis in Billboard Node                   **
- **             angle are the angles under which the childs are switched     **
- **             activeChildChanged indicates if the active Child changed     **
- **             choice are the different childs which are switched           **
- **                                     and billboarded                      **
- **             alternative is a workaround for other VRML Browsers          **
- **                         with the PROTO definition, the BillboardSwitch   **
- **                         works like a normal Billboard with alternative   **
- **                         as its childs.                                   **
- **                                                                          **
- **                                                                          **
- **                                                                          **
- ** Author: Hauke Fuehres, based on the VRML Billboard and Switch Nodes      **
- **                                                                          **
- \****************************************************************************/
+
+
+// implements a new VRML Node Type BillboardSwitch.
+// it is a mashup between / and based upon
+//         the Billboard and Switch Nodes.
+// 
+// Based on the angle under which the BillboardSwitch is watched,
+// the node switches between its childs and billboards them.
+// 
+//                     structure for BillboardSwitch node:
+//             BillboardSwitch {
+//                 exposedField   SFVec3f axisOfRotation
+//                 field          MFFloat angle  []
+//                 eventOut       MFInt   activeChildChanged
+//                 exposedFields  MFNode  choice  []
+//                 exposedFields  MFNode  alternative  []
+//             }
+// 
+// with axisOfRotation like Axis in Billboard Node
+//         angle are the angles under which the childs are switched
+//         activeChildChanged indicates if the active Child changed
+//         choice are the different childs which are switched
+//                                 and billboarded
+//         alternative is a workaround for other VRML Browsers
+//                     with the PROTO definition, the BillboardSwitch
+//                     works like a normal Billboard with alternative
+//                     as its childs.
+
 
 #ifndef _BILLBOARD_SWITCH_NODE_PLUGIN_H
 #define _BILLBOARD_SWITCH_NODE_PLUGIN_H

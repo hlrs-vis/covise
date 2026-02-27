@@ -8,20 +8,6 @@
 #ifndef OpenXR_H
 #define OpenXR_H
 
-/****************************************************************************\ 
- **                                                            (C)2016 HLRS  **
- **                                                                          **
- ** Description: OpenXR Plugin				                                 **
- **                                                                          **
- **                                                                          **
- ** Author: Uwe Woessner		                                             **
- **                                                                          **
- ** History:  								                                 **
- ** Sep-16  v1	    				       		                             **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #define XR_USE_GRAPHICS_API_OPENGL
 #include <cover/coVRPlugin.h>
 

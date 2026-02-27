@@ -7,25 +7,8 @@
 
 #ifndef _CATCOV_H
 #define _CATCOV_H
-/**************************************************************************\ 
- **                                                      C)2001 Vircinity  **
- **                                                                        **
- ** Description:                                                           **
- **           Catenate input static covise files into a single dynamic one **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                        Sergio Leseduarte                               **
- **                        Vircinity IT GmbH                               **
- **                         Nobel Str. 15                                  **
- **                        70550 Stuttgart                                 **
- **                                                                        **
- ** Date:  03.05.2001                                                      **
-\**************************************************************************/
+
+// Description: Catenate input static covise files into a single dynamic one
 
 #include <iostream>
 

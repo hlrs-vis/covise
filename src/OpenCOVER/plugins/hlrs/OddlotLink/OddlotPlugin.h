@@ -7,19 +7,7 @@
 
 #ifndef _Oddlot_PLUGIN_H
 #define _Oddlot_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2009 HLRS  **
- **                                                                          **
- ** Description: Oddlot Plugin (connection to the OpenDrive Road Editor)     **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                 **
- **                                                                          **
- ** History:  								                                 **
- ** Apr-16  v1	    				       		                             **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 #include <net/covise_connect.h>
 #include <OpenVRUI/coMenu.h>
@@ -65,6 +53,7 @@ private:
     OddlotPlugin *plugin;
 };
 
+// connection to the OpenDrive Road Editor
 class OddlotPlugin : public coVRPlugin, public coMenuListener, public coTUIListener, public osgUtil::SceneView::ComputeStereoMatricesCallback
 {
 public:

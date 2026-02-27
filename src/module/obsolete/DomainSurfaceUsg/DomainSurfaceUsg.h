@@ -7,23 +7,6 @@
 
 #ifndef _APPLICATION_H
 #define _APPLICATION_H
-/**************************************************************************\ 
- **                                                           (C)1995 RUS  **
- **                                                                        **
- ** Description:  COVISE Cell_Reduce application module                    **
- **                                                                        **
- **                                                                        **
- **                             (C) 1995                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Oliver Heck                                                   **
- **                                                                        **
- **                                                                        **
- ** Date:  16.05.95  V1.0                                                  **
-\**************************************************************************/
 
 #include <appl/ApplInterface.h>
 using namespace covise;

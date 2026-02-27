@@ -5,24 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)1999 RUS   **
- **                                                                          **
- ** Description: Simple Geometry Generation Module                           **
- **              supports interaction from a COVER plugin                    **
- **              feedback style is later than COVISE 4.5.2                   **
- **                                                                          **
- ** Name:        cube                                                        **
- ** Category:    examples                                                    **
- **                                                                          **
- ** Author: D. Rainer                                                        **
- **                                                                          **
- ** History:                                                                 **
- ** September-99                                                             **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #ifndef FALSE
 #define FALSE 0
 #endif

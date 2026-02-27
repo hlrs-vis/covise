@@ -7,18 +7,7 @@
 
 #ifndef DYNAMIC_UI_H
 #define DYNAMIC_UI_H
-/****************************************************************************\ 
- **                                                            (C)2011 HLRS  **
- **                                                                          **
- ** Description: Dynamic UI                                                  **
- **                                                                          **
- **                                                                          **
- ** Author: Andreas Kopecki                                                  **
- **                                                                          **
- ** History:  								     **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <QMap>
 #include <cover/coTabletUI.h>
 #include <cover/coVRIOReader.h>

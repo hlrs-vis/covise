@@ -5,22 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                                        **
- **                                                (C)2002 VirCinity GmbH  **
- ** Description:   PipelineCollect                                         **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author: Sven Kufer		                                          **
- **         (C)  VirCinity IT- Consulting GmbH                             **
- **         Nobelstrasse 15                               		  **
- **         D- 70569 Stuttgart    			       		  **
- **                                                                        **
- **  17.10.2001                                                            **
- **                                                                        **
-\**************************************************************************/
-
 #include <do/coDoTriangleStrips.h>
 #include <do/coDoIntArr.h>
 #include <do/coDoRectilinearGrid.h>
@@ -31,14 +15,12 @@
 #include <do/coDoUnstructuredGrid.h>
 #include "PipelineCollect.h"
 
-/**************************************************************************\ 
- ** Dieses Modul wird ueber die Attribute an den Input-Objekten gesteuert  **
- ** diese sind:                                                            **
- **    BLOCK_FEEDBACK  -  wie ein Feedback, zum Aufrufen des Readers       **
- **    NEXT_STEP_PARAM -  param message to chance step                     **
- **    NEXT_STEP       -  string containing the number of the next step    **
- **    LAST_STEP/LAST_BLOCK - gambling finished                            **
-\**************************************************************************/
+// Dieses Modul wird ueber die Attribute an den Input-Objekten gesteuert
+// diese sind:
+// BLOCK_FEEDBACK  -  wie ein Feedback, zum Aufrufen des Readers
+// NEXT_STEP_PARAM -  param message to chance step
+// NEXT_STEP       -  string containing the number of the next step
+// LAST_STEP/LAST_BLOCK - gambling finished
 
 PipelineCollect::PipelineCollect(int argc, char *argv[])
     : coModule(argc, argv, "gamble parts of a set")

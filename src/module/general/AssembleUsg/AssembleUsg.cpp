@@ -5,27 +5,13 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                                          **
- **                                                                          **
- ** Description: Assemble blocks of unstructured grids( per timestep)        **
- **                                                                          **
- ** Name:        AssembleUsg                                                 **
- ** Category:    Tools                                                       **
- **                                                                          **
- ** Author: Sven Kufer		                                            **
- **         (C)  VirCinity IT- Consulting GmbH                               **
- **         Nobelstrasse 15                               		    **
- **         D- 70569 Stuttgart    			       		    **
- **                                                                          **
- **  19.02.2001                                                              **
-\****************************************************************************/
-
 #include "AssembleUsg.h"
 #include <do/coDoSet.h>
 #include <do/coDoUnstructuredGrid.h>
 #include <do/coDoData.h>
 #include <do/coDoSet.h>
+
+// Assemble blocks of unstructured grids( per timestep) 
 
 AssembleUsg::AssembleUsg(int argc, char *argv[])
     : coModule(argc, argv, "Assemble blocks of unstructured grids (per timestep)")

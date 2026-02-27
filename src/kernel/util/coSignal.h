@@ -12,27 +12,6 @@
 #define USE_BSD_SIGNALS
 #endif
 
-/**************************************************************************\ 
- **                                                                        **
- **                                                                        **
- ** Description: Signal manager class for the COVISE                       **
- **              software environment                                      **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                               (C) 1995                                 **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Author: A. Werner                                                      **
- **                                                                        **
- ** Date:  25.11.99  V2.0                                                  **
- ** Last:                                                                  **
-\*************************************************************************/
 
 #include <stdio.h>
 #include "coTypes.h"

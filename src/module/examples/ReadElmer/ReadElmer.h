@@ -7,21 +7,6 @@
 
 #ifndef _READ_ELMER_H
 #define _READ_ELMER_H
-/**************************************************************************\ 
- **                                                           (C)1998 RUS  **
- **                                                                        **
- ** Description: Read module Elmer data format         	                  **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** History:                                                               **
- ** May   98	    U. Woessner	    V1.0                                      **
- ** March 99	    D. Rainer	    added comments                            **
- ** September 99 D. Rainer       new api                                   **
- *\**************************************************************************/
 
 #include <stdlib.h>
 #include <stdio.h>

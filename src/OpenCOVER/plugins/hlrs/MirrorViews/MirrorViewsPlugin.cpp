@@ -5,20 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
-**                                                            (C)2001 HLRS  **
-**                                                                          **
-** Description: MirrorViews Plugin (does nothing)                              **
-**                                                                          **
-**                                                                          **
-** Author: U.Woessner		                                                **
-**                                                                          **
-** History:  								                                **
-** Nov-01  v1	    				       		                            **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
-
 #include "MirrorViewsPlugin.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRMSController.h>

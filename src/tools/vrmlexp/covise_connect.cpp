@@ -9,42 +9,18 @@
 
 #include "covise_connect.h"
 
-/***********************************************************************\ 
- **                                                                     **
- **   Connection  classes Routines                 Version: 1.1         **
- **                                                                     **
- **                                                                     **
- **   Description  : These classes present the user-seeable part of the **
- **                  socket communications (if necessary).              **
- **                  Connection is the base class, ServerConecction     **
- **                  and ClientConnection are subclasses tuned for the  **
- **                  server and the client part of a socket.            **
- **                  ControllerConnection and DataManagerConnection     **
- **                  are mere functional subclasses without additional  **
- **                  data.                                              **
- **                  ConnectionList provides the data structures        **
- **                  necessary to use the select UNIX system call       **
- **                  that allows to listen to many connections at once  **
- **                                                                     **
- **   Classes      : Connection, ServerConnection, ClientConnection,    **
- **                  ControllerConnection, DataManagerConnection,       **
- **                  ConnectionList                                     **
- **                                                                     **
- **   Copyright (C) 1993     by University of Stuttgart                 **
- **                             Computer Center (RUS)                   **
- **                             Allmandring 30                          **
- **                             7000 Stuttgart 80                       **
- **                                                                     **
- **                                                                     **
- **   Author       : A. Wierse   (RUS)                                  **
- **                                                                     **
- **   History      :                                                    **
- **                  15.04.93  Ver 1.0                                  **
- **                  26.05.93  Ver 1.1 sender_type and sender_id added  **
- **                                                                     **
- **                                                                     **
- **                                                                     **
-\***********************************************************************/
+// Description: These classes present the user-seeable part of the
+//              socket communications (if necessary).
+//              Connection is the base class, ServerConecction
+//              and ClientConnection are subclasses tuned for the
+//              server and the client part of a socket.
+//              ControllerConnection and DataManagerConnection
+//              are mere functional subclasses without additional
+//              data.
+//              ConnectionList provides the data structures
+//              necessary to use the select UNIX system call
+//              that allows to listen to many connections at once
+
 #undef SHOWMSG
 #undef DEBUG
 

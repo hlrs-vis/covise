@@ -5,21 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2009 HLRS  **
- **                                                                          **
- ** Description: Use scalar data array to displace polygon mesh              **
- **              in normal direction                                         **
- **                                                                          **
- ** Name:        DataHeight                                                  **                                                        **
- ** Category:    Mapper                                                      **
- **                                                                          **
- ** Author: M. Becker                                                        **
- **                                                                          **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #include "DataHeight.h"
 //#include <stdlib.h>
 //#include <stdio.h>

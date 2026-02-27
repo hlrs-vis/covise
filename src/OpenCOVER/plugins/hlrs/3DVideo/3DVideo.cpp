@@ -5,20 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                           (C)2007 USAL  **
- **                                                                         **
- ** Description: 3D Video                                                   **
- **                                                                         **
- **                                                                         **
- ** Author: Dulcidio Coelho		                                            **
- **                                                                         **
- ** History:  								                                **
- ** MAY-07  v1	    				       		                            **
- **                                                                         **
- **                                                                         **
-\****************************************************************************/
-
 #include "3DVideo.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>

@@ -5,23 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                   	      (C)1999 RUS **
- **                                                                        **
- ** Description: Simple Reader for Wavefront OBJ Format	                  **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author: D. Rainer                                                      **
- **                                                                        **
- ** History:                                                               **
- ** April 99         v1                                                    **
- ** September 99     new covise api                                        **                               **
- **                                                                        **
-\**************************************************************************/
-
 //lenght of a line
 #define LINE_SIZE 8192
 

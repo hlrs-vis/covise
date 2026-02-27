@@ -5,31 +5,9 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description:  COVISE Surface class for Surface Reduction Methods       **
- **                                                                        **
- **                                                                        **
- **                             (C) 1997                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Karin Frank                                                   **
- **                                                                        **
- **                                                                        **
- ** Date:  December 1997  V1.0                                             **
-\**************************************************************************/
-
 #include "Surface.h"
 #include <util/coviseCompat.h>
 #include <do/coDoData.h>
-
-//////////////////////////////////////////////////////////////////////////////
-// Base Class Constructor and Triangulation Procedures                      //
-//////////////////////////////////////////////////////////////////////////////
 
 Surface::Surface(int n_points, int n_vert, int n_poly, const char *Type, int *pl_in, int *vl_in, float *x_in, float *y_in, float *z_in, float *nu_in, float *nv_in, float *nw_in)
 {

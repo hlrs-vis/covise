@@ -5,32 +5,7 @@
 
  * License: LGPL 2+ */
 
-// xx.yy.2002 / 1 / file Lic.cpp
-
-/******************************************************************************\ 
- **                                                              (C)2001 RUS **
- **                                                                          **
- ** Description:  COVISE LineIntegralConvolution application module          **
- **                                                                          **
- **                                                                          **
- **                                                                          **
- **                                                                          **
- **                                                                          **
- ** Author: M. Muench                                                        **
- **                                                                          **
- ** History:                                                                 **
- ** xx. ???? 01 v1                                                            **
- ** XXXXXXXXX xx new covise api                                              **
- **                                                                          **
-\******************************************************************************/
-
 #include "TestLic.h"
-
-/********************\ 
- *                  *
- * Covise main loop *
- *                  *
-\********************/
 
 int main(int argc, char *argv[])
 {
@@ -38,12 +13,6 @@ int main(int argc, char *argv[])
     application->start(argc, argv);
     return 0;
 }
-
-/******************************\ 
- *                            *
- * Ingredients of Application *
- *                            *
-\******************************/
 
 Lic::Lic()
 {

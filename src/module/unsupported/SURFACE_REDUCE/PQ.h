@@ -7,23 +7,7 @@
 
 #ifndef _PQ_H
 #define _PQ_H
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description:  COVISE Priority queue class template                     **
- **                                                                        **
- **                                                                        **
- **                             (C) 1997                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Karin Frank                                                   **
- **                                                                        **
- **                                                                        **
- ** Date:  December 1997  V1.0                                             **
-\**************************************************************************/
+
 #include <math.h>
 
 class Vertex_with_coords

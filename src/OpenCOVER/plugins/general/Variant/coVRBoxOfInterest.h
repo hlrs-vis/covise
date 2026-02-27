@@ -5,12 +5,6 @@
 
  * License: LGPL 2+ */
 
-/* 
- * File:   coVRBoxOfInterest.h
- * Author: hpcagott
- *
- * Created on 21. September 2009, 14:45
- */
 #ifndef _COVRBOXOFInterest_H
 #define _COVRBOXOFInterest_H
 

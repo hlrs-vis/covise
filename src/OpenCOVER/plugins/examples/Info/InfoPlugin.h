@@ -7,15 +7,6 @@
 
 #ifndef INFO_PLUGIN_H
 #define INFO_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2013 HLRS  **
- **                                                                          **
- ** Description: display text from TEXT attributes                           **
- **                                                                          **
- **                                                                          **
- ** Author: Martin Aumueller <aumueller@hlrs.de>                             **
- **                                                                          **
-\****************************************************************************/
 
 #include <cover/coVRPlugin.h>
 #include <string>
@@ -30,6 +21,7 @@ class coLabelMenuItem;
 class coSubMenuItem;
 }
 
+// display text from TEXT attributes
 class InfoPlugin : public coVRPlugin
 {
 public:

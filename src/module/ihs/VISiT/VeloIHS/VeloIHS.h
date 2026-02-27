@@ -1,15 +1,3 @@
-/**************************************************************************\ 
- **                                                              2002      **
- **                                                                        **
- ** Description:  COVISE VeloIHS     New application module               **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:  M. Becker                                                     **
- **                                                                        **
- **                                                                        **
- ** Date:  01.07.02  V1.0                                                  **
-\**************************************************************************/
 #include <util/coviseCompat.h>
 #include <api/coSimpleModule.h>
 using namespace covise;

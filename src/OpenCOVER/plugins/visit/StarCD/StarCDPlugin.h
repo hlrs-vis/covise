@@ -1,18 +1,5 @@
 #ifndef _STARCD_PLUGIN_H
 #define _STARCD_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)1999 RUS   **
- **                                                                          **
- ** Description: Plugin for StarCD simulation coupled to COVISE              **
- **                                                                          **
- **                                                                          **
- ** Author: D. Rainer                                                        **
- **                                                                          **
- ** History:                                                                 **
- ** October-99                                                               **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
 
 #include <list>
 #include <osg/MatrixTransform>
@@ -37,6 +24,7 @@ using namespace vrui;
 
 class PluginObject;
 
+// Plugin for StarCD simulation coupled to COVISE
 class StarCDPlugin : public coVRPlugin
 {
  private:

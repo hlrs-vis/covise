@@ -5,25 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)2002 RUS  **
- **                                                                        **
- ** Description: Write volume files in formats supported by Virvo.         **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                     Juergen Schulze-Doebold                            **
- **     High Performance Computing Center University of Stuttgart          **
- **                         Allmandring 30                                 **
- **                         70550 Stuttgart                                **
- **                                                                        **
- ** Cration Date: 26.06.02                                                 **
-\**************************************************************************/
-
 #include <sstream>
 #include <string>
 #include <vector>

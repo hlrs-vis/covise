@@ -5,20 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: Xenomai Plugin (does nothing)                              **
- **                                                                          **
- **                                                                          **
- ** Author: F.Seybold, , S. Franz	                                                **
- **                                                                          **
- ** History:  								                                **
- ** Nov-01  v1	    				       		                            **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #include "XenomaiPlugin.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>

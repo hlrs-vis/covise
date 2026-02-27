@@ -5,21 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\
- **                                                          (C)2007 HLRS  **
- **                                                                        **
- ** Description: Remote Desktop plugin (VNC, RDP)                          **
- **                                                                        **
- **                                                                        **
- ** Author: Lukas Pinkowski                                                **
- **                                                                        **
- ** based on Vic.cpp by U. Woessner                                        **
- **                                                                        **
- ** History:                                                               **
- ** Oct 12, 2007    v1                                                     **
- **                                                                        **
-\****************************************************************************/
-
 #include "RemoteDT.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>

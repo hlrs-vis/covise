@@ -5,32 +5,7 @@
 
  * License: LGPL 2+ */
 
-// 16.11.2001 / 1 / file ReadIWSGeo.cpp
-
-/******************************************************************************\ 
- **                                                              (C)2001 RUS **
- **                                                                          **
- ** Description:Reader for IWS data files                                    **
- **                                                                          **
- **                                                                          **
- **                                                                          **
- **                                                                          **
- **                                                                          **
- ** Author: M. Muench                                                        **
- **                                                                          **
- ** History:                                                                 **
- ** Someday 01 v1                                                            **
- ** XXXXXXXXX xx new covise api                                              **
- **                                                                          **
-\******************************************************************************/
-
 #include "ReadIWSGeo.h"
-
-/********************\ 
- *                  *
- * Covise main loop *
- *                  *
-\********************/
 
 int main(int argc, char *argv[])
 {
@@ -39,12 +14,6 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-
-/******************************\ 
- *                            *
- * Ingredients of Application *
- *                            *
-\******************************/
 
 ReadIWSGeo::ReadIWSGeo()
 {
@@ -122,12 +91,6 @@ int ReadIWSGeo::compute()
     }
     return SUCCESS;
 }
-
-/***************************************************************\ 
- *                                                             *
- * reads the file in ascii mode and creates the covise objects *
- *                                                             *
-\***************************************************************/
 
 FILE *ReadIWSGeo::openFile(const char *filename)
 {
@@ -805,12 +768,6 @@ void ReadIWSGeo::line2coord(int *corner_list, int edge_index, int *edge_list, in
     }
 }
 
-/*****************************************\ 
- *                                       *
- * auxilliary functions string -> number *
- *                                       *
-\*****************************************/
-
 //test if we found a whole number
 bool ReadIWSGeo::isWholeNumber(char *line)
 {
@@ -950,9 +907,3 @@ bool ReadIWSGeo::isNumber(char *line)
     }
     return false;
 }
-
-/*************************************\ 
- *                                   *
- * THE DEFINITE BUT NOT ULTIMATE END *
- *                                   *
-\*************************************/

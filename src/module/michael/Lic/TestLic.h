@@ -5,34 +5,8 @@
 
  * License: LGPL 2+ */
 
-// xx.yy.2002 / 1 / file Lic.h
-
 #ifndef _TEST_LIC_H
 #define _TEST LIC_H
-
-/***************************************************************************\ 
- **                                                           (C)2001 RUS **
- **                                                                       **
- ** Description:   COVISE LineIntegralConvolution application module      **
- **                                                                       **
- **                                                                       **
- **                                                                       **
- **                                                                       **
- **                                                                       **
- ** Author: M. Muench                                                     **
- **                                                                       **
- ** History:                                                              **
- ** xx. ???? 01         v1                                                **
- ** xxxxxxxx         new covise api                                       **
-\***************************************************************************/
-
-/***********************************\ 
- *                                 *
- *  place the #include files here  *
- *                                 *
-\***********************************/
-
-//#include "Carbo.h"
 
 #include "LicUtil.h"
 #include "RungeKutta.h"

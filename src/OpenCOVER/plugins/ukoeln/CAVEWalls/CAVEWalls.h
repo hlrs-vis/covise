@@ -7,15 +7,6 @@
 
 #ifndef CAVEWALLS_H
 #define CAVEWALLS_H
-/****************************************************************************************\ 
- **                                                                                    **
- **                                                                                    **
- ** Description: Virtual walls for the CAVE. Detects when user is near the walls.      **
- **                                                                                    **
- **                                                                                    **
- ** Author: Tze Sheng Ng <tng1@uni-koeln.de>                                           **
- **                                                                                    **
-\****************************************************************************************/
 
 #include <cover/coVRPlugin.h>
 
@@ -56,6 +47,7 @@ namespace opencover
 using namespace opencover;
 using namespace vrui;
 
+// Virtual walls for the CAVE. Detects when user is near the walls. 
 class CAVEWalls : public coVRPlugin, public ui::Owner
 {
     public:

@@ -5,20 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2008 HLRS  **
- **                                                                          **
- ** Description: GPS OpenCOVER Plugin (is polite)                          **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner, T.Gudat	                                             **
- **                                                                          **
- ** History:  								     **
- ** June 2008  v1	    				       		     **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #include "GPS.h"
 #include "GPSPoint.h"
 #include "Track.h"

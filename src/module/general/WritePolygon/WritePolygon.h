@@ -7,28 +7,11 @@
 
 #ifndef _WritePolygon_H
 #define _RW_ASCII_H
-/**************************************************************************\ 
- **                                                           (C)2008 HLRS **
- **                                                                        **
- ** Description: Write Polygondata to files (VRML, STL, ***)               **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                            Bruno Burbaum                               **
- **                                 HLRS                                   **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  08.10.08  V0.1                                                  **
-\**************************************************************************/
 
 #include <api/coModule.h>
 using namespace covise;
 
+// Write Polygondata to files (VRML, STL, ***)
 class WritePolygon : public coModule
 {
 private:

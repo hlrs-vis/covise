@@ -8,18 +8,6 @@
 #ifndef READ_VTF_H
 #define READ_VTF_H
 
-/**************************************************************************\ 
- **                                                           (C)2001    **
- ** Description: Reading VTF binary data, in this file we analyze data   **
- **                                                                      **
- ** Author:                                                              **
- **                            Karin Mueller                             **
- **                                             Vircinity                **
- **                            Technologiezentrum                        **
- **                            70550 Stuttgart                           **
- ** Date:  01.10.01                                                      **
-\**************************************************************************/
-
 #include "ReadVTFData.h"
 #include <util/coRestraint.h>
 #include <do/coDoUnstructuredGrid.h>

@@ -7,29 +7,12 @@
 
 #ifndef _WRITE_ASC_H
 #define _WRITE_ASC_H
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description: Generate ASCII file from Covise Object                    **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                            Andreas Werner                              **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  05.01.97  V0.1                                                  **
-\**************************************************************************/
 
 #include <appl/ApplInterface.h>
 using namespace covise;
 #include <util/coviseCompat.h>
 
+// Generate ASCII file from Covise Object
 class Application
 {
 

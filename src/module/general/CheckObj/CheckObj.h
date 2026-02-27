@@ -8,22 +8,6 @@
 #ifndef _CHECK_OBJ_H
 #define _CHECK_OBJ_H
 
-/**************************************************************************\ 
- **                                                      (C)2000 Vircinity **
- **                                                                        **
- ** Description:  COVISE CheckObj application module                       **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:  Sasha Cioringa                                                **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Date:  28.10.00  V1.0                                                  **
- ** Last:                                                                  **
-\**************************************************************************/
-
 #include <api/coSimpleModule.h>
 using namespace covise;
 #include <do/coDoUnstructuredGrid.h>

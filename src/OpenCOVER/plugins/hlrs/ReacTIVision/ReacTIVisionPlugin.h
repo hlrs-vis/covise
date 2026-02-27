@@ -7,20 +7,7 @@
 
 #ifndef _ReacTIVision_PLUGIN_H
 #define _ReacTIVision_PLUGIN_H
-/****************************************************************************\ 
-**                                                            (C)2009 HLRS  **
-**                                                                          **
-** Description: ReacTIVision Plugin (does also TouchTable)                  **
-**                                                                          **
-**                                                                          **
-** Author: B. Burbaum                                                       **
-**                		                                                    **
-**                                                                          **
-** History:  								                                **
-** Feb-09  v1	    				       		                            **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPluginSupport.h>
 using namespace covise;
 using namespace opencover;
@@ -38,6 +25,7 @@ using namespace opencover;
 //     #include <math.h>
 //   #include <OpenThreads/Mutex>   //zieht nach client.h
 
+// does also TouchTable
 class ReacTIVisionPlugin : public coVRPlugin, public coTUIListener, public coVRTouchTableInterface // ,    public TuioListener
 
 //class ReacTIVisionPlugin : public coVRPlugin, public touchlib::ITouchListener, public coTUIListener

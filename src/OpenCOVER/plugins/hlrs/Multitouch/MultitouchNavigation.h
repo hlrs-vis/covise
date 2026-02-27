@@ -7,20 +7,7 @@
 
 #ifndef _MultitouchNavigation_H
 #define _MultitouchNavigation_H
-/****************************************************************************\ 
-**                                                            (C)2012 HLRS  **
-**                                                                          **
-** Description: Multitouch Navigation										**
-**                                                                          **
-**                                                                          **
-** Author:																	**
-**         Jens Dehlke														**
-**                                                                          **
-** History:  								                                **
-** Sep-12  v1.0	    				       		                            **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
+
 
 #include "MultitouchPlugin.h"
 #include <cover/VRSceneGraph.h>

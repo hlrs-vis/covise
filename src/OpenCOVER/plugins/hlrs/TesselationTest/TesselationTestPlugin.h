@@ -7,19 +7,6 @@
 
 #ifndef TesselationTest_PLUGIN_H
 #define TesselationTest_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: TesselationTest Plugin (does nothing)                              **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                **
- **                                                                          **
- ** History:  								                                **
- ** Nov-01  v1	    				       		                            **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
 
 #include <cover/coVRPlugin.h>
 

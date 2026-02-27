@@ -7,23 +7,6 @@
 
 #ifndef TRACELINEEXTRACTOR_H_
 #define TRACELINEEXTRACTOR_H_
-/****************************************************************************\ 
-**                                                            (C)1999 RUS   **
-**                                                                          **
-** Description:												             **
-**																			 **
-**																			 **
-**                                                                          **
-** Name:																	 **
-** Category:																 **
-**                                                                          **
-** Author: D. Rainer		                                                 **
-**                                                                          **
-** History:  								                                 **
-** September-99  					       		                             **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
 
 #include <map>
 #include <list>

@@ -7,19 +7,7 @@
 
 #ifndef _Querlenker_h
 #define _Querlenker_h
-/****************************************************************************\ 
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: Querlenker Plugin (does nothing)                              **
- **                                                                          **
- **                                                                          **
- ** Author: Manuel Dorsch                                                   **
- **                                                                          **
- ** History:  		               	                                **
- ** Nov-01  v1	    		       		                            **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 #include <cover/coVRTui.h>
 #include <cover/coTabletUI.h>

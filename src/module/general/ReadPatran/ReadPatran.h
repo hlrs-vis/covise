@@ -8,23 +8,6 @@
 #ifndef _READ_PATRAN_NEW_H
 #define _READ_PATRAN_NEW_H
 
-/**************************************************************************\ 
- **                                                           (C)1994 RUS  **
- **                                                                        **
- ** Description:  COVISE Tube application module                           **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                             (C) Vircinity 2000                         **
- **                                                                        **
- **                                                                        **
- ** Author:  Reiner Beller, Sasha Cioringa                                 **
- **                                                                        **
- **                                                                        **
- ** Date:  18.05.94  V1.0                                                  **
- ** Date:  08.11.00                                                        **
-\**************************************************************************/
-
 #include <api/coModule.h>
 using namespace covise;
 

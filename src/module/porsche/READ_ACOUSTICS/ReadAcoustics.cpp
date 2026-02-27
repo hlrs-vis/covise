@@ -5,21 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                   (C)2000 VirCinity IT-Consulting GmbH **
- **                                                                        **
- ** Description: Simple Reader for Head Audio Akustik	                  **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author: A. Wierse                                                      **
- **                                                                        **
- ** History:                                                               **
- ** May 00           v1                                                    **
- **                                                                        **
-\**************************************************************************/
 #ifndef FALSE
 #define FALSE 0
 #endif

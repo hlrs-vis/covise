@@ -5,21 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                   	      (C)1999 RUS **
- **                                                                        **
- ** Description: Read Optres V6.0C binary files      	                  **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author: Uwe Woessner                                                   **
- **                                                                        **
- ** History:                                                               **
- ** December 99         v1                                                    **                               **
- **                                                                        **
-\**************************************************************************/
 #include "ReadOptres.h"
 #include <util/coRestraint.h>
 #include <ctype.h>

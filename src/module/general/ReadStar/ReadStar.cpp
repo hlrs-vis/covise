@@ -5,25 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description: Read module for STAR  Files              	              **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                            Andreas Werner                              **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  03.01.97  V1.0                                                  **
-\**************************************************************************/
-
 #include <util/coviseCompat.h>
 #include <do/coDoSet.h>
 #include <appl/ApplInterface.h>

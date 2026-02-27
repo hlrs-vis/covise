@@ -5,27 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description:   COVISE ReadPlot3D application module                    **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                             (C) 1997                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30a                             **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Lars Frenzel                                                  **
- **                                                                        **
- **                                                                        **
- ** Date: 26.09.97                                                         **
-\**************************************************************************/
-
 #include <appl/ApplInterface.h>
 #include <do/coDoData.h>
 #include <do/coDoIntArr.h>

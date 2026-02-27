@@ -17,29 +17,6 @@
  *
 */
 
-/***********************************************************************\ 
- **                                                                     **
- **   Untructured class                              Version: 1.0       **
- **                                                                     **
- **                                                                     **
- **   Description  : Classes for the handling of an unstructured grid   **
- **                  and the data on it in a distributed manner.        **
- **                                                                     **
- **   Classes      :                                                    **
- **                                                                     **
- **   Copyright (C) 1993     by University of Stuttgart                 **
- **                             Computer Center (RUS)                   **
- **                             Allmandring 30                          **
- **                             7000 Stuttgart 80                       **
- **                                                                     **
- **                                                                     **
- **   Author       : A. Wierse   (RUS)                                  **
- **                                                                     **
- **   History      :                                                    **
- **                  23.06.93  Ver 1.0                                  **
- **                                                                     **
- **                                                                     **
-\***********************************************************************/
 
 namespace covise
 {

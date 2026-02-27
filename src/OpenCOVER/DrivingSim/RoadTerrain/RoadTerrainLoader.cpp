@@ -5,20 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2011 HLRS  **
- **                                                                          **
- ** Description: RoadTerrain Plugin                                          **
- **                                                                          **
- **                                                                          **
- ** Author: Florian Seybold            		                                **
- **                                                                          **
- ** History:  								                                         **
- ** Nov-01  v1	    				       		                                   **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #include "RoadTerrainLoader.h"
 
 #include <cover/coVRPluginSupport.h>

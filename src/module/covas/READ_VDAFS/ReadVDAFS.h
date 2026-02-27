@@ -7,24 +7,6 @@
 
 #ifndef _READVDAFS_H
 #define _READVDAFS_H
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description: Read module for VDAFS data         	                  **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                            Reiner Beller                               **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  09.10.97  V1.0                                                  **
-\**************************************************************************/
 
 #include <appl/ApplInterface.h>
 using namespace covise;

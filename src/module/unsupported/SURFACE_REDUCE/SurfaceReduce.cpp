@@ -5,23 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description:  COVISE Surface reduction application module              **
- **                                                                        **
- **                                                                        **
- **                             (C) 1997                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30a                             **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Karin Frank                                                   **
- **                                                                        **
- **                                                                        **
- ** Date:  April 1997  V1.0                                                **
-\**************************************************************************/
 #define _IEEE 1
 
 #include <appl/ApplInterface.h>

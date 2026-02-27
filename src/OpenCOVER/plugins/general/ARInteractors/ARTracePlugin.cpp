@@ -5,20 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: AR ParticleTracer interface                                 **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                **
- **                                                                          **
- ** History:  								                                **
- ** May-03  v1	    				       		                            **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #ifdef _WIN32
 #if (_MSC_VER >= 1300) && !(defined(MIDL_PASS) || defined(RC_INVOKED))
 #define POINTER_64 __ptr64

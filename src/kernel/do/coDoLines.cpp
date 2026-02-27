@@ -14,35 +14,6 @@ Initial revision
 
 */
 
-/***********************************************************************\ 
- **                                                                     **
- **   Structured classes Routines                   Version: 1.1        **
- **                                                                     **
- **                                                                     **
- **   Description  : Classes for the handling of structured grids       **
- **                  in a distributed manner.                           **
- **                                                                     **
- **   Classes      : coDoPoints, coDoLines, coDoPolygons **
- **                                                                     **
- **   Copyright (C) 1993     by University of Stuttgart                 **
- **                             Computer Center (RUS)                   **
- **                             Allmandring 30                          **
- **                             7000 Stuttgart 80                       **
- **                                                                     **
- **                                                                     **
- **   Author       : A. Wierse   (RUS)                                  **
- **                                                                     **
- **   History      :                                                    **
- **                  15.04.93  Ver 1.0                                  **
- **                  26.05.93  Ver 1.1 shm-access restructured,         **
- **                                    recursive data-objects (simple   **
- **                                    version),                        **
- **                                    some new types added             **
- **                                                                     **
- **                                                                     **
- **                                                                     **
-\***********************************************************************/
-
 using namespace covise;
 
 coDistributedObject *coDoLines::virtualCtor(coShmArray *arr)

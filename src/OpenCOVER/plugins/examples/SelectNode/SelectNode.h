@@ -7,22 +7,12 @@
 
 #ifndef _SELECT_NODE_PLUGIN_H
 #define _SELECT_NODE_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2008 HLRS  **
- **                                                                          **
- ** Description: SelectNode OpenCOVER Plugin selects vertices of a mesh      **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                  **
- **                                                                          **
- ** History:  								                                         **
- ** June 2008  v1	    				       		                                **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 #include <osg/ShapeDrawable>
 #include <osg/MatrixTransform>
+
+// selects vertices of a mesh
 
 class SelectNode : public coVRPlugin
 {

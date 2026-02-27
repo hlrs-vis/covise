@@ -7,14 +7,6 @@
 
 #ifndef _NORMALS_PLUGIN_H
 #define _NORMALS_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2001 ZAIK  **
- **                                                                          **
- ** Description: Normals Plugin (draw normals)                               **
- **                                                                          **
- ** Author: Martin Aumueller (aumueller@uni-koeln.de)                        **
- **                                                                          **
-\****************************************************************************/
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRTui.h>
@@ -24,6 +16,7 @@ using namespace opencover;
 
 #include "Normals.h"
 
+// draws normals
 class NormalsPlugin : public coVRPlugin, public coTUIListener
 {
 public:

@@ -7,33 +7,16 @@
 
 #ifndef _READ_PAM_H_
 #define _READ_PAM_H_
-/**************************************************************************\ 
- **                                                     (C)2001 Vircinity  **
- **                                                                        **
- ** Description: Reads DSY and THP files. DSY is used for grid and         **
- **              visualisation data, and optionally also for plots.        **
- **              The THP file is only used for plots.                      **
- **                                                                        **
- ** Author:                                                                **
- **                            Sergio Leseduarte                           **
- **                            Vircinity GmbH                              **
- **                            Nobelstr. 15                                **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  Ende Juni 2001?  (coding begins)                                **
- ** Sergio Leseduarte:                                                     **
- **                   Ende Juli 2001: Conditionally compiled are the       **
- **                           lines for creating local reference systems.  **
- **                           Additional information is needed             **
- **                           for this task that is not available in the   **
- **                           documentation of the DSY library.            **
-\**************************************************************************/
 
 #include <api/coModule.h>
 #include "ReadDSY.h"
 #include "auxiliary.h"
 
 using namespace covise;
+
+// Reads DSY and THP files. DSY is used for grid and
+// visualisation data, and optionally also for plots.
+// The THP file is only used for plots.
 
 // ReadPam handles the interface with the user.
 // Requests from the user are comunicated to the readDSY (ReadDSY.h)

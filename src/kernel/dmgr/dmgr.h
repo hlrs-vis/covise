@@ -21,30 +21,10 @@
 #include <sys/time.h>
 #endif
 
-/***********************************************************************\ 
- **                                                                     **
- **   Datamanager Process classes		  Version: 1.5         **
- **                                                                     **
- **                                                                     **
- **   Description  : All classes that work as the processes own data    **
- **                  and function base. Each process should make a new  **
- **                  object of its appropriate class type to have       **
- **                  access to the basic functionality.                 **
- **                                                                     **
- **   Classes      : DataManagerProcess, ObjectEntry		       **
- **                                                                     **
- **   Copyright (C) 1996     by University of Stuttgart                 **
- **                             Computer Center (RUS)                   **
- **                             Allmandring 30                          **
- **                             7000 Stuttgart 80                       **
- **                                                                     **
- **                                                                     **
- **   Author       : A. Wierse   (RUS)                                  **
- **                                                                     **
- **   History      :                                                    **
- **                  19.11.96  Ver 1.0                                  **
- **                                                                     **
-\***********************************************************************/
+// Description: All classes that work as the processes own data
+//              and function base. Each process should make a new
+//              object of its appropriate class type to have
+//              access to the basic functionality.
 
 #if !defined(__linux__) && !defined(_WIN32)
 #define COVISE_Signals

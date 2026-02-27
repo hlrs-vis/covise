@@ -7,22 +7,6 @@
 
 #ifndef _READ_OBJ_SIMPLE_H
 #define _READ_OBJ_SIMPLE_H
-/**************************************************************************\ 
- **                                                   	      (C)1999 RUS **
- **                                                                        **
- ** Description: Simple Reader for Wavefront OBJ Format	                  **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author: D. Rainer                                                      **
- **                                                                        **
- ** History:                                                               **
- ** April 99         v1                                                    **
- ** September 99     new covise api                                        **                               **
- **                                                                        **
-\**************************************************************************/
 
 #include <api/coModule.h>
 using namespace covise;

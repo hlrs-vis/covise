@@ -7,15 +7,6 @@
 
 #ifndef _SAMPLE_H
 #define _SAMPLE_H
-/**************************************************************************\ 
- **                                                (C)1999-2000 VirCinity  **
- **   Sample module                                                        **
- **                                                                        **
- ** Authors: Ralph Bruckschen (Vircinity)                                  **
- **          D. Rainer (RUS)                                               **
- **          S. Leseduarte (Vircinity)                                     **
- **                                                                        **
-\**************************************************************************/
 
 #include <api/coSimpleModule.h>
 using namespace covise;

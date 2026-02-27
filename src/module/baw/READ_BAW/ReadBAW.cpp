@@ -5,27 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                                        **
- **                                                                        **
- ** Description:   COVISE ReadIv application module                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                             (C) 1995                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author: D.Rantzau, U. Woessner                                         **
- **                                                                        **
- **                                                                        **
- ** Date:  14.02.95  V1.0                                                  **
-\**************************************************************************/
-
 #include <appl/ApplInterface.h>
 #include "ReadBAW.h"
 

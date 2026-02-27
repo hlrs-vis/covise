@@ -5,20 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: OpenCRG Plugin (does nothing)                               **
- **                                                                          **
- **                                                                          **
- ** Author: F.Seybold      	                                               **
- **                                                                          **
- ** History:  					         			                                **
- ** Nov-01  v1	    				              		                             **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #include "OpenCRGPlugin.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>

@@ -7,23 +7,11 @@
 
 #ifndef _READ_HEXA_BLOCKING_H
 #define _READ_HEXA_BLOCKING_H
-/**************************************************************************\ 
- **                                                   	      (C)2000 RUS **
- **                                                                        **
- ** Description:  Reader for ICEMCFD Hexa Blocking Files	                  **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author: Gabor Duroska                                                  **
- ** Date: April 2000                                                       **
- **                                                                        **
-\**************************************************************************/
 
 #include <api/coModule.h>
 using namespace covise;
 
+// Reader for ICEMCFD Hexa Blocking Files
 class ReadHexaBlocking : public coModule
 {
 

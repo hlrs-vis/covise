@@ -6,38 +6,20 @@
  * License: LGPL 2+ */
 
 
-/**************************************************************************\ 
- **                                                           (C)1996 RUS  **
- **                                                                        **
- ** Description: COVISE Tracer3_USG create streamlines 			  **
- **		of unstructured grids using adjacency information 	  **
- **              (single block)                                            **
- **		Uses 2nd order and 4th order integration with adaptive    **
- **		stepsize control. Adjacency information is computed in	  **
- **		a pre process and stored in a list (memory expensive)	  **
- **		or computed on the fly(slower)				  **
- **		Contains possibility of point reduction on output and	  **
- **									  **
- **		Input: geometrie field, data field (vector)		  **
- **		Output: Streamlines 			 		  **
- **			Datafield (vorticity of line (scalar))		  **
- **			Datafield (vorticity of line (vector))		  **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                             (C) 1996                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Oliver Heck                                                   **
- **                                                                        **
- **                                                                        **
- ** Date:  26.03.96  V1.0  						  **
- **                                                                        **
- ** 								          **
-\**************************************************************************/
+
+// COVISE Tracer3_USG create streamlines
+// of unstructured grids using adjacency information
+// single block)
+// Uses 2nd order and 4th order integration with adaptive
+// stepsize control. Adjacency information is computed in
+// a pre process and stored in a list (memory expensive)
+// or computed on the fly(slower)
+// Contains possibility of point reduction on output and
+
+// Input: geometrie field, data field (vector)
+// Output: Streamlines
+// Datafield (vorticity of line (scalar))
+// Datafield (vorticity of line (vector))
 
 //
 // Covise include stuff

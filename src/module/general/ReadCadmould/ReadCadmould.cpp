@@ -5,13 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                   (C)2002 VirCinity    **
- **                                                                        **
- ** Description: Read module Cadmould data format                          **
- **                                                                        **
-\**************************************************************************/
-
 #include <do/coDoData.h>
 #include <do/coDoIntArr.h>
 #include <do/coDoUnstructuredGrid.h>

@@ -5,12 +5,6 @@
 
  * License: LGPL 2+ */
 
-/*
- * File:	main.cpp zur PLMXML_Parser.cpp und PLMXML_Parser.h
- * Author: 	hpcdrath
- * Created on 24. Januar 2013
- */
-
 #include "BC_U.h"
 #include "BC_T.h"
 #include "CoolEmAllClient.h"

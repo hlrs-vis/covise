@@ -11,33 +11,11 @@
 #include <iostream>
 #include <unistd.h>
 #include <stdlib.h>
-/***********************************************************************\ 
- **                                                                     **
- **   Message classes Routines                     Version: 1.1         **
- **                                                                     **
- **                                                                     **
- **   Description  : The basic message structure as well as ways to     **
- **                  initialize messages easily are provided.           **
- **                  Subclasses for special types of messages           **
- **                  can be introduced.                                 **
- **                                                                     **
- **   Classes      : Message                                **
- **                                                                     **
- **   Copyright (C) 2001     by                  **
- **                                              **
- **                                              **
- **                                              **
- **                                                                     **
- **                                                                     **
- **   Author       :                                   **
- **                                                                     **
- **   History      :                                                    **
- **                                                  **
- **                    **
- **                                                                     **
- **                                                                     **
- **                                                                     **
-\***********************************************************************/
+
+// Description: The basic message structure as well as ways to
+//              initialize messages easily are provided.
+//              Subclasses for special types of messages
+//              can be introduced.
 
 #undef DEBUG
 

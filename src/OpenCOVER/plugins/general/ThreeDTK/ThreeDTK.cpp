@@ -5,20 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2013 HLRS  **
- **                                                                          **
- ** Description: ThreeDTK Plugin (loads and renders PointCloud)              **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                 **
- **                                                                          **
- ** History:  								                                 **
- ** Nov-01  v1	    				       		                             **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #ifdef WIN32
 #include <WinSock2.h>
 #include <Windows.h>

@@ -7,26 +7,10 @@
 
 #ifndef _MYSTRUCT_H
 #define _MYSTRUCT_H
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description:  Data structures for the triangulation of simple polygons **
- **               without holes (Header file)                              **
- **                                                                        **
- **                                                                        **
- **                             (C) 1997                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30a                             **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Karin Frank                                                   **
- **                                                                        **
- **                                                                        **
- ** Date:  September 1997  V1.0                                            **
-\**************************************************************************/
+
 #include <util/coviseCompat.h>
 
+// Data structures for the triangulation of simple polygons without holes
 class Stack
 {
 private:

@@ -21,31 +21,9 @@
 #ifndef NULL
 #define NULL 0L
 #endif
-/***********************************************************************\ 
- **                                                                     **
- **   List class                                   Version: 1.01        **
- **                                                                     **
- **                                                                     **
- **   Description  : A templated class to handle lists.                 **
- **                  ListElement is an element of this list             **
- **                                                                     **
- **   Classes      : List, ListElement                                  **
- **                                                                     **
- **   Copyright (C) 1993     by University of Stuttgart                 **
- **                             Computer Center (RUS)                   **
- **                             Allmandring 30                          **
- **                             7000 Stuttgart 80                       **
- **                                                                     **
- **                                                                     **
- **   Author       : A. Wierse   (RUS)                                  **
- **                                                                     **
- **   History      :                                                    **
- **                  15.04.93  Ver 1.0                                  **
- **                  26.05.93  Ver 1.01    current() added              **
- **                                                                     **
- **                                                                     **
- **                                                                     **
-\***********************************************************************/
+
+// Description: A templated class to handle lists.
+//              ListElement is an element of this list
 
 template <class T>
 class List;

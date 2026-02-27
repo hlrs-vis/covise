@@ -8,22 +8,6 @@
 #ifndef CO_DO_TEXTURE_H
 #define CO_DO_TEXTURE_H
 
-/***************************************************************************
- **                                                                        **
- ** Description: Class-Declaration of a new COVISE-OBJECT                  **
- **              for handling Texture-Data                                 **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                               (C) 1997                                 **
- **                             Paul Benoelken                             **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- ** Author: Paul Benoelken                                                 **
- **                                                                        **
- ** Date:  31.07.97  V1.0                                                  **
- ****************************************************************************/
 
 #include "coDistributedObject.h"
 namespace covise

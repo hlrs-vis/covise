@@ -7,29 +7,12 @@
 
 #ifndef _WRITE_PATRAN_H
 #define _WRITE_PATRAN_H
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description: Writing of Geometry in Patran Format                      **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                            Monika Wierse                               **
- **                           SGI/CRAY Research                            **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  05.01.97  V0.1                                                  **
-\**************************************************************************/
 
 #include <appl/ApplInterface.h>
 using namespace covise;
 #include <util/coviseCompat.h>
 
+// Writing of Elements in Patran Format   
 class Application
 {
 

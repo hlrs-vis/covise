@@ -5,39 +5,11 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description:                                                           **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                             Lars Frenzel                               **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date: aug97                                                            **
-\**************************************************************************/
-
-//
-//
-// COVISE include stuff
-//
-//
 #include <appl/ApplInterface.h>
 
 #include "HandleSet.h"
 
-//
 // C library stuff
-//
-//
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream.h>

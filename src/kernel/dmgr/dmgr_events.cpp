@@ -28,16 +28,12 @@ static int rngbuf = coDistributedObject::calcType("RNGBUF");
 
 //extern "C" int gethostname (char *name, int namelen);
 
-/*********************************************************\ 
-  int DataManagerProcess::handle_msg(Message *msg)
-
-  returns  0 for a Message which is not handled here
-      1 for a Message without reply
-      2 if the Message must be sent back
-      3 for the QUIT Message (on SGI only)
-\*********************************************************/
-
-
+//  int DataManagerProcess::handle_msg(Message *msg)
+//
+//  returns  0 for a Message which is not handled here
+//      1 for a Message without reply
+//      2 if the Message must be sent back
+//      3 for the QUIT Message (on SGI only)
 int DataManagerProcess::handle_msg(Message *msg)
 {
     int ok;

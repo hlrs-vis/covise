@@ -5,22 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                   	      (C)1999 RUS **
- **                                                                        **
- ** Description: Simple Reader for Wavefront OBJ Format	                  **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author: D. Rainer                                                      **
- **                                                                        **
- ** History:                                                               **
- ** April 99         v1                                                    **
- ** September 99     new covise api                                        **                               **
- **                                                                        **
-\**************************************************************************/
 #include "ReadASC.h"
 #include <ctype.h>
 

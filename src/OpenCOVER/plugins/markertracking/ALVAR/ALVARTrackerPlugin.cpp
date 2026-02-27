@@ -5,20 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\
-**                                                            (C)2001 HLRS  **
-**                                                                          **
-** Description: ALVAR Plugin                                            **
-**                                                                          **
-**                                                                          **
-** Author: U.Woessner		                                                 **
-**                                                                          **
-** History:  								                                 **
-** Mar-05  v1	    				       		                             **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
-
 #ifndef GLUT_NO_LIB_PRAGMA
 #define GLUT_NO_LIB_PRAGMA
 #endif

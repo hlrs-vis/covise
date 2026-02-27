@@ -8,25 +8,8 @@
 #ifndef _APPL_INTERFACE_H
 #define _APPL_INTERFACE_H
 
-/**************************************************************************\ 
- **                                                                        **
- **                                                                        **
- ** Description: Interface class for renderer modules to the COVISE        **
- **              software environment                                      **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                             (C)1995 RUS                                **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:   11.09.95  V1.0                                                 **
- ** Author: Dirk Rantzau                                                   **
-\**************************************************************************/
+// Description: Interface class for renderer modules to the COVISE
+//              software environment
 
 #include "CoviseBase.h"
 

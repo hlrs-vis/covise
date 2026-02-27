@@ -5,24 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)2011 HLRS **
- **                                                                        **
- ** Description: Read module for PLUTO data        	                       **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Authors:                                                                **
- **                                                                        **
- **                    Steffen Brinkmann, Uwe Woessner                     **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  22.11.11  V1.0                                                  **
-\**************************************************************************/
-
 #include "ReadPLUTO.h"
 #include <string>
 

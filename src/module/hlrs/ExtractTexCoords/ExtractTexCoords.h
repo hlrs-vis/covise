@@ -8,21 +8,6 @@
 #ifndef _EXTRACTTEXCOORDS_H
 #define _EXTRACTTEXCOORDS_H
 
-/****************************************************************************\
-**                                                    (C) 2010 Stellba      **
-**                                                                          **
-** Description: Extract the texture coords of a polygons object             **
-**              that fulfils certain requirements                           **
-**                                                                          **
-** Name:        ExtractTexCoords                                            **
-** Category:    Stellba                                                     **
-**                                                                          **
-** Author: M. Becker                                                        **
-**                                                                          **
-**  10/2010                                                                 **
-**                                                                          **
-\****************************************************************************/
-
 #include <do/coDoPolygons.h>
 #include <do/coDoPoints.h>
 #include <do/coDoTriangleStrips.h>
@@ -30,6 +15,8 @@
 #include <api/coSimpleModule.h>
 
 using namespace covise;
+
+// Extract the texture coords of a polygons object that fulfils certain requirements
 
 class ExtractTexCoords : public coSimpleModule
 {

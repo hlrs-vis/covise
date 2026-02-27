@@ -5,12 +5,6 @@
 
  * License: LGPL 2+ */
 
-/*
- * File:	writeToDatabase
- * Author: 	hpcdrath
- * Created on 4. July 2013
- */
-
 #include "CoolEmAllClient.h"
 #include <iostream>
 #include <fstream>

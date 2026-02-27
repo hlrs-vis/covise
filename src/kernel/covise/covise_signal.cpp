@@ -5,27 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                                        **
- **                                                                        **
- ** Description: Signal manager class for the COVISE                       **
- **              software environment                                      **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                               (C) 1995                                 **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Author: D. Rantzau, A. Wierse                                          **
- **                                                                        **
- ** Date:  12.12.95  V1.0                                                  **
- ** Last:                                                                  **
-\**************************************************************************/
 
 #include "covise.h"
 

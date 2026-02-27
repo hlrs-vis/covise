@@ -8,25 +8,6 @@
 #ifndef _GenDat_H
 #define _GenDat_H
 
-/**************************************************************************\ 
- **                                                           (C)1994 RUS  **
- **                                                                        **
- ** Description:Class for GenDat                                           **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                             Uwe Woessner                               **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  21.07.94  V1.0                                                  **
-\**************************************************************************/
-
 #include <api/coModule.h>
 using namespace covise;
 #include <util/coviseCompat.h>

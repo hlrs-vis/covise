@@ -5,26 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1994 RUS  **
- **                                                                        **
- ** Description:  COVISE Histogram application module                   **
- **                                                                        **
- **                                                                        **
- **                             (C) 1994                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Uwe Woessner                                                  **
- **                                                                        **
- **                                                                        **
- ** Date:  18.05.94  V1.0                                                  **
- **       13.09.95  Added Sets					          **
- **       13.02.01 Sven Kufer (C) 2000 VirCinity                           **
-\**************************************************************************/
-
 #include <appl/ApplInterface.h>
 #include "Histogram.h"
 #include <util/coviseCompat.h>

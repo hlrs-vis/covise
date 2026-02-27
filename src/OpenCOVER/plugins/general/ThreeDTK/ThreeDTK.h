@@ -7,19 +7,7 @@
 
 #ifndef _ThreeDTK_PLUGIN_H
 #define _ThreeDTK_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2013 HLRS  **
- **                                                                          **
- ** Description: ThreeDTK Plugin (loads and renders PointCloud)              **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                 **
- **                                                                          **
- ** History:  								                                 **
- ** Nov-01  v1	    				       		                             **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 #include <co3dtkDrawable.h>
 
@@ -34,6 +22,7 @@
 
 using namespace opencover;
 
+// loads and renders PointCloud
 class ThreeDTK : public coVRPlugin
 {
 public:

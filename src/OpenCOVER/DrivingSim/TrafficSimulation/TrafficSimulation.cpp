@@ -5,20 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: TrafficSimulation Plugin                                    **
- **                                                                          **
- **                                                                          **
- ** Author: Florian Seybold, U.Woessner		                                **
- **                                                                          **
- ** History:  								                                         **
- ** Nov-01  v1	    				       		                                   **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #include "TrafficSimulation.h"
 
 #include "FindTrafficLightSwitch.h"

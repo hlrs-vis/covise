@@ -7,24 +7,6 @@
 
 #ifndef _WRITE_ENSIGHT_H
 #define _WRITE_ENSIGHT_H
-/**************************************************************************\ 
- **                                                           (C)2001 RUS  **
- **                                                                        **
- ** Description: Write coDoLines in Ensight ASCII data format               **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                     Juergen Schulze-Doebold                            **
- **     High Performance Computing Center University of Stuttgart          **
- **                         Allmandring 30                                 **
- **                         70550 Stuttgart                                **
- **                                                                        **
- ** Cration Date: 06.04.01                                                 **
-\**************************************************************************/
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -32,6 +14,7 @@
 #include <api/coSimpleModule.h>
 using namespace covise;
 
+// Write coDoLines in Ensight ASCII data format
 class coWriteEnsight : public coModule
 {
 private:

@@ -7,19 +7,7 @@
 
 #ifndef _osgBulletPlugin_PLUGIN_H
 #define _osgBulletPlugin_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2008 HLRS  **
- **                                                                          **
- ** Description: osgBulletPlugin OpenCOVER Plugin (is polite)                          **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                  **
- **                                                                          **
- ** History:  								                                         **
- ** June 2008  v1	    				       		                                **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 
 class osgBulletPlugin : public opencover::coVRPlugin

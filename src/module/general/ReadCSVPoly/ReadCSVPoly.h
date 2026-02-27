@@ -7,24 +7,11 @@
 
 #ifndef _READ_CSV_POLY_H
 #define _READ_CSV_POLY_H
-/**************************************************************************\ 
- **                                                   	      (C)2015 HLRS **
- **                                                                        **
- ** Description: Simple Reader CSV files storing polygon information       **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author: D. Rainer                                                      **
- **                                                                        **
- ** History:                                                               **
- ** December 15         v1                                                 **
- **                                                                        **
-\**************************************************************************/
 
 #include <api/coModule.h>
 using namespace covise;
+
+// Simple Reader CSV files storing polygon information
 
 class ReadCSVPoly : public coModule
 {

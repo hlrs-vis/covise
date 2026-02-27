@@ -7,19 +7,7 @@
 
 #ifndef _OPENCRG_PLUGIN_H
 #define _OPENCRG_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: OpenCRG Plugin (does nothing)                              **
- **                                                                          **
- **                                                                          **
- ** Author: F.Seybold, S. Franz		                                                **
- **                                                                          **
- ** History:  								                                **
- ** Nov-01  v1	    				       		                            **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 #include <cover/coTabletUI.h>
 #include <cover/coVRShader.h>

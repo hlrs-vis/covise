@@ -5,22 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                     (C)2001 Vircinity  **
- **                                                                        **
- ** Description:  COVISE TensScal  application module                      **
- **                                                                        **
- **                                                                        **
- **                             (C) Vircinity 2000                         **
- **                                                                        **
- **                                                                        **
- ** Author:  S. Leseduarte                                                 **
- **                                                                        **
- **                                                                        **
- ** Date:  01.12.97  V1.0                                                  **
- ** Date   08.11.00                                                        **
-\**************************************************************************/
-
 #include "TensorScal.h"
 #include "jacobi_eigenvalue.hpp"
 #include <do/coDoData.h>

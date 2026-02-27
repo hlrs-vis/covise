@@ -7,11 +7,6 @@
 
 #ifndef _CALIBRATE_PLUGIN_H
 #define _CALIBRATE_PLUGIN_H
-/****************************************************************************\ 
-**                                                          (C)20006 HLRS   **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
 
 #include <cover/coVRPluginSupport.h>
 using namespace covise;
@@ -34,6 +29,7 @@ struct pos
     float z;
 };
 
+// Calibrate VEs
 class Calibrate : public coVRPlugin, public coTUIListener
 {
 private:

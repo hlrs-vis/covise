@@ -5,22 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                               (C)2000    **
- **                                                                          **
- ** Description: Surface of a structured grid                                **
- **                                                                          **
- ** Name:        SDomainsurface                                              **
- ** Category:    general                                                     **
- **                                                                          **
- ** Author: Sven Kufer		                                            **
- **                                                                          **
- ** History:  								    **
- ** January-01     					       		    **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #define TO_DELETE -1
 #define TRANS trans_coord[cl[num_corners_out - 1]] = cl[num_corners_out - 1]
 #define LTRANS ltrans_coord[my_lcl[lnum_corners_out - 1]] = my_lcl[lnum_corners_out - 1]

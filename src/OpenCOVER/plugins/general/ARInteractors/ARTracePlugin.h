@@ -8,19 +8,6 @@
 #ifndef _ARTRACE_PLUGIN_H
 #define _ARTRACE_PLUGIN_H
 
-/****************************************************************************\ 
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: Template Plugin (does nothing)                              **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                **
- **                                                                          **
- ** History:  								                                **
- ** Nov-01  v1	    				       		                            **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRPlugin.h>
 #include <cover/MarkerTracking.h>
@@ -97,6 +84,7 @@ public:
     bool doUpdate;
 };
 
+// AR ParticleTracer interface
 class ARTracePlugin : public coVRPlugin, public coMenuListener, public coMenuFocusListener
 {
 public:

@@ -7,19 +7,7 @@
 
 #ifndef _Param_PLUGIN_H
 #define _Param_PLUGIN_H
-/****************************************************************************\ 
-**                                                            (C)2001 HLRS  **
-**                                                                          **
-** Description: Param Plugin (does nothing)                              **
-**                                                                          **
-**                                                                          **
-** Author: U.Woessner		                                                **
-**                                                                          **
-** History:  								                                **
-** Nov-01  v1	    				       		                            **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPluginSupport.h>
 
 using namespace vrui;

@@ -5,25 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)2008 HLRS **
- **                                                                        **
- ** Description: Write Polygondata to files (VRML, STL, ***)               **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                            Bruno Burbaum                               **
- **                                 HLRS                                   **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  08.10.08  V0.1                                                  **
-\**************************************************************************/
-
 #undef VERBOSE
 
 #include "WritePolygon.h"

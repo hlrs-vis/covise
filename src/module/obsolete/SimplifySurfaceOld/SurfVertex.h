@@ -7,24 +7,6 @@
 
 #ifndef _SURFVERTEX_H
 #define _SURFVERTEX_H
-/**************************************************************************\ 
- **                                                           (C)1998 RUS  **
- **                                                                        **
- ** Description:  COVISE Surface vertex removal class                      **
- **                      for Surface Reduction Methods                     **
- **                                                                        **
- **                                                                        **
- **                             (C) 1998                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30a                             **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Karin Frank                                                   **
- **                                                                        **
- **                                                                        **
- ** Date:  June 1998  V1.0                                                 **
-\**************************************************************************/
 
 #include "PQ.h"
 #include "Surface.h"

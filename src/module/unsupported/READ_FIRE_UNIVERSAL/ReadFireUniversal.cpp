@@ -5,25 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description: Read module for fire Files                              **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                            Andreas Wierse                              **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  30.07.98  V1.0                                                  **
-\**************************************************************************/
-
 #include <appl/ApplInterface.h>
 #include "ReadFireUniversal.h"
 #include "FireUniversalFile.h"

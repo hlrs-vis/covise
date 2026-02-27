@@ -5,24 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description:  Source Code for the triangulation of simple polygons     **
- **               without holes                                            **
- **                                                                        **
- **                                                                        **
- **                             (C) 1997                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30a                             **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Karin Frank                                                   **
- **                                                                        **
- **                                                                        **
- ** Date:  September 1997  V1.0                                            **
-\**************************************************************************/
 #include "Tri_Polygon.h"
 #include <util/coviseCompat.h>
 

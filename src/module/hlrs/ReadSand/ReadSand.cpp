@@ -5,27 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1994 RUS  **
- **                                                                        **
- ** Description:   COVISE ReadParticles application module                 **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                             (C) 1994                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Uwe Woessner                                                  **
- **                                                                        **
- **                                                                        **
- ** Date:  28.09.94  V1.0                                                  **
-\**************************************************************************/
-
 #include <appl/ApplInterface.h>
 #include "ReadSand.h"
 

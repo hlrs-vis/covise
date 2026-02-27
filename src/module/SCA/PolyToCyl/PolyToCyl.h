@@ -16,7 +16,7 @@ using namespace covise;
 #include <api/coHideParam.h>
 #include <vector>
 
-////// our class
+// transform polygon in the x-y-plane to a cylinder
 class PolyToCyl : public coSimpleModule
 {
 private:

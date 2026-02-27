@@ -7,19 +7,7 @@
 
 #ifndef MADI_CONNECT_PLUGIN_H
 #define MADI_CONNECT_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2008 HLRS  **
- **                                                                          **
- ** Description: MADiConnect OpenCOVER Plugin (connects to MADI       )      **
- **                                                                          **
- **                                                                          **
- ** Author: D. Wickeroth                                                     **
- **                                                                          **
- ** History:                                                                 **
- ** July 2025  v1  				       		                                **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 #include <osg/Geode>
 

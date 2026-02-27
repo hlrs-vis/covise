@@ -7,21 +7,6 @@
 
 #ifndef _OPTIMIZERREDUCER_H
 #define _OPTIMIZERREDUCER_H
-/**************************************************************************\ 
- **                                                           (C)1997 SGI  **
- **                                                                        **
- ** Description:  COVISE Surface reduction application module  using       **
- **                               Optimizer                                **
- **                                                                        **
- **                             (C) 1997                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Author:  Monika Wierse                                                 **
- **                                                                        **
- ** Date:  October 1997  V1.0                                              **
-\**************************************************************************/
 
 #include <appl/ApplInterface.h>
 using namespace covise;
@@ -68,6 +53,8 @@ typedef struct
     int *tri;
 } Star;
 
+// COVISE Surface reduction application module  using       **
+ **                               Optimizer
 class opSRASimplify_scalar_data : public opSRASimplify
 {
 

@@ -8,30 +8,13 @@
 #ifndef _FAST_DNA_ML_H
 #define _FAST_DNA_ML_H
 
-/**************************************************************************\ 
- **                                                                        **
- **                                                                        **
- ** Description: Online connection to FastDNAml Simulation                                 **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                                (C) 1995                                **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Author: Uwe Woessner                                                   **
- ** Date:   14.10.2003  V1.0                                               **
-\**************************************************************************/
 #include <api/coModule.h>
 using namespace covise;
 #include <util/coviseCompat.h>
 
 #include "gui/gui.h"
+
+// Online connection to FastDNAml Simulation
 
 extern char *readTreeFile(const char *fileName, int ignore_lengths, bool useColoring, bool addNames, bool lowRes, int hostID);
 extern char *readTree(int ignore_lengths, bool useColoring, const char *buffer, bool addNames, bool lowRes, int hostID);

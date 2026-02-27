@@ -7,32 +7,13 @@
 
 #ifndef _TRIAREA_H
 #define _TRIAREA_H
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description: Generate Normals for Polygonal Data	                  **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                            Uwe Woessner                                **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  25.08.97  V0.1                                                  **
-\**************************************************************************/
 
 #include <api/coSimpleModule.h>
 using namespace covise;
 
 #include <util/coviseCompat.h>
 
-// Jetzt brauchen wir die Klasse Covise_Set_Handler nicht mehr
-
+// Calculate triangle area or ratio of edge lengths
 class TriArea : public coSimpleModule
 {
     static const char *s_defMapNames[];

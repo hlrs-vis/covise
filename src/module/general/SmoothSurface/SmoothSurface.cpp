@@ -5,22 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1998 RUS  **
- **                                                                        **
- ** Description:  COVISE Surface smoothing application module              **
- **                                                                        **
- **                                                                        **
- **                             (C) 1998                                   **
- **                Computing Center University of Stuttgart                **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Author:  Karin Frank                                                   **
- **                                                                        **
- ** Date:  August 1998  V1.0                                               **
-\**************************************************************************/
-
 #include <api/coSimpleModule.h>
 #include "SmoothSurface.h"
 #include <util/coviseCompat.h>

@@ -5,34 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                     (C) 2001 VirCinity **
- **                                                                        **
- ** Description:   COVISE ReadPlot3D FreeCut module                      **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                             (C) 1997                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30a                             **
- **                            70550 Stuttgart                             **
- **                                                                       **
- **                                                                        **
- **                                                                        **
- ** Author:  Uwe Woessner                                                  **
- ** Date: 26.09.97                                                         **
- **                                                                        **
- ** changed to newAPI + further FreeCut:                                 **
- ** 30.10.2001        Sven Kufer                                           **
- **                   VirCinity IT-Consulting GmbH                         **
- **                   Nobelstrasse 15                                      **
- **                   70569 Stuttgart                                      **
- **                                                                        **
-\**************************************************************************/
-
 #include "FreeCut.h"
 #include <iostream>
 #include <vector>

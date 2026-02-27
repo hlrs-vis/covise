@@ -8,18 +8,6 @@
 #ifndef TESTVTK_H
 #define TESTVTK_H
 
-/****************************************************************************\ 
- **                                                            (C)2010 RRZK  **
- **                                                                          **
- ** Description: Test module for coVTK class                                 **
- **              converts from COVISE to VTK and back                        **
- **                                                                          **
- ** Name:        TestVtk                                                     **
- ** Category:    examples                                                    **
- **                                                                          **
- ** Author: Martin Aumueller <aumueller@uni-koeln.de>                        **
- **                                                                          **
-\****************************************************************************/
 
 #include <api/coSimpleModule.h>
 using namespace covise;

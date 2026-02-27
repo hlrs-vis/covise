@@ -7,19 +7,7 @@
 
 #ifndef _VIC_H
 #define _VIC_H
-/****************************************************************************\ 
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: Vic, Video conferencing                                     **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                **
- **                                                                          **
- ** History:  								                                **
- ** Nov-03  v1	    				       		                            **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPluginSupport.h>
 #include <OpenVRUI/coMenuItem.h>
 #include <OpenVRUI/coMenu.h>
@@ -80,6 +68,7 @@ private:
     coTexturedBackground *videoTexture;
 };
 
+// Vic, Video conferencing
 class Vic : public coVRPlugin, public coMenuListener
 {
 public:

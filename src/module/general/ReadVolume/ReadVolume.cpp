@@ -5,25 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)2002 RUS  **
- **                                                                        **
- ** Description: Read volume files in formats supported by Virvo.          **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                     Juergen Schulze-Doebold                            **
- **     High Performance Computing Center University of Stuttgart          **
- **                         Allmandring 30                                 **
- **                         70550 Stuttgart                                **
- **                                                                        **
- ** Cration Date: 28.10.2000                                               **
-\**************************************************************************/
-
 #include <sstream>
 
 #include <boost/filesystem.hpp>

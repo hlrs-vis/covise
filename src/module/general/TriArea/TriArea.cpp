@@ -5,13 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description: Calculate triangle area or ratio of edge lengths          **
- **                                                                        **
- **                                                                        **
-\**************************************************************************/
 #include <util/coviseCompat.h>
 #include "TriArea.h"
 #include <iostream>

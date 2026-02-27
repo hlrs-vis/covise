@@ -7,22 +7,6 @@
 
 #ifndef _READ_ASC_H
 #define _READ_ASC_H
-/**************************************************************************\ 
- **                                                   	        (C)1999 RUS **
- **                                                                        **
- ** Description: Read data from ASCII format                               **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author: A. Werner                                                      **
- **                                                                        **
- ** History:                                                               **
- ** April 99         v1                                                    **
- ** September 99     new covise api                                        **                               **
- **                                                                        **
-\**************************************************************************/
 
 #include <api/coModule.h>
 using namespace covise;

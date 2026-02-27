@@ -5,21 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)2005 GER  **
- **                                                                        **
- ** Description: Read ASCII FIles.							                     **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                     	 Oliver Krause			                           **
- **     			Zentrum fuer angewandte Informatik Koeln				         **
- **                     University  of Cologne						            **
- **                                                   					      **
- **                                                                        **
- ** Cration Date: May 2005                                                 **
-\**************************************************************************/
-
 #ifndef _READ_HEIGHTFIELD_H_
 #define _READ_HEIGHTFIELD_H_
 

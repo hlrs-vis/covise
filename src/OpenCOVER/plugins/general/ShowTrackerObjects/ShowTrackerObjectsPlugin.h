@@ -5,26 +5,19 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2007 ZAIK  **
- **                                                                          **
- ** Description: Show Tracker Objects Plugin                                 **
- **         (shows an icon at the tracked object's position)                 **
- **         needed config entries to work:                                   **
- **          Cover.Plugin.ShowTrackerObjects "on" with following subitems:   **
- **          CheckStations: max number of stations to check for              **
- **                         config entries                                   **
- **          HandIcon: the icon file for the hand                            **
- **          HandIconSize: factor for the size of the hand icon              **
- **          ObjectsIcon: the icon file for the station which                **
- **          ObjectsIconSize: factor for the size of the objects icon        **
- **                          moves the object world                          **
- **          IconX:  Icon file for station X                                 **
-**           IconSizeX: factor for the size of icon X                        **
- **                                                                          **
- ** Author: Hauke Fuehres                                                    **
- **                                                                          **
- \****************************************************************************/
+// Show Tracker Objects Plugin
+// (shows an icon at the tracked object's position)
+// needed config entries to work:
+// Cover.Plugin.ShowTrackerObjects "on" with following subitems:
+// CheckStations: max number of stations to check for
+                // config entries
+// HandIcon: the icon file for the hand
+// HandIconSize: factor for the size of the hand icon
+// ObjectsIcon: the icon file for the station which
+// ObjectsIconSize: factor for the size of the objects icon
+                // moves the object world
+// IconX:  Icon file for station X
+// IconSizeX: factor for the size of icon X
 
 #ifndef SHOWTRACKEROBJECTS_PLUGIN_H
 #define SHOWTRACKEROBJECTS_PLUGIN_H

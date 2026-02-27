@@ -5,22 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
-**                                                            (C)2012 HLRS  **
-**                                                                          **
-** Description: Multitouch Navigation										**
-**                                                                          **
-**                                                                          **
-** Author:																	**
-**         Jens Dehlke														**
-**                                                                          **
-** History:  								                                **
-** Feb-13  v1.1																** 
-** Sep-12  v1.0	    				       		                            **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
-
 // Note:
 // The code to transform screen position to Xform position, is based on:
 // http://forum.openscenegraph.org/viewtopic.php?t=6168

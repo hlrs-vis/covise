@@ -5,26 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1998 RUS  **
- **                                                     (C) 2000 VirCinity **
- ** Description: Read module for Nastran data                              **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                             Franz Maurer                               **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30a                             **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  07.04.1998  V1.0                                                **
- ** Data:  08.03.2001  Sven Kufer: corrected transformation matrix         **
-\**************************************************************************/
-
 #include "ReadNastran.h"
 #include <util/coviseCompat.h>
 #include <do/coDoData.h>

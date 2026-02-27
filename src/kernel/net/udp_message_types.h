@@ -13,23 +13,7 @@
 #include <vector>
 
 
-/***********************************************************************\
- **                                                                     **
- **    UDP Message classes                              Version: 1.1    **
- **                                                                     **
- **                                                                     **
- **   Description  : The basic udp message structure		            **
- **                                                                     **
- **   Classes      : Message, ShmMessage                                **
- **                                                                     **
- **												                        **
- **                                                                     **
- **   Author       : D. Grieger (HLRS)                                  **
- **                                                                     **
- **   History      :  24.05.2019 created								**
- **                                                                     **
- **                                                                     **
-\***********************************************************************/
+// Description: The basic udp message structure
 
 namespace covise
 {

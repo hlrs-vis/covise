@@ -5,24 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1995 RUS  **
- **                                                                        **
- ** Description:  COVISE Reduce cell volume of unstructured grids          **
- **                                                                        **
- **                                                                        **
- **                             (C) 1995                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Oliver Heck                                                   **
- **                                                                        **
- **                                                                        **
- ** Date:  16.05.95  V1.0                                                  **
-\**************************************************************************/
-
 #include <stdio.h>
 #include <iostream.h>
 #include <math.h>

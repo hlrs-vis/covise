@@ -77,30 +77,6 @@ Initial revision
 
 */
 
-/***********************************************************************\
- **                                                                     **
- **   Process Class Routines                       Version: 1.0         **
- **                                                                     **
- **                                                                     **
- **   Description  : The infrastructure for general processes           **
- **                  is provided here.                                  **                                 **
- **                                                                     **
- **   Classes      : DataManagerProcess                                 **
- **                                                                     **
- **   Copyright (C) 1993     by University of Stuttgart                 **
- **                             Computer Center (RUS)                   **
- **                             Allmandring 30                          **
- **                             7000 Stuttgart 80                       **
- **                                                                     **
- **                                                                     **
- **   Author       : A. Wierse   (RUS)                                  **
- **                                                                     **
- **   History      :                                                    **
- **                  15.04.93  Ver 1.0                                  **
- **                                                                     **
- **                                                                     **
- **                                                                     **
-\***********************************************************************/
 
 namespace covise
 {

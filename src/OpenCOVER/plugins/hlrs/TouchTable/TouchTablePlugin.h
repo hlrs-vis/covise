@@ -7,20 +7,7 @@
 
 #ifndef _TouchTable_PLUGIN_H
 #define _TouchTable_PLUGIN_H
-/****************************************************************************\ 
-**                                                            (C)2001 HLRS  **
-**                                                                          **
-** Description: TouchTable Plugin (does TouchTable)                         **
-**                                                                          **
-**                                                                          **
-** Author: B. Burbaum und                                                  **
-**         U. Woessner		                                               **
-**                                                                          **
-** History:  								                                **
-** Nov-01  v1	    				       		                            **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPluginSupport.h>
 using namespace covise;
 using namespace opencover;

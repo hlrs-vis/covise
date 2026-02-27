@@ -5,25 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description: dieses spitzen Modul wertet StructuredGrids aus und       **
- **              erzeugt die Oberflaeche als Polygone                      **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                            Lars Frenzel                                **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  10.09.97                                                        **
-\**************************************************************************/
-
 #include <do/coDoTriangleStrips.h>
 #include <do/coDoUnstructuredGrid.h>
 #include <do/coDoUniformGrid.h>

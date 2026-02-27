@@ -5,23 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1994 RUS  **
- **                                                                        **
- ** Description:  COVISE ShowGrid application module                       **
- **                                                                        **
- **                                                                        **
- **                             (C) 1995                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Uwe Woessner                                                  **
- **                                                                        **
- **                                                                        **
- ** Date:  27.01.95  V1.0                                                  **
-\**************************************************************************/
 
 #include "ShowGrid.h"
 #include <do/coDoSet.h>

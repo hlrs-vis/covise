@@ -5,20 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: MassPointDynamics Plugin (does nothing)                              **
- **                                                                          **
- **                                                                          **
- ** Author: Florian Seybold		                                                **
- **                                                                          **
- ** History:  								                                **
- ** Nov-01  v1	    				       		                            **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #include "MassPointDynamicsPlugin.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>

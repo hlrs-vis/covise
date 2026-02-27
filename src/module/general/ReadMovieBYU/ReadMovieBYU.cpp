@@ -5,27 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                                   RUS  **
- **                                                                        **
- **                                                                        **
- ** Description:   COVISE Read_MovieBYU application module                 **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30a                             **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Thilo Krueger February,March 1998                                      **
- ** under strong support of the vislab team                                **
- **                                                                        **
- \**************************************************************************/
-
-//////
-//////
-//////
 
 #include <appl/ApplInterface.h>
 #include "ReadMovieBYU.h"

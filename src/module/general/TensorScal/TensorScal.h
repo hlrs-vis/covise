@@ -8,23 +8,6 @@
 #ifndef _TENS_SCAL_NEW_H
 #define _TENS_SCAL_NEW_H
 
-/**************************************************************************\ 
- **                                                     (C)2001 VirCinity  **
- **                                                                        **
- ** Description:  COVISE TensScal application module                       **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                             (C) Vircinity 2000                         **
- **                                                                        **
- **                                                                        **
- ** Author:  S. Leseduarte                                                 **
- **                                                                        **
- **                                                                        **
- ** Date:  18.05.94  V1.0                                                  **
- ** Date:  08.11.00                                                        **
-\**************************************************************************/
-
 #include <api/coSimpleModule.h>
 using namespace covise;
 #include <util/coviseCompat.h>

@@ -5,19 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)2001	  	  **
- ** Description: FixUSG delets points which are more than one time 		  **
- **				 in an UnstructuredGrid 											     **
- **                                                                        **
- ** Author:                                                                **
- **                            Karin Müller                             	  **
- **                				Vircinity               						  **
- **                            Technologiezentrum                          **
- **                            70550 Stuttgart                             **
- ** Date:  01.10.01		                                                  **
-\**************************************************************************/
-
 #include "DeleteUnusedPoints.h"
 #include <do/coDoPolygons.h>
 #include <do/coDoLines.h>

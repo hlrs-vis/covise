@@ -7,25 +7,6 @@
 
 #ifndef INDEXMANIFOLDS_H
 #define INDEXMANIFOLDS_H
-/**************************************************************************\ 
- **                                                 (C)2000 VirCinity GmbH **
- **                                                                        **
- ** Description: Extract 0-, 1- & 2-dimensional index manifolds from a     **
- **              structured grid                                           **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                             Dirk Straka                                **
- **                    VirCinity IT-Consulting GmbH                        **
- **                             Nobelstr. 30                               **
- **                            70569 Stuttgart                             **
- **                                                                        **
- ** Date:  28.10.00  V0.1                                                  **
-\**************************************************************************/
 
 #include <api/coSimpleModule.h>
 using namespace covise;

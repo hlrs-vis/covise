@@ -7,25 +7,6 @@
 
 #ifndef _READSAI_H
 #define _READSAI_H
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Read in SAI Grids and Data
- **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                            Ralph Bruckschen                            **
- **                            Vircinity GmbH                              **
- **                            Nobelstr. 15                                **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  21.11.99  V0.1                                                  **
-\**************************************************************************/
 
 #include <stdlib.h>
 #include <stdio.h>

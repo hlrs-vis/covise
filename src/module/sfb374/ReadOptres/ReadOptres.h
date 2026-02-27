@@ -7,26 +7,12 @@
 
 #ifndef _READ_OPTRES_H
 #define _READ_OPTRES_H
-/**************************************************************************\ 
- **                                                   	      (C)1999 RUS **
- **                                                                        **
- ** Description: Read Optres V6.0C binary files      	                  **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author: Uwe Woessner                                                   **
- **                                                                        **
- ** History:                                                               **
- ** December 99         v1                                                 **                               **
- **                                                                        **
-\**************************************************************************/
 
 #include <api/coModule.h>
 using namespace covise;
 #define NUM_PORTS 3
 
+// Read Optres V6.0C binary files
 class ReadOptres : public coModule
 {
 

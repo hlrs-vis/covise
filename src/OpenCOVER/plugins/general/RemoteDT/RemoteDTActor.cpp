@@ -5,21 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                          (C)2007 HLRS  **
- **                                                                        **
- ** Description: Remote Desktop Event Handler class                        **
- **                                                                        **
- **                                                                        **
- ** Author: Lukas Pinkowski                                                **
- **                                                                        **
- ** History:                                                               **
- ** Oct-10 2007  v1                                                        **
- **                                                                        **
- ** License: GPL v2 or later                                               **
- **                                                                        **
-\****************************************************************************/
-
 #include "RemoteDTActor.h"
 #include "RemoteDT.h"
 #include <cover/coVRPluginSupport.h>

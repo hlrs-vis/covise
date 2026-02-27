@@ -5,22 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1998 RUS  **
- **                                                                        **
- ** Description: Read module Elmer data format         	                  **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** History:                                                               **
- ** May   98	    U. Woessner	    V1.0                                      **
- ** March 99	    D. Rainer	    added comments                            **
- ** September 99 D. Rainer       new api                                   **
- *\**************************************************************************/
-
 #include "ReadElmer.h"
 #include <do/coDoUnstructuredGrid.h>
 #include <do/coDoData.h>

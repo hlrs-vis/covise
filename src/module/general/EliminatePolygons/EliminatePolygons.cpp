@@ -5,21 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2000 RUS   **
- **                                                                          **
- ** Description: Eliminates polygons of poly_away out of poly1               **
- **                                                                          **
- ** Name:        EliminatePolygons                                           **
- ** Category:    examples                                                    **
- **                                                                          **
- ** Author: Sven Kufer		                                            **
- **                                                                          **
- ** History:  								    **
- ** April-00     					       		    **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
 #define FOR_ALL 1
 #define PER_TIMESTEP 2
 #define PER_BLOCK_AND_P_TIMESTEP 3

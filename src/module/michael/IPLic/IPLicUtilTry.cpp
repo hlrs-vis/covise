@@ -570,13 +570,8 @@ void doFieldLine(trivec &triangles, const i2ten &neighbours,
 
         const float tLength = tSecond[0] - tFirst[0];
 
-        //////////////////////////////////////////////////////////////////
 
-        /***************************************\ 
-       *                                     *
-       *  F O R W A R D   D I R E C T I O N  *
-       *                                     *
-      \***************************************/
+        // FORWARD DIRECTION
 
         //break if the streamline passes the boundary
         int counter = 0;
@@ -711,14 +706,8 @@ void doFieldLine(trivec &triangles, const i2ten &neighbours,
         tFirst = (triangles[btri]).getC2dTex(first);
         tSecond = (triangles[btri]).getC2dTex(second);
 
-        //////////////////////////////////////////////////////////////////
-
-        /*****************************************\ 
-       *                                       *
-       *  B A C K W A R D   D I R E C T I O N  *
-       *                                       *
-      \*****************************************/
-
+        // BACKWARD DIRECTION
+        
         //break if the streamline passes the boundary
         while (true)
         {

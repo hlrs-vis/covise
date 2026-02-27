@@ -5,17 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)2002 OSR  **
- **                                                                        **
- **     Description: Read module CFX-11 data format                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- *\**************************************************************************/
 #include <config/CoviseConfig.h>
 #include <api/coStepFile.h>
 #include <do/coDoData.h>

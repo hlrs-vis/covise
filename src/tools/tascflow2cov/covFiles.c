@@ -5,17 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
- *					                                  *
- *                           (C) 2001 			                  *
- *                   VirCinity IT-Consulting GmbH                          *
- *                         Nobelstrasse 15				  *
- *                       D-70569 Stuttgart				  *
- *                            Germany					  *
- * Author: S. Kufer							  *
- * Date: 5. Juli 2001							  *
- **************************************************************************/
-
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>

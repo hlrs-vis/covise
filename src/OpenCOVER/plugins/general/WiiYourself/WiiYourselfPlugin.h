@@ -7,24 +7,13 @@
 
 #ifndef _WIIYOURSELF_PLUGIN_H
 #define _WIIYOURSELF_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: WiiYourself Plugin support for wiimote as buttonsystem      **
- ** based on a bsd licensed lib called wiiyourself                           **
- **                                                                          **
- ** Author: U.Woessner		                                                  **
- **                                                                          **
- ** History:  								                                         **
- ** dec-09  v1	    				       		                                   **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPluginSupport.h>
 using namespace covise;
 using namespace opencover;
 #include <wiimote.h>
 
+// WiiYourself Plugin support for wiimote as buttonsystem based on a bsd licensed lib called wiiyourself
 class WiiMote : public coVRPlugin
 {
 public:

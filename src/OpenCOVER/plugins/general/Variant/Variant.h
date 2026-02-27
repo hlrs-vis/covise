@@ -5,13 +5,6 @@
 
  * License: LGPL 2+ */
 
-/* 
- * File:   Variant.h
- * Author: Gottlieb A.
- *
- * Created on 14. August 2009, 09:45
- */
-
 #ifndef _VARIANT_H
 #define _VARIANT_H
 

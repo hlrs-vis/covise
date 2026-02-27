@@ -7,24 +7,14 @@
 
 #ifndef _HYDRA_PLUGIN_H
 #define _HYDRA_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: Tracker Plugin for Razer Hydra                              **
- **                                                                          **
- ** Author: U.Woessner		                                                  **
- **                                                                          **
- ** History:  								                                         **
- ** dec-11  v1	    				       		                                   **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPluginSupport.h>
 using namespace covise;
 using namespace opencover;
 #define SIXENSE_STATIC_LIB
 #include <sixense.h>
 
+// Tracker Plugin for Razer Hydra
 class Hydra : public coVRPlugin
 {
 public:

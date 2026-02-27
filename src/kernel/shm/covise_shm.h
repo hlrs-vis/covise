@@ -26,47 +26,22 @@
 #include <windowsx.h>
 #endif
 
-/***********************************************************************\ 
- **                                                                     **
- **   Shared Memory Classes                       Version: 2.0          **
- **                                                                     **
- **                                                                     **
- **   Description  : All classes that deal with the creation and        **
- **                  administration of shared memory.                   **
- **                  The SharedMemory class handles the operating system **
- **		    part of the shared memory management.              **
- **		    is a utility class to organize the used            **
- **		    and unused parts of the shared memory.             **
- **		    ShmAccess allows only the access to the shared     **
- **		    memory areas, not the allocation or return of      **
- **		    allocated regions.                                 **
- **		    coShmAlloc does all the administration of the shared **
- **		    memory regions, using trees with nodes which point **
- **		    to used and free parts. Here all allocation of     **
- **		    regions in the shared memory takes place.          **
- **                  coShmPtr and its subclassses provide an easy         **
- **                  access to and initialization of pointers in        **
- **                  the shared memory areas.                           **
- **                                                                     **
- **   Classes      : SharedMemory, ShmAccess, coShmAlloc,                 **
- **                  coShmPtr, coCharcoShmPtr, coShortcoShmPtr, coIntcoShmPtr,        **
- **                  LongcoShmPtr, coFloatcoShmPtr, DoublecoShmPtr              **
- **                                                                     **
- **   Copyright (C) 1993     by University of Stuttgart                 **
- **                             Computer Center (RUS)                   **
- **                             Allmandring 30                          **
- **                             7000 Stuttgart 80                       **
- **                                                                     **
- **                                                                     **
- **   Author       : A. Wierse   (RUS)                                  **
- **                                                                     **
- **   History      :                                                    **
- **                  15.04.93  Ver 1.0                                  **
- **                  26.05.93  Ver 2.0 design reworked, basic data      **
- **                                    types clarified, compound data   **
- **                                    types added.                     **
- **                                                                     **
-\***********************************************************************/
+// Description: All classes that deal with the creation and
+//              administration of shared memory.
+//              The SharedMemory class handles the operating
+//              system part of the shared memory management.
+//              ShmAccess allows only the access to the shared
+//              memory areas, not the allocation or return of
+//              allocated regions.
+//              coShmAlloc does all the administration of the
+//              shared memory regions, using trees with nodes
+//              which point to used and free parts. Here all
+//              allocation of regions in the shared memory takes
+//              place.
+//              coShmPtr and its subclasses provide an easy
+//              access to and initialization of pointers in
+//              the shared memory areas.
+
 namespace covise
 {
 class SharedMemory;

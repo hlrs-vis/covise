@@ -5,18 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
- *	        Libary to read files in COVISE format                     *
- *                                			                  *
- *                           (C); 2001 			                  *
- *                   VirCinity IT-Consulting GmbH                          *
- *                         Nobelstrasse 15				  *
- *                       D-70569 Stuttgart				  *
- *                            Germany					  *
- * Author: S. Kufer							  *
- * Date: 28. Juli 2001							  *
- **************************************************************************/
-
 #ifndef _COVISE_BIFBOFLIB
 #define _COVISE_BIFBOFLIB
 #include <iostream> //cout

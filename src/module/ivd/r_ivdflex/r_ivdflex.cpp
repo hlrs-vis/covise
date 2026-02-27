@@ -5,21 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                   	                  **
- **                                                                        **
- ** R_IVDFLEX                                          	                  **
- ** Author: Michael Junge, IVD Uni-Stutgart                                **
- **                                                                        **
- ** Date: Oct, 2000 up to Nov 2001                                         **
- **                                                                        **
- ** Description: This module imports data written in a IBM-OpenDX          **
- **              compatible format by the export routines of IOLOS.        **
- **              The read data information is assigned to the output-ports **
- **              of the module.                                            **
- **                                                                        **
-\**************************************************************************/
-
 //lenght of a line
 
 // portion for resizing data
@@ -31,11 +16,9 @@
 #include <do/coDoSet.h>
 #include "r_ivdflex.h"
 
-/**************************************************************************\ 
- **  Swaps binary data: This procedure is used to swap data when the binary**
- **                     file was created on a PC and afterwards read on    **
- **                     a SGI system or via verse.                         **
-\**************************************************************************/
+//  Swaps binary data: This procedure is used to swap data when the binary
+//                     file was created on a PC and afterwards read on    
+//                     a SGI system or via verse.                         
 inline void swap_int(int &d)
 {
     unsigned int &data = (unsigned int &)d;
@@ -59,9 +42,6 @@ inline void swap_float(float *d, int num)
     }
 }
 
-/**************************************************************************\ 
- **   ReadIVDdata: this method is called, when module is initialized       **
-\**************************************************************************/
 ReadIVDdata::ReadIVDdata(int argc, char *argv[])
     : coModule(argc, argv)
 {
@@ -116,10 +96,6 @@ ReadIVDdata::~ReadIVDdata()
 void ReadIVDdata::quit()
 {
 }
-
-/**************************************************************************\ 
- **  compute : this method is called, when module is executed              **
-\**************************************************************************/
 
 int ReadIVDdata::compute(const char *)
 {
@@ -707,12 +683,11 @@ bool ReadIVDdata::read_grid(coDoUnstructuredGrid *pGrid_data)
     return true;
 }
 
-/**************************************************************************\ 
- **  open_data :   generates filename combined out of the path of the      **
- **                general-file and the name provided in datafilename,     **
- **                open this file and returns a file pointer to it in dfp  **
- **                If stepnr>0 numberation is added to filename            **
-\**************************************************************************/
+
+//  open_data :   generates filename combined out of the path of the
+//                general-file and the name provided in datafilename,
+//                open this file and returns a file pointer to it in dfp
+//                If stepnr>0 numberation is added to filename
 bool ReadIVDdata::open_data(FILE **dfp,
                             const char *generalfilename,
                             const char *datafilename,
@@ -755,11 +730,9 @@ bool ReadIVDdata::open_data(FILE **dfp,
     }
 }
 
-/**************************************************************************\ 
- ** read_scalar  : reads one scalar of the size local_coord from file      **
- **                provided in dfp and assigned it  to d_scalar[index]     **
- **                with the provided offset                                **
-\**************************************************************************/
+// read_scalar  : reads one scalar of the size local_coord from file
+//                provided in dfp and assigned it  to d_scalar[index]
+//                with the provided offset
 bool ReadIVDdata::read_scalar(FILE *dfp, int index, int local_coord, int offset)
 {
     //     char buffer[STR_MAX];
@@ -782,11 +755,9 @@ bool ReadIVDdata::read_scalar(FILE *dfp, int index, int local_coord, int offset)
     return true;
 }
 
-/**************************************************************************\ 
- ** read_vector  : reads one vector of the size local_coord from file      **
- **                provided in dfp and assigned it   to d_Vector[index]    **
- **                with the provided offset                                **
-\**************************************************************************/
+// read_vector  : reads one vector of the size local_coord from file
+//                provided in dfp and assigned it   to d_Vector[index]
+//                with the provided offset
 bool ReadIVDdata::read_vector(FILE *dfp, int index, int local_coord, int offset)
 {
     //     char buffer[STR_MAX];
@@ -830,10 +801,8 @@ bool ReadIVDdata::read_vector(FILE *dfp, int index, int local_coord, int offset)
     return true;
 }
 
-/**************************************************************************\ 
- **  skip_block : skips one block of binary data, can be used to move to  **
- **               another information field within binary file            **
-\**************************************************************************/
+//  skip_block : skips one block of binary data, can be used to move to
+//               another information field within binary file
 bool ReadIVDdata::skip_block(FILE *dfp)
 {
     int dummy1, dummy2; // will hold fortran block marker

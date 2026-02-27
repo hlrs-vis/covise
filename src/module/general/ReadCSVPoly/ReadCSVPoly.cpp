@@ -5,22 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                   	      (C)2015 HLRS **
- **                                                                        **
- ** Description: Simple Reader CSV files storing polygon information       **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author: D. Rainer                                                      **
- **                                                                        **
- ** History:                                                               **
- ** December 15         v1                                                 **
- **                                                                        **
-\**************************************************************************/
-
 //lenght of a line
 #define LINE_SIZE 8192
 

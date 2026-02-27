@@ -5,19 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2010 RRZK  **
- **                                                                          **
- ** Description: Test module for coVTK class                                 **
- **              converts from COVISE to VTK and back                        **
- **                                                                          **
- ** Name:        TestVtk                                                     **
- ** Category:    examples                                                    **
- **                                                                          **
- ** Author: Martin Aumueller <aumueller@uni-koeln.de>                        **
- **                                                                          **
-\****************************************************************************/
-
 #include <do/coDoData.h>
 #include <vtk/coVtk.h>
 #include "TestVtk.h"

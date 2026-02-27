@@ -8,31 +8,6 @@
 #ifndef _SPLIT_USG_H
 #define _SPLIT_USG_H
 
-/**************************************************************************\ 
- **                                                     (C)2001 Vircinity  **
- **                                                                        **
- ** Description: Splits grid into subgrids with elements of the same       **
- **              dimensionality                                            **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                            Sergio Leseduarte                           **
- **                            Vircinity GmbH                              **
- **                            Nobelstr. 15                                **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  29.1.2001  (coding begins)                                      **
- ** Sergio Leseduarte:    6.2.2001                                         **
- **                   The original version was modified in order to change **
- **                   the types of some output objects; what originally    **
- **                   was a 2D coDoUnstructuredGrid is now coDoPolygons,     **
- **                   1D coDoUnstructuredGrid has been substituted for      **
- **                   coDoLines and 0D coDoUnstructuredGrid for coDoPoints.   **
-\**************************************************************************/
-
 #include <api/coSimpleModule.h>
 using namespace covise;
 #include <do/coDoUnstructuredGrid.h>
@@ -40,7 +15,7 @@ using namespace covise;
 #include <util/coviseCompat.h>
 
 // #define _DEBUG_SPLIT_
-
+// Splits grid into subgrids with elements of the same dimensionality
 class SplitUSG : public coSimpleModule
 {
 private:

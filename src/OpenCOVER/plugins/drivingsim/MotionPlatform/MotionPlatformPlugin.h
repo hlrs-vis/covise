@@ -7,19 +7,7 @@
 
 #ifndef _MOTIONPLATFORMPLUGIN_H
 #define _MOTIONPLATFORMPLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: MotionPlatform Plugin (does nothing)                        **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                **
- **                                                                          **
- ** History:  								                                **
- ** Nov-01  v1	    				       		                            **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 
 #include <boost/numeric/ublas/matrix.hpp>

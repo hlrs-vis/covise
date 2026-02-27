@@ -8,23 +8,6 @@
 #ifndef _STOU_NEW_H
 #define _STOU_NEW_H
 
-/**************************************************************************\ 
- **                                                           (C)1994 RUS  **
- **                                                                        **
- ** Description:  COVISE Stou application module                           **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                             (C) Vircinity 2000                         **
- **                                                                        **
- **                                                                        **
- ** Author:  Uwe Woessner, Sasha Cioringa                                  **
- **                                                                        **
- **                                                                        **
- ** Date:  15.02.95  V1.0                                                  **
- ** Date:  09.11.00                                                        **
-\**************************************************************************/
-
 #include <do/coDoUnstructuredGrid.h>
 #include <do/coDoStructuredGrid.h>
 #include <do/coDoRectilinearGrid.h>

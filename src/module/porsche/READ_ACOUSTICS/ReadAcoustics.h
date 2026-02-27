@@ -7,25 +7,11 @@
 
 #ifndef _READ_ACOUSTICS_H
 #define _READ_ACOUSTICS_H
-/**************************************************************************\ 
- **                                   (C)2000 VirCinity IT-Consulting GmbH **
- **                                                                        **
- ** Description: Simple Reader for Head Audio Akustik	                  **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author: A. Wierse                                                      **
- **                                                                        **
- ** History:                                                               **
- ** May 00           v1                                                    **
- **                                                                        **
-\**************************************************************************/
 
 #include <api/coModule.h>
 using namespace covise;
 
+// Simple Reader for Head Audio Akustik
 class ReadAcoustics : public coModule
 {
 

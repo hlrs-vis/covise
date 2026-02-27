@@ -5,16 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2008 HLRS  **
- **                                                                          **
- ** Description: ColorBar Plugin                                             **
- **                                                                          **
- **                                                                          **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #include "ColorBarPlugin.h"
 #include <OpenVRUI/osg/mathUtils.h>
 #include <PluginUtil/colors/ColorBar.h>

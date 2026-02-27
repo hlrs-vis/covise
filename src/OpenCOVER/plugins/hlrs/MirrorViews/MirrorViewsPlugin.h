@@ -7,19 +7,7 @@
 
 #ifndef _MIRRORVIEWS_PLUGIN_H
 #define _MIRRORVIEWS_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: MirrorViews Plugin (does nothing)                              **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                **
- **                                                                          **
- ** History:  								                                **
- ** Nov-01  v1	    				       		                            **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRMSController.h>

@@ -7,15 +7,7 @@
 
 #ifndef _COLORBAR_PLUGIN_H
 #define _COLORBAR_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2008 HLRS  **
- **                                                                          **
- ** Description: ColorBar Plugin (does nothing)                              **
- **                                                                          **
- **                                                                          **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coInteractor.h>
 #include <cover/coVRPlugin.h>
 #include <map>

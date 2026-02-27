@@ -8,24 +8,6 @@
 #ifndef _MINMAX_NEW_H
 #define _MINMAX_NEW_H
 
-/**************************************************************************\ 
- ** (C)1994 RUS                                                            **
- ** (C)2001 VirCinity IT-Consulting GmbH, Stuttgart                        **
- **                                                                        **
- ** Description:  COVISE Tube application module                           **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                       (C) VirCinity 2000, 2001                         **
- **                                                                        **
- **                                                                        **
- ** Author:  R.Lang, D.Rantzau, Sasha Cioringa                             **
- **                                                                        **
- **                                                                        **
- ** Date:  18.05.94  V1.0                                                  **
- ** Date:  08.11.00                                                        **
-\**************************************************************************/
-
 #include <api/coSimpleModule.h>
 using namespace covise;
 #define MAX_BUCKETS 200

@@ -5,23 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1998 RUS  **
- **                                                                        **
- ** Description:  COVISE StoU application module                           **
- **                                                                        **
- **                                                                        **
- **                             (C) Vircinity 2000                         **
- **                                                                        **
- **                                                                        **
- ** Author:  Uwe Woessner, Sasha Cioringa                                  **
- **                                                                        **
- **                                                                        **
- ** Date:  18.05.94  V1.0                                                  **
- ** Date:  05.09.98                                                        **
- ** Date:  08.11.00                                                        **
-\**************************************************************************/
-
 #include <do/coDoData.h>
 #include <do/coDoIntArr.h>
 #include "StoU.h"

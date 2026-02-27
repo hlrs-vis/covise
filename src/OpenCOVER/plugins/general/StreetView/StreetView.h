@@ -8,20 +8,6 @@
 #ifndef STREET_VIEW_H
 #define STREET_VIEW_H
 
-/****************************************************************************\ 
- **                                                            (C)2016 HLRS  **
- **                                                                          **
- ** Description: Streetview Plugin				                             **
- **                                                                          **
- **                                                                          **
- ** Author: M.Guedey		                                                 **
- **                                                                          **
- ** History:  								                                 **
- ** Sep-16  v1	    				       		                             **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #include <cover/coVRPlugin.h>
 #include <proj_api.h>
 

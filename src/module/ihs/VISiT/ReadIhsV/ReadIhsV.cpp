@@ -1,21 +1,3 @@
-/**************************************************************************\ 
- **                                                           (C)1995 RUS  **
- **                                                                        **
- ** Description: Read module for Ihs data         	                  **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                             Uwe Woessner                               **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  17.03.95  V1.0                                                  **
-\**************************************************************************/
 
 //#include "ApplInterface.h"
 #include "ReadIhsV.h"

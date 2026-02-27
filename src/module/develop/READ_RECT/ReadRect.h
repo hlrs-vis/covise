@@ -7,15 +7,6 @@
 
 #ifndef _READ_RECT_H
 #define _READ_RECT_H
-/**************************************************************************\ 
- **                                                                        **
- **                                                                        **
- ** Description: Read module Rect Norsk Hydro data      	                  **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- *\**************************************************************************/
 
 #include <stdlib.h>
 #include <stdio.h>

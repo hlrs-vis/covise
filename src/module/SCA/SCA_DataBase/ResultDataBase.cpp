@@ -5,16 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                    (C) 2002 VirCinity  **
- ** Author: Sven Kufer		                                          **
- **         (C)  VirCinity IT- Consulting GmbH                             **
- **         Nobelstrasse 15                                                **
- **         D- 70569 Stuttgart    			       	          **
- **                                                                        **
- **  Date:22.7.2002                                                         **
- **                                                                        **
-\**************************************************************************/
 
 #include "ResultDataBase.h"
 #include <sys/types.h>

@@ -5,27 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                                        **
- **                                                                        **
- ** Description:   Michael Resch simulation  module                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                             (C) 1997                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  D.Rantzau, U. Woessner                                        **
- **                                                                        **
- **                                                                        **
- ** Date:  04.03.97  V1.0                                                  **
-\**************************************************************************/
-
 #include <appl/ApplInterface.h>
 #include "Mir.h"
 int main(int argc, char *argv[])

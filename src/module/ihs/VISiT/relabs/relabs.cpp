@@ -1,15 +1,3 @@
-/**************************************************************************\ 
- **                                                              2002      **
- **                                                                        **
- ** Description:  COVISE relabs     New application module               **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:  M. Becker                                                     **
- **                                                                        **
- **                                                                        **
- ** Date:  01.07.02  V1.0                                                  **
-\**************************************************************************/
 #ifdef _WIN32
 #ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES

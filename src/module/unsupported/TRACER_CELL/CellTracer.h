@@ -7,24 +7,7 @@
 
 #ifndef _CELLTRACER_H
 #define _CELLTRACER_H
-/**************************************************************************\ 
- **                                                           (C)1996 RUS  **
- **                                                                        **
- ** Description:  COVISE Tracer for Cells application module	              **
- **                                                                        **
- **                                                                        **
- **                             (C) 1996                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Uwe Woessner, Oliver Heck, Andreas Wierse                     **
- **                                                                        **
- **                                                                        **
- ** Date:  12.02.96  V1.0                                                  **
- ** Date:  13.10.98  V2.0                                                  **
-\**************************************************************************/
+
 
 #include <appl/ApplInterface.h>
 using namespace covise;

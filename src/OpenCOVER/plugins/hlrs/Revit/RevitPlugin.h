@@ -7,19 +7,7 @@
 
 #ifndef _Revit_PLUGIN_H
 #define _Revit_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2009 HLRS  **
- **                                                                          **
- ** Description: Revit Plugin (connection to Autodesk Revit Architecture)    **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                  **
- **                                                                          **
- ** History:  								                                         **
- ** Mar-09  v1	    				       		                                   **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 #include <cover/coVRShader.h>
 #include <net/covise_connect.h>
@@ -450,7 +438,7 @@ public:
     ui::Label* TypeNameLabel = nullptr;
 };
 
-
+// connection to Autodesk Revit Architecture
 class RevitPlugin : public coVRPlugin, public opencover::ui::Owner
 {
 public:

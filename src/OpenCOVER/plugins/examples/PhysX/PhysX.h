@@ -7,22 +7,11 @@
 
 #ifndef _PhysX_PLUGIN_H
 #define _PhysX_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2008 HLRS  **
- **                                                                          **
- ** Description: PhysX OpenCOVER Plugin (draws a cube)                          **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                  **
- **                                                                          **
- ** History:  								                                         **
- ** June 2008  v1	    				       		                                **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 #include <osg/Geode>
 
+// draws a cube
 class PhysX : public opencover::coVRPlugin
 {
 public:

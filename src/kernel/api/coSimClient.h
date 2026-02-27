@@ -27,21 +27,7 @@
 #include <fcntl.h>
 #endif
 
-/**************************************************************************\ 
- **                                                           (C)1999 RUS  **
- **                                                                        **
- ** Description: Covise Simulation Library, Simulation side                **
- **                                                                        **
- **     When linking C++, C or FORTRAN simulations with Covise, this       **
- **     File describes the functionality available to the Simulation.      **
- **                                                                        **
- ** Author:                     Andreas Werner                             **
- **                Computing Center University of Stuttgart                **
- **                            Allmandring 30a                             **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  08.06.99  V1.0                                                  **
-\**************************************************************************/
+// Description: Covise Simulation Library, Simulation side - When linking C++, C or FORTRAN simulations with Covise, this File describes the functionality available to the Simulation.
 
 /* Set CO_SIMLIB_VERBOSE to one of the following to switch verbose levels:
  * 0: no messages (default)

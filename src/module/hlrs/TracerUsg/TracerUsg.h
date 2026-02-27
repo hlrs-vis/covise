@@ -7,23 +7,6 @@
 
 #ifndef _APPLICATION_H
 #define _APPLICATION_H
-/**************************************************************************\ 
- **                                                           (C)1996 RUS  **
- **                                                                        **
- ** Description:  COVISE Tracer_USG application module	                  **
- **                                                                        **
- **                                                                        **
- **                             (C) 1996                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Uwe Woessner, Oliver Heck                                     **
- **                                                                        **
- **                                                                        **
- ** Date:  12.02.96  V1.0                                                  **
-\**************************************************************************/
 
 #include <appl/ApplInterface.h>
 using namespace covise;
@@ -35,8 +18,22 @@ using namespace covise;
 #include <do/coDoUnstructuredGrid.h>
 #include "coIA.h"
 
-// holds arbitrary mesh cell type pairs and the cells that have this type
+// COVISE Tracer3_USG create streamlines
+// of unstructured grids using adjacency information
+// single block)
+// Uses 2nd order and 4th order integration with adaptive
+// stepsize control. Adjacency information is computed in
+// a pre process and stored in a list (memory expensive)
+// or computed on the fly(slower)
+// Contains possibility of point reduction on output and
 
+// Input: geometrie field, data field (vector)
+// Output: Streamlines
+// Datafield (vorticity of line (scalar))
+// Datafield (vorticity of line (vector))
+
+
+// holds arbitrary mesh cell type pairs and the cells that have this type
 class CellPair
 {
 private:

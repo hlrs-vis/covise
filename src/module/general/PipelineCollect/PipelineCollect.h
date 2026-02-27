@@ -5,21 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                                        **
- **                                               (C) 2002 VirCinity GmbH  **
- ** Description: PipelineCollect                                           **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author: Sven Kufer		                                          **
- **         (C)  VirCinity IT- Consulting GmbH                             **
- **         Nobelstrasse 15                               		  **
- **         D- 70569 Stuttgart    			       		  **
- **                                                                        **
- **  17.10.2001                                                            **
-\**************************************************************************/
-
 #ifndef _PIPELINE_COLLECT_H
 #define _PIPELINE_COLLECT_H
 

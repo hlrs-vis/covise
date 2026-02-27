@@ -7,19 +7,7 @@
 
 #ifndef _Revit_VrmlNodePhases_PLUGIN_H
 #define _Revit_VrmlNodePhases_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2022 HLRS  **
- **                                                                          **
- ** Description: Revit Plugin VrmlInterface    **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                  **
- **                                                                          **
- ** History:  								                                         **
- ** Mar-09  v1	    				       		                                   **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <util/coTypes.h>
 
 
@@ -37,6 +25,7 @@
 
 using namespace vrml;
 
+// Vrml interface for Revit plugin
 
 class VrmlNodePhases : public VrmlNodeChild
 {

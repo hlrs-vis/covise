@@ -7,18 +7,6 @@
 
 #ifndef _READ_VISTEON_H
 #define _READ_VISTEON_H
-/**************************************************************************\ 
- **                                                   	      (C)1999 RUS **
- **                                                                        **
- ** Description: Simple Reader for Wavefront OBJ Format	                  **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author: U.Woessner                                                     **
- **                                                                        **
-\**************************************************************************/
 
 #include <api/coModule.h>
 using namespace covise;

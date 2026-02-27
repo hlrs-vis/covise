@@ -47,9 +47,6 @@ struct minmax
     float min, max;
 };
 
-/*
- * Author: Florian Niebling
- */
 class cuCuttingSurface : public coVRPlugin, public ui::Owner
 {
 public:

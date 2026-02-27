@@ -7,24 +7,6 @@
 
 #ifndef _READ_VECTIS_TRI_H
 #define _READ_VECTIS_TRI_H
-/**************************************************************************\ 
- **                                                           (C)1995 RUS  **
- **                                                                        **
- ** Description: Read module for VEXTIS Triangle Files                     **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                             Reiner Beller                              **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  18.07.97  V0.1                                                  **
-\**************************************************************************/
 
 #include <appl/ApplInterface.h>
 using namespace covise;

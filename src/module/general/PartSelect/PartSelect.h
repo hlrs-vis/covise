@@ -8,22 +8,6 @@
 #ifndef _PART_SELECT_H
 #define _PART_SELECT_H
 
-/**************************************************************************\ 
- **                                                           (C)1994 RUS  **
- **                                                                        **
- ** Description:  COVISE PartSelect application module                     **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                             (C) Vircinity 2000                         **
- **                                                                        **
- **                                                                        **
- ** Author:  Sasha Cioringa                                                **
- **                                                                        **
- **                                                                        **
- ** Date:  05.06.01  V1.0                                                  **
-\**************************************************************************/
-
 #include <api/coSimpleModule.h>
 using namespace covise;
 #define MAX_INPUT_PORTS 4

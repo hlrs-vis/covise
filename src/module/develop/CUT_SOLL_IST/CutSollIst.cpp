@@ -5,15 +5,8 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                    (C) 2002 VirCinity  **
- ** Description: extract a layer out of an object                          **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
-\**************************************************************************/
+
+//extract a layer out of an object
 
 //#include <iostream.h>
 #include "CutSollIst.h"

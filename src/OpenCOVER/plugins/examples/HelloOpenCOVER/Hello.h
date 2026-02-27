@@ -7,19 +7,7 @@
 
 #ifndef _HELLO_PLUGIN_H
 #define _HELLO_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2008 HLRS  **
- **                                                                          **
- ** Description: Hello OpenCOVER Plugin (is polite)                          **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                  **
- **                                                                          **
- ** History:  								                                         **
- ** June 2008  v1	    				       		                                **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 
 class Hello : public opencover::coVRPlugin

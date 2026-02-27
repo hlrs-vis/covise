@@ -7,13 +7,7 @@
 
 #ifndef _VCCOLLABORATION_PLUGIN_H
 #define _VCCOLLABORATION_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2009 HLRS  **
- ** Description: ViNCE collaboration plugin.                                 **
- **                                                                          **
- ** Author: Andreas Kopecki	                                             **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 
 #include <MsgClient.h>
@@ -36,6 +30,7 @@ class coProgressBarMenuItem;
 using namespace covise;
 using namespace opencover;
 
+// ViNCE collaboration plugin.
 class PLUGINEXPORT VCCollaborationPlugin : public QObject, public coVRPlugin, public coMenuListener
 {
 

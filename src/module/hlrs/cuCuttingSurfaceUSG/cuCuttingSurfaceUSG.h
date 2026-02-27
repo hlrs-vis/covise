@@ -26,6 +26,7 @@ struct ltstr
     }
 };
 
+// Cutting-surface generation using CUDA on nVidia GPUs
 class cuCuttingSurfaceUSG : public covise::coModule
 {
 

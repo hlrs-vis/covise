@@ -7,24 +7,13 @@
 
 #ifndef _ENCODER_PLUGIN_H
 #define _ENCODER_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2008 HLRS  **
- **                                                                          **
- ** Description: Encoder OpenCOVER Plugin (reads  encoder and sets timestep) **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                 **
- **                                                                          **
- ** History:  								                                 **
- ** January 2017  v1	    				                                 **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 #include <util/SerialCom.h>
 #include <OpenThreads/Thread>
 #include <OpenThreads/Mutex>
 
+// reads  encoder and sets timestep
 class Encoder : public opencover::coVRPlugin, public OpenThreads::Thread
 {
 public:

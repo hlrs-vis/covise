@@ -8,31 +8,12 @@
 #ifndef _READ_IV_H
 #define _READ_IV_H
 
-/**************************************************************************\ 
- **                                                                        **
- **                                                                        **
- ** Description: Read module for Inventor data                             **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                                (C) 1995                                **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Author: D. Rantzau,Uwe Woessner                                        **
- ** Date:   14.02.95  V1.0                                                 **
-\**************************************************************************/
-
 #include <appl/ApplInterface.h>
 using namespace covise;
 #include <util/coviseCompat.h>
 #include <do/coDoText.h>
 
+// Read module for Inventor data
 class Application
 {
 

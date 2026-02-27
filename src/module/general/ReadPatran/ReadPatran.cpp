@@ -5,24 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1998 RUS  **
- **                                                                        **
- ** Description:  Patran Reader                                            **
- **                                                                        **
- **                                                                        **
- **                             (C) Vircinity 2000                         **
- **                                                                        **
- **                                                                        **
- ** Author:  R.Lang, Uwe Woessner, Sasha Cioringa, Sven Kufer              **
- **                                                                        **
- **                                                                        **
- ** Date:  18.05.94  V1.0                                                  **
- ** Date:  05.09.98                                                        **
- ** Date:  08.11.00                                                        **
- ** Date:  05.03.01				 			  **
-\**************************************************************************/
-
 #include "ReadPatran.h"
 #include <do/coDoData.h>
 #include <do/coDoIntArr.h>

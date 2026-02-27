@@ -5,25 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1995 RUS  **
- **                                                                        **
- ** Description: Read module for Dyna3D data         	                  **
- **              (Attention: Thick shell elements omitted !)               **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                             Uwe Woessner                               **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  17.03.95  V1.0                                                  **
- ** Revision R. Beller 08.97 & 02.99                                       **
-\**************************************************************************/
 
 //#include <appl/ApplInterface.h>
 

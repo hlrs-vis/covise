@@ -7,19 +7,7 @@
 
 #ifndef _SPACENAVIGATOR_PLUGIN_H
 #define _SPACENAVIGATOR_PLUGIN_H
-/****************************************************************************\
- **                                                            (C)2008 HLRS  **
- **                                                                          **
- ** Description: Input Plugin for SpaceNavigator                             **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                             **
- **                                                                          **
- ** History:  			                                             **
- ** June-08  v1	    				                             **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPluginSupport.h>
 using namespace covise;
 using namespace opencover;
@@ -89,6 +77,10 @@ typedef struct SMD
     unsigned int buttonStatus;
 } SpaceMouseData;
 
+/* Input Plugin for SpaceNavigator/SpaceMouse/Joysticks
+    for serial SpaceMouse:
+   - run e.g. 'inputattach --magellan /dev/ttyS0&'
+   - point COVER.Input.SpaceNavigator to the created event device */
 class SpaceNavigator : public coVRPlugin
 {
 public:

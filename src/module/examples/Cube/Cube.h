@@ -7,23 +7,6 @@
 
 #ifndef _CUBE_H
 #define _CUBE_H
-/****************************************************************************\ 
- **                                                            (C)1999 RUS   **
- **                                                                          **
- ** Description: Simple Geometry Generation Module                           **
- **              supports interaction from a COVER plugin                    **
- **              feedback style is later than COVISE 4.5.2                   **
- **                                                                          **
- ** Name:        cube                                                        **
- ** Category:    examples                                                    **
- **                                                                          **
- ** Author: D. Rainer		                                                **
- **                                                                          **
- ** History:  								                                **
- ** September-99  					       		                            **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
 
 #include <api/coModule.h>
 using namespace covise;

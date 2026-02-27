@@ -5,20 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                     (C)2002 VirCinity  **
- **                                                                        **
- ** Description: Read Star Geometry for DC Simulation Coupling             **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** History:                                                               **
- **      07/2002    A. Werner      Initial version                         **
- *\**************************************************************************/
-
 #include "VisitPro.h"
 #include <sys/types.h>
 #include <sys/stat.h>

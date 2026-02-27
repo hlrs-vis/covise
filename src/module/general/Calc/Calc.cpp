@@ -5,25 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                                        **
- **                                                                        **
- ** Description:  COVISE Calc application module                           **
- **                                                                        **
- **                                                                        **
- **                             (C) 1996                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Robert Stetter                                                **
- **          Christof Schwenzer                                            **
- **                                                                        **
- ** Date:  21.11.96  V1.0  (Final Version)                                 **
- **        8.12.2000 V2.0                                                  **
-\**************************************************************************/
-
 #include "Calc.h"
 #include <do/coDoData.h>
 #include <do/coDoUnstructuredGrid.h>

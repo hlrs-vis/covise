@@ -5,14 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2009 HLRS  **
- ** Description: ViNCE collaboration plugin.                                 **
- **                                                                          **
- ** Author: Andreas Kopecki	                                             **
- **                                                                          **
-\****************************************************************************/
-
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRFileManager.h>
 

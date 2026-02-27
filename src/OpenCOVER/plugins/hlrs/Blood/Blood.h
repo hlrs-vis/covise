@@ -7,19 +7,7 @@
 
 #ifndef BLOOD_H
 #define BLOOD_H
-/****************************************************************************\ 
- **                                                            (C)2018 HLRS  **
- **                                                                          **
- ** Description: some blood drops                                            **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                 **
- **                                                                          **
- ** History:  								                                 **
- ** August 2018  v1	    				       		                         **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <PluginUtil/coSphere.h>
 
 #include <osg/Geode>
@@ -30,7 +18,6 @@
 
 #include "globals.h"
 
-//************************************************************************************************Class Drop
 class Drop
 {
 public:
@@ -42,7 +29,6 @@ public:
     bool sticking=true;
 };
 
-//************************************************************************************************Class Blood
 class Blood 
 {
     const double densityOfAir = 1.18;
@@ -57,7 +43,6 @@ public:
     osg::Vec3 a;
 };
 
-//************************************************************************************************Class Droplet
 class Droplet{
 public:
 	Droplet(osg::Vec4 color = osg::Vec4(1,0,0,1)); //default color is red
@@ -109,7 +94,6 @@ public:
     void maxPosition();
 };
 
-//***************************************************************************************************Class Weapon
 class Weapon {
 public:
     Weapon();

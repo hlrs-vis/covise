@@ -5,18 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
-**                                                           (C)2008 HLRS **
-**                                                                        **
-** Description: Reduce pitcure values 16bit integer to float              **
-**                                                                        **
-**                                                                        **
-** Name:        RawConverter                                              **
-** Category:    Tools                                                     **
-**                                                                        **
-**                                                                        **
-\****************************************************************************/
-
 #include "RawConverter.h"
 #include <do/coDoData.h>
 

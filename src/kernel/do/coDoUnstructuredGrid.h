@@ -26,30 +26,7 @@ enum ELEM_TYPE
 #ifndef CELL_TYPES_ONLY
 #include "coDoGrid.h"
 
-/***********************************************************************\
- **                                                                     **
- **   Unstructured classe Routines                  Version: 1.0        **
- **                                                                     **
- **                                                                     **
- **   Description  : Classes for the handling of unstructured grids     **
- **                  in a distributed manner.                           **
- **                                                                     **
- **   Classe      : coDoUnstructuredGrid                                 **
- **                                                                     **
- **                                                                     **
- **   Copyright (C) 1995     by University of Stuttgart                 **
- **                             Computer Center (RUS)                   **
- **                             Allmandring 30                          **
- **                             7000 Stuttgart 80                       **
- **                                                                     **
- **                                                                     **
- **   Author       : Uwe Woessner                                       **
- **                                                                     **
- **   History      :                                                    **
- **                  10.02.95  Ver 1.0                                  **
- **                                                                     **
- **                                                                     **
-\***********************************************************************/
+
 namespace covise
 {
 

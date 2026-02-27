@@ -12,61 +12,6 @@
 #include <covise/covise_msg.h>
 #include <do/coDistributedObject.h>
 
-/*
- $Log: covise_shmalloc.C,v $
-Revision 1.4  1994/03/23  18:07:06  zrf30125
-Modifications for multiple Shared Memory segments have been finished
-(not yet for Cray)
-
-Revision 1.4  93/12/10  13:45:31  zrfg0125
-modification for several SDS
-
-Revision 1.3  93/10/08  19:11:10  zrhk0125
-adjustment of memory alignment
-
-Revision 1.2  93/09/30  17:08:38  zrhk0125
-basic modifications for CRAY
-
-Revision 1.1  93/09/25  20:50:21  zrhk0125
-Initial revision
-
-*/
-
-/***********************************************************************\ 
- **                                                                     **
- **   Shared Memory Classes                       Version: 1.0          **
- **                                                                     **
- **                                                                     **
- **   Description  : The classes that deal with the creation and        **
- **                  administration of shared memory.                   **
- **                  is a utility class to organize the used            **
- **		    and unused parts of the shared memory.             **
- **		    ShMaccess allows only the access to the shared     **
- **		    memory areas, not the allocation or return of      **
- **		    allocated regions.                                 **
- **		    coShmAlloc does all the administration of the shared **
- **		    memory regions, using trees with nodes which point **
- **		    to used and free parts. Here all allocation of     **
- **		    regions in the shared memory takes place.          **
- **                                                                     **
- **   Classes      : ShMaccess, coShmAlloc                                **
- **                                                                     **
- **   Copyright (C) 1993     by University of Stuttgart                 **
- **                             Computer Center (RUS)                   **
- **                             Allmandring 30                          **
- **                             7000 Stuttgart 80                       **
- **                                                                     **
- **                                                                     **
- **   Author       : A. Wierse   (RUS)                                  **
- **                                                                     **
- **   History      :                                                    **
- **                  15.04.93  Ver 1.0                                  **
- **                  26.05.93        some prints for debugging inserted **
- **                                                                     **
- **                                                                     **
- **                                                                     **
-\***********************************************************************/
-
 #undef DEBUG
 
 using namespace covise;

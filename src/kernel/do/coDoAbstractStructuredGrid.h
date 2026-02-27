@@ -20,33 +20,6 @@
  *
 */
 
-/***********************************************************************\ 
- **                                                                     **
- **   Structured class                              Version: 1.1        **
- **                                                                     **
- **                                                                     **
- **   Description  : Classes for the handling of a structured grid      **
- **                  and the data on it in a distributed manner.        **
- **                                                                     **
- **   Classes      : coDoGeometry, coDoStructuredGrid,                    **
- **                  DO_Scalar_3d_data, DO_Vector_3d_data,              **
- **                  DO_Solution                                        **
- **                                                                     **
- **   Copyright (C) 1993     by University of Stuttgart                 **
- **                             Computer Center (RUS)                   **
- **                             Allmandring 30                          **
- **                             7000 Stuttgart 80                       **
- **                                                                     **
- **                                                                     **
- **   Author       : A. Wierse   (RUS)                                  **
- **                                                                     **
- **   History      :                                                    **
- **                  15.04.93  Ver 1.0                                  **
- **                  26.05.93  Ver 1.1 new Shm-Datatypes introduced     **
- **                                    redesign of rebuildFromShm     **
- **                                                                     **
- **                                                                     **
-\***********************************************************************/
 namespace covise
 {
 

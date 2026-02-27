@@ -46,9 +46,6 @@ struct minmax
     float min, max;
 };
 
-/*
- * Author: Florian Niebling
- */
 class cuTracer : public coVRPlugin
 {
 public:

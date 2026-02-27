@@ -5,13 +5,6 @@
 
  * License: LGPL 2+ */
 
-/* 
- * File:   VariantNode.h
- * Author: Gottlieb A.
- *
- * Created on 14. August 2009, 09:45
- */
-
 #ifndef _VARIANTNODE_H
 #define _VARIANTNODE_H
 

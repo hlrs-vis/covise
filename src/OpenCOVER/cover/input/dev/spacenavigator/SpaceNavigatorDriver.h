@@ -5,7 +5,7 @@
 
  * License: LGPL 2+ */
 
-/** Description: Input Plugin for SpaceNavigator                             */
+// Input Plugin for SpaceNavigator/SpaceMouse/Joysticks
 
 #ifndef SPACENAVIGATOR_DRIVER_H
 #define SPACENAVIGATOR_DRIVER_H

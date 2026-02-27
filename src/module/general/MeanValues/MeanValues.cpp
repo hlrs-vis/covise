@@ -5,28 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                     (C) 2001 VirCinity **
- **                                                                        **
- ** Description:   COVISE  MeanValues module                               **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                             (C) 1997                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30a                             **
- **                            70550 Stuttgart                             **                                      **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:  Uwe Woessner                                                  **
- ** Date: 26.09.97                                                         **
- **                                                                        **
- **                                                                        **
-\**************************************************************************/
-
 #include "MeanValues.h"
 #include <do/coDoData.h>
 

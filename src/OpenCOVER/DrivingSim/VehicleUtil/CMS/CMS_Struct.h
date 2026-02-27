@@ -8,20 +8,6 @@
 #ifndef __CMS_Struct_h
 #define __CMS_Struct_h
 
-/****************************************************************************\ 
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: Xenomai Plugin (does nothing)                               *.
- **                                                                          **
- **                                                                          **
- ** Author: S. Franz		                                             **
- **                                                                          **
- ** History:  								     **
- ** Nov-01  v1	    				       		             **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 struct CANMsgIface
 {
     virtual ~CANMsgIface(){};

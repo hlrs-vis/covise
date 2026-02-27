@@ -5,26 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description: dieses spitzen Modul wertet eine Flaeche    aus und       **
- **              erzeugt interessante output-Objekte                       **
- **                                                                        **
- **              WICHTIG: Multiblock-Objekte mit TIMESTEPs werden          **
- **                       nicht unterstuetzt, koennen aber evtl.           **
- **                       kompliziert erweitert werden.                    **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                            Lars Frenzel                                **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  14.09.97                                                        **
-\**************************************************************************/
+// Description: dieses spitzen Modul wertet eine Flaeche    aus und
+//              erzeugt interessante output-Objekte
+
+//              WICHTIG: Multiblock-Objekte mit TIMESTEPs werden
+//                       nicht unterstuetzt, koennen aber evtl.
+//                       kompliziert erweitert werden.
+
 
 #include <appl/ApplInterface.h>
 #include <iostream.h>

@@ -5,16 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                          (C)2005 RRZK  **
- **                                                                        **
- ** Description: Read STP3 volume files.                                   **
- **                                                                        **
- ** Author:      Martin Aumueller <aumueller@uni-koeln.de>                 **
- **                                                                        **
- ** Cration Date: 05.01.2005                                               **
-\**************************************************************************/
-
 #ifndef _READ_STP3_H
 #define _READ_STP3_H
 

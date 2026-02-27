@@ -28,43 +28,6 @@ int UnstructuredGrid_Num_Nodes[20] = {
 
 using namespace covise;
 
-/**
-removed from header:
-
-coDoUnstructuredGrid(const char *n, int nelem, int nconn, int ncoord,
-                    int *el, int *cl, float *xc, float *yc, float *zc,
-                    int *tl, int nneighbor, int *nl, int *nli);
-coDoUnstructuredGrid(const char *n, int nelem, int nconn, int ncoord,
-int *el, int *cl, float *xc, float *yc, float *zc,
-int nneighbor, int *nl, int *nli);
-**/
-
-/***********************************************************************\ 
- **                                                                     **
- **   Unstructured classe Routines                  Version: 1.0        **
- **                                                                     **
- **                                                                     **
- **   Description  : Classes for the handling of unstructured grids     **
- **                  in a distributed manner.                           **
- **                                                                     **
- **   Classe      : coDoUnstructuredGrid                                 **
- **                                                                     **
- **                                                                     **
- **   Copyright (C) 1993     by University of Stuttgart                 **
- **                             Computer Center (RUS)                   **
- **                             Allmandring 30                          **
- **                             7000 Stuttgart 80                       **
- **                                                                     **
- **                                                                     **
- **   Author       : Uwe Woessner                                       **
- **                                                                     **
- **   History      :                                                    **
- **                  10.02.95  Ver 1.0                                  **
- **                  27.01.97  Andreas Werner: delete connectivity      **
- **                                                                     **
- **                                                                     **
-\***********************************************************************/
-
 #undef DEBUG
 
 coDistributedObject *coDoUnstructuredGrid::virtualCtor(coShmArray *arr)

@@ -5,24 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)2000 RUS  **
- **                                                                        **
- ** Description: Read / write ASCII data from / to files                   **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                            Gabor Duroska                               **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  08.12.00  V0.1                                                  **
-\**************************************************************************/
 
 //Modified to accept directory as input and produce timesteps as output by Sasha Koruga (skoruga@ucsd.edu) on 10/5/09
 

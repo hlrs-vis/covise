@@ -5,13 +5,6 @@
 
  * License: LGPL 2+ */
 
-/* 
- * File:   VariantUI.h
- * Author: hpcagott
- *
- * Created on 18. September 2009, 14:50
- */
-
 #ifndef _VARIANTUI_H
 #define _VARIANTUI_H
 

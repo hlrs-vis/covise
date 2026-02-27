@@ -8,23 +8,6 @@
 #ifndef _SELECT_USG_H
 #define _SELECT_USG_H
 
-/**************************************************************************\ 
- ** (C)1997 RUS                                                            **
- ** (C)2001 VirCinity IT-Consulting GmbH, Stuttgart                        **
- **                                                                        **
- ** Description:  COVISE SelectUsg application module                      **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                       (C) VirCinity       2001                         **
- **                                                                        **
- **                                                                        **
- ** Authors:          Andreas Werner, Sasha Cioringa                       **
- **                                                                        **
- **                                                                        **
- ** Date:  30.05.01                                                        **
-\**************************************************************************/
-
 #include <api/coSimpleModule.h>
 using namespace covise;
 

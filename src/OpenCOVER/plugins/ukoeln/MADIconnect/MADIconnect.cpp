@@ -5,20 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2008 HLRS  **
- **                                                                          **
- ** Description: MADIconnect OpenCOVER Plugin (connects to MADI)              **
- **                                                                          **
- **                                                                          **
- ** Author: D. Wickeroth                                                     **
- **                                                                          **
- ** History:                                                                 **
- ** July 2025  v1                                                           **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #include "MADIconnect.h"
 
 #include <cover/coVRConfig.h>

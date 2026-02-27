@@ -7,27 +7,6 @@
 
 #ifndef _SIMPLIFY_H
 #define _SIMPLIFY_H
-/**************************************************************************\ 
- **                                                           (C)1998 RUS  **
- **                                                                        **
- ** Description:  COVISE Surface reduction application module              **
- **                                                                        **
- **                                                                        **
- **                             (C) 1998                                   **
- **                Computing Center University of Stuttgart                **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Author:  Karin Frank                                                   **
- **                                                                        **
- ** Date:  March 1998  V1.0                                                **
- ** 									  **
- ** changed to new API:   22. 02. 2001					  **
- **  	 Sven Kufer							  **
- **	 (C) VirCinity IT-Consulting GmbH				  **
- **       Nobelstrasse 15						  **
- **       D- 70569 Stuttgart                                           	  **
-\**************************************************************************/
 
 #include <api/coSimpleModule.h>
 using namespace covise;

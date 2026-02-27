@@ -38,33 +38,11 @@ static const int EMPTY_VALUE = 0xfadefade;
 
 //extern "C" int gethostname (char *name, int namelen);
 
-/***********************************************************************\
- **                                                                     **
- **   Controller Class Routines                    Version: 1.1         **
- **                                                                     **
- **                                                                     **
- **   Description  : The infrastructure for the Data Manager            **
- **                  environmentis provided here.                       **                                 **
- **                  This includes the distributed object               **
- **                  administration.                                    **
- **                                                                     **
- **   Classes      : DataManagerProcess                                 **
- **                                                                     **
- **   Copyright (C) 1993     by University of Stuttgart                 **
- **                             Computer Center (RUS)                   **
- **                             Allmandring 30                          **
- **                             7000 Stuttgart 80                       **
- **                                                                     **
- **                                                                     **
- **   Author       : A. Wierse   (RUS)                                  **
- **                                                                     **
- **   History      :                                                    **
- **                  15.04.93  Ver 1.0                                  **
- **                  26.05.93  Ver 1.1   inclusio of new types,         **
- **                                      ObjectEntry functionality for  **
- **                                      local Object-database          **
- **                                                                     **
-\***********************************************************************/
+// Description: The infrastructure for the Data Manager
+//              environmentis provided here.
+//              This includes the distributed object
+//              administration.
+
 namespace covise
 {
 

@@ -5,25 +5,6 @@
 
  * License: LGPL 2+ */
 
-
-/****************************************************************************\ 
-**                                                            (C)2008 HLRS  **
-**                                                                          **
-** Description: Input Plugin for SpaceNavigator/SpaceMouse/Joysticks        **
-**                                                                          **
-**                                                                          **
-** Author: U.Woessner		                                             **
-**                                                                          **
-** History:  			                                             **
-** June-08  v1	    				                             **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
-
-/* for serial SpaceMouse:
-   - run e.g. 'inputattach --magellan /dev/ttyS0&'
-   - point COVER.Input.SpaceNavigator to the created event device */
-
 #include "SpaceNavigatorPlugin.h"
 #include <cover/coVRNavigationManager.h>
 #include <cover/coVRCollaboration.h>

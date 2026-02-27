@@ -7,21 +7,6 @@
 
 #ifndef READABAQUSFIL_H
 #define READABAQUSFIL_H
-/****************************************************************************\ 
- **                                                                          **
- **                                                                          **
- ** Description:                                                             **
- **                                                                          **
- ** Name:        Read Unstruct                                               **
- ** Category:    IO                                                          **
- **                                                                          **
- ** Author:                                                                  **
- **                                                                          **
- ** History:  								     **
- **              					       		     **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
 
 #include <api/coSimpleModule.h>
 #include <string>

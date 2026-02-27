@@ -5,21 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                                        **
- **                                                                        **
- ** Description:  COVISE TascFlowTDI  application module                   **
- **                                                                        **
- **                                                                        **
- **                             (C) Vircinity 2000                         **
- **                                                                        **
- **                                                                        **
- ** Author:  Sasha Cioringa                                                **
- **                                                                        **
- **                                                                        **
- ** Date:  21.11.00                                                        **
-\**************************************************************************/
-
 #include "ReadTascflowTDI.h"
 #include <api/coStepFile.h>
 #include "FieldFile.h"

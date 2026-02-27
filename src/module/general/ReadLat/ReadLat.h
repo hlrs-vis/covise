@@ -8,25 +8,6 @@
 #ifndef _APPLICATION_H
 #define _APPLICATION_H
 
-/**************************************************************************\ 
- **                                                           (C)1994 RUS  **
- **                                                                        **
- ** Description:                                                           **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                             Dirk Rantzau                               **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  18.05.94  V1.0                                                  **
-\**************************************************************************/
-
 #include <appl/ApplInterface.h>
 using namespace covise;
 #include <util/coviseCompat.h>

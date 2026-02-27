@@ -7,19 +7,8 @@
 
 #ifndef TEMPLATE_PLUGIN_H
 #define TEMPLATE_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: Template Plugin (does nothing)                              **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                **
- **                                                                          **
- ** History:  								                                **
- ** Nov-01  v1	    				       		                            **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
+// Description: Template Plugin (does nothing)
 
 #include <cover/coVRPlugin.h>
 

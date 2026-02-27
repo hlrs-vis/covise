@@ -5,22 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\
-**                                                          (C)2004 RRZK  **
-**                                                                        **
-** Description: Read XYZ files.                                           **
-**                                                                        **
-**                                                                        **
-** Author:                                                                **
-**                                                                        **
-**                         Martin Aumueller                               **
-**     High Performance Computing Center University of Stuttgart          **
-**                         Allmandring 30                                 **
-**                         70550 Stuttgart                                **
-**                                                                        **
-** Cration Date: 14.04.2004                                               **
-\**************************************************************************/
-
 #ifndef READ_XYZ_H
 #define READ_XYZ_H
 
@@ -29,6 +13,7 @@ using namespace covise;
 #include <map>
 #include <string>
 
+// Read XYZ files.
 class coReadXYZ : public coModule
 {
 private:

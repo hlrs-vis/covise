@@ -5,16 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                (C)1999-2000 VirCinity  **
- **   Sample module                                                        **
- **                                                                        **
- ** Authors: Ralph Bruckschen (Vircinity)                                  **
- **          D. Rainer (RUS)                                               **
- **          S. Leseduarte (Vircinity)                                     **
- **                                                                        **
-\**************************************************************************/
-
 #include "Sample.h"
 #include "api/coFeedback.h"
 

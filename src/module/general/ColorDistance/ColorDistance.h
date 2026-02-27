@@ -5,16 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                        (C)2005 RRZK  **
- ** Description:   Simple calculations on volume data.                   **
- **                                                                      **
- ** Author:        Martin Aumueller <aumueller@uni-koeln.de>             **
- **                Sandra Meid <sandra.meid@uni-koeln.de>                **
- **                                                                      **
- ** Creation Date: 05.01.2005                                            **
-\**************************************************************************/
-
 #ifndef _COLOR_DISTANCE_H
 #define _COLOR_DISTANCE_H
 

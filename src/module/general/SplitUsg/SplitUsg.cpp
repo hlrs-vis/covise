@@ -5,26 +5,6 @@
 
  * License: LGPL 2+ */
 
-
-/**************************************************************************\ 
- **                                                     (C)2001 Vircinity  **
- **                                                                        **
- ** Description: Splits grid into subgrids with elements of the same       **
- **              dimensionality                                            **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                            Sergio Leseduarte                           **
- **                            Vircinity GmbH                              **
- **                            Nobelstr. 15                                **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  29.1.2001  (coding begins)                                      **
-\**************************************************************************/
-
 #include "SplitUsg.h"
 
 SplitUSG::SplitUSG(int argc, char *argv[])
