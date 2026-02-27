@@ -1,16 +1,7 @@
 #pragma once
 #include "app/system/CityGMLSystem.h"
 #include "app/system/SimulationSystem.h"
-
-#include <cover/ui/Action.h>
-#include <cover/ui/Button.h>
-#include <cover/ui/ButtonGroup.h>
-#include <cover/ui/CovconfigLink.h>
-#include <cover/ui/EditField.h>
-#include <cover/ui/Group.h>
-#include <cover/ui/Menu.h>
-#include <cover/ui/Owner.h>
-#include <cover/ui/SelectionList.h>
+#include "app/cover/ui/EnergyUI.h"
 
 template <typename T>
 constexpr bool IsValidSystem = false;
@@ -21,9 +12,8 @@ constexpr bool IsValidSystem<CityGMLSystem> = true;
 template <>
 constexpr bool IsValidSystem<SimulationSystem> = true;
 
-class EnergyPlugin : public opencover::coVRPlugin,
-                     public opencover::ui::Owner,
-                     public opencover::coTUIListener {
+class EnergyPlugin : public opencover::coVRPlugin
+{
   enum class System { CityGML, Ennovatis, Simulation };
 
  public:
@@ -62,15 +52,9 @@ class EnergyPlugin : public opencover::coVRPlugin,
     return getSystem<SimulationSystem>(System::Simulation);
   }
 
-  void initOverview();
-  void initUI();
   void initSystems();
 
-  opencover::ui::Menu *m_tab = nullptr;
-  opencover::ui::Menu *m_controlPanel = nullptr;
-  opencover::coTUITab *m_tabPanel = nullptr;
-  opencover::ui::Button *m_gridControlButton = nullptr;
-  opencover::ui::Button *m_energySwitchControlButton = nullptr;
+  EnergyUI m_ui;
 
   osg::ref_ptr<osg::Switch> m_switch;
   osg::ref_ptr<osg::Switch> m_grid;
