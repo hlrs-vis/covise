@@ -5,8 +5,6 @@
 
 using namespace opencover;
 
-EnergyPlugin *EnergyPlugin::m_plugin = nullptr;
-
 EnergyPlugin::EnergyPlugin()
     : coVRPlugin(COVER_PLUGIN_NAME),
       ui::Owner("EnergyPlugin", cover->ui),
@@ -18,7 +16,6 @@ EnergyPlugin::EnergyPlugin()
   config()->setSaveOnExit(true);
 
   fprintf(stderr, "Starting Energy Plugin\n");
-  m_plugin = this;
 
   m_Energy->setName("Energy");
   cover->getObjectsRoot()->addChild(m_Energy);
@@ -41,11 +38,10 @@ EnergyPlugin::~EnergyPlugin() {
   }
 
   config()->save();
-  m_plugin = nullptr;
 }
 
 void EnergyPlugin::initUI() {
-  m_tab = new ui::Menu("Energy_Campus", m_plugin);
+  m_tab = new ui::Menu("Energy_Campus", this);
   m_tab->setText("Energy Campus");
 
   initOverview();

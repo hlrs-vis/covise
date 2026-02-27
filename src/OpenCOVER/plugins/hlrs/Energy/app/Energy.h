@@ -66,7 +66,6 @@ class EnergyPlugin : public opencover::coVRPlugin,
   void initUI();
   void initSystems();
 
-  static EnergyPlugin *m_plugin;
   opencover::ui::Menu *m_tab = nullptr;
   opencover::ui::Menu *m_controlPanel = nullptr;
   opencover::coTUITab *m_tabPanel = nullptr;
