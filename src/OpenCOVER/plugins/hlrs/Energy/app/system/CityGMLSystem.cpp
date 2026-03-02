@@ -1,4 +1,5 @@
 #include "CityGMLSystem.h"
+#include "app/cover/ui/CityGMLUI.h"
 #include "app/osg/presentation/CityGMLBuilding.h"
 #include "app/osg/presentation/OsgTxtInfoboard.h"
 
@@ -7,7 +8,6 @@
 #include <memory>
 #include <osg/ClipNode>
 #include <osg/MatrixTransform>
-
 
 namespace fs = boost::filesystem;
 using namespace opencover;
@@ -40,22 +40,24 @@ CityGMLSystem::CityGMLSystem(opencover::coVRPlugin *plugin,
                              opencover::ui::Menu *parentMenu,
                              osg::ref_ptr<osg::ClipNode> rootGroup,
                              osg::ref_ptr<osg::Switch> parent)
-    : m_coverRootGroup(rootGroup),
-      m_parent(parent),
-      m_cityGMLGroup(new osg::Group()),
-      m_pvGroup(new osg::Group()),
-      m_plugin(plugin),
-      m_menu(nullptr),
-      m_enableInfluxCSV(nullptr),
-      m_PVEnable(nullptr),
-      m_enableInfluxArrow(nullptr),
-      m_staticCampusPower(nullptr),
-      m_staticPower(nullptr),
-      m_enabled(false) {
+    : m_coverRootGroup(rootGroup)
+    , m_parent(parent)
+    , m_cityGMLGroup(new osg::Group())
+    , m_pvGroup(new osg::Group())
+    , m_cityGMLUI("CityGMLSystem", parentMenu, CityGMLOrigin{ 
+        plugin->configFloat("CityGML", "X", 0.0f)->value(), 
+        plugin->configFloat("CityGML", "Y", 0.0f)->value(), 
+        plugin->configFloat("CityGML", "Z", 0.0f)->value() 
+      })
+    , m_pvDir(plugin->configString("Simulation", "pvDir", "default")->value())
+    , m_influxPath(plugin->configString("Simulation", "staticInfluxCSV", "default")->value())
+    , m_campusPath(plugin->configString("Simulation", "campusPath", "default")->value())
+    , m_staticPower(plugin->configString("Simulation", "staticPower", "default")->value())
+    , m_modelDir(plugin->configString("Simulation", "3dModelDir", "default")->value())
+    , m_enabled(false) {
   assert(parent && "CityGMLSystem: parent must not be null");
   assert(plugin && "CityGMLSystem: plugin must not be null");
   m_parent->addChild(m_cityGMLGroup);
-  initCityGMLUI(parentMenu);
 }
 
 CityGMLSystem::~CityGMLSystem() {
@@ -72,7 +74,54 @@ CityGMLSystem::~CityGMLSystem() {
 
 void CityGMLSystem::init() {
   m_cityGMLGroup->setName("CityGML");
-  initCityGMLColorMap();
+  initUICallbacks();
+}
+
+void CityGMLSystem::initUICallbacks()
+{
+    auto bindBackEnableCityGML = [&](bool on)
+    { enableCityGML(on); };
+    m_cityGMLUI.setInfluxCSVBtnCallback(bindBackEnableCityGML);
+    m_cityGMLUI.setInfluxArrowBtnCallback(bindBackEnableCityGML);
+    m_cityGMLUI.setStaticPowerBtnCallback(bindBackEnableCityGML);
+    m_cityGMLUI.setStaticCampusPowerBtnCallback(bindBackEnableCityGML);
+    m_cityGMLUI.setPVBtnCallback([&](bool on)
+        {
+            if (m_pvGroup == nullptr) {
+              std::cerr << "Error: No PV group found. Please enable GML first." << std::endl;
+              return;
+            }
+            // TODO: add a check if the group is already added and make sure its safe to
+            // remove it
+            osg::ref_ptr<osg::MatrixTransform> gmlRoot =
+                dynamic_cast<osg::MatrixTransform *>(m_cityGMLGroup->getChild(0));
+            if (gmlRoot->containsNode(m_pvGroup)) {
+              gmlRoot->removeChild(m_pvGroup);
+            } else {
+              gmlRoot->addChild(m_pvGroup);
+            } 
+        }
+    );
+
+    auto updateFunction = [this](auto &value)
+    {
+        if (!isActive(m_parent, m_cityGMLGroup))
+            return;
+        auto translation = m_cityGMLUI.getTranslation();
+        transform(osg::Vec3(translation.x, translation.y, translation.z), {});
+    };
+    m_cityGMLUI.setXCallback(updateFunction);
+    m_cityGMLUI.setYCallback(updateFunction);
+    m_cityGMLUI.setZCallback(updateFunction);
+
+    m_cityGMLUI.setColorMapCallback([this](const opencover::ColorMap &cm)
+        {
+            if (isActive(m_parent, m_cityGMLGroup)) {
+              enableCityGML(false, false);
+              enableCityGML(true, false);
+            }
+        }
+    );
 }
 
 void CityGMLSystem::enable(bool on) {
@@ -90,106 +139,6 @@ void CityGMLSystem::updateTime(int timestep) {
   for (auto &[name, sensor] : m_sensorMap) {
     sensor->updateTime(timestep);
   }
-}
-
-void CityGMLSystem::initCityGMLUI(opencover::ui::Menu *parentMenu) {
-  m_menu = new ui::Menu(parentMenu, "CityGML");
-  m_enableInfluxCSV = new ui::Button(m_menu, "InfluxCSV");
-  m_enableInfluxCSV->setCallback([this](bool on) {
-    if (on) {
-      m_staticPower->setState(false);
-      m_staticCampusPower->setState(false);
-      m_enableInfluxArrow->setState(false);
-    }
-    enableCityGML(on);
-  });
-
-  m_enableInfluxArrow = new ui::Button(m_menu, "InfluxArrow");
-  m_enableInfluxArrow->setCallback([this](bool on) {
-    if (on) {
-      m_staticPower->setState(false);
-      m_staticCampusPower->setState(false);
-      m_enableInfluxCSV->setState(false);
-    }
-    enableCityGML(on);
-  });
-
-  m_PVEnable = new ui::Button(m_menu, "PV");
-  m_PVEnable->setText("PV");
-  m_PVEnable->setState(true);
-  m_PVEnable->setCallback([this](bool on) {
-    if (m_pvGroup == nullptr) {
-      std::cerr << "Error: No PV group found. Please enable GML first." << std::endl;
-      return;
-    }
-    // TODO: add a check if the group is already added and make sure its safe to
-    // remove it
-    osg::ref_ptr<osg::MatrixTransform> gmlRoot =
-        dynamic_cast<osg::MatrixTransform *>(m_cityGMLGroup->getChild(0));
-    if (gmlRoot->containsNode(m_pvGroup)) {
-      gmlRoot->removeChild(m_pvGroup);
-    } else {
-      gmlRoot->addChild(m_pvGroup);
-    }
-  });
-
-  m_staticPower = new ui::Button(m_menu, "Static");
-  m_staticPower->setText("StaticPower");
-  m_staticPower->setState(false);
-  m_staticPower->setCallback([&](bool on) {
-    if (on) {
-      m_enableInfluxCSV->setState(false);
-      m_enableInfluxArrow->setState(false);
-      m_staticCampusPower->setState(false);
-    }
-    enableCityGML(on);
-  });
-
-  m_staticCampusPower = new ui::Button(m_menu, "StaticCampus");
-  m_staticCampusPower->setText("StaticPowerCampus");
-  m_staticCampusPower->setState(false);
-  m_staticCampusPower->setCallback([&](bool on) {
-    if (on) {
-      m_enableInfluxCSV->setState(false);
-      m_enableInfluxArrow->setState(false);
-      m_staticPower->setState(false);
-    }
-    enableCityGML(on);
-  });
-
-  m_X = new ui::EditField(m_menu, "X");
-  m_Y = new ui::EditField(m_menu, "Y");
-  m_Z = new ui::EditField(m_menu, "Z");
-
-  auto x = m_plugin->configFloat("CityGML", "X", 0.0);
-  auto y = m_plugin->configFloat("CityGML", "Y", 0.0);
-  auto z = m_plugin->configFloat("CityGML", "Z", 0.0);
-  m_X->setValue(x->value());
-  m_Y->setValue(y->value());
-  m_Z->setValue(z->value());
-  auto updateFunction = [this](auto &value) {
-    if (!isActive(m_parent, m_cityGMLGroup)) return;
-    auto translation = getTranslation();
-    transform(translation, {});
-  };
-  m_X->setCallback(updateFunction);
-  m_Y->setCallback(updateFunction);
-  m_Z->setCallback(updateFunction);
-}
-
-void CityGMLSystem::initCityGMLColorMap() {
-  auto menu = new ui::Menu(m_menu, "CityGml_grid");
-
-  m_colorMap = std::make_unique<opencover::CoverColorBar>(menu);
-  m_colorMap->setSpecies("Leistung");
-  m_colorMap->setUnit("kWh");
-  m_colorMap->setCallback([this](const opencover::ColorMap &cm) {
-    if (isActive(m_parent, m_cityGMLGroup)) {
-      enableCityGML(false, false);
-      enableCityGML(true, false);
-    }
-  });
-  m_colorMap->setName("CityGML");
 }
 
 void CityGMLSystem::processPVRow(const CSVStream::CSVRow &row,
@@ -223,39 +172,46 @@ void CityGMLSystem::updateInfluxColorMaps(
     float min, float max,
     std::shared_ptr<core::simulation::Simulation> powerSimulation,
     const std::string &colormapName, const std::string &species,
-    const std::string &unit) {
-  if (m_enableInfluxArrow->state()) {
-    m_colorMap->setMinMax(min, max);
-    m_colorMap->setSpecies(species);
-    m_colorMap->setUnit(unit);
+    const std::string &unit)
+{
+    if (!m_cityGMLUI.getInfluxArrowBtnState())
+        return;
+    
+    auto cb = m_cityGMLUI.colorBar();
+
+    cb->setMinMax(min, max);
+    cb->setSpecies(species);
+    cb->setUnit(unit);
     auto halfSpan = (max - min) / 2;
-    m_colorMap->setMinBounds(min - halfSpan, min + halfSpan);
-    m_colorMap->setMaxBounds(max - halfSpan, max + halfSpan);
+    cb->setMinBounds(min - halfSpan, min + halfSpan);
+    cb->setMaxBounds(max - halfSpan, max + halfSpan);
 
-    for (auto &[name, sensor] : m_sensorMap) {
-      std::string sensorName = name;
-      auto values = powerSimulation->getTimedependentScalar("res_mw", sensorName);
-      if (!values) {
-        std::cerr << "No res_mw data found for sensor: " << sensorName << std::endl;
-        continue;
-      }
+    for (auto &[name, sensor] : m_sensorMap)
+    {
+        std::string sensorName = name;
+        auto values = powerSimulation->getTimedependentScalar("res_mw", sensorName);
+        if (!values)
+        {
+            std::cerr << "No res_mw data found for sensor: " << sensorName << std::endl;
+            continue;
+        }
 
-      auto steps = m_colorMap->colorMap().steps();
-      auto colorMapName = colormapName;
-      if (colorMapName == core::simulation::INVALID_UNIT)
-        colorMapName = m_colorMap->colorMap().name();
-      m_colorMap->setColorMap(colorMapName);
-      m_colorMap->setSteps(steps);
-      sensor->setColorMapInShader(m_colorMap->colorMap());
-      sensor->setDataInShader(*values, min, max);
+        auto steps = cb->colorMap().steps();
+        auto colorMapName = colormapName;
+        if (colorMapName == core::simulation::INVALID_UNIT)
+            colorMapName = cb->colorMap().name();
+        cb->setColorMap(colorMapName);
+        cb->setSteps(steps);
+        sensor->setColorMapInShader(m_cityGMLUI.colorBar()->colorMap());
+        sensor->setDataInShader(*values, min, max);
 
-      std::vector<std::string> texts;
-      std::transform(
-          values->begin(), values->end(), std::back_inserter(texts),
-          [unit](const auto &v) { return std::to_string(v) + " " + unit; });
-      sensor->updateTxtBoxTexts(texts);
+        std::vector<std::string> texts;
+        std::transform(
+            values->begin(), values->end(), std::back_inserter(texts),
+            [unit](const auto &v)
+            { return std::to_string(v) + " " + unit; });
+        sensor->updateTxtBoxTexts(texts);
     }
-  }
 }
 
 std::pair<std::map<std::string, PVData>, float> CityGMLSystem::loadPVData(
@@ -463,17 +419,16 @@ void CityGMLSystem::initPV(osg::ref_ptr<osg::Node> masterPanel,
 void CityGMLSystem::addSolarPanels(const fs::path &dirPath) {
   if (!fs::exists(dirPath)) return;
 
-  auto pvDir = m_plugin->configString("Simulation", "pvDir", "default")->value();
-  fs::path pvDirPath(pvDir);
+  fs::path pvDirPath(m_pvDir);
   if (!fs::exists(pvDirPath)) {
-    std::cerr << "Error: PV directory does not exist: " << pvDir << std::endl;
+    std::cerr << "Error: PV directory does not exist: " << m_pvDir << std::endl;
     return;
   }
 
   auto pvStreams = getCSVStreams(pvDirPath);
   auto it = pvStreams.find("pv");
   if (it == pvStreams.end()) {
-    std::cerr << "Error: Could not find PV data in " << pvDir << std::endl;
+    std::cerr << "Error: Could not find PV data in " << m_pvDir << std::endl;
     return;
   }
 
@@ -516,8 +471,8 @@ void CityGMLSystem::transform(const osg::Vec3 &translation,
   }
 }
 
-osg::Vec3 CityGMLSystem::getTranslation() const {
-  return osg::Vec3(m_X->number(), m_Y->number(), m_Z->number());
+auto CityGMLSystem::getTranslation() const {
+  return m_cityGMLUI.getTranslation();
 }
 
 auto CityGMLSystem::readStaticCampusData(CSVStream &stream, float &max, float &min,
@@ -552,20 +507,21 @@ void CityGMLSystem::applyStaticDataCampusToCityGML(const std::string &filePath,
 
   auto values = readStaticCampusData(csvStream, max, min, sum);
 
+  auto cb = m_cityGMLUI.colorBar();
   //   max = 400.00f;
   if (updateColorMap) {
-    m_colorMap->setMinMax(min, max);
-    m_colorMap->setSpecies("Yearly Consumption");
-    m_colorMap->setUnit("MWh");
+    cb->setMinMax(min, max);
+    cb->setSpecies("Yearly Consumption");
+    cb->setUnit("MWh");
     auto halfSpan = (max - min) / 2;
-    m_colorMap->setMinBounds(min - halfSpan, min + halfSpan);
-    m_colorMap->setMaxBounds(max - halfSpan, max + halfSpan);
+    cb->setMinBounds(min - halfSpan, min + halfSpan);
+    cb->setMaxBounds(max - halfSpan, max + halfSpan);
   }
 
   for (const auto &v : values) {
     if (auto it = m_sensorMap.find(v.citygml_id); it != m_sensorMap.end()) {
       auto &gmlObj = it->second;
-      gmlObj->updateTimestepColors({v.yearlyConsumption}, m_colorMap->colorMap());
+      gmlObj->updateTimestepColors({v.yearlyConsumption}, cb->colorMap());
       gmlObj->updateTxtBoxTexts(
           {"Yearly Consumption: " + std::to_string(v.yearlyConsumption) + " MWh"});
     }
@@ -585,47 +541,34 @@ void CityGMLSystem::enableCityGML(bool on, bool updateColorMap) {
             addCityGMLObjects(child);
             m_cityGMLGroup->addChild(child);
             auto translation = getTranslation();
-            child->setMatrix(osg::Matrix::translate(translation));
-            transform(translation, {});
+            osg::Vec3 trans(translation.x, translation.y, translation.z);
+            child->setMatrix(osg::Matrix::translate(trans));
+            transform(trans, {});
           }
         }
       }
       core::utils::osgUtils::deleteChildrenFromOtherGroup(m_coverRootGroup,
                                                           m_cityGMLGroup);
     }
-    if (!m_colorMap) initCityGMLColorMap();
+
+    // if (!m_cityGMLUI.colorBar())
+    //     m_cityGMLUI.initColorBar();
 
     // TODO: this needs to be set in the root of system
     switchTo(m_cityGMLGroup, m_parent);
 
     // TODO: add a check if the group is already added and make sure its safe to
-    if (m_enableInfluxCSV->state()) {
-      auto influxCSVPath =
-          m_plugin->configString("Simulation", "staticInfluxCSV", "default")
-              ->value();
-      applyInfluxCSVToCityGML(influxCSVPath, updateColorMap);
-    }
+    if (m_cityGMLUI.getInfluxCSVBtnState())
+      applyInfluxCSVToCityGML(m_influxPath, updateColorMap);
 
-    if (m_enableInfluxArrow->state()) {
-    }
+    if (m_cityGMLUI.getStaticCampusPowerBtnState())
+      applyStaticDataCampusToCityGML(m_campusPath, updateColorMap);
 
-    if (m_staticCampusPower->state()) {
-      auto campusPath =
-          m_plugin->configString("Simulation", "campusPath", "default")->value();
-      applyStaticDataCampusToCityGML(campusPath, updateColorMap);
-    }
-
-    if (m_staticPower->state()) {
-      auto staticPower =
-          m_plugin->configString("Simulation", "staticPower", "default")->value();
-      applyStaticDataToCityGML(staticPower, updateColorMap);
-    }
+    if (m_cityGMLUI.getStaticPowerBtnState())
+      applyStaticDataToCityGML(m_staticPower, updateColorMap);
 
     if (m_panels.empty()) {
-      auto modelDirPath =
-          m_plugin->configString("Simulation", "3dModelDir", "default")->value();
-      auto solarPanelsDir = fs::path(modelDirPath + "/power/SolarPanel");
-
+      auto solarPanelsDir = fs::path(m_modelDir + "/power/SolarPanel");
       addSolarPanels(solarPanelsDir);
     }
   }
@@ -672,19 +615,20 @@ void CityGMLSystem::applyStaticDataToCityGML(const std::string &filePathToInflux
 
   auto values = readStaticPowerData(csvStream, max, min, sum);
   //   max = 7000.0f;
+  auto cb = m_cityGMLUI.colorBar();
   if (updateColorMap) {
-    m_colorMap->setMinMax(min, max);
-    m_colorMap->setSpecies("Yearly Consumption");
-    m_colorMap->setUnit("kWh");
+    cb->setMinMax(min, max);
+    cb->setSpecies("Yearly Consumption");
+    cb->setUnit("kWh");
     auto halfSpan = (max - min) / 2;
-    m_colorMap->setMinBounds(min - halfSpan, min + halfSpan);
-    m_colorMap->setMaxBounds(max - halfSpan, max + halfSpan);
+    cb->setMinBounds(min - halfSpan, min + halfSpan);
+    cb->setMaxBounds(max - halfSpan, max + halfSpan);
   }
   for (const auto &v : values) {
     if (auto it = m_sensorMap.find(v.citygml_id); it != m_sensorMap.end()) {
       auto &gmlObj = it->second;
       gmlObj->updateTimestepColors({v.val2019, v.val2023, v.average},
-                                   m_colorMap->colorMap());
+                                   cb->colorMap());
       gmlObj->updateTxtBoxTexts({"2019: " + std::to_string(v.val2019) + " kWh",
                                  "2023: " + std::to_string(v.val2023) + " kWh",
                                  "Average: " + std::to_string(v.average) + " kWh"});
@@ -703,18 +647,19 @@ void CityGMLSystem::applyInfluxCSVToCityGML(const std::string &filePathToInfluxC
   float sum = 0;
   int timesteps = 0;
   auto values = getInfluxDataFromCSV(csvStream, max, min, sum, timesteps);
+  auto cb = m_cityGMLUI.colorBar();
 
   if (updateColorMap) {
     auto distributionCenter = sum / (timesteps * values->size());
-    m_colorMap->setMinMax(min, max);
-    m_colorMap->setMinBounds(0, distributionCenter);
-    m_colorMap->setMaxBounds(distributionCenter, max);
+    cb->setMinMax(min, max);
+    cb->setMinBounds(0, distributionCenter);
+    cb->setMaxBounds(distributionCenter, max);
   }
 
   for (auto &[name, values] : *values) {
     auto sensorIt = m_sensorMap.find(name);
     if (sensorIt != m_sensorMap.end()) {
-      sensorIt->second->updateTimestepColors(values, m_colorMap->colorMap());
+      sensorIt->second->updateTimestepColors(values, cb->colorMap());
       sensorIt->second->updateTxtBoxTexts({"NOT IMPLEMENTED YET"});
     }
   }

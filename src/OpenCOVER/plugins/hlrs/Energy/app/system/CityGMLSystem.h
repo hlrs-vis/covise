@@ -1,11 +1,8 @@
 #pragma once
 
 #include <OpenConfig/file.h>
-#include <PluginUtil/colors/ColorBar.h>
 #include <cover/coVRPlugin.h>
-#include <cover/ui/Button.h>
-#include <cover/ui/EditField.h>
-#include <cover/ui/Menu.h>
+
 #include <lib/core/interfaces/ISystem.h>
 #include <lib/core/simulation/simulation.h>
 #include <lib/core/simulation/unitmap.h>
@@ -23,6 +20,7 @@
 
 #include "app/osg/presentation/SolarPanel.h"
 #include "app/osg/ui/citygml/CityGMLDeviceSensor.h"
+#include "app/cover/ui/CityGMLUI.h"
 
 /**
  * @brief A list of unique pointers to ISolarPanel interfaces.
@@ -69,12 +67,11 @@ class CityGMLSystem final : public core::interface::ISystem {
       const std::string &unit = "MW");
 
  private:
+  void initUICallbacks();
   void initPV(
       osg::ref_ptr<osg::Node> masterPanel,
       const std::map<std::string, core::simulation::power::PVData> &pvDataMap,
       float maxPVIntensity);
-  void initCityGMLUI(opencover::ui::Menu *parentMenu);
-  void initCityGMLColorMap();
 
   std::pair<std::map<std::string, core::simulation::power::PVData>, float>
   loadPVData(opencover::utils::read::CSVStream &pvStream);
@@ -104,7 +101,7 @@ class CityGMLSystem final : public core::interface::ISystem {
   void transform(const osg::Vec3 &translation, const osg::Quat &rotation,
                  const osg::Vec3 &scale = osg::Vec3(1.0, 1.0, 1.0));
 
-  osg::Vec3 getTranslation() const;
+  auto getTranslation() const;
 
   std::unique_ptr<std::map<std::string, std::vector<float>>> getInfluxDataFromCSV(
       opencover::utils::read::CSVStream &stream, float &max, float &min, float &sum,
@@ -148,19 +145,11 @@ class CityGMLSystem final : public core::interface::ISystem {
   osg::ref_ptr<osg::Group> m_pvGroup;
   osg::ref_ptr<osg::ClipNode> m_coverRootGroup;
 
-  std::unique_ptr<opencover::CoverColorBar> m_colorMap;
-
-  // will be deleted by opencover::ui
-  opencover::coVRPlugin *m_plugin;
-  opencover::ui::Menu *m_menu;
-  opencover::ui::EditField *m_X;
-  opencover::ui::EditField *m_Y;
-  opencover::ui::EditField *m_Z;
-  opencover::ui::Button *m_enableInfluxCSV;
-  opencover::ui::Button *m_enableInfluxArrow;
-  opencover::ui::Button *m_PVEnable;
-  opencover::ui::Button *m_staticCampusPower;
-  opencover::ui::Button *m_staticPower;
-
+  CityGMLUI m_cityGMLUI;
+  std::string m_pvDir;
+  std::string m_influxPath;
+  std::string m_campusPath;
+  std::string m_staticPower;
+  std::string m_modelDir;
   bool m_enabled;
 };

@@ -5,7 +5,7 @@
 using namespace opencover;
 
 EnergyUI::EnergyUI(const std::string &name, opencover::ui::Manager *manager)
-    : ui::Owner(name, cover->ui)
+    : BaseUI(name, cover->ui)
     , m_tab(nullptr)
     , m_controlPanel(nullptr)
     , m_tabPanel(nullptr)
@@ -17,20 +17,10 @@ EnergyUI::EnergyUI(const std::string &name, opencover::ui::Manager *manager)
 
 void EnergyUI::init()
 {
-    m_tab = new ui::Menu("Energy (DiTEnS)", this);
+    m_tab = new ui::Menu("Energy", this);
     m_tab->setText("Energy");
 
     initOverview();
-}
-
-void EnergyUI::setSwitchCallback(std::function<void(bool)> func)
-{
-    m_energySwitchControlButton->setCallback(func);
-}
-
-void EnergyUI::setControlCallback(std::function<void(bool)> func)
-{
-    m_gridControlButton->setCallback(func);
 }
 
 void EnergyUI::initOverview()

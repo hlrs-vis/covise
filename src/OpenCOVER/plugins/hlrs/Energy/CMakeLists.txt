@@ -17,7 +17,9 @@ SET(HEADERS
     app/system/CityGMLSystem.h
     app/system/SimulationSystem.h
     app/typedefs.h
+    app/cover/ui/BaseUI.h
     app/cover/ui/EnergyUI.h
+    app/cover/ui/CityGMLUI.h
     app/osg/OsgImpl.h
     app/osg/ui/citygml/CityGMLDeviceSensor.h
     app/osg/ui/simulation/BaseSimulationUI.h
@@ -34,6 +36,7 @@ SET(SOURCES
     app/system/CityGMLSystem.cpp
     app/system/SimulationSystem.cpp
     app/cover/ui/EnergyUI.cpp
+    app/cover/ui/CityGMLUI.cpp
     app/osg/ui/citygml/CityGMLDeviceSensor.cpp
     app/osg/presentation/CityGMLBuilding.cpp
     app/osg/presentation/OsgTxtInfoboard.cpp

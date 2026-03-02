@@ -1,5 +1,7 @@
 #pragma once
 
+#include "BaseUI.h"
+
 #include <cover/ui/Action.h>
 #include <cover/ui/Button.h>
 #include <cover/ui/ButtonGroup.h>
@@ -13,15 +15,12 @@
 #include <cover/coTUIListener.h>
 #include <cover/coTabletUI.h>
 
-#include <functional>
-
-class EnergyUI : public opencover::ui::Owner,
-                 public opencover::coTUIListener
+class EnergyUI : BaseUI
 {
 public:
     EnergyUI(const std::string &name, opencover::ui::Manager *manager);
-    void setSwitchCallback(std::function<void(bool)> func);
-    void setControlCallback(std::function<void(bool)> func);
+    void setSwitchCallback(BtnCallback func) { setBtnCallback(m_energySwitchControlButton, func); }
+    void setControlCallback(BtnCallback func) { setBtnCallback(m_gridControlButton, func); }
     auto getTabMenu() { return m_tab; }
     auto getControlMenu() { return m_controlPanel; }
     auto getTabPanel() { return m_tabPanel; }
