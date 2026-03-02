@@ -121,34 +121,52 @@ if "%BASEARCHSUFFIX%" EQU "zebu"  (
 )
 
 if "%VC14_15%" EQU "yes" (
-   if exist "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat" ( 
-    call "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
-   ) else if exist "D:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat" ( 
-    call "D:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
-   ) else if exist "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat" ( 
-	call "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat" -arch=x64 
-   ) else if exist "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat" ( 
-    call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
-   ) else if exist "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" ( 
-    call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=x64 
-   ) else if exist "C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\Tools\VsDevCmd.bat" ( 
-    call "C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\Tools\VsDevCmd.bat" -arch=x64 
-   ) else if exist "C:\Program Files (x86)\Microsoft Visual Studio\18\Community\Common7\Tools\VsDevCmd.bat" ( 
-    call "C:\Program Files (x86)\Microsoft Visual Studio\18\Community\Common7\Tools\VsDevCmd.bat" -arch=x64 
-   ) 
-       
-    
-    if NOT defined VS150COMNTOOLS% (
-        if NOT defined VS160COMNTOOLS% (
-            if NOT defined VS170COMNTOOLS% ( 
-                if NOT defined VS180COMNTOOLS% ( 
-                    cd /d "%VS140COMNTOOLS%"\..\..\vc
-                    call vcvarsall.bat x64
-                    cd /d "%COVISEDIR%"\
-                )
-            )
-	    )
-	)
+    set DUMMY_VAR=1
+) else (
+    REM use this goto workaroud to stop the batch parser rules from interpreting the following code as part of the IF-clause
+    REM this would break the correct expansion of variables
+    goto OLD_VISUAL_STUDIO
+)
+
+set "VSWHERE_EXE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
+if not exist "%VSWHERE_EXE%" (
+    set "VSWHERE_EXE=%ProgramFiles%\Microsoft Visual Studio\Installer\vswhere.exe"
+    if not exist "%VSWHERE_EXE%" (
+        echo vswhere.exe not found
+        exit /b 1
+    )
+)
+if not exist "%VSWHERE_EXE%" (
+    echo cannot find visual studio installer, cannot find vswhere.exe
+    exit /b 1
+)
+
+set "VS_INSTALL_PATH="
+for /f "tokens=*" %%i in ('"%VSWHERE_EXE%" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath') do set "VS_INSTALL_PATH=%%i"
+
+if not defined VS_INSTALL_PATH (
+    echo Could not resolve Visual Studio installation path
+    exit /b 1
+)
+
+if not exist "%VS_INSTALL_PATH%\Common7\Tools\VsDevCmd.bat" (
+    echo VsDevCmd.bat not found
+    exit /b 1
+)
+
+call "%VS_INSTALL_PATH%\Common7\Tools\VsDevCmd.bat" -arch=x64
+
+goto END_OLD_VISUAL_STUDIO
+
+
+
+
+:OLD_VISUAL_STUDIO
+
+
+
+
+
 ) else if "%BASEARCHSUFFIX%" EQU "win32" (
     call "%PROGFILES%"\"Microsoft Visual Studio .NET 2003"\Vc7\bin\vcvars32.bat
 ) else if "%BASEARCHSUFFIX%" EQU "vista" (
@@ -185,6 +203,9 @@ if defined VS110COMNTOOLS  (
 ) else if defined VCVARS32 (
     call "%VCVARS32%"
 )
+
+:END_OLD_VISUAL_STUDIO
+
 if "%BASEARCHSUFFIX%" EQU "vcpkg" (
     if "%VCPKG_ROOT%" EQU "" (
         set "VCPKG_ROOT=C:\vcpkg"
