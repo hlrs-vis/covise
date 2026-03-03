@@ -43,8 +43,10 @@ public:
 private:
     void initUI(const std::string &name, opencover::ui::Menu *parent, const CityGMLOrigin &origin);
     void initColorBar();
+    
     std::unique_ptr<opencover::CoverColorBar> m_colorBar;
 
+    // deleted by owner => DON'T DELETE IN DESTRUCTOR
     opencover::ui::Menu *m_tab;
     opencover::ui::EditField *m_X;
     opencover::ui::EditField *m_Y;
