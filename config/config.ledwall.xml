@@ -10,12 +10,12 @@
     <Viewport width="3840" height="1" left="0" bottom="0" windowIndex="0" channelIndex="0" name="0"  />
     <Viewport width="3840" height="1" left="3840" bottom="0" windowIndex="0" channelIndex="1" name="1"  /> </ViewportConfig>
    <ChannelConfig>
-    <Channel stereoMode="RIGHT" comment="FRONT" channel="0" width="3840" left="0" windowIndex="0" screenIndex="0" top="0" name="1" height="1" />
-    <Channel stereoMode="LEFT" comment="FRONT" channel="0" width="3840" left="0" windowIndex="1" screenIndex="0" top="0" name="0" height="1" />
+    <Channel stereoMode="LEFT" comment="FRONT" channel="0" width="3840" left="0" windowIndex="0" screenIndex="0" top="0" name="1" height="1" />
+    <Channel stereoMode="RIGHT" comment="FRONT" channel="0" width="3840" left="0" windowIndex="1" screenIndex="0" top="0" name="0" height="1" />
    </ChannelConfig>
 
    <WindowConfig>
-    <Window type="None" width="7680" comment="FRONT" window="0" pipeIndex="0" height="2160" left="3840" top="0" name="0" decoration="false" stereo="false" />
+    <Window type="None" width="7680" comment="FRONT" window="0" pipeIndex="0" height="2160" left="2560" top="0" name="0" decoration="false" stereo="false" />
     <!--Window width="1400" comment="FRONT" window="1" pipeIndex="0" height="1050" left="1400" bottom="0" name="1" decoration="false" stereo="false" /-->
    </WindowConfig>
    <PipeConfig>
