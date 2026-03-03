@@ -1,5 +1,4 @@
 #include "CityGMLUI.h"
-#include "app/cover/ui/BaseUI.h"
 #include <cover/ui/Button.h>
 #include <cover/ui/Menu.h>
 #include <vector>
@@ -94,7 +93,6 @@ void CityGMLUI::setColorMapCallback(ColorMapCallback cmc) {
 void CityGMLUI::initUI(const std::string &name, opencover::ui::Menu *parent, const CityGMLOrigin &origin)
 {
     m_tab = new ui::Menu(parent, "CityGML");
-    // m_tab = new ui::Menu("CityGML", this);
     m_enableInfluxCSV = new ui::Button(m_tab, "InfluxCSV");
 
     m_enableInfluxArrow = new ui::Button(m_tab, "InfluxArrow");
