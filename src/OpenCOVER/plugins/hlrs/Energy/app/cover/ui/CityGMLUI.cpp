@@ -8,16 +8,17 @@ using namespace opencover;
 
 namespace
 {
+
 typedef std::vector<opencover::ui::Button *> Buttons;
 void setButtonStates(const Buttons &btns, bool state)
 {
-    std::for_each(btns.begin(), btns.end(), [&](auto btn)
+    std::for_each(btns.begin(), btns.end(), [&](opencover::ui::Button *btn)
         { btn->setState(state); });
 }
 
-BtnCallback disableButtonFuncWrapper(const Buttons &btns, BtnCallback callback)
+BtnCallback disableButtonFuncWrapper(Buttons btns, BtnCallback callback)
 {
-    return [&](bool on)
+    return [btns = std::move(btns), callback](bool on)
     {
         if (on && !btns.empty())
             setButtonStates(btns, false);
@@ -43,7 +44,7 @@ CityGMLUI::CityGMLUI(const std::string &name,
 
 void CityGMLUI::setInfluxCSVBtnCallback(BtnCallback func)
 {
-    auto btnWrap = disableButtonFuncWrapper(Buttons{ 
+    auto btnWrap = disableButtonFuncWrapper({ 
         m_staticPower, 
         m_staticCampusPower, 
         m_enableInfluxArrow 
@@ -53,7 +54,7 @@ void CityGMLUI::setInfluxCSVBtnCallback(BtnCallback func)
 }
 
 void CityGMLUI::setInfluxArrowBtnCallback(BtnCallback func) { 
-    auto btnWrap = disableButtonFuncWrapper(Buttons{ 
+    auto btnWrap = disableButtonFuncWrapper({ 
         m_staticPower, 
         m_staticCampusPower, 
         m_enableInfluxCSV
@@ -67,7 +68,7 @@ void CityGMLUI::setPVBtnCallback(BtnCallback func) {
 }
 
 void CityGMLUI::setStaticPowerBtnCallback(BtnCallback func) { 
-    auto btnWrap = disableButtonFuncWrapper(Buttons{ 
+    auto btnWrap = disableButtonFuncWrapper({ 
         m_enableInfluxCSV,
         m_enableInfluxArrow,
         m_staticCampusPower
@@ -77,7 +78,7 @@ void CityGMLUI::setStaticPowerBtnCallback(BtnCallback func) {
 }
 
 void CityGMLUI::setStaticCampusPowerBtnCallback(BtnCallback func) { 
-    auto btnWrap = disableButtonFuncWrapper(Buttons{ 
+    auto btnWrap = disableButtonFuncWrapper({ 
         m_enableInfluxCSV,
         m_enableInfluxArrow,
         m_staticPower
