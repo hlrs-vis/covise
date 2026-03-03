@@ -53,7 +53,7 @@ ShapefilesPlugin::ShapefilesPlugin()
     
     ShapefilesRoot = new osg::MatrixTransform();
     ShapefilesRoot->setName("Shapefiles");
-    ShapefilesRoot->setMatrix(osg::Matrix::translate(-410000, -5320000, 40.0));
+    ShapefilesRoot->setMatrix(osg::Matrix::translate(-411994, -5313364, 2.0));
     cover->getObjectsRoot()->addChild(ShapefilesRoot);
     SHPGroup = new osg::MatrixTransform();
     SHPGroup->setName("SHP");
@@ -87,7 +87,8 @@ bool ShapefilesPlugin::init()
 {
     //PVL = osgDB::readNodeFile("/data/Weinberge/PVL.ive");
     //PVP = osgDB::readNodeFile("/data/Weinberge/PVP.ive");
-    loadPVShp("/mnt/data/HLRS/klima-qgis/08315_Traj_RKLS.shp");
+    //loadPVShp("/mnt/data/HLRS/klima-qgis/08315_Traj_RKLS.shp");
+    loadPVShp("/data/greenventory/draped_waermeleitungen.shp");
     return true;
 }
 
