@@ -8,15 +8,17 @@ using namespace opencover;
 namespace
 {
 
-void setButtonStates(std::initializer_list<ui::Button *> btns, bool state)
+typedef std::vector<ui::Button *> Buttons;
+
+void setButtonStates(const Buttons &btns, bool state)
 {
     for (auto btn : btns)
         btn->setState(state);
 }
 
-BtnCallback makeExclusiveCallback(std::initializer_list<ui::Button *> excludeThese, BtnCallback origCallback)
+BtnCallback makeExclusiveCallback(Buttons excludeThese, BtnCallback origCallback)
 {
-    return [excludeThese, origCallback](bool on)
+    return [excludeThese = std::move(excludeThese), origCallback](bool on)
     {
         if (on)
             setButtonStates(excludeThese, false);
