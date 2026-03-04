@@ -6,24 +6,14 @@
 #include <cover/ui/EditField.h>
 #include <cover/ui/Menu.h>
 #include <string>
+#include "app/typedefs.h"
 
 typedef std::function<void(const opencover::ColorMap&)> ColorMapCallback;
-
-struct CityGMLOrigin
-{
-    CityGMLOrigin(double x, double y, double z)
-        : x(x)
-        , y(y)
-        , z(z)
-    {
-    }
-    double x, y, z;
-};
 
 class CityGMLUI : BaseUI
 {
 public:
-    CityGMLUI(const std::string &name, opencover::ui::Menu *parent, const CityGMLOrigin &origin = { 0.0f, 0.0f, 0.0f });
+    CityGMLUI(const std::string &name, opencover::ui::Menu *parent, const Pos &origin = { 0.0f, 0.0f, 0.0f });
     void setInfluxCSVBtnCallback(BtnCallback func);
     void setInfluxArrowBtnCallback(BtnCallback func);
     void setPVBtnCallback(BtnCallback func);
@@ -33,7 +23,7 @@ public:
     void setYCallback(EditCallback func) { setTxtFieldCallback(m_Y, func); }
     void setZCallback(EditCallback func) { setTxtFieldCallback(m_Z, func); }
     void setColorMapCallback(ColorMapCallback cm);
-    auto getTranslation() const { return CityGMLOrigin{ m_X->number(), m_Y->number(), m_Z->number() }; }
+    auto getTranslation() const { return Pos{ m_X->number(), m_Y->number(), m_Z->number() }; }
     auto getInfluxArrowBtnState() const { return m_enableInfluxArrow->state(); }
     auto getInfluxCSVBtnState() const { return m_enableInfluxCSV->state(); }
     auto getStaticCampusPowerBtnState() const { return m_staticCampusPower->state(); }
@@ -41,7 +31,7 @@ public:
     opencover::CoverColorBar *colorBar() { return  m_colorBar.get(); }
 
 private:
-    void initUI(const std::string &name, opencover::ui::Menu *parent, const CityGMLOrigin &origin);
+    void initUI(const std::string &name, opencover::ui::Menu *parent, const Pos &origin);
     void initColorBar();
     
     std::unique_ptr<opencover::CoverColorBar> m_colorBar;

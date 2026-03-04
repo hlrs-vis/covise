@@ -27,7 +27,7 @@ BtnCallback makeExclusiveCallback(std::initializer_list<ui::Button *> excludeThe
 
 CityGMLUI::CityGMLUI(const std::string &name,
     opencover::ui::Menu *parent,
-    const CityGMLOrigin &origin)
+    const Pos &origin)
     : BaseUI(name, parent)
     , m_tab(nullptr)
     , m_enableInfluxCSV(nullptr)
@@ -36,6 +36,7 @@ CityGMLUI::CityGMLUI(const std::string &name,
     , m_staticCampusPower(nullptr)
     , m_staticPower(nullptr)
 {
+    assert(parent && "CityGMLUI: Parent is not ready.");
     initUI(name, parent, origin);
     initColorBar();
 }
@@ -75,7 +76,7 @@ void CityGMLUI::setColorMapCallback(ColorMapCallback cmc)
     m_colorBar->setCallback(cmc);
 }
 
-void CityGMLUI::initUI(const std::string &name, opencover::ui::Menu *parent, const CityGMLOrigin &origin)
+void CityGMLUI::initUI(const std::string &name, opencover::ui::Menu *parent, const Pos &origin)
 {
     m_tab = new ui::Menu(parent, "CityGML");
     m_enableInfluxCSV = new ui::Button(m_tab, "InfluxCSV");
