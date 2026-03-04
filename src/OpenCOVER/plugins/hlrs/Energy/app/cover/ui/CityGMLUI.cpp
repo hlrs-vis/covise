@@ -1,34 +1,33 @@
 #include "CityGMLUI.h"
 #include <cover/ui/Button.h>
 #include <cover/ui/Menu.h>
-#include <vector>
+#include <initializer_list>
 
 using namespace opencover;
 
 namespace
 {
 
-typedef std::vector<opencover::ui::Button *> Buttons;
-void setButtonStates(const Buttons &btns, bool state)
+void setButtonStates(std::initializer_list<ui::Button *> btns, bool state)
 {
-    std::for_each(btns.begin(), btns.end(), [&](opencover::ui::Button *btn)
-        { btn->setState(state); });
+    for (auto btn : btns)
+        btn->setState(state);
 }
 
-BtnCallback disableButtonFuncWrapper(Buttons btns, BtnCallback callback)
+BtnCallback makeExclusiveCallback(std::initializer_list<ui::Button *> excludeThese, BtnCallback origCallback)
 {
-    return [btns = std::move(btns), callback](bool on)
+    return [excludeThese, origCallback](bool on)
     {
-        if (on && !btns.empty())
-            setButtonStates(btns, false);
-        callback(on);
+        if (on)
+            setButtonStates(excludeThese, false);
+        origCallback(on);
     };
 }
 }
 
-CityGMLUI::CityGMLUI(const std::string &name, 
-                    opencover::ui::Menu *parent, 
-                    const CityGMLOrigin &origin)
+CityGMLUI::CityGMLUI(const std::string &name,
+    opencover::ui::Menu *parent,
+    const CityGMLOrigin &origin)
     : BaseUI(name, parent)
     , m_tab(nullptr)
     , m_enableInfluxCSV(nullptr)
@@ -43,51 +42,37 @@ CityGMLUI::CityGMLUI(const std::string &name,
 
 void CityGMLUI::setInfluxCSVBtnCallback(BtnCallback func)
 {
-    auto btnWrap = disableButtonFuncWrapper({ 
-        m_staticPower, 
-        m_staticCampusPower, 
-        m_enableInfluxArrow 
-    }, 
-    func);
-    setBtnCallback(m_enableInfluxCSV, btnWrap);
+    setBtnCallback(m_enableInfluxCSV, makeExclusiveCallback({ m_staticPower, m_staticCampusPower, m_enableInfluxArrow }, func));
 }
 
-void CityGMLUI::setInfluxArrowBtnCallback(BtnCallback func) { 
-    auto btnWrap = disableButtonFuncWrapper({ 
-        m_staticPower, 
-        m_staticCampusPower, 
-        m_enableInfluxCSV
-    }, 
-    func);
-    setBtnCallback(m_enableInfluxArrow, btnWrap); 
+void CityGMLUI::setInfluxArrowBtnCallback(BtnCallback func)
+{
+    setBtnCallback(m_enableInfluxArrow,
+        makeExclusiveCallback({ m_staticPower,
+                                  m_staticCampusPower,
+                                  m_enableInfluxCSV },
+            func));
 }
 
-void CityGMLUI::setPVBtnCallback(BtnCallback func) { 
-    setBtnCallback(m_PVEnable, func); 
+void CityGMLUI::setPVBtnCallback(BtnCallback func)
+{
+    setBtnCallback(m_PVEnable, func);
 }
 
-void CityGMLUI::setStaticPowerBtnCallback(BtnCallback func) { 
-    auto btnWrap = disableButtonFuncWrapper({ 
-        m_enableInfluxCSV,
-        m_enableInfluxArrow,
-        m_staticCampusPower
-    }, 
-    func);
-    setBtnCallback(m_staticPower, btnWrap); 
+void CityGMLUI::setStaticPowerBtnCallback(BtnCallback func)
+{
+    setBtnCallback(m_staticPower, makeExclusiveCallback({ m_enableInfluxCSV, m_enableInfluxArrow, m_staticCampusPower }, func));
 }
 
-void CityGMLUI::setStaticCampusPowerBtnCallback(BtnCallback func) { 
-    auto btnWrap = disableButtonFuncWrapper({ 
-        m_enableInfluxCSV,
-        m_enableInfluxArrow,
-        m_staticPower
-    }, 
-    func);
-    setBtnCallback(m_staticCampusPower, btnWrap); 
+void CityGMLUI::setStaticCampusPowerBtnCallback(BtnCallback func)
+{
+
+    setBtnCallback(m_staticCampusPower, makeExclusiveCallback({ m_enableInfluxCSV, m_enableInfluxArrow, m_staticPower }, func));
 }
 
-void CityGMLUI::setColorMapCallback(ColorMapCallback cmc) {
-   m_colorBar->setCallback(cmc);
+void CityGMLUI::setColorMapCallback(ColorMapCallback cmc)
+{
+    m_colorBar->setCallback(cmc);
 }
 
 void CityGMLUI::initUI(const std::string &name, opencover::ui::Menu *parent, const CityGMLOrigin &origin)
