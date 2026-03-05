@@ -45,7 +45,6 @@
 
   <Plugin>
   <Vrml97>
-    <NewMovieSupport value="true"/>
     <UseTextureRectangle value="true"/>
   </Vrml97>
   </Plugin>

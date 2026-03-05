@@ -67,7 +67,6 @@ protected:
     int d_w, d_h, d_nc, d_nFrames;
     unsigned char *d_pixels;
     unsigned char **d_frame;
-    bool newMovies;
 };
 }
 #endif // _IMAGE_

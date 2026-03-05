@@ -265,7 +265,6 @@
                         <!--Device value="plughw:1,0" /-->
                     </Audio>
                     <ViewpointType value="free" />
-                    <NewMovieSupport value="true" />
                     <UseTextureRectangle value="true" />
                     <GenerateTriangleStrips value="false" />
                     <ReTesselate value="false" />
