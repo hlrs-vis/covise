@@ -32,6 +32,12 @@ public:
 
     void connect();
 
+    /**
+     * Read the plugin configuration and transmit the information to the audio
+     * server. This specifically includes the speaker setup.
+     */
+    void transmitConfiguration();
+
     virtual void update();
 
 protected:
