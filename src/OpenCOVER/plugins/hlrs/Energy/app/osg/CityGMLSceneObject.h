@@ -24,7 +24,7 @@ public:
         osg::ref_ptr<osg::Switch> parent);
     ~CityGMLSceneObject();
     void enable(const osg::Vec3 &translation = { 0.0f, 0.0f, 0.0f });
-    bool enabled() const { return m_enabled; }
+    bool enabled() const { return m_enabled && core::utils::osgUtils::isActive(m_parent,m_root); }
     void update();
     void updateTime(int timestep);
     void move(const Pos &pos);

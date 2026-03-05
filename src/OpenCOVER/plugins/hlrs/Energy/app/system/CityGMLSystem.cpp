@@ -112,7 +112,7 @@ void CityGMLSystem::processPVRow(const CSVStream::CSVRow &row,
     PVData pvData;
     ACCESS_CSV_ROW(row, "gml_id", pvData.cityGMLID);
 
-    if (m_gmlSceneObject.contains(pvData.cityGMLID))
+    if (!m_gmlSceneObject.contains(pvData.cityGMLID))
     {
         std::cerr << "Error: Could not find cityGML object with ID " << pvData.cityGMLID
                   << std::endl;
