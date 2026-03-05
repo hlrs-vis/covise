@@ -110,7 +110,6 @@
     <Vrml97 value="on" >
        <MoviePlayer value="ffmpeg" />
        <FFMPEGSound value="true" />
-       <NewMovieSupport value="true" />
        <UseTextureRectangle value="true" />
      <!--Audio value="Aserver" /-->
     </Vrml97>
