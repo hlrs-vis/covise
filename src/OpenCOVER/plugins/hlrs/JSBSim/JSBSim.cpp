@@ -32,6 +32,7 @@
 #include <util/byteswap.h>
 #include <util/unixcompat.h>
 #include <stdlib.h>
+#include <memory>
 
 #include <vrml97/vrml/VrmlNamespace.h>
 #include <vrml97/vrml/VrmlNodeType.h>
@@ -672,8 +673,9 @@ if (coVRMSController::instance()->isMaster())
 bool
 JSBSimPlugin::update()
 {
+    joystickDev = nullptr;
 
-if (coVRMSController::instance()->isMaster())
+if (false && coVRMSController::instance()->isMaster())
 {
     joystickDev = (Joystick*)(Input::instance()->getDevice("joystick"));
     if (joystickDev->numLocalJoysticks > 0)
@@ -831,7 +833,7 @@ if (coVRMSController::instance()->isMaster())
                 {
                 case JSBSim::FGEngine::etPiston:
                 { // FGPiston code block
-                    auto piston_engine = static_pointer_cast<JSBSim::FGPiston>(Propulsion->GetEngine(i));
+                    auto piston_engine = std::static_pointer_cast<JSBSim::FGPiston>(Propulsion->GetEngine(i));
                     piston_engine->SetMagnetos(3);
                     break;
                 } // end FGPiston code block
@@ -924,7 +926,7 @@ if (coVRMSController::instance()->isMaster())
                     }
                     float vSpeed = location.vUVW(3);
                     VzLabel->setText("Vz: " + std::to_string(vSpeed));
-                    VLabel->setText("V: " + std::to_string(location.vUVW.Magnitude(1,2)));
+                    VLabel->setText("V: " + std::to_string(location.vUVW.Entry(1)) + " ; " +std::to_string(location.vUVW.Entry(2)) + " ; " +  std::to_string(location.vUVW.Entry(3)));
                     float pitch = -vSpeed / 10.0;
                     if (pitch < -1)
                         pitch = -1;
