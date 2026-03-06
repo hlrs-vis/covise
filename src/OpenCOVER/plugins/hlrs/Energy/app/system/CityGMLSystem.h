@@ -16,7 +16,7 @@
 
 #include "app/cover/ui/CityGMLUI.h"
 #include "app/osg/CityGMLSceneObject.h"
-// #include "app/osg/SolarPanelSceneObject.h"
+#include "app/osg/SolarPanelSceneObject.h"
 
 struct CityGMLConfig {
   std::string pvDir;
@@ -98,7 +98,7 @@ class CityGMLSystem final : public core::interface::ISystem {
 
   CityGMLUI m_cityGMLUI;
   CityGMLSceneObject m_gmlSceneObject;
-//   SolarPanelSceneObject m_solarSceneObject;
+  std::unique_ptr<SolarPanelSceneObject> m_pvSceneObject;
   CityGMLConfig m_config;
   bool m_enabled;
 };

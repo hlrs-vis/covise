@@ -1,5 +1,6 @@
 #include "CityGMLSystem.h"
 #include "app/cover/ui/CityGMLUI.h"
+#include "app/osg/SolarPanelSceneObject.h"
 
 #include <cover/coVRAnimationManager.h>
 
@@ -67,7 +68,11 @@ void CityGMLSystem::initUICallbacks()
     m_cityGMLUI.setStaticPowerBtnCallback(bindBackEnableScene);
     m_cityGMLUI.setStaticCampusPowerBtnCallback(bindBackEnableScene);
     m_cityGMLUI.setPVBtnCallback([&](bool on)
-        { m_gmlSceneObject.enablePV(on); });
+        { 
+            if (m_pvSceneObject)
+                m_pvSceneObject->enable(); 
+        }
+    );
 
     auto updateFunction = [this](auto &value)
     {
@@ -224,8 +229,7 @@ void CityGMLSystem::addSolarPanels(const fs::path &dirPath)
     }
 
     auto [pvDataMap, maxPVIntensity] = loadPVData(pvStream);
-
-    m_gmlSceneObject.initPV(dirPath, pvDataMap, maxPVIntensity);
+    m_pvSceneObject = std::make_unique<SolarPanelSceneObject>(&m_gmlSceneObject, m_gmlSceneObject.getRoot()->getChild(0)->asGroup(), dirPath, pvDataMap, maxPVIntensity);
 }
 
 auto CityGMLSystem::readStaticCampusData(CSVStream &stream, float &max, float &min,
@@ -308,7 +312,7 @@ void CityGMLSystem::enableScene(bool on, bool updateColorMap)
         if (m_cityGMLUI.getStaticPowerBtnState())
             applyStaticDataToCityGML(m_config.staticPower, updateColorMap);
 
-        if (m_gmlSceneObject.getPanels().empty())
+        if (!m_pvSceneObject)
         {
             auto solarPanelsDir = fs::path(m_config.modelDir + "/power/SolarPanel");
             addSolarPanels(solarPanelsDir);

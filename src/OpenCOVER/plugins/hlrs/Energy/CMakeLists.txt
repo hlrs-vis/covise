@@ -22,6 +22,7 @@ SET(HEADERS
     app/cover/ui/CityGMLUI.h
     app/osg/OsgImpl.h
     app/osg/CityGMLSceneObject.h
+    app/osg/SolarPanelSceneObject.h
     app/osg/ui/citygml/CityGMLDeviceSensor.h
     app/osg/ui/simulation/BaseSimulationUI.h
     app/osg/ui/simulation/HeatingSimulationUI.h
@@ -39,6 +40,7 @@ SET(SOURCES
     app/cover/ui/EnergyUI.cpp
     app/cover/ui/CityGMLUI.cpp
     app/osg/CityGMLSceneObject.cpp
+    app/osg/SolarPanelSceneObject.cpp
     app/osg/ui/citygml/CityGMLDeviceSensor.cpp
     app/osg/presentation/CityGMLBuilding.cpp
     app/osg/presentation/OsgTxtInfoboard.cpp
