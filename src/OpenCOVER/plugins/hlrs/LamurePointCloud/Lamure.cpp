@@ -1,7 +1,10 @@
 //local
+#include "gl_state.h"
+#ifdef Status
+#undef Status
+#endif
 #include "Lamure.h" 
 #include "LamureEditTool.h"
-#include "gl_state.h"
 #include "osg_util.h"
 
 // std

@@ -220,7 +220,7 @@ demo 80 "Maschinenhalle" cover /data/Lionel/Labor.wrl
 demo 53 "Biomechanik" covise /data/schneider/happy_pr_man/Happy_PR_Man_4_reduced.net
 
 #covise -e /data/covise_net/2014/ThyssenNeu.net
-demo 81 "Thyssen Testturm Multi" cover /data/Thyssen/Turm/praesentation.wrl
+demo 81 "Thyssen Testturm Multi" cover /data/Thyssen/Turm/praesentationUmgebung.wrl
 
 #opencover /data/Thyssen/Turm/turmNeuKeineStockwerktueren.wrl
 demo 82 "Thyssen Turm (ohne Tueren)" covise /data/covise_net/2015/PassingMulti01u02_demo.net
