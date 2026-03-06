@@ -18,7 +18,8 @@
 #include <QDialog>
 #include <QMessageBox>
 #include <QComboBox>
-#include <proj_api.h>
+
+#include <proj.h>
 
 class ProjectData;
 

@@ -37,6 +37,9 @@
 #include <RoadTerrain/RoadTerrainLoader.h>
 
 #include <functional>
+#ifdef _WIN32
+#include <direct.h>
+#endif
 
 using namespace covise;
 using namespace opencover;

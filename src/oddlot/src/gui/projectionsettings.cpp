@@ -19,6 +19,9 @@
 #include "ui_projectionsettings.h"
 #include "src/data/projectdata.hpp"
 #include "src/data/georeference.hpp"
+#include <iostream>
+
+#include <proj.h>
 
  // Data //
 
@@ -192,22 +195,22 @@ ProjectionSettings::~ProjectionSettings()
 
 void ProjectionSettings::transform(double &x, double &y, double &z)
 {
-    projPJ from = projectData_->getProj4ReferenceFrom();
-    projPJ to = projectData_->getProj4ReferenceTo();
-    if (from == nullptr || to == nullptr)
-    {
-        updateSettings();
-        if (from == nullptr || to == nullptr)
-        {
-            fprintf(stderr, "wrong prjection settings\n");
-            return;
-        }
-    }
-    int p = pj_transform(from, to, 1, 1, &x, &y, &z);
+   
+    PJ_COORD c;
+
+    c.lpzt.lam = x;
+    c.lpzt.phi = y;
+    c.lpzt.z = z;
+
+    PJ_COORD c_out = proj_trans(projectData_->getProjReference(), PJ_FWD, c);
+    /* int p = pj_transform(from, to, 1, 1, &x, &y, &z);
     if (p != 0)
     {
         fprintf(stderr, "pj_transform projection error %s\n", pj_strerrno(p));
-    }
+    }*/
+    x = c_out.xyz.x;
+    y = c_out.xyz.y;
+    z = c_out.xyz.z;
     x += XOffset;
     y += YOffset;
     z += ZOffset;
@@ -218,11 +221,21 @@ void ProjectionSettings::update()
     if (projectData_->getGeoReference() == nullptr) {
         ui->presetBox->setCurrentIndex(1);
     }
-    else if (projectData_->getProj4ReferenceTo() && projectData_->getProj4ReferenceFrom())
+    else if (projectData_->getProjReference())
     {
         //ui->ProjectionEdit->setText(projectData_->getGeoReference()->getParams());
-        ui->ProjectionEdit->setText(pj_get_def(projectData_->getProj4ReferenceTo(), 0));
-        ui->SourceEdit->setText(pj_get_def(projectData_->getProj4ReferenceFrom(), 0));
+        PJ *source_crs = proj_get_source_crs(PJ_DEFAULT_CTX, projectData_->getProjReference());
+        PJ *target_crs = proj_get_target_crs(PJ_DEFAULT_CTX, projectData_->getProjReference());
+        ui->ProjectionEdit->setText(proj_as_proj_string(
+                PJ_DEFAULT_CTX,
+                target_crs,
+                PJ_PROJ_5,
+            NULL));
+        ui->SourceEdit->setText(proj_as_proj_string(
+            PJ_DEFAULT_CTX,
+            source_crs,
+            PJ_PROJ_5,
+            NULL));
         updateUi();
     }
     else
@@ -259,7 +272,6 @@ void ProjectionSettings::updateSettings()
     QMessageBox msg;
     QString projTo = ui->ProjectionEdit->text();
     QString projFrom = ui->SourceEdit->text();
-    projPJ new_pj_from, new_pj_to;
     XOffset = ui->XOffsetSpin->value();
     YOffset = ui->YOffsetSpin->value();
     ZOffset = ui->ZOffsetSpin->value();
@@ -269,28 +281,28 @@ void ProjectionSettings::updateSettings()
         ui->SourceEdit->setText(projFrom);
     }
 
-    new_pj_from = pj_init_plus((projFrom).toUtf8().constData());
-    if (!(new_pj_from))
+    
+    PJ *P = proj_create_crs_to_crs(PJ_DEFAULT_CTX, (projFrom).toUtf8().constData(),
+        (projTo).toUtf8().constData(), nullptr);
+    if (!P)
     {
-        msg.setText("ProjectionSettings::updateSettings(): couldn't initialize projection source: " + projFrom);
-        msg.exec();
+        std::cerr << "could not initialize requested mapping" << std::endl;
+        return;
     }
-    else
+
+    PJ *P_for_GIS = proj_normalize_for_visualization(PJ_DEFAULT_CTX, P);
+    if (!P_for_GIS)
     {
-        new_pj_to = pj_init_plus((projTo).toUtf8().constData());
-        projectData_->setProj4ReferenceFrom(new_pj_from);
-        if (!(new_pj_to))
-        {
-            msg.setText("ProjectionSettings::updateSettings(): couldn't initialize projection target: " + projTo);
-            msg.exec();
-        }
-        else
-        {
-            projectData_->setProj4ReferenceTo(new_pj_to);
-            projectData_->setGeoReference(new GeoReference(projTo));
-            updateUi();
-        }
+        std::cerr << "could not initialize normalization mapping" << std::endl;
+        proj_destroy(P);
+        return;
     }
+    proj_destroy(P);
+    P = P_for_GIS;
+    projectData_->setProjReference(P);
+
+    projectData_->setGeoReference(new GeoReference(projTo));
+    updateUi();
 }
 
 void ProjectionSettings::checkProjForEPSG(const QString &proj)

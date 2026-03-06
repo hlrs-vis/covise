@@ -28,6 +28,8 @@
 #include <cover/coVRMSController.h>
 #include <cover/coVRConfig.h>
 #include <cover/VRViewer.h>
+#include <vrml97/vrml/VrmlNamespace.h>
+#include <VrmlNodeGeoData.h>
 
 #include <config/CoviseConfig.h>
 
@@ -212,6 +214,7 @@ GeoDataLoader::GeoDataLoader(): coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("GeoDat
 }
 bool GeoDataLoader::init()
 {
+    vrml::VrmlNamespace::addBuiltIn(vrml::VrmlNode::defineType<VrmlNodeGeoData>());
     ProjContext = proj_context_create();
     // Define the transformation from WGS84 to UTM Zone 32N (EPSG:32632)
     ProjInstance = proj_create_crs_to_crs(ProjContext, "EPSG:4326", "EPSG:32632", NULL); // EPSG:4326 is WGS84, EPSG:32632 is UTM Zone 32N

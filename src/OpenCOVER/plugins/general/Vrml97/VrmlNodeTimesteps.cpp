@@ -70,7 +70,7 @@ void VrmlNodeTimesteps::initFields(VrmlNodeTimesteps *node, VrmlNodeType *t)
                             coVRAnimationManager::instance()->enableAnimation(f->get());
                      }),
                      field("timestep", node->d_currentTimestep, [](auto f){
-                            coVRAnimationManager::instance()->setAnimationFrame(f->get());
+                            coVRAnimationManager::instance()->requestAnimationFrame(f->get());
                      }),
                      field("loop", node->d_loop),
                      field("maxFrameRate", node->d_maxFrameRate, [](auto f){

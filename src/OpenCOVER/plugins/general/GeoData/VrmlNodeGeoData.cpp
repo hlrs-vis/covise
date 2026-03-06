@@ -67,8 +67,7 @@ void VrmlNodeGeoData::initFields(VrmlNodeGeoData *node, VrmlNodeType *t)
                             GeoDataLoader::instance()->setRootTransform(osg::Vec3(node->d_offset.get()[0], node->d_offset.get()[1], node->d_offset.get()[2]), 0);
                      }),
         field("skyName", node->d_skyName, [node](auto f) {
-            GeoDataLoader::instance()->setSky(node->d_skyName.get());
-            }),
+            GeoDataLoader::instance()->setSky(node->d_skyName.get()); }),
         field("enabled", node->d_enabled, [node](auto f) {
             }));
                    
