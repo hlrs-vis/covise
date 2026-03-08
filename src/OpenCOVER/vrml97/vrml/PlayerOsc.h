@@ -10,8 +10,12 @@
 
 #include "Player.h"
 
+#include <memory>
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
+
+#include <OpenConfig/access.h>
+#include <OpenConfig/section.h>
 
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
@@ -26,8 +30,9 @@ class Listener;
 class VRMLEXPORT PlayerOsc : public Player
 {
 public:
-    PlayerOsc(const Listener *listener, const std::string &host, int port);
-    // virtual ~PlayerOsc();
+    PlayerOsc(const Listener *listener);
+    // ~PlayerOsc();
+
     virtual Player::Source *newSource(const Audio *audio);
 
     void connect();
@@ -65,8 +70,11 @@ protected:
 
     boost::uuids::random_generator uuid_generator;
 
+    opencover::config::Access access;
+    std::unique_ptr<opencover::config::Section> config;
+
     covise::Host socket_host;
-    covise::Socket socket;
+    std::unique_ptr<covise::Socket> socket;
 };
 } // namespace vrml
 #endif

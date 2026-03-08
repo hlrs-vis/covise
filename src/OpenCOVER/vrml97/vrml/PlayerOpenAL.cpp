@@ -63,6 +63,7 @@ static ALuint openalformat(int channels, int bps)
 PlayerOpenAL::PlayerOpenAL(const Listener *listener)
     : Player(listener)
 {
+    CERR << "PlayerOpenAL" << endl;
 #ifdef HAVE_ALUT
     if (!alutInit(NULL, NULL))
     {
@@ -77,7 +78,7 @@ PlayerOpenAL::PlayerOpenAL(const Listener *listener)
 
         if (context)
         {
-            alcMakeContextCurrent(context); //Set active context
+            alcMakeContextCurrent(context); // Set active context
             alcProcessContext(context);
         }
         else
@@ -113,7 +114,7 @@ PlayerOpenAL::~PlayerOpenAL()
 #else
     // Get active context
     ALCcontext *context = alcGetCurrentContext();
-    //Get device for active context
+    // Get device for active context
     if (context)
     {
         ALCdevice *device = alcGetContextsDevice(context);
@@ -127,16 +128,14 @@ PlayerOpenAL::~PlayerOpenAL()
 #endif
 }
 
-void
-PlayerOpenAL::setSpeedOfSound(float speed)
+void PlayerOpenAL::setSpeedOfSound(float speed)
 {
     Player::setSpeedOfSound(speed);
 
     alDopplerVelocity(speed);
 }
 
-void
-PlayerOpenAL::update()
+void PlayerOpenAL::update()
 {
     Player::update();
 
@@ -155,6 +154,9 @@ PlayerOpenAL::update()
 Player::Source *
 PlayerOpenAL::newSource(const Audio *audio)
 {
+
+    CERR << "\n======================================================= PlayerOpenAL::newSource" << endl;
+
     Source *src = new Source(audio);
     int handle = addSource(src);
     if (-1 == handle)
@@ -180,10 +182,10 @@ PlayerOpenAL::Source::Source(const Audio *audio)
     alGenBuffers(1, &alFirstBuffer);
     alGenBuffers(1, &alBuffer);
     alBufferData(alBuffer,
-                 format,
-                 (void *)audio->samples(),
-                 audio->numSamples() * audio->bitsPerSample() / 8 * audio->channels(),
-                 audio->samplesPerSec());
+        format,
+        (void *)audio->samples(),
+        audio->numSamples() * audio->bitsPerSample() / 8 * audio->channels(),
+        audio->samplesPerSec());
 }
 
 PlayerOpenAL::Source::~Source()
@@ -195,16 +197,14 @@ PlayerOpenAL::Source::~Source()
     alDeleteBuffers(1, &alFirstBuffer);
 }
 
-void
-PlayerOpenAL::Source::setIntensity(float intensity)
+void PlayerOpenAL::Source::setIntensity(float intensity)
 {
     Player::Source::setIntensity(intensity);
 
     alSourcef(alSource, AL_GAIN, this->intensity);
 }
 
-void
-PlayerOpenAL::Source::setPosition(float x, float y, float z)
+void PlayerOpenAL::Source::setPosition(float x, float y, float z)
 {
     Player::Source::setPosition(x, y, z);
 
@@ -214,24 +214,21 @@ PlayerOpenAL::Source::setPosition(float x, float y, float z)
         alSource3f(alSource, AL_POSITION, 0, 0, 0);
 }
 
-void
-PlayerOpenAL::Source::setVelocity(float vx, float vy, float vz)
+void PlayerOpenAL::Source::setVelocity(float vx, float vy, float vz)
 {
     Player::Source::setVelocity(vx, vy, vz);
 
     alSource3f(alSource, AL_VELOCITY, vx, vy, vz);
 }
 
-void
-PlayerOpenAL::Source::setPitch(float pitch)
+void PlayerOpenAL::Source::setPitch(float pitch)
 {
     Player::Source::setPitch(pitch);
 
     alSourcef(alSource, AL_PITCH, pitch);
 }
 
-void
-PlayerOpenAL::Source::setMute(bool mute)
+void PlayerOpenAL::Source::setMute(bool mute)
 {
     Player::Source::setMute(mute);
 
@@ -245,8 +242,7 @@ PlayerOpenAL::Source::setMute(bool mute)
     }
 }
 
-void
-PlayerOpenAL::Source::setSpatialize(bool spatialize)
+void PlayerOpenAL::Source::setSpatialize(bool spatialize)
 {
     Player::Source::setSpatialize(spatialize);
 
@@ -262,8 +258,7 @@ PlayerOpenAL::Source::setSpatialize(bool spatialize)
     }
 }
 
-void
-PlayerOpenAL::Source::setLoop(bool loop)
+void PlayerOpenAL::Source::setLoop(bool loop)
 {
     Player::Source::setLoop(loop);
 
@@ -277,10 +272,10 @@ PlayerOpenAL::Source::setLoop(bool loop)
     }
 }
 
-void
-PlayerOpenAL::Source::play(double start)
+void PlayerOpenAL::Source::play(double start)
 {
     Player::Source::play(start);
+    CERR << "play source\n";
 
     int bytesPerFrame = audio->bitsPerSample() / 8 * audio->channels();
 
@@ -295,10 +290,10 @@ PlayerOpenAL::Source::play(double start)
 
     int format = openalformat(audio->channels(), audio->bitsPerSample());
     alBufferData(alFirstBuffer,
-                 format,
-                 (void *)(audio->samples() + (int)off),
-                 audio->numSamples() * bytesPerFrame - (int)off,
-                 audio->samplesPerSec());
+        format,
+        (void *)(audio->samples() + (int)off),
+        audio->numSamples() * bytesPerFrame - (int)off,
+        audio->samplesPerSec());
     alSourceQueueBuffers(alSource, 1, &alFirstBuffer);
     if (loop)
     {
@@ -308,8 +303,7 @@ PlayerOpenAL::Source::play(double start)
     alSourcePlay(alSource);
 }
 
-void
-PlayerOpenAL::Source::stop()
+void PlayerOpenAL::Source::stop()
 {
     alSourceStop(alSource);
 
