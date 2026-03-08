@@ -38,21 +38,20 @@ void VrmlNodeSound::initFields(VrmlNodeSound *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-                     exposedField("direction", node->d_direction),
-                     exposedField("intensity", node->d_intensity),
-                     exposedField("location", node->d_location),
-                     exposedField("maxBack", node->d_maxBack),
-                     exposedField("maxFront", node->d_maxFront),
-                     exposedField("minBack", node->d_minBack),
-                     exposedField("minFront", node->d_minFront),
-                     exposedField("priority", node->d_priority),
-                     exposedField("source", node->d_source, [node](auto value){
+        exposedField("direction", node->d_direction),
+        exposedField("intensity", node->d_intensity),
+        exposedField("location", node->d_location),
+        exposedField("maxBack", node->d_maxBack),
+        exposedField("maxFront", node->d_maxFront),
+        exposedField("minBack", node->d_minBack),
+        exposedField("minFront", node->d_minFront),
+        exposedField("priority", node->d_priority),
+        exposedField("source", node->d_source, [node](auto value)
+            {
                         delete node->source;
-                        node->source = NULL;
-                     }),
-                     field("spatialize", node->d_spatialize),
-                     exposedField("doppler", node->d_doppler));
-
+                        node->source = NULL; }),
+        field("spatialize", node->d_spatialize),
+        exposedField("doppler", node->d_doppler));
 }
 
 const char *VrmlNodeSound::typeName() { return "Sound"; }
@@ -146,13 +145,13 @@ void VrmlNodeSound::render(Viewer *viewer)
         d_direction.normalize();
         // angle between the sound direction and the viewer
         float angle = (float)acos(toViewer.dot(&d_direction));
-        //fprintf(stderr,"angle: %f",angle/M_PI*180.0);
+        // fprintf(stderr,"angle: %f",angle/M_PI*180.0);
         float cang = (float)cos(angle / 2.0);
         float rmin, rmax;
         double intensity;
         rmin = fabs(d_minBack.get() * d_minFront.get() / (cang * cang * (d_minBack.get() - d_minFront.get()) + d_minFront.get()));
         rmax = fabs(d_maxBack.get() * d_maxFront.get() / (cang * cang * (d_maxBack.get() - d_maxFront.get()) + d_maxFront.get()));
-        //fprintf(stderr,"rmin: %f rmax: %f",rmin,rmax);
+        // fprintf(stderr,"rmin: %f rmax: %f",rmin,rmax);
         if (dist <= rmin)
             intensity = 1.0;
         else if (dist > rmax)
@@ -175,13 +174,13 @@ void VrmlNodeSound::render(Viewer *viewer)
                 // XXX: update source
                 source->setAudio(clip->getAudio());
                 fprintf(stderr, "source update: lastTime=%f, lastModified=%f\n",
-                        lastTime, clip->getAudio()->lastModified());
+                    lastTime, clip->getAudio()->lastModified());
             }
             if (clip->isAudible(now) && source)
             {
                 source->setPositionOC(d_location.x(), d_location.y(), d_location.z());
 
-                //fprintf(stderr, "intens=%f\n", intensity*d_intensity.get());
+                // fprintf(stderr, "intens=%f\n", intensity*d_intensity.get());
                 if (!System::the->isCorrectSpatializedAudio() && !d_spatialize.get())
                     source->setIntensity(d_intensity.get());
                 else

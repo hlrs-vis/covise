@@ -102,11 +102,11 @@ static AudioFileType audioFileType(const char *url, FILE *)
     {
         ++suffix;
 
-    if (strcmp(suffix, "wav") == 0 || strcmp(suffix, "WAV") == 0)
-        return AudioFile_WAV;
+        if (strcmp(suffix, "wav") == 0 || strcmp(suffix, "WAV") == 0)
+            return AudioFile_WAV;
 
-    else
-        return AudioFile_UNKNOWN;
+        else
+            return AudioFile_UNKNOWN;
     }
     else
         return AudioFile_UNKNOWN;
@@ -185,6 +185,7 @@ Audio::lastModified() const
 ========================================================================*/
 bool Audio::setURL(const char *url, Doc *relative)
 {
+    CERR << "Audio::setURL() " << url << endl;
     if (url == 0)
         return false;
 
@@ -408,7 +409,7 @@ bool Audio::wavread(FILE *fp)
         std::cerr << "Audio::wavread: fread failed" << std::endl;
         return false;
     }
-    //rewind (fp);
+    // rewind (fp);
 
     // Do all sorts of sanity checks
     if (strncmp((const char *)wave_header.riff_id, "RIFF", 4) != 0)
@@ -431,7 +432,7 @@ bool Audio::wavread(FILE *fp)
 
     if (strncmp((const char *)wave_header.data_id, "data", 4) != 0
         && strncmp((const char *)wave_header.data_id, "PAD ", 4) != 0
-        && strncmp((const char*)wave_header.data_id, "LIST", 4) != 0)
+        && strncmp((const char *)wave_header.data_id, "LIST", 4) != 0)
     {
         cerr << "got " << (const char *)wave_header.data_id << " expected data" << endl;
         return false;
@@ -450,7 +451,8 @@ bool Audio::wavread(FILE *fp)
 #endif
     if (wave_header.format_tag != WAVE_FORMAT_PCM)
     {
-        cerr << "got " << wave_header.format_tag << "as format_tag expected WAVE_FORMAT_PCM \n\n\n ask Uwe, he knows what to do \n\n\n" << endl;
+        cerr << "got " << wave_header.format_tag << "as format_tag expected WAVE_FORMAT_PCM \n\n\n ask Uwe, he knows what to do \n\n\n"
+             << endl;
         // das war auskommentiert
         return false;
     }
@@ -465,7 +467,7 @@ bool Audio::wavread(FILE *fp)
     }
 
     // Now, we are ready to read the data
-    //fseek (fp, 44, SEEK_SET);
+    // fseek (fp, 44, SEEK_SET);
     int bytes_read = (int)fread(_samples, 1, wave_header.num_data_bytes, fp);
     // for easy resampling
     _samples[wave_header.num_data_bytes] = _samples[0];
@@ -483,8 +485,7 @@ bool Audio::wavread(FILE *fp)
     return true;
 }
 
-void
-Audio::createWaveHeader(WaveHeader *header) const
+void Audio::createWaveHeader(WaveHeader *header) const
 {
     memcpy(header->riff_id, "RIFF", 4);
     header->riff_size = 36 + _num_samples * _sample_blocksize;

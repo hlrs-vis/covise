@@ -12,7 +12,7 @@ ADD_DEFINITIONS(-DHAVE_CONFIG_H -DYYERROR_VERBOSE)
 # handle them with cmake feature tests or simply with
 # IF(${CMAKE_SYSTEM_NAME} MATCHES "whater_system_name")
 
-# TODO: create Find-Modules for esd, libwww, arts, oss, irixal
+# TODO: create Find-Modules for libwww, irixal
 
 # gather optional includes in EXTRA_INCS
 SET(EXTRA_INCS )
@@ -28,15 +28,6 @@ using(PNG)
 using(TIFF)
 using(ZLIB)
 
-
-IF(UNIX AND NOT APPLE)
-  FIND_PACKAGE(ALSA QUIET)
-  IF(ALSA_FOUND)
-    ADD_DEFINITIONS(-DHAVE_ALSA)
-    SET(EXTRA_INCS ${EXTRA_INCS} ${ALSA_INCLUDE_DIR})
-    SET(EXTRA_LIBS ${EXTRA_LIBS} ${ALSA_LIBRARIES})
-  ENDIF()
-ENDIF()
 
 FIND_PACKAGE(OpenAL QUIET)
 IF(OPENAL_FOUND)
@@ -106,15 +97,9 @@ SET(VRML_SOURCES
   MathUtils.cpp
   mpgread.cpp
   Player.cpp
-  PlayerAlsa.cpp
-  PlayerArts.cpp
   PlayerAServer.cpp
-  PlayerEsd.cpp
-  PlayerFactory.cpp
-  PlayerMix.cpp
   PlayerOpenAL.cpp
   PlayerOsc.cpp
-  PlayerOSS.cpp
   pngread.c
   ScriptJDK.cpp
   ScriptJS.cpp
@@ -228,15 +213,9 @@ SET(VRML_HEADERS
   MathUtils.h
   mpgread.h
   Player.h
-  PlayerAlsa.h
-  PlayerArts.h
   PlayerAServer.h
-  PlayerEsd.h
-  PlayerFactory.h
-  PlayerMix.h
   PlayerOpenAL.h
   PlayerOsc.h
-  PlayerOSS.h
   pngread.h
   ScriptJDK.h
   ScriptJS.h

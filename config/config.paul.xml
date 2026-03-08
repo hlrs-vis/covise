@@ -130,8 +130,8 @@
                     <!--SmallTextures value="true" /-->
                     <!--MaxTextureSize value="1024" /-->
                     <ViewpointType value = "standardNoFov"/>
-                    <Audio value="Osc">
-                        <Host value="localhost" port="8000" />
+                    <Audio value="OpenAL">
+                        <!-- <Host value="localhost" port="8000" /> -->
                     </Audio>
                     <ViewpointType value = "standardNoFov"/>
                     <!--<UseFieldOfViewForScaling value="on" />-->

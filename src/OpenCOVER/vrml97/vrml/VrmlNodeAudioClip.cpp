@@ -34,8 +34,8 @@ void VrmlNodeAudioClip::update(VrmlSFTime &now)
     {
         Doc relDoc(d_relativeUrl.get());
         if (d_audio->tryURLs(d_url.size(),
-                             d_url.get(),
-                             &relDoc))
+                d_url.get(),
+                &relDoc))
         {
             d_duration.set(d_audio->duration());
             eventOut(now.get(), "duration_changed", d_duration);
@@ -63,15 +63,15 @@ void VrmlNodeAudioClip::update(VrmlSFTime &now)
 void VrmlNodeAudioClip::initFields(VrmlNodeAudioClip *node, VrmlNodeType *t)
 {
     initFieldsHelper(node, t,
-                     exposedField("description", node->d_description),
-                     exposedField("loop", node->d_loop),
-                     exposedField("pitch", node->d_pitch),
-                     exposedField("startTime", node->d_startTime),
-                     exposedField("stopTime", node->d_stopTime),
-                     exposedField("url", node->d_url, [node](const VrmlMFString *field){
+        exposedField("description", node->d_description),
+        exposedField("loop", node->d_loop),
+        exposedField("pitch", node->d_pitch),
+        exposedField("startTime", node->d_startTime),
+        exposedField("stopTime", node->d_stopTime),
+        exposedField("url", node->d_url, [node](const VrmlMFString *field)
+            {
                         node->d_url_modified = true;
-                        node->setModified();
-                     }));
+                        node->setModified(); }));
     if (t)
     {
         t->addEventOut("duration_changed", VrmlField::SFTIME);
@@ -81,7 +81,6 @@ void VrmlNodeAudioClip::initFields(VrmlNodeAudioClip *node, VrmlNodeType *t)
 
 const char *VrmlNodeAudioClip::typeName() { return "AudioClip"; }
 
-
 VrmlNodeAudioClip::VrmlNodeAudioClip(VrmlScene *scene)
     : VrmlNode(scene, typeName())
     , d_pitch(1.0)
@@ -89,7 +88,7 @@ VrmlNodeAudioClip::VrmlNodeAudioClip(VrmlScene *scene)
     , d_audio(new Audio(0))
     , d_url_modified(false)
     , _doc(0)
-    , lastActive(true)
+    , lastActive(false)
 {
     if (d_scene)
         d_scene->addAudioClip(this);
@@ -109,7 +108,7 @@ VrmlNodeAudioClip::VrmlNodeAudioClip(const VrmlNodeAudioClip &n)
     , d_audio(new Audio(*n.d_audio))
     , d_url_modified(true)
     , _doc(0)
-    , lastActive(true)
+    , lastActive(false)
 {
     if (d_scene)
         d_scene->addAudioClip(this);
@@ -166,7 +165,7 @@ double VrmlNodeAudioClip::currentCliptime(VrmlSFTime &inTime) const
     double cliptime = 0.0;
     if (isAudible(inTime))
         cliptime = fmod((inTime.get() - d_startTime.get()) * d_pitch.get(),
-                        d_audio->duration());
+            d_audio->duration());
 
     return cliptime;
 }

@@ -24,7 +24,6 @@ public:
     class Source
     {
         friend class Player;
-        friend class PlayerMix;
         friend class PlayerOpenAL;
         friend class PlayerAServer;
         friend class PlayerOsc;
@@ -71,7 +70,6 @@ public:
 
     Player(const Listener *listener);
     virtual ~Player();
-    virtual bool isPlayerMix() { return false; }
 
     virtual void update() { }
 

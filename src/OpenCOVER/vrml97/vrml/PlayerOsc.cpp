@@ -6,7 +6,9 @@
  * License: LGPL 2+ */
 
 #include "PlayerOsc.h"
+#include "net/covise_host.h"
 #include <fcntl.h>
+#include <memory>
 #include <sys/types.h>
 #include <vrml97/vrml/Audio.h>
 
@@ -15,8 +17,6 @@
 #include <oscpp/client.hpp>
 
 #include <OpenConfig/array.h>
-#include <OpenConfig/access.h>
-#include <OpenConfig/section.h>
 #include <OpenConfig/value.h>
 #include <OpenConfig/file.h>
 
@@ -24,10 +24,8 @@ using namespace vrml;
 
 #define MAX_BUFLEN 1024
 
-PlayerOsc::PlayerOsc(const Listener *listener, const std::string &host, int port)
+PlayerOsc::PlayerOsc(const Listener *listener)
     : Player(listener)
-    , socket_host(host.c_str())
-    , socket(&socket_host, port, 2)
 {
     config = access.file("plugin/audio");
 
@@ -42,6 +40,9 @@ PlayerOsc::PlayerOsc(const Listener *listener, const std::string &host, int port
 
 void PlayerOsc::connect()
 {
+
+    transmitConfiguration();
+
     /*
     char buffer[MAX_BUFLEN];
 
@@ -49,15 +50,13 @@ void PlayerOsc::connect()
     packet.openMessage("/subscribe", 0).closeMessage();
     write(buffer, packet.size());
     */
-
-    transmitConfiguration();
 }
 
 void PlayerOsc::write(const char *buf, size_t len)
 {
-    if (socket.isConnected())
+    if (socket->isConnected())
     {
-        socket.write(buf, len);
+        socket->write(buf, len);
     }
     else
     {
@@ -65,10 +64,10 @@ void PlayerOsc::write(const char *buf, size_t len)
     }
 
     /*
-    while (socket.available())
+    while (socket->available())
     {
         char buffer[MAX_BUFLEN];
-        if (socket.read(buffer, sizeof(buffer)) < 0)
+        if (socket->read(buffer, sizeof(buffer)) < 0)
         {
             break;
         }
