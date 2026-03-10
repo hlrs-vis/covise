@@ -8,9 +8,17 @@
 #include "Listener.h"
 #include "Player.h"
 #include <assert.h>
+#include <boost/algorithm/string.hpp>
+
+#include <config/CoviseConfig.h>
+
+#include "vrml97/vrml/PlayerAServer.h"
+#include "vrml97/vrml/PlayerOpenAL.h"
+#include "vrml97/vrml/PlayerOsc.h"
 
 using std::endl;
 using namespace vrml;
+using covise::coCoviseConfig;
 
 Player::Source::Source(const Audio *audio)
     : audio(audio)
@@ -27,7 +35,7 @@ Player::Source::Source(const Audio *audio)
     , player(0)
     , handle(-1)
 {
-    //CERR << "new source" << endl;
+    // CERR << "new source" << endl;
 }
 
 Player::Source::~Source()
@@ -36,26 +44,22 @@ Player::Source::~Source()
         player->removeSource(handle);
 }
 
-void
-Player::Source::setAudio(const Audio *audio)
+void Player::Source::setAudio(const Audio *audio)
 {
     this->audio = audio;
 }
 
-void
-Player::Source::setPitch(float pitch)
+void Player::Source::setPitch(float pitch)
 {
     this->pitch = pitch;
 }
 
-void
-Player::Source::setPosition(float x, float y, float z)
+void Player::Source::setPosition(float x, float y, float z)
 {
     this->x = vec(x, y, z);
 }
 
-void
-Player::Source::setPositionOC(float x, float y, float z)
+void Player::Source::setPositionOC(float x, float y, float z)
 {
     if (player)
     {
@@ -70,71 +74,60 @@ Player::Source::setPositionOC(float x, float y, float z)
     }
 }
 
-void
-Player::Source::setVelocity(float vx, float vy, float vz)
+void Player::Source::setVelocity(float vx, float vy, float vz)
 {
     this->v = vec(vx, vy, vz);
 }
 
-void
-Player::Source::setIntensity(float intensity)
+void Player::Source::setIntensity(float intensity)
 {
     this->intensity = intensity;
 }
 
-void
-Player::Source::setStart(double start)
+void Player::Source::setStart(double start)
 {
     this->startTime = (float)start;
 }
 
-void
-Player::Source::setStop(double stop)
+void Player::Source::setStop(double stop)
 {
     this->stopTime = (float)stop;
 }
 
-void
-Player::Source::setLoop(bool loop)
+void Player::Source::setLoop(bool loop)
 {
     this->loop = loop;
 }
 
-void
-Player::Source::setMute(bool mute)
+void Player::Source::setMute(bool mute)
 {
     this->mute = mute;
 }
 
-void
-Player::Source::setSpatialize(bool spatialize)
+void Player::Source::setSpatialize(bool spatialize)
 {
     this->spatialize = spatialize;
 }
 
-void
-Player::Source::play()
+void Player::Source::play()
 {
-    //CERR << "Player::Source::play()" << endl;
+    // CERR << "Player::Source::play()" << endl;
     play(startTime);
 }
 
-void
-Player::Source::play(double start)
+void Player::Source::play(double start)
 {
-    //CERR << "Player::Source::play(double)" << endl;
+    // CERR << "Player::Source::play(double)" << endl;
     (void)start;
     playing = true;
 }
 
-void
-Player::Source::stop()
+void Player::Source::stop()
 {
     playing = false;
 }
 
-bool
-Player::Source::isPlaying()
+bool Player::Source::isPlaying()
 {
     return playing;
 }
@@ -153,7 +146,7 @@ Player::Player(const Listener *listener)
 Player::~Player()
 {
     for (std::vector<Source *>::iterator it = sources.begin();
-         it != sources.end(); it++)
+        it != sources.end(); it++)
     {
         delete *it;
         *it = 0;
@@ -161,8 +154,7 @@ Player::~Player()
     sources.resize(0);
 }
 
-vec
-Player::getListenerPositionWC() const
+vec Player::getListenerPositionWC() const
 {
     if (listener)
         return listener->getPositionWC();
@@ -170,8 +162,7 @@ Player::getListenerPositionWC() const
         return vec(0.0, 0.0, 0.0);
 }
 
-vec
-Player::getListenerPositionVC() const
+vec Player::getListenerPositionVC() const
 {
     if (listener)
         return listener->getPositionVC();
@@ -179,8 +170,7 @@ Player::getListenerPositionVC() const
         return vec(0.0, 0.0, 0.0);
 }
 
-vec
-Player::getListenerPositionOC() const
+vec Player::getListenerPositionOC() const
 {
     if (listener)
         return listener->getPositionOC();
@@ -188,15 +178,13 @@ Player::getListenerPositionOC() const
         return vec(0.0, 0.0, 0.0);
 }
 
-void
-Player::getListenerOrientation(vec *at, vec *up) const
+void Player::getListenerOrientation(vec *at, vec *up) const
 {
     if (listener)
         listener->getOrientation(at, up);
 }
 
-vec
-Player::getListenerVelocity() const
+vec Player::getListenerVelocity() const
 {
     if (listener)
         return listener->getVelocity();
@@ -204,8 +192,7 @@ Player::getListenerVelocity() const
         return vec(0.0, 0.0, 0.0);
 }
 
-vec
-Player::WCtoVC(vec p) const
+vec Player::WCtoVC(vec p) const
 {
     if (listener)
         return listener->WCtoVC(p);
@@ -213,8 +200,7 @@ Player::WCtoVC(vec p) const
         return vec(0.0, 0.0, 0.0);
 }
 
-vec
-Player::WCtoOC(vec p) const
+vec Player::WCtoOC(vec p) const
 {
     if (listener)
         return listener->WCtoOC(p);
@@ -222,8 +208,7 @@ Player::WCtoOC(vec p) const
         return vec(0.0, 0.0, 0.0);
 }
 
-vec
-Player::VCtoWC(vec p) const
+vec Player::VCtoWC(vec p) const
 {
     if (listener)
         return listener->VCtoWC(p);
@@ -231,8 +216,7 @@ Player::VCtoWC(vec p) const
         return vec(0.0, 0.0, 0.0);
 }
 
-vec
-Player::VCtoOC(vec p) const
+vec Player::VCtoOC(vec p) const
 {
     if (listener)
         return listener->VCtoOC(p);
@@ -240,8 +224,7 @@ Player::VCtoOC(vec p) const
         return vec(0.0, 0.0, 0.0);
 }
 
-vec
-Player::OCtoWC(vec p) const
+vec Player::OCtoWC(vec p) const
 {
     if (listener)
         return listener->OCtoWC(p);
@@ -249,8 +232,7 @@ Player::OCtoWC(vec p) const
         return vec(0.0, 0.0, 0.0);
 }
 
-vec
-Player::OCtoVC(vec p) const
+vec Player::OCtoVC(vec p) const
 {
     if (listener)
         return listener->OCtoVC(p);
@@ -258,8 +240,7 @@ Player::OCtoVC(vec p) const
         return vec(0.0, 0.0, 0.0);
 }
 
-int
-Player::addSource(Source *src)
+int Player::addSource(Source *src)
 {
     int handle = -1;
 
@@ -287,13 +268,46 @@ Player::addSource(Source *src)
     src->handle = handle;
     src->player = this;
 
-    //CERR << "numsources: " << numSources << endl;
+    // CERR << "numsources: " << numSources << endl;
 
     return handle;
 }
 
-int
-Player::checkHandle(int handle) const
+Player *Player::createPlayer(Listener *listener, const std::string &type)
+{
+    if (type.empty())
+    {
+        return nullptr;
+    }
+
+    if (boost::iequals(type, "aserver"))
+    {
+        // TODO: Remove legacy config, let PlayerAServer read the new audio
+        // config file and parse it itself.
+        std::string host = coCoviseConfig::getEntry("value", "COVER.Plugin.Vrml97.Audio.Host", "localhost");
+        int port = coCoviseConfig::getInt("port", "COVER.Plugin.Vrml97.Audio.Host", 31231);
+
+        return new vrml::PlayerAServer(listener, host, port);
+    }
+    else if (boost::iequals(type, "openal"))
+    {
+        return new vrml::PlayerOpenAL(listener);
+    }
+    else if (boost::iequals(type, "osc"))
+    {
+
+        return new vrml::PlayerOsc(listener);
+    }
+    else if (boost::iequals(type, "none"))
+    {
+        return nullptr;
+    }
+
+    CERR << "unknown player type: " << type << endl;
+    return nullptr;
+}
+
+int Player::checkHandle(int handle) const
 {
     if (handle < 0 || handle >= (int)sources.size() || 0 == sources[handle])
     {
@@ -318,8 +332,7 @@ Player::newSource(const Audio *audio)
     return src;
 }
 
-void
-Player::removeSource(int handle)
+void Player::removeSource(int handle)
 {
     if (checkHandle(handle) < 0)
         return;
@@ -330,17 +343,15 @@ Player::removeSource(int handle)
 
     numSources--;
 
-    //CERR << "numsources: " << numSources << endl;
+    // CERR << "numsources: " << numSources << endl;
 }
 
-void
-Player::setSpeedOfSound(float speed)
+void Player::setSpeedOfSound(float speed)
 {
     speedOfSound = speed;
 }
 
-float
-Player::calculateDoppler(const Source *src) const
+float Player::calculateDoppler(const Source *src) const
 {
     vec vc = OCtoVC(src->x);
     vec rel = vc.sub(getListenerPositionVC());
