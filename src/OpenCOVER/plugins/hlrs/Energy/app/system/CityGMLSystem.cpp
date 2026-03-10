@@ -61,12 +61,11 @@ void CityGMLSystem::init()
 
 void CityGMLSystem::initUICallbacks()
 {
-    auto bindBackEnableScene = [&](bool on)
-    { enableScene(on); };
-    m_cityGMLUI.setInfluxCSVBtnCallback(bindBackEnableScene);
-    m_cityGMLUI.setInfluxArrowBtnCallback(bindBackEnableScene);
-    m_cityGMLUI.setStaticPowerBtnCallback(bindBackEnableScene);
-    m_cityGMLUI.setStaticCampusPowerBtnCallback(bindBackEnableScene);
+    m_cityGMLUI.setButtonGroupCallback([&](bool on)
+        { 
+            enableScene(on); 
+        }
+    );
     m_cityGMLUI.setPVBtnCallback([&](bool on)
         { 
             if (m_pvSceneObject)
@@ -78,9 +77,9 @@ void CityGMLSystem::initUICallbacks()
     {
         m_gmlSceneObject.move(m_cityGMLUI.getTranslation());
     };
-    m_cityGMLUI.setXCallback(updateFunction);
-    m_cityGMLUI.setYCallback(updateFunction);
-    m_cityGMLUI.setZCallback(updateFunction);
+
+    for (auto &[_, editField] : m_cityGMLUI.getEditFields())
+        editField->setCallback(updateFunction);
 
     m_cityGMLUI.setColorMapCallback([this](const opencover::ColorMap &cm)
         {
@@ -146,7 +145,7 @@ void CityGMLSystem::updateInfluxColorMaps(
     const std::string &colormapName, const std::string &species,
     const std::string &unit)
 {
-    if (!m_cityGMLUI.getInfluxArrowBtnState())
+    if (!m_cityGMLUI.InfluxArrow()->state())
         return;
 
     auto cb = m_cityGMLUI.colorBar();
@@ -198,7 +197,6 @@ std::pair<std::map<std::string, PVData>, float> CityGMLSystem::loadPVData(
 
     return { pvDataMap, maxPVIntensity };
 }
-
 
 void CityGMLSystem::addSolarPanels(const fs::path &dirPath)
 {
@@ -285,7 +283,8 @@ void CityGMLSystem::applyStaticDataCampusToCityGML(const std::string &filePath,
 
     for (const auto &v : values)
     {
-        if (auto sensor = m_gmlSceneObject.find(v.citygml_id)) {
+        if (auto sensor = m_gmlSceneObject.find(v.citygml_id))
+        {
             sensor->updateTimestepColors({ v.yearlyConsumption }, cb->colorMap());
             sensor->updateTxtBoxTexts(
                 { "Yearly Consumption: " + std::to_string(v.yearlyConsumption) + " MWh" });
@@ -303,13 +302,13 @@ void CityGMLSystem::enableScene(bool on, bool updateColorMap)
         m_gmlSceneObject.enable(trans);
 
         // ADD THIS TO BUTTONCALLBACK
-        if (m_cityGMLUI.getInfluxCSVBtnState())
+        if (m_cityGMLUI.InfluxCSV()->state())
             applyInfluxCSVToCityGML(m_config.influxPath, updateColorMap);
 
-        if (m_cityGMLUI.getStaticCampusPowerBtnState())
+        if (m_cityGMLUI.StaticCampusPower()->state())
             applyStaticDataCampusToCityGML(m_config.campusPath, updateColorMap);
 
-        if (m_cityGMLUI.getStaticPowerBtnState())
+        if (m_cityGMLUI.StaticPower()->state())
             applyStaticDataToCityGML(m_config.staticPower, updateColorMap);
 
         if (!m_pvSceneObject)
@@ -388,7 +387,6 @@ void CityGMLSystem::applyStaticDataToCityGML(const std::string &filePathToInflux
                 "2023: " + std::to_string(v.val2023) + " kWh",
                 "Average: " + std::to_string(v.average) + " kWh" });
             sensor->updateTitleOfInfoboard(v.name);
-            
         }
     }
     setAnimationTimesteps(3, m_gmlSceneObject.getRoot());
@@ -418,7 +416,8 @@ void CityGMLSystem::applyInfluxCSVToCityGML(const std::string &filePathToInfluxC
 
     for (auto &[name, values] : *values)
     {
-        if (auto sensor = m_gmlSceneObject.find(name)) {
+        if (auto sensor = m_gmlSceneObject.find(name))
+        {
             sensor->updateTimestepColors(values, cb->colorMap());
             sensor->updateTxtBoxTexts({ "NOT IMPLEMENTED YET" });
         }
