@@ -18,6 +18,6 @@ public:
     {
     }
 protected:
-    void setBtnCallback(opencover::ui::Button *btn, BtnCallback func) { btn->setCallback(func); }
-    void setTxtFieldCallback(opencover::ui::EditField *edit, EditCallback func) { edit->setCallback(func); }
+    void setBtnCallback(opencover::ui::Button *btn, const BtnCallback &func) { btn->setCallback(func); }
+    void setTxtFieldCallback(opencover::ui::EditField *edit, const EditCallback &func) { edit->setCallback(func); }
 };
