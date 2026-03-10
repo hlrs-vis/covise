@@ -97,6 +97,8 @@ public:
 
     virtual void restart() { };
 
+    static Player *createPlayer(Listener *listener, const std::string &type);
+
 protected:
     virtual int checkHandle(int handle) const;
     const Listener *listener;

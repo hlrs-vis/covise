@@ -18,15 +18,10 @@
 #include <cover/coVRPluginSupport.h>
 #include <vrml97/vrml/VrmlNodeSound.h>
 #include <vrml97/vrml/Player.h>
-#include <boost/algorithm/string.hpp>
 
 #include "ViewerOsg.h"
 #include "ListenerCover.h"
 #include "Vrml97Plugin.h"
-
-#include "vrml97/vrml/PlayerAServer.h"
-#include "vrml97/vrml/PlayerOpenAL.h"
-#include "vrml97/vrml/PlayerOsc.h"
 
 #include <config/CoviseConfig.h>
 
@@ -202,37 +197,7 @@ Player *
 ListenerCover::createPlayer()
 {
     std::string type = coCoviseConfig::getEntry("value", "COVER.Plugin.Vrml97.Audio", "none");
-
-    if (type.empty())
-    {
-        return nullptr;
-    }
-
-    if (boost::iequals(type, "aserver"))
-    {
-        // TODO: Remove legacy config, let PlayerAServer read the new audio
-        // config file and parse it itself.
-        std::string host = coCoviseConfig::getEntry("value", "COVER.Plugin.Vrml97.Audio.Host", "localhost");
-        int port = coCoviseConfig::getInt("port", "COVER.Plugin.Vrml97.Audio.Host", 31231);
-
-        return new vrml::PlayerAServer(this, host, port);
-    }
-    else if (boost::iequals(type, "openal"))
-    {
-        return new vrml::PlayerOpenAL(this);
-    }
-    else if (boost::iequals(type, "osc"))
-    {
-
-        return new vrml::PlayerOsc(this);
-    }
-    else if (boost::iequals(type, "none"))
-    {
-        return nullptr;
-    }
-
-    CERR << "unknown player type: " << type << endl;
-    return nullptr;
+    return Player::createPlayer(this, type);
 }
 
 void ListenerCover::destroyPlayer(Player *player)
