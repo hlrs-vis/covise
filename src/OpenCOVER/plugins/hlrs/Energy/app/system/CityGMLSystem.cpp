@@ -66,10 +66,30 @@ void CityGMLSystem::initUICallbacks()
             enableScene(on); 
         }
     );
+
+    m_cityGMLUI.InfluxCSV()->setCallback([&](bool on) {
+        if (on)
+            applyInfluxCSVToCityGML(m_config.influxPath, true);
+    });
+
+    m_cityGMLUI.StaticCampusPower()->setCallback([&](bool on) {
+        if (on)
+            applyStaticDataCampusToCityGML(m_config.campusPath, true);
+    });
+
+    m_cityGMLUI.StaticPower()->setCallback([&](bool on){
+        if (on)
+            applyStaticDataToCityGML(m_config.staticPower, true);
+    });
+
     m_cityGMLUI.setPVBtnCallback([&](bool on)
         { 
-            if (m_pvSceneObject)
-                m_pvSceneObject->enable(); 
+            if (!m_pvSceneObject)
+            {
+                auto solarPanelsDir = fs::path(m_config.modelDir + "/power/SolarPanel");
+                addSolarPanels(solarPanelsDir);
+            }
+            m_pvSceneObject->enable(); 
         }
     );
 
@@ -300,22 +320,6 @@ void CityGMLSystem::enableScene(bool on, bool updateColorMap)
         auto translation = m_cityGMLUI.getTranslation();
         osg::Vec3 trans(translation.x, translation.y, translation.z);
         m_gmlSceneObject.enable(trans);
-
-        // ADD THIS TO BUTTONCALLBACK
-        if (m_cityGMLUI.InfluxCSV()->state())
-            applyInfluxCSVToCityGML(m_config.influxPath, updateColorMap);
-
-        if (m_cityGMLUI.StaticCampusPower()->state())
-            applyStaticDataCampusToCityGML(m_config.campusPath, updateColorMap);
-
-        if (m_cityGMLUI.StaticPower()->state())
-            applyStaticDataToCityGML(m_config.staticPower, updateColorMap);
-
-        if (!m_pvSceneObject)
-        {
-            auto solarPanelsDir = fs::path(m_config.modelDir + "/power/SolarPanel");
-            addSolarPanels(solarPanelsDir);
-        }
     }
 }
 
