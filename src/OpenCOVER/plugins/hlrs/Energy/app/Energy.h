@@ -61,4 +61,5 @@ class EnergyPlugin : public opencover::coVRPlugin
   osg::ref_ptr<osg::MatrixTransform> m_Energy;
 
   std::map<System, std::unique_ptr<core::interface::ISystem>> m_systems;
+  std::shared_ptr<spdlog::logger> m_logger;
 };

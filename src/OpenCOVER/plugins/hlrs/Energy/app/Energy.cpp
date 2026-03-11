@@ -11,12 +11,14 @@ EnergyPlugin::EnergyPlugin()
     , m_switch(new osg::Switch())
     , m_grid(new osg::Switch())
     , m_Energy(new osg::MatrixTransform())
+    , m_logger(opencover::utils::logging::create_logger("Energy"))
 {
+    // energy::initLogging("Energy");
+    // energy::log->info("Starting Energy Plugin");
+    m_logger->info("Starting Energy Plugin");
     // need to save the config on exit => will only be saved when COVER is closed
     // correctly via q or closing the window
     config()->setSaveOnExit(true);
-
-    fprintf(stderr, "Starting Energy Plugin\n");
 
     m_Energy->setName("Energy");
     cover->getObjectsRoot()->addChild(m_Energy);

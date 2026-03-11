@@ -56,7 +56,9 @@ cover_add_plugin(
     EnergyCore
     coApacheArrow
     coReadCSVUtil
+    coLog
     ${HEADERS} ${SOURCES})
-
 set_target_properties(${Name} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+# target_precompile_headers(${Name} PRIVATE app/log.h)
+target_precompile_headers(${Name} PRIVATE <utils/logging/log.h>)
 add_subdirectory(test)
