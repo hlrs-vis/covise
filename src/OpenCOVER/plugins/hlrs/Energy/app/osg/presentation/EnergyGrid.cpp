@@ -118,7 +118,7 @@ void EnergyGrid::initConnectionsByIndex(
       }
       auto to = points[indice];
 
-      std::string name(from->getName() + " " + UIConstants::RIGHT_ARROW_UNICODE_HEX +
+      std::string name(from->getName() + " " + CONSTANTS::UIConstants::RIGHT_ARROW_UNICODE_HEX +
                        " " + to->getName());
 
       grid::Data additionalData{};
@@ -181,7 +181,7 @@ void EnergyGrid::initDrawableLines() {
 std::string EnergyGrid::createDataString(const grid::Data &data) const {
   std::string result;
   for (const auto &[key, value] : data) {
-    result += UIConstants::TAB_SPACES + key + ": " + std::visit(get_string, value);
+    result += CONSTANTS::UIConstants::TAB_SPACES + key + ": " + std::visit(get_string, value);
   }
   return result;
 }

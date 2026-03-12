@@ -1162,7 +1162,7 @@ osg::ref_ptr<grid::Line> SimulationSystem::createHeatingGridLine(
       continue;
     }
     lineName +=
-        std::string(" ") + UIConstants::RIGHT_ARROW_UNICODE_HEX + " " + connection;
+        std::string(" ") + CONSTANTS::UIConstants::RIGHT_ARROW_UNICODE_HEX + " " + connection;
 
     // TODO: Really bad solution to find the point by id, but the id is not
     // necessarily the index in the points vector, so we need to find it by name =>
