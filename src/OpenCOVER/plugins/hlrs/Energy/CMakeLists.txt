@@ -3,6 +3,7 @@ if (NOT BUILD_ENERGY)
     return()
 else()
     set(BUILD_ARROW ON CACHE BOOL "Build Apache Arrow for Energy plugin" FORCE)
+    set(BUILD_LOGGING ON CACHE BOOL "Build Logging spdlog for Energy plugin" FORCE)
 endif()
 USING(PROJ)
 USING(CURL)
@@ -17,6 +18,7 @@ SET(HEADERS
     app/system/CityGMLSystem.h
     app/system/SimulationSystem.h
     app/typedefs.h
+    app/cover/EnergyLogger.h
     app/cover/ui/BaseUI.h
     app/cover/ui/EnergyUI.h
     app/cover/ui/CityGMLUI.h
@@ -33,10 +35,12 @@ SET(HEADERS
     app/osg/presentation/SolarPanel.h
     app/osg/presentation/grid.h
 )
+
 SET(SOURCES
     app/Energy.cpp
     app/system/CityGMLSystem.cpp
     app/system/SimulationSystem.cpp
+    app/cover/EnergyLogger.cpp
     app/cover/ui/EnergyUI.cpp
     app/cover/ui/CityGMLUI.cpp
     app/osg/CityGMLSceneObject.cpp
@@ -59,6 +63,4 @@ cover_add_plugin(
     coLog
     ${HEADERS} ${SOURCES})
 set_target_properties(${Name} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-# target_precompile_headers(${Name} PRIVATE app/log.h)
-target_precompile_headers(${Name} PRIVATE <utils/logging/log.h>)
 add_subdirectory(test)

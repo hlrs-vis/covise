@@ -1,4 +1,5 @@
 #include "Energy.h"
+#include "lib/core/constants.h"
 
 // COVER
 #include <cover/coVRPluginSupport.h>
@@ -11,13 +12,13 @@ EnergyPlugin::EnergyPlugin()
     , m_switch(new osg::Switch())
     , m_grid(new osg::Switch())
     , m_Energy(new osg::MatrixTransform())
-    , m_logger(opencover::utils::logging::create_logger("Energy"))
+    , m_logger(CONSTANTS::NAMES::LOGGER_NAME)
 {
-    // energy::initLogging("Energy");
-    // energy::log->info("Starting Energy Plugin");
-    m_logger->info("Starting Energy Plugin");
+    m_logger.info("Starting Energy Plugin");
+
     // need to save the config on exit => will only be saved when COVER is closed
     // correctly via q or closing the window
+    
     config()->setSaveOnExit(true);
 
     m_Energy->setName("Energy");
@@ -97,7 +98,7 @@ bool EnergyPlugin::init()
 void EnergyPlugin::initSystems()
 {
     m_systems[System::CityGML] = std::make_unique<CityGMLSystem>(
-        this, m_ui.getTabMenu(), cover->getObjectsRoot(), m_switch);
+        this, m_ui.getTabMenu(), cover->getObjectsRoot(), m_switch, m_logger);
     m_systems[System::Simulation] = std::make_unique<SimulationSystem>(this, m_ui.getTabMenu(), getCityGMLSystem(), m_grid);
 
     for (auto &[type, system] : m_systems)

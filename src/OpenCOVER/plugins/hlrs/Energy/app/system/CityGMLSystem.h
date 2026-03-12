@@ -4,6 +4,7 @@
 #include <cover/coVRPlugin.h>
 
 #include <lib/core/interfaces/ISystem.h>
+#include <lib/core/interfaces/ILogger.h>
 #include <lib/core/simulation/simulation.h>
 #include <lib/core/simulation/unitmap.h>
 #include <lib/core/simulation/power.h>
@@ -43,7 +44,7 @@ struct CityGMLConfig {
 class CityGMLSystem final : public core::interface::ISystem {
  public:
   CityGMLSystem(opencover::coVRPlugin *plugin, opencover::ui::Menu *parentMenu,
-                osg::ref_ptr<osg::ClipNode> rootGroup, osg::ref_ptr<osg::Switch> parent);
+                osg::ref_ptr<osg::ClipNode> rootGroup, osg::ref_ptr<osg::Switch> parent, core::interface::ILogger& logger);
   virtual ~CityGMLSystem() = default;
   CityGMLSystem(const CityGMLSystem &) = delete;
   CityGMLSystem &operator=(const CityGMLSystem &) = delete;
@@ -100,5 +101,6 @@ class CityGMLSystem final : public core::interface::ISystem {
   CityGMLSceneObject m_gmlSceneObject;
   std::unique_ptr<SolarPanelSceneObject> m_pvSceneObject;
   CityGMLConfig m_config;
+  core::interface::ILogger& m_logger;
   bool m_enabled;
 };

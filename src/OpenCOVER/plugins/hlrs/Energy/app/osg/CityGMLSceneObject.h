@@ -1,4 +1,5 @@
 #pragma once
+#include "lib/core/constants.h"
 #include "ui/citygml/CityGMLDeviceSensor.h"
 #include <osg/Switch>
 #include <osg/ClipNode>
@@ -10,6 +11,7 @@
 
 #include <lib/core/utils/osgUtils.h>
 #include <lib/core/interfaces/ISolarPanel.h>
+#include <lib/core/interfaces/ILogger.h>
 
 #include <boost/filesystem.hpp>
 
@@ -20,7 +22,7 @@ class CityGMLSceneObject
 {
 public:
     CityGMLSceneObject(osg::ref_ptr<osg::ClipNode> rootGroup,
-        osg::ref_ptr<osg::Switch> parent);
+        osg::ref_ptr<osg::Switch> parent, core::interface::ILogger& logger);
     ~CityGMLSceneObject();
     void enable(const osg::Vec3 &translation = { 0.0f, 0.0f, 0.0f });
     bool enabled() const { return m_enabled && core::utils::osgUtils::isActive(m_parent, m_root); }
@@ -60,4 +62,5 @@ private:
     osg::ref_ptr<osg::Switch> m_parent;
     osg::ref_ptr<osg::Group> m_root;
     osg::ref_ptr<osg::ClipNode> m_coverRootGroup;
+    core::interface::ILogger &m_logger;
 };
