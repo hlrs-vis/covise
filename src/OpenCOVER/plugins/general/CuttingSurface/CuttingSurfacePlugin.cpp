@@ -42,7 +42,7 @@ void CuttingSurfacePlugin::newInteractor(const RenderObject *container, coIntera
         add(container, i);
     }
 
-    if ((strncmp(moduleName, "CutGeometry", 11) == 0) || (strncmp(moduleName, "Clip", 4) == 0))
+    if ((strncmp(moduleName, "CutGeometry", 11) == 0) || (strncmp(moduleName, "Clip", 4) == 0) || (strncmp(moduleName, "CellClip", 8) == 0))
     {
         add(container, i);
     }

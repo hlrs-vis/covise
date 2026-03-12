@@ -89,7 +89,7 @@ CuttingSurfaceInteraction::CuttingSurfaceInteraction(const RenderObject *contain
     csCylY_ = new CuttingSurfaceCylinder(inter);
     csCylZ_ = new CuttingSurfaceCylinder(inter);
     csSphere_ = new CuttingSurfaceSphere(inter);
-    if (strncmp(moduleName, "Clip", 4) == 0)
+    if (strncmp(moduleName, "Clip", 4) == 0 || strncmp(moduleName, "CellClip", 8) == 0)
         csBox_ = new CuttingSurfaceBox(inter);
 
     // deafult is no restriction
@@ -101,7 +101,7 @@ CuttingSurfaceInteraction::CuttingSurfaceInteraction(const RenderObject *contain
     planeOptionsInMenu_ = false;
 
     // create menu
-    createMenu(strncmp(moduleName, "Clip", 4) == 0 || strncmp(moduleName, "CutGeometry", 11) == 0);
+    createMenu(strncmp(moduleName, "Clip", 4) == 0 || strncmp(moduleName, "CellClip", 8) == 0 || strncmp(moduleName, "CutGeometry", 11) == 0);
     updateMenu();
 }
 
