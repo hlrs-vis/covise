@@ -1016,6 +1016,12 @@ xercesc::DOMNode *coConfigXercesRoot::loadFile(const std::string &filename)
         }
 
         xercesc::DOMDocument *xmlDoc = parser->getDocument();
+        if (!xmlDoc)
+        {
+            COCONFIGLOG("coConfigRoot::loadFile err: failed to parse document");
+            return 0;
+        }
+
         globalConfigElement = xmlDoc->getDocumentElement();
 
         if (globalConfigElement == 0 || xercescToStdString(globalConfigElement->getNodeName()) != "COCONFIG")
