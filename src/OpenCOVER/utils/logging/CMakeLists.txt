@@ -23,9 +23,6 @@ else()
     message(STATUS "Found pre-installed spdlog. Using imported targets.")
 endif()
 
-# set(SOURCES
-# )
-
 set(HEADERS
     log.h
     export.h
