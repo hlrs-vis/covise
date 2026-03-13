@@ -10,5 +10,7 @@ public:
     virtual void error(std::string_view msg) = 0;
     virtual void warn(std::string_view msg) = 0;
     virtual ~ILogger() = default;
+    ILogger(const ILogger&) = delete;
+    ILogger& operator=(const ILogger&) = delete;
 };
 }
