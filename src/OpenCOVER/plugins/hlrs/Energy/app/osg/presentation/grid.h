@@ -1,5 +1,7 @@
 #pragma once
 
+#include "lib/core/ClassLogger.h"
+#include "lib/core/interfaces/ILogger.h"
 #include <PluginUtil/coShaderUtil.h>
 #include <lib/core/utils/color.h>
 
@@ -29,10 +31,10 @@ typedef std::map<std::string, std::variant<float, int, std::string>> Data;
  * - getGeode(): Get visual node.
  * - updateColor(), updateColorMapInShader(), updateTimestepInShader(), updateDataInShader(): Visualization updates.
  */
-class Point : public osg::MatrixTransform {
+class Point : public osg::MatrixTransform, core::ClassLogger {
  public:
   Point(const std::string &name, const float &x, const float &y, const float &z,
-        const float &radius, const Data &additionalData = Data());
+        const float &radius, core::interface::ILogger &logger, const Data &additionalData = Data());
   Point(const Point &p);
 
   void move(const osg::Vec3 &offset) { setMatrix(osg::Matrix::translate(offset)); }
@@ -104,19 +106,20 @@ enum class ConnectionType {
  * - m_colorInterpolation: Color interpolation flag.
  * - m_numNodes: Number of nodes.
  */
-class DirectedConnection : public osg::MatrixTransform {
+class DirectedConnection : public osg::MatrixTransform, core::ClassLogger {
   DirectedConnection(const std::string &name, osg::ref_ptr<Point> start,
                      osg::ref_ptr<Point> end, const float &radius,
                      bool colorInterpolation,
                      osg::ref_ptr<osg::TessellationHints> hints,
+                     core::interface::ILogger &,
                      const Data &additionalData = Data(),
                      ConnectionType type = ConnectionType::Line);
 
  public:
-  DirectedConnection(const ConnectionData &data,
+  DirectedConnection(const ConnectionData &data, core::interface::ILogger& logger,
                      ConnectionType type = ConnectionType::Line)
       : DirectedConnection(data.name, data.start, data.end, data.radius,
-                           data.colorInterpolation, data.hints, data.additionalData,
+                           data.colorInterpolation, data.hints, logger, data.additionalData,
                            type) {};
 
   void move(const osg::Vec3 &offset) {
@@ -168,9 +171,9 @@ typedef std::vector<osg::ref_ptr<DirectedConnection>> Connections;
  *
  * Inherits osg::MatrixTransform. Manages connections, movement, bounding box, and overlap checks.
  */
-class Line : public osg::MatrixTransform {
+class Line : public osg::MatrixTransform, core::ClassLogger {
  public:
-  Line(std::string name, const Connections &connections);
+  Line(std::string name, const Connections &connections, core::interface::ILogger& logger);
 
   void move(const osg::Vec3 &offset) {
     for (const auto &[_, connection] : m_connections) connection->move(offset);

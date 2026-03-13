@@ -200,7 +200,7 @@ std::unique_ptr<SolarPanel> SolarPanelSceneObject::createSolarPanel(
     auto solarPanelInstance = instancing::createInstance(masterGeometryData, matrix);
     solarPanelInstance->setName(name);
 
-    auto solarPanel = std::make_unique<SolarPanel>(solarPanelInstance);
+    auto solarPanel = std::make_unique<SolarPanel>(solarPanelInstance, getLogger());
     solarPanel->applyColor(colorIntensity);
     parent->addChild(solarPanelInstance);
     return std::move(solarPanel);

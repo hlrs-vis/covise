@@ -99,7 +99,7 @@ void EnergyPlugin::initSystems()
 {
     m_systems[System::CityGML] = std::make_unique<CityGMLSystem>(
         this, m_ui.getTabMenu(), cover->getObjectsRoot(), m_switch, m_logger);
-    m_systems[System::Simulation] = std::make_unique<SimulationSystem>(this, m_ui.getTabMenu(), getCityGMLSystem(), m_grid);
+    m_systems[System::Simulation] = std::make_unique<SimulationSystem>(this, m_ui.getTabMenu(), getCityGMLSystem(), m_grid, m_logger);
 
     for (auto &[type, system] : m_systems)
     {

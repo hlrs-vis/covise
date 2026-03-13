@@ -1,9 +1,9 @@
 #include "CityGMLBuilding.h"
+#include "lib/core/ClassLogger.h"
 
 #include <lib/core/utils/color.h>
 
 #include <cassert>
-#include <iostream>
 #include <osg/Geode>
 #include <osg/MatrixTransform>
 
@@ -14,8 +14,10 @@ constexpr auto SHADER_SCALAR_TIMESTEP_MAPPING_INDEX =
     0;  // index of the texture that maps from node index to timestep value
 }
 
-CityGMLBuilding::CityGMLBuilding(const osgUtils::Geodes &geodes)
-    : m_shaders(), m_timestep(0) {
+CityGMLBuilding::CityGMLBuilding(std::string_view name, const osgUtils::Geodes &geodes, core::interface::ILogger &logger)
+    : core::ClassLogger(logger, name)
+    , m_shaders()
+    , m_timestep(0) {
   m_drawables.reserve(geodes.size());
   m_drawables.insert(m_drawables.begin(), geodes.begin(), geodes.end());
 }
@@ -31,8 +33,7 @@ void CityGMLBuilding::applyColor(const Color &color) {
 void CityGMLBuilding::updateTime(int timestep) {
   m_timestep = timestep;
   if (m_shaders.empty()) {
-    std::cerr << "CityGMLBuilding::updateColor: "
-              << "Shaders are not supported for CityGMLBuilding.\n";
+    warn("updateColor: Shaders are not supported for CityGMLBuilding.");
     return;
   }
 
@@ -40,8 +41,7 @@ void CityGMLBuilding::updateTime(int timestep) {
     auto shader = m_shaders[i];
     auto geo = m_drawables[i]->asGeode();
     if (!shader || !geo) {
-      std::cerr << "CityGMLBuilding::updateTime: "
-                << "No shader or geode found for drawable at index " << i << "\n";
+      warn(&"updateTime: No shader or geode found for drawable at index " [ i]);
       continue;
     }
     shader->setIntUniform("timestep", timestep);
@@ -57,8 +57,7 @@ void CityGMLBuilding::setColorMapInShader(const opencover::ColorMap &colorMap) {
     auto node = m_drawables[i];
     osg::ref_ptr<osg::Geode> geo = node->asGeode();
     if (!geo) {
-      std::cerr << "CityGMLBuilding::setColorMapInShader: "
-                << "No geode found for drawable.\n";
+      warn("setColorMapInShader: No geode found for drawable.");
       continue;
     }
     auto shader = opencover::applyShader(geo, colorMap, "EnergyGrid");
@@ -74,8 +73,7 @@ void CityGMLBuilding::setColorMapInShader(const opencover::ColorMap &colorMap) {
 void CityGMLBuilding::setDataInShader(const std::vector<double> &data, float min,
                                       float max) {
   if (m_shaders.empty()) {
-    std::cerr << "CityGMLBuilding::setData: No shader set for connection "
-              << "\n";
+    warn("setData: No shader set for connection ");
     return;
   }
 
@@ -83,8 +81,7 @@ void CityGMLBuilding::setDataInShader(const std::vector<double> &data, float min
     auto shader = m_shaders[i];
     osg::ref_ptr<osg::Geode> geo = m_drawables[i]->asGeode();
     if (!shader || !geo) {
-      std::cerr << "CityGMLBuilding::setData: "
-                << "No shader or geode found for drawable at index " << i << "\n";
+      warn(&"CityGMLBuilding::setData: No shader or geode found for drawable at index " [ i]);
       continue;
     }
     shader->setIntUniform("numTimesteps", data.size());

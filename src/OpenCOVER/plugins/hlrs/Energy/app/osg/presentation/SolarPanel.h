@@ -2,6 +2,7 @@
 #include <lib/core/interfaces/ISolarPanel.h>
 #include <lib/core/utils/osgUtils.h>
 #include "app/typedefs.h"
+#include "lib/core/ClassLogger.h"
 
 #include <osg/CopyOp>
 #include <osg/Geode>
@@ -33,9 +34,9 @@ struct SolarPanelConfig {
  *
  * @see core::interface::ISolarPanel
  */
-class SolarPanel : public core::interface::ISolarPanel {
+class SolarPanel : public core::interface::ISolarPanel, core::ClassLogger {
  public:
-  SolarPanel(osg::ref_ptr<osg::Node> node) : m_node(node) { init(); }
+  SolarPanel(osg::ref_ptr<osg::Node> node, core::interface::ILogger &logger) :core::ClassLogger(logger, "SolarPanel:" + node->getName()),  m_node(node) { init(); }
   ~SolarPanel() {
     if (m_node && m_node->getNumParents() > 0) {
       // This removes the visual from the scene when the C++ object dies

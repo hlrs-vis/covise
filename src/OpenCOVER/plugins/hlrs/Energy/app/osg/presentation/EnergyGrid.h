@@ -4,6 +4,7 @@
 #include <lib/core/interfaces/IInfoboard.h>
 #include <lib/core/interfaces/IInfoboard.h>
 #include <lib/core/simulation/simulation.h>
+#include <lib/core/ClassLogger.h>
 
 #include <memory>
 #include <osg/Geode>
@@ -131,9 +132,9 @@ class InfoboardSensor : public coPickSensor {
  * OpenSceneGraph.
  *
  */
-class EnergyGrid : public interface::IEnergyGrid {
+class EnergyGrid : public interface::IEnergyGrid, ClassLogger {
  public:
-  EnergyGrid(const EnergyGridConfig &data, bool ignoreOverlap = true);
+  EnergyGrid(const EnergyGridConfig &data, interface::ILogger &logger, bool ignoreOverlap = true);
   void initDrawable() override;
   void update() override {
     for (auto &infoboard : m_infoboards) infoboard->update();

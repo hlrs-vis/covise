@@ -78,7 +78,7 @@ void CityGMLSceneObject::addCityGMLObject(const std::string &name,
     infoboardPos.z += (boundingbox.zMax() - boundingbox.zMin()) / 2 + boundingbox.zMin();
     auto infoboard = std::make_unique<OsgTxtInfoboard>(
         infoboardPos, name, "DroidSans-Bold.ttf", 50, 50, 2.0f, 0.1, 2);
-    auto building = std::make_unique<CityGMLBuilding>(*geodes);
+    auto building = std::make_unique<CityGMLBuilding>(name, *geodes, getLogger());
     auto sensor = std::make_unique<CityGMLDeviceSensor>(
         citygmlObjGroup, std::move(infoboard), std::move(building));
     m_sensorMap.insert({ name, std::move(sensor) });

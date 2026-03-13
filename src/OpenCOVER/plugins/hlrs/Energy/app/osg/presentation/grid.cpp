@@ -1,4 +1,6 @@
 #include "grid.h"
+#include "lib/core/ClassLogger.h"
+#include "lib/core/interfaces/ILogger.h"
 
 #include <PluginUtil/colors/coColorMap.h>
 #include <lib/core/utils/osgUtils.h>
@@ -38,8 +40,9 @@ namespace grid {
 
 // namespace core::simulation::grid {
 Point::Point(const std::string &name, const float &x, const float &y, const float &z,
-             const float &radius, const Data &additionalData)
-    : osg::MatrixTransform(),
+             const float &radius, core::interface::ILogger& logger, const Data &additionalData)
+    : core::ClassLogger(logger, name), 
+      osg::MatrixTransform(),
       m_point(new osg::Sphere(osg::Vec3(x, y, z), radius)),
       m_additionalData(additionalData),
       m_radius(radius),
@@ -48,7 +51,7 @@ Point::Point(const std::string &name, const float &x, const float &y, const floa
 }
 
 Point::Point(const Point &other)
-    : m_additionalData(other.getAdditionalData()), m_radius(other.getRadius()) {
+    : core::ClassLogger(other.getLogger(), "Point:" + other.getName()), m_additionalData(other.getAdditionalData()), m_radius(other.getRadius()) {
   m_point = new osg::Sphere(other.getPosition(), m_radius);
   init(other.getName());
 }
@@ -77,8 +80,7 @@ void Point::updateColorMapInShader(const opencover::ColorMap &colorMap,
 void Point::updateDataInShader(const std::vector<double> &data, float min,
                                float max) {
   if (!m_shader) {
-    std::cerr << "Point::updateDataInShader: No shader set for point " << getName()
-              << "\n";
+    warn("updateDataInShader: No shader set for point " + getName());
     return;
   }
 
@@ -101,8 +103,7 @@ void Point::updateDataInShader(const std::vector<double> &data, float min,
 
 void Point::updateTimestepInShader(int timestep) {
   if (!m_shader) {
-    std::cerr << "Point::updateTimestep: No shader set for connection "
-              << getName() << "\n";
+    warn("updateTimestep: No shader set for connection ");
     return;
   }
 
@@ -120,9 +121,11 @@ DirectedConnection::DirectedConnection(const std::string &name,
                                        osg::ref_ptr<Point> end, const float &radius,
                                        bool colorInterpolation,
                                        osg::ref_ptr<osg::TessellationHints> hints,
+                                       core::interface::ILogger& logger,
                                        const Data &additionalData,
                                        ConnectionType type)
-    : osg::MatrixTransform(),
+    : core::ClassLogger(logger, "DirectedConnection:" + name),
+      osg::MatrixTransform(),
       m_start(start),
       m_end(end),
       m_additionalData(additionalData),
@@ -162,11 +165,10 @@ DirectedConnection::DirectedConnection(const std::string &name,
 void DirectedConnection::setDataInShader(const std::vector<double> &fromData,
                                          const std::vector<double> &toData) {
   if (!m_shader) {
-    std::cerr << "DirectedConnection::setData: No shader set for connection "
-              << getName() << "\n";
+    warn("setData: No shader set for connection " + getName());
     return;
   }
-  std::cerr << "Setting data shader for connection: " << getName() << "\n";
+  info("Setting data shader for connection: " + getName());
   m_shader->setIntUniform("numTimesteps", fromData.size());
   // might be unnecessary, default should be 0 anyway
   auto uniform = m_shader->getcoVRUniform("timestepToData");
@@ -186,11 +188,10 @@ void DirectedConnection::setDataInShader(const std::vector<double> &fromData,
 void DirectedConnection::setData1DInShader(const std::vector<double> &data,
                                            float min, float max) {
   if (!m_shader) {
-    std::cerr << "DirectedConnection::setData: No shader set for connection "
-              << getName() << "\n";
+    warn("DirectedConnection::setData: No shader set for connection " + getName());
     return;
   }
-  std::cerr << "Setting 1D data shader for connection: " << getName() << "\n";
+  info("Setting 1D data shader for connection: " + getName());
   m_shader->setIntUniform("numTimesteps", data.size());
   m_shader->setIntUniform("numNodes", 1);
 
@@ -221,8 +222,7 @@ void DirectedConnection::updateColorMapInShader(const opencover::ColorMap &color
 
 void DirectedConnection::updateTimestepInShader(int timestep) {
   if (!m_shader) {
-    std::cerr << "DirectedConnection::updateTimestep: No shader set for connection "
-              << getName() << "\n";
+    warn("updateTimestep: No shader set for connection " + getName());
     return;
   }
 
@@ -233,13 +233,14 @@ void DirectedConnection::updateTimestepInShader(int timestep) {
   drawable->setStateSet(state);
 }
 
-Line::Line(std::string name, const Connections &connections) : m_name(name) {
+Line::Line(std::string name, const Connections &connections, core::interface::ILogger& logger) : core::ClassLogger(logger, name),
+    m_name(name) {
   init(connections);
 }
 
 void Line::init(const Connections &connections) {
   if (connections.empty()) {
-    std::cerr << "Line: No connections provided\n";
+    warn("No connections provided");
     return;
   }
   setName(m_name);

@@ -22,6 +22,7 @@
 #include <variant>
 
 #include "cover/VRViewer.h"
+#include "lib/core/ClassLogger.h"
 
 namespace {
 
@@ -80,8 +81,10 @@ void InfoboardSensor::update() {
   coPickSensor::update();
 }
 
-EnergyGrid::EnergyGrid(const EnergyGridConfig &data, bool ignoreOverlap)
-    : m_config(data), m_ignoreOverlap(ignoreOverlap) {
+EnergyGrid::EnergyGrid(const EnergyGridConfig &data, interface::ILogger& logger, bool ignoreOverlap)
+    : ClassLogger(logger, data.name)
+    , m_config(data)
+    , m_ignoreOverlap(ignoreOverlap) {
   if (!m_config.parent.valid()) {
     m_config.parent = new osg::MatrixTransform;
     m_config.parent->setName(m_config.name);
@@ -128,7 +131,7 @@ void EnergyGrid::initConnectionsByIndex(
             additionalData = additionalConnectionData[i][j];
       grid::ConnectionData data{name,    from,          to, radius, false,
                                 nullptr, additionalData};
-      m_connections.push_back(new grid::DirectedConnection(data));
+      m_connections.push_back(new grid::DirectedConnection(data, getLogger()));
     }
   }
 }

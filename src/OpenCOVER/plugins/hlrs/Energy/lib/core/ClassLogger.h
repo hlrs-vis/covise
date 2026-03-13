@@ -27,7 +27,7 @@ public:
         m_logger.warn(prefixMsg(msg));
     }
 
-    interface::ILogger &getLogger() { return m_logger; }
+    interface::ILogger &getLogger() const { return m_logger; }
 
 private:
     std::string prefixMsg(std::string_view msg)

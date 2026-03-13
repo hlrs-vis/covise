@@ -110,8 +110,10 @@ float computeDistributionCenter(const std::vector<float> &values) {
 SimulationSystem::SimulationSystem(opencover::coVRPlugin *plugin,
                                    opencover::ui::Menu *parentMenu,
                                    CityGMLSystem *cityGMLSystem,
-                                   osg::ref_ptr<osg::Switch> parent)
-    : m_plugin(plugin),
+                                   osg::ref_ptr<osg::Switch> parent,
+                                   core::interface::ILogger& logger)
+    : core::ClassLogger(logger, "SimulationSystem"),
+      m_plugin(plugin),
       m_gridSwitch(parent),
       m_cityGMLSystem(cityGMLSystem),
       m_offset(3),
@@ -213,8 +215,7 @@ void SimulationSystem::setAnimationTimesteps(size_t maxTimesteps, const void *wh
 void SimulationSystem::initSimMenu(opencover::ui::Menu *parent) {
   if (m_simulationMenu != nullptr) return;
   if (parent == nullptr) {
-    std::cerr << "Parent menu is null, cannot initialize simulation menu."
-              << std::endl;
+    error("Parent menu is null, cannot initialize simulation menu.");
     return;
   }
 
@@ -278,7 +279,7 @@ void SimulationSystem::switchEnergyGrid(EnergyGridType grid) {
   auto gridTypeIndex = getEnergyGridTypeIndex(grid);
   osg::ref_ptr<osg::Group> switch_to = m_energyGrids[gridTypeIndex].group;
   if (!switch_to) {
-    std::cerr << "Cooling grid not implemented yet" << std::endl;
+    info("Cooling grid not implemented yet");
     return;
   }
 
@@ -311,9 +312,7 @@ void SimulationSystem::switchEnergyGrid(EnergyGridType grid) {
 
 void SimulationSystem::initEnergyGridUI() {
   if (m_simulationMenu == nullptr) {
-    std::cerr << "Simulation menu not initialized before calling function "
-                 "initEnergyGridUI"
-              << std::endl;
+    error("Simulation menu not initialized before calling function initEnergyGridUI");
     return;
   }
 
@@ -346,7 +345,7 @@ void SimulationSystem::initPowerGridStreams() {
   if (!fs::exists(dir_path)) return;
   m_powerGridStreams = getCSVStreams(dir_path);
   if (m_powerGridStreams.empty()) {
-    std::cout << "No csv files found in " << powerGridDir << std::endl;
+    error("No csv files found in " + powerGridDir);
     return;
   }
 }
@@ -468,7 +467,7 @@ void SimulationSystem::initPowerGridUI(
 
 void SimulationSystem::applySimulationDataToPowerGrid(const std::string &simPath) {
   if (simPath.empty()) {
-    std::cerr << "No simulation data path configured." << std::endl;
+    error("No simulation data path configured.");
     return;
   }
 
@@ -480,7 +479,7 @@ void SimulationSystem::applySimulationDataToPowerGrid(const std::string &simPath
   }
 
   if (arrowFiles.empty()) {
-    std::cerr << "No .arrow files found in the simulation data path." << std::endl;
+    error("No .arrow files found in the simulation data path.");
     return;
   }
 
@@ -576,7 +575,9 @@ void SimulationSystem::applySimulationDataToPowerGrid(const std::string &simPath
     m_vmPuColorMap->setMinMax(min, max);
   }
 
-  std::cout << "Number of timesteps: " << tableVmPu->num_rows() << std::endl;
+  std::stringstream ss;
+  ss << "Number of timesteps: " << tableVmPu->num_rows() << std::endl;
+  info(ss.str());
   setAnimationTimesteps(tableVmPu->num_rows(), powerGrid.group);
 }
 
@@ -592,17 +593,13 @@ void SimulationSystem::initPowerGrid() {
 
 void SimulationSystem::initEnergyGridColorMaps() {
   if (m_simulationMenu == nullptr) {
-    std::cerr << "Simulation menu not initialized before calling function "
-                 "initEnergyGridColorMaps"
-              << std::endl;
+    error("Simulation menu not initialized before calling function initEnergyGridColorMaps");
     return;
   }
 
   for (auto &energyGrid : m_energyGrids) {
     if (!energyGrid.sim) {
-      std::cerr << "Simulation for energygrid " << energyGrid.name
-                << " not initialized before calling function initEnergyGridColorMaps"
-                << std::endl;
+      warn("Simulation for energygrid " + energyGrid.name + " not initialized before calling function initEnergyGridColorMaps");
       continue;
     }
 
@@ -845,7 +842,7 @@ std::vector<grid::PointsMap> SimulationSystem::createPowerGridPoints(
     }
 
     osg::ref_ptr<grid::Point> p =
-        new grid::Point(busName, lon, lat, m_offset[2], sphereRadius, busData);
+        new grid::Point(busName, lon, lat, m_offset[2], sphereRadius, getLogger(), busData);
     if (type == "Sondernetz")
       pointsSonder.insert({busID, p});
     else
@@ -920,7 +917,9 @@ osg::ref_ptr<grid::Line> SimulationSystem::createLine(
       if (!fromPoint && fromIt != points.end()) fromPoint = fromIt->second;
     }
     if (!fromPoint || !toPoint) {
-      std::cerr << "Invalid bus ID: " << from_last << " or " << to_new << std::endl;
+      std::stringstream ss;
+      ss << "Invalid bus ID: " << from_last << " or " << to_new << std::endl;
+      warn(ss.str());
       continue;
     }
 
@@ -930,10 +929,10 @@ osg::ref_ptr<grid::Line> SimulationSystem::createLine(
     grid::ConnectionData conData{name,  fromPoint, toPoint, radius,
                                  false, nullptr,   data};
     connections.push_back(
-        new grid::DirectedConnection(conData, grid::ConnectionType::LineWithShader));
+        new grid::DirectedConnection(conData, getLogger(), grid::ConnectionType::LineWithShader));
     from_last = to_new;
   }
-  return new grid::Line(name, connections);
+  return new grid::Line(name, connections, getLogger());
 }
 
 std::pair<std::vector<grid::Lines>, std::vector<grid::ConnectionDataList>>
@@ -1082,7 +1081,7 @@ void SimulationSystem::buildPowerGrid() {
                            connectionsRadius, mergedOptData, infoboardAttributes,
                            EnergyGridConnectionType::Line, mergedLines);
 
-  auto powerGrid = std::make_unique<EnergyGrid>(econfig, false);
+  auto powerGrid = std::make_unique<EnergyGrid>(econfig, getLogger(), false);
   powerGrid->initDrawable();
   egrid.grid = std::move(powerGrid);
   addEnergyGridToGridSwitch(egrid.group);
@@ -1102,7 +1101,7 @@ void SimulationSystem::initHeatingGridStreams() {
   if (!fs::exists(dir_path)) return;
   m_heatingGridStreams = getCSVStreams(dir_path);
   if (m_heatingGridStreams.empty()) {
-    std::cout << "No csv files found in " << heatingGridDir << std::endl;
+    error("No csv files found in " + heatingGridDir);
     return;
   }
 }
@@ -1137,7 +1136,9 @@ osg::ref_ptr<grid::Point> SimulationSystem::searchHeatingGridPointById(
     return std::stoi(p->getName()) == id;
   });
   if (pointIt == points.end()) {
-    std::cerr << "Point with id " << id << " not found in points." << std::endl;
+    std::stringstream ss;
+    ss << "Point with id " << id << " not found in points." << std::endl;
+    warn(ss.str());
   }
   return *pointIt;  // returns nullptr if not found
 }
@@ -1169,17 +1170,19 @@ osg::ref_ptr<grid::Line> SimulationSystem::createHeatingGridLine(
     // refactor the Points structure to use std::map later
     auto to = searchHeatingGridPointById(points, toID);
     if (to == nullptr) {
-      std::cerr << "Point with id " << toID << " not found in points." << std::endl;
+      std::stringstream ss;
+      ss << "Point with id " << toID << " not found in points." << std::endl;
+      warn(ss.str());
       continue;
     }
     grid::ConnectionData connData{
         pointName + "_" + connection, from, to, 0.5f, true, nullptr, connectionData};
-    grid::DirectedConnection directed(connData,
+    grid::DirectedConnection directed(connData, getLogger(),
                                       grid::ConnectionType::LineWithShader);
     gridConnections.push_back(new grid::DirectedConnection(directed));
   }
 
-  return new grid::Line(lineName, gridConnections);
+  return new grid::Line(lineName, gridConnections, getLogger());
 }
 
 void SimulationSystem::readSimulationDataStream(CSVStream &heatingSimStream) {
@@ -1250,7 +1253,9 @@ void SimulationSystem::readSimulationDataStream(CSVStream &heatingSimStream) {
   heatingGrid.sim = std::move(sim);
 
   auto timesteps = heatingGrid.sim->getScalarProperties().getTimesteps("mass_flow");
-  std::cout << "Number of timesteps: " << timesteps << std::endl;
+  std::stringstream ss;
+  ss << "Number of timesteps: " << timesteps;
+  info(ss.str());
   setAnimationTimesteps(timesteps, heatingGrid.group);
 }
 
@@ -1276,13 +1281,14 @@ grid::Lines SimulationSystem::createHeatingGridLines(
     // refactor the Points structure to use std::map later
     auto from = searchHeatingGridPointById(points, id);
     if (from == nullptr) {
-      std::cerr << "Point with id " << id << " not found in points." << std::endl;
+      std::stringstream ss;
+      ss << "Point with id " << id << " not found in points.";
+      warn(ss.str());
       continue;
     }
     auto line = createHeatingGridLine(points, from, connectionsStr, additionalData);
     if (line == nullptr) {
-      std::cerr << "Failed to create line for point: " << from->getName()
-                << std::endl;
+      warn("Failed to create line for point: " + from->getName());
       continue;
     }
     lines.push_back(line);
@@ -1313,10 +1319,9 @@ std::pair<grid::Points, grid::Data> SimulationSystem::createHeatingGridPointsAnd
   bool mapdrape = true;
 
   if (!P) {
-    fprintf(stderr,
-            "Energy Plugin: Ignore mapping. No valid projection was "
+    warn("Ignore mapping. No valid projection was "
             "found between given proj string in "
-            "config EnergyCampus.toml\n");
+            "config EnergyCampus.toml");
     mapdrape = false;
   }
 
@@ -1349,7 +1354,7 @@ std::pair<grid::Points, grid::Data> SimulationSystem::createHeatingGridPointsAnd
 
     // create a point
     osg::ref_ptr<grid::Point> point =
-        new grid::Point(name, lon, lat, m_offset[2], 1.0f, pointData);
+        new grid::Point(name, lon, lat, m_offset[2], 1.0f, getLogger(), pointData);
     points.push_back(point);
 
     // needs cleanup because dataset is not final and has empty cells => no need to
@@ -1357,7 +1362,7 @@ std::pair<grid::Points, grid::Data> SimulationSystem::createHeatingGridPointsAnd
     pointData.clear();
     row.clear();
     if (connections.empty() || connections == INVALID_CELL_VALUE) {
-      std::cerr << "No connections for point: " << name << std::endl;
+      warn("No connections for point: " + name);
       continue;
     }
     connectionStrings[strangeId] = connections;
@@ -1393,7 +1398,7 @@ void SimulationSystem::readHeatingGridStream(CSVStream &heatingStream) {
                                                     additionalConnectionData,
                                                     infoboardAttributes,
                                                     EnergyGridConnectionType::Line,
-                                                    lines});
+                                                    lines}, getLogger());
   heatingGrid.grid->initDrawable();
   addEnergyGridToGridSwitch(heatingGrid.group);
   switchEnergyGrid(EnergyGridType::HeatingGrid);

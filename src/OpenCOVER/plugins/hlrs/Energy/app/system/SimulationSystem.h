@@ -3,6 +3,7 @@
 // core
 #include <lib/core/interfaces/IEnergyGrid.h>
 #include <lib/core/interfaces/ISystem.h>
+#include <lib/core/ClassLogger.h>
 #include <lib/core/simulation/simulation.h>
 #include <lib/core/simulation/unitmap.h>
 
@@ -29,6 +30,7 @@
 // TODO: remove tight coupling to citygmlsystem
 #include "CityGMLSystem.h"
 #include "app/osg/ui/simulation/BaseSimulationUI.h"
+#include "lib/core/interfaces/ILogger.h"
 
 using namespace opencover::utils::read;
 
@@ -58,10 +60,10 @@ using namespace opencover::utils::read;
  *
  * @note This class is final and cannot be inherited.
  */
-class SimulationSystem final : public core::interface::ISystem {
+class SimulationSystem final : public core::interface::ISystem, core::ClassLogger {
  public:
   SimulationSystem(opencover::coVRPlugin *plugin, opencover::ui::Menu *parentMenu,
-                   CityGMLSystem *cityGMLSystem, osg::ref_ptr<osg::Switch> parent);
+                   CityGMLSystem *cityGMLSystem, osg::ref_ptr<osg::Switch> parent, core::interface::ILogger &logger);
   ~SimulationSystem() override;
 
   void init() override;
