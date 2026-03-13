@@ -28,8 +28,10 @@ void EnergyLogger::log(Level level, std::string_view msg) {
    switch(level) {
         case Level::error:
             m_logger->error(msg);
+            break;
         case Level::warn:
             m_logger->warn(msg);
+            break;
         case Level::info:
         default:
             m_logger->info(msg);
