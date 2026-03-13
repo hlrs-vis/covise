@@ -11,17 +11,17 @@ using namespace core::utils::osgUtils;
 
 CityGMLSceneObject::CityGMLSceneObject(osg::ref_ptr<osg::ClipNode> rootGroup,
     osg::ref_ptr<osg::Switch> parent, core::interface::ILogger &logger)
-    : m_coverRootGroup(rootGroup)
+    : core::ClassLogger(logger, "CityGMLSceneObject")
+    , m_coverRootGroup(rootGroup)
     , m_parent(parent)
     , m_root(new osg::Group())
-    , m_logger(logger)
 {
     if (!parent) {
-        m_logger.error("CityGMLSystem: parent must not be null");
+        error("Parent must not be null");
         return;
     }
-    m_logger.info("Some TEST");
     init();
+    info("Create citygml sceneobject.");
 }
 
 CityGMLSceneObject::~CityGMLSceneObject()
@@ -144,7 +144,7 @@ void CityGMLSceneObject::transform(const osg::Vec3 &translation,
     assert(m_root && "CityGML group is not initialized.");
     if (m_root->getNumChildren() == 0)
     {
-        m_logger.warn("No CityGML objects to transform.");
+        warn("No CityGML objects to transform.");
         return;
     }
     for (unsigned int i = 0; i < m_root->getNumChildren(); ++i)
@@ -157,7 +157,7 @@ void CityGMLSceneObject::transform(const osg::Vec3 &translation,
         }
         else
         {
-            m_logger.error("Child is not a MatrixTransform.");
+            error("Child is not a MatrixTransform.");
         }
     }
 }

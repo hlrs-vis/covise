@@ -41,8 +41,9 @@ CityGMLSystem::CityGMLSystem(opencover::coVRPlugin *plugin,
     opencover::ui::Menu *parentMenu,
     osg::ref_ptr<osg::ClipNode> rootGroup,
     osg::ref_ptr<osg::Switch> parent,
-    core::interface::ILogger& logger)
-    : m_cityGMLUI("CityGMLSystem", parentMenu, { plugin->configFloat("CityGML", "X", 0.0f)->value(), plugin->configFloat("CityGML", "Y", 0.0f)->value(), plugin->configFloat("CityGML", "Z", 0.0f)->value() })
+    core::interface::ILogger &logger)
+    : core::ClassLogger(logger, "CityGMLSystem")
+    , m_cityGMLUI("CityGMLSystem", parentMenu, { plugin->configFloat("CityGML", "X", 0.0f)->value(), plugin->configFloat("CityGML", "Y", 0.0f)->value(), plugin->configFloat("CityGML", "Z", 0.0f)->value() })
     , m_gmlSceneObject(rootGroup, parent, logger)
     , m_config {
         plugin->configString("Simulation", "pvDir", "default")->value(),
@@ -52,7 +53,7 @@ CityGMLSystem::CityGMLSystem(opencover::coVRPlugin *plugin,
         plugin->configString("Simulation", "3dModelDir", "default")->value()
     }
     , m_enabled(false)
-    , m_logger(logger)
+    // , m_logger(logger, "CityGMLSystem")
 {
 }
 
@@ -64,25 +65,22 @@ void CityGMLSystem::init()
 void CityGMLSystem::initUICallbacks()
 {
     m_cityGMLUI.setButtonGroupCallback([&](bool on)
-        { 
-            enableScene(on); 
-        }
-    );
+        { enableScene(on); });
 
-    m_cityGMLUI.InfluxCSV()->setCallback([&](bool on) {
+    m_cityGMLUI.InfluxCSV()->setCallback([&](bool on)
+        {
         if (on)
-            applyInfluxCSVToCityGML(m_config.influxPath, true);
-    });
+            applyInfluxCSVToCityGML(m_config.influxPath, true); });
 
-    m_cityGMLUI.StaticCampusPower()->setCallback([&](bool on) {
+    m_cityGMLUI.StaticCampusPower()->setCallback([&](bool on)
+        {
         if (on)
-            applyStaticDataCampusToCityGML(m_config.campusPath, true);
-    });
+            applyStaticDataCampusToCityGML(m_config.campusPath, true); });
 
-    m_cityGMLUI.StaticPower()->setCallback([&](bool on){
+    m_cityGMLUI.StaticPower()->setCallback([&](bool on)
+        {
         if (on)
-            applyStaticDataToCityGML(m_config.staticPower, true);
-    });
+            applyStaticDataToCityGML(m_config.staticPower, true); });
 
     m_cityGMLUI.setPVBtnCallback([&](bool on)
         { 
@@ -91,9 +89,7 @@ void CityGMLSystem::initUICallbacks()
                 auto solarPanelsDir = fs::path(m_config.modelDir + "/power/SolarPanel");
                 addSolarPanels(solarPanelsDir);
             }
-            m_pvSceneObject->enable(); 
-        }
-    );
+            m_pvSceneObject->enable(); });
 
     auto updateFunction = [this](auto &value)
     {
@@ -108,9 +104,7 @@ void CityGMLSystem::initUICallbacks()
             if (m_gmlSceneObject.enabled()) {
               enableScene(false, false);
               enableScene(true, false);
-            } 
-        }
-    );
+            } });
 }
 
 void CityGMLSystem::enable(bool on)
@@ -152,7 +146,7 @@ void CityGMLSystem::processPVRow(const CSVStream::CSVRow &row,
 
     if (pvData.pvAreaQm == 0)
     {
-        m_logger.error("pvAreaQm is 0 for cityGML object with ID " + pvData.cityGMLID);
+        error("pvAreaQm is 0 for cityGML object with ID " + pvData.cityGMLID);
         return;
     }
 
@@ -185,7 +179,7 @@ void CityGMLSystem::updateInfluxColorMaps(
         if (!values)
         {
             // std::cerr << "No res_mw data found for sensor: " << sensorName << std::endl;
-            m_logger.error("No res_mw data found for sensor: " + sensorName);
+            error("No res_mw data found for sensor: " + sensorName);
             continue;
         }
 
@@ -228,7 +222,7 @@ void CityGMLSystem::addSolarPanels(const fs::path &dirPath)
     fs::path pvDirPath(m_config.pvDir);
     if (!fs::exists(pvDirPath))
     {
-        m_logger.error("Error: PV directory does not exist: " + m_config.pvDir);
+        error("Error: PV directory does not exist: " + m_config.pvDir);
         return;
     }
 
@@ -236,19 +230,19 @@ void CityGMLSystem::addSolarPanels(const fs::path &dirPath)
     auto it = pvStreams.find("pv");
     if (it == pvStreams.end())
     {
-        m_logger.error("Error: Could not find PV data in " + m_config.pvDir);
+        error("Error: Could not find PV data in " + m_config.pvDir);
         return;
     }
 
     CSVStream &pvStream = it->second;
     if (!pvStream)
     {
-        m_logger.error("Error: Could not load solar panel data from PV stream.");
+        error("Error: Could not load solar panel data from PV stream.");
         return;
     }
 
     auto [pvDataMap, maxPVIntensity] = loadPVData(pvStream);
-    m_pvSceneObject = std::make_unique<SolarPanelSceneObject>(&m_gmlSceneObject, m_gmlSceneObject.getRoot()->getChild(0)->asGroup(), dirPath, pvDataMap, maxPVIntensity);
+    m_pvSceneObject = std::make_unique<SolarPanelSceneObject>(&m_gmlSceneObject, m_gmlSceneObject.getRoot()->getChild(0)->asGroup(), dirPath, pvDataMap, maxPVIntensity, getLogger());
 }
 
 auto CityGMLSystem::readStaticCampusData(CSVStream &stream, float &max, float &min,

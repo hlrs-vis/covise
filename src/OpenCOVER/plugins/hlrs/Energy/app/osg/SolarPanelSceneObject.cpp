@@ -1,13 +1,15 @@
 #include "SolarPanelSceneObject.h"
 #include "app/osg/CityGMLSceneObject.h"
+#include <lib/core/ClassLogger.h>
 #include <lib/core/utils/color.h>
 #include <osg/MatrixTransform>
 
 namespace fs = boost::filesystem;
 using namespace core::utils::osgUtils;
 
-SolarPanelSceneObject::SolarPanelSceneObject(CityGMLSceneObject *gmlObj, osg::ref_ptr<osg::Group> parent, const boost::filesystem::path &modelDir, const PVDataMap &map, float maxPVIntensity)
-    : m_parent(parent)
+SolarPanelSceneObject::SolarPanelSceneObject(CityGMLSceneObject *gmlObj, osg::ref_ptr<osg::Group> parent, const boost::filesystem::path &modelDir, const PVDataMap &map, float maxPVIntensity, core::interface::ILogger &logger)
+    : core::ClassLogger(logger, "SolarPanelSceneObject")
+    , m_parent(parent)
     , m_root(new osg::Group())
 {
     init(gmlObj, modelDir, map, maxPVIntensity);
@@ -45,8 +47,7 @@ osg::ref_ptr<osg::Node> SolarPanelSceneObject::readPVModel(
             masterPanel = core::utils::osgUtils::readFileViaOSGDB(path.string(), options);
             if (!masterPanel)
             {
-                std::cerr << "Error: Could not load solar panel model from " << path
-                          << std::endl;
+                error("Could not load solar panel model from " + path.string());
                 continue;
             }
             break;
@@ -65,9 +66,8 @@ void SolarPanelSceneObject::init(CityGMLSceneObject *gmlObj, const boost::filesy
 
     if (!masterPanel)
     {
-        std::cerr << "Error: Could not load solar panel model. Make sure to define the "
-                     "correct 3DModelDir in EnergyCampus.toml."
-                  << std::endl;
+        error("Could not load solar panel model. Make sure to define the "
+                     "correct 3DModelDir in EnergyCampus.toml.");
         return;
     }
 
@@ -75,8 +75,7 @@ void SolarPanelSceneObject::init(CityGMLSceneObject *gmlObj, const boost::filesy
     auto masterGeometryData = instancing::extractAllGeometryData(masterPanel);
     if (masterGeometryData.empty())
     {
-        std::cerr << "Error: No geometry data found in the solar panel model."
-                  << std::endl;
+        error("No geometry data found in the solar panel model.");
         return;
     }
 
@@ -92,7 +91,7 @@ void SolarPanelSceneObject::processPVDataMap(CityGMLSceneObject *gmlObj,
 
     if (!m_parent)
     {
-        std::cerr << "Error: No parent found." << std::endl;
+        error("No parent found to attach solarpanels to.");
         return;
     }
 
@@ -123,8 +122,8 @@ void SolarPanelSceneObject::processPVDataMap(CityGMLSceneObject *gmlObj,
         }
         catch (const std::out_of_range &)
         {
-            std::cerr << "Error: Could not find cityGML object with ID " << id
-                      << " in m_cityGMLObjs." << std::endl;
+            warn("Could not find cityGML object with ID " + id
+                      + " in m_cityGMLObjs to attach solarpanels.");
             continue;
         }
     }
@@ -135,7 +134,7 @@ void SolarPanelSceneObject::processSolarPanelDrawable(SolarPanelList &solarPanel
 {
     if (!config.valid())
     {
-        std::cerr << "Error: Invalid SolarPanelConfig." << std::endl;
+        error("Invalid SolarPanelConfig.");
         return;
     }
     auto bb = config.geode->getBoundingBox();
@@ -225,7 +224,7 @@ void SolarPanelSceneObject::processSolarPanelDrawables(
         config.geode = drawable->asGeode();
         if (!config.geode)
         {
-            std::cerr << "Error: Drawable is not a Geode." << std::endl;
+            warn("Drawable is not a Geode. Solarpanels cannot be attached.");
             continue;
         }
         processSolarPanelDrawable(m_panels, config);

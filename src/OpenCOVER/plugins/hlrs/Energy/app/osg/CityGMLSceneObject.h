@@ -1,5 +1,4 @@
 #pragma once
-#include "lib/core/constants.h"
 #include "ui/citygml/CityGMLDeviceSensor.h"
 #include <osg/Switch>
 #include <osg/ClipNode>
@@ -11,14 +10,14 @@
 
 #include <lib/core/utils/osgUtils.h>
 #include <lib/core/interfaces/ISolarPanel.h>
-#include <lib/core/interfaces/ILogger.h>
+#include <lib/core/ClassLogger.h>
 
 #include <boost/filesystem.hpp>
 
 typedef core::utils::osgUtils::Geodes Geodes;
 typedef std::vector<std::unique_ptr<core::interface::ISolarPanel>> SolarPanelList;
 
-class CityGMLSceneObject
+class CityGMLSceneObject : core::ClassLogger
 {
 public:
     CityGMLSceneObject(osg::ref_ptr<osg::ClipNode> rootGroup,
@@ -62,5 +61,4 @@ private:
     osg::ref_ptr<osg::Switch> m_parent;
     osg::ref_ptr<osg::Group> m_root;
     osg::ref_ptr<osg::ClipNode> m_coverRootGroup;
-    core::interface::ILogger &m_logger;
 };
