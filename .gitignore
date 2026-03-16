@@ -286,5 +286,3 @@ compile_commands.json
 /lionopt
 /libc++
 /libc++opt
-/src/OpenCOVER/OpenVRUI/vsg/VSGVruiTexturedBackground.cpp
-/src/OpenCOVER/OpenVRUI/vsg/VSGVruiTexturedBackground.h
