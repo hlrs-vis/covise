@@ -18,6 +18,8 @@
 #else
 #include <AL/al.h>
 #endif
+
+#include "AlutContext.h"
 #endif
 
 namespace vrml
@@ -28,10 +30,12 @@ class VRMLEXPORT PlayerOpenAL : public Player
 public:
 #ifndef HAVE_OPENAL
     PlayerOpenAL(const Listener *listener)
-        : Player(listener){};
+        : Player(listener)
+    {
+        CERR << "Compiled without OpenAL, cannot use OpenAL audio mode" << std::endl;
+    };
 #else
     PlayerOpenAL(const Listener *listener);
-    virtual ~PlayerOpenAL();
     virtual void setSpeedOfSound(float speed);
     virtual void update();
 
@@ -54,9 +58,10 @@ protected:
         virtual void play(double start);
         virtual void stop();
         ALuint alSource;
-        ALuint alBuffer;
-        ALuint alFirstBuffer;
     };
+
+private:
+    AlutContext alutContext;
 #endif
 };
 }
