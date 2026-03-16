@@ -127,7 +127,6 @@ void Audio::loadFile()
 
     _samples_per_sec = (int)frequency;
     _num_samples = (int)size * 8 / _channels / _bits_per_sample;
-    _sample_blocksize = 1; // Assumed
 }
 
 void Audio::loadFileToBuffer()
@@ -165,7 +164,6 @@ void Audio::loadFileToBuffer()
     alGetBufferi(_buffer, AL_SIZE, &size);
 
     _num_samples = (int)size * 8 / _channels / _bits_per_sample;
-    _sample_blocksize = 1; // Assumed
 }
 
 void Audio::unload()
