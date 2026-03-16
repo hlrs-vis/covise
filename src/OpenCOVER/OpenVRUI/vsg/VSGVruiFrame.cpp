@@ -219,8 +219,8 @@ void VSGVruiFrame::createGeometry()
         depthStencilState->depthWriteEnable = VK_TRUE;
         depthStencilState->depthCompareOp = VK_COMPARE_OP_GREATER;
 
-       /* auto multiSampleState = vsg::MultisampleState::create();
-        multiSampleState->alphaToCoverageEnable = VK_TRUE;*/
+        /* auto multiSampleState = vsg::MultisampleState::create();
+        multiSampleState->alphaToCoverageEnable = VK_TRUE;*/ 
         
         shaderSet->defaultGraphicsPipelineStates.push_back(colorBlendState);
         shaderSet->defaultGraphicsPipelineStates.push_back(depthStencilState);
@@ -256,7 +256,7 @@ void VSGVruiFrame::createGeometry()
         vsg::ComputeBounds computeBounds;
         vertexIndexDraw->accept(computeBounds);
         vsg::dvec3 center = (computeBounds.bounds.min + computeBounds.bounds.max) * 0.5;
-        double radius = vsg::length(computeBounds.bounds.max - computeBounds.bounds.min) * 10;
+        double radius = vsg::length(computeBounds.bounds.max - computeBounds.bounds.min) * 50;
 
         depthSorted = vsg::DepthSorted::create();
         depthSorted->binNumber = 1;
