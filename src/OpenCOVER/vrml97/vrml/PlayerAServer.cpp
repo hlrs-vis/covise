@@ -23,6 +23,7 @@
 #include <fcntl.h>
 #include <cstring>
 #include <cstdlib>
+#include <filesystem>
 
 using std::cerr;
 using std::endl;
@@ -55,8 +56,6 @@ PlayerAServer::PlayerAServer(const Listener *listener, const std::string &host, 
 
 void PlayerAServer::connect()
 {
-    CERR << "host: " << asHost.c_str() << ", port: " << asPort << endl;
-
     if (asHost.empty() || asPort <= 0)
     {
         CERR << "audio server not configured" << endl;
@@ -445,25 +444,31 @@ void PlayerAServer::Source::loadAudio(const Audio *audio)
         }
     }
 
-    if (asHandle < 0 && audio->numBytes() > 0)
+    if (asHandle < 0 && strlen(audio->url()))
     {
-        // TODO: transfer audio file from filesystem, as-is
-        //
-        // data is not yet cached on the server, send it
-        size_t file_size = 0;
-        snprintf(msg, sizeof(msg), "PTFI %s %lu\r", filename, file_size);
+        // Audio file is not yet cached on the server, send it.
+        std::filesystem::path path(audio->url());
+
+        size_t file_size = std::filesystem::file_size(path);
+        snprintf(msg, sizeof(msg), "PTFI %s %lu\r", path.filename().c_str(), file_size);
         if (player->send_cmd(msg) < 0)
         {
             CERR << "writing command failed" << endl;
         }
 
-        // send file contents...
-        if (player->send_data(nullptr /* TODO */, file_size))
+        // Send file contents
+        FILE *fd = fopen(path.c_str(), "rb");
+        char buf[4096];
+        for (size_t i = 0; i < file_size; i += 4096)
         {
-            CERR << "writing header failed" << endl;
+            size_t s = fread(buf, 1, 4096, fd);
+            if (player->send_data(buf, s) < 0)
+            {
+                CERR << "writing data failed" << endl;
+            }
         }
 
-        // try again to get handle
+        // Try again to get handle
         snprintf(msg, sizeof(msg), "GHDL %s", filename);
         if (player->send_cmd(msg) != 0)
         {

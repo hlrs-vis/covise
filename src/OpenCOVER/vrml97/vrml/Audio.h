@@ -100,14 +100,6 @@ public:
     }
 
     /**
-     * Returns the size of the audio data buffer in bytes.
-     */
-    int numBytes() const
-    {
-        return _num_samples * _sample_blocksize;
-    }
-
-    /**
      * Returns a pointer to the audio data buffer.
      */
     const unsigned char *samples() const
