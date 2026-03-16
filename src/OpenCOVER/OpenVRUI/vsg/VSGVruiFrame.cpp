@@ -256,7 +256,7 @@ void VSGVruiFrame::createGeometry()
         vsg::ComputeBounds computeBounds;
         vertexIndexDraw->accept(computeBounds);
         vsg::dvec3 center = (computeBounds.bounds.min + computeBounds.bounds.max) * 0.5;
-        double radius = vsg::length(computeBounds.bounds.max - computeBounds.bounds.min) * 10;
+        double radius = vsg::length(computeBounds.bounds.max - computeBounds.bounds.min) * 50;
 
         depthSorted = vsg::DepthSorted::create();
         depthSorted->binNumber = 1;
