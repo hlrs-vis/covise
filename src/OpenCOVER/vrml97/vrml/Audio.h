@@ -18,24 +18,21 @@
 //
 //  Audio document class
 //
+#include "AlutContext.h"
 #include "config.h"
 #ifndef _MSC_VER
 #include <inttypes.h>
 #endif
 #include <math.h>
 #include <stdio.h>
+#include <string>
 #include "vrmlexport.h"
+#include "AL/al.h"
 
 namespace vrml
 {
 
 class Doc;
-
-enum AudioEncoding
-{
-    AUDIO_LINEAR,
-    AUDIO_ULAW
-};
 
 class VRMLEXPORT Audio
 {
@@ -45,108 +42,121 @@ public:
 
     bool setURL(const char *url, Doc *relative = 0);
     bool tryURLs(int nUrls, const char *const *urls, Doc *relative = 0);
-
-    double lastModified() const;
-
     const char *url() const;
 
-    AudioEncoding encoding() const
+    /**
+     * Loads the referenced audio file into memory and parses the audio
+     * metadata.
+     */
+    void loadFile();
+
+    /**
+     * Loads the referenced audio file into a buffer for OpenAL, and extracts
+     * the audio metadata from that buffer.
+     */
+    void loadFileToBuffer();
+
+    /**
+     * Removes audio buffer data from memory, without removing metadata.
+     */
+    void unload();
+
+    double lastModified() const
     {
-        return _encoding;
+        return _last_modified;
     }
+
+    /**
+     * Returns the number of channels of this audio file, 1 for mono or 2 for stereo.
+     */
     int channels() const
     {
         return _channels;
     }
+
+    /**
+     * Returns the bit depth (8 or 16) of the audio file.
+     */
     int bitsPerSample() const
     {
         return _bits_per_sample;
     }
+
+    /**
+     * Returns the sampling rate, i.e. number of samples per second (also
+     * called frequency sometimes) of this audio file.
+     */
     int samplesPerSec() const
     {
         return _samples_per_sec;
     }
-    int sampleBlockSize() const
-    {
-        return _sample_blocksize;
-    }
+
+    /**
+     * Returns the number of samples in the audio file.
+     */
     int numSamples() const
     {
         return _num_samples;
     }
 
+    /**
+     * Returns the size of the audio data buffer in bytes.
+     */
     int numBytes() const
     {
         return _num_samples * _sample_blocksize;
     }
+
+    /**
+     * Returns a pointer to the audio data buffer.
+     */
     const unsigned char *samples() const
     {
-        return _samples;
+        return _sample_data;
     }
 
+    /**
+     * Returns the AL buffer.
+     */
+    const ALuint buffer() const
+    {
+        return _buffer;
+    }
+
+    /**
+     * Computes and returns the duration of this audio file in seconds.
+     */
     double duration() const
     {
-        if (_samples_per_sec > 0)
-            return (double)_num_samples / (double)_samples_per_sec;
-        else
+        if (_samples_per_sec <= 0)
+        {
             return 0;
-    }
+        }
 
-    // Get the sample index given a floating point time index
-    // If the time index is greater than the duration, the sample
-    // index is wrapped back to the beginning of the sample.
-    // From: Alex Funk <Alexander.Funk@nord-com.net>
-    // Avoid int overflow when multiplying time_index by samples_per_sec
-    // Modified to use fmod() by Kumaran Santhanam.
-    int getByteIndex(double time_index) const
-    {
-        if (_num_samples > 0 && _samples_per_sec > 0)
-            return _sample_blocksize * (int)(fmod(time_index, duration()) * (double)_samples_per_sec);
-        else
-            return -1;
+        return (double)_num_samples / (double)_samples_per_sec;
     }
-
-    struct WaveHeader
-    {
-        uint8_t riff_id[4];
-        uint32_t riff_size;
-        uint8_t wave_id[4];
-        uint8_t format_id[4];
-        uint32_t format_size;
-        uint16_t format_tag;
-        uint16_t num_channels;
-        uint32_t num_samples_per_sec;
-        uint32_t num_avg_bytes_per_sec;
-        uint16_t num_block_align;
-        uint16_t bits_per_sample;
-        uint8_t data_id[4];
-        uint32_t num_data_bytes;
-    };
-    void createWaveHeader(WaveHeader *header) const;
 
 private:
-    Doc *_doc;
+    AlutContext _alut; ///< Automatically initializes alut once instantiated.
+
+    std::string _url;
 
     double _last_modified;
 
-    AudioEncoding _encoding;
-    int _channels;
-    int _bits_per_sample;
-    int _samples_per_sec;
+    int _channels = 0;
+    int _bits_per_sample = 0;
+    int _samples_per_sec = 0;
 
     // Samples are stored in aligned blocks.  Sometimes, the
     // block will be larger than the sample itself.  Usually,
     // however, an 8-bit sample will be in a 1-byte block and
     // a 16-bit sample will be in a 2-byte block.
-    int _sample_blocksize;
+    int _sample_blocksize = 0;
 
-    int _num_samples;
-    unsigned char *_samples;
+    int _num_samples = 0;
 
-    bool wavread(FILE *fp);
-#if defined(HAVE_AL) || defined(HAVE_AFL)
-    bool alread(FILE *fp);
-#endif
+    unsigned char *_sample_data = nullptr;
+    ALuint _buffer = AL_NONE;
 };
 }
 

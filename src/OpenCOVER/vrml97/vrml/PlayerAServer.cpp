@@ -53,8 +53,7 @@ PlayerAServer::PlayerAServer(const Listener *listener, const std::string &host, 
 #endif
 #define CERR std::cout
 
-void
-PlayerAServer::connect()
+void PlayerAServer::connect()
 {
     CERR << "host: " << asHost.c_str() << ", port: " << asPort << endl;
 
@@ -129,7 +128,7 @@ PlayerAServer::connect()
     {
 #ifdef WIN32
         int error = WSAGetLastError();
-        //cerr << "error:" <<error << endl;
+        // cerr << "error:" <<error << endl;
         if (error != WSAEISCONN) // this is a weird Windows specific necessity!
         {
 //  closesocket(asFd);
@@ -147,24 +146,24 @@ PlayerAServer::connect()
 
     cerr << " ok." << endl;
 
-    //fcntl(asFd, F_SETFL, O_NONBLOCK);
+    // fcntl(asFd, F_SETFL, O_NONBLOCK);
 }
 
 PlayerAServer::~PlayerAServer()
 {
-    //CERR << "destruction of " << sources.size() << " sources" << endl;
+    // CERR << "destruction of " << sources.size() << " sources" << endl;
 
     // these would be deleted in the Player destructor, too,
     // but then the asSocket is already closed
     for (std::vector<Player::Source *>::iterator it = sources.begin();
-         it != sources.end(); it++)
+        it != sources.end(); it++)
     {
         delete *it;
         *it = 0;
     }
     sources.resize(0);
 
-    //send_cmd("QUIT");
+    // send_cmd("QUIT");
 
     if (asFd != -1)
 #ifdef WIN32
@@ -175,10 +174,9 @@ PlayerAServer::~PlayerAServer()
     asFd = -1;
 }
 
-int
-PlayerAServer::send_cmd(const char *cmd) const
+int PlayerAServer::send_cmd(const char *cmd) const
 {
-    //fprintf(stderr, "AudioServer: %s\n", cmd);
+    // fprintf(stderr, "AudioServer: %s\n", cmd);
     size_t len = strlen(cmd);
     char *buf = new char[len + 1];
     memcpy(buf, cmd, len);
@@ -186,8 +184,7 @@ PlayerAServer::send_cmd(const char *cmd) const
     return send_data(buf, (int)len + 1, false);
 }
 
-int
-PlayerAServer::send_data(const char *data, int size, bool swapped) const
+int PlayerAServer::send_data(const char *data, int size, bool swapped) const
 {
     if (asFd == -1)
     {
@@ -214,7 +211,7 @@ PlayerAServer::send_data(const char *data, int size, bool swapped) const
     int written = 0;
     do
     {
-        //CERR << "jetzt" << endl;
+        // CERR << "jetzt" << endl;
         fd_set writefds;
         FD_ZERO(&writefds);
         FD_SET(asFd, &writefds);
@@ -244,7 +241,7 @@ PlayerAServer::send_data(const char *data, int size, bool swapped) const
         if (n < 0)
         {
             int errCode = errno_sys();
-            //fprintf(stderr,"errCode %d \n", errCode);
+            // fprintf(stderr,"errCode %d \n", errCode);
             if ((errCode == EAGAIN) || (errCode == EINTR) ||
 #ifndef WIN32
                 (errCode == EWOULDBLOCK) ||
@@ -252,12 +249,12 @@ PlayerAServer::send_data(const char *data, int size, bool swapped) const
                 (errCode == 0))
             {
                 n = 0;
-                //fprintf(stderr,"EAGAIN or EWOULDBLOCK or 0\n");
+                // fprintf(stderr,"EAGAIN or EWOULDBLOCK or 0\n");
             }
             else
                 break;
         }
-        //fprintf(stderr, "n=%d\n", n);
+        // fprintf(stderr, "n=%d\n", n);
         written += n;
     } while (written < size);
 
@@ -278,7 +275,7 @@ PlayerAServer::send_data(const char *data, int size, bool swapped) const
 #else
         close(asFd);
 #endif
-        //CERR << "asFd reset1: " << asFd<< endl;
+        // CERR << "asFd reset1: " << asFd<< endl;
         asFd = -1;
         return -1;
     }
@@ -286,10 +283,9 @@ PlayerAServer::send_data(const char *data, int size, bool swapped) const
     return 0;
 }
 
-int
-PlayerAServer::read_answer(char *buf, int maxsize) const
+int PlayerAServer::read_answer(char *buf, int maxsize) const
 {
-    //CERR << "asFd: " << asFd << endl;
+    // CERR << "asFd: " << asFd << endl;
     if (asFd == -1)
         return -1;
 
@@ -359,8 +355,7 @@ PlayerAServer::read_answer(char *buf, int maxsize) const
     return -1;
 }
 
-void
-PlayerAServer::restart()
+void PlayerAServer::restart()
 {
     for (unsigned i = 0; i < sources.size(); i++)
     {
@@ -408,10 +403,9 @@ PlayerAServer::Source::Source(const Audio *audio, PlayerAServer *player)
 #define snprintf _snprintf
 #endif
 
-void
-PlayerAServer::Source::loadAudio(const Audio *audio)
+void PlayerAServer::Source::loadAudio(const Audio *audio)
 {
-    //CERR << "url" << audio->url() << endl;
+    // CERR << "url" << audio->url() << endl;
     if (!player)
         return;
 
@@ -425,11 +419,11 @@ PlayerAServer::Source::loadAudio(const Audio *audio)
     {
         snprintf(filename, sizeof(filename), "PlayerAServer-%d-%08lx.wav",
 #ifdef _WIN32
-                 0,
+            0,
 #else
-                 getpid(),
+            getpid(),
 #endif
-                 reinterpret_cast<unsigned long>(audio));
+            reinterpret_cast<unsigned long>(audio));
     }
     snprintf(msg, sizeof(msg), "GHDL %s", filename);
     if (player->send_cmd(msg) < 0)
@@ -446,35 +440,27 @@ PlayerAServer::Source::loadAudio(const Audio *audio)
         }
         else
         {
-            //fprintf(stderr, "read: %s\n", msg);
+            // fprintf(stderr, "read: %s\n", msg);
             asHandle = atol(msg);
         }
     }
 
     if (asHandle < 0 && audio->numBytes() > 0)
     {
+        // TODO: transfer audio file from filesystem, as-is
+        //
         // data is not yet cached on the server, send it
-        Audio::WaveHeader header;
-        audio->createWaveHeader(&header);
-        int numbytes = audio->numBytes();
-        snprintf(msg, sizeof(msg), "PTFI %s %lu\r", filename, (unsigned long)(numbytes + sizeof(header)));
+        size_t file_size = 0;
+        snprintf(msg, sizeof(msg), "PTFI %s %lu\r", filename, file_size);
         if (player->send_cmd(msg) < 0)
         {
             CERR << "writing command failed" << endl;
         }
-        if (player->send_data((char *)&header, sizeof(header)) < 0)
+
+        // send file contents...
+        if (player->send_data(nullptr /* TODO */, file_size))
         {
             CERR << "writing header failed" << endl;
-        }
-#ifdef BYTESWAP
-        // BYTESWAP means little endian, audio server is running on little endian
-        bool swap = false;
-#else
-        bool swap = true;
-#endif
-        if (player->send_data((char *)audio->samples(), numbytes, swap) < 0)
-        {
-            CERR << "writing sample data (" << numbytes << " bytes) failed" << endl;
         }
 
         // try again to get handle
@@ -491,7 +477,7 @@ PlayerAServer::Source::loadAudio(const Audio *audio)
             asHandle = -1;
             return;
         }
-        //fprintf(stderr, "read: %s\n", msg);
+        // fprintf(stderr, "read: %s\n", msg);
         asHandle = atol(msg);
     }
 
@@ -505,8 +491,7 @@ PlayerAServer::Source::loadAudio(const Audio *audio)
     }
 }
 
-void
-PlayerAServer::Source::setAudio(const Audio *audio)
+void PlayerAServer::Source::setAudio(const Audio *audio)
 {
     char msg[MAX_BUFLEN];
 
@@ -521,7 +506,7 @@ PlayerAServer::Source::setAudio(const Audio *audio)
 
 PlayerAServer::Source::~Source()
 {
-    //CERR << "destroy source " << asHandle << endl;
+    // CERR << "destroy source " << asHandle << endl;
 
     char msg[MAX_BUFLEN];
 
@@ -534,8 +519,7 @@ PlayerAServer::Source::~Source()
     }
 }
 
-void
-PlayerAServer::Source::play(double start)
+void PlayerAServer::Source::play(double start)
 {
     char msg[MAX_BUFLEN];
 
@@ -551,14 +535,12 @@ PlayerAServer::Source::play(double start)
     Player::Source::play(start);
 }
 
-void
-PlayerAServer::Source::play()
+void PlayerAServer::Source::play()
 {
     Player::Source::play();
 }
 
-void
-PlayerAServer::Source::stop()
+void PlayerAServer::Source::stop()
 {
     Player::Source::stop();
 
@@ -571,8 +553,7 @@ PlayerAServer::Source::stop()
     }
 }
 
-void
-PlayerAServer::Source::stopForRestart()
+void PlayerAServer::Source::stopForRestart()
 {
     Player::Source::stop();
 
@@ -587,14 +568,12 @@ PlayerAServer::Source::stopForRestart()
     }
 }
 
-void
-PlayerAServer::Source::restart()
+void PlayerAServer::Source::restart()
 {
     loadAudio(audio);
 }
 
-void
-PlayerAServer::update()
+void PlayerAServer::update()
 {
     Player::update();
 
@@ -607,13 +586,12 @@ PlayerAServer::update()
     }
 }
 
-int
-PlayerAServer::Source::update(const Player *genericPlayer, char *buf, int bufsize)
+int PlayerAServer::Source::update(const Player *genericPlayer, char *buf, int bufsize)
 {
     Player::Source::update(genericPlayer, buf, bufsize);
 
     // dynamic_cast causes problems on gcc2 systems
-    //const PlayerAServer *player = dynamic_cast<const PlayerAServer *>(genericPlayer);
+    // const PlayerAServer *player = dynamic_cast<const PlayerAServer *>(genericPlayer);
     const PlayerAServer *player = (const PlayerAServer *)(genericPlayer);
     if (!player)
         return -1;
@@ -628,9 +606,9 @@ PlayerAServer::Source::update(const Player *genericPlayer, char *buf, int bufsiz
     vec rel_src = x.sub(player->getListenerPositionWC());
     float cos_angle = rel_src.normalize().dot(vec(0.0, 1.0, 0.0));
     float direction = acos(cos_angle);
-    //if(rel_src.x < 0.0)
-    //direction = (float)(1.0*M_PI - direction);
-    //direction *= 180.0/M_PI;
+    // if(rel_src.x < 0.0)
+    // direction = (float)(1.0*M_PI - direction);
+    // direction *= 180.0/M_PI;
 
     if (spatialize)
     {
@@ -653,7 +631,7 @@ PlayerAServer::Source::update(const Player *genericPlayer, char *buf, int bufsiz
 
     if (v.x != ov.x || v.y != ov.y || v.z != ov.z)
     {
-        //snprintf(msg, sizeof(msg), "SSVE %d %f %f %f", asHandle, v.x, v.y, v.z);
+        // snprintf(msg, sizeof(msg), "SSVE %d %f %f %f", asHandle, v.x, v.y, v.z);
         snprintf(msg, sizeof(msg), "SSVE %d %f", asHandle, v.length());
         player->send_cmd(msg);
         ov = v;
@@ -669,8 +647,7 @@ PlayerAServer::Source::update(const Player *genericPlayer, char *buf, int bufsiz
     return 0;
 }
 
-void
-PlayerAServer::Source::setLoop(bool loop)
+void PlayerAServer::Source::setLoop(bool loop)
 {
     Player::Source::setLoop(loop);
 
@@ -697,8 +674,7 @@ PlayerAServer::newSource(const Audio *audio)
     return src;
 }
 
-void
-PlayerAServer::setEAXEnvironment(int env)
+void PlayerAServer::setEAXEnvironment(int env)
 {
     char msg[MAX_BUFLEN];
     snprintf(msg, sizeof(msg), "SEEN %d", env);
