@@ -26,7 +26,7 @@ void SolarPanel::init() { initDrawable(); }
 void SolarPanel::initDrawable() {
   osg::ref_ptr<osg::Group> group = m_node->asGroup();
   if (!group) {
-    std::cerr << "SolarPanel: m_node is not a group!" << std::endl;
+    error("SolarPanel: m_node is not a group!");
     return;
   }
   auto geodes = getGeodes(group);
