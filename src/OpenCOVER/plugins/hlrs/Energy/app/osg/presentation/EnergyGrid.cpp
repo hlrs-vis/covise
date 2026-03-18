@@ -7,6 +7,7 @@
 #include <lib/core/interfaces/IColorable.h>
 #include <lib/core/utils/color.h>
 #include <lib/core/utils/osgUtils.h>
+#include <lib/core/simulation/type.h>
 
 #include <cassert>
 #include <memory>
@@ -18,11 +19,12 @@
 #include <osg/ref_ptr>
 #include <osgText/Text>
 #include <sstream>
+#include <string>
 #include <utility>
+#include <array>
 #include <variant>
 
 #include "cover/VRViewer.h"
-#include "lib/core/ClassLogger.h"
 
 namespace {
 
@@ -35,9 +37,9 @@ auto get_string = [](const auto &data) {
 }  // namespace
 
 InfoboardSensor::InfoboardSensor(osg::ref_ptr<osg::Group> parent,
-                                 std::unique_ptr<InfoboardImpl> &&infoboard,
+                                 std::unique_ptr<InfoboardImpl> &&infoboard, core::interface::ILogger &logger,
                                  const std::string &content)
-    : coPickSensor(parent), m_enabled(false), m_infoBoard(std::move(infoboard)) {
+    : ClassLogger(logger, "InfoboardSensor: " + parent->getName()), coPickSensor(parent), m_enabled(false), m_infoBoard(std::move(infoboard)) {
   m_infoBoard->initInfoboard();
   m_infoBoard->initDrawable();
   m_infoBoard->updateInfo(content);
@@ -50,13 +52,12 @@ void InfoboardSensor::activate() {
   selectionManager->clearSelection();
   auto selectedNode = getNode();
   if (!selectedNode) {
-    std::cerr << "InfoboardSensor: No node selected for activation." << std::endl;
+    error("No node selected for activation.");
     return;
   }
   auto parent = selectedNode->getParent(0);
   if (!parent) {
-    std::cerr << "InfoboardSensor: No parent node found for selected node."
-              << std::endl;
+    error("No parent node found for selected node.");
     return;
   }
 
@@ -109,14 +110,14 @@ void EnergyGrid::initConnectionsByIndex(
     auto from = points[i];
     for (auto j = 0; j < indices[i].size(); ++j) {
       if (i < 0 || i >= points.size()) {
-        std::cerr << "Invalid Index for points: " << i << "\n";
+        warn("Invalid Index for points: " + std::to_string(i));
         continue;
       }
 
       const auto indice = indices[i][j];
 
       if (indice >= points.size() || indice < 0) {
-        std::cerr << "Invalid Index for points: " << indice << "\n";
+        warn("Invalid Index for points: " + std::to_string(indice));
         continue;
       }
       auto to = points[indice];
@@ -244,7 +245,7 @@ void EnergyGrid::initDrawable() {
       initDrawableLines();
       break;
     default:
-      std::cerr << "Invalid connection type\n";
+      warn("Invalid connection type");
   }
   initDrawablePoints();
 }
@@ -293,62 +294,111 @@ void EnergyGrid::setColorMap(const opencover::ColorMap &colorMap,
 void EnergyGrid::setData(const core::simulation::Simulation &sim,
                          const std::string &species, bool interpolate) {
   for (auto &point : m_config.points) {
-    auto data = sim.getTimedependentScalar(species, point->getName());
+    auto result = sim.getTimedependentScalar(species, point->getName());
     auto [min, max] = sim.getScalarProperties().getMinMax(species);
-    if (data) {
-      point->updateDataInShader(*data, min, max);
+    if (std::holds_alternative<core::simulation::const_ScalarVecs>(result)) {
+      auto data(std::get<core::simulation::const_ScalarVecs>(result));
+      if (data)
+        point->updateDataInShader(*data, min, max);
+      else {
+        warn("No data found for point: " + point->getName());
+      }
     } else {
-      std::cerr << "No data found for point: " << point->getName() << "\n";
+      std::string err(std::get<std::string>(result));
+      warn(err);
     }
   }
   for (auto &[_, point] : m_config.pointsMap) {
     // TODO: remove this later => workaround for workshop
     // Make selector a buttongroupd which allows to select multiple species
-    auto data = sim.getTimedependentScalar("vm_pu", point->getName());
+    auto result = sim.getTimedependentScalar("vm_pu", point->getName());
     auto [min, max] = sim.getScalarProperties().getMinMax("vm_pu");
-    // auto data = sim.getTimedependentScalar(species, point->getName());
-    // auto [min, max] = sim.getMinMax(species);
-    if (data) {
-      point->updateDataInShader(*data, min, max);
+    if (std::holds_alternative<core::simulation::const_ScalarVecs>(result)) {
+      auto data(std::get<core::simulation::const_ScalarVecs>(result));
+      if (data)
+        point->updateDataInShader(*data, min, max);
+      else {
+        warn("No data found for point: " + point->getName());
+      }
     } else {
-      std::cerr << "No data found for point: " << point->getName() << "\n";
+      std::string err(std::get<std::string>(result));
+      warn(err);
     }
   }
   for (auto &conn : m_connections) {
-    auto fromData = sim.getTimedependentScalar(species, conn->getStart()->getName());
-    auto toData = fromData;
+    auto result_from = sim.getTimedependentScalar(species, conn->getStart()->getName());
+    auto result_to = result_from;
     if (interpolate)
-      toData = sim.getTimedependentScalar(species, conn->getEnd()->getName());
-    if (fromData && toData) {
-      conn->setDataInShader(*fromData, *toData);
+      result_to = sim.getTimedependentScalar(species, conn->getEnd()->getName());
+    std::array<core::simulation::ScalarByNameCollectorResult, 2> resVec{result_from, result_to};
+    if (std::all_of(resVec.begin(), resVec.end(), [](auto res) { return std::holds_alternative<core::simulation::const_ScalarVecs>(res); })) {
+      auto fromData(std::get<core::simulation::const_ScalarVecs>(result_from));
+      auto toData(std::get<core::simulation::const_ScalarVecs>(result_to));
+      if (fromData && toData)
+        conn->setDataInShader(*fromData, *toData);
+      else
+        warn("No data found for connection: " + conn->getName());
     } else {
-      std::cerr << "No data found for connection: " << conn->getName() << "\n";
+      if (std::holds_alternative<std::string>(result_from)) {
+        std::string err_msg(std::get<std::string>(result_from));
+        warn(err_msg);
+      }
+      if (std::holds_alternative<std::string>(result_to)) {
+        std::string err_msg(std::get<std::string>(result_to));
+        warn(err_msg);
+      }
     }
   }
   for (auto &line : m_lines) {
     for (auto &[_, conn] : line->getConnections()) {
-      auto fromData =
+      auto result_from =
           sim.getTimedependentScalar(species, conn->getStart()->getName());
-      auto toData = fromData;
+      auto result_to = result_from;
       if (interpolate)
-        toData = sim.getTimedependentScalar(species, conn->getEnd()->getName());
-      if (fromData && toData) {
-        conn->setDataInShader(*fromData, *toData);
+        result_to = sim.getTimedependentScalar(species, conn->getEnd()->getName());
+      std::array<core::simulation::ScalarByNameCollectorResult, 2> resVec{result_from, result_to};
+      if (std::all_of(resVec.begin(), resVec.end(), [](auto res) { return std::holds_alternative<core::simulation::const_ScalarVecs>(res); })) {
+        auto fromData(std::get<core::simulation::const_ScalarVecs>(result_from));
+        auto toData(std::get<core::simulation::const_ScalarVecs>(result_to));
+        if (fromData && toData)
+            conn->setDataInShader(*fromData, *toData);
+        else 
+          warn("No data found for connection: " + conn->getName());
       } else {
-        std::cerr << "No data found for connection: " << conn->getName() << "\n";
+          if (std::holds_alternative<std::string>(result_from)) {
+              std::string err_msg(std::get<std::string>(result_from));
+              warn(err_msg);
+          }
+          if (std::holds_alternative<std::string>(result_to)) {
+              std::string err_msg(std::get<std::string>(result_to));
+              warn(err_msg);
+          }
       }
     }
   }
   for (auto &line : m_config.lines) {
     if (interpolate) {
       for (auto &[_, conn] : line->getConnections()) {
-        auto fromData =
+        auto result_from =
             sim.getTimedependentScalar(species, conn->getStart()->getName());
-        auto toData = sim.getTimedependentScalar(species, conn->getEnd()->getName());
-        if (fromData && toData) {
-          conn->setDataInShader(*fromData, *toData);
+        auto result_to = sim.getTimedependentScalar(species, conn->getEnd()->getName());
+        std::array<core::simulation::ScalarByNameCollectorResult, 2> resVec{result_from, result_to};
+        if (std::all_of(resVec.begin(), resVec.end(), [](auto res) { return std::holds_alternative<core::simulation::const_ScalarVecs>(res); })) {
+          auto fromData(std::get<core::simulation::const_ScalarVecs>(result_from));
+          auto toData(std::get<core::simulation::const_ScalarVecs>(result_to));
+          if (fromData && toData)
+            conn->setDataInShader(*fromData, *toData);
+          else
+            warn("No data found for connection: " + conn->getName());
         } else {
-          std::cerr << "No data found for connection: " << conn->getName() << "\n";
+          if (std::holds_alternative<std::string>(result_from)) {
+              std::string err_msg(std::get<std::string>(result_from));
+              warn(err_msg);
+          }
+          if (std::holds_alternative<std::string>(result_to)) {
+              std::string err_msg(std::get<std::string>(result_to));
+              warn(err_msg);
+          }
         }
       }
     } else {
@@ -356,11 +406,16 @@ void EnergyGrid::setData(const core::simulation::Simulation &sim,
       // later this is a workaround for the current data structure
       auto lineName = line->getName();
       std::replace(lineName.begin(), lineName.end(), ' ', '_');
-      auto data = sim.getTimedependentScalar(species, lineName);
+      auto result = sim.getTimedependentScalar(species, lineName);
       const auto [min, max] = sim.getScalarProperties().getMinMax(species);
-      std::cout << "Min: " << min << ", Max: " << max << "\n";
+      if (std::holds_alternative<std::string>(result)) {
+        std::string err(std::get<std::string>(result));
+        warn(err);
+        continue;
+      }
+      auto data(std::get<core::simulation::const_ScalarVecs>(result));
       if (!data) {
-        std::cerr << "No data found for line: " << lineName << "\n";
+        warn("No data found for line: " + lineName);
         continue;
       }
       for (auto &[_, conn] : line->getConnections())

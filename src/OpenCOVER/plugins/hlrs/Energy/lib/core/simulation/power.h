@@ -2,6 +2,7 @@
 #include <string>
 
 #include "simulation.h"
+#include "type.h"
 
 namespace core::simulation::power {
 
@@ -29,7 +30,7 @@ class PowerSimulation : public Simulation {
   const auto &Transformators() const { return m_transformators; }
   const auto &Cables() const { return m_cables; }
   const auto &Buildings() const { return m_buildings; }
-  const_ScalarVecs getTimedependentScalar(
+  ScalarByNameCollectorResult getTimedependentScalar(
       const std::string &species, const std::string &node) const override;
 
  private:

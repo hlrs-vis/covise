@@ -3,7 +3,8 @@
 #include "object.h"
 #include "type.h"
 
-namespace core::simulation {
+namespace core::simulation {    
+
 template <typename T>
 class Collector {
  public:
@@ -27,14 +28,13 @@ class ScalarMapCollector : public ScalarCollector<ScalarMap> {
   ScalarMap collect() override;
 };
 
-typedef const ScalarVec *const_ScalarVecs;
 
-class ScalarByNameCollector : public ScalarCollector<const_ScalarVecs> {
+class ScalarByNameCollector : public ScalarCollector<ScalarByNameCollectorResult> {
  public:
   ScalarByNameCollector(const ObjectMapView &view, std::string_view name,
                         std::string_view species)
-      : ScalarCollector<const_ScalarVecs>(view), m_name(name), m_species(species) {}
-  const_ScalarVecs collect() override;
+      : ScalarCollector<ScalarByNameCollectorResult>(view), m_name(name), m_species(species) {}
+  ScalarByNameCollectorResult collect() override;
 
  private:
   std::string_view m_name;

@@ -11,7 +11,7 @@ void HeatingSimulation::init() {
   );
 }
 
-const std::vector<double> *HeatingSimulation::getTimedependentScalar(
+ScalarByNameCollectorResult HeatingSimulation::getTimedependentScalar(
     const std::string &species, const std::string &node) const {
     ObjectMapView view =
     {

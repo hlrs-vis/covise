@@ -16,9 +16,9 @@ void PowerSimulation::init() {
   );
 }
 
-const_ScalarVecs PowerSimulation::getTimedependentScalar(
+ScalarByNameCollectorResult PowerSimulation::getTimedependentScalar(
     const std::string &species, const std::string &node) const {
-    return ScalarByNameCollector(
+    auto col = ScalarByNameCollector(
       {
           std::ref(m_buses),
           std::ref(m_generators),
@@ -27,6 +27,7 @@ const_ScalarVecs PowerSimulation::getTimedependentScalar(
           std::ref(m_cables)
       },
       node, species).collect();
+    return {};
 }
 
 }  // namespace core::simulation::power
