@@ -1,5 +1,4 @@
 #include "collector.h"
-#include <iostream>
 
 namespace core::simulation {
 
@@ -17,7 +16,7 @@ ScalarMap ScalarMapCollector::collect() {
   return scalarValues;
 }
 
-const_ScalarVecs ScalarByNameCollector::collect() {
+ScalarByNameCollectorResult ScalarByNameCollector::collect() {
   for (const auto &mapRef : m_view) {
     const auto &objectMap = mapRef.get();
 
@@ -29,10 +28,9 @@ const_ScalarVecs ScalarByNameCollector::collect() {
       if (auto dataIt = data.find(m_species); dataIt != data.end()) {
         return &dataIt->second;
       }
-      std::cerr << "No data with " << m_species << " available." << "\n";
+      break;
     }
-    std::cerr << "No object with " << m_name << " available." << "\n";
   }
-  return nullptr;
+  return "No data with " + std::string(m_species) + " available.";
 }
 }  // namespace core::simulation

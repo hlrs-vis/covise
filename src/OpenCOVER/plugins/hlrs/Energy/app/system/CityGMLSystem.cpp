@@ -3,8 +3,10 @@
 #include "app/osg/SolarPanelSceneObject.h"
 
 #include <cover/coVRAnimationManager.h>
+#include <lib/core/simulation/type.h>
 
 #include <memory>
+#include <variant>
 
 namespace fs = boost::filesystem;
 using namespace opencover;
@@ -175,11 +177,16 @@ void CityGMLSystem::updateInfluxColorMaps(
     for (auto &[name, sensor] : m_gmlSceneObject)
     {
         std::string sensorName = name;
-        auto values = powerSimulation->getTimedependentScalar("res_mw", sensorName);
-        if (!values)
+        auto result = powerSimulation->getTimedependentScalar("res_mw", sensorName);
+        if (std::holds_alternative<std::string>(result))
         {
-            // std::cerr << "No res_mw data found for sensor: " << sensorName << std::endl;
-            error("No res_mw data found for sensor: " + sensorName);
+            std::string err_msg(std::get<std::string>(result));
+            error(err_msg);
+            continue;
+        }
+        auto values(std::get<core::simulation::const_ScalarVecs>(result));
+        if (!values) {
+            warn("No data found for Sensor " + sensorName);
             continue;
         }
 

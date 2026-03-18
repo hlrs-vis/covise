@@ -4,6 +4,7 @@
 
 #include "object.h"
 #include "simulation.h"
+#include "type.h"
 
 namespace core::simulation::heating {
 
@@ -16,7 +17,7 @@ class HeatingSimulation : public Simulation {
   const auto &Producers() const { return m_producers; }
 
   void init() override;
-  const std::vector<double> *getTimedependentScalar(
+  ScalarByNameCollectorResult getTimedependentScalar(
       const std::string &species, const std::string &node) const override;
 
  private:

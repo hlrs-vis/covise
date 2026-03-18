@@ -109,11 +109,11 @@ struct EnergyGridConfig {
  * @var m_enabled Indicates whether the sensor is enabled.
  * @var m_infoBoard Unique pointer to the managed infoboard instance.
  */
-class InfoboardSensor : public coPickSensor {
+class InfoboardSensor : public coPickSensor, ClassLogger {
 
  public:
   InfoboardSensor(osg::ref_ptr<osg::Group> parent,
-                  std::unique_ptr<InfoboardImpl> &&infoboard,
+                  std::unique_ptr<InfoboardImpl> &&infoboard, interface::ILogger &logger,
                   const std::string &content = "");
 
   void activate() override;
@@ -173,7 +173,7 @@ class EnergyGrid : public interface::IEnergyGrid, ClassLogger {
     // OsgTxtInfoboard infoboard(m_config.infoboardAttributes);
     auto infoboard = std::make_unique<OsgTxtInfoboard>(m_config.infoboardAttributes);
     m_infoboards.push_back(std::make_unique<InfoboardSensor>(
-        gridObj, std::move(infoboard), toPrint));
+        gridObj, std::move(infoboard), getLogger(), toPrint));
   }
 
   std::string createDataString(const grid::Data &data) const;
