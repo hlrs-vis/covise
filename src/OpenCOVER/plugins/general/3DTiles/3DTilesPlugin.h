@@ -24,7 +24,6 @@
 using namespace covise;
 using namespace opencover;
 
-class PLUGINEXPORT ListenerCover;
 class PLUGINEXPORT ViewerOsg;
 class VrmlScene;
 class PLUGINEXPORT SystemCover;
@@ -48,7 +47,6 @@ class PLUGINEXPORT SystemCover;
 
 class PLUGINEXPORT Google3DTilesPlugin : public coVRPlugin
 {
-    friend class ListenerCover;
     friend class SystemCover;
     friend class ViewerOsg;
 

@@ -21,7 +21,7 @@
 #include "VrmlScene.h"
 #include "System.h"
 
-#include "Player.h"
+#include <algorithm>
 
 using namespace vrml;
 
@@ -126,40 +126,19 @@ void VrmlNodeSound::copyRoutes(VrmlNamespace *ns)
     nodeStack.pop_front();
 }
 
+float elliptic_mix(float a, float b, float f)
+{
+    return a * b / (f * (a - b) + b);
+}
+
 void VrmlNodeSound::render(Viewer *viewer)
 {
     double timeNow = System::the->time();
     VrmlSFTime now(timeNow);
 
-    if (d_source.get() && viewer->getPlayer())
+    Player *player = System::the->getPlayer();
+    if (d_source.get() && player)
     {
-        Player *player = viewer->getPlayer();
-        float x, y, z;
-
-        // Is viewer inside the box?
-        viewer->getPosition(&x, &y, &z);
-        VrmlSFVec3f toViewer(x, y, z);
-        toViewer.subtract(&d_location); // now we have the vector to the viewer
-        float dist = (float)toViewer.length();
-        toViewer.normalize();
-        d_direction.normalize();
-        // angle between the sound direction and the viewer
-        float angle = (float)acos(toViewer.dot(&d_direction));
-        // fprintf(stderr,"angle: %f",angle/M_PI*180.0);
-        float cang = (float)cos(angle / 2.0);
-        float rmin, rmax;
-        double intensity;
-        rmin = fabs(d_minBack.get() * d_minFront.get() / (cang * cang * (d_minBack.get() - d_minFront.get()) + d_minFront.get()));
-        rmax = fabs(d_maxBack.get() * d_maxFront.get() / (cang * cang * (d_maxBack.get() - d_maxFront.get()) + d_maxFront.get()));
-        // fprintf(stderr,"rmin: %f rmax: %f",rmin,rmax);
-        if (dist <= rmin)
-            intensity = 1.0;
-        else if (dist > rmax)
-            intensity = 0.0;
-        else
-        {
-            intensity = (rmax - dist) / (rmax - rmin);
-        }
 
         if (d_source.get()->as<VrmlNodeAudioClip>())
         {
@@ -169,22 +148,38 @@ void VrmlNodeSound::render(Viewer *viewer)
                 if (clip->getAudio()->numSamples() > 0)
                     source = player->newSource(clip->getAudio());
             }
-            else if (clip->getAudio()->lastModified() > lastTime)
+            else if (clip->audioLastModified > lastTime)
             {
                 // XXX: update source
                 source->setAudio(clip->getAudio());
                 fprintf(stderr, "source update: lastTime=%f, lastModified=%f\n",
-                    lastTime, clip->getAudio()->lastModified());
+                    lastTime, clip->audioLastModified);
             }
+
             if (clip->isAudible(now) && source)
             {
-                source->setPositionOC(d_location.x(), d_location.y(), d_location.z());
+                // TODO: what coordinate system is d_location in? can we transform to world coordinates here?
+                source->setPosition(d_location.x(), d_location.y(), d_location.z());
 
-                // fprintf(stderr, "intens=%f\n", intensity*d_intensity.get());
-                if (!System::the->isCorrectSpatializedAudio() && !d_spatialize.get())
-                    source->setIntensity(d_intensity.get());
-                else
-                    source->setIntensity((float)(intensity * d_intensity.get()));
+                float intensity = d_intensity.get();
+                if (System::the->isCorrectSpatializedAudio() && d_spatialize.get())
+                {
+                    // Compute the intensity based on the distance and angle to the viewer
+                    float x, y, z;
+                    viewer->getPosition(&x, &y, &z);
+                    VrmlSFVec3f toViewer(x, y, z);
+                    toViewer.subtract(&d_location); // now we have the vector to the viewer
+                    float dist = toViewer.length();
+                    toViewer.normalize();
+                    d_direction.normalize();
+                    float f = toViewer.dot(&d_direction) * 0.5 + 0.5;
+                    float rmin = fabs(elliptic_mix(d_minBack.get(), d_minFront.get(), f));
+                    float rmax = fabs(elliptic_mix(d_maxBack.get(), d_maxFront.get(), f));
+
+                    intensity *= std::clamp((rmax - dist) / (rmax - rmin), 0.f, 1.f);
+                }
+
+                source->setIntensity(intensity);
 
                 if (d_doppler.get())
                 {
@@ -205,12 +200,7 @@ void VrmlNodeSound::render(Viewer *viewer)
                     if (clip->getField("pitch")->toSFFloat())
                         pitch = clip->getField("pitch")->toSFFloat()->get();
                     source->setPitch(pitch);
-
-                    if (d_spatialize.get())
-                        source->setSpatialize(true);
-                    else
-                        source->setSpatialize(false);
-
+                    source->setSpatialize(d_spatialize.get());
                     source->setStart(clip->currentCliptime(now));
                     source->play();
                 }

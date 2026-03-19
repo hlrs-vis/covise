@@ -1,9 +1,11 @@
 #include "AlutContext.h"
 #include "AL/alut.h"
 
-int vrml::AlutContext::_refcount = 0;
+using namespace opencover::audio;
 
-vrml::AlutContext::AlutContext()
+int AlutContext::_refcount = 0;
+
+AlutContext::AlutContext()
 {
     _refcount++;
     if (_refcount == 1)
@@ -26,7 +28,7 @@ vrml::AlutContext::AlutContext()
     }
 }
 
-vrml::AlutContext::~AlutContext()
+AlutContext::~AlutContext()
 {
     _refcount--;
 

@@ -56,7 +56,6 @@ using namespace osg;
 Bullet *Bullet::plugin = NULL;
 float BulletProbe::basevalue = 10;
 const string BULLET = "Bullet: ";
-vrml::Player *Bullet::player = NULL;
 
 static FileHandler handlers[] = {
     { NULL,

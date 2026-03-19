@@ -28,18 +28,6 @@ using(PNG)
 using(TIFF)
 using(ZLIB)
 
-FIND_PACKAGE(OpenAL QUIET)
-IF(OPENAL_FOUND)
-  ADD_DEFINITIONS(-DHAVE_OPENAL)
-  SET(EXTRA_INCS ${EXTRA_INCS} ${OPENAL_INCLUDE_DIR})
-  SET(EXTRA_LIBS ${EXTRA_LIBS} ${OPENAL_LIBRARY})
-ENDIF()
-
-# we can also make use of ALUT
-FIND_PACKAGE(ALUT REQUIRED)
-SET(EXTRA_INCS ${EXTRA_INCS} ${ALUT_INCLUDE_DIR})
-SET(EXTRA_LIBS ${EXTRA_LIBS} ${ALUT_LIBRARIES})
-
 IF(CURL_FOUND)
   SET(EXTRA_INCS ${EXTRA_INCS} ${CURL_INCLUDE_DIR})
   SET(EXTRA_LIBS ${EXTRA_LIBS} ${CURL_LIBRARIES})
@@ -72,12 +60,10 @@ ADD_FLEX_BISON_DEPENDENCY(VrmlScanner VrmlParser)
 INCLUDE_DIRECTORIES(
   ${EXTRA_INCS}
   "${CMAKE_CURRENT_BINARY_DIR}/../js"
-  "${CMAKE_CURRENT_SOURCE_DIR}/../../../3rdparty/oscpp/include"
 )
 set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 
 SET(VRML_SOURCES
-  Audio.cpp
   coEventQueue.cpp
   Doc.cpp
   gifread.c
@@ -85,11 +71,6 @@ SET(VRML_SOURCES
   jpgread.c
   MathUtils.cpp
   mpgread.cpp
-  AlutContext.cpp
-  Player.cpp
-  PlayerAServer.cpp
-  PlayerOpenAL.cpp
-  PlayerOsc.cpp
   pngread.c
   ScriptJDK.cpp
   ScriptJS.cpp
@@ -191,7 +172,6 @@ SET(VRML_SOURCES
 )
 
 SET(VRML_HEADERS
-  Audio.h
   Byteswap.h
   coEventQueue.h
   config.h
@@ -199,14 +179,8 @@ SET(VRML_HEADERS
   gifread.h
   Image.h
   jpgread.h
-  Listener.h
   MathUtils.h
   mpgread.h
-  AlutContext.h
-  Player.h
-  PlayerAServer.h
-  PlayerOpenAL.h
-  PlayerOsc.h
   pngread.h
   ScriptJDK.h
   ScriptJS.h
@@ -370,9 +344,13 @@ endif()
 COVISE_WNOERROR(coVRML BASEARCH zebu)
 
 TARGET_LINK_LIBRARIES(coVRML
-  coJS coNet coOpenConfig ${COVISE_UTIL_LIBRARY}
-  ${EXTRA_LIBS}
-  ${CMAKE_THREAD_LIBS_INIT}
+    coJS
+    coNet
+    coOpenConfig
+    coVRAudio
+    ${COVISE_UTIL_LIBRARY}
+    ${EXTRA_LIBS}
+    ${CMAKE_THREAD_LIBS_INIT}
 )
 
 COVISE_INSTALL_TARGET(coVRML)

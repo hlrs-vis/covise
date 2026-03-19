@@ -16,7 +16,6 @@
 
 #include "config.h"
 #include "Viewer.h"
-#include "Player.h"
 
 #include "MathUtils.h"
 #include "VrmlScene.h"
@@ -36,7 +35,6 @@ Viewer::Viewer()
 
 Viewer::Viewer(VrmlScene *scene)
     : d_scene(scene)
-    , d_player(0)
 {
     setNumTextures(NUM_TEXUNITS);
 }

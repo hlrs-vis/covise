@@ -25,7 +25,9 @@
 
 #include "VrmlNodeChild.h"
 
-#include "Player.h"
+#include "audio/Player.h"
+
+using opencover::audio::Player;
 
 namespace vrml
 {

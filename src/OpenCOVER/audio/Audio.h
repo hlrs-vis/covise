@@ -5,44 +5,28 @@
 
  * License: LGPL 2+ */
 
-//
-//  Vrml 97 library
-//  Copyright (C) 1998 Chris Morley
-//
-//
-//  Audio.h
-//    contributed by Kumaran Santhanam
-
 #ifndef _AUDIO_
 #define _AUDIO_
-//
-//  Audio document class
-//
+
 #include "AlutContext.h"
-#include "config.h"
-#ifndef _MSC_VER
-#include <inttypes.h>
-#endif
 #include <math.h>
 #include <stdio.h>
 #include <string>
-#include "vrmlexport.h"
+#include <util/coExport.h>
 #include "AL/al.h"
 
-namespace vrml
+namespace opencover::audio
 {
 
-class Doc;
-
-class VRMLEXPORT Audio
+class COVEREXPORT Audio
 {
 public:
-    Audio(const char *url = 0, Doc *relative = 0);
+    Audio();
+    Audio(const std::string &url);
     ~Audio();
 
-    bool setURL(const char *url, Doc *relative = 0);
-    bool tryURLs(int nUrls, const char *const *urls, Doc *relative = 0);
-    const char *url() const;
+    bool setURL(const std::string &url);
+    const std::string url() const { return _url; }
 
     /**
      * Loads the referenced audio file into memory and parses the audio
@@ -60,11 +44,6 @@ public:
      * Removes audio buffer data from memory, without removing metadata.
      */
     void unload();
-
-    double lastModified() const
-    {
-        return _last_modified;
-    }
 
     /**
      * Returns the number of channels of this audio file, 1 for mono or 2 for stereo.
@@ -132,8 +111,6 @@ private:
     AlutContext _alut; ///< Automatically initializes alut once instantiated.
 
     std::string _url;
-
-    double _last_modified;
 
     int _channels = 0;
     int _bits_per_sample = 0;

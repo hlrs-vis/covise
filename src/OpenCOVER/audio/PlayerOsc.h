@@ -13,6 +13,7 @@
 #include <memory>
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
+#include <util/coExport.h>
 
 #include <OpenConfig/access.h>
 #include <OpenConfig/section.h>
@@ -22,12 +23,12 @@
 
 #include <string>
 
-namespace vrml
+namespace opencover::audio
 {
 
 class Listener;
 
-class VRMLEXPORT PlayerOsc : public Player
+class COVEREXPORT PlayerOsc : public Player
 {
 public:
     PlayerOsc(const Listener *listener);
@@ -76,5 +77,5 @@ protected:
     covise::Host socket_host;
     std::unique_ptr<covise::Socket> socket;
 };
-} // namespace vrml
+} // namespace
 #endif

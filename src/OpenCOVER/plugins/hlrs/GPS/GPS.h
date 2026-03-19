@@ -21,7 +21,6 @@
 #include <proj_api.h>
 #include <gdal_priv.h>
 #include <xercesc/dom/DOM.hpp>
-#include <vrml97/vrml/Player.h>
 
 
 
@@ -91,9 +90,6 @@ public:
 
     std::string dir;//Coordinates
     projPJ pj_from, pj_to;//Coordinates
-    static vrml::Player *player;
-
-
     
 private:
     static GPSPlugin *plugin;

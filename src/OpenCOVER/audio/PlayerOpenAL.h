@@ -10,7 +10,6 @@
 
 #include "Player.h"
 
-#ifdef HAVE_OPENAL
 #if defined(__APPLE__)
 #include <OpenAL/al.h>
 #elif defined(_MSC_VER)
@@ -18,23 +17,16 @@
 #else
 #include <AL/al.h>
 #endif
+#include <util/coExport.h>
 
 #include "AlutContext.h"
-#endif
 
-namespace vrml
+namespace opencover::audio
 {
 
-class VRMLEXPORT PlayerOpenAL : public Player
+class COVEREXPORT PlayerOpenAL : public Player
 {
 public:
-#ifndef HAVE_OPENAL
-    PlayerOpenAL(const Listener *listener)
-        : Player(listener)
-    {
-        CERR << "Compiled without OpenAL, cannot use OpenAL audio mode" << std::endl;
-    };
-#else
     PlayerOpenAL(const Listener *listener);
     virtual void setSpeedOfSound(float speed);
     virtual void update();
@@ -62,7 +54,6 @@ protected:
 
 private:
     AlutContext alutContext;
-#endif
 };
 }
 #endif

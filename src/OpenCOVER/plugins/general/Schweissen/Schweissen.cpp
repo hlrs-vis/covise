@@ -48,7 +48,6 @@ using namespace osg;
 Schweissen *Schweissen::plugin = NULL;
 float Schweissbrenner::basevalue = 10;
 const string MARKER = "Schweissen: ";
-vrml::Player *Schweissen::player = NULL;
 
 SchweissbrennerSensor::SchweissbrennerSensor(Schweissbrenner *m, osg::Node *n)
     : coPickSensor(n)

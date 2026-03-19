@@ -9,7 +9,6 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
 #include "VrmlNodePhysics.h"
-#include <vrml97/vrml/Player.h>
 #include <vrml97/vrml/VrmlNodeCOVER.h>
 #include <vrml97/vrml/VrmlScene.h>
 #include <vrml97/vrml/VrmlMFString.h>

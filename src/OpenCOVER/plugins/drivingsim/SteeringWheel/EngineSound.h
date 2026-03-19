@@ -9,9 +9,10 @@
 #define _EngineSound_H
 
 #include <string>
-#include <vrml97/vrml/Player.h>
+#include <audio/Player.h>
 #include <cover/coVRTui.h>
 using namespace opencover;
+using namespace opencover::audio;
 using namespace covise;
 
 #define NUM_SPEEDS 30
@@ -20,22 +21,22 @@ using namespace covise;
 class SoundStep
 {
 public:
-    SoundStep(vrml::Player *p, float umin);
+    SoundStep(Player *p, float umin);
     virtual ~SoundStep();
     void stop();
     void start();
-    vrml::Player::Source *source;
+    Player::Source *source;
     float speed;
     bool playing;
-    vrml::Player *player;
+    Player *player;
 };
 
 class EngineSound : public coTUIListener
 {
 public:
-    vrml::Player *player;
+    Player *player;
 
-    EngineSound(vrml::Player *p);
+    EngineSound(Player *p);
     virtual ~EngineSound();
 
     void setSpeed(float umin); // 0 == off

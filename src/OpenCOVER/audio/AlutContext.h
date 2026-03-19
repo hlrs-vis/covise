@@ -5,13 +5,15 @@
 
  * License: LGPL 2+ */
 
-#ifndef _VRML_ALUT_CONTEXT_H
-#define _VRML_ALUT_CONTEXT_H
+#ifndef _COVER_AUDIO_ALUT_CONTEXT_H_
+#define _COVER_AUDIO_ALUT_CONTEXT_H_
 
-namespace vrml
+#include <util/coExport.h>
+
+namespace opencover::audio
 {
 
-class AlutContext
+class COVEREXPORT AlutContext
 {
 public:
     AlutContext();

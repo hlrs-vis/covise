@@ -386,7 +386,6 @@ class PDBPlugin : public coMenuListener, public coButtonActor, public coValuePot
 
     ViewerOsg *viewer;
     VrmlScene *vrmlScene;
-    Player *player;
 
     // popup name panel
     coPanel *namePanel;

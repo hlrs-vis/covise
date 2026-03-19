@@ -92,7 +92,7 @@
 #define PFUDEV_MOD_ALT_MASK 0x3800
 #define PFUDEV_MOD_MASK 0x3ff0
 #endif
-#include "Player.h"
+#include "audio/Player.h"
 
 #if defined(_WIN32) || defined(__APPLE__)
 #define KeyPress 1
@@ -108,38 +108,37 @@ VrmlNodeCOVER *theCOVER = NULL;
 }
 
 using namespace vrml;
+using opencover::audio::Player;
 
 void VrmlNodeCOVER::initFields(VrmlNodeCOVER *node, VrmlNodeType *t)
 {
     for (size_t i = 0; i < NUM_POSITIONS; i++)
     {
         initFieldsHelper(node, t,
-                         exposedField("position" + std::to_string(i + 1), node->d_positions[i]),
-                         exposedField("orientation" + std::to_string(i + 1), node->d_orientations[i]));
+            exposedField("position" + std::to_string(i + 1), node->d_positions[i]),
+            exposedField("orientation" + std::to_string(i + 1), node->d_orientations[i]));
     }
     initFieldsHelper(node, t,
-                        exposedField("soundEnvironment", node->d_soundEnvironment, [](auto fieldValue) {
-                            Player *player = System::the->getPlayer();
-                            if (player)
-                            {
-                                player->setEAXEnvironment(theCOVER->d_soundEnvironment.get());
-                            }
-                        }),
-                        exposedField("animationTimeStep", node->d_animationTimeStep, [](auto fieldValue) {
-                            System::the->setTimeStep(theCOVER->d_animationTimeStep.get());
-                        }),
-                        exposedField("activePerson", node->d_activePerson, [](auto fieldValue){
-                            System::the->setActivePerson(theCOVER->d_activePerson.get());
-                        }),
-                        exposedField("loadPlugin", node->d_loadPlugin, [](auto fieldValue){
-                            System::the->loadPlugin(theCOVER->d_loadPlugin.get());
-                        }),
-                        exposedField("set_loadPlugin", node->d_loadPlugin, [](auto fieldValue){
-                            System::the->loadPlugin(theCOVER->d_loadPlugin.get());
-                            //this could be a hack to make the plugin load immediately or it is a mistake
-                        }));
-                        
-    if(t)
+        exposedField("soundEnvironment", node->d_soundEnvironment, [](auto fieldValue)
+            {
+                Player *player = System::the->getPlayer();
+                if (player)
+                {
+                    player->setEAXEnvironment(theCOVER->d_soundEnvironment.get());
+                } }),
+        exposedField("animationTimeStep", node->d_animationTimeStep, [](auto fieldValue)
+            { System::the->setTimeStep(theCOVER->d_animationTimeStep.get()); }),
+        exposedField("activePerson", node->d_activePerson, [](auto fieldValue)
+            { System::the->setActivePerson(theCOVER->d_activePerson.get()); }),
+        exposedField("loadPlugin", node->d_loadPlugin, [](auto fieldValue)
+            { System::the->loadPlugin(theCOVER->d_loadPlugin.get()); }),
+        exposedField("set_loadPlugin", node->d_loadPlugin, [](auto fieldValue)
+            {
+                System::the->loadPlugin(theCOVER->d_loadPlugin.get());
+                // this could be a hack to make the plugin load immediately or it is a mistake
+            }));
+
+    if (t)
     {
         t->addEventOut("localKeyPressed", VrmlField::SFSTRING);
         t->addEventOut("localKeyReleased", VrmlField::SFSTRING);
@@ -158,8 +157,6 @@ void VrmlNodeCOVER::initFields(VrmlNodeCOVER *node, VrmlNodeType *t)
 
 const char *VrmlNodeCOVER::typeName() { return "COVER"; }
 
-
-
 VrmlNodeCOVER::VrmlNodeCOVER(VrmlScene *scene)
     : VrmlNodeChild(scene, typeName())
 {
@@ -169,7 +166,7 @@ VrmlNodeCOVER::VrmlNodeCOVER(VrmlScene *scene)
     d_animationTimeStep.set(0);
     d_activePerson.set(0);
     d_saveTimestamp.set("");
-	d_loadPlugin.set("");
+    d_loadPlugin.set("");
     reference();
     for (size_t i = 0; i < NUM_POSITIONS; i++)
     {
@@ -193,13 +190,11 @@ void VrmlNodeCOVER::update(double timeNow)
         Mtrans(tmpTrans, d_positions[i].get());
         Mmult(transformations[i], tmpRot, tmpTrans);
     }
-    
-    
-    //for(int u=0;u<4;u++)
-    //cerr << "vrml:" << transformations[0][u][0] << " "transformations[0][u][1] << " "transformations[0][u][2] << " "transformations[0][u][3] << " " << endl;
-    //cerr << transformations[0][u][0] << " "transformations[0][u][1] << " "transformations[0][u][2] << " "transformations[0][u][3] << " " << endl;
-    //cerr << transformations[0][u][0] << " "transformations[0][u][1] << " "transformations[0][u][2] << " "transformations[0][u][3] << " " << endl;
 
+    // for(int u=0;u<4;u++)
+    // cerr << "vrml:" << transformations[0][u][0] << " "transformations[0][u][1] << " "transformations[0][u][2] << " "transformations[0][u][3] << " " << endl;
+    // cerr << transformations[0][u][0] << " "transformations[0][u][1] << " "transformations[0][u][2] << " "transformations[0][u][3] << " " << endl;
+    // cerr << transformations[0][u][0] << " "transformations[0][u][1] << " "transformations[0][u][2] << " "transformations[0][u][3] << " " << endl;
 
     float pos[3];
     float ori[4];
@@ -228,12 +223,13 @@ void VrmlNodeCOVER::addToScene(VrmlScene *s, const char *)
 }
 
 void VrmlNodeCOVER::eventIn(double timeStamp,
-                            const char *eventName,
-                            const VrmlField *fieldValue)
+    const char *eventName,
+    const VrmlField *fieldValue)
 {
     if ((strcmp(eventName, "set_soundEnvironment") == 0) || (strcmp(eventName, "soundEnvironment") == 0))
     {
         Player *player = System::the->getPlayer();
+
         if (player)
         {
             player->setEAXEnvironment(d_soundEnvironment.get());
@@ -251,10 +247,10 @@ void VrmlNodeCOVER::eventIn(double timeStamp,
     {
         System::the->saveTimestamp(d_saveTimestamp.get());
     }
-	else if ((strcmp(eventName, "set_loadPlugin") == 0) || (strcmp(eventName, "loadPlugin") == 0))
-	{
-		System::the->loadPlugin(d_loadPlugin.get());
-	}
+    else if ((strcmp(eventName, "set_loadPlugin") == 0) || (strcmp(eventName, "loadPlugin") == 0))
+    {
+        System::the->loadPlugin(d_loadPlugin.get());
+    }
     else
     {
         VrmlNode::eventIn(timeStamp, eventName, fieldValue);
@@ -267,13 +263,13 @@ void VrmlNodeCOVER::remoteKeyEvent(enum VrmlNodeCOVER::KeyEventType type, const 
     double timeStamp = System::the->time();
     if (type == KeyPress)
     {
-        //cerr << "press " << keystring << endl;
+        // cerr << "press " << keystring << endl;
         d_keyPressed.set(keystring);
         eventOut(timeStamp, "keyPressed", d_keyPressed);
     }
     else if (type == KeyRelease)
     {
-        //cerr << "release " << keystring << endl;
+        // cerr << "release " << keystring << endl;
         d_keyReleased.set(keystring);
         eventOut(timeStamp, "keyReleased", d_keyReleased);
     }
@@ -298,7 +294,7 @@ void VrmlNodeCOVER::keyEvent(enum VrmlNodeCOVER::KeyEventType type, const char *
         d_localKeyReleased.set(keyString);
         eventOut(timeStamp, "localKeyReleased", d_keyReleased);
     }
-    //fprintf(stderr, "theCOVER: key type=%d, string=%s\n", type, keystringMod);
+    // fprintf(stderr, "theCOVER: key type=%d, string=%s\n", type, keystringMod);
     if (scene())
     {
         scene()->getSensorEventQueue()->sendKeyEvent(type, keyString);

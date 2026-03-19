@@ -29,7 +29,6 @@
 #include "CarSound.h"
 #else
 
-#include <vrml97/vrml/Player.h>
 #endif
 
 #include <string>
@@ -59,9 +58,6 @@ using namespace vehicleUtil;
 class InputDevice
 {
 public:
-#ifndef USE_CAR_SOUND
-    static Player *player;
-#endif
     static InputDevice *instance();
     static void destroy();
     virtual void updateInputState() = 0;
