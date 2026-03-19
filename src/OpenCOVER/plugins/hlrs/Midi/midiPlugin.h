@@ -22,7 +22,6 @@
 #include <MidiFile.h>
 #include <osg/ShapeDrawable>
 #include <osg/ShadeModel>
-#include <vrml97/vrml/Player.h>
 #include <cover/ui/Menu.h>
 #include <cover/ui/Action.h>
 #include <cover/ui/Button.h>
@@ -384,8 +383,6 @@ public:
     void addNote(Note*);
 	void endNote(MidiEvent& me);
 	void setRotation(osg::Vec3 &rotationSpeed);
-    vrml::Player::Source *trackSource;
-    vrml::Audio *trackAudio;
 	MidiInstrument *instrument=nullptr;
     osg::Geode *createLinesGeometry();
 
@@ -572,7 +569,7 @@ public:
 	void Reset();
 	void store();
 	void clearStore();
-    vrml::Player *player;
+    audio::Player *player;
     //scenegraph
 	osg::ref_ptr<osg::Group> MIDIRoot;
 	osg::ref_ptr<osg::Group> MIDIObjectsRoot;

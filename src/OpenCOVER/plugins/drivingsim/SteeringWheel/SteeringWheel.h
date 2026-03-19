@@ -51,7 +51,6 @@
 #include "VehicleDynamics.h"
 #include "CAN.h"
 
-#include <vrml97/vrml/Player.h>
 #include <cover/VRViewer.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRPluginSupport.h>

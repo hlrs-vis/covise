@@ -42,7 +42,6 @@
 
 
 GPSPlugin *GPSPlugin::plugin = NULL;
-vrml::Player *GPSPlugin::player = NULL;
 
 static const int NUM_HANDLERS = 1;
 

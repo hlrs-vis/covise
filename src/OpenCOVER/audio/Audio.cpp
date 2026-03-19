@@ -5,36 +5,21 @@
 
  * License: LGPL 2+ */
 
-//
-//  Vrml 97 library
-//  Copyright (C) 1998 Chris Morley
-//
-//
-//  Audio.cpp
-//    contributed by Kumaran Santhanam
-
-/*=========================================================================
-| CONSTANTS
- ========================================================================*/
-
-/*=========================================================================
-| INCLUDES
- ========================================================================*/
 #include "AL/al.h"
-#include "alut.h"
-#include "config.h"
+#include "AL/alut.h"
 
 #include "Audio.h"
-#include "Doc.h"
-#include "System.h"
 #include <util/coErr.h>
+#include <iostream>
 
-using namespace vrml;
+using namespace opencover::audio;
 
-Audio::Audio(const char *url, Doc *relative)
-    : _last_modified(System::the->time())
+Audio::Audio() { }
+
+Audio::Audio(const std::string &url)
+    : Audio()
 {
-    setURL(url, relative);
+    setURL(url);
 }
 
 Audio::~Audio()
@@ -42,44 +27,14 @@ Audio::~Audio()
     unload();
 }
 
-bool Audio::setURL(const char *url, Doc *relative)
+bool Audio::setURL(const std::string &url)
 {
-    if (url == nullptr)
-    {
-        return false;
-    }
-
-    _last_modified = System::the->time();
-
-    Doc doc(url, relative);
-    FILE *fp = doc.fopen("rb");
-    if (!fp)
-    {
-        return false;
-    }
-    _url = doc.url();
-    doc.fclose();
+    _url = url;
 
     loadFile();
     loadFileToBuffer();
 
     return true;
-}
-
-bool Audio::tryURLs(int nUrls, const char *const *urls, Doc *relative)
-{
-    int i;
-
-    for (i = 0; i < nUrls; ++i)
-        if (setURL(urls[i], relative))
-            return true;
-
-    return false;
-}
-
-const char *Audio::url() const
-{
-    return _url.c_str();
 }
 
 void Audio::loadFile()
@@ -92,14 +47,14 @@ void Audio::loadFile()
 
     if (!_alut.is_initialized)
     {
-        CERR << "ALUT not loaded" << std::endl;
+        std::cerr << "Audio: ALUT not loaded" << std::endl;
         return;
     }
 
     ALenum format;
     ALsizei size;
     ALfloat frequency;
-    ALvoid *sample = alutLoadMemoryFromFile(url(), &format, &size, &frequency);
+    ALvoid *sample = alutLoadMemoryFromFile(_url.c_str(), &format, &size, &frequency);
     if (sample == nullptr)
     {
         return;
@@ -139,21 +94,21 @@ void Audio::loadFileToBuffer()
 
     if (!_alut.has_context)
     {
-        CERR << "no ALUT context available to load audio file to buffer" << std::endl;
+        std::cerr << "Audio: no ALUT context available to load audio file to buffer" << std::endl;
         return;
     }
 
     if (!_alut.is_initialized)
     {
-        CERR << "ALUT not loaded" << std::endl;
+        std::cerr << "Audio: ALUT not loaded" << std::endl;
         return;
     }
 
-    _buffer = alutCreateBufferFromFile(url());
+    _buffer = alutCreateBufferFromFile(_url.c_str());
     if (_buffer == AL_NONE)
     {
         ALenum error = alutGetError();
-        CERR << "Error creating buffer: " << alutGetErrorString(error) << std::endl;
+        std::cerr << "Audio: Error creating buffer: " << alutGetErrorString(error) << std::endl;
     }
 
     ALsizei size;

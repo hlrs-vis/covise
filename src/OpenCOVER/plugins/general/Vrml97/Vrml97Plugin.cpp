@@ -43,7 +43,6 @@
 #include <cover/coVRPluginList.h>
 #include <cover/VRRegisterSceneGraph.h>
 
-#include <vrml97/vrml/Player.h>
 #include <vrml97/vrml/VrmlNodeCOVER.h>
 #include <vrml97/vrml/VrmlScene.h>
 #include <vrml97/vrml/VrmlMFString.h>
@@ -53,7 +52,6 @@
 #include <vrml97/vrml/VrmlNamespace.h>
 
 #include "Vrml97Plugin.h"
-#include "ListenerCover.h"
 #include "SystemCover.h"
 #include "ViewerOsg.h"
 
@@ -189,7 +187,6 @@ int Vrml97Plugin::loadVrml(const char *filename, osg::Group *group, const char *
                     plugin->viewer = new ViewerOsg(plugin->vrmlScene, group);
                 else
                     plugin->viewer = new ViewerOsg(plugin->vrmlScene, cover->getObjectsRoot());
-                plugin->viewer->setPlayer(plugin->player);
                 plugin->vrmlScene->addWorldChangedCallback(worldChangedCB);
                 // worldChangedCB(VrmlScene::REPLACE_WORLD);
                 plugin->isNewVRML = true;
@@ -211,8 +208,6 @@ int Vrml97Plugin::loadVrml(const char *filename, osg::Group *group, const char *
 		OpenCOVER::instance()->hud->setText2("done parsing");
 		if (plugin->viewer)
 			plugin->viewer->update();
-		if (plugin->player)
-			plugin->player->update();
 		if (System::the)
 			System::the->update();
 		osg::Node* root = getRegistrationRoot();
@@ -252,7 +247,6 @@ int Vrml97Plugin::replaceVrml(const char *filename, osg::Group *group, const cha
         plugin->viewer = new ViewerOsg(plugin->vrmlScene, group);
     else
         plugin->viewer = new ViewerOsg(plugin->vrmlScene, cover->getObjectsRoot());
-    plugin->viewer->setPlayer(plugin->player);
     plugin->vrmlScene->addWorldChangedCallback(worldChangedCB);
     if (plugin->vrmlScene->wasEncrypted())
     {
@@ -262,8 +256,6 @@ int Vrml97Plugin::replaceVrml(const char *filename, osg::Group *group, const cha
 
     if (plugin->viewer)
         plugin->viewer->update();
-    if (plugin->player)
-        plugin->player->update();
     if (System::the)
         System::the->update();
 
@@ -315,10 +307,9 @@ void Vrml97Plugin::worldChangedCB(int reason)
 Vrml97Plugin::Vrml97Plugin()
 : coVRPlugin(COVER_PLUGIN_NAME)
 , ui::Owner("Vrml97Plugin", cover->ui)
-, listener(NULL)
 , viewer(NULL)
 , vrmlScene(NULL)
-, player(NULL)
+
 {
     //fprintf(stderr,"Vrml97Plugin::Vrml97Plugin\n");
     if (plugin)
@@ -343,13 +334,6 @@ bool Vrml97Plugin::init()
         if (cover->debugLevel(1))
             fprintf(stderr, "Vrml97Plugin::Vrml97Plugin(): System::the was non-NULL !!!\n");
         return false;
-    }
-
-    if (!coVRMSController::instance()->isSlave())
-    {
-        listener = new ListenerCover(cover);
-        this->player = listener->createPlayer();
-        cover->registerPlayer(player);
     }
 
     coVRFileManager::instance()->registerFileHandler(&handlers[0]);
@@ -400,19 +384,6 @@ Vrml97Plugin::~Vrml97Plugin()
 {
     unloadVrml("");
 
-    if (!coVRMSController::instance()->isSlave())
-    {
-        if (listener)
-        {
-
-            cover->unregisterPlayer(player);
-            listener->destroyPlayer(this->player);
-            this->player = NULL;
-            delete listener;
-            listener = NULL;
-        }
-    }
-
 	coVRFileManager::instance()->unregisterFileHandler(&handlers[4]);
 	coVRFileManager::instance()->unregisterFileHandler(&handlers[3]);
 	coVRFileManager::instance()->unregisterFileHandler(&handlers[2]);
@@ -433,8 +404,6 @@ Vrml97Plugin::update()
     {
         render = this->viewer->update();
     }
-    if (this->player)
-        this->player->update();
     if (System::the)
         System::the->update();
 
@@ -691,6 +660,7 @@ Vrml97Plugin::key(int type, int keySym, int mod)
         theCOVER->keyEvent(vrmlType, keyString);
     }
 
+    /*
     if (vrmlType == VrmlNodeCOVER::Press && (!strcmp(keyString, "Alt-a") || !strcmp(keyString, "Alt-A")))
     {
         // reconnect audio server
@@ -701,6 +671,8 @@ Vrml97Plugin::key(int type, int keySym, int mod)
             plugin->player->restart();
         }
     }
+    */
+
     if (cover->debugLevel(1))
     {
         if (vrmlType == VrmlNodeCOVER::Release)

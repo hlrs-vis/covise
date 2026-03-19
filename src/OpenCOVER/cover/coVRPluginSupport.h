@@ -59,23 +59,32 @@
 
 #include <net/message_types.h>
 #include <array>
-namespace opencover {
+namespace opencover
+{
 
-namespace ui {
-class ButtonGroup;
-class Menu;
-class Manager;
-class VruiView;
+namespace ui
+{
+    class ButtonGroup;
+    class Menu;
+    class Manager;
+    class VruiView;
+}
+namespace audio
+{
+    class Player;
+    class Listener;
 }
 }
 
-namespace covise {
+namespace covise
+{
 class MessageBase;
 class Message;
 class UdpMessage;
 }
 
-namespace grmsg {
+namespace grmsg
+{
 class coGRMsg;
 }
 
@@ -96,10 +105,6 @@ class coUpdateManager;
 class coMenu;
 class coToolboxMenu;
 class coRowMenu;
-}
-namespace vrml
-{
-class Player;
 }
 
 namespace covise
@@ -128,7 +133,7 @@ struct Isect
         Right = 256,
         CastShadow = 512,
         ReceiveShadow = 1024,
-		Update = 2048,
+        Update = 2048,
         OsgEarthSecondary = 0x80000000,
     };
 
@@ -137,14 +142,14 @@ private:
 
 namespace Notify
 {
-enum NotificationLevel
-{
-    Debug,
-    Info,
-    Warning,
-    Error,
-    Fatal
-};
+    enum NotificationLevel
+    {
+        Debug,
+        Info,
+        Warning,
+        Error,
+        Fatal
+    };
 }
 
 /*! \class coPointerButton coVRPluginSupport.h cover/coVRPluginSupport.h
@@ -165,13 +170,13 @@ public:
     //! @return old button state
     unsigned int oldState() const;
     //! buttons pressed since last frame
-    unsigned int wasPressed(unsigned int buttonMask=vrui::vruiButtons::ALL_BUTTONS) const;
+    unsigned int wasPressed(unsigned int buttonMask = vrui::vruiButtons::ALL_BUTTONS) const;
     //! buttons released since last frame
-    unsigned int wasReleased(unsigned int buttonMask=vrui::vruiButtons::ALL_BUTTONS) const;
+    unsigned int wasReleased(unsigned int buttonMask = vrui::vruiButtons::ALL_BUTTONS) const;
     //! is no button pressed
     bool notPressed() const;
     //! accumulated number of wheel events
-    int getWheel(size_t idx=0) const;
+    int getWheel(size_t idx = 0) const;
     //! set number wheel events
     void setWheel(size_t idx, int count);
     //! button name
@@ -183,7 +188,7 @@ private:
 
     unsigned int buttonStatus = 0;
     unsigned int lastStatus = 0;
-    int wheelCount[2]={0,0};
+    int wheelCount[2] = { 0, 0 };
     std::string m_name;
 };
 
@@ -213,7 +218,7 @@ public:
     bool debugLevel(int level) const;
     void initUI();
     // show a message to the user
-    std::ostream &notify(Notify::NotificationLevel level=Notify::Info) const;
+    std::ostream &notify(Notify::NotificationLevel level = Notify::Info) const;
     std::ostream &notify(Notify::NotificationLevel level, const char *format, ...) const
 #ifdef __GNUC__
         __attribute__((format(printf, 3, 4)))
@@ -237,7 +242,7 @@ public:
         return clipPlanes[num].get();
     }
 
-	void preparePluginUnload();
+    void preparePluginUnload();
 
     //! returns true if clipping is on
     bool isClippingOn() const;
@@ -291,7 +296,7 @@ public:
 
     LengthUnit getSceneUnit() const;
     void setSceneUnit(LengthUnit unit);
-    void setSceneUnit(const std::string& unitName);
+    void setSceneUnit(const std::string &unitName);
     //! transformation matrix from object coordinates to world coordinates
     /*! multiplied matrices from scene node to objects root node */
     const osg::Matrix &getBaseMat() const
@@ -324,7 +329,7 @@ public:
     // tracker data
 
     //! get the position and orientation of the user i in world coordinates
-    const osg::Matrix& getViewerMat(int view=0) const;
+    const osg::Matrix &getViewerMat(int view = 0) const;
 
     //! search geodes under node and set Visible bit in node mask
     void setNodesIsectable(osg::Node *n, bool isect);
@@ -363,7 +368,7 @@ public:
 
     //! remove node from the scene graph,
     /*! use this method when removing nodes from the scene graph in order to update
-       * OpenCOVER's internal state */
+     * OpenCOVER's internal state */
     //! @return if a node was removed
     bool removeNode(osg::Node *node, bool isGroup = false);
 
@@ -374,7 +379,7 @@ public:
     void sendMessage(const coVRPlugin *sender, const char *destination, int type, int len, const void *buf, bool localonly = false);
 
     //! handle coGRMsgs and call guiToRenderMsg method of all plugins
-    void guiToRenderMsg(const grmsg::coGRMsg &msg)  const;
+    void guiToRenderMsg(const grmsg::coGRMsg &msg) const;
 
     //! grab keyboard input
     /*! other plugins will not get key event notifications,
@@ -471,10 +476,7 @@ public:
     osg::Matrix envCorrectMat;
     osg::Matrix invEnvCorrectMat;
 
-    int registerPlayer(vrml::Player *player);
-    int unregisterPlayer(vrml::Player *player);
-    vrml::Player *usePlayer(void (*playerUnavailableCB)());
-    int unusePlayer(void (*playerUnavailableCB)());
+    audio::Player *getPlayer();
 
     int numJoysticks;
     unsigned char number_buttons[MAX_NUMBER_JOYSTICKS];
@@ -514,7 +516,7 @@ public:
     //! compute the box of all visible nodes above and included node
     osg::BoundingBox getBBox(osg::Node *node) const;
 
-    //restrict interactors to visible scene
+    // restrict interactors to visible scene
     bool restrictOn() const;
 
     /// @endcond INTERNAL
@@ -567,14 +569,15 @@ private:
     double frameStartTime, frameStartRealTime;
     osgViewer::GraphicsWindow::MouseCursor currentCursor;
     bool cursorVisible = true;
-    vrml::Player *player = nullptr;
-    std::set<void (*)()> playerUseList;
+
+    audio::Listener *listener = nullptr;
+    audio::Player *player = nullptr;
 
     int activeClippingPlane = 0;
 
     osg::ref_ptr<osg::Geode> intersectedNode;
     osg::ref_ptr<osg::Drawable> intersectedDrawable;
-    //osg::ref_ptr<osg::NodePath> intersectedNodePath;
+    // osg::ref_ptr<osg::NodePath> intersectedNodePath;
     osg::NodePath intersectedNodePath;
     osg::Vec3 intersectionHitPointWorld;
     osg::Vec3 intersectionHitPointWorldNormal;

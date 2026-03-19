@@ -17,26 +17,36 @@
 #include <cover/coBillboard.h>
 #include <osg/Material>
 
-#include <vrml97/vrml/Player.h>
-
-
+#include <audio/Player.h>
 
 using namespace opencover;
 using namespace covise;
 
 namespace vrui
 {
-    class coNavInteraction;
+class coNavInteraction;
 }
 class PointSensor;
 
-//Single Point
+// Single Point
 class GPSPoint
 {
 public:
-    enum pointType {Good, Medium ,Bad,Angst,Text,Foto,Sprachaufnahme,Barriere, OtherChoice};
+    enum pointType
+    {
+        Good,
+        Medium,
+        Bad,
+        Angst,
+        Text,
+        Foto,
+        Sprachaufnahme,
+        Barriere,
+        OtherChoice
+    };
     pointType PT;
     bool inBound;
+
 private:
     double longitude;
     double latitude;
@@ -48,8 +58,8 @@ private:
 
 public:
     GPSPoint(std::string directory);
-    ~GPSPoint();  
-    void setPointData (double x, double y, std::string &name);
+    ~GPSPoint();
+    void setPointData(double x, double y, std::string &name);
     void setIndex(int i);
     void draw();
     void createSphere(osg::Vec4 *colVec);
@@ -70,22 +80,19 @@ public:
     osg::ref_ptr<osg::Geode> TextGeode;
     osg::ref_ptr<osg::Image> img;
 
-
     osg::ref_ptr<osg::Sphere> sphere;
     osg::ref_ptr<osg::Geode> PointSphere;
     osg::ref_ptr<osg::ShapeDrawable> sphereD;
 
     osg::ref_ptr<osg::Material> streetmarkMaterial;
 
-    vrml::Audio *audio;
-    vrml::Player::Source *source;
-
+    audio::Audio *audio;
+    audio::Player::Source *source;
 
     PointSensor *mySensor;
     void activate();
     void disactivate();
     void update();
 };
-
 
 #endif

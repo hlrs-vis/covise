@@ -10,12 +10,12 @@
 
 #include "Player.h"
 
-namespace vrml
+namespace opencover::audio
 {
 
 class Listener;
 
-class VRMLEXPORT PlayerAServer : public Player
+class COVEREXPORT PlayerAServer : public Player
 {
 public:
     PlayerAServer(const Listener *listener, const std::string &host, int port);
@@ -45,7 +45,7 @@ protected:
         virtual void stopForRestart();
         virtual void restart();
 
-        //virtual void setMute(bool mute);
+        // virtual void setMute(bool mute);
         virtual void setLoop(bool loop);
 
         virtual int update(const Player *player, char *buf = 0, int numFrames = 0);
@@ -54,7 +54,7 @@ protected:
         float odirection;
         float ointensity;
         float opitch;
-        vec ov;
+        glm::vec3 ov;
         PlayerAServer *player;
 
     private:

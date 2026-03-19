@@ -46,7 +46,6 @@ using namespace osg;
 Marker *Marker::plugin = NULL;
 float Mark::basevalue = 10;
 const string MARKER = "Marker: ";
-vrml::Player *Marker::player = NULL;
 
 MarkerSensor::MarkerSensor(Mark *m, osg::Node *n)
     : coPickSensor(n)

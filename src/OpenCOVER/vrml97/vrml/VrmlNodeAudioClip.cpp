@@ -13,19 +13,33 @@
 //  VrmlNodeAudioClip.cpp
 //    contributed by Kumaran Santhanam
 
+#include <audio/Audio.h>
+
 #include "VrmlNodeAudioClip.h"
 #include "VrmlNodeType.h"
 #include "VrmlScene.h"
 #include "MathUtils.h"
-#include "Audio.h"
 #include "Doc.h"
 #include "VrmlNodeSound.h"
+#include "System.h"
 
 using std::cerr;
 using std::endl;
 using namespace vrml;
+using namespace opencover::audio;
 
 // Render
+bool fileExists(std::string &url, const Doc &relativeTo)
+{
+    Doc doc(url, &relativeTo);
+    FILE *fp = doc.fopen("rb");
+    if (!fp)
+    {
+        return false;
+    }
+    url = doc.url();
+    return true;
+}
 
 void VrmlNodeAudioClip::update(VrmlSFTime &now)
 {
@@ -33,14 +47,23 @@ void VrmlNodeAudioClip::update(VrmlSFTime &now)
     if (d_url_modified)
     {
         Doc relDoc(d_relativeUrl.get());
-        if (d_audio->tryURLs(d_url.size(),
-                d_url.get(),
-                &relDoc))
+
+        for (int i = 0; i < d_url.size(); i++)
         {
-            d_duration.set(d_audio->duration());
-            eventOut(now.get(), "duration_changed", d_duration);
+            std::string url(d_url.get(i));
+            if (fileExists(url, relDoc))
+            {
+                d_audio->setURL(url);
+                d_duration.set(d_audio->duration());
+                eventOut(now.get(), "duration_changed", d_duration);
+                d_url_modified = false;
+                audioLastModified = System::the->time();
+                break;
+            }
         }
-        else
+
+        // Still
+        if (d_url_modified)
         {
             cerr << "Error: couldn't read AudioClip from URL "
                  << d_url << endl;
@@ -85,7 +108,7 @@ VrmlNodeAudioClip::VrmlNodeAudioClip(VrmlScene *scene)
     : VrmlNode(scene, typeName())
     , d_pitch(1.0)
     , d_isActive(false)
-    , d_audio(new Audio(0))
+    , d_audio(new Audio())
     , d_url_modified(false)
     , _doc(0)
     , lastActive(false)
@@ -109,6 +132,7 @@ VrmlNodeAudioClip::VrmlNodeAudioClip(const VrmlNodeAudioClip &n)
     , d_url_modified(true)
     , _doc(0)
     , lastActive(false)
+    , audioLastModified(System::the->time())
 {
     if (d_scene)
         d_scene->addAudioClip(this);

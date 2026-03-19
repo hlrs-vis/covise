@@ -12,12 +12,12 @@
 
 #include <config/CoviseConfig.h>
 
-#include "vrml97/vrml/PlayerAServer.h"
-#include "vrml97/vrml/PlayerOpenAL.h"
-#include "vrml97/vrml/PlayerOsc.h"
+#include "audio/PlayerAServer.h"
+#include "audio/PlayerOpenAL.h"
+#include "audio/PlayerOsc.h"
 
 using std::endl;
-using namespace vrml;
+using namespace opencover::audio;
 using covise::coCoviseConfig;
 
 Player::Source::Source(const Audio *audio)
@@ -35,7 +35,6 @@ Player::Source::Source(const Audio *audio)
     , player(0)
     , handle(-1)
 {
-    // CERR << "new source" << endl;
 }
 
 Player::Source::~Source()
@@ -56,27 +55,12 @@ void Player::Source::setPitch(float pitch)
 
 void Player::Source::setPosition(float x, float y, float z)
 {
-    this->x = vec(x, y, z);
-}
-
-void Player::Source::setPositionOC(float x, float y, float z)
-{
-    if (player)
-    {
-        vec oc = vec(x, y, z);
-        vec wc = player->OCtoWC(oc);
-
-        setPosition(wc.x, wc.y, wc.z);
-    }
-    else
-    {
-        setPosition(0.0, 0.0, 0.0);
-    }
+    this->x = glm::vec3(x, y, z);
 }
 
 void Player::Source::setVelocity(float vx, float vy, float vz)
 {
-    this->v = vec(vx, vy, vz);
+    this->v = glm::vec3(vx, vy, vz);
 }
 
 void Player::Source::setIntensity(float intensity)
@@ -111,13 +95,11 @@ void Player::Source::setSpatialize(bool spatialize)
 
 void Player::Source::play()
 {
-    // CERR << "Player::Source::play()" << endl;
     play(startTime);
 }
 
 void Player::Source::play(double start)
 {
-    // CERR << "Player::Source::play(double)" << endl;
     (void)start;
     playing = true;
 }
@@ -135,12 +117,9 @@ bool Player::Source::isPlaying()
 Player::Player(const Listener *listener)
     : listener(listener)
     , speedOfSound(343000.0)
-    , // unit is mm
-    numSources(0)
+    , numSources(0)
     , sources()
 {
-    if (!listener)
-        CERR << "listener is NULL !!!" << endl;
 }
 
 Player::~Player()
@@ -152,92 +131,6 @@ Player::~Player()
         *it = 0;
     }
     sources.resize(0);
-}
-
-vec Player::getListenerPositionWC() const
-{
-    if (listener)
-        return listener->getPositionWC();
-    else
-        return vec(0.0, 0.0, 0.0);
-}
-
-vec Player::getListenerPositionVC() const
-{
-    if (listener)
-        return listener->getPositionVC();
-    else
-        return vec(0.0, 0.0, 0.0);
-}
-
-vec Player::getListenerPositionOC() const
-{
-    if (listener)
-        return listener->getPositionOC();
-    else
-        return vec(0.0, 0.0, 0.0);
-}
-
-void Player::getListenerOrientation(vec *at, vec *up) const
-{
-    if (listener)
-        listener->getOrientation(at, up);
-}
-
-vec Player::getListenerVelocity() const
-{
-    if (listener)
-        return listener->getVelocity();
-    else
-        return vec(0.0, 0.0, 0.0);
-}
-
-vec Player::WCtoVC(vec p) const
-{
-    if (listener)
-        return listener->WCtoVC(p);
-    else
-        return vec(0.0, 0.0, 0.0);
-}
-
-vec Player::WCtoOC(vec p) const
-{
-    if (listener)
-        return listener->WCtoOC(p);
-    else
-        return vec(0.0, 0.0, 0.0);
-}
-
-vec Player::VCtoWC(vec p) const
-{
-    if (listener)
-        return listener->VCtoWC(p);
-    else
-        return vec(0.0, 0.0, 0.0);
-}
-
-vec Player::VCtoOC(vec p) const
-{
-    if (listener)
-        return listener->VCtoOC(p);
-    else
-        return vec(0.0, 0.0, 0.0);
-}
-
-vec Player::OCtoWC(vec p) const
-{
-    if (listener)
-        return listener->OCtoWC(p);
-    else
-        return vec(0.0, 0.0, 0.0);
-}
-
-vec Player::OCtoVC(vec p) const
-{
-    if (listener)
-        return listener->OCtoVC(p);
-    else
-        return vec(0.0, 0.0, 0.0);
 }
 
 int Player::addSource(Source *src)
@@ -268,8 +161,6 @@ int Player::addSource(Source *src)
     src->handle = handle;
     src->player = this;
 
-    // CERR << "numsources: " << numSources << endl;
-
     return handle;
 }
 
@@ -284,26 +175,26 @@ Player *Player::createPlayer(Listener *listener, const std::string &type)
     {
         // TODO: Remove legacy config, let PlayerAServer read the new audio
         // config file and parse it itself.
-        std::string host = coCoviseConfig::getEntry("value", "COVER.Plugin.Vrml97.Audio.Host", "localhost");
-        int port = coCoviseConfig::getInt("port", "COVER.Plugin.Vrml97.Audio.Host", 31231);
+        std::string host = coCoviseConfig::getEntry("value", "COVER.Audio.Host", "localhost");
+        int port = coCoviseConfig::getInt("port", "COVER.Audio.Host", 31231);
 
-        return new vrml::PlayerAServer(listener, host, port);
+        return new PlayerAServer(listener, host, port);
     }
     else if (boost::iequals(type, "openal"))
     {
-        return new vrml::PlayerOpenAL(listener);
+        return new PlayerOpenAL(listener);
     }
     else if (boost::iequals(type, "osc"))
     {
 
-        return new vrml::PlayerOsc(listener);
+        return new PlayerOsc(listener);
     }
     else if (boost::iequals(type, "none"))
     {
         return nullptr;
     }
 
-    CERR << "unknown player type: " << type << endl;
+    std::cerr << "Player::createPlayer: unknown player type: " << type << endl;
     return nullptr;
 }
 
@@ -311,7 +202,7 @@ int Player::checkHandle(int handle) const
 {
     if (handle < 0 || handle >= (int)sources.size() || 0 == sources[handle])
     {
-        CERR << "handle(" << handle << ") out of range" << endl;
+        std::cerr << "handle(" << handle << ") out of range" << endl;
         return -1;
     }
 
@@ -342,28 +233,9 @@ void Player::removeSource(int handle)
         sources.resize(handle);
 
     numSources--;
-
-    // CERR << "numsources: " << numSources << endl;
 }
 
 void Player::setSpeedOfSound(float speed)
 {
     speedOfSound = speed;
-}
-
-float Player::calculateDoppler(const Source *src) const
-{
-    vec vc = OCtoVC(src->x);
-    vec rel = vc.sub(getListenerPositionVC());
-
-    float pitch = 1.0;
-
-    if (rel.length() > 0.0)
-    {
-        float vl = rel.normalize().dot(getListenerVelocity());
-        float vs = rel.normalize().dot(src->v);
-        pitch = (speedOfSound - vl) / (speedOfSound + vs);
-    }
-
-    return pitch;
 }

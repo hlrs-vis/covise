@@ -10,7 +10,7 @@
 #include <fcntl.h>
 #include <memory>
 #include <sys/types.h>
-#include <vrml97/vrml/Audio.h>
+#include "Audio.h"
 
 #include <boost/uuid/uuid_io.hpp>
 
@@ -20,7 +20,7 @@
 #include <OpenConfig/value.h>
 #include <OpenConfig/file.h>
 
-using namespace vrml;
+using namespace opencover::audio;
 
 #define MAX_BUFLEN 1024
 

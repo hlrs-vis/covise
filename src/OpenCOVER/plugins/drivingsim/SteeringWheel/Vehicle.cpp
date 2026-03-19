@@ -22,19 +22,8 @@
 
 #include <OpenVRUI/osg/mathUtils.h>
 
-#ifndef USE_CAR_SOUND
-Player *VrmlNodeVehicle::player = NULL;
-#endif
-
 osg::Vec2d VrmlNodeVehicle::actual_pos(-1, -1);
 double VrmlNodeVehicle::velocity = -1.0;
-
-void playerUnavailableCB()
-{
-#ifndef USE_CAR_SOUND
-    VrmlNodeVehicle::player = NULL;
-#endif
-}
 
 void VrmlNodeVehicle::initFields(VrmlNodeVehicle *node, vrml::VrmlNodeType *t)
 {
@@ -319,19 +308,10 @@ void VrmlNodeVehicle::init()
     gearSound = NULL;
     hornSound = NULL;
 
+    Player* player = cover->getPlayer();
     if (player == NULL)
     {
-        player = cover->usePlayer(playerUnavailableCB);
-        if (player == NULL)
-        {
-            cover->unusePlayer(playerUnavailableCB);
-            cover->addPlugin("Vrml97");
-            player = cover->usePlayer(playerUnavailableCB);
-            if (player == NULL)
-            {
-                cerr << "sorry, no VRML, no Sound support " << endl;
-            }
-        }
+        cerr << "sorry, no audio support " << endl;
     }
     engineSound = new EngineSound(player);
     Audio *engineAudio = new Audio("porsche.wav");

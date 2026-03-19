@@ -12,7 +12,7 @@
 
 #define MAX_BODIES 100
 #ifdef WIN32
-//#define STRICT
+// #define STRICT
 #define DIRECTINPUT_VERSION 0x0800
 #include <winsock2.h>
 #include <windows.h>
@@ -36,7 +36,7 @@
 
 #include <util/coTypes.h>
 
-#include <vrml97/vrml/Player.h>
+#include <audio/Player.h>
 #include <vrml97/vrml/config.h>
 #include <vrml97/vrml/VrmlNodeType.h>
 #include <vrml97/vrml/coEventQueue.h>
@@ -72,7 +72,6 @@ public:
 #ifdef USE_CAR_SOUND
     CarSound *carSound;
 #else
-    static Player *player;
     Player::Source *source;
     Player::Source *gearSound;
     Player::Source *hornSound;
@@ -86,11 +85,10 @@ public:
     VrmlNodeVehicle(const VrmlNodeVehicle &n);
     virtual ~VrmlNodeVehicle();
 
-
     virtual VrmlNodeVehicle *toVehicleWheel() const;
 
     void eventIn(double timeStamp, const char *eventName,
-                 const VrmlField *fieldValue);
+        const VrmlField *fieldValue);
 
     float getA(float v, float vmin, float vmax);
 
@@ -112,11 +110,11 @@ public:
     void setVRMLVehicleFrontWheels(const osg::Matrix &transFL, const osg::Matrix &transFR);
     void setVRMLVehicleRearWheels(const osg::Matrix &transRL, const osg::Matrix &transRR);
 
-    //Ghostfahrzeug
+    // Ghostfahrzeug
     void setVRMLVehicleFFZBody(const osg::Matrix &trans);
     void setVRMLVehicleFFZFrontWheels(const osg::Matrix &transFL, const osg::Matrix &transFR);
     void setVRMLVehicleFFZRearWheels(const osg::Matrix &transRL, const osg::Matrix &transRR);
-    //additionalData
+    // additionalData
     void setVRMLAdditionalData(float, float, float, float, float, float, float, float, float, float, int, int, int, int, int, int, int, int, int, int);
     void setVRMLVehicleAxles(const osg::Matrix &axle1Trans, const osg::Matrix &axle2Trans);
     void setVRMLVehicleWheels(const osg::Matrix &wheel1Trans, const osg::Matrix &wheel2Trans, const osg::Matrix &wheel3Trans, const osg::Matrix &wheel4Trans);
@@ -165,7 +163,7 @@ private:
     VrmlSFVec3f d_wheelRRTranslation;
     VrmlSFRotation d_wheelRRRotation;
 
-    //Ghost
+    // Ghost
     VrmlSFVec3f d_ffz1wheelFLTranslation;
     VrmlSFRotation d_ffz1wheelFLRotation;
     VrmlSFVec3f d_ffz1wheelFRTranslation;
@@ -175,11 +173,10 @@ private:
     VrmlSFVec3f d_ffz1wheelRRTranslation;
     VrmlSFRotation d_ffz1wheelRRRotation;
 
-    //additional Data
+    // additional Data
     static const size_t NUM_ADDITIONAL_FIELDS = 10;
     std::array<VrmlSFFloat, NUM_ADDITIONAL_FIELDS> d_float_values;
     std::array<VrmlSFInt, NUM_ADDITIONAL_FIELDS> d_int_values;
-
 
     static const int NUM_WHEELS = 4;
     std::array<VrmlSFRotation, NUM_WHEELS> d_wheelRotations;

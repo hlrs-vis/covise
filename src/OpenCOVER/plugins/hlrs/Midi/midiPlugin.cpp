@@ -2129,26 +2129,6 @@ Track::Track(int tn, bool l)
 		}
 	}
 
-	char soundName[200];
-	snprintf(soundName, 200, "RENDERS/S%d.wav", tn);
-	//trackAudio = new vrml::Audio(soundName);
-	trackAudio = NULL;
-	trackSource = NULL;
-	if (trackAudio != NULL && MidiPlugin::instance()->player)
-	{
-		trackSource = MidiPlugin::instance()->player->newSource(trackAudio);
-		if (trackSource)
-		{
-			trackSource->setLoop(false);
-			trackSource->setPitch(1);
-			trackSource->stop();
-			trackSource->setIntensity(1.0);
-			trackSource->setSpatialize(false);
-			trackSource->setVelocity(0, 0, 0);
-
-		}
-	}
-
 	geometryLines = createLinesGeometry();
 	TrackRoot->addChild(geometryLines);
 	lastNum = 0;
@@ -2357,10 +2337,6 @@ void Track::clearStore()
 void Track::reset()
 {
 	eventNumber = 0;
-	if (trackSource != NULL)
-	{
-		trackSource->play();
-	}
 	for (std::list<Note *>::iterator it = notes.begin(); it != notes.end(); it++)
 	{
 		delete *it;
@@ -2619,18 +2595,10 @@ void Track::setVisible(bool state)
 	if (state)
 	{
 		MidiPlugin::instance()->MIDITrans[trackNumber%MidiPlugin::instance()->NUMMidiStreams]->addChild(TrackRoot);
-		if (trackSource != NULL)
-		{
-			trackSource->play();
-		}
 	}
 	else
 	{
 		MidiPlugin::instance()->MIDIRoot->removeChild(TrackRoot);
-		if (trackSource != NULL)
-		{
-			trackSource->stop();
-		}
 	}
 }
 

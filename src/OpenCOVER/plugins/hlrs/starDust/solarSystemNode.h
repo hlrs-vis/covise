@@ -14,7 +14,6 @@
 #include <util/coTypes.h>
 #include <cover/coVRTui.h>
 
-#include <vrml97/vrml/Player.h>
 #include <vrml97/vrml/config.h>
 #include <vrml97/vrml/VrmlNodeType.h>
 #include <vrml97/vrml/coEventQueue.h>

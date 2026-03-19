@@ -33,6 +33,8 @@
 #include "VRVruiRenderInterface.h"
 #include "input/VRKeys.h"
 #include "input/input.h"
+#include "audio/Listener.h"
+#include "audio/Player.h"
 #include "input/coMousePointer.h"
 #include "VRViewer.h"
 #include "ui/Slider.h"
@@ -77,7 +79,6 @@
 #include <grmsg/coGRSetTrackingParamsMsg.h>
 #include <grmsg/coGRPluginMsg.h>
 
-
 using namespace vrui;
 using namespace grmsg;
 using namespace covise;
@@ -87,10 +88,13 @@ namespace opencover
 
 coVRPluginSupport *cover = NULL;
 
-class NotifyBuf: public std::stringbuf
+class NotifyBuf : public std::stringbuf
 {
- public:
-    NotifyBuf(int level): level(level) {}
+public:
+    NotifyBuf(int level)
+        : level(level)
+    {
+    }
     int sync()
     {
         auto s = str();
@@ -101,7 +105,8 @@ class NotifyBuf: public std::stringbuf
         }
         return 0;
     }
- private:
+
+private:
     int level;
 };
 
@@ -123,9 +128,8 @@ void coVRPluginSupport::initUI()
     interactorScaleSlider->setBounds(0.01, 100.);
     interactorScaleSlider->setValue(1.);
     interactorScaleSlider->setScale(ui::Slider::Logarithmic);
-    interactorScaleSlider->setCallback([this](double value, bool released) {
-        interactorScale = value;
-    });
+    interactorScaleSlider->setCallback([this](double value, bool released)
+        { interactorScale = value; });
 
     ui->init();
 }
@@ -142,19 +146,19 @@ std::ostream &coVRPluginSupport::notify(Notify::NotificationLevel level) const
 
 std::ostream &coVRPluginSupport::notify(Notify::NotificationLevel level, const char *fmt, ...) const
 {
-    std::vector<char> text(strlen(fmt)+500);
+    std::vector<char> text(strlen(fmt) + 500);
 
     va_list args;
     va_start(args, fmt);
     int messageSize = vsnprintf(&text[0], text.size(), fmt, args);
-	va_end(args);
-	if (messageSize>text.size())
-	{
-        text.resize(strlen(fmt)+messageSize);
-		va_start(args, fmt);
-		vsnprintf(&text[0], text.size(), fmt, args);
-		va_end(args);
-	}
+    va_end(args);
+    if (messageSize > text.size())
+    {
+        text.resize(strlen(fmt) + messageSize);
+        va_start(args, fmt);
+        vsnprintf(&text[0], text.size(), fmt, args);
+        va_end(args);
+    }
 
     return notify(level) << &text[0];
 }
@@ -168,12 +172,11 @@ osg::ClipNode *coVRPluginSupport::getObjectsRoot() const
 
 osg::Group *coVRPluginSupport::getScene() const
 {
-    //START("coVRPluginSupport::getScene");
+    // START("coVRPluginSupport::getScene");
     return (VRSceneGraph::instance()->getScene());
 }
 
-bool
-coVRPluginSupport::removeNode(osg::Node *node, bool isGroup)
+bool coVRPluginSupport::removeNode(osg::Node *node, bool isGroup)
 {
     (void)isGroup;
 
@@ -183,7 +186,7 @@ coVRPluginSupport::removeNode(osg::Node *node, bool isGroup)
     if (node->getNumParents() == 0)
         return false;
 
-    osg::ref_ptr<osg::Node> n =node;
+    osg::ref_ptr<osg::Node> n = node;
 
     while (n->getNumParents() > 0)
     {
@@ -212,7 +215,7 @@ coVRPluginSupport::getMenuGroup() const
 
 osg::MatrixTransform *coVRPluginSupport::getPointer() const
 {
-    //START("coVRPluginSupport::getPointer");
+    // START("coVRPluginSupport::getPointer");
     return (VRSceneGraph::instance()->getHandTransform());
 }
 
@@ -252,7 +255,7 @@ coPointerButton *coVRPluginSupport::getRelativeButton() const
     return relativeButton;
 }
 
-const osg::Matrix& coVRPluginSupport::getViewerMat(int i) const
+const osg::Matrix &coVRPluginSupport::getViewerMat(int i) const
 {
     START("coVRPluginSupport::getViewerMat");
     return (VRViewer::instance()->getViewerMat(i));
@@ -279,7 +282,7 @@ const osg::Matrix &coVRPluginSupport::getRelativeMat() const
 
 const osg::Matrix &coVRPluginSupport::getPointerMat() const
 {
-    //START("coVRPluginSupport::getPointerMat");
+    // START("coVRPluginSupport::getPointerMat");
 
     if (wasHandValid)
         return handMat;
@@ -301,7 +304,7 @@ float coVRPluginSupport::getSceneSize() const
     return coVRConfig::instance()->getSceneSize();
 }
 
-// return no. of seconds since epoch 
+// return no. of seconds since epoch
 double coVRPluginSupport::currentTime()
 {
     START("coVRPluginSupport::currentTime");
@@ -376,7 +379,7 @@ void coVRPluginSupport::addedNode(osg::Node *node, coVRPlugin *addingPlugin)
 
 coPointerButton *coVRPluginSupport::getPointerButton() const
 {
-    //START("coVRPluginSupport::getPointerButton");
+    // START("coVRPluginSupport::getPointerButton");
     if (coVRConfig::instance()->mouseTracking())
     {
         return getMouseButton();
@@ -398,17 +401,17 @@ void coVRPluginSupport::setRenderStrategy(osg::Drawable *draw, bool dynamic)
 {
     bool displaylist = coVRConfig::instance()->useDisplayLists() && !dynamic;
     bool vbo = !displaylist && coVRConfig::instance()->useVBOs();
-    //bool vao = false;
+    // bool vao = false;
 
     draw->setUseDisplayList(displaylist);
     draw->setUseVertexBufferObjects(vbo);
-    //draw->setUseVertexArrayObject(vao);
+    // draw->setUseVertexArrayObject(vao);
 }
 
 bool coVRPluginSupport::sendGrMessage(const coGRMsg &gr, int msgType) const
 {
     std::string s = gr.getString();
-    Message grmsg{ msgType, DataHandle{const_cast<char *>(s.c_str()), s.length()+1, false} };
+    Message grmsg { msgType, DataHandle { const_cast<char *>(s.c_str()), s.length() + 1, false } };
     return sendVrbMessage(&grmsg);
 }
 
@@ -436,7 +439,7 @@ void coVRPluginSupport::updateTime()
             frameStartTime = frameStartRealTime;
         }
     }
-    
+
     coVRMSController::instance()->syncTime();
 #ifdef DOTIMING
     MARK0("done");
@@ -449,7 +452,8 @@ void coVRPluginSupport::update()
     if (debugLevel(5))
         fprintf(stderr, "coVRPluginSupport::update\n");
 
-    for (auto nb: m_notifyBuf) {
+    for (auto nb : m_notifyBuf)
+    {
         if (nb)
             nb->sync();
     }
@@ -465,9 +469,9 @@ void coVRPluginSupport::update()
         getRelativeButton()->setState(Input::instance()->getRelativeButtonState());
     }
 
-    if (getPointerButton() && getPointerButton()!=getMouseButton())
+    if (getPointerButton() && getPointerButton() != getMouseButton())
     {
-        for (size_t i=0; i<2; ++i)
+        for (size_t i = 0; i < 2; ++i)
             getPointerButton()->setWheel(i, 0);
         getPointerButton()->setState(Input::instance()->getButtonState());
 #if 0
@@ -478,7 +482,7 @@ void coVRPluginSupport::update()
 
     if (getMouseButton())
     {
-        for (size_t i=0; i<2; ++i)
+        for (size_t i = 0; i < 2; ++i)
             getMouseButton()->setWheel(i, Input::instance()->mouse()->wheel(i));
         getMouseButton()->setState(Input::instance()->mouse()->buttonState());
 #if 0
@@ -488,14 +492,14 @@ void coVRPluginSupport::update()
 
         size_t currentPerson = Input::instance()->getActivePerson();
         if ((getMouseButton()->wasPressed(vruiButtons::PERSON_NEXT))
-                || (getPointerButton()->wasPressed(vruiButtons::PERSON_NEXT)))
+            || (getPointerButton()->wasPressed(vruiButtons::PERSON_NEXT)))
         {
             ++currentPerson;
             currentPerson %= Input::instance()->getNumPersons();
             Input::instance()->setActivePerson(currentPerson);
         }
         if ((getMouseButton()->wasPressed(vruiButtons::PERSON_PREV))
-                || (getPointerButton()->wasPressed(vruiButtons::PERSON_PREV)))
+            || (getPointerButton()->wasPressed(vruiButtons::PERSON_PREV)))
         {
             if (currentPerson == 0)
                 currentPerson = Input::instance()->getNumPersons();
@@ -525,7 +529,7 @@ void coVRPluginSupport::update()
 
     invCalculated = 0;
     updateManager->update();
-    //get rotational part of Xform only
+    // get rotational part of Xform only
     osg::Matrix frontRot(1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1);
     if (VRViewer::instance()->isMatrixOverwriteOn())
     {
@@ -560,10 +564,10 @@ void coVRPluginSupport::update()
         envCorrectMat = frontRot * getXformMat();
     }
     invEnvCorrectMat.invert(envCorrectMat);
-    //draw.baseMat = getBaseMat();
-    //draw.invBaseMat = getInvBaseMat();
+    // draw.baseMat = getBaseMat();
+    // draw.invBaseMat = getInvBaseMat();
 
-    //START("coVRPluginSupport::getInteractorScale");
+    // START("coVRPluginSupport::getInteractorScale");
     if (coVRMSController::instance()->isMaster())
     {
         frontScreenCenter = osg::Vec3(0., 0., 0.);
@@ -607,6 +611,19 @@ void coVRPluginSupport::update()
     coVRMSController::instance()->syncData((char *)&frontScreenCenter, sizeof(frontScreenCenter));
     coVRMSController::instance()->syncData((char *)&frontHorizontalSize, sizeof(frontHorizontalSize));
     coVRMSController::instance()->syncData((char *)&frontVerticalSize, sizeof(frontVerticalSize));
+
+    // 
+    osg::Matrix m;
+    m.invert(cover->getViewerMat());
+    auto v = m * VRSceneGraph::instance()->getTransform()->getMatrix();
+    glm::mat4x4 mat(
+        v(0, 0), v(0, 1), v(0, 2), v(0, 3),
+        v(1, 0), v(1, 1), v(1, 2), v(1, 3),
+        v(2, 0), v(2, 1), v(2, 2), v(2, 3),
+        v(3, 0), v(3, 1), v(3, 2), v(3, 3)
+    );
+    listener->update(frameDuration(), mat);
+    player->update();
 }
 
 coVRPlugin *coVRPluginSupport::addPlugin(const char *name)
@@ -638,7 +655,7 @@ const osg::Matrix &coVRPluginSupport::getInvBaseMat() const
     if (!invCalculated)
     {
         invBaseMatrix.invert(baseMatrix);
-        //fprintf(stderr,"coVRPluginSupport::getInvBaseMat baseMatrix is singular\n");
+        // fprintf(stderr,"coVRPluginSupport::getInvBaseMat baseMatrix is singular\n");
         invCalculated = 1;
     }
     return invBaseMatrix;
@@ -652,7 +669,7 @@ void coVRPluginSupport::removePlugin(coVRPlugin *m)
 
 int coVRPluginSupport::isPointerLocked()
 {
-    //START("coVRPluginSupport::isPointerLocked");
+    // START("coVRPluginSupport::isPointerLocked");
     bool isLocked;
     isLocked = coInteractionManager::the()->isOneActive(coInteraction::ButtonA);
     if (isLocked)
@@ -667,7 +684,7 @@ int coVRPluginSupport::isPointerLocked()
 }
 
 float coVRPluginSupport::getSqrDistance(osg::Node *n, osg::Vec3 &p,
-                                        osg::MatrixTransform **path = NULL, int pathLength = 0) const
+    osg::MatrixTransform **path = NULL, int pathLength = 0) const
 {
     START("coVRPluginSupport::getSqrDistance");
     osg::Matrix mat;
@@ -733,14 +750,13 @@ void coVRPluginSupport::setSceneUnit(LengthUnit unit)
     m_sceneUnit = unit;
 }
 
-void coVRPluginSupport::setSceneUnit(const std::string& unitName)
+void coVRPluginSupport::setSceneUnit(const std::string &unitName)
 {
     auto u = getUnitFromName(unitName);
-    if(isValid(u))
+    if (isValid(u))
         m_sceneUnit = u;
     else
         std::cerr << "warning: " << unitName << " is not a valid length unit" << std::endl;
-
 }
 
 float coVRPluginSupport::getInteractorScale(osg::Vec3 &pos) // pos in World coordinates
@@ -755,8 +771,8 @@ float coVRPluginSupport::getInteractorScale(osg::Vec3 &pos) // pos in World coor
     }
     else
     {
-        //float oeffnungswinkel = frontHorizontalSize/(frontScreenCenter[1]-eyePos[1]);
-        //scaleVal = ((eyeToPosDist) * oeffnungswinkel/(oeffnungswinkel*2000));
+        // float oeffnungswinkel = frontHorizontalSize/(frontScreenCenter[1]-eyePos[1]);
+        // scaleVal = ((eyeToPosDist) * oeffnungswinkel/(oeffnungswinkel*2000));
 
         scaleVal = eyeToPosDist / (2000);
     }
@@ -775,9 +791,9 @@ osg::BoundingBox coVRPluginSupport::getBBox(osg::Node *node) const
     cbv.setTraversalMask(Isect::Visible);
     node->accept(cbv);
     const osg::NodePath path = cbv.getNodePath();
-    //fprintf(stderr, "!!!! nodepath %d\n", (int)path.size());
-    //for (osg::NodePath::const_iterator it = path.begin(); it != path.end(); it++)
-    //fprintf(stderr, "    node - %s(%s)\n", (*it)->getName(), (*it)->className());
+    // fprintf(stderr, "!!!! nodepath %d\n", (int)path.size());
+    // for (osg::NodePath::const_iterator it = path.begin(); it != path.end(); it++)
+    // fprintf(stderr, "    node - %s(%s)\n", (*it)->getName(), (*it)->className());
     return cbv.getBoundingBox();
 }
 
@@ -822,7 +838,7 @@ coToolboxMenu *coVRPluginSupport::getToolBar(bool create)
             }
         }
 
-        //float sceneSize = cover->getSceneSize();
+        // float sceneSize = cover->getSceneSize();
 
         vruiMatrix *mat = vruiRendererInterface::the()->createMatrix();
         vruiMatrix *rot = vruiRendererInterface::the()->createMatrix();
@@ -852,8 +868,8 @@ void coVRPluginSupport::setToolBar(coToolboxMenu *tb)
 
 void coVRPluginSupport::preparePluginUnload()
 {
-	cover->intersectedDrawable = nullptr; // intersectedDrawable might be a node from this plugin
-	cover->intersectedNode = nullptr;
+    cover->intersectedDrawable = nullptr; // intersectedDrawable might be a node from this plugin
+    cover->intersectedNode = nullptr;
 }
 
 coVRPluginSupport::coVRPluginSupport()
@@ -867,8 +883,7 @@ coVRPluginSupport::coVRPluginSupport()
 
     ui = new ui::Manager();
 
-
-    for (int level=0; level<Notify::Fatal; ++level)
+    for (int level = 0; level < Notify::Fatal; ++level)
     {
         m_notifyBuf.push_back(new NotifyBuf(level));
         m_notifyStream.push_back(new std::ostream(m_notifyBuf[level]));
@@ -886,7 +901,10 @@ coVRPluginSupport::coVRPluginSupport()
     }
     NoFrameBuffer = new osg::ColorMask(false, false, false, false);
     DoFrameBuffer = new osg::ColorMask(true, true, true, true);
-    player = NULL;
+
+    // Setup audio subsystem
+    listener = new audio::Listener();
+    player = listener->createPlayer();
 
     pointerButton = NULL;
     mouseButton = NULL;
@@ -930,21 +948,20 @@ coVRPluginSupport::~coVRPluginSupport()
     delete VRVruiRenderInterface::the();
     delete updateManager;
 
-    while(!m_notifyStream.empty())
+    while (!m_notifyStream.empty())
     {
         delete m_notifyStream.back();
         m_notifyStream.pop_back();
     }
-    while(!m_notifyBuf.empty())
+    while (!m_notifyBuf.empty())
     {
         delete m_notifyBuf.back();
         m_notifyBuf.pop_back();
     }
 
-	intersectedDrawable = nullptr;
-	intersectedNode = nullptr;
+    intersectedDrawable = nullptr;
+    intersectedNode = nullptr;
     cover = NULL;
-
 }
 
 int coVRPluginSupport::getNumClipPlanes()
@@ -1087,7 +1104,7 @@ void coVRPluginSupport::sendMessage(const coVRPlugin * /*sender*/, const char *d
 {
     START("coVRPluginSupport::sendMessage");
 
-    //fprintf(stderr,"coVRPluginSupport::sendMessage dest=%s\n",destination);
+    // fprintf(stderr,"coVRPluginSupport::sendMessage dest=%s\n",destination);
 
     int size = len + 2 * sizeof(int);
     coVRPlugin *dest = coVRPluginList::instance()->getPlugin(destination);
@@ -1140,7 +1157,7 @@ int coVRPluginSupport::sendBinMessage(const char *keyword, const char *data, int
         size_t size = strlen(keyword) + 2;
         size += len;
 
-        Message message{ Message::RENDER, DataHandle{size} };
+        Message message { Message::RENDER, DataHandle { size } };
         message.data.accessData()[0] = 0;
         strcpy(&message.data.accessData()[1], keyword);
         memcpy(&message.data.accessData()[strlen(keyword) + 2], data, len);
@@ -1153,109 +1170,109 @@ int coVRPluginSupport::sendBinMessage(const char *keyword, const char *data, int
 }
 
 //! handle coGRMsgs and call guiToRenderMsg method of all plugins
-void coVRPluginSupport::guiToRenderMsg(const grmsg::coGRMsg &msg)  const
+void coVRPluginSupport::guiToRenderMsg(const grmsg::coGRMsg &msg) const
 {
     coVRPluginList::instance()->guiToRenderMsg(msg);
 
     if (!msg.isValid())
         return;
 
-    switch(msg.getType())
+    switch (msg.getType())
     {
-        case coGRMsg::PLUGIN:
+    case coGRMsg::PLUGIN:
+    {
+        auto &pluginMsg = msg.as<coGRPluginMsg>();
+        std::string act(pluginMsg.getAction());
+        if (act == "load" || act == "add")
         {
-            auto &pluginMsg = msg.as<coGRPluginMsg>();
-            std::string act(pluginMsg.getAction());
-            if (act == "load" || act == "add")
-            {
-                cover->addPlugin(pluginMsg.getPlugin());
-            }
-            else if (act == "unload" || act == "remove")
-            {
-                cover->removePlugin(pluginMsg.getPlugin());
-            }
+            cover->addPlugin(pluginMsg.getPlugin());
         }
-        break;
-        case coGRMsg::ANIMATION_ON:
+        else if (act == "unload" || act == "remove")
         {
-            auto &animationModeMsg = msg.as<coGRAnimationOnMsg>();
-            bool mode = animationModeMsg.getMode() != 0;
-            if (cover->debugLevel(3))
-                fprintf(stderr, "coGRMsg::ANIMATION_ON mode=%s\n", (mode ? "true" : "false"));
-            coVRAnimationManager::instance()->setRemoteAnimate(mode);
+            cover->removePlugin(pluginMsg.getPlugin());
         }
-        break;
-        case coGRMsg::ANIMATION_SPEED:
+    }
+    break;
+    case coGRMsg::ANIMATION_ON:
+    {
+        auto &animationModeMsg = msg.as<coGRAnimationOnMsg>();
+        bool mode = animationModeMsg.getMode() != 0;
+        if (cover->debugLevel(3))
+            fprintf(stderr, "coGRMsg::ANIMATION_ON mode=%s\n", (mode ? "true" : "false"));
+        coVRAnimationManager::instance()->setRemoteAnimate(mode);
+    }
+    break;
+    case coGRMsg::ANIMATION_SPEED:
+    {
+        auto &animationSpeedMsg = msg.as<coGRSetAnimationSpeedMsg>();
+        float speed = animationSpeedMsg.getAnimationSpeed();
+        coVRAnimationManager::instance()->setAnimationSpeed(speed);
+    }
+    break;
+    case coGRMsg::ANIMATION_TIMESTEP:
+    {
+        auto &timestepMsg = msg.as<coGRSetTimestepMsg>();
+        int actStep = timestepMsg.getActualTimeStep();
+        int maxSteps = timestepMsg.getNumTimeSteps();
+        if (cover->debugLevel(3))
+            fprintf(stderr, "coGRMsg::ANIMATION_TIMESTEP actStep=%d numSteps=%d\n", actStep, maxSteps);
+        if (maxSteps > 0)
         {
-            auto &animationSpeedMsg = msg.as<coGRSetAnimationSpeedMsg>();
-            float speed = animationSpeedMsg.getAnimationSpeed();
-            coVRAnimationManager::instance()->setAnimationSpeed(speed);
+            coVRAnimationManager::instance()->setRemoteAnimationFrame(actStep);
+            coVRAnimationManager::instance()->setNumTimesteps(maxSteps);
         }
-        break;
-        case coGRMsg::ANIMATION_TIMESTEP:
-        {
-            auto &timestepMsg = msg.as<coGRSetTimestepMsg>();
-            int actStep = timestepMsg.getActualTimeStep();
-            int maxSteps = timestepMsg.getNumTimeSteps();
-            if (cover->debugLevel(3))
-                fprintf(stderr, "coGRMsg::ANIMATION_TIMESTEP actStep=%d numSteps=%d\n", actStep, maxSteps);
-            if (maxSteps > 0)
-            {
-                coVRAnimationManager::instance()->setRemoteAnimationFrame(actStep);
-                coVRAnimationManager::instance()->setNumTimesteps(maxSteps);
-            }
-        }
-        break;
-        case coGRMsg::SET_TRACKING_PARAMS:
-        {
-            auto &trackingMsg = msg.as<coGRSetTrackingParamsMsg>();
-            // restrict rotation
-            if (trackingMsg.isRotatePoint())
-                coVRNavigationManager::instance()->setRotationPoint(
-                    trackingMsg.getRotatePointX(), trackingMsg.getRotatePointY(), trackingMsg.getRotatePointZ(),
-                    trackingMsg.getRotationPointSize());
-            else
-                coVRNavigationManager::instance()->disableRotationPoint();
-            if (coCoviseConfig::isOn("COVER.showRotationPoint", true))
-                coVRNavigationManager::instance()->setRotationPointVisible(trackingMsg.isRotatePointVisible());
-            else
-                coVRNavigationManager::instance()->setRotationPointVisible(false);
-            if (trackingMsg.isRotateAxis())
-                coVRNavigationManager::instance()->setRotationAxis(
-                    trackingMsg.getRotateAxisX(), trackingMsg.getRotateAxisY(), trackingMsg.getRotateAxisZ());
-            else
-                coVRNavigationManager::instance()->disableRotationAxis();
+    }
+    break;
+    case coGRMsg::SET_TRACKING_PARAMS:
+    {
+        auto &trackingMsg = msg.as<coGRSetTrackingParamsMsg>();
+        // restrict rotation
+        if (trackingMsg.isRotatePoint())
+            coVRNavigationManager::instance()->setRotationPoint(
+                trackingMsg.getRotatePointX(), trackingMsg.getRotatePointY(), trackingMsg.getRotatePointZ(),
+                trackingMsg.getRotationPointSize());
+        else
+            coVRNavigationManager::instance()->disableRotationPoint();
+        if (coCoviseConfig::isOn("COVER.showRotationPoint", true))
+            coVRNavigationManager::instance()->setRotationPointVisible(trackingMsg.isRotatePointVisible());
+        else
+            coVRNavigationManager::instance()->setRotationPointVisible(false);
+        if (trackingMsg.isRotateAxis())
+            coVRNavigationManager::instance()->setRotationAxis(
+                trackingMsg.getRotateAxisX(), trackingMsg.getRotateAxisY(), trackingMsg.getRotateAxisZ());
+        else
+            coVRNavigationManager::instance()->disableRotationAxis();
 
-            // restrict tranlsation
-            if (trackingMsg.isTranslateRestrict())
-                VRSceneGraph::instance()->setRestrictBox(trackingMsg.getTranslateMinX(), trackingMsg.getTranslateMaxX(),
-                                                        trackingMsg.getTranslateMinY(), trackingMsg.getTranslateMaxY(),
-                                                        trackingMsg.getTranslateMinZ(), trackingMsg.getTranslateMaxZ());
-            else
-                VRSceneGraph::instance()->setRestrictBox(0, 0, 0, 0, 0, 0);
-            coVRNavigationManager::instance()->setTranslateFactor(trackingMsg.getTranslateFactor());
+        // restrict tranlsation
+        if (trackingMsg.isTranslateRestrict())
+            VRSceneGraph::instance()->setRestrictBox(trackingMsg.getTranslateMinX(), trackingMsg.getTranslateMaxX(),
+                trackingMsg.getTranslateMinY(), trackingMsg.getTranslateMaxY(),
+                trackingMsg.getTranslateMinZ(), trackingMsg.getTranslateMaxZ());
+        else
+            VRSceneGraph::instance()->setRestrictBox(0, 0, 0, 0, 0, 0);
+        coVRNavigationManager::instance()->setTranslateFactor(trackingMsg.getTranslateFactor());
 
-            // restrict scaling
-            if (trackingMsg.isScaleRestrict())
-                VRSceneGraph::instance()->setScaleRestrictFactor(trackingMsg.getScaleMin(), trackingMsg.getScaleMax());
-            VRSceneGraph::instance()->setScaleFactorButton(trackingMsg.getScaleFactor());
+        // restrict scaling
+        if (trackingMsg.isScaleRestrict())
+            VRSceneGraph::instance()->setScaleRestrictFactor(trackingMsg.getScaleMin(), trackingMsg.getScaleMax());
+        VRSceneGraph::instance()->setScaleFactorButton(trackingMsg.getScaleFactor());
 
-            // navigation
-            // enable navigationmode showName
-            //coVRNavigationManager::instance()->setShowName(trackingMsg.isNavModeShowName());
-            // set navigationMode
-            std::string navmode(trackingMsg.getNavigationMode());
-            auto nav = coVRNavigationManager::instance();
-            nav->setNavMode(navmode);
-            //enable tracking in opencover
+        // navigation
+        // enable navigationmode showName
+        // coVRNavigationManager::instance()->setShowName(trackingMsg.isNavModeShowName());
+        // set navigationMode
+        std::string navmode(trackingMsg.getNavigationMode());
+        auto nav = coVRNavigationManager::instance();
+        nav->setNavMode(navmode);
+        // enable tracking in opencover
 
-            //vld: VRTracker use. Enable tracking. Add the method in input?
-            //VRTracker::instance()->enableTracking(trackingMsg.isTrackingOn());
-        }
+        // vld: VRTracker use. Enable tracking. Add the method in input?
+        // VRTracker::instance()->enableTracking(trackingMsg.isTrackingOn());
+    }
+    break;
+    default:
         break;
-        default:
-            break;
-        }
+    }
 }
 
 osg::Node *coVRPluginSupport::getIntersectedNode() const
@@ -1334,7 +1351,7 @@ const std::string &coPointerButton::name() const
 
 unsigned int coPointerButton::getState() const
 {
-    //START("coPointerButton::getButtonStatus")
+    // START("coPointerButton::getButtonStatus")
     return buttonStatus;
 }
 
@@ -1362,7 +1379,7 @@ unsigned int coPointerButton::wasReleased(unsigned int buttonMask) const
 
 void coPointerButton::setState(unsigned int newButton) // called from
 {
-    //START("coPointerButton::setButtonStatus");
+    // START("coPointerButton::setButtonStatus");
     lastStatus = buttonStatus;
     buttonStatus = newButton;
 }
@@ -1381,46 +1398,9 @@ void coPointerButton::setWheel(size_t idx, int count)
     wheelCount[idx] = count;
 }
 
-int coVRPluginSupport::registerPlayer(vrml::Player *player)
+audio::Player *coVRPluginSupport::getPlayer()
 {
-    if (this->player)
-        return -1;
-
-    this->player = player;
-    return 0;
-}
-
-int coVRPluginSupport::unregisterPlayer(vrml::Player *player)
-{
-    if (this->player != player)
-        return -1;
-
-    for (auto cb: playerUseList)
-    {
-        if (cb)
-            cb();
-    }
-
-    player = NULL;
-
-    return 0;
-}
-
-vrml::Player *coVRPluginSupport::usePlayer(void (*playerUnavailableCB)())
-{
-    cover->addPlugin("Vrml97");
-    playerUseList.emplace(playerUnavailableCB);
-    return this->player;
-}
-
-int coVRPluginSupport::unusePlayer(void (*playerUnavailableCB)())
-{
-    auto it = playerUseList.find(playerUnavailableCB);
-    if (it == playerUseList.end())
-        return -1;
-
-    playerUseList.erase(it);
-    return 0;
+    return player;
 }
 
 coUpdateManager *coVRPluginSupport::getUpdateManager() const
@@ -1495,7 +1475,7 @@ public:
         if (!done)
         {
             if (0 == node.getNumParents()
-                         // no parents
+                // no parents
                 || &node == cover->getObjectsRoot())
             {
                 wcMatrix->set(osg::computeLocalToWorld(this->getNodePath()));
@@ -1542,7 +1522,6 @@ bool coVRPluginSupport::isHighQuality() const
     return VRSceneGraph::instance()->highQuality();
 }
 
-
 bool coVRPluginSupport::isVRBconnected()
 {
     return coVRMSController::instance()->syncBool(OpenCOVER::instance()->isVRBconnected());
@@ -1555,13 +1534,14 @@ void coVRPluginSupport::protectScenegraph()
 
 bool coVRPluginSupport::sendVrbMessage(const covise::MessageBase *msg) const
 {
-    if(const auto vrbc = OpenCOVER::instance()->vrbc())
+    if (const auto vrbc = OpenCOVER::instance()->vrbc())
     {
         vrbc->send(msg);
         return true;
     }
 
-    if (const auto *m = dynamic_cast<const covise::Message *>(msg)) {
+    if (const auto *m = dynamic_cast<const covise::Message *>(msg))
+    {
         return coVRPluginList::instance()->sendVisMessage(m);
     }
 

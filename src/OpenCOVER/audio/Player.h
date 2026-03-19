@@ -8,17 +8,18 @@
 #ifndef _PLAYER_
 #define _PLAYER_
 
-#include "vrmlexport.h"
+#include <util/coExport.h>
 #include "Audio.h"
 
 #include <vector>
+#include <glm/vec3.hpp>
 
 #include "Listener.h"
 
-namespace vrml
+namespace opencover::audio
 {
 
-class VRMLEXPORT Player
+class COVEREXPORT Player
 {
 public:
     class Source
@@ -39,7 +40,6 @@ public:
         virtual void setLoop(bool mute);
         virtual void setSpatialize(bool spatialize);
         virtual void setPosition(float x, float y, float z);
-        virtual void setPositionOC(float x, float y, float z);
         virtual void setVelocity(float vx, float vy, float vz);
         virtual void setAudio(const Audio *audio);
         virtual void play();
@@ -62,34 +62,20 @@ public:
         float intensity;
         float startTime, stopTime;
         bool mute, loop, spatialize, playing;
-        vec x;
-        vec v;
+        glm::vec3 x;
+        glm::vec3 v;
         Player *player;
         int handle;
     };
 
     Player(const Listener *listener);
-    virtual ~Player();
+    virtual ~Player() = 0;
 
     virtual void update() { }
 
     // mm/second
     virtual void setSpeedOfSound(float speed = 343000.0);
     virtual void setEAXEnvironment(int /*environment*/) { }
-
-    // Listener related
-    virtual vec getListenerPositionWC() const;
-    virtual vec getListenerPositionVC() const;
-    virtual vec getListenerPositionOC() const;
-    virtual void getListenerOrientation(vec *at, vec *up) const;
-    virtual vec getListenerVelocity() const;
-
-    virtual vec WCtoVC(vec p) const;
-    virtual vec WCtoOC(vec p) const;
-    virtual vec VCtoWC(vec p) const;
-    virtual vec VCtoOC(vec p) const;
-    virtual vec OCtoWC(vec p) const;
-    virtual vec OCtoVC(vec p) const;
 
     // Source related
     virtual Source *newSource(const Audio *);
@@ -107,7 +93,6 @@ protected:
 
     std::vector<Source *> sources;
     virtual int addSource(Source *src);
-    virtual float calculateDoppler(const Source *src) const;
 };
-} // namespace vrml
+} // namespace
 #endif

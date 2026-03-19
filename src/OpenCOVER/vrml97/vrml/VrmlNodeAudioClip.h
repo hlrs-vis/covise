@@ -24,14 +24,21 @@
 #include "VrmlSFTime.h"
 #include "VrmlSFVec3f.h"
 
+namespace opencover::audio
+{
+class Audio;
+}
+using opencover::audio::Audio;
+
 namespace vrml
 {
 
-class Audio;
 class Doc;
+class VrmlNodeSound;
 
 class VRMLEXPORT VrmlNodeAudioClip : public VrmlNode
 {
+    friend VrmlNodeSound;
 
 public:
     // Define the fields of AudioClip nodes
@@ -69,7 +76,7 @@ private:
     Audio *d_audio;
     bool d_url_modified;
     Doc *_doc;
-    double lastTime;
+    double audioLastModified;
     bool lastActive;
 };
 }

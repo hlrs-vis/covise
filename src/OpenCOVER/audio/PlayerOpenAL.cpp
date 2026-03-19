@@ -8,8 +8,7 @@
 #include "Listener.h"
 #include "PlayerOpenAL.h"
 
-#ifdef HAVE_OPENAL
-using namespace vrml;
+using namespace opencover::audio;
 
 #if defined(__APPLE__)
 #include <OpenAL/al.h>
@@ -24,8 +23,8 @@ using namespace vrml;
 #endif
 
 #include <AL/alut.h>
-
-using std::endl;
+#include <iostream>
+#include <glm/gtx/string_cast.hpp>
 
 PlayerOpenAL::PlayerOpenAL(const Listener *listener)
     : Player(listener)
@@ -45,16 +44,30 @@ void PlayerOpenAL::update()
 {
     Player::update();
 
-    vec x = getListenerPositionWC();
-    alListener3f(AL_POSITION, x.x, x.y, x.z);
+    if (listener)
+    {
+        glm::vec3 x = listener->getPosition();
+        alListener3f(AL_POSITION, x.x, x.y, x.z);
+        std::cout << "Position " << glm::to_string(x) << std::endl;
 
-    vec v = getListenerVelocity();
-    alListener3f(AL_POSITION, v.x, v.y, v.z);
+        glm::vec3 v = listener->getVelocity();
+        alListener3f(AL_VELOCITY, v.x, v.y, v.z);
+        std::cout << "Velocity " << glm::to_string(v) << std::endl;
 
-    vec up, at;
-    getListenerOrientation(&at, &up);
-    float orient[6] = { at.x, at.y, at.z, up.x, up.y, up.z };
-    alListenerfv(AL_ORIENTATION, orient);
+        glm::vec3 up, at;
+        listener->getOrientation(&at, &up);
+        std::cout << "Orientation " << glm::to_string(at) << " , " << glm::to_string(up) << std::endl;
+        float orientation[6] = { at.x, at.y, at.z, up.x, up.y, up.z };
+        alListenerfv(AL_ORIENTATION, orientation);
+    }
+    else
+    {
+        float orientation[6] = { 0, 1, 0, 0, 0, 1 };
+
+        alListener3f(AL_POSITION, 0, 0, 0);
+        alListener3f(AL_VELOCITY, 0, 0, 0);
+        alListenerfv(AL_ORIENTATION, orientation);
+    }
 }
 
 Player::Source *
@@ -197,4 +210,3 @@ void PlayerOpenAL::Source::stop()
 
     Player::Source::stop();
 }
-#endif

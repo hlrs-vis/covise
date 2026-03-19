@@ -5,7 +5,7 @@
 
  * License: LGPL 2+ */
 
-#include <vrml97/vrml/Audio.h>
+#include "Audio.h"
 #include "PlayerAServer.h"
 #include <sys/types.h>
 #ifdef WIN32
@@ -23,11 +23,12 @@
 #include <fcntl.h>
 #include <cstring>
 #include <cstdlib>
+#include <iostream>
 #include <filesystem>
 
 using std::cerr;
 using std::endl;
-using namespace vrml;
+using namespace opencover::audio;
 
 #define MAX_BUFLEN 1024
 
@@ -404,27 +405,13 @@ PlayerAServer::Source::Source(const Audio *audio, PlayerAServer *player)
 
 void PlayerAServer::Source::loadAudio(const Audio *audio)
 {
-    // CERR << "url" << audio->url() << endl;
     if (!player)
         return;
 
+    std::filesystem::path path(audio->url());
+
     char msg[MAX_BUFLEN];
-    char filename[MAX_BUFLEN - 100];
-    if (audio->url() && strlen(audio->url()) > 0)
-    {
-        strcpy(filename, audio->url());
-    }
-    else
-    {
-        snprintf(filename, sizeof(filename), "PlayerAServer-%d-%08lx.wav",
-#ifdef _WIN32
-            0,
-#else
-            getpid(),
-#endif
-            reinterpret_cast<unsigned long>(audio));
-    }
-    snprintf(msg, sizeof(msg), "GHDL %s", filename);
+    snprintf(msg, sizeof(msg), "GHDL %s", path.filename().c_str());
     if (player->send_cmd(msg) < 0)
     {
         CERR << "writing GHDL command failed" << endl;
@@ -444,10 +431,9 @@ void PlayerAServer::Source::loadAudio(const Audio *audio)
         }
     }
 
-    if (asHandle < 0 && strlen(audio->url()))
+    if (asHandle < 0)
     {
         // Audio file is not yet cached on the server, send it.
-        std::filesystem::path path(audio->url());
 
         size_t file_size = std::filesystem::file_size(path);
         snprintf(msg, sizeof(msg), "PTFI %s %lu\r", path.filename().c_str(), file_size);
@@ -469,7 +455,7 @@ void PlayerAServer::Source::loadAudio(const Audio *audio)
         }
 
         // Try again to get handle
-        snprintf(msg, sizeof(msg), "GHDL %s", filename);
+        snprintf(msg, sizeof(msg), "GHDL %s", path.filename().c_str());
         if (player->send_cmd(msg) != 0)
         {
             CERR << "writing command failed" << endl;
@@ -599,21 +585,25 @@ int PlayerAServer::Source::update(const Player *genericPlayer, char *buf, int bu
     // const PlayerAServer *player = dynamic_cast<const PlayerAServer *>(genericPlayer);
     const PlayerAServer *player = (const PlayerAServer *)(genericPlayer);
     if (!player)
+    {
         return -1;
+    }
 
     if (asHandle < 0)
+    {
         return -1;
+    }
 
     if (!isPlaying())
+    {
         return -1;
+    }
 
     char msg[MAX_BUFLEN];
-    vec rel_src = x.sub(player->getListenerPositionWC());
-    float cos_angle = rel_src.normalize().dot(vec(0.0, 1.0, 0.0));
+    auto rel_src = glm::normalize(x - player->listener->getPosition());
+    // I don't think this is correct, the source needs to have a direction too
+    float cos_angle = glm::dot(rel_src, glm::vec3(0.0, 1.0, 0.0));
     float direction = acos(cos_angle);
-    // if(rel_src.x < 0.0)
-    // direction = (float)(1.0*M_PI - direction);
-    // direction *= 180.0/M_PI;
 
     if (spatialize)
     {
@@ -634,10 +624,10 @@ int PlayerAServer::Source::update(const Player *genericPlayer, char *buf, int bu
         }
     }
 
-    if (v.x != ov.x || v.y != ov.y || v.z != ov.z)
+    if (v != ov)
     {
         // snprintf(msg, sizeof(msg), "SSVE %d %f %f %f", asHandle, v.x, v.y, v.z);
-        snprintf(msg, sizeof(msg), "SSVE %d %f", asHandle, v.length());
+        snprintf(msg, sizeof(msg), "SSVE %d %f", asHandle, glm::length(v));
         player->send_cmd(msg);
         ov = v;
     }

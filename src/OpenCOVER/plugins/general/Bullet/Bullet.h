@@ -198,7 +198,6 @@ public:
     //void setBullets(string);
     void deleteAllBullets();
 
-    static vrml::Player *player;
     void save();
     void load();
     xercesc::DOMImplementation *impl;
