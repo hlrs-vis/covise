@@ -241,6 +241,7 @@ void GhostAvatar::createAdjustMatrixMenu()
     m_adjustMatrixMenu = new ui::Menu(m_settingsMenu, "Adjust Matrix");
 
     // set correct axis conventions for the GhostAvatar model
+    // TODO: don't hard code this...
     if (m_armNodeName == "LeftArm")
     {
         m_adjustMatrix.set(
@@ -255,6 +256,14 @@ void GhostAvatar::createAdjustMatrixMenu()
             1, 0, 0, 0,
             0, 0, 1, 0,
             0, -1, 0, 0,
+            0, 0, 0, 1);
+    }
+    else if (m_armNodeName == "Arm")
+    {
+        m_adjustMatrix.set(
+            0, 0, 1, 0,
+            1, 0, 0, 0,
+            0, 1, 0, 0,
             0, 0, 0, 1);
     }
 

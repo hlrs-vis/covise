@@ -45,8 +45,8 @@ private:
     void createInteractors();
 
     // settings
-    std::string m_pathToFbx = "/data/STARTS-ECHO/Avatars/shaderTests/ghost_cave_uniform.fbx";
-    std::string m_armNodeName = "RightArm"; // "LeftArm"
+    std::string m_pathToFbx = "/data/STARTS-ECHO/Avatars/planarAvatar/PLANEE6.fbx";
+    std::string m_armNodeName = "Arm"; // "LeftArm"
 
     // debugging
     osg::ref_ptr<osg::MatrixTransform> m_targetLine;
