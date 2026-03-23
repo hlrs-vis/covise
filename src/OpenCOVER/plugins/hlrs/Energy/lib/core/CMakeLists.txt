@@ -1,5 +1,5 @@
 set(Name "EnergyCore")
-set(HEADERS ClassLogger.h constants.h)
+set(HEADERS ClassLogger.h constants.h ButtonBase.h ButtonGroupBase.h ComponentBase.h EditFieldBase.h MenuBase.h)
 add_subdirectory(interfaces)
 add_subdirectory(simulation)
 add_subdirectory(utils)

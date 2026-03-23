@@ -11,6 +11,11 @@ set(HEADERS
     ISolarPanel.h
     ISystem.h
     IUpdateable.h
+    ui/IButton.h
+    ui/IButtonGroup.h
+    ui/IEditField.h
+    ui/IGUIFactory.h
+    ui/IMenu.h
 )
 
 set(Name "interface")

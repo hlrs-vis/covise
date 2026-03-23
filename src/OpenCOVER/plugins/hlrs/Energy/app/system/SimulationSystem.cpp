@@ -219,10 +219,10 @@ void SimulationSystem::initSimMenu(opencover::ui::Menu *parent) {
     return;
   }
 
-  m_simulationMenu = new ui::Menu(parent, "Simulation");
+  m_simulationMenu = new opencover::ui::Menu(parent, "Simulation");
   m_simulationMenu->setText("Simulation");
 
-  m_liftGrids = new ui::Button(m_simulationMenu, "LiftGrids");
+  m_liftGrids = new opencover::ui::Button(m_simulationMenu, "LiftGrids");
   constexpr float uplift(30.0f);
   m_liftGrids->setText("Up");
   m_liftGrids->setCallback([this, &uplift](bool on) {
@@ -236,16 +236,16 @@ void SimulationSystem::initSimMenu(opencover::ui::Menu *parent) {
   m_scenarios = new opencover::ui::ButtonGroup(m_simulationMenu, "Scenarios");
   m_scenarios->setDefaultValue(getScenarioIndex(Scenario::status_quo));
 
-  m_status_quo = new ui::Button(m_simulationMenu, "status_quo", m_scenarios,
+  m_status_quo = new opencover::ui::Button(m_simulationMenu, "status_quo", m_scenarios,
                                 getScenarioIndex(Scenario::status_quo));
-  m_future_ev = new ui::Button(m_simulationMenu, "future_ev", m_scenarios,
+  m_future_ev = new opencover::ui::Button(m_simulationMenu, "future_ev", m_scenarios,
                                getScenarioIndex(Scenario::future_ev));
-  m_future_ev_pv = new ui::Button(m_simulationMenu, "future_ev_pv", m_scenarios,
+  m_future_ev_pv = new opencover::ui::Button(m_simulationMenu, "future_ev_pv", m_scenarios,
                                   getScenarioIndex(Scenario::future_ev_pv));
-  m_optimized = new ui::Button(m_simulationMenu, "optimized", m_scenarios,
+  m_optimized = new opencover::ui::Button(m_simulationMenu, "optimized", m_scenarios,
                                getScenarioIndex(Scenario::optimized));
   m_optimized_bigger_awz =
-      new ui::Button(m_simulationMenu, "optimized_bigger_awz", m_scenarios,
+      new opencover::ui::Button(m_simulationMenu, "optimized_bigger_awz", m_scenarios,
                      getScenarioIndex(Scenario::optimized_bigger_awz));
 
   m_scenarios->setCallback([this](int value) {
@@ -316,15 +316,15 @@ void SimulationSystem::initEnergyGridUI() {
     return;
   }
 
-  m_energygridGroup = new ui::Group(m_simulationMenu, "EnergyGrid");
-  m_energygridBtnGroup = new ui::ButtonGroup(m_energygridGroup, "EnergyGrid");
+  m_energygridGroup = new opencover::ui::Group(m_simulationMenu, "EnergyGrid");
+  m_energygridBtnGroup = new opencover::ui::ButtonGroup(m_energygridGroup, "EnergyGrid");
   m_energygridBtnGroup->setCallback(
       [this](int value) { switchEnergyGrid(EnergyGridType(value)); });
 
   for (auto &energyGrid : m_energyGrids) {
     auto idx = getEnergyGridTypeIndex(energyGrid.type);
     energyGrid.simulationUIBtn =
-        new ui::Button(m_simulationMenu, energyGrid.name, m_energygridBtnGroup, idx);
+        new opencover::ui::Button(m_simulationMenu, energyGrid.name, m_energygridBtnGroup, idx);
   }
   auto idx = getEnergyGridTypeIndex(EnergyGridType::HeatingGrid);
   m_energygridBtnGroup->setActiveButton(m_energyGrids[idx].simulationUIBtn);
@@ -607,13 +607,13 @@ void SimulationSystem::initEnergyGridColorMaps() {
     std::vector<std::string> scalarPropertyNames;
     int idx{0};
     auto scalarSelector =
-        new ui::SelectionList(m_simulationMenu, energyGrid.name + "_scalarSelector");
+        new opencover::ui::SelectionList(m_simulationMenu, energyGrid.name + "_scalarSelector");
     for (const auto &[name, scalarProperty] : scalarProperties) {
       if (std::find(scalarPropertyNames.begin(), scalarPropertyNames.end(), name) ==
           scalarPropertyNames.end())
         scalarPropertyNames.push_back(name);
 
-      auto menu = new ui::Menu(m_simulationMenu, energyGrid.name + "_" +
+      auto menu = new opencover::ui::Menu(m_simulationMenu, energyGrid.name + "_" +
                                                      scalarProperty.species + "_" +
                                                      std::to_string(idx++));
       menu->setVisible(false);

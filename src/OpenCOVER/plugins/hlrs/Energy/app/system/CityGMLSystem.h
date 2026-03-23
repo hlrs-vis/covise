@@ -15,9 +15,12 @@
 #include <string>
 #include <vector>
 
-#include "app/cover/ui/CityGMLUI.h"
+// #include "app/cover/ui/CityGMLUI.h"
+#include "app/CityGMLUI.h"
 #include "app/osg/CityGMLSceneObject.h"
 #include "app/osg/SolarPanelSceneObject.h"
+#include "lib/core/interfaces/ui/IGUIFactory.h"
+#include <lib/core/interfaces/ui/IComponent.h>
 
 struct CityGMLConfig {
   std::string pvDir;
@@ -43,7 +46,7 @@ struct CityGMLConfig {
  */
 class CityGMLSystem final : public core::interface::ISystem, core::ClassLogger {
  public:
-  CityGMLSystem(opencover::coVRPlugin *plugin, opencover::ui::Menu *parentMenu,
+  CityGMLSystem(opencover::coVRPlugin *plugin, core::interface::ui::IComponent *parentMenu, const core::interface::ui::IGUIFactory &factory,
                 osg::ref_ptr<osg::ClipNode> rootGroup, osg::ref_ptr<osg::Switch> parent, core::interface::ILogger& logger);
   virtual ~CityGMLSystem() = default;
   CityGMLSystem(const CityGMLSystem &) = delete;

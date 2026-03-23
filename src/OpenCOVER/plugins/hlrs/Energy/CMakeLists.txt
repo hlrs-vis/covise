@@ -19,9 +19,15 @@ SET(HEADERS
     app/system/SimulationSystem.h
     app/typedefs.h
     app/cover/EnergyLogger.h
-    app/cover/ui/BaseUI.h
-    app/cover/ui/EnergyUI.h
-    app/cover/ui/CityGMLUI.h
+    app/BaseUI.h
+    app/CityGMLUI.h
+    app/EnergyUI.h
+    app/cover/ui/CoverUIFactory.h
+    app/cover/ui/CoverButton.h
+    app/cover/ui/CoverButtonGroup.h
+    app/cover/ui/CoverEditField.h
+    app/cover/ui/CoverMenu.h
+    app/cover/ui/CoverOwner.h
     app/osg/OsgImpl.h
     app/osg/CityGMLSceneObject.h
     app/osg/SolarPanelSceneObject.h
@@ -41,8 +47,13 @@ SET(SOURCES
     app/system/CityGMLSystem.cpp
     app/system/SimulationSystem.cpp
     app/cover/EnergyLogger.cpp
-    app/cover/ui/EnergyUI.cpp
-    app/cover/ui/CityGMLUI.cpp
+    app/CityGMLUI.cpp
+    app/EnergyUI.cpp
+    app/cover/ui/CoverUIFactory.cpp
+    app/cover/ui/CoverButton.cpp
+    app/cover/ui/CoverButtonGroup.cpp
+    app/cover/ui/CoverEditField.cpp
+    app/cover/ui/CoverMenu.cpp
     app/osg/CityGMLSceneObject.cpp
     app/osg/SolarPanelSceneObject.cpp
     app/osg/ui/citygml/CityGMLDeviceSensor.cpp

@@ -1,17 +1,22 @@
 #include "Energy.h"
+#include "app/cover/ui/CoverUIFactory.h"
+#include "app/cover/ui/CoverMenu.h"
 #include "lib/core/constants.h"
 
 // COVER
 #include <cover/coVRPluginSupport.h>
+#include <memory>
 
 using namespace opencover;
 
 EnergyPlugin::EnergyPlugin()
     : coVRPlugin(COVER_PLUGIN_NAME)
-    , m_ui("EnergyPlugin", cover->ui)
     , m_switch(new osg::Switch())
     , m_grid(new osg::Switch())
     , m_Energy(new osg::MatrixTransform())
+    , m_factory(std::make_unique<CoverUIFactory>())
+    , m_owner("Energy", cover->ui)
+    , m_ui(*m_factory, "EnergyPlugin", &m_owner)
     , m_logger(CONSTANTS::NAMES::LOGGER_NAME)
 {
     m_logger.info("Starting Energy Plugin");
@@ -97,9 +102,18 @@ bool EnergyPlugin::init()
 
 void EnergyPlugin::initSystems()
 {
+    auto tabMenu = dynamic_cast<IComponent*>(m_ui.getTabMenu());
+    if (!tabMenu) {
+        m_logger.error("Something went wrong in initializing EnergyUI");
+        return;
+    }
+
     m_systems[System::CityGML] = std::make_unique<CityGMLSystem>(
-        this, m_ui.getTabMenu(), cover->getObjectsRoot(), m_switch, m_logger);
-    m_systems[System::Simulation] = std::make_unique<SimulationSystem>(this, m_ui.getTabMenu(), getCityGMLSystem(), m_grid, m_logger);
+        this, tabMenu, *m_factory, cover->getObjectsRoot(), m_switch, m_logger);
+    // TODO: not yet ported => do later
+    auto cMenu = dynamic_cast<CoverMenu*>(tabMenu);
+    if (cMenu)
+        m_systems[System::Simulation] = std::make_unique<SimulationSystem>(this, cMenu->getMenu(), getCityGMLSystem(), m_grid, m_logger);
 
     for (auto &[type, system] : m_systems)
     {
