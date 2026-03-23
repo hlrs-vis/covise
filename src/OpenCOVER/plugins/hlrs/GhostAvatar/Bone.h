@@ -16,6 +16,7 @@ struct BoneParser : public osg::NodeVisitor {
 struct Bone
 {
     osg::ref_ptr<osgAnimation::StackedQuaternionElement> rot; //rotation to manipulate joint
+    osg::ref_ptr<osgAnimation::StackedTranslateElement> pos;  //translation to manipulate joint
     osg::Vec3 basePos; //initial position of the joint
     // const osgAnimation::StackedTranslateElement* basePos; //initial position of the joint
     Bone *parent = nullptr; 

@@ -43,22 +43,30 @@ void BoneParser::apply(osg::Node &node)
             {
                 ste = translate;
                 basePos = translate->getTranslate();
-            } else if(auto translate = dynamic_cast<osgAnimation::StackedMatrixElement *>(i.get()))
+            }
+            else if (auto translate = dynamic_cast<osgAnimation::StackedMatrixElement *>(i.get()))
             {
                 basePos = translate->getMatrix().getTrans();
             }
-            else if(auto translate = dynamic_cast<osgAnimation::StackedScaleElement *>(i.get()))
+            else if (auto translate = dynamic_cast<osgAnimation::StackedScaleElement *>(i.get()))
             {
                 std::cerr << "stacked scale: " << translate->getScale().x() << " " << translate->getScale().y() << " " << translate->getScale().z() << std::endl;
             }
-            else if(auto translate = dynamic_cast<osgAnimation::StackedRotateAxisElement *>(i.get()))
+            else if (auto translate = dynamic_cast<osgAnimation::StackedRotateAxisElement *>(i.get()))
             {
                 std::cerr << "stacked scale: " << translate->getAxis().x() << " " << translate->getAxis().y() << " " << translate->getAxis().z() << std::endl;
                 std::cerr << "angle: " << translate->getAngle() << std::endl;
             }
         }
+        if (!ste)
+        {
+            ste = new osgAnimation::StackedTranslateElement;
+            ste->setTranslate(basePos);
+            stacked.push_back(ste);
+        }
+
         auto sqe = new osgAnimation::StackedQuaternionElement;
-        Bone &ikBone = nodeToIk.emplace(std::make_pair(&node, Bone{sqe, basePos, parent, &node})).first->second;
+        Bone &ikBone = nodeToIk.emplace(std::make_pair(&node, Bone { sqe, ste, basePos, parent, &node })).first->second;
         stacked.push_back(sqe);
         for (size_t i = 0; i < effectorName.size(); i++)
         {
@@ -70,8 +78,8 @@ void BoneParser::apply(osg::Node &node)
                 {
                     auto &stacked = dynamic_cast<osgAnimation::UpdateBone *>(origin->getUpdateCallback())->getStackedTransforms();
                     stacked.erase(std::remove_if(stacked.begin(), stacked.end(), [](const osgAnimation::StackedTransform::value_type &t)
-                                                 { return dynamic_cast<osgAnimation::StackedRotateAxisElement *>(t.get()); }),
-                                  stacked.end());
+                                      { return dynamic_cast<osgAnimation::StackedRotateAxisElement *>(t.get()); }),
+                        stacked.end());
                     origin = origin->getBoneParent();
                 }
             }
@@ -83,7 +91,7 @@ void BoneParser::apply(osg::Node &node)
 BoneParser::NodeMap::iterator BoneParser::findNode(const std::string &name)
 {
     return std::find_if(nodeToIk.begin(), nodeToIk.end(), [&name](const NodeMap::value_type &p)
-                        { return p.first->getName() == name; });
+        { return p.first->getName() == name; });
 }
 
 osg::Vec3 BoneParser::claculateBoneDistance(const std::string &boneName1, const std::string &boneName2)
