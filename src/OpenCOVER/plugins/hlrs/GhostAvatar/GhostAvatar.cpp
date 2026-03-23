@@ -65,7 +65,9 @@ void drawFrame(const osg::Vec3 &origin, const osg::Matrix &orientation, float le
 }
 
 GhostAvatar::GhostAvatar()
-    : coVRPlugin(COVER_PLUGIN_NAME), Owner(COVER_PLUGIN_NAME, cover->ui), m_mainMenu(new ui::Menu("GhostAvatar", this))
+    : coVRPlugin(COVER_PLUGIN_NAME)
+    , Owner(COVER_PLUGIN_NAME, cover->ui)
+    , m_mainMenu(new ui::Menu("GhostAvatar", this))
 {
     createSettingsMenu();
     createDebugMenu();
@@ -90,7 +92,7 @@ void GhostAvatar::preFrame()
     if (armNode != m_parser.nodeToIk.end())
     {
         auto &armBoneParser = armNode->second;
-        if (armBoneParser.rot && m_interactorHand)
+        if (armBoneParser.pos && m_interactorHand)
         {
             // matrices to convert between local and world coordinates
             auto localToWorldMat = armNode->second.parent->osgNode->getWorldMatrices(cover->getObjectsRoot())[0];
@@ -102,20 +104,12 @@ void GhostAvatar::preFrame()
             auto worldTargetPos = m_interactorHand->getMatrix().getTrans();
             auto localTargetPos = worldTargetPos * worldToLocalMat;
 
-            // compute vector from the base of the arm to the target
             osg::Vec3 localTargetDir = localTargetPos - localArmPos;
-            localTargetDir.normalize();
+            // apply axis-convention correction
+            osg::Vec3 adjustedTargetDir = m_adjustMatrix * localTargetDir; 
 
-            // the axis convention of the bone might note match with the one used in COVER
-            osg::Vec3 adjustedTargetDir = m_adjustMatrix * localTargetDir;
-
-            // rotate the arm bone to point to the target
-            osg::Quat rotation;
-            if (m_armBaseVec[0] != 0 || m_armBaseVec[1] != 0 || m_armBaseVec[2] != 0)
-            {
-                rotation.makeRotate(m_armBaseVec, adjustedTargetDir);
-                armBoneParser.rot->setQuaternion(rotation);
-            }
+            // move bone to interactor position
+            armBoneParser.pos->setTranslate(adjustedTargetDir);
 
             // UI elements for debugging
             if (m_showFrames && m_showFrames->state())
@@ -207,7 +201,7 @@ void GhostAvatar::createInteractors()
     osg::Matrix m;
     auto interSize = 10;
     m.setTrans(0, 23.5, 60.0);
-    m.setRotate(osg::Quat(0, 0, 0.707107, 0.707107)); 
+    m.setRotate(osg::Quat(0, 0, 0.707107, 0.707107));
     m_interactorFloor.reset(new coVR3DTransRotInteractor(m, interSize, vrui::coInteraction::InteractionType::ButtonA, "floor", "targetInteractor", vrui::coInteraction::InteractionPriority::Medium));
     m_interactorFloor->enableIntersection();
     m_interactorFloor->show();
@@ -233,7 +227,7 @@ void GhostAvatar::createArmBaseVectorMenu()
     m_armBaseVecField = new ui::VectorEditField(m_armBaseVecMenu, "Vector");
     m_armBaseVecField->setValue(m_armBaseVec);
     m_armBaseVecField->setCallback([this](const osg::Vec3 &dir)
-                                   { m_armBaseVec = dir; });
+        { m_armBaseVec = dir; });
 }
 
 void GhostAvatar::createAdjustMatrixMenu()
@@ -274,7 +268,7 @@ void GhostAvatar::createAdjustMatrixMenu()
         m_adjustMatrixVecFields[row] = new ui::VectorEditField(m_adjustMatrixMenu, label);
         m_adjustMatrixVecFields[row]->setValue(rowVec);
         m_adjustMatrixVecFields[row]->setCallback([this, row](const osg::Vec3 &v)
-                                                  {
+            {
                 m_adjustMatrix(row, 0) = v.x();
                 m_adjustMatrix(row, 1) = v.y();
                 m_adjustMatrix(row, 2) = v.z(); });
@@ -288,13 +282,13 @@ void GhostAvatar::createDebugMenu()
     m_showTargetLine = new ui::Button(m_debugMenu, "Show Target Line");
     m_showTargetLine->setState(false);
     m_showTargetLine->setCallback([this](bool state)
-                                  { m_showTargetLine->setState(state); 
+        { m_showTargetLine->setState(state); 
                                        cleanUpDebugLines(); });
 
     m_showFrames = new ui::Button(m_debugMenu, "Show Frames");
     m_showFrames->setState(false);
     m_showFrames->setCallback([this](bool state)
-                              { m_showFrames->setState(state);
+        { m_showFrames->setState(state);
                                     cleanUpDebugLines(); });
 
     m_axisNote = new ui::Action(m_debugMenu, "x - red, y - green, z - blue");
