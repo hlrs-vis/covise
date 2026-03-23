@@ -40,6 +40,7 @@ private:
     BoneParser m_parser;
     std::unique_ptr<opencover::coVR3DTransRotInteractor> m_interactorHead, m_interactorFloor, m_interactorHand;
     osg::Vec3 m_armBaseVec = { 0, 1, 0 };
+    osg::Vec3 m_headBaseVec = { 0, 1, 0 };
     osg::Matrix m_adjustMatrix = osg::Matrix::identity();
     osg::Matrix m_adjustMatrixHead = osg::Matrix::identity();
 

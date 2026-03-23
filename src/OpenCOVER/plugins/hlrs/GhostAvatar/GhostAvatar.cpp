@@ -134,7 +134,7 @@ void GhostAvatar::preFrame()
     if (headNode != m_parser.nodeToIk.end())
     {
         auto &headNodeParser = headNode->second;
-        if (headNodeParser.pos && m_interactorHead)
+        if (headNodeParser.rot && m_interactorHead)
         {
             // matrices to convert between local and world coordinates
             auto localToWorldMat = headNode->second.parent->osgNode->getWorldMatrices(cover->getObjectsRoot())[0];
@@ -147,11 +147,18 @@ void GhostAvatar::preFrame()
             auto localTargetPos = worldTargetPos * worldToLocalMat;
 
             osg::Vec3 localTargetDir = localTargetPos - localHeadPos;
+            localTargetDir.normalize();
+
             // apply axis-convention correction
             osg::Vec3 adjustedTargetDir = m_adjustMatrixHead * localTargetDir;
 
-            // move bone to interactor position
-            headNodeParser.pos->setTranslate(adjustedTargetDir);
+            // rotate the arm bone to point to the target
+            osg::Quat rotation;
+            if (m_headBaseVec[0] != 0 || m_headBaseVec[1] != 0 || m_headBaseVec[2] != 0)
+            {
+                rotation.makeRotate(m_headBaseVec, adjustedTargetDir);
+                headNodeParser.rot->setQuaternion(rotation);
+            }
 
             // UI elements for debugging
             if (m_showFrames && m_showFrames->state())
