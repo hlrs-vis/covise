@@ -19,6 +19,7 @@
 
 #include <vector>
 #include <map>
+#include <set>
 #include <string>
 #include <utility>
 
@@ -74,7 +75,7 @@ public:
     bool empty() const { return empty_; };
 
     void addTimeSet(TimeSet *ts);
-    const TimeSets &getAllTimeSets() const;
+    TimeSets getAllTimeSets() const;
     const TimeSet *getLastTimeSet() const;
     const TimeSet *getTimeSet(int idx) const;
     const TimeSet *getTimeSet(const std::string &field) const;
@@ -98,6 +99,7 @@ private:
     int geoTsIdx_; // time set index of geometry
     BinType binType_ = UNKNOWN;
     int connectivityFileIndex_ = -1; // index of the connectivity file, -1: all time steps
+    std::set<int> usedTimeSets_;
 };
 
 // simple data class to store time step information
