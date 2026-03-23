@@ -86,6 +86,7 @@ void GhostAvatar::preFrame()
 {
     m_interactorFloor->preFrame();
     m_interactorHand->preFrame();
+    m_interactorHead->preFrame();
 
     m_avatarTrans->setMatrix(m_interactorFloor->getMatrix());
     auto armNode = m_parser.findNode(m_armNodeName);
@@ -106,7 +107,7 @@ void GhostAvatar::preFrame()
 
             osg::Vec3 localTargetDir = localTargetPos - localArmPos;
             // apply axis-convention correction
-            osg::Vec3 adjustedTargetDir = m_adjustMatrix * localTargetDir; 
+            osg::Vec3 adjustedTargetDir = m_adjustMatrix * localTargetDir;
 
             // move bone to interactor position
             armBoneParser.pos->setTranslate(adjustedTargetDir);
@@ -123,6 +124,50 @@ void GhostAvatar::preFrame()
                 drawLine(worldArmPos, worldTargetPos);
             }
         }
+    }
+    else
+    {
+        std::cerr << "The avatar does not seem to have a bone called " << m_armNodeName << " -> can't move its arm!\n";
+    }
+
+    auto headNode = m_parser.findNode(m_headNodeName);
+    if (headNode != m_parser.nodeToIk.end())
+    {
+        auto &headNodeParser = headNode->second;
+        if (headNodeParser.pos && m_interactorHead)
+        {
+            // matrices to convert between local and world coordinates
+            auto localToWorldMat = headNode->second.parent->osgNode->getWorldMatrices(cover->getObjectsRoot())[0];
+            auto worldToLocalMat = osg::Matrix::inverse(localToWorldMat);
+
+            auto localHeadPos = headNode->second.basePos;
+            auto worldHeadPos = localHeadPos * localToWorldMat;
+
+            auto worldTargetPos = m_interactorHead->getMatrix().getTrans();
+            auto localTargetPos = worldTargetPos * worldToLocalMat;
+
+            osg::Vec3 localTargetDir = localTargetPos - localHeadPos;
+            // apply axis-convention correction
+            osg::Vec3 adjustedTargetDir = m_adjustMatrixHead * localTargetDir;
+
+            // move bone to interactor position
+            headNodeParser.pos->setTranslate(adjustedTargetDir);
+
+            // UI elements for debugging
+            if (m_showFrames && m_showFrames->state())
+            {
+                drawFrame(worldHeadPos, localToWorldMat, 1.0f, "HeadLocalFrame", m_headLocalFrame);
+            }
+
+            if (m_showTargetLine && m_showTargetLine->state())
+            {
+                drawLine(worldHeadPos, worldTargetPos);
+            }
+        }
+    }
+    else
+    {
+        std::cerr << "The avatar does not seem to have a bone called " << m_headNodeName << " -> can't move its head!\n";
     }
 }
 
@@ -188,7 +233,11 @@ void GhostAvatar::cleanUpDebugLines()
         cover->getObjectsRoot()->removeChild(m_armLocalFrame);
         m_armLocalFrame = nullptr;
     }
-
+    if ((!m_showFrames || !m_showFrames->state()) && m_headLocalFrame.valid())
+    {
+        cover->getObjectsRoot()->removeChild(m_headLocalFrame);
+        m_headLocalFrame = nullptr;
+    }
     if ((!m_showTargetLine || !m_showTargetLine->state()) && m_targetLine.valid())
     {
         cover->getObjectsRoot()->removeChild(m_targetLine);
@@ -198,18 +247,24 @@ void GhostAvatar::cleanUpDebugLines()
 
 void GhostAvatar::createInteractors()
 {
+    // TODO: try to set them to the default position first
     osg::Matrix m;
     auto interSize = 10;
-    m.setTrans(0, 23.5, 60.0);
+    m.setTrans(0, 0.0, 0.0);
     m.setRotate(osg::Quat(0, 0, 0.707107, 0.707107));
     m_interactorFloor.reset(new coVR3DTransRotInteractor(m, interSize, vrui::coInteraction::InteractionType::ButtonA, "floor", "targetInteractor", vrui::coInteraction::InteractionPriority::Medium));
     m_interactorFloor->enableIntersection();
     m_interactorFloor->show();
 
-    m.setTrans(100.0, 0.0, 80.0);
+    m.setTrans(1000.0, 900.0, -1100.0);
     m_interactorHand.reset(new coVR3DTransRotInteractor(m, interSize, vrui::coInteraction::InteractionType::ButtonA, "hand", "targetInteractor", vrui::coInteraction::InteractionPriority::Medium));
     m_interactorHand->enableIntersection();
     m_interactorHand->show();
+
+    m.setTrans(1400.0, 250.0, -1900.0);
+    m_interactorHead.reset(new coVR3DTransRotInteractor(m, interSize, vrui::coInteraction::InteractionType::ButtonA, "head", "targetInteractor", vrui::coInteraction::InteractionPriority::Medium));
+    m_interactorHead->enableIntersection();
+    m_interactorHead->show();
 }
 
 void GhostAvatar::createSettingsMenu()
@@ -219,6 +274,7 @@ void GhostAvatar::createSettingsMenu()
 
     createArmBaseVectorMenu();
     createAdjustMatrixMenu();
+    createAdjustMatrixHeadMenu();
 }
 
 void GhostAvatar::createArmBaseVectorMenu()
@@ -272,6 +328,35 @@ void GhostAvatar::createAdjustMatrixMenu()
                 m_adjustMatrix(row, 0) = v.x();
                 m_adjustMatrix(row, 1) = v.y();
                 m_adjustMatrix(row, 2) = v.z(); });
+    }
+}
+
+void GhostAvatar::createAdjustMatrixHeadMenu()
+{
+    m_adjustMatrixHeadMenu = new ui::Menu(m_settingsMenu, "Adjust Matrix Head");
+
+    // set correct axis conventions for the GhostAvatar model
+    // TODO: don't hard code this...
+    if (m_headNodeName == "Head")
+    {
+        m_adjustMatrixHead.set(
+            1, 0, 0, 0,
+            0, 0, -1, 0,
+            0, 1, 0, 0,
+            0, 0, 0, 1);
+    }
+
+    for (int row = 0; row < 3; ++row)
+    {
+        osg::Vec3 rowVec(m_adjustMatrixHead(row, 0), m_adjustMatrixHead(row, 1), m_adjustMatrixHead(row, 2));
+        std::string label = "Row " + std::to_string(row);
+        m_adjustMatrixHeadVecFields[row] = new ui::VectorEditField(m_adjustMatrixHeadMenu, label);
+        m_adjustMatrixHeadVecFields[row]->setValue(rowVec);
+        m_adjustMatrixHeadVecFields[row]->setCallback([this, row](const osg::Vec3 &v)
+            {
+                m_adjustMatrixHead(row, 0) = v.x();
+                m_adjustMatrixHead(row, 1) = v.y();
+                m_adjustMatrixHead(row, 2) = v.z(); });
     }
 }
 
