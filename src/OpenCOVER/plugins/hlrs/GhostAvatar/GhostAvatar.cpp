@@ -256,12 +256,12 @@ void GhostAvatar::createInteractors()
     m_interactorFloor->enableIntersection();
     m_interactorFloor->show();
 
-    m.setTrans(1000.0, 900.0, -1100.0);
+    m.setTrans(0.0, 900.0, -1100.0);
     m_interactorHand.reset(new coVR3DTransRotInteractor(m, interSize, vrui::coInteraction::InteractionType::ButtonA, "hand", "targetInteractor", vrui::coInteraction::InteractionPriority::Medium));
     m_interactorHand->enableIntersection();
     m_interactorHand->show();
 
-    m.setTrans(1400.0, 250.0, -1900.0);
+    m.setTrans(0.0, 0.0, -1900.0);
     m_interactorHead.reset(new coVR3DTransRotInteractor(m, interSize, vrui::coInteraction::InteractionType::ButtonA, "head", "targetInteractor", vrui::coInteraction::InteractionPriority::Medium));
     m_interactorHead->enableIntersection();
     m_interactorHead->show();

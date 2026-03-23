@@ -61,7 +61,6 @@ void BoneParser::apply(osg::Node &node)
         if (!ste)
         {
             ste = new osgAnimation::StackedTranslateElement;
-            ste->setTranslate(basePos);
             stacked.push_back(ste);
         }
 
