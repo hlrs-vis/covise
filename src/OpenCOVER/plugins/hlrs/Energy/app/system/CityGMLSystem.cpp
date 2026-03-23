@@ -1,9 +1,11 @@
 #include "CityGMLSystem.h"
-#include "app/cover/ui/CityGMLUI.h"
+// #include "app/cover/ui/CityGMLUI.h"
+#include "app/cover/ui/CoverUIFactory.h"
 #include "app/osg/SolarPanelSceneObject.h"
 
 #include <cover/coVRAnimationManager.h>
 #include <lib/core/simulation/type.h>
+#include <lib/core/interfaces/ui/IGUIFactory.h>
 
 #include <memory>
 #include <variant>
@@ -40,12 +42,13 @@ void setAnimationTimesteps(size_t maxTimesteps, const void *who)
 } // namespace
 
 CityGMLSystem::CityGMLSystem(opencover::coVRPlugin *plugin,
-    opencover::ui::Menu *parentMenu,
+    core::interface::ui::IComponent *parentMenu, 
+    const core::interface::ui::IGUIFactory &factory,
     osg::ref_ptr<osg::ClipNode> rootGroup,
     osg::ref_ptr<osg::Switch> parent,
     core::interface::ILogger &logger)
     : core::ClassLogger(logger, "CityGMLSystem")
-    , m_cityGMLUI("CityGMLSystem", parentMenu, { plugin->configFloat("CityGML", "X", 0.0f)->value(), plugin->configFloat("CityGML", "Y", 0.0f)->value(), plugin->configFloat("CityGML", "Z", 0.0f)->value() })
+    , m_cityGMLUI(factory, "CityGMLSystem", parentMenu, { plugin->configFloat("CityGML", "X", 0.0f)->value(), plugin->configFloat("CityGML", "Y", 0.0f)->value(), plugin->configFloat("CityGML", "Z", 0.0f)->value() })
     , m_gmlSceneObject(rootGroup, parent, logger)
     , m_config {
         plugin->configString("Simulation", "pvDir", "default")->value(),
@@ -55,7 +58,6 @@ CityGMLSystem::CityGMLSystem(opencover::coVRPlugin *plugin,
         plugin->configString("Simulation", "3dModelDir", "default")->value()
     }
     , m_enabled(false)
-    // , m_logger(logger, "CityGMLSystem")
 {
 }
 
@@ -93,7 +95,7 @@ void CityGMLSystem::initUICallbacks()
             }
             m_pvSceneObject->enable(); });
 
-    auto updateFunction = [this](auto &value)
+    auto updateFunction = [this](const std::string &value)
     {
         m_gmlSceneObject.move(m_cityGMLUI.getTranslation());
     };
@@ -401,7 +403,7 @@ void CityGMLSystem::applyStaticDataToCityGML(const std::string &filePathToInflux
 void CityGMLSystem::applyInfluxCSVToCityGML(const std::string &filePathToInfluxCSV,
     bool updateColorMap)
 {
-    if (m_gmlSceneObject.enabled())
+    if (!m_gmlSceneObject.enabled())
         return;
     if (!fs::exists(filePathToInfluxCSV))
         return;
