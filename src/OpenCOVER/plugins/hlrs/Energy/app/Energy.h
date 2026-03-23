@@ -1,8 +1,13 @@
 #pragma once
+#include "app/cover/ui/CoverOwner.h"
 #include "app/system/CityGMLSystem.h"
 #include "app/system/SimulationSystem.h"
-#include "app/cover/ui/EnergyUI.h"
+// #include "app/cover/ui/EnergyUI.h"
+#include "app/EnergyUI.h"
 #include "app/cover/EnergyLogger.h"
+
+#include <lib/core/interfaces/ui/IGUIFactory.h>
+#include <memory>
 
 template <typename T>
 constexpr bool IsValidSystem = false;
@@ -55,12 +60,14 @@ class EnergyPlugin : public opencover::coVRPlugin
 
   void initSystems();
 
-  EnergyUI m_ui;
-  EnergyLogger m_logger;
-
   osg::ref_ptr<osg::Switch> m_switch;
   osg::ref_ptr<osg::Switch> m_grid;
   osg::ref_ptr<osg::MatrixTransform> m_Energy;
 
   std::map<System, std::unique_ptr<core::interface::ISystem>> m_systems;
+  std::unique_ptr<core::interface::ui::IGUIFactory> m_factory;
+
+  CoverOwner m_owner;
+  EnergyUI m_ui;
+  EnergyLogger m_logger;
 };

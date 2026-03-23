@@ -1,15 +1,17 @@
 #pragma once
 
 #include "BaseUI.h"
+#include "app/typedefs.h"
 #include <PluginUtil/colors/ColorBar.h>
-#include <cover/ui/Button.h>
-#include <cover/ui/ButtonGroup.h>
-#include <cover/ui/EditField.h>
-#include <cover/ui/Menu.h>
 #include <memory>
 #include <string>
 #include <map>
-#include "app/typedefs.h"
+#include <lib/core/interfaces/ui/IGUIFactory.h>
+#include <lib/core/interfaces/ui/IComponent.h>
+#include <lib/core/interfaces/ui/IButton.h>
+#include <lib/core/interfaces/ui/IButtonGroup.h>
+#include <lib/core/interfaces/ui/IEditField.h>
+#include <lib/core/interfaces/ui/IMenu.h>
 
 typedef std::function<void(const opencover::ColorMap &)> ColorMapCallback;
 typedef std::vector<opencover::ui::Button *> ButtonVec;
@@ -33,24 +35,24 @@ class CityGMLUI : BaseUI
 
     auto getButton(Button button)
     {
-        return dynamic_cast<opencover::ui::Button *>(m_buttons->child(static_cast<int>(button)));
+        return m_buttons->getChild(static_cast<int>(button));
     }
 
     auto getEditField(Field field)
     {
-        return m_fields[field];
+        return m_fields[field].get();
     }
 
 public:
-    CityGMLUI(const std::string &name, opencover::ui::Menu *parent, const Pos &origin = { 0.0f, 0.0f, 0.0f });
+    CityGMLUI(const core::interface::ui::IGUIFactory &factory, const std::string &name, core::interface::ui::IComponent *parent, const Pos &origin = { 0.0f, 0.0f, 0.0f });
     void setColorMapCallback(ColorMapCallback cm);
 
     auto InfluxCSV() { return getButton(Button::InfluxCSV); }
     auto InfluxArrow() { return getButton(Button::InfluxArrow); }
-    auto PV() { return m_pv; }
+    auto PV() { return m_pv.get(); }
     auto StaticCampusPower() { return getButton(Button::StaticCampusPower); }
     auto StaticPower() { return getButton(Button::StaticPower); }
-    auto getTranslation() { return Pos { getEditField(Field::X)->number(), getEditField(Field::Y)->number(), getEditField(Field::Z)->number() }; }
+    auto getTranslation() { return Pos { getEditField(Field::X)->getValue(), getEditField(Field::Y)->getValue(), getEditField(Field::Z)->getValue() }; }
     opencover::CoverColorBar *colorBar() { return m_colorBar.get(); }
     void setEditFieldCallback(Field field, const EditCallback &func) { setTxtFieldCallback(getEditField(field), func); }
     auto &getEditFields() { return m_fields; }
@@ -58,13 +60,13 @@ public:
     void setButtonGroupCallback(BtnCallback func) { m_buttons->setCallback(func); }
 
 private:
-    void initUI(const std::string &name, opencover::ui::Menu *parent, const Pos &origin);
+    void initUI(const core::interface::ui::IGUIFactory &factory, const std::string &name, core::interface::ui::IComponent *parent, const Pos &origin);
     void initColorBar();
+    // TODO: rewrite this later
     std::unique_ptr<opencover::CoverColorBar> m_colorBar;
 
-    // deleted by owner => DON'T DELETE IN DESTRUCTOR
-    opencover::ui::Menu *m_tab;
-    std::map<Field, opencover::ui::EditField *> m_fields;
-    opencover::ui::ButtonGroup *m_buttons;
-    opencover::ui::Button *m_pv;
+    std::unique_ptr<core::interface::ui::IMenu> m_tab;
+    std::map<Field, std::unique_ptr<core::interface::ui::IEditDoubleField>> m_fields;
+    std::unique_ptr<core::interface::ui::IButtonGroup> m_buttons;
+    std::unique_ptr<core::interface::ui::IButton> m_pv;
 };
