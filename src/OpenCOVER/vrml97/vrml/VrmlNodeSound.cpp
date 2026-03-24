@@ -159,13 +159,15 @@ void VrmlNodeSound::render(Viewer *viewer)
             if (clip->isAudible(now) && source)
             {
                 // TODO: what coordinate system is d_location in? can we transform to world coordinates here?
-                source->setPosition(d_location.x(), d_location.y(), d_location.z());
+                float x, y, z;
+                viewer->getWC(d_location.x(), d_location.y(), d_location.z(), &x, &y, &z);
+                // std::cout << "d_location: " << d_location.x() << ", " << d_location.y() << ", " << d_location.z() << ";  WC: " << x << ", " << y << ", " << z << std::endl;
+                source->setPosition(x, y, z);
 
                 float intensity = d_intensity.get();
                 if (System::the->isCorrectSpatializedAudio() && d_spatialize.get())
                 {
                     // Compute the intensity based on the distance and angle to the viewer
-                    float x, y, z;
                     viewer->getPosition(&x, &y, &z);
                     VrmlSFVec3f toViewer(x, y, z);
                     toViewer.subtract(&d_location); // now we have the vector to the viewer

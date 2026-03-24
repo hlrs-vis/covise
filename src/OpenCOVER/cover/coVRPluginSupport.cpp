@@ -612,9 +612,7 @@ void coVRPluginSupport::update()
     coVRMSController::instance()->syncData((char *)&frontHorizontalSize, sizeof(frontHorizontalSize));
     coVRMSController::instance()->syncData((char *)&frontVerticalSize, sizeof(frontVerticalSize));
 
-    osg::Matrix m;
-    m.invert(VRSceneGraph::instance()->getTransform()->getMatrix());
-    auto v = m * cover->getViewerMat();
+    auto v = getInvBaseMat() * cover->getViewerMat();
     glm::mat4x4 mat(
         v(0, 0), v(0, 1), v(0, 2), v(0, 3),
         v(1, 0), v(1, 1), v(1, 2), v(1, 3),
