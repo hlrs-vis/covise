@@ -1,13 +1,10 @@
 #include <algorithm>
-#include <array>
+#include <string>
+#include <unordered_set>
 
-#include <osgAnimation/UpdateBone>
 #include <osgAnimation/Bone>
-#include <osgAnimation/StackedRotateAxisElement>
 #include <osgAnimation/StackedMatrixElement>
-#include <osgAnimation/StackedScaleElement>
-#include <osg/Geode>
-#include <osg/ShapeDrawable>
+#include <osgAnimation/UpdateBone>
 
 #include "Bone.h"
 
@@ -16,95 +13,127 @@ BoneParser::BoneParser()
 {
 }
 
-void BoneParser::apply(osg::Node &node)
+void initializeBoneTransforms(osg::Node &node, BoneParser::Bone &bone)
 {
+    auto &boneTransforms = dynamic_cast<osgAnimation::UpdateBone *>(node.getUpdateCallback())->getStackedTransforms();
+    osgAnimation::StackedMatrixElement *boneMatrix = nullptr;
 
-    if (auto bone = dynamic_cast<osgAnimation::Bone *>(&node))
+    // first check if bone can be translated and/or rotated...
+    for (const auto &transform : boneTransforms)
     {
-        std::cerr << "bone: " << ikId << " " << bone->getName() << std::endl;
-        Bone *parent = nullptr;
-        if (!bone->getBoneParent())
+        if (auto translator = dynamic_cast<osgAnimation::StackedTranslateElement *>(transform.get()))
         {
-            std::cerr << "root bone: " << bone->getName() << std::endl;
-            root = bone;
+            bone.pos = translator;
+            bone.initialPos = translator->getTranslate();
         }
-        else
+        else if (auto rotator = dynamic_cast<osgAnimation::StackedQuaternionElement *>(transform.get()))
         {
-            parent = &nodeToIk[bone->getBoneParent()];
+            bone.rot = rotator;
+            bone.initialRot = rotator->getQuaternion();
         }
-
-        auto &stacked = dynamic_cast<osgAnimation::UpdateBone *>(node.getUpdateCallback())->getStackedTransforms();
-        osgAnimation::StackedTranslateElement *ste = nullptr;
-        osg::Vec3 basePos(0, 0, 0);
-        for (const auto &i : stacked)
+        else if (auto matrix = dynamic_cast<osgAnimation::StackedMatrixElement *>(transform.get()))
         {
-            std::cerr << "stacked transform: " << i->className() << std::endl;
-            if (auto translate = dynamic_cast<osgAnimation::StackedTranslateElement *>(i.get()))
-            {
-                ste = translate;
-                basePos = translate->getTranslate();
-            }
-            else if (auto translate = dynamic_cast<osgAnimation::StackedMatrixElement *>(i.get()))
-            {
-                basePos = translate->getMatrix().getTrans();
-            }
-            else if (auto translate = dynamic_cast<osgAnimation::StackedScaleElement *>(i.get()))
-            {
-                std::cerr << "stacked scale: " << translate->getScale().x() << " " << translate->getScale().y() << " " << translate->getScale().z() << std::endl;
-            }
-            else if (auto translate = dynamic_cast<osgAnimation::StackedRotateAxisElement *>(i.get()))
-            {
-                std::cerr << "stacked scale: " << translate->getAxis().x() << " " << translate->getAxis().y() << " " << translate->getAxis().z() << std::endl;
-                std::cerr << "angle: " << translate->getAngle() << std::endl;
-            }
-        }
-        if (!ste)
-        {
-            ste = new osgAnimation::StackedTranslateElement;
-            stacked.push_back(ste);
-        }
-
-        auto sqe = new osgAnimation::StackedQuaternionElement;
-        Bone &ikBone = nodeToIk.emplace(std::make_pair(&node, Bone { sqe, ste, basePos, parent, &node })).first->second;
-        stacked.push_back(sqe);
-        for (size_t i = 0; i < effectorName.size(); i++)
-        {
-            if (node.getName() == effectorName[i])
-            {
-                size_t chainLength = effectorChainLenghts[i];
-                auto origin = bone;
-                for (size_t i = 0; i < chainLength + 1; i++)
-                {
-                    auto &stacked = dynamic_cast<osgAnimation::UpdateBone *>(origin->getUpdateCallback())->getStackedTransforms();
-                    stacked.erase(std::remove_if(stacked.begin(), stacked.end(), [](const osgAnimation::StackedTransform::value_type &t)
-                                      { return dynamic_cast<osgAnimation::StackedRotateAxisElement *>(t.get()); }),
-                        stacked.end());
-                    origin = origin->getBoneParent();
-                }
-            }
+            boneMatrix = matrix;
         }
     }
+
+    // ... if not, add translate/quaternion element to make sure we can transform the bone
+    if (!bone.pos)
+    {
+        bone.pos = new osgAnimation::StackedTranslateElement;
+        boneTransforms.push_back(bone.pos);
+
+        if (boneMatrix)
+            bone.initialPos = boneMatrix->getMatrix().getTrans();
+    }
+
+    if (!bone.rot)
+    {
+        bone.rot = new osgAnimation::StackedQuaternionElement;
+        boneTransforms.push_back(bone.rot);
+
+        if (boneMatrix)
+            bone.initialRot = boneMatrix->getMatrix().getRotate();
+    }
+}
+
+void BoneParser::apply(osg::Node &node)
+{
+    if (auto osgBone = dynamic_cast<osgAnimation::Bone *>(&node))
+    {
+        BoneParser::Bone bone;
+        bone.osgNode = &node;
+
+        if (osgBone->getBoneParent())
+            bone.parent = &nodeToBoneMap[osgBone->getBoneParent()];
+        else
+            root = osgBone;
+
+        initializeBoneTransforms(node, bone);
+
+        nodeToBoneMap.emplace(std::make_pair(&node, bone));
+    }
+
     traverse(node);
 }
 
-BoneParser::NodeMap::iterator BoneParser::findNode(const std::string &name)
+BoneParser::NodeToBoneMap::iterator BoneParser::findNode(const std::string &name)
 {
-    return std::find_if(nodeToIk.begin(), nodeToIk.end(), [&name](const NodeMap::value_type &p)
+    return std::find_if(nodeToBoneMap.begin(), nodeToBoneMap.end(), [&name](const NodeToBoneMap::value_type &p)
         { return p.first->getName() == name; });
 }
 
-osg::Vec3 BoneParser::claculateBoneDistance(const std::string &boneName1, const std::string &boneName2)
+void BoneParser::printBoneHierarchy() const
 {
-    auto bone1it = findNode(boneName1);
-    auto bone2it = findNode(boneName2);
-    auto rootIt = findNode("mixamorig:Hips");
-    if (bone1it == nodeToIk.end() || bone2it == nodeToIk.end() || rootIt == nodeToIk.end())
-        return osg::Vec3(0, 0, 0);
+    std::cerr << "Bone hierarchy (" << nodeToBoneMap.size() << " bones):" << std::endl;
 
-    const osg::Node *bone1 = bone1it->first;
-    const osg::Node *bone2 = bone2it->first;
-    const osg::Node *root = rootIt->first;
-    auto bone1Pos = bone1->getWorldMatrices(root)[0].getTrans();
-    auto bone2Pos = bone2->getWorldMatrices(root)[0].getTrans();
-    return bone2Pos - bone1Pos;
+    if (nodeToBoneMap.empty())
+    {
+        std::cerr << "  <empty>" << std::endl;
+        return;
+    }
+
+    std::unordered_set<const Bone *> visited;
+    const auto printBone = [&](const auto &self, const Bone *bone, int depth) -> void
+    {
+        if (!bone)
+            return;
+
+        std::string indent(static_cast<size_t>(depth) * 2, ' ');
+        const osg::Node *node = bone->osgNode;
+
+        bool isRoot = (depth == 1);
+        std::cerr << indent << (isRoot ? "" : "- ") << (node ? node->getName() : "<unnamed>") << (isRoot ? " (root)" : "") << std::endl;
+
+        if (!visited.insert(bone).second)
+        {
+            std::cerr << indent << "  <cycle detected>" << std::endl;
+            return;
+        }
+
+        for (const auto &entry : nodeToBoneMap)
+        {
+            if (entry.second.parent == bone)
+                self(self, &entry.second, depth + 1);
+        }
+    };
+
+    bool hasRoot = false;
+    for (const auto &entry : nodeToBoneMap)
+    {
+        if (!entry.second.parent)
+        {
+            hasRoot = true;
+            printBone(printBone, &entry.second, 1);
+        }
+    }
+
+    if (!hasRoot)
+    {
+        std::cerr << "  <no root bone found; flat listing>" << std::endl;
+        for (const auto &entry : nodeToBoneMap)
+            printBone(printBone, &entry.second, 1);
+    }
+
+    std::cerr << std::endl;
 }

@@ -90,7 +90,7 @@ void GhostAvatar::preFrame()
 
     m_avatarTrans->setMatrix(m_interactorFloor->getMatrix());
     auto armNode = m_parser.findNode(m_armNodeName);
-    if (armNode != m_parser.nodeToIk.end())
+    if (armNode != m_parser.nodeToBoneMap.end())
     {
         auto &armBoneParser = armNode->second;
         if (armBoneParser.pos && m_interactorHand)
@@ -99,7 +99,7 @@ void GhostAvatar::preFrame()
             auto localToWorldMat = armNode->second.parent->osgNode->getWorldMatrices(cover->getObjectsRoot())[0];
             auto worldToLocalMat = osg::Matrix::inverse(localToWorldMat);
 
-            auto localArmPos = armNode->second.basePos;
+            auto localArmPos = armNode->second.initialPos;
             auto worldArmPos = localArmPos * localToWorldMat;
 
             auto worldTargetPos = m_interactorHand->getMatrix().getTrans();
@@ -131,7 +131,7 @@ void GhostAvatar::preFrame()
     }
 
     auto headNode = m_parser.findNode(m_headNodeName);
-    if (headNode != m_parser.nodeToIk.end())
+    if (headNode != m_parser.nodeToBoneMap.end())
     {
         auto &headNodeParser = headNode->second;
         if (headNodeParser.rot && m_interactorHead)
@@ -140,7 +140,7 @@ void GhostAvatar::preFrame()
             auto localToWorldMat = headNode->second.parent->osgNode->getWorldMatrices(cover->getObjectsRoot())[0];
             auto worldToLocalMat = osg::Matrix::inverse(localToWorldMat);
 
-            auto localHeadPos = headNode->second.basePos;
+            auto localHeadPos = headNode->second.initialPos;
             auto worldHeadPos = localHeadPos * localToWorldMat;
 
             auto worldTargetPos = m_interactorHead->getMatrix().getTrans();
