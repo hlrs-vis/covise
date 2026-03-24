@@ -17,7 +17,7 @@
 #include <cover/ui/VectorEditField.h>
 #include <PluginUtil/coVR3DTransRotInteractor.h>
 
-#include "Bone.h"
+#include "BoneParser.h"
 
 class GhostAvatar : public opencover::coVRPlugin, public opencover::ui::Owner
 {

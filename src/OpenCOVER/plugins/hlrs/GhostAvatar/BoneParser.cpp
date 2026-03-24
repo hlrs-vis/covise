@@ -6,7 +6,7 @@
 #include <osgAnimation/StackedMatrixElement>
 #include <osgAnimation/UpdateBone>
 
-#include "Bone.h"
+#include "BoneParser.h"
 
 BoneParser::BoneParser()
     : osg::NodeVisitor(osg::NodeVisitor::TRAVERSE_ALL_CHILDREN)
