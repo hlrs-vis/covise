@@ -11,7 +11,7 @@ class CoverButtonGroup final : public core::ButtonGroupBase
 {
 public:
     CoverButtonGroup(core::interface::ui::IComponent *parent, const std::string &name, std::vector<std::unique_ptr<core::interface::ui::IButton>> &&buttons);
-    void setCallback(const std::function<void(bool)> &func) override;
+    void setCallback(const std::function<void(int)> &func) override;
     void add(std::unique_ptr<core::interface::ui::IButton> button) override;
     core::interface::ui::IButton* getChild(int position) override;
 
