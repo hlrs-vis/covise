@@ -1,6 +1,5 @@
 #include "CityGMLSystem.h"
-// #include "app/cover/ui/CityGMLUI.h"
-#include "app/cover/ui/CoverUIFactory.h"
+#include "app/ui/cover/CoverUIFactory.h"
 #include "app/osg/SolarPanelSceneObject.h"
 
 #include <cover/coVRAnimationManager.h>

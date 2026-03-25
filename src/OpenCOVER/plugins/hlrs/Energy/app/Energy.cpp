@@ -1,7 +1,7 @@
 #include "Energy.h"
-#include "app/cover/ui/CoverUIFactory.h"
-#include "app/cover/ui/CoverMenu.h"
-#include "lib/core/constants.h"
+#include "app/ui/cover/CoverUIFactory.h"
+#include "app/ui/cover/CoverMenu.h"
+#include <lib/core/constants.h>
 
 // COVER
 #include <cover/coVRPluginSupport.h>

@@ -1,10 +1,9 @@
 #pragma once
-#include "app/cover/ui/CoverOwner.h"
+#include "app/ui/cover/CoverOwner.h"
 #include "app/system/CityGMLSystem.h"
 #include "app/system/SimulationSystem.h"
-// #include "app/cover/ui/EnergyUI.h"
-#include "app/EnergyUI.h"
-#include "app/cover/EnergyLogger.h"
+#include "app/ui/EnergyUI.h"
+#include "EnergyLogger.h"
 
 #include <lib/core/interfaces/ui/IGUIFactory.h>
 #include <memory>
