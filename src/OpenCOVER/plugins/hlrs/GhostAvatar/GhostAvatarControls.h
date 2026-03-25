@@ -14,35 +14,61 @@
 class GhostAvatarControls
 {
 public:
-    // TODO: add filepath to constructor
+    // TODO: remove default constructor
     GhostAvatarControls();
+    GhostAvatarControls(const std::string &pathToFbx, const std::string &armNodeName, const std::string &headNodeName);
+    GhostAvatarControls(const std::string &pathToFbx, const std::string &armNodeName, const std::string &headNodeName, const osg::Vec3 &armBaseVector, const osg::Vec3 &headBaseVector, const osg::Matrix &armAdjustMatrix, const osg::Matrix &headAdjustMatrix);
 
     void loadAvatar();
 
-    void preFrame(const osg::Matrix &m_floor, const osg::Matrix &m_hand, const osg::Matrix &m_head);
+    void updateBones(const osg::Matrix &floorMatrix, const osg::Matrix &handMatrix, const osg::Matrix &headMatrix);
 
-    // TODO: simplify and make private with getters!
-    osg::Vec3 worldArmPos;
-    osg::Vec3 worldArmTargetPos;
-    osg::Matrix armLocalToWorldMat;
+    osg::Vec3 getArmBaseVector() const;
+    osg::Vec3 getHeadBaseVector() const;
 
-    osg::Vec3 worldHeadPos;
-    osg::Vec3 worldHeadTargetPos;
-    osg::Matrix headLocalToWorldMat;
+    osg::Matrix getArmAdjustMatrix() const;
+    osg::Matrix getHeadAdjustMatrix() const;
 
-    osg::Vec3 m_armBaseVec = { 0, 1, 0 };
-    osg::Vec3 m_headBaseVec = { 0, 1, 0 };
-    osg::Matrix m_adjustMatrix = osg::Matrix::identity();
-    osg::Matrix m_adjustMatrixHead = osg::Matrix::identity();
+    void setArmBaseVector(const osg::Vec3 &vector);
+    void setHeadBaseVector(const osg::Vec3 &vector);
+
+    void setArmAdjustMatrix(const osg::Matrix &matrix);
+    void setHeadAdjustMatrix(const osg::Matrix &matrix);
+
+    void setArmAdjustMatrix(int row, const osg::Vec3 &vector);
+    void setHeadAdjustMatrix(int row, const osg::Vec3 &vector);
+
+    osg::Matrix getArmLocalToWorldMatrix() const;
+    osg::Matrix getHeadLocalToWorldMatrix() const;
+
+    osg::Vec3 getInitialArmPosition() const;
+    osg::Vec3 getInitialHeadPosition() const;
 
 private:
-    std::string m_pathToFbx = "/data/STARTS-ECHO/Avatars/planarAvatar/PLANEE6.fbx";
+    std::string m_pathToFbx;
 
-    std::string m_armNodeName = "Arm"; // "LeftArm"
-    std::string m_headNodeName = "Head";
+    std::string m_armNodeName;
+    std::string m_headNodeName;
+
+    osg::MatrixTransform *m_avatarTrans = nullptr;
 
     BoneParser m_parser;
-    osg::MatrixTransform *m_avatarTrans = nullptr;
+    BoneParser::Bone *m_armBone;
+    BoneParser::Bone *m_headBone;
+
+    osg::Vec3 m_armBaseVector;
+    osg::Vec3 m_headBaseVector;
+
+    osg::Matrix m_armAdjustMatrix;
+    osg::Matrix m_headAdjustMatrix;
+
+    void moveBoneToTarget(const BoneParser::Bone &bone, const osg::Vec3 &targetPosition, const osg::Matrix &adjustMatrix);
+    void makeBonePointAtTarget(const BoneParser::Bone &bone, const osg::Vec3 &targetPosition, const osg::Matrix &adjustMatrix, const osg::Vec3 &baseVector);
+
+    osg::Vec3 getInitialBonePosition(const BoneParser::Bone &bone) const;
+    osg::Matrix getLocalToWorldMatrix(const BoneParser::Bone &bone) const;
+    osg::Vec3 getPositionInLocalCoordinates(const BoneParser::Bone &bone, const osg::Vec3 &positionInWorldCoordinates) const;
+    osg::Vec3 getLocalTargetVector(const BoneParser::Bone &bone, const osg::Vec3 &targetPosition, const osg::Matrix &adjustMatrix) const;
 };
 
 #endif // COVER_PLUGIN_GHOSTAVATAR_GhostAvatarControls_H

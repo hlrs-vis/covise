@@ -77,10 +77,18 @@ void BoneParser::apply(osg::Node &node)
     traverse(node);
 }
 
-BoneParser::NodeToBoneMap::iterator BoneParser::findNode(const std::string &name)
+BoneParser::NodeToBoneMap::iterator BoneParser::getMapEntryByName(const std::string &name)
 {
     return std::find_if(nodeToBoneMap.begin(), nodeToBoneMap.end(), [&name](const NodeToBoneMap::value_type &p)
         { return p.first->getName() == name; });
+}
+
+BoneParser::Bone *BoneParser::getBoneByName(const std::string &name)
+{
+    if (auto it = getMapEntryByName(name); it != nodeToBoneMap.end())
+        return &it->second;
+
+    return nullptr;
 }
 
 void BoneParser::printBoneHierarchy() const

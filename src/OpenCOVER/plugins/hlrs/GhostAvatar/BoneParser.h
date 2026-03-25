@@ -35,7 +35,8 @@ public:
 
     BoneParser();
     void apply(osg::Node &node);
-    NodeToBoneMap::iterator findNode(const std::string &name);
+    NodeToBoneMap::iterator getMapEntryByName(const std::string &name);
+    Bone *getBoneByName(const std::string &name);
     void printBoneHierarchy() const;
 };
 

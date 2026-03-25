@@ -41,7 +41,7 @@ void GhostAvatar::preFrame()
     if (!m_interactorFloor || !m_interactorHead || !m_interactorHand)
         return;
 
-    ghostAvatarControls.preFrame(m_interactorFloor->getMatrix(), m_interactorHand->getMatrix(), m_interactorHead->getMatrix());
+    ghostAvatarControls.updateBones(m_interactorFloor->getMatrix(), m_interactorHand->getMatrix(), m_interactorHead->getMatrix());
 
     // UI elements for debugging
     if (m_showFrames && m_showFrames->state() && m_interactorFloor)
@@ -49,14 +49,14 @@ void GhostAvatar::preFrame()
 
     if (m_showFrames && m_showFrames->state())
     {
-        drawFrame(ghostAvatarControls.worldArmPos, ghostAvatarControls.armLocalToWorldMat, 500.0f, "ArmLocalFrame", m_armLocalFrame);
-        drawFrame(ghostAvatarControls.worldHeadPos, ghostAvatarControls.headLocalToWorldMat, 500.0f, "HeadLocalFrame", m_headLocalFrame);
+        drawFrame(ghostAvatarControls.getInitialArmPosition(), ghostAvatarControls.getArmLocalToWorldMatrix(), 500.0f, "ArmLocalFrame", m_armLocalFrame);
+        drawFrame(ghostAvatarControls.getInitialHeadPosition(), ghostAvatarControls.getHeadLocalToWorldMatrix(), 500.0f, "HeadLocalFrame", m_headLocalFrame);
     }
 
     if (m_showTargetLines && m_showTargetLines->state())
     {
-        drawLine(ghostAvatarControls.worldArmPos, ghostAvatarControls.worldArmTargetPos, m_armTargetLine);
-        drawLine(ghostAvatarControls.worldHeadPos, ghostAvatarControls.worldHeadTargetPos, m_headTargetLine);
+        drawLine(ghostAvatarControls.getInitialArmPosition(), m_interactorHand->getMatrix().getTrans(), m_armTargetLine);
+        drawLine(ghostAvatarControls.getInitialHeadPosition(), m_interactorHead->getMatrix().getTrans(), m_headTargetLine);
     }
 }
 
@@ -102,11 +102,11 @@ void GhostAvatar::drawLine(const osg::Vec3 &origin, const osg::Vec3 &end, osg::r
     osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array();
     vertices->push_back(origin);
     vertices->push_back(end);
-    
+
     osg::ref_ptr<osg::Vec4Array> colors = new osg::Vec4Array();
     colors->push_back(osg::Vec4(0.31, 0.31, 0.294, 1));
     colors->push_back(osg::Vec4(0.31, 0.31, 0.294, 1));
-    
+
     geom->setVertexArray(vertices);
     geom->setColorArray(colors, osg::Array::BIND_PER_VERTEX);
     geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
@@ -227,9 +227,9 @@ void GhostAvatar::createArmBaseVectorMenu()
 {
     m_armBaseVecMenu = new ui::Menu(m_settingsMenu, "Arm Base Vector");
     m_armBaseVecField = new ui::VectorEditField(m_armBaseVecMenu, "Vector");
-    m_armBaseVecField->setValue(ghostAvatarControls.m_armBaseVec);
+    m_armBaseVecField->setValue(ghostAvatarControls.getArmBaseVector());
     m_armBaseVecField->setCallback([this](const osg::Vec3 &dir)
-        { ghostAvatarControls.m_armBaseVec = dir; });
+        { ghostAvatarControls.setArmBaseVector(dir); });
 }
 
 void GhostAvatar::createAdjustMatrixMenu()
@@ -238,15 +238,13 @@ void GhostAvatar::createAdjustMatrixMenu()
 
     for (int row = 0; row < 3; ++row)
     {
-        osg::Vec3 rowVec(ghostAvatarControls.m_adjustMatrix(row, 0), ghostAvatarControls.m_adjustMatrix(row, 1), ghostAvatarControls.m_adjustMatrix(row, 2));
+        auto adjustMatrixArm = ghostAvatarControls.getArmAdjustMatrix();
+        osg::Vec3 rowVec(adjustMatrixArm(row, 0), adjustMatrixArm(row, 1), adjustMatrixArm(row, 2));
         std::string label = "Row " + std::to_string(row);
         m_adjustMatrixVecFields[row] = new ui::VectorEditField(m_adjustMatrixMenu, label);
         m_adjustMatrixVecFields[row]->setValue(rowVec);
         m_adjustMatrixVecFields[row]->setCallback([this, row](const osg::Vec3 &v)
-            {
-                ghostAvatarControls.m_adjustMatrix(row, 0) = v.x();
-                ghostAvatarControls.m_adjustMatrix(row, 1) = v.y();
-                ghostAvatarControls.m_adjustMatrix(row, 2) = v.z(); });
+            { ghostAvatarControls.setArmAdjustMatrix(row, v); });
     }
 }
 
@@ -256,15 +254,13 @@ void GhostAvatar::createAdjustMatrixHeadMenu()
 
     for (int row = 0; row < 3; ++row)
     {
-        osg::Vec3 rowVec(ghostAvatarControls.m_adjustMatrixHead(row, 0), ghostAvatarControls.m_adjustMatrixHead(row, 1), ghostAvatarControls.m_adjustMatrixHead(row, 2));
+        auto adjustMatrixHead = ghostAvatarControls.getHeadAdjustMatrix();
+        osg::Vec3 rowVec(adjustMatrixHead(row, 0), adjustMatrixHead(row, 1), adjustMatrixHead(row, 2));
         std::string label = "Row " + std::to_string(row);
         m_adjustMatrixHeadVecFields[row] = new ui::VectorEditField(m_adjustMatrixHeadMenu, label);
         m_adjustMatrixHeadVecFields[row]->setValue(rowVec);
         m_adjustMatrixHeadVecFields[row]->setCallback([this, row](const osg::Vec3 &v)
-            {
-                ghostAvatarControls.m_adjustMatrixHead(row, 0) = v.x();
-                ghostAvatarControls.m_adjustMatrixHead(row, 1) = v.y();
-                ghostAvatarControls.m_adjustMatrixHead(row, 2) = v.z(); });
+            { ghostAvatarControls.setHeadAdjustMatrix(row, v); });
     }
 }
 

@@ -6,12 +6,19 @@
 using namespace opencover;
 
 GhostAvatarControls::GhostAvatarControls()
+    : m_pathToFbx("/data/STARTS-ECHO/Avatars/planarAvatar/PLANEE6.fbx")
+    , m_armNodeName("Arm")
+    , m_headNodeName("Head")
+    , m_armBaseVector({ 0, 1, 0 })
+    , m_headBaseVector({ 0, 1, 0 })
+    , m_armAdjustMatrix(osg::Matrix::identity())
+    , m_headAdjustMatrix(osg::Matrix::identity())
 {
     // set correct axis conventions for the GhostAvatar model
     // TODO: don't hard code this...
     if (m_armNodeName == "LeftArm")
     {
-        m_adjustMatrix.set(
+        m_armAdjustMatrix.set(
             1, 0, 0, 0,
             0, 0, -1, 0,
             0, 1, 0, 0,
@@ -19,7 +26,7 @@ GhostAvatarControls::GhostAvatarControls()
     }
     else if (m_armNodeName == "RightArm")
     {
-        m_adjustMatrix.set(
+        m_armAdjustMatrix.set(
             1, 0, 0, 0,
             0, 0, 1, 0,
             0, -1, 0, 0,
@@ -27,7 +34,7 @@ GhostAvatarControls::GhostAvatarControls()
     }
     else if (m_armNodeName == "Arm")
     {
-        m_adjustMatrix.set(
+        m_armAdjustMatrix.set(
             0, 0, 1, 0,
             1, 0, 0, 0,
             0, 1, 0, 0,
@@ -36,12 +43,35 @@ GhostAvatarControls::GhostAvatarControls()
 
     if (m_headNodeName == "Head")
     {
-        m_adjustMatrixHead.set(
+        m_headAdjustMatrix.set(
             1, 0, 0, 0,
             0, 0, -1, 0,
             0, 1, 0, 0,
             0, 0, 0, 1);
     }
+}
+
+GhostAvatarControls::GhostAvatarControls(const std::string &pathToFbx, const std::string &armNodeName, const std::string &headNodeName)
+    : m_pathToFbx(pathToFbx)
+    , m_armNodeName(armNodeName)
+    , m_headNodeName(headNodeName)
+    , m_armBaseVector({ 0, 1, 0 })
+    , m_headBaseVector({ 0, 1, 0 })
+    , m_armAdjustMatrix(osg::Matrix::identity())
+    , m_headAdjustMatrix(osg::Matrix::identity())
+{
+}
+
+GhostAvatarControls::GhostAvatarControls(const std::string &pathToFbx, const std::string &armNodeName, const std::string &headNodeName, const osg::Vec3 &armBaseVector, const osg::Vec3 &headBaseVector, const osg::Matrix &armAdjustMatrix, const osg::Matrix &headAdjustMatrix)
+
+    : m_pathToFbx(pathToFbx)
+    , m_armNodeName(armNodeName)
+    , m_headNodeName(headNodeName)
+    , m_armBaseVector(armBaseVector)
+    , m_headBaseVector(headBaseVector)
+    , m_armAdjustMatrix(armAdjustMatrix)
+    , m_headAdjustMatrix(headAdjustMatrix)
+{
 }
 
 void GhostAvatarControls::loadAvatar()
@@ -53,74 +83,140 @@ void GhostAvatarControls::loadAvatar()
     cover->getObjectsRoot()->addChild(m_avatarTrans);
 
     m_avatarTrans->accept(m_parser);
+
+    m_armBone = m_parser.getBoneByName(m_armNodeName);
+    if (!m_armBone)
+        std::cerr << "The avatar does not seem to have a bone called " << m_armNodeName << " -> can't move its arm!\n";
+
+    m_headBone = m_parser.getBoneByName(m_headNodeName);
+    if (!m_headBone)
+        std::cerr << "The avatar does not seem to have a bone called " << m_headNodeName << " -> can't move its head!\n";
 }
 
-void GhostAvatarControls::preFrame(const osg::Matrix &m_floor, const osg::Matrix &m_hand, const osg::Matrix &m_head)
+void GhostAvatarControls::updateBones(const osg::Matrix &floorMatrix, const osg::Matrix &handMatrix, const osg::Matrix &headMatrix)
 {
-    m_avatarTrans->setMatrix(m_floor);
+    m_avatarTrans->setMatrix(floorMatrix);
 
-    auto armNode = m_parser.findNode(m_armNodeName);
-    if (armNode != m_parser.nodeToBoneMap.end())
+    if (m_armBone)
+        moveBoneToTarget(*m_armBone, handMatrix.getTrans(), m_armAdjustMatrix);
+
+    if (m_headBone)
+        makeBonePointAtTarget(*m_headBone, headMatrix.getTrans(), m_headAdjustMatrix, m_headBaseVector);
+}
+
+osg::Vec3 GhostAvatarControls::getArmBaseVector() const
+{
+    return m_armBaseVector;
+}
+
+osg::Vec3 GhostAvatarControls::getHeadBaseVector() const
+{
+    return m_headBaseVector;
+}
+
+osg::Matrix GhostAvatarControls::getArmAdjustMatrix() const
+{
+    return m_armAdjustMatrix;
+}
+
+osg::Matrix GhostAvatarControls::getHeadAdjustMatrix() const
+{
+    return m_headAdjustMatrix;
+}
+
+void GhostAvatarControls::setArmBaseVector(const osg::Vec3 &vector)
+{
+    m_armBaseVector = vector;
+}
+
+void GhostAvatarControls::setHeadBaseVector(const osg::Vec3 &vector)
+{
+    m_headBaseVector = vector;
+}
+
+void GhostAvatarControls::setArmAdjustMatrix(const osg::Matrix &matrix)
+{
+    m_armAdjustMatrix = matrix;
+}
+
+void GhostAvatarControls::setHeadAdjustMatrix(const osg::Matrix &matrix)
+{
+    m_headAdjustMatrix = matrix;
+}
+
+void GhostAvatarControls::setArmAdjustMatrix(int row, const osg::Vec3 &vector)
+{
+    m_armAdjustMatrix(row, 0) = vector.x();
+    m_armAdjustMatrix(row, 1) = vector.y();
+    m_armAdjustMatrix(row, 2) = vector.z();
+}
+
+void GhostAvatarControls::setHeadAdjustMatrix(int row, const osg::Vec3 &vector)
+{
+    m_headAdjustMatrix(row, 0) = vector.x();
+    m_headAdjustMatrix(row, 1) = vector.y();
+    m_headAdjustMatrix(row, 2) = vector.z();
+}
+
+osg::Matrix GhostAvatarControls::getArmLocalToWorldMatrix() const
+{
+    return getLocalToWorldMatrix(*m_armBone);
+}
+
+osg::Matrix GhostAvatarControls::getHeadLocalToWorldMatrix() const
+{
+    return getLocalToWorldMatrix(*m_headBone);
+}
+
+osg::Vec3 GhostAvatarControls::getInitialArmPosition() const
+{
+    return getInitialBonePosition(*m_armBone);
+}
+
+osg::Vec3 GhostAvatarControls::getInitialHeadPosition() const
+{
+    return getInitialBonePosition(*m_headBone);
+}
+
+void GhostAvatarControls::moveBoneToTarget(const BoneParser::Bone &bone, const osg::Vec3 &targetPosition, const osg::Matrix &adjustMatrix)
+{
+    auto targetVector = getLocalTargetVector(bone, targetPosition, adjustMatrix);
+
+    bone.pos->setTranslate(targetVector);
+}
+
+void GhostAvatarControls::makeBonePointAtTarget(const BoneParser::Bone &bone, const osg::Vec3 &targetPosition, const osg::Matrix &adjustMatrix, const osg::Vec3 &baseVector)
+{
+    osg::Vec3 targetVector = getLocalTargetVector(bone, targetPosition, adjustMatrix);
+
+    if (baseVector[0] != 0 || baseVector[1] != 0 || baseVector[2] != 0)
     {
-        auto &armBoneParser = armNode->second;
-        if (armBoneParser.pos)
-        {
-            // matrices to convert between local and world coordinates
-            armLocalToWorldMat = armNode->second.parent->osgNode->getWorldMatrices(cover->getObjectsRoot())[0];
-            auto worldToLocalMat = osg::Matrix::inverse(armLocalToWorldMat);
-
-            auto localArmPos = armNode->second.initialPos;
-            worldArmPos = localArmPos * armLocalToWorldMat;
-
-            worldArmTargetPos = m_hand.getTrans();
-            auto localTargetPos = worldArmTargetPos * worldToLocalMat;
-
-            osg::Vec3 localTargetDir = localTargetPos - localArmPos;
-            // apply axis-convention correction
-            osg::Vec3 adjustedTargetDir = m_adjustMatrix * localTargetDir;
-
-            // move bone to interactor position
-            armBoneParser.pos->setTranslate(adjustedTargetDir);
-        }
+        osg::Quat rotation;
+        rotation.makeRotate(baseVector, targetVector);
+        bone.rot->setQuaternion(rotation);
     }
-    else
-    {
-        std::cerr << "The avatar does not seem to have a bone called " << m_armNodeName << " -> can't move its arm!\n";
-    }
+}
 
-    auto headNode = m_parser.findNode(m_headNodeName);
-    if (headNode != m_parser.nodeToBoneMap.end())
-    {
-        auto &headNodeParser = headNode->second;
-        if (headNodeParser.rot)
-        {
-            // matrices to convert between local and world coordinates
-            headLocalToWorldMat = headNode->second.parent->osgNode->getWorldMatrices(cover->getObjectsRoot())[0];
-            auto worldToLocalMat = osg::Matrix::inverse(headLocalToWorldMat);
+osg::Vec3 GhostAvatarControls::getInitialBonePosition(const BoneParser::Bone &bone) const
+{
+    return bone.initialPos * getLocalToWorldMatrix(bone);
+}
 
-            auto localHeadPos = headNode->second.initialPos;
-            worldHeadPos = localHeadPos * headLocalToWorldMat;
+osg::Matrix GhostAvatarControls::getLocalToWorldMatrix(const BoneParser::Bone &bone) const
+{
+    return bone.parent->osgNode->getWorldMatrices(cover->getObjectsRoot())[0];
+}
 
-            worldHeadTargetPos = m_head.getTrans();
-            auto localTargetPos = worldHeadTargetPos * worldToLocalMat;
+osg::Vec3 GhostAvatarControls::getPositionInLocalCoordinates(const BoneParser::Bone &bone, const osg::Vec3 &positionInWorldCoordinates) const
+{
+    auto localToWorldMatrix = getLocalToWorldMatrix(bone);
+    return positionInWorldCoordinates * osg::Matrix::inverse(localToWorldMatrix);
+}
 
-            osg::Vec3 localTargetDir = localTargetPos - localHeadPos;
-            localTargetDir.normalize();
+osg::Vec3 GhostAvatarControls::getLocalTargetVector(const BoneParser::Bone &bone, const osg::Vec3 &targetPosition, const osg::Matrix &adjustMatrix) const
+{
+    auto targetPositionInLocalCoordinates = getPositionInLocalCoordinates(bone, targetPosition);
 
-            // apply axis-convention correction
-            osg::Vec3 adjustedTargetDir = m_adjustMatrixHead * localTargetDir;
-
-            // rotate the arm bone to point to the target
-            osg::Quat rotation;
-            if (m_headBaseVec[0] != 0 || m_headBaseVec[1] != 0 || m_headBaseVec[2] != 0)
-            {
-                rotation.makeRotate(m_headBaseVec, adjustedTargetDir);
-                headNodeParser.rot->setQuaternion(rotation);
-            }
-        }
-    }
-    else
-    {
-        std::cerr << "The avatar does not seem to have a bone called " << m_headNodeName << " -> can't move its head!\n";
-    }
+    // apply axis-convention correction, if necessary
+    return adjustMatrix * (targetPositionInLocalCoordinates - bone.initialPos);
 }
