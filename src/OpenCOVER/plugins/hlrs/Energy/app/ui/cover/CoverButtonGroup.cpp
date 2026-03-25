@@ -22,7 +22,7 @@ CoverButtonGroup::CoverButtonGroup(core::interface::ui::IComponent *parent, cons
     }
 }
 
-void CoverButtonGroup::setCallback(const std::function<void(bool)> &func)
+void CoverButtonGroup::setCallback(const std::function<void(int)> &func)
 {
     m_buttonGroup->setCallback(func);
 }
