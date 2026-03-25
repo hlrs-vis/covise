@@ -1,6 +1,6 @@
 #include "CityGMLUI.h"
-#include "app/cover/ui/CoverMenu.h"
-#include "lib/core/interfaces/ui/IButton.h"
+#include "cover/CoverMenu.h"
+#include <lib/core/interfaces/ui/IButton.h>
 #include <cover/ui/Menu.h>
 #include <memory>
 

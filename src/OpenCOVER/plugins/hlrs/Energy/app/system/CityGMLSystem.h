@@ -16,7 +16,7 @@
 #include <vector>
 
 // #include "app/cover/ui/CityGMLUI.h"
-#include "app/CityGMLUI.h"
+#include "app/ui/CityGMLUI.h"
 #include "app/osg/CityGMLSceneObject.h"
 #include "app/osg/SolarPanelSceneObject.h"
 #include "lib/core/interfaces/ui/IGUIFactory.h"
