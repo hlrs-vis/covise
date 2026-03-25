@@ -18,45 +18,36 @@
 #include <PluginUtil/coVR3DTransRotInteractor.h>
 
 #include "BoneParser.h"
+#include "GhostAvatarControls.h"
 
 class GhostAvatar : public opencover::coVRPlugin, public opencover::ui::Owner
 {
 public:
     GhostAvatar();
 
-    void loadAvatar();
-
     // positions avatar at m_interactorFloor and makes the avatar's arm follow m_interactorHand
     bool update() override;
-
     void preFrame() override;
 
-    // debugging
-    void drawLine(const osg::Vec3 &armBase, const osg::Vec3 &targetPos);
-    void cleanUpDebugLines();
-
 private:
-    osg::MatrixTransform *m_avatarTrans = nullptr;
-    BoneParser m_parser;
+    GhostAvatarControls ghostAvatarControls;
+    
+    // interactors
     std::unique_ptr<opencover::coVR3DTransRotInteractor> m_interactorHead, m_interactorFloor, m_interactorHand;
-    osg::Vec3 m_armBaseVec = { 0, 1, 0 };
-    osg::Vec3 m_headBaseVec = { 0, 1, 0 };
-    osg::Matrix m_adjustMatrix = osg::Matrix::identity();
-    osg::Matrix m_adjustMatrixHead = osg::Matrix::identity();
-
     void createInteractors();
-
-    // settings
-    // TODO: this should be set in the config file or maybe in the tabletUI?
-    std::string m_pathToFbx = "/data/STARTS-ECHO/Avatars/planarAvatar/PLANEE6.fbx";
-    std::string m_armNodeName = "Arm"; // "LeftArm"
-    std::string m_headNodeName = "Head";
+    void updateInteractors();
 
     // debugging
-    osg::ref_ptr<osg::MatrixTransform> m_targetLine;
+    osg::ref_ptr<osg::MatrixTransform> m_armTargetLine;
+    osg::ref_ptr<osg::MatrixTransform> m_headTargetLine;
+
     osg::ref_ptr<osg::MatrixTransform> m_globalFrame;
     osg::ref_ptr<osg::MatrixTransform> m_armLocalFrame;
     osg::ref_ptr<osg::MatrixTransform> m_headLocalFrame;
+
+    void drawLine(const osg::Vec3 &origin, const osg::Vec3 &end, osg::ref_ptr<osg::MatrixTransform> &linePtr);
+    void drawFrame(const osg::Vec3 &origin, const osg::Matrix &orientation, float length, const std::string &name, osg::ref_ptr<osg::MatrixTransform> &framePtr);
+    void cleanUpDebugLines();
 
     // UI elements
     opencover::ui::Menu *m_mainMenu = nullptr;
@@ -72,7 +63,7 @@ private:
 
     opencover::ui::Menu *m_debugMenu = nullptr;
     opencover::ui::Button *m_showFrames = nullptr;
-    opencover::ui::Button *m_showTargetLine = nullptr;
+    opencover::ui::Button *m_showTargetLines = nullptr;
     opencover::ui::Action *m_axisNote = nullptr;
 
     // methods to create UI elements
