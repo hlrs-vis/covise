@@ -24,7 +24,7 @@ bool GhostAvatar::update()
     if (first)
     {
         first = false;
-        ghostAvatarControls.loadAvatar();
+        avatarControls.loadAvatar();
 
         createInteractors();
 
@@ -41,7 +41,7 @@ void GhostAvatar::preFrame()
     if (!m_interactorFloor || !m_interactorHead || !m_interactorHand)
         return;
 
-    ghostAvatarControls.updateBones(m_interactorFloor->getMatrix(), m_interactorHand->getMatrix(), m_interactorHead->getMatrix());
+    avatarControls.updateBones(m_interactorFloor->getMatrix(), m_interactorHand->getMatrix(), m_interactorHead->getMatrix());
 
     // UI elements for debugging
     if (m_showFrames && m_showFrames->state() && m_interactorFloor)
@@ -49,14 +49,14 @@ void GhostAvatar::preFrame()
 
     if (m_showFrames && m_showFrames->state())
     {
-        drawFrame(ghostAvatarControls.getInitialArmPosition(), ghostAvatarControls.getArmLocalToWorldMatrix(), 500.0f, "ArmLocalFrame", m_armLocalFrame);
-        drawFrame(ghostAvatarControls.getInitialHeadPosition(), ghostAvatarControls.getHeadLocalToWorldMatrix(), 500.0f, "HeadLocalFrame", m_headLocalFrame);
+        drawFrame(avatarControls.getInitialArmPosition(), avatarControls.getArmLocalToWorldMatrix(), 500.0f, "ArmLocalFrame", m_armLocalFrame);
+        drawFrame(avatarControls.getInitialHeadPosition(), avatarControls.getHeadLocalToWorldMatrix(), 500.0f, "HeadLocalFrame", m_headLocalFrame);
     }
 
     if (m_showTargetLines && m_showTargetLines->state())
     {
-        drawLine(ghostAvatarControls.getInitialArmPosition(), m_interactorHand->getMatrix().getTrans(), m_armTargetLine);
-        drawLine(ghostAvatarControls.getInitialHeadPosition(), m_interactorHead->getMatrix().getTrans(), m_headTargetLine);
+        drawLine(avatarControls.getInitialArmPosition(), m_interactorHand->getMatrix().getTrans(), m_armTargetLine);
+        drawLine(avatarControls.getInitialHeadPosition(), m_interactorHead->getMatrix().getTrans(), m_headTargetLine);
     }
 }
 
@@ -227,9 +227,9 @@ void GhostAvatar::createArmBaseVectorMenu()
 {
     m_armBaseVecMenu = new ui::Menu(m_settingsMenu, "Arm Base Vector");
     m_armBaseVecField = new ui::VectorEditField(m_armBaseVecMenu, "Vector");
-    m_armBaseVecField->setValue(ghostAvatarControls.getArmBaseVector());
+    m_armBaseVecField->setValue(avatarControls.getArmBaseVector());
     m_armBaseVecField->setCallback([this](const osg::Vec3 &dir)
-        { ghostAvatarControls.setArmBaseVector(dir); });
+        { avatarControls.setArmBaseVector(dir); });
 }
 
 void GhostAvatar::createAdjustMatrixMenu()
@@ -238,13 +238,13 @@ void GhostAvatar::createAdjustMatrixMenu()
 
     for (int row = 0; row < 3; ++row)
     {
-        auto adjustMatrixArm = ghostAvatarControls.getArmAdjustMatrix();
+        auto adjustMatrixArm = avatarControls.getArmAdjustMatrix();
         osg::Vec3 rowVec(adjustMatrixArm(row, 0), adjustMatrixArm(row, 1), adjustMatrixArm(row, 2));
         std::string label = "Row " + std::to_string(row);
         m_adjustMatrixVecFields[row] = new ui::VectorEditField(m_adjustMatrixMenu, label);
         m_adjustMatrixVecFields[row]->setValue(rowVec);
         m_adjustMatrixVecFields[row]->setCallback([this, row](const osg::Vec3 &v)
-            { ghostAvatarControls.setArmAdjustMatrix(row, v); });
+            { avatarControls.setArmAdjustMatrix(row, v); });
     }
 }
 
@@ -254,13 +254,13 @@ void GhostAvatar::createAdjustMatrixHeadMenu()
 
     for (int row = 0; row < 3; ++row)
     {
-        auto adjustMatrixHead = ghostAvatarControls.getHeadAdjustMatrix();
+        auto adjustMatrixHead = avatarControls.getHeadAdjustMatrix();
         osg::Vec3 rowVec(adjustMatrixHead(row, 0), adjustMatrixHead(row, 1), adjustMatrixHead(row, 2));
         std::string label = "Row " + std::to_string(row);
         m_adjustMatrixHeadVecFields[row] = new ui::VectorEditField(m_adjustMatrixHeadMenu, label);
         m_adjustMatrixHeadVecFields[row]->setValue(rowVec);
         m_adjustMatrixHeadVecFields[row]->setCallback([this, row](const osg::Vec3 &v)
-            { ghostAvatarControls.setHeadAdjustMatrix(row, v); });
+            { avatarControls.setHeadAdjustMatrix(row, v); });
     }
 }
 

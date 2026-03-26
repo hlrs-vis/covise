@@ -1,0 +1,14 @@
+#ifndef COVER_PLUGIN_GHOSTAVATAR_PlanarAvatarControls_H
+#define COVER_PLUGIN_GHOSTAVATAR_PlanarAvatarControls_H
+
+#include "GhostAvatarControls.h"
+
+class PlanarAvatarControls: public GhostAvatarControls
+{
+public:
+    PlanarAvatarControls(const std::string &pathToFbx, const std::string &armNodeName, const std::string &headNodeName);
+
+    void updateBones(const osg::Matrix &floorMatrix, const osg::Matrix &handMatrix, const osg::Matrix &headMatrix) override;
+};
+
+#endif // COVER_PLUGIN_GHOSTAVATAR_PlanarAvatarControls_H

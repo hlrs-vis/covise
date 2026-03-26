@@ -21,7 +21,7 @@ public:
 
     void loadAvatar();
 
-    void updateBones(const osg::Matrix &floorMatrix, const osg::Matrix &handMatrix, const osg::Matrix &headMatrix);
+    virtual void updateBones(const osg::Matrix &floorMatrix, const osg::Matrix &handMatrix, const osg::Matrix &headMatrix) = 0;
 
     osg::Vec3 getArmBaseVector() const;
     osg::Vec3 getHeadBaseVector() const;
@@ -44,7 +44,7 @@ public:
     osg::Vec3 getInitialArmPosition() const;
     osg::Vec3 getInitialHeadPosition() const;
 
-private:
+protected:
     std::string m_pathToFbx;
 
     std::string m_armNodeName;

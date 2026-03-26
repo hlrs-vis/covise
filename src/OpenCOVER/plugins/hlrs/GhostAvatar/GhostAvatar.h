@@ -18,7 +18,7 @@
 #include <PluginUtil/coVR3DTransRotInteractor.h>
 
 #include "BoneParser.h"
-#include "GhostAvatarControls.h"
+#include "PlanarAvatarControls.h"
 
 class GhostAvatar : public opencover::coVRPlugin, public opencover::ui::Owner
 {
@@ -30,8 +30,8 @@ public:
     void preFrame() override;
 
 private:
-    GhostAvatarControls ghostAvatarControls;
-    
+    PlanarAvatarControls avatarControls = PlanarAvatarControls("/data/STARTS-ECHO/Avatars/planarAvatar/PLANEE6.fbx", "Arm", "Head");
+
     // interactors
     std::unique_ptr<opencover::coVR3DTransRotInteractor> m_interactorHead, m_interactorFloor, m_interactorHand;
     void createInteractors();

@@ -93,17 +93,6 @@ void GhostAvatarControls::loadAvatar()
         std::cerr << "The avatar does not seem to have a bone called " << m_headNodeName << " -> can't move its head!\n";
 }
 
-void GhostAvatarControls::updateBones(const osg::Matrix &floorMatrix, const osg::Matrix &handMatrix, const osg::Matrix &headMatrix)
-{
-    m_avatarTrans->setMatrix(floorMatrix);
-
-    if (m_armBone)
-        moveBoneToTarget(*m_armBone, handMatrix.getTrans(), m_armAdjustMatrix);
-
-    if (m_headBone)
-        makeBonePointAtTarget(*m_headBone, headMatrix.getTrans(), m_headAdjustMatrix, m_headBaseVector);
-}
-
 osg::Vec3 GhostAvatarControls::getArmBaseVector() const
 {
     return m_armBaseVector;
