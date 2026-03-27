@@ -11,6 +11,8 @@ cover_add_plugin(GhostAvatar GhostAvatar.cpp
                              TestAvatarControls.h 
                              TestAvatarControls.cpp 
                              GhostAvatarControls.h 
-                             GhostAvatarControls.cpp)
+                             GhostAvatarControls.cpp
+                             ui/GhostAvatarControlsUI.h
+                             ui/GhostAvatarControlsUI.cpp)
                              
 target_link_libraries(GhostAvatar ${OPENSCENEGRAPH_LIBRARIES})
