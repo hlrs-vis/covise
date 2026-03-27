@@ -195,11 +195,12 @@ if (CMAKE_GENERATOR STREQUAL "Ninja" OR CMAKE_GENERATOR STREQUAL "Ninja Multi-Co
   OPTION(COVISE_USE_FORTRAN "Enable Modules using Fortran" OFF)
   OPTION(COVISE_USE_CSHARP "Enable C#" OFF)
 else()
-  OPTION(COVISE_USE_FORTRAN "Enable Modules using Fortran" ON)
   if (MSVC)
     OPTION(COVISE_USE_CSHARP "Enable C#" ON)
+    OPTION(COVISE_USE_FORTRAN "Enable Modules using Fortran" OFF)
   else()
     OPTION(COVISE_USE_CSHARP "Enable C#" OFF)
+    OPTION(COVISE_USE_FORTRAN "Enable Modules using Fortran" ON)
   endif()
 endif()
 
