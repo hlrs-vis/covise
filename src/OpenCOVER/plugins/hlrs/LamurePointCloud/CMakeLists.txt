@@ -5,21 +5,15 @@ set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 include(${SRC_DIR}/pcl_makros.cmake)
 
 # Using the LamurePointCloud target
-MESSAGE("0")
 using(Lamure)
-MESSAGE("got lamure")
 using(FREEIMAGE)
-MESSAGE("02")
 IF(WIN32)
 using(FREEGLUT)
 ELSE(WIN32)
 using(GLUT)
 ENDIF(WIN32)
-MESSAGE("1")
 using(GLFW)
-MESSAGE("2")
 using(FREETYPE)
-MESSAGE("3")
 
 # Include directories for Lamure
 set(LAMURE_INCLUDE_DIRS
