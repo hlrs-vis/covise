@@ -15,54 +15,56 @@
 #include <cover/ui/Owner.h>
 #include <cover/ui/VectorEditField.h>
 
+#include "CoverDrawObject.h"
 #include "../GhostAvatarControls.h"
 
 class GhostAvatarControlsUI : public opencover::ui::Owner
 {
 public:
+    GhostAvatarControlsUI(const std::string &pluginName, GhostAvatarControls &avatarControls);
 
-    GhostAvatarControlsUI(const std::string& pluginName, GhostAvatarControls& avatarControls);
-    
     void update(const osg::Matrix &floorMatrix, const osg::Matrix &handMatrix, const osg::Matrix &headMatrix);
 
 private:
+    GhostAvatarControls &m_avatarControls;
 
-    GhostAvatarControls& m_avatarControls;
+    CoverLine m_armTargetLine;
+    CoverLine m_headTargetLine;
+    osg::Vec4 m_targetLineColor = { 0.31, 0.31, 0.294, 1 };
+    float m_targetLineWidth = 3;
 
-    // debugging
-    osg::ref_ptr<osg::MatrixTransform> m_armTargetLine = nullptr;
-    osg::ref_ptr<osg::MatrixTransform> m_headTargetLine = nullptr;
+    CoverFrame m_globalFrame;
+    CoverFrame m_armLocalFrame;
+    CoverFrame m_headLocalFrame;
+    float m_frameLineLength = 500;
+    float m_frameLineWidth = 3;
 
-    osg::ref_ptr<osg::MatrixTransform> m_globalFrame = nullptr;
-    osg::ref_ptr<osg::MatrixTransform> m_armLocalFrame = nullptr;
-    osg::ref_ptr<osg::MatrixTransform> m_headLocalFrame = nullptr;
-
-    void drawLine(const osg::Vec3 &origin, const osg::Vec3 &end, osg::ref_ptr<osg::MatrixTransform> &linePtr);
-    void drawFrame(const osg::Vec3 &origin, const osg::Matrix &orientation, float length, const std::string &name, osg::ref_ptr<osg::MatrixTransform> &framePtr);
     void cleanUpDebugLines();
 
-    // UI elements
-    opencover::ui::Menu *m_mainMenu = nullptr;
+    opencover::ui::Menu *m_mainMenu;
+    opencover::ui::Action* m_tabletUINote;
 
-    opencover::ui::Menu *m_settingsMenu = nullptr;
-    opencover::ui::Action *m_tabletUINote = nullptr;
-    opencover::ui::Menu *m_armBaseVecMenu = nullptr;
-    opencover::ui::VectorEditField *m_armBaseVecField = nullptr;
-    opencover::ui::Menu *m_adjustMatrixMenu = nullptr;
-    std::array<opencover::ui::VectorEditField *, 3> m_adjustMatrixVecFields;
-    opencover::ui::Menu *m_adjustMatrixHeadMenu = nullptr;
-    std::array<opencover::ui::VectorEditField *, 3> m_adjustMatrixHeadVecFields;
+    opencover::ui::Menu *m_settingsMenu;
+    opencover::ui::Menu *m_armSettingsMenu;
+    opencover::ui::VectorEditField* m_armBaseVectorField;
+    opencover::ui::Menu* m_armAdjustMatrixMenu;
+    std::array<opencover::ui::VectorEditField *, 3>  m_armAdjustMatrixFields;
 
-    opencover::ui::Menu *m_debugMenu = nullptr;
-    opencover::ui::Button *m_showFrames = nullptr;
-    opencover::ui::Button *m_showTargetLines = nullptr;
-    opencover::ui::Action *m_axisNote = nullptr;
+    opencover::ui::Menu *m_headSettingsMenu;
+    opencover::ui::VectorEditField* m_headBaseVectorField;
+    opencover::ui::Menu* m_headAdjustMatrixMenu;
+    std::array<opencover::ui::VectorEditField *, 3>  m_headAdjustMatrixFields;
+
+    opencover::ui::Menu *m_debugMenu;
+    opencover::ui::Button *m_showFrames;
+    opencover::ui::Button *m_showTargetLines;
+    opencover::ui::Action *m_axisNote;
 
     // methods to create UI elements
     void createSettingsMenu();
-    void createArmBaseVectorMenu();
-    void createAdjustMatrixMenu();
-    void createAdjustMatrixHeadMenu();
+    void createArmSettingsMenu();
+    void createHeadSettingsMenu();
+
     void createDebugMenu();
 };
 
