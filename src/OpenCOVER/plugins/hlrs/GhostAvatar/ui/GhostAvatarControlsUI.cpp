@@ -20,9 +20,6 @@ GhostAvatarControlsUI::GhostAvatarControlsUI(const std::string &pluginName, Ghos
     m_globalFrame = CoverFrame(m_frameLineLength, m_frameLineWidth, "GlobalFrame");
     m_armLocalFrame = CoverFrame(m_frameLineLength, m_frameLineWidth, "ArmLocalFrame");
     m_headLocalFrame = CoverFrame(m_frameLineLength, m_frameLineWidth, "HeadLocalFrame");
-
-    createSettingsMenu();
-    createDebugMenu();
 }
 
 void GhostAvatarControlsUI::update(const osg::Matrix &floorMatrix, const osg::Matrix &handMatrix, const osg::Matrix &headMatrix)
@@ -30,15 +27,31 @@ void GhostAvatarControlsUI::update(const osg::Matrix &floorMatrix, const osg::Ma
     if (m_showFrames && m_showFrames->state())
     {
         m_globalFrame.draw(floorMatrix.getTrans(), osg::Matrix::identity());
-        m_armLocalFrame.draw(m_avatarControls.getInitialArmPosition(), m_avatarControls.getArmLocalToWorldMatrix());
-        m_headLocalFrame.draw(m_avatarControls.getInitialHeadPosition(), m_avatarControls.getHeadLocalToWorldMatrix());
+
+        if (m_armAvailable)
+            m_armLocalFrame.draw(m_avatarControls.getInitialArmPosition(), m_avatarControls.getArmLocalToWorldMatrix());
+
+        if (m_headAvailable)
+            m_headLocalFrame.draw(m_avatarControls.getInitialHeadPosition(), m_avatarControls.getHeadLocalToWorldMatrix());
     }
 
     if (m_showTargetLines && m_showTargetLines->state())
     {
-        m_armTargetLine.draw(m_avatarControls.getInitialArmPosition(), handMatrix.getTrans());
-        m_headTargetLine.draw(m_avatarControls.getInitialHeadPosition(), headMatrix.getTrans());
+        if (m_armAvailable)
+            m_armTargetLine.draw(m_avatarControls.getInitialArmPosition(), handMatrix.getTrans());
+
+        if (m_headAvailable)
+            m_headTargetLine.draw(m_avatarControls.getInitialHeadPosition(), headMatrix.getTrans());
     }
+}
+
+void GhostAvatarControlsUI::initialize()
+{
+    m_armAvailable = m_avatarControls.hasArm();
+    m_headAvailable = m_avatarControls.hasHead();
+
+    createSettingsMenu();
+    createDebugMenu();
 }
 
 void GhostAvatarControlsUI::cleanUpDebugLines()
@@ -62,8 +75,11 @@ void GhostAvatarControlsUI::createSettingsMenu()
     m_settingsMenu = new ui::Menu(m_mainMenu, "Settings");
     m_tabletUINote = new ui::Action(m_settingsMenu, "Changes can only be made in the TabletUI!");
 
-    createArmSettingsMenu();
-    createHeadSettingsMenu();
+
+    if (m_armAvailable)
+        createArmSettingsMenu();
+    if (m_headAvailable)
+        createHeadSettingsMenu();
 }
 
 void GhostAvatarControlsUI::createArmSettingsMenu()

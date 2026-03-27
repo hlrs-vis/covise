@@ -22,6 +22,9 @@ public:
 
     virtual void updateBones(const osg::Matrix &floorMatrix, const osg::Matrix &handMatrix, const osg::Matrix &headMatrix) = 0;
 
+    bool hasArm();
+    bool hasHead();
+
     osg::Vec3 getArmBaseVector() const;
     osg::Vec3 getHeadBaseVector() const;
 
@@ -55,11 +58,17 @@ protected:
     BoneParser::Bone *m_armBone;
     BoneParser::Bone *m_headBone;
 
+    bool m_hasArm = false;
+    bool m_hasHead = false;
+
     osg::Vec3 m_armBaseVector;
     osg::Vec3 m_headBaseVector;
 
     osg::Matrix m_armAdjustMatrix;
     osg::Matrix m_headAdjustMatrix;
+
+    void loadArmBone();
+    void loadHeadBone();
 
     void moveBoneToTarget(const BoneParser::Bone &bone, const osg::Vec3 &targetPosition, const osg::Matrix &adjustMatrix);
     void makeBonePointAtTarget(const BoneParser::Bone &bone, const osg::Vec3 &targetPosition, const osg::Matrix &adjustMatrix, const osg::Vec3 &baseVector);

@@ -28,6 +28,34 @@ GhostAvatarControls::GhostAvatarControls(const std::string &pathToFbx, const std
 {
 }
 
+void GhostAvatarControls::loadArmBone()
+{
+    m_armBone = m_parser.getBoneByName(m_armNodeName);
+    if (m_armBone)
+    {
+        m_hasArm = true;
+    }
+    else
+    {
+        if (m_armNodeName != "")
+            std::cerr << "The avatar does not seem to have a bone called " << m_armNodeName << " -> can't move its arm!\n";
+    }
+}
+
+void GhostAvatarControls::loadHeadBone()
+{
+    m_headBone = m_parser.getBoneByName(m_headNodeName);
+    if (m_headBone)
+    {
+        m_hasHead = true;
+    }
+    else
+    {
+        if (m_headNodeName != "")
+            std::cerr << "The avatar does not seem to have a bone called " << m_headNodeName << " -> can't move its head!\n";
+    }
+}
+
 void GhostAvatarControls::loadAvatar()
 {
     auto model = osgDB::readNodeFile(m_pathToFbx);
@@ -38,13 +66,18 @@ void GhostAvatarControls::loadAvatar()
 
     m_avatarTrans->accept(m_parser);
 
-    m_armBone = m_parser.getBoneByName(m_armNodeName);
-    if (!m_armBone)
-        std::cerr << "The avatar does not seem to have a bone called " << m_armNodeName << " -> can't move its arm!\n";
+    loadArmBone();
+    loadHeadBone();
+}
 
-    m_headBone = m_parser.getBoneByName(m_headNodeName);
-    if (!m_headBone)
-        std::cerr << "The avatar does not seem to have a bone called " << m_headNodeName << " -> can't move its head!\n";
+bool GhostAvatarControls::hasArm()
+{
+    return m_hasArm;
+}
+
+bool GhostAvatarControls::hasHead()
+{
+    return m_hasHead;
 }
 
 osg::Vec3 GhostAvatarControls::getArmBaseVector() const

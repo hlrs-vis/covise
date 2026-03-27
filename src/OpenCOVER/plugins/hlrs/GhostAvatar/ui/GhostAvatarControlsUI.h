@@ -25,8 +25,13 @@ public:
 
     void update(const osg::Matrix &floorMatrix, const osg::Matrix &handMatrix, const osg::Matrix &headMatrix);
 
+    void initialize();
+
 private:
     GhostAvatarControls &m_avatarControls;
+
+    bool m_armAvailable;
+    bool m_headAvailable;
 
     CoverLine m_armTargetLine;
     CoverLine m_headTargetLine;

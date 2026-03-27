@@ -8,9 +8,8 @@ using namespace ui;
 
 GhostAvatar::GhostAvatar()
     : coVRPlugin(COVER_PLUGIN_NAME)
-    //, avatarControls(std::make_unique<TestAvatarControls>("/data/STARTS-ECHO/Avatars/shaderTests/ghost_cave_uniform.fbx", "LeftArm", ""))
-    , avatarControls(std::make_unique<PlanarAvatarControls>("/data/STARTS-ECHO/Avatars/planarAvatar/PLANEE6.fbx", 
-"Arm", "Head"))
+    , avatarControls(std::make_unique<TestAvatarControls>("/data/STARTS-ECHO/Avatars/shaderTests/ghost_cave_uniform.fbx", "LeftArm", ""))
+    //, avatarControls(std::make_unique<PlanarAvatarControls>("/data/STARTS-ECHO/Avatars/planarAvatar/PLANEE6.fbx", "Arm", "Head"))
     , avatarControlsUI(GhostAvatarControlsUI(COVER_PLUGIN_NAME, *avatarControls))
 {
 }
@@ -24,6 +23,8 @@ bool GhostAvatar::update()
         avatarControls->loadAvatar();
 
         createInteractors();
+
+        avatarControlsUI.initialize();
 
         return true;
     }
