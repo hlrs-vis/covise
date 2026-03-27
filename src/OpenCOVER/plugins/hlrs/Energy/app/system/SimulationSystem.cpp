@@ -32,12 +32,12 @@
 
 // core
 #include <lib/core/constants.h>
-#include <lib/core/simulation/heating.h>
+#include <lib/core/simulation/heatingresult.h>
 #include <lib/core/simulation/object.h>
 #include <lib/core/simulation/object_factory.h>
 #include <lib/core/simulation/object_type.h>
-#include <lib/core/simulation/power.h>
-#include <lib/core/simulation/simulation.h>
+#include <lib/core/simulation/powerresult.h>
+#include <lib/core/simulation/simulationresult.h>
 #include <lib/core/utils/color.h>
 #include <lib/core/utils/osgUtils.h>
 
@@ -495,7 +495,7 @@ void SimulationSystem::applySimulationDataToPowerGrid(const std::string &simPath
   auto tableVmPu = vmPuReader.getTable();
   auto tableResMW = resMWReader.getTable();
 
-  auto sim = std::make_shared<power::PowerSimulation>();
+  auto sim = std::make_shared<power::PowerSimulationResult>();
   auto &cables = sim->Cables();
   auto &buses = sim->Buses();
   auto &buildings = sim->Buildings();
@@ -1193,7 +1193,7 @@ void SimulationSystem::readSimulationDataStream(CSVStream &heatingSimStream) {
   std::smatch match;
 
   CSVStream::CSVRow row;
-  auto sim = std::make_shared<heating::HeatingSimulation>();
+  auto sim = std::make_shared<heating::HeatingSimulationResult>();
   const auto &header = heatingSimStream.getHeader();
   double val = 0.0f;
   std::string name(""), valName("");

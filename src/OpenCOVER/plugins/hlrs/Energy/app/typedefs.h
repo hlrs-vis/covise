@@ -1,7 +1,7 @@
 #pragma once
 #include <lib/core/interfaces/IInfoboard.h>
 
-#include "lib/core/simulation/power.h"
+#include "lib/core/simulation/powerresult.h"
 #include "osg/OsgImpl.h"
 
 typedef core::interface::IInfoboard<std::string, Drawable> InfoboardImpl;

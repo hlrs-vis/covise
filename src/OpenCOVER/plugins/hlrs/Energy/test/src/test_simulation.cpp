@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 #include <lib/core/simulation/object.h>
 #include <lib/core/simulation/object_factory.h>
-#include <lib/core/simulation/heating.h>
-#include <lib/core/simulation/power.h>
-#include <lib/core/simulation/simulation.h>
+#include <lib/core/simulation/heatingresult.h>
+#include <lib/core/simulation/powerresult.h>
+#include <lib/core/simulation/simulationresult.h>
 
 using namespace core::simulation;
 using namespace core::simulation::heating;
@@ -90,7 +90,7 @@ TEST(Simulation, CheckObjectFactoryForInvalidType) {
 }
 
 TEST(Simulation, HeatingSimulation) {
-    HeatingSimulation sim;
+    HeatingSimulationResult sim;
     auto &consumers = sim.Consumers();
     auto &producers = sim.Producers();
 
@@ -107,7 +107,7 @@ TEST(Simulation, HeatingSimulation) {
 }
 
 TEST(Simulation, PowerSimulation) {
-    PowerSimulation sim;
+    PowerSimulationResult sim;
     auto &buses = sim.Buses();
     auto &generators = sim.Generators();
 

@@ -3,7 +3,7 @@
 #include <lib/core/interfaces/IEnergyGrid.h>
 #include <lib/core/interfaces/IInfoboard.h>
 #include <lib/core/interfaces/IInfoboard.h>
-#include <lib/core/simulation/simulation.h>
+#include <lib/core/simulation/simulationresult.h>
 #include <lib/core/ClassLogger.h>
 
 #include <memory>
@@ -144,7 +144,7 @@ class EnergyGrid : public interface::IEnergyGrid, ClassLogger {
 
   void setColorMap(const opencover::ColorMap &colorMap,
                    const opencover::ColorMap &vm_pu_Colormap);
-  void setData(const core::simulation::Simulation &sim, const std::string &species,
+  void setData(const core::simulation::SimulationResult &sim, const std::string &species,
                bool interpolate = false);
   osg::ref_ptr<grid::DirectedConnection> getConnectionByName(
       const std::string &name);

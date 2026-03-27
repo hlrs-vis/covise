@@ -6,7 +6,7 @@
 #include <lib/core/interfaces/IDrawable.h>
 #include <lib/core/interfaces/ITimedependable.h>
 #include <lib/core/simulation/object.h>
-#include <lib/core/simulation/simulation.h>
+#include <lib/core/simulation/simulationresult.h>
 #include <lib/core/utils/color.h>
 #include <lib/core/utils/math.h>
 
@@ -68,7 +68,7 @@ class BaseSimulationUI {
                 "T must be derived from ITimeDependable");
 
  public:
-  BaseSimulationUI(std::shared_ptr<Simulation> sim, std::shared_ptr<T> parent)
+  BaseSimulationUI(std::shared_ptr<SimulationResult> sim, std::shared_ptr<T> parent)
       : m_simulation(sim), m_parent(parent) {
     if (auto simulation = m_simulation.lock()) simulation->init();
   }
@@ -152,7 +152,7 @@ class BaseSimulationUI {
     }
   }
   std::weak_ptr<T> m_parent;  // parent which manages drawable
-  std::weak_ptr<Simulation> m_simulation;
+  std::weak_ptr<SimulationResult> m_simulation;
 
  private:
   std::map<std::string, std::vector<osg::Vec4>> m_colors;

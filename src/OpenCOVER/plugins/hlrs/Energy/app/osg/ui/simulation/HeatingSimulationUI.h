@@ -1,6 +1,6 @@
 #pragma once
 
-#include <lib/core/simulation/heating.h>
+#include <lib/core/simulation/heatingresult.h>
 #include <lib/core/utils/color.h>
 
 #include <memory>
@@ -24,7 +24,7 @@ using namespace core::simulation::heating;
 template <typename T>
 class HeatingSimulationUI : public BaseSimulationUI<T> {
  public:
-  HeatingSimulationUI(std::shared_ptr<HeatingSimulation> sim,
+  HeatingSimulationUI(std::shared_ptr<HeatingSimulationResult> sim,
                       std::shared_ptr<T> parent)
       : BaseSimulationUI<T>(sim, parent) {}
   ~HeatingSimulationUI() = default;
@@ -65,7 +65,7 @@ class HeatingSimulationUI : public BaseSimulationUI<T> {
   }
 
  private:
-  std::shared_ptr<HeatingSimulation> heatingSimulationPtr() {
-    return std::dynamic_pointer_cast<HeatingSimulation>(this->m_simulation.lock());
+  std::shared_ptr<HeatingSimulationResult> heatingSimulationPtr() {
+    return std::dynamic_pointer_cast<HeatingSimulationResult>(this->m_simulation.lock());
   }
 };
