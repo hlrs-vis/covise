@@ -1,37 +1,37 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-
-using System.Net.Sockets;
-using System.Runtime.InteropServices;
-using System.Diagnostics;
-using System.Linq;
-using System.IO;
-using System.Windows.Media.Imaging;
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
+using Autodesk.Revit.Creation;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Architecture;
+using Autodesk.Revit.DB.Events;
+using Autodesk.Revit.DB.ExtensibleStorage;
 using Autodesk.Revit.DB.IFC;
+using Autodesk.Revit.DB.Structure;
+using Autodesk.Revit.DB.Visual;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
-using Autodesk.Revit.DB.Structure;
-using Autodesk.Revit.DB.Events;
-using Autodesk.Revit.DB.Visual;
+using Autodesk.Windows;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Net.Sockets;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading;
+using System.Windows.Forms;
+using System.Windows.Media.Imaging;
 using Bitmap = System.Drawing.Bitmap;
 using BoundarySegment = Autodesk.Revit.DB.BoundarySegment;
 using ComponentManager = Autodesk.Windows.ComponentManager;
-using IWin32Window = System.Windows.Forms.IWin32Window;
-using Autodesk.Windows;
-using TaskDialog = Autodesk.Revit.UI.TaskDialog;
-using Autodesk.Revit.DB.ExtensibleStorage;
-using System.Windows.Forms;
-using View = Autodesk.Revit.DB.View;
-using Panel = Autodesk.Revit.DB.Panel;
-using System.Security.Cryptography;
-using Autodesk.Revit.Creation;
 using Document = Autodesk.Revit.DB.Document;
+using IWin32Window = System.Windows.Forms.IWin32Window;
+using Panel = Autodesk.Revit.DB.Panel;
+using TaskDialog = Autodesk.Revit.UI.TaskDialog;
+using View = Autodesk.Revit.DB.View;
 //using System.Windows.Media.Media3D;
 
 namespace OpenCOVERPlugin
@@ -101,7 +101,7 @@ namespace OpenCOVERPlugin
     public sealed class COVER
     {
 
-        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup, File, Finished, DocumentInfo, NewPointCloud, NewARMarker, DesignOptionSets, SelectDesignOption, IKInfo, Phases, ViewPhase, AddRoomInfo, ObjectInfo, Flip, SelectType };
+        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup, File, Finished, DocumentInfo, NewPointCloud, NewARMarker, DesignOptionSets, SelectDesignOption, IKInfo, Phases, ViewPhase, AddRoomInfo, ObjectInfo, Flip, SelectType, ElevatorPart };
         public enum ObjectTypes { Mesh = 1, Curve, Instance, Solid, RenderElement, Polymesh, Inline };
         public enum TextureTypes { Diffuse = 1, Bump };
         private Thread messageThread;
@@ -1472,6 +1472,130 @@ namespace OpenCOVERPlugin
             }
             return depthOnly;
         }
+        private void addParameter(Element elem,String name, MessageBuffer mb)
+        {
+            bool found = false;
+            foreach (Parameter para in elem.Parameters)
+            {
+                if (para.Definition.Name != null && para.Definition.Name.Substring(0,name.Length) == name)
+                {
+                    mb.add(para.Definition.Name);
+                    mb.add((int)para.StorageType);
+#if REVIT2019 || REVIT2020 || REVIT2021
+                    mb.add("Undefined");
+#else
+                    mb.add(para.Definition.GetDataType().ToString());
+#endif
+                    switch (para.StorageType)
+                    {
+                        case Autodesk.Revit.DB.StorageType.Double:
+                            mb.add(para.AsDouble());
+                            break;
+                        case Autodesk.Revit.DB.StorageType.ElementId:
+                            //find out the name of the element
+                            ElementId id = para.AsElementId();
+                            mb.add(id.Value);
+                            break;
+                        case Autodesk.Revit.DB.StorageType.Integer:
+                            mb.add(para.AsInteger());
+                            break;
+                        case Autodesk.Revit.DB.StorageType.String:
+                            mb.add(para.AsString());
+                            break;
+                        default:
+                            mb.add("Unknown Parameter Storage Type");
+                            break;
+                    }
+                    found = true;
+                    break;
+                }
+            }
+            FamilyInstance fi = elem as FamilyInstance;
+            FamilySymbol family = fi.Symbol;
+            foreach (Parameter para in family.Parameters)
+            {
+                if (para.Definition.Name != null && para.Definition.Name.Substring(0, name.Length) == name)
+                {
+                    mb.add(para.Definition.Name);
+                    mb.add((int)para.StorageType);
+#if REVIT2019 || REVIT2020 || REVIT2021
+                    mb.add("Undefined");
+#else
+                    mb.add(para.Definition.GetDataType().ToString());
+#endif
+                    switch (para.StorageType)
+                    {
+                        case Autodesk.Revit.DB.StorageType.Double:
+                            mb.add(para.AsDouble());
+                            break;
+                        case Autodesk.Revit.DB.StorageType.ElementId:
+                            //find out the name of the element
+                            ElementId id = para.AsElementId();
+                            mb.add(id.Value);
+                            break;
+                        case Autodesk.Revit.DB.StorageType.Integer:
+                            mb.add(para.AsInteger());
+                            break;
+                        case Autodesk.Revit.DB.StorageType.String:
+                            mb.add(para.AsString());
+                            break;
+                        default:
+                            mb.add("Unknown Parameter Storage Type");
+                            break;
+                    }
+                    found = true;
+                    break;
+                }
+            }
+        }
+        private void sendElevatorGeomElement(String elevatorName,String subType, Element elem, int num, GeometryObject geomObject, bool createGroups, bool doWalk)
+        {
+            if (geomObject.Visibility == Autodesk.Revit.DB.Visibility.Visible)
+            {
+
+
+                if ((geomObject is Curve))
+                {
+                    //mb.add((int)ObjectTypes.Curve);
+                    //SendCurve(geomObject);
+                }
+                else if ((elem is SpatialElement))
+                {
+                    // don't show room volumes
+                }
+                else
+                {
+                    MessageBuffer mb = new();
+                    mb.add(elem.Id.Value);
+                    mb.add(DocumentID);
+                    mb.add(elem.Name + "_elev_" + num.ToString());
+                    mb.add(elevatorName);
+                    mb.add(subType);
+                    Level level = elem.Document.GetElement(elem.LevelId) as Level;
+                    if (level != null)
+                    {
+                        mb.add(level.Name);
+                        mb.add(level.Elevation);
+                    }
+                    else
+                    {
+                        mb.add("undefined");
+                        mb.add((double)0.0);
+                    }
+                    addParameter(elem, "elevatorSpeed", mb);
+                    addParameter(elem, "elevatorAcceleration", mb);
+                    addParameter(elem, "elevatorOpening", mb);
+                    mb.add("end");
+                    sendMessage(mb.buf, MessageTypes.ElevatorPart);
+                    sendGeomElement(elem, num, geomObject, createGroups, doWalk);
+                    mb = new MessageBuffer();
+                    sendMessage(mb.buf, MessageTypes.EndGroup);
+                    return;
+                }
+
+            }
+            sendGeomElement(elem, num, geomObject, createGroups, doWalk);
+        }
         private void sendGeomElement(Element elem, int num, GeometryObject geomObject, bool createGroups, bool doWalk)
         {
             if (geomObject.Visibility == Autodesk.Revit.DB.Visibility.Visible)
@@ -1894,9 +2018,7 @@ namespace OpenCOVERPlugin
             }
             if (elem.Category != null)
             {
-                if (elem.Category.Name == "Legendenkomponenten")
-                    return;
-                if (elem.Category.Name == "Legend Components")
+                if (elem.Category.Id.Value == (int)BuiltInCategory.OST_LegendComponents)
                     return;
                 if (elem.Category.Id.Value == (int)BuiltInCategory.OST_Stairs)
                 {
@@ -1951,8 +2073,91 @@ namespace OpenCOVERPlugin
 
             }
 
+            if (elem.Category != null && elem.Category.Id.Value == (int)BuiltInCategory.OST_SpecialityEquipment)
+            {
 
-            if ((fi != null) && elem.Category.Id.Value == (int)BuiltInCategory.OST_Doors && !isGeometryInstance)
+
+                    string elevatorName = "noname";
+                ParameterSet para = fi.Parameters;
+                foreach (Parameter p in para)
+                {
+                    if (p.Definition.Name == "elevatorName")
+                    {
+
+                        elevatorName = p.AsString();
+                    }
+                }
+                if (elevatorName != "noname")
+                {
+
+                    if (fi != null && fi.Symbol.Name.Substring(0, 5) == "Cabin")
+                    {
+                        //add another transform for the whole cabin
+                        MessageBuffer mb = new();
+                        mb.add(elem.Id.Value);
+                        mb.add(DocumentID);
+                        mb.add(elem.Name + "_elev_" + num.ToString());
+                        mb.add(elevatorName);
+                        mb.add("elevatorCabin");
+                        Level level = elem.Document.GetElement(elem.LevelId) as Level;
+                        if (level != null)
+                        {
+                            mb.add(level.Name);
+                            mb.add(level.Elevation);
+                        }
+                        else
+                        {
+                            mb.add("undefined");
+                            mb.add((double)0.0);
+                        }
+                        addParameter(elem, "elevatorSpeed", mb);
+                        addParameter(elem, "elevatorAcceleration", mb);
+                        addParameter(elem, "elevatorOpening", mb);
+                        mb.add("end");
+                        sendMessage(mb.buf, MessageTypes.ElevatorPart);
+                    }
+                    // doors are sorted into fixed and moving parts
+                    IEnumerator<GeometryObject> Objects = elementGeom.GetEnumerator();
+                    while (Objects.MoveNext())
+                    {
+                        GeometryObject geomObject = Objects.Current;
+
+                        GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as GraphicsStyle;
+                        if (graphicsStyle != null)
+                        {
+                            BoundingBoxXYZ ebb = new();
+                            ebb.Min = new XYZ(100000, 100000, 100000);
+                            ebb.Max = new XYZ(-100000, -100000, -100000);
+
+                            Solid solid = geomObject as Solid;
+                            if (solid != null)
+                            {
+                                extendBB(ebb, solid.GetBoundingBox());
+                            }
+                            if (graphicsStyle.Name.Substring(0, 8) == "elevator")
+                            {
+                                sendElevatorGeomElement(elevatorName, graphicsStyle.Name, elem, num, geomObject, false, false);
+                            }
+                            else
+                            {
+                                sendGeomElement(elem, num, geomObject, false, false);
+                            }
+                        }
+                        else // no style --> will be treated as static parts
+                        {
+                            sendGeomElement(elem, num, geomObject, false, false);
+                        }
+                        num++;
+                    }
+                    if (fi != null && fi.Symbol.Name.Substring(0, 5) == "Cabin")
+                    {
+                        MessageBuffer mb = new MessageBuffer();
+                        sendMessage(mb.buf, MessageTypes.EndGroup);
+                    }
+                }
+
+            }
+            else if ((fi != null) && elem.Category.Id.Value == (int)BuiltInCategory.OST_Doors && !isGeometryInstance)
             {
                 bool hasLeft = false;
                 bool hasRight = false;
