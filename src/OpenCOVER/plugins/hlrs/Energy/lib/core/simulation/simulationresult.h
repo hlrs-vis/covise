@@ -11,9 +11,9 @@
 
 namespace core::simulation {
 
-class Simulation {
+class SimulationResult {
  public:
-  Simulation() = default;
+  SimulationResult() = default;
 
   auto getDataStorage() { return m_dataStorage; }
   const auto &getScalarProperties() const { return m_scalarProperties; }

@@ -1,9 +1,9 @@
-#include "power.h"
+#include "powerresult.h"
 #include "object.h"
 
 namespace core::simulation::power {
 
-void PowerSimulation::init() {
+void PowerSimulationResult::init() {
   initScalarProperties(
     {
       std::ref(m_buses),
@@ -16,7 +16,7 @@ void PowerSimulation::init() {
   );
 }
 
-ScalarByNameCollectorResult PowerSimulation::getTimedependentScalar(
+ScalarByNameCollectorResult PowerSimulationResult::getTimedependentScalar(
     const std::string &species, const std::string &node) const {
     return ScalarByNameCollector(
       {

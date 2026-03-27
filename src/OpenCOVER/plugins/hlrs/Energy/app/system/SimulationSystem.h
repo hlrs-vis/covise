@@ -4,7 +4,7 @@
 #include <lib/core/interfaces/IEnergyGrid.h>
 #include <lib/core/interfaces/ISystem.h>
 #include <lib/core/ClassLogger.h>
-#include <lib/core/simulation/simulation.h>
+#include <lib/core/simulation/simulationresult.h>
 #include <lib/core/simulation/unitmap.h>
 
 // COVER
@@ -99,7 +99,7 @@ class SimulationSystem final : public core::interface::ISystem, core::ClassLogge
     opencover::ui::SelectionList *scalarSelector = nullptr;
     osg::ref_ptr<osg::MatrixTransform> group = nullptr;
     std::shared_ptr<core::interface::IEnergyGrid> grid;
-    std::shared_ptr<core::simulation::Simulation> sim;
+    std::shared_ptr<core::simulation::SimulationResult> sim;
     std::unique_ptr<BaseSimulationUI<core::interface::IEnergyGrid>> simUI;
     std::map<std::string, ColorMapMenu> colorMapRegistry;
   };

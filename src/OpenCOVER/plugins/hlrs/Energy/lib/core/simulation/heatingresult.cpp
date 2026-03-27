@@ -1,8 +1,8 @@
-#include "heating.h"
+#include "heatingresult.h"
 
 namespace core::simulation::heating {
 
-void HeatingSimulation::init() {
+void HeatingSimulationResult::init() {
   initScalarProperties(
     {
       std::ref(m_consumers),
@@ -11,7 +11,7 @@ void HeatingSimulation::init() {
   );
 }
 
-ScalarByNameCollectorResult HeatingSimulation::getTimedependentScalar(
+ScalarByNameCollectorResult HeatingSimulationResult::getTimedependentScalar(
     const std::string &species, const std::string &node) const {
     ObjectMapView view =
     {

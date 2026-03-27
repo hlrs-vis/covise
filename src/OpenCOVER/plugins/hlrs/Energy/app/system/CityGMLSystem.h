@@ -5,9 +5,9 @@
 
 #include <lib/core/interfaces/ISystem.h>
 #include <lib/core/ClassLogger.h>
-#include <lib/core/simulation/simulation.h>
+#include <lib/core/simulation/simulationresult.h>
 #include <lib/core/simulation/unitmap.h>
-#include <lib/core/simulation/power.h>
+#include <lib/core/simulation/powerresult.h>
 #include <lib/core/utils/osgUtils.h>
 #include <utils/read/csv/csv.h>
 
@@ -62,7 +62,7 @@ class CityGMLSystem final : public core::interface::ISystem, core::ClassLogger {
 
   void updateInfluxColorMaps(
       float min, float max,
-      std::shared_ptr<core::simulation::Simulation> powerSimulation,
+      std::shared_ptr<core::simulation::SimulationResult> powerSimulation,
       const std::string &colormapName, const std::string &species = "Residuallast",
       const std::string &unit = "MW");
 

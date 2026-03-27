@@ -291,7 +291,7 @@ void EnergyGrid::setColorMap(const opencover::ColorMap &colorMap,
       conn->updateColorMapInShader(colorMap);
 }
 
-void EnergyGrid::setData(const core::simulation::Simulation &sim,
+void EnergyGrid::setData(const core::simulation::SimulationResult &sim,
                          const std::string &species, bool interpolate) {
   for (auto &point : m_config.points) {
     auto result = sim.getTimedependentScalar(species, point->getName());

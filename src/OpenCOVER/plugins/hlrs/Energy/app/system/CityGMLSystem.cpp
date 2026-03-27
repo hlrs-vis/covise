@@ -159,7 +159,7 @@ void CityGMLSystem::processPVRow(const CSVStream::CSVRow &row,
 
 void CityGMLSystem::updateInfluxColorMaps(
     float min, float max,
-    std::shared_ptr<core::simulation::Simulation> powerSimulation,
+    std::shared_ptr<core::simulation::SimulationResult> powerSimulation,
     const std::string &colormapName, const std::string &species,
     const std::string &unit)
 {

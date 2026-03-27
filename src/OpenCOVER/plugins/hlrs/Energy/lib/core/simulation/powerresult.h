@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-#include "simulation.h"
+#include "simulationresult.h"
 #include "type.h"
 
 namespace core::simulation::power {
@@ -15,9 +15,9 @@ struct PVData {
   int numPanelsMax{0};
 };
 
-class PowerSimulation : public Simulation {
+class PowerSimulationResult : public SimulationResult {
  public:
-  PowerSimulation() = default;
+  PowerSimulationResult() = default;
 
   void init() override;
   auto &Buses() { return m_buses; }

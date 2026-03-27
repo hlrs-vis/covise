@@ -3,14 +3,14 @@
 #include <string>
 
 #include "object.h"
-#include "simulation.h"
+#include "simulationresult.h"
 #include "type.h"
 
 namespace core::simulation::heating {
 
-class HeatingSimulation : public Simulation {
+class HeatingSimulationResult : public SimulationResult {
  public:
-  HeatingSimulation() = default;
+  HeatingSimulationResult() = default;
   auto &Consumers() { return m_consumers; }
   auto &Producers() { return m_producers; }
   const auto &Consumers() const { return m_consumers; }

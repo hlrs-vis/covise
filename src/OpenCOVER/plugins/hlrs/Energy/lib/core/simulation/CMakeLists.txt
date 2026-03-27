@@ -1,19 +1,19 @@
 set(SOURCES
-    heating.cpp
-    power.cpp
+    heatingresult.cpp
+    powerresult.cpp
     scalarpropertiesprocessor.cpp
     collector.cpp
 )
 
 set(HEADERS
-    heating.h
+    heatingresult.h
     unitmap.h
     datastorage.h
     scalarproperties.h
     scalarpropertiesprocessor.h
     collector.h
-    simulation.h
-    power.h
+    simulationresult.h
+    powerresult.h
     object.h
     object_factory.h
     object_type.h

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <lib/core/simulation/power.h>
+#include <lib/core/simulation/powerresult.h>
 
 #include "app/osg/presentation/EnergyGrid.h"
 #include "app/osg/ui/simulation/BaseSimulationUI.h"
@@ -41,7 +41,7 @@ using namespace core::simulation::power;
 template <typename T>
 class PowerSimulationUI : public BaseSimulationUI<T> {
  public:
-  PowerSimulationUI(std::shared_ptr<PowerSimulation> sim, std::shared_ptr<T> parent)
+  PowerSimulationUI(std::shared_ptr<PowerSimulationResult> sim, std::shared_ptr<T> parent)
       : BaseSimulationUI<T>(sim, parent) {}
   ~PowerSimulationUI() = default;
   PowerSimulationUI(const PowerSimulationUI&) = delete;
@@ -83,7 +83,7 @@ class PowerSimulationUI : public BaseSimulationUI<T> {
   }
 
  private:
-  std::shared_ptr<PowerSimulation> powerSimulationPtr() {
-    return std::dynamic_pointer_cast<PowerSimulation>(this->m_simulation.lock());
+  std::shared_ptr<PowerSimulationResult> powerSimulationPtr() {
+    return std::dynamic_pointer_cast<PowerSimulationResult>(this->m_simulation.lock());
   }
 };
