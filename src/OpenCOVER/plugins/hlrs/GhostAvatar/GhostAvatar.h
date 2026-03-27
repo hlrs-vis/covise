@@ -18,11 +18,9 @@
 #include <PluginUtil/coVR3DTransRotInteractor.h>
 
 #include "BoneParser.h"
-#include "PlanarAvatarControls.h"
-#include "TestAvatarControls.h"
+#include "GhostAvatarControls.h"
 
-// TODO: 
-//   - make PlanarAvatarControls and TestAvatarControls interchangeable
+// TODO:
 //   - think about how to deal with avatar scale (checkout VR avatar for that first)?
 
 class GhostAvatar : public opencover::coVRPlugin, public opencover::ui::Owner
@@ -35,8 +33,7 @@ public:
     void preFrame() override;
 
 private:
-    //PlanarAvatarControls avatarControls = PlanarAvatarControls("/data/STARTS-ECHO/Avatars/planarAvatar/PLANEE6.fbx", "Arm", "Head");
-    TestAvatarControls avatarControls = TestAvatarControls("/data/STARTS-ECHO/Avatars/shaderTests/ghost_cave_uniform.fbx", "LeftArm", "");
+    std::unique_ptr<GhostAvatarControls> avatarControls;
 
     // interactors
     std::unique_ptr<opencover::coVR3DTransRotInteractor> m_interactorHead, m_interactorFloor, m_interactorHand;
