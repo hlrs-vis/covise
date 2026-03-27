@@ -1477,7 +1477,7 @@ namespace OpenCOVERPlugin
             bool found = false;
             foreach (Parameter para in elem.Parameters)
             {
-                if (para.Definition.Name != null && para.Definition.Name.Substring(0,name.Length) == name)
+                if (para.Definition.Name != null && para.Definition.Name.Length >= name.Length && para.Definition.Name.Substring(0,name.Length) == name)
                 {
                     mb.add(para.Definition.Name);
                     mb.add((int)para.StorageType);
@@ -1514,7 +1514,7 @@ namespace OpenCOVERPlugin
             FamilySymbol family = fi.Symbol;
             foreach (Parameter para in family.Parameters)
             {
-                if (para.Definition.Name != null && para.Definition.Name.Substring(0, name.Length) == name)
+                if (para.Definition.Name != null && para.Definition.Name.Length >= name.Length && para.Definition.Name.Substring(0, name.Length) == name)
                 {
                     mb.add(para.Definition.Name);
                     mb.add((int)para.StorageType);
