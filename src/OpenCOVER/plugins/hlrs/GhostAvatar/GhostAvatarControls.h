@@ -14,8 +14,6 @@
 class GhostAvatarControls
 {
 public:
-    // TODO: remove default constructor
-    GhostAvatarControls();
     GhostAvatarControls(const std::string &pathToFbx, const std::string &armNodeName, const std::string &headNodeName);
     GhostAvatarControls(const std::string &pathToFbx, const std::string &armNodeName, const std::string &headNodeName, const osg::Vec3 &armBaseVector, const osg::Vec3 &headBaseVector, const osg::Matrix &armAdjustMatrix, const osg::Matrix &headAdjustMatrix);
 

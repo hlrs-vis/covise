@@ -5,52 +5,6 @@
 
 using namespace opencover;
 
-GhostAvatarControls::GhostAvatarControls()
-    : m_pathToFbx("/data/STARTS-ECHO/Avatars/planarAvatar/PLANEE6.fbx")
-    , m_armNodeName("Arm")
-    , m_headNodeName("Head")
-    , m_armBaseVector({ 0, 1, 0 })
-    , m_headBaseVector({ 0, 1, 0 })
-    , m_armAdjustMatrix(osg::Matrix::identity())
-    , m_headAdjustMatrix(osg::Matrix::identity())
-{
-    // set correct axis conventions for the GhostAvatar model
-    // TODO: don't hard code this...
-    if (m_armNodeName == "LeftArm")
-    {
-        m_armAdjustMatrix.set(
-            1, 0, 0, 0,
-            0, 0, -1, 0,
-            0, 1, 0, 0,
-            0, 0, 0, 1);
-    }
-    else if (m_armNodeName == "RightArm")
-    {
-        m_armAdjustMatrix.set(
-            1, 0, 0, 0,
-            0, 0, 1, 0,
-            0, -1, 0, 0,
-            0, 0, 0, 1);
-    }
-    else if (m_armNodeName == "Arm")
-    {
-        m_armAdjustMatrix.set(
-            0, 0, 1, 0,
-            1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, 0, 1);
-    }
-
-    if (m_headNodeName == "Head")
-    {
-        m_headAdjustMatrix.set(
-            1, 0, 0, 0,
-            0, 0, -1, 0,
-            0, 1, 0, 0,
-            0, 0, 0, 1);
-    }
-}
-
 GhostAvatarControls::GhostAvatarControls(const std::string &pathToFbx, const std::string &armNodeName, const std::string &headNodeName)
     : m_pathToFbx(pathToFbx)
     , m_armNodeName(armNodeName)
