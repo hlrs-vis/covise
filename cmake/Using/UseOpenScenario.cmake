@@ -12,7 +12,7 @@ else()
     if (NOT OPENSCENARIO_USED)
         set(OPENSCENARIO_USED TRUE)
 
-        use_proj4(${OPT})
+        use_proj(${OPT})
         use_xercesc(${OPT})
         use_boost(${OPT})
 
