@@ -569,7 +569,6 @@ public:
 	void Reset();
 	void store();
 	void clearStore();
-    audio::Player *player;
     //scenegraph
 	osg::ref_ptr<osg::Group> MIDIRoot;
 	osg::ref_ptr<osg::Group> MIDIObjectsRoot;

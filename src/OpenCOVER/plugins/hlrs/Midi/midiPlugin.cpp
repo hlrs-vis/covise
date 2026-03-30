@@ -410,12 +410,6 @@ void CALLBACK FTPMidiInProc(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD 
 #endif
 MidiPlugin *MidiPlugin::plugin = NULL;
 
-void playerUnavailableCB()
-{
-	MidiPlugin::instance()->player = NULL;
-}
-
-
 static FileHandler handlers[] = {
 	{ NULL,
 	  MidiPlugin::loadMidi,
@@ -569,7 +563,6 @@ MidiPlugin::MidiPlugin()
 , ui::Owner("MidiPlugin", cover->ui)
 {
 	plugin = this;
-	player = NULL;
 	coVRPluginList::instance()->addPlugin("Vrml97");
 
 	initOPCUA();
@@ -915,20 +908,6 @@ device_list();
 	coVRFileManager::instance()->registerFileHandler(&handlers[0]);
 	coVRFileManager::instance()->registerFileHandler(&handlers[1]);
 	//----------------------------------------------------------------------------
-  /*  if (player == NULL)
-	{
-		player = cover->usePlayer(playerUnavailableCB);
-		if (player == NULL)
-		{
-			cover->unusePlayer(playerUnavailableCB);
-			cover->addPlugin("Vrml97");
-			player = cover->usePlayer(playerUnavailableCB);
-			if (player == NULL)
-			{
-				cerr << "sorry, no VRML, no Sound support " << endl;
-			}
-		}
-	}*/
 
 	MIDIRoot = new osg::Group;
 	MIDIRoot->setName("MIDIRoot");
