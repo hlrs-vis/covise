@@ -1,12 +1,18 @@
 #include <cover/coVRConfig.h>
+#include <cover/coVRPluginSupport.h> // includes cover
 
 #include "RenderToTextureCamera.h"
 
-RenderToTextureCamera::RenderToTextureCamera(): RenderToTextureCamera(512, 90.0, 1.0, 1.0, 1000.0) {};
+RenderToTextureCamera::RenderToTextureCamera()
+    : RenderToTextureCamera(512, 90.0, 1.0, 1.0, 1000.0) { };
 
 RenderToTextureCamera::RenderToTextureCamera(int viewPortSize, double fovy, double aspectRatio, double zNear,
-                                             double zFar)
-: m_viewPortSize{viewPortSize}, m_fovy{fovy}, m_aspectRatio{aspectRatio}, m_zNear{zNear}, m_zFar{zFar}
+    double zFar)
+    : m_viewPortSize { viewPortSize }
+    , m_fovy { fovy }
+    , m_aspectRatio { aspectRatio }
+    , m_zNear { zNear }
+    , m_zFar { zFar }
 {
     // configure the camera
     setClearMask(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -34,6 +40,10 @@ RenderToTextureCamera::RenderToTextureCamera(int viewPortSize, double fovy, doub
     m_image = new osg::Image();
     m_image->allocateImage(m_viewPortSize, m_viewPortSize, 1, GL_RGBA, GL_FLOAT);
     attach(osg::Camera::COLOR_BUFFER, m_image.get());
+
+    m_debugCamera = new DebugCamera();
+    m_debugCamera->setViewport(0, 0, m_viewPortSize, m_viewPortSize);
+    m_debugCamera->setProjectionMatrixAsPerspective(m_fovy, m_aspectRatio, m_zNear, m_zFar);
 }
 
 osg::Image *RenderToTextureCamera::getImage() const
@@ -46,6 +56,11 @@ osg::Texture2D *RenderToTextureCamera::getTexture() const
     return m_texture.get();
 }
 
+DebugCamera *RenderToTextureCamera::getDebugCamera() const
+{
+    return m_debugCamera.get();
+}
+
 osg::Image *RenderToTextureCamera::createScreenshot() const
 {
     if (auto image = getImage())
@@ -56,8 +71,48 @@ osg::Image *RenderToTextureCamera::createScreenshot() const
 void RenderToTextureCamera::setZFarToClippingPlane()
 {
     auto newZFar = opencover::coVRConfig::instance()->farClip() * 10;
-    if (newZFar != m_zFar) {
+    if (newZFar != m_zFar)
+    {
         m_zFar = newZFar;
         setProjectionMatrixAsPerspective(m_fovy, m_aspectRatio, m_zNear, m_zFar);
     }
+}
+
+void RenderToTextureCamera::initialize()
+{
+    // let camera render the scene
+    this->addChild(opencover::cover->getObjectsRoot());
+    this->getDebugCamera()->addChild(opencover::cover->getObjectsRoot());
+
+    // add the camera to the scene graph
+    opencover::cover->getScene()->addChild(this);
+    opencover::cover->getScene()->addChild(this->getDebugCamera());
+}
+
+void RenderToTextureCamera::updateCameraPosition(const osg::Matrix &transform, const osg::Vec3 &offset, const osg::Vec3 &lookAt)
+{
+    osg::Vec3 eye = transform.preMult(offset);
+    osg::Vec3 centerWorld = transform.preMult(offset + lookAt);
+
+    osg::Vec3 up = osg::Matrix::transform3x3(osg::Vec3(0.0, 0.0, 1.0), transform);
+
+    this->setViewMatrixAsLookAt(eye, centerWorld, up);
+    this->getDebugCamera()->setViewMatrixAsLookAt(eye, centerWorld, up);
+
+    // since the user can choose to change the far clipping plane value at any time
+    // we have to check for changes in every frame
+    // TODO: find a more efficient way to do this
+    this->setZFarToClippingPlane();
+    this->getDebugCamera()->setProjectionMatrixAsPerspective(this->getFovy(),
+        this->getAspectRatio(),
+        this->getZNear(), this->getZFar());
+}
+
+void RenderToTextureCamera::addChildNode(osg::Node *node)
+{
+    if (!node)
+        return;
+
+    this->addChild(node);
+    this->getDebugCamera()->addChild(node);
 }

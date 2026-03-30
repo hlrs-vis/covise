@@ -14,26 +14,6 @@
 #include "RandomFloatGenerator.h"
 #include "RenderToTextureCamera.h"
 
-// TODO: delete if no longer necessary
-class DebugCamera: public osg::Camera {
-public:
-    DebugCamera()
-    {
-        setClearMask(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        setRenderTargetImplementation(osg::Camera::FRAME_BUFFER);
-        setRenderOrder(osg::Camera::POST_RENDER);
-
-        setDrawBuffer(GL_BACK);
-        setReadBuffer(GL_BACK);
-
-        setReferenceFrame(osg::Transform::ABSOLUTE_RF);
-
-        setName("RenderToTextureDebugCamera");
-    }
-    virtual ~DebugCamera() {}
-};
-
 class SplotchAvatar: public opencover::coVRPlugin, public opencover::ui::Owner {
 public:
     SplotchAvatar();
@@ -62,7 +42,6 @@ private:
 
     // -- Render to Texture Camera --
     RenderToTextureCamera *m_rttCamera;
-    DebugCamera *m_debugCamera;
 
     // moves the camera slightly in front of the avatar so it won't be covered by the mesh
     osg::Vec3 m_offsetRelativeToAvatar = osg::Vec3(50.0, 0.0, 0.0);
@@ -71,14 +50,5 @@ private:
 
     bool m_addedSkyNode = false;
 
-    void initializeRTTCamera(const osg::Matrix &avatarTransform);
-
-    /*
-        Sets the position and orientation of `m_rttCamera` based on a given `transform` matrix.
-        Note that the camera will be moved relative to `transform` by `m_offsetRelativeToAvatar`.
-        Moreover, the camera will look at the point defined by `m_lookAtRelativeToAvatar`,
-        which is relative to `transform` as well.
-    */
-    void updateCameraPosition(const osg::Matrix &transform);
 };
 #endif // COVER_PLUGIN_SPLOTCH_COLOR_PLUGIN_H
