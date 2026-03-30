@@ -48,11 +48,10 @@
 
 #include <rsClient/remoteSoundClient.h>
 
-
 class UDPComm;
 
-using JSBSim::FGXMLFileRead;
 using JSBSim::Element;
+using JSBSim::FGXMLFileRead;
 using namespace opencover;
 using namespace covise;
 using namespace vrml;
@@ -67,41 +66,41 @@ public:
 
     bool update();
     virtual void setEnabled(bool);
-    static JSBSimPlugin* instance() { return plugin; };
-    void addThermal(const osg::Vec3& velocity, float turbulence);
+    static JSBSimPlugin *instance() { return plugin; };
+    void addThermal(const osg::Vec3 &velocity, float turbulence);
 
 private:
-    static JSBSimPlugin* plugin;
-    ui::Menu* JSBMenu;
-    ui::Action* printCatalog;
-    ui::Button* pauseButton;
-    ui::Button* DebugButton;
-    ui::Action* resetButton;
-    ui::Action* upButton;
-    ui::Group* Weather;
-    ui::Group* Geometry;
-    ui::Label* WindLabel;
-    ui::Label* VLabel;
-    ui::Label* VzLabel;
-    ui::EditField* WX;
-    ui::EditField* WY;
-    ui::EditField* WZ;
-    ui::EditField* tX;
-    ui::EditField* tY;
-    ui::EditField* tZ;
-    ui::EditField* tH;
-    ui::EditField* tP;
-    ui::EditField* tR;
-    ui::EditField* tS;
-    ui::SelectionList* planeType;
+    static JSBSimPlugin *plugin;
+    ui::Menu *JSBMenu;
+    ui::Action *printCatalog;
+    ui::Button *pauseButton;
+    ui::Button *DebugButton;
+    ui::Action *resetButton;
+    ui::Action *upButton;
+    ui::Group *Weather;
+    ui::Group *Geometry;
+    ui::Label *WindLabel;
+    ui::Label *VLabel;
+    ui::Label *VzLabel;
+    ui::EditField *WX;
+    ui::EditField *WY;
+    ui::EditField *WZ;
+    ui::EditField *tX;
+    ui::EditField *tY;
+    ui::EditField *tZ;
+    ui::EditField *tH;
+    ui::EditField *tP;
+    ui::EditField *tR;
+    ui::EditField *tS;
+    ui::SelectionList *planeType;
     std::unique_ptr<config::Array<std::string>> aircrafts;
-    remoteSound::Client* rsClient;
+    remoteSound::Client *rsClient;
     void initAircraft();
 
-    Joystick* joystickDev = nullptr;
-    //bool state0 = false;
-    //bool state1 = false;
-    //bool state2 = false;
+    Joystick *joystickDev = nullptr;
+    // bool state0 = false;
+    // bool state1 = false;
+    // bool state2 = false;
 
     SGPath RootDir;
     SGPath ScriptName;
@@ -113,10 +112,10 @@ private:
     std::string geometryFile;
     std::string currentAircraft;
     osg::ref_ptr<osg::MatrixTransform> geometryTrans;
-    vector <string> LogOutputName;
-    vector <SGPath> LogDirectiveName;
-    vector <string> CommandLineProperties;
-    vector <double> CommandLinePropertyValues;
+    vector<string> LogOutputName;
+    vector<SGPath> LogDirectiveName;
+    vector<string> CommandLineProperties;
+    vector<double> CommandLinePropertyValues;
     osg::Matrix eyePoint;
 
     double current_seconds = 0.0;
@@ -131,24 +130,24 @@ private:
     std::unique_ptr<config::Value<double>> cR;
     std::unique_ptr<config::Value<double>> cS;
 
-    JSBSim::FGFDMExec* FDMExec = nullptr;
-    JSBSim::FGTrim* trimmer = nullptr;
+    JSBSim::FGFDMExec *FDMExec = nullptr;
+    JSBSim::FGTrim *trimmer = nullptr;
     std::string jsName;
     std::string jsThrottleName;
     std::string rudderName;
 
-    std::shared_ptr <JSBSim::FGAtmosphere>      Atmosphere;
-    std::shared_ptr <JSBSim::FGWinds>           Winds;
-    std::shared_ptr <JSBSim::FGFCS>            FCS;
-    std::shared_ptr <JSBSim::FGPropulsion>      Propulsion;
-    std::shared_ptr <JSBSim::FGMassBalance>     MassBalance;
-    std::shared_ptr <JSBSim::FGAircraft>        Aircraft;
-    std::shared_ptr <JSBSim::FGPropagate>       Propagate;
-    std::shared_ptr <JSBSim::FGAuxiliary>       Auxiliary;
-    std::shared_ptr <JSBSim::FGAerodynamics>    Aerodynamics;
-    std::shared_ptr <JSBSim::FGGroundReactions> GroundReactions;
-    std::shared_ptr <JSBSim::FGInertial>        Inertial;
-    std::shared_ptr <JSBSim::FGAccelerations>   Accelerations;
+    std::shared_ptr<JSBSim::FGAtmosphere> Atmosphere;
+    std::shared_ptr<JSBSim::FGWinds> Winds;
+    std::shared_ptr<JSBSim::FGFCS> FCS;
+    std::shared_ptr<JSBSim::FGPropulsion> Propulsion;
+    std::shared_ptr<JSBSim::FGMassBalance> MassBalance;
+    std::shared_ptr<JSBSim::FGAircraft> Aircraft;
+    std::shared_ptr<JSBSim::FGPropagate> Propagate;
+    std::shared_ptr<JSBSim::FGAuxiliary> Auxiliary;
+    std::shared_ptr<JSBSim::FGAerodynamics> Aerodynamics;
+    std::shared_ptr<JSBSim::FGGroundReactions> GroundReactions;
+    std::shared_ptr<JSBSim::FGInertial> Inertial;
+    std::shared_ptr<JSBSim::FGAccelerations> Accelerations;
 
     JSBSim::FGPropagate::VehicleState initialLocation;
 
@@ -165,16 +164,16 @@ private:
     } fgcontrol;
     struct GliderValues
     {
-	int32_t left;
-	int32_t right;
-	int32_t angle;
-	int32_t speed;
-	uint32_t state;
+        int32_t left;
+        int32_t right;
+        int32_t angle;
+        int32_t speed;
+        uint32_t state;
     };
     GliderValues gliderValues;
 #pragma pack(pop)
-    UDPComm* udp;
-    int deviceVersion=1;
+    UDPComm *udp;
+    int deviceVersion = 1;
     void initUDP();
     bool initJSB();
     bool updateUdp();
@@ -194,7 +193,7 @@ private:
     double actual_elapsed_time = 0;
     double cycle_duration = 0;
     OpenThreads::Mutex mutex;
-    PJ* coordTransformation;
+    PJ *coordTransformation;
     std::string coviseSharedDir;
     osg::Vec3d projectOffset;
     osg::Matrix lastPos;
@@ -202,9 +201,9 @@ private:
     float currentTurbulence;
     osg::Vec3 targetVelocity;
     float targetTurbulence;
-    remoteSound::Sound* engineSound;
-    remoteSound::Sound* varioSound;
-    remoteSound::Sound* windSound;
+    remoteSound::Sound *engineSound;
+    remoteSound::Sound *varioSound;
+    remoteSound::Sound *windSound;
     std::string remoteSoundServer;
     int remoteSoundPort;
     std::string EngineSound;
@@ -221,18 +220,17 @@ private:
 class PLUGINEXPORT VrmlNodeThermal : public VrmlNodeChild
 {
 public:
-
-    static void initFields(VrmlNodeThermal* node, VrmlNodeType* t);
+    static void initFields(VrmlNodeThermal *node, VrmlNodeType *t);
     static const char *typeName();
 
-    VrmlNodeThermal(VrmlScene* scene = 0);
-    VrmlNodeThermal(const VrmlNodeThermal& n);
+    VrmlNodeThermal(VrmlScene *scene = 0);
+    VrmlNodeThermal(const VrmlNodeThermal &n);
     virtual ~VrmlNodeThermal();
 
-    void eventIn(double timeStamp, const char* eventName,
-        const VrmlField* fieldValue);
+    void eventIn(double timeStamp, const char *eventName,
+        const VrmlField *fieldValue);
 
-    virtual void render(Viewer*);
+    virtual void render(Viewer *);
 
     VrmlSFVec3f d_direction;
     VrmlSFVec3f d_location;
@@ -244,7 +242,7 @@ public:
     VrmlSFVec3f d_velocity;
     VrmlSFFloat d_turbulence;
     static int numThermalNodes;
-private:
 
+private:
 };
 #endif
