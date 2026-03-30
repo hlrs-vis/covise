@@ -20,7 +20,7 @@ SplotchAvatar::SplotchAvatar()
     , Owner(COVER_PLUGIN_NAME, cover->ui)
 {
     // create RTT camera with default camera settings
-    m_rttCamera = new RenderToTextureCamera();
+    m_rttCamera = new RenderToTextureCamera(true);
 }
 
 void addImageToTextureSlot(osg::Node *node, int texId, osg::Image *image)
@@ -102,7 +102,7 @@ void SplotchAvatar::preFrame()
                       << std::endl;
 
             // update texture with current view
-            if (auto cameraScreenshot = m_rttCamera->createScreenshot())
+            if (auto cameraScreenshot = m_rttCamera->getScreenshot())
                 addImageToTextureSlot(m_avatarNode, m_textureSlot, cameraScreenshot);
 
             m_referencePosition = avatarPos;
