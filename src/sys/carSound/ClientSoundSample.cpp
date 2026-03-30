@@ -5,7 +5,6 @@
 
  * License: LGPL 2+ */
 
-
 #include "ClientSoundSample.h"
 #include "soundClient.h"
 #include <iostream>
@@ -14,15 +13,15 @@
 #include "mainWindow.h"
 #include <net/tokenbuffer.h>
 #include <net/message_types.h>
-#include "remoteSoundMessages.h"
+#include "carSoundMessages.h"
 #include <boost/filesystem.hpp>
 
-ClientSoundSample::ClientSoundSample(const std::string& name, size_t fileSize, time_t fileTime, soundClient *c)
+ClientSoundSample::ClientSoundSample(const std::string &name, size_t fileSize, time_t fileTime, soundClient *c)
 {
     namespace fs = boost::filesystem;
     FMOD_RESULT result;
-	sound = NULL;
-	channel = NULL;
+    sound = NULL;
+    channel = NULL;
     fileName = name;
     client = c;
     stopIcon = QIcon(":icons/media-playback-stop.svg");
@@ -33,11 +32,10 @@ ClientSoundSample::ClientSoundSample(const std::string& name, size_t fileSize, t
 
     ID = IDCounter++;
 
-
     myItem = new QTreeWidgetItem(mainWindow::instance()->soundTable);
     myItem->setText(SoundColumns::CSoundID, QString::number(ID));
     myItem->setText(SoundColumns::CClient, QString::number(client->ID));
-    myItem->setText(SoundColumns::CFileName,fileName.c_str());
+    myItem->setText(SoundColumns::CFileName, fileName.c_str());
     myItem->setIcon(SoundColumns::CState, stopIcon);
 
     fs::path p(fileName);
@@ -81,7 +79,7 @@ ClientSoundSample::ClientSoundSample(const std::string& name, size_t fileSize, t
             tb << -1; // report back that we need this file
             client->send(tb);
 
-            covise::Message* m = client->receiveMessage();
+            covise::Message *m = client->receiveMessage();
 
             if (m->type == covise::COVISE_MESSAGE_CLOSE_SOCKET || m->type == covise::COVISE_MESSAGE_SOCKET_CLOSED || m->type == covise::COVISE_MESSAGE_QUIT)
             {
@@ -96,13 +94,13 @@ ClientSoundSample::ClientSoundSample(const std::string& name, size_t fileSize, t
                 size_t fs;
                 time_t ft;
                 tb >> type;
-                if(type == SoundMessages::SOUND_SOUND_FILE)
+                if (type == SoundMessages::SOUND_SOUND_FILE)
                 {
                     tb >> fn;
                     tb >> fs;
                     tb >> ft;
 
-                    const char* fileBuf = tb.getBinary(fs);
+                    const char *fileBuf = tb.getBinary(fs);
                     fileName = cacheFileName;
 #ifdef WIN32
                     int fd = open(cacheFileName.c_str(), O_RDWR | O_BINARY | O_CREAT);
@@ -121,7 +119,6 @@ ClientSoundSample::ClientSoundSample(const std::string& name, size_t fileSize, t
                     size_t sr = write(fd, fileBuf, fileSize);
                     close(fd);
                     fs::last_write_time(cp, ft);
-
                 }
             }
             else
@@ -136,13 +133,13 @@ ClientSoundSample::ClientSoundSample(const std::string& name, size_t fileSize, t
     }
 
     result = mainWindow::instance()->system->createSound(fileName.c_str(), FMOD_DEFAULT | FMOD_LOOP_NORMAL, 0, &sound); // FMOD_DEFAULT uses the defaults.  These are the same as FMOD_LOOP_OFF | FMOD_2D | FMOD_HARDWARE.
-    //ERRCHECK(result);
+    // ERRCHECK(result);
     result = mainWindow::instance()->system->playSound(sound, NULL, true, &channel);
     if (channel == nullptr)
     {
         myItem->setText(SoundColumns::CSoundID, "Failed to load");
     }
-    //ERRCHECK(result);
+    // ERRCHECK(result);
     covise::TokenBuffer tb;
     tb << (int)SoundMessages::SOUND_SOUND_ID;
     tb << ID;
@@ -164,7 +161,7 @@ void ClientSoundSample::start()
     channel->isPlaying(&isp);
     if (!isp)
     {
-		mainWindow::instance()->system->playSound(sound, NULL, true, &channel);
+        mainWindow::instance()->system->playSound(sound, NULL, true, &channel);
         if (looping)
             channel->setLoopCount(-1);
         else
@@ -175,7 +172,7 @@ void ClientSoundSample::start()
     result = channel->setPosition(0, FMOD_TIMEUNIT_PCM);
     channel->setPaused(!playing); // This is where the sound really starts.
     myItem->setIcon(SoundColumns::CState, playIcon);
-    //ERRCHECK(result);
+    // ERRCHECK(result);
 };
 void ClientSoundSample::continuePlaying()
 {
@@ -186,7 +183,7 @@ void ClientSoundSample::continuePlaying()
         result = channel->setPaused(!playing); // This is where the sound really starts.
     }
     myItem->setIcon(SoundColumns::CState, playIcon);
-    //ERRCHECK(result);
+    // ERRCHECK(result);
 };
 void ClientSoundSample::stop()
 {
@@ -198,10 +195,10 @@ void ClientSoundSample::stop()
         channel->setPosition(0, FMOD_TIMEUNIT_PCM);
     }
     myItem->setIcon(SoundColumns::CState, stopIcon);
-    //ERRCHECK(result);
+    // ERRCHECK(result);
 };
-void ClientSoundSample::rewind(){};
-void ClientSoundSample::loop(bool l,int count)
+void ClientSoundSample::rewind() { };
+void ClientSoundSample::loop(bool l, int count)
 {
     looping = l;
     if (channel != nullptr)
@@ -238,11 +235,11 @@ void ClientSoundSample::setDelay(unsigned long long dspclock_start, unsigned lon
     }
 }
 
-std::string ClientSoundSample::createCacheFileName(const std::string& fileName)
+std::string ClientSoundSample::createCacheFileName(const std::string &fileName)
 {
     std::string cn = fileName;
     size_t sl = cn.length();
-    for (size_t i=0;i<sl;i++)
+    for (size_t i = 0; i < sl; i++)
     {
         if (cn[i] == ':')
             cn[i] = '_';
@@ -251,7 +248,7 @@ std::string ClientSoundSample::createCacheFileName(const std::string& fileName)
         else if (cn[i] == '/')
             cn[i] = '_';
     }
-    return std::string(mainWindow::instance()->cacheDir)+"/"+ cn;
+    return std::string(mainWindow::instance()->cacheDir) + "/" + cn;
 }
 
 int ClientSoundSample::IDCounter = 10;

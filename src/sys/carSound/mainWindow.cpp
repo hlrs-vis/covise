@@ -15,7 +15,7 @@
 #include "mmsystem.h"
 #include <QMessageBox>
 #include <QTimer>
-#include "remoteSoundMessages.h"
+#include "carSoundMessages.h"
 #include <config/CoviseConfig.h>
 #include <net/message_types.h>
 #include <net/tokenbuffer.h>
@@ -27,22 +27,22 @@ int main(int argc, char *argv[]);
 
 void mainWindow::updateValues()
 {
-	speedValue = speedSlider->value();
-	CarRPM->setValue(speedValue);
-	carSpeed = velocitySlider->value();
-	WheelVelocity->setValue(carSpeed);
-	slipValue = SlipSlider->value() / 100.0;
-	Wheelslip->setValue(slipValue);
-	eventsystem->update();
+    speedValue = speedSlider->value();
+    CarRPM->setValue(speedValue);
+    carSpeed = velocitySlider->value();
+    WheelVelocity->setValue(carSpeed);
+    slipValue = SlipSlider->value() / 100.0;
+    Wheelslip->setValue(slipValue);
+    eventsystem->update();
 }
 void mainWindow::speedChanged(int val)
 {
-	updateValues();
+    updateValues();
 }
 
 void mainWindow::velocityChanged(int val)
 {
-	updateValues();
+    updateValues();
 }
 
 void mainWindow::removeClient(soundClient *c)
@@ -50,13 +50,13 @@ void mainWindow::removeClient(soundClient *c)
     connections.remove(c->toClient);
     delete c;
 }
-bool mainWindow::handleClient(covise::Message* msg)
+bool mainWindow::handleClient(covise::Message *msg)
 {
     if ((msg->type == covise::COVISE_MESSAGE_SOCKET_CLOSED) || (msg->type == covise::COVISE_MESSAGE_CLOSE_SOCKET))
     {
         std::cerr << "mainWindow: socket closed" << std::endl;
 
-        for (const auto& c : clients)
+        for (const auto &c : clients)
         {
             if (msg->conn == c->toClient)
             {
@@ -71,8 +71,8 @@ bool mainWindow::handleClient(covise::Message* msg)
     {
     case covise::COVISE_MESSAGE_SOUND:
     {
-        soundClient* currentClient = nullptr;
-        for (const auto& c : clients)
+        soundClient *currentClient = nullptr;
+        for (const auto &c : clients)
         {
             if (msg->conn == c->toClient)
             {
@@ -107,7 +107,7 @@ bool mainWindow::handleClient(covise::Message* msg)
                 tb >> fileName;
                 tb >> fileSize;
                 tb >> fileTime;
-                currentClient->addSound(fileName,fileSize,fileTime);
+                currentClient->addSound(fileName, fileSize, fileTime);
                 break;
             }
             case SOUND_DELETE_SOUND:
@@ -136,7 +136,7 @@ bool mainWindow::handleClient(covise::Message* msg)
 
 void mainWindow::slipChanged(int val)
 {
-	updateValues();
+    updateValues();
 }
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
@@ -149,12 +149,12 @@ void mainWindow::dataReceived(QSocketDescriptor socket, QSocketNotifier::Type)
     int msgSize = udpclient->readMessage();
     if (msgSize > sizeof(int))
     {
-        const int* rawBuffer = (int*)udpclient->rawBuffer();
-        const char* payload = udpclient->rawBuffer() + sizeof(int);
+        const int *rawBuffer = (int *)udpclient->rawBuffer();
+        const char *payload = udpclient->rawBuffer() + sizeof(int);
         unsigned int msgType = *rawBuffer;
         if (msgType == TypeCarSound)
         {
-            float* floatValues = (float*)payload;
+            float *floatValues = (float *)payload;
             speedValue = floatValues[0];
             carSpeed = floatValues[1];
             engineTorque = floatValues[2];
@@ -196,61 +196,8 @@ void mainWindow::dataReceived(QSocketDescriptor socket, QSocketNotifier::Type)
                 }
             }
         }
-        else if (msgType == TypeRemoteSoundDelay) // 
-        {
-            RemoteSoundDelayData* rsdd = (RemoteSoundDelayData*)rawBuffer;
-            for (const auto& c : clients)
-            {
-                for (const auto& s : c->sounds)
-                {
-                    if (s->ID == rsdd->soundID)
-                    {
-                        s->setDelay(rsdd->startValue, rsdd->endValue, rsdd->stopChannel);
-                        break;
-                    }
-                }
-            }
-        }
-        else if (msgType == TypeRemoteSound) // action and flot value
-        {
-            RemoteSoundData* rsd = (RemoteSoundData*)rawBuffer;
-            for (const auto& c : clients)
-            {
-                for (const auto& s : c->sounds)
-                {
-                    if (s->ID == rsd->soundID)
-                    {
-                        if (rsd->action == (unsigned char)remoteSoundActions::Stop)
-                        {
-                            s->stop();
-                        }
-                        else if (rsd->action == (unsigned char)remoteSoundActions::Start)
-                        {
-                            s->start();
-                        }
-                        else if (rsd->action == (unsigned char)remoteSoundActions::enableLoop)
-                        {
-                            s->loop(true,(int)rsd->value);
-                        }
-                        else if (rsd->action == (unsigned char)remoteSoundActions::disableLoop)
-                        {
-                            s->loop(false, 0);
-                        }
-                        else if (rsd->action == (unsigned char)remoteSoundActions::Volume)
-                        {
-                            s->volume(rsd->value);
-                        }
-                        else if (rsd->action == (unsigned char)remoteSoundActions::Pitch)
-                        {
-                            s->pitch(rsd->value);
-                        }
-                        break;
-                    }
-                }
-            }
-        }
     }
-	eventsystem->update();
+    eventsystem->update();
 }
 
 void mainWindow::watchdog()
@@ -262,28 +209,28 @@ void mainWindow::watchdog()
         engineTorque = 0.0;
         slipValue = 0.0;
 
-		CarRPM->setValue(speedValue);
-		CarLoad->setValue(engineTorque);
-		WheelVelocity->setValue(carSpeed);
-		Wheelslip->setValue(slipValue);
+        CarRPM->setValue(speedValue);
+        CarLoad->setValue(engineTorque);
+        WheelVelocity->setValue(carSpeed);
+        Wheelslip->setValue(slipValue);
     }
     messageReceived = false;
-	eventsystem->update();
+    eventsystem->update();
 }
 
 void mainWindow::startAnlasser()
 {
     anlasser->start();
 }
-void mainWindow::selectClient(QTreeWidgetItem*)
+void mainWindow::selectClient(QTreeWidgetItem *)
 {
 }
 void mainWindow::selectSound(QTreeWidgetItem *item)
 {
     currentSound = nullptr;
-    for (const auto& c : clients)
+    for (const auto &c : clients)
     {
-        for (const auto& s : c->sounds)
+        for (const auto &s : c->sounds)
         {
             if (s->myItem == item)
             {
@@ -304,10 +251,11 @@ void mainWindow::stopHupe()
 
 mainWindow *theWindow;
 
-mainWindow::mainWindow(QWidget* parent) : cacheDir("System.RemoteSound.CacheDir")
+mainWindow::mainWindow(QWidget *parent)
+    : cacheDir("System.RemoteSound.CacheDir")
 {
 
-    //CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+    // CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
     theWindow = this;
     setupUi(this);
     speedSlider->setMaximum(8000);
@@ -339,42 +287,42 @@ mainWindow::mainWindow(QWidget* parent) : cacheDir("System.RemoteSound.CacheDir"
     cacheDirectory->setText(std::string(cacheDir).c_str());
     std::cerr << std::string(cacheDir) << std::endl;
 
-    //clientTable->setFont(smallFont);
+    // clientTable->setFont(smallFont);
     QStringList labels;
     labels << "ID"
-        << "Application"
-        << "User"
-        << "Host"
-        << "IP";
+           << "Application"
+           << "User"
+           << "Host"
+           << "IP";
     clientTable->setHeaderLabels(labels);
     clientTable->setMinimumSize(clientTable->sizeHint());
     clientTable->header()->resizeSections(QHeaderView::ResizeToContents);
-    connect(clientTable, SIGNAL(itemClicked(QTreeWidgetItem*, int)),
-        this, SLOT(selectClient(QTreeWidgetItem*)));
+    connect(clientTable, SIGNAL(itemClicked(QTreeWidgetItem *, int)),
+        this, SLOT(selectClient(QTreeWidgetItem *)));
 
     QStringList soundLabels;
     soundLabels << "ID"
-        << "State"
-        << "Client"
-        << "FileName"
-        << "Volume"
-        << "Pitch";
+                << "State"
+                << "Client"
+                << "FileName"
+                << "Volume"
+                << "Pitch";
     soundTable->setHeaderLabels(soundLabels);
     soundTable->setMinimumSize(soundTable->sizeHint());
     soundTable->header()->resizeSections(QHeaderView::ResizeToContents);
-    connect(soundTable, SIGNAL(itemClicked(QTreeWidgetItem*, int)),
-        this, SLOT(selectSound(QTreeWidgetItem*)));
+    connect(soundTable, SIGNAL(itemClicked(QTreeWidgetItem *, int)),
+        this, SLOT(selectSound(QTreeWidgetItem *)));
     connect(dirBrowser, SIGNAL(clicked(bool)), this, SLOT(onDirBrowser()));
-    connect(cacheDirectory, SIGNAL(textEdited(const QString &)), this, SLOT(onDirChanged(const QString&)));
+    connect(cacheDirectory, SIGNAL(textEdited(const QString &)), this, SLOT(onDirChanged(const QString &)));
 
     UDPPort = covise::coCoviseConfig::getInt("UDPPort", "RemoteSound", 31804);
     udpclient = new UDPComm(UDPPort);
     socketNotifier = new QSocketNotifier(udpclient->getReceiveSocket(), QSocketNotifier::Read);
     QObject::connect(socketNotifier, SIGNAL(activated(int)), this, SLOT(dataReceived(int)));
 
-	QObject::connect(speedSlider, SIGNAL(sliderMoved(int)), this, SLOT(speedChanged(int)));
-	QObject::connect(velocitySlider, SIGNAL(sliderMoved(int)), this, SLOT(velocityChanged(int)));
-	QObject::connect(SlipSlider, SIGNAL(sliderMoved(int)), this, SLOT(slipChanged(int)));
+    QObject::connect(speedSlider, SIGNAL(sliderMoved(int)), this, SLOT(speedChanged(int)));
+    QObject::connect(velocitySlider, SIGNAL(sliderMoved(int)), this, SLOT(velocityChanged(int)));
+    QObject::connect(SlipSlider, SIGNAL(sliderMoved(int)), this, SLOT(slipChanged(int)));
     QObject::connect(anlasserButton, SIGNAL(pressed()), this, SLOT(startAnlasser()));
     QObject::connect(hupeButton, SIGNAL(pressed()), this, SLOT(startHupe()));
     QObject::connect(hupeButton, SIGNAL(released()), this, SLOT(stopHupe()));
@@ -389,12 +337,11 @@ mainWindow::mainWindow(QWidget* parent) : cacheDir("System.RemoteSound.CacheDir"
     connect(watchdogTimer, SIGNAL(timeout()), this, SLOT(watchdog()));
     watchdogTimer->start(2000);
 
-
     TCPPort = covise::coCoviseConfig::getInt("TCPPort", "RemoteSound", 31805);
     show();
     myInstance = this;
 
-    //FMOD
+    // FMOD
     FMOD_RESULT result;
 
     eventsystem = 0;
@@ -407,18 +354,18 @@ mainWindow::mainWindow(QWidget* parent) : cacheDir("System.RemoteSound.CacheDir"
         exit(-1);
     }
 
-    result = eventsystem->initialize(256, FMOD_STUDIO_INIT_NORMAL,FMOD_INIT_NORMAL, 0);
+    result = eventsystem->initialize(256, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, 0);
     if (result != FMOD_OK)
     {
         printf("FMOD error! (%d) \n", result);
         exit(-1);
     }
-	result = eventsystem->getLowLevelSystem(&system);
-	if (result != FMOD_OK)
-	{
-		printf("FMOD error! (%d) \n", result);
-		exit(-1);
-	}
+    result = eventsystem->getLowLevelSystem(&system);
+    if (result != FMOD_OK)
+    {
+        printf("FMOD error! (%d) \n", result);
+        exit(-1);
+    }
 
     hupe = new EventSoundSample("c:\\data\\Porsche\\sounds\\horn.wav");
     hupe->loop(true);
@@ -428,66 +375,65 @@ mainWindow::mainWindow(QWidget* parent) : cacheDir("System.RemoteSound.CacheDir"
     eventSounds.push_back(hupe);
     eventSounds.push_back(anlasser);
 
-	result = eventsystem->loadBankFile("c:\\data\\Porsche\\sounds\\Desktop\\MasterBank.bank", NULL, &MasterBank);
-	if (result != FMOD_OK)
-	{
-		printf("FMOD error! (%d)  couldnot load Master\n", result);
-		exit(-1);
-	}
-	result = eventsystem->loadBankFile("c:\\data\\Porsche\\sounds\\Desktop\\MasterBank.strings.bank", NULL, &MasterStringBank);
-	if (result != FMOD_OK)
-	{
-		printf("FMOD error! (%d)  couldnot load Master strings\n", result);
-		exit(-1);
-	}
-	result = eventsystem->loadBankFile("c:\\data\\Porsche\\sounds\\Desktop\\porsche911.bank", NULL, &porsche911Bank);
-	if (result != FMOD_OK)
-	{
-		printf("FMOD error! (%d) could not load poersche911 bank\n", result);
-		exit(-1);
-	}
-	//FMOD::Studio::EventDescription *array[100];
-/*	int num;
-	porsche911Bank->getEventList(array,100, &num);
-	for (int i = 0; i < num; i++)
-	{
-		char path[1000];
-		int len;
-		array[i]->getPath(path, 1000, &len);
-		fprintf(stderr, "%s\n", path);
-	}*/
+    result = eventsystem->loadBankFile("c:\\data\\Porsche\\sounds\\Desktop\\MasterBank.bank", NULL, &MasterBank);
+    if (result != FMOD_OK)
+    {
+        printf("FMOD error! (%d)  couldnot load Master\n", result);
+        exit(-1);
+    }
+    result = eventsystem->loadBankFile("c:\\data\\Porsche\\sounds\\Desktop\\MasterBank.strings.bank", NULL, &MasterStringBank);
+    if (result != FMOD_OK)
+    {
+        printf("FMOD error! (%d)  couldnot load Master strings\n", result);
+        exit(-1);
+    }
+    result = eventsystem->loadBankFile("c:\\data\\Porsche\\sounds\\Desktop\\porsche911.bank", NULL, &porsche911Bank);
+    if (result != FMOD_OK)
+    {
+        printf("FMOD error! (%d) could not load poersche911 bank\n", result);
+        exit(-1);
+    }
+    // FMOD::Studio::EventDescription *array[100];
+    /*	int num;
+            porsche911Bank->getEventList(array,100, &num);
+            for (int i = 0; i < num; i++)
+            {
+                    char path[1000];
+                    int len;
+                    array[i]->getPath(path, 1000, &len);
+                    fprintf(stderr, "%s\n", path);
+            }*/
 
     if (openServer() < 0)
     {
         return;
     }
 
-	CarEventInstance = NULL;
-	CarEventDescription = NULL;
-	WheelEventInstance = NULL;
-	WheelEventDescription = NULL;
-	result = eventsystem->getEvent("event:/Car/CarEngine", &CarEventDescription);
-	result = eventsystem->getEvent("event:/Car/Wheel", &WheelEventDescription);
+    CarEventInstance = NULL;
+    CarEventDescription = NULL;
+    WheelEventInstance = NULL;
+    WheelEventDescription = NULL;
+    result = eventsystem->getEvent("event:/Car/CarEngine", &CarEventDescription);
+    result = eventsystem->getEvent("event:/Car/Wheel", &WheelEventDescription);
 
-	result = CarEventDescription->createInstance(&CarEventInstance);
-	result = WheelEventDescription->createInstance(&WheelEventInstance);
+    result = CarEventDescription->createInstance(&CarEventInstance);
+    result = WheelEventDescription->createInstance(&WheelEventInstance);
 
-	result = CarEventInstance->getParameter("rpm", &CarRPM);
-	result = CarEventInstance->getParameter("load", &CarLoad);
-	result = WheelEventInstance->getParameter("Velocity", &WheelVelocity); // in m/s 0-100 --> 0 - 360km/h
-	result = WheelEventInstance->getParameter("slip", &Wheelslip);  // 0-1.0
+    result = CarEventInstance->getParameter("rpm", &CarRPM);
+    result = CarEventInstance->getParameter("load", &CarLoad);
+    result = WheelEventInstance->getParameter("Velocity", &WheelVelocity); // in m/s 0-100 --> 0 - 360km/h
+    result = WheelEventInstance->getParameter("slip", &Wheelslip); // 0-1.0
 
-	CarRPM->setValue(0);
-	CarLoad->setValue(1.0);
-	WheelVelocity->setValue(0.0);
-	Wheelslip->setValue(0.0);
+    CarRPM->setValue(0);
+    CarLoad->setValue(1.0);
+    WheelVelocity->setValue(0.0);
+    Wheelslip->setValue(0.0);
 
     result = CarEventInstance->start();
-	result = CarEventInstance->setVolume(1.0);
-	result = WheelEventInstance->start();
-	result = WheelEventInstance->setVolume(1.0);
-	eventsystem->update();
-
+    result = CarEventInstance->setVolume(1.0);
+    result = WheelEventInstance->start();
+    result = WheelEventInstance->setVolume(1.0);
+    eventsystem->update();
 }
 
 //------------------------------------------------------------------------
@@ -502,7 +448,6 @@ void mainWindow::closeServer()
         connections.remove(sConn);
         sConn = NULL;
     }
-
 }
 
 //------------------------------------------------------------------------
@@ -520,7 +465,7 @@ int mainWindow::openServer()
 
     serverSN = new QSocketNotifier(sConn->get_id(NULL), QSocketNotifier::Read);
 
-    //cerr << "listening on port " << port << endl;
+    // cerr << "listening on port " << port << endl;
 // weil unter windows manchmal Messages verloren gehen
 // der SocketNotifier wird nicht oft genug aufgerufen)
 #if defined(_WIN32) || defined(__APPLE__)
@@ -544,8 +489,8 @@ bool mainWindow::serverRunning()
 void mainWindow::processMessages()
 //------------------------------------------------------------------------
 {
-    //qDebug() << "process message called";
-    const covise::Connection* conn;
+    // qDebug() << "process message called";
+    const covise::Connection *conn;
     while ((conn = connections.check_for_input(0.0001f)))
     {
         if (conn == sConn) // connection to server port
@@ -554,8 +499,8 @@ void mainWindow::processMessages()
             struct linger linger;
             linger.l_onoff = 0;
             linger.l_linger = 0;
-            setsockopt(conn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char*)&linger, sizeof(linger));
-            const covise::Connection* clientConn = connections.add(std::move(conn)); //add new connection;
+            setsockopt(conn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
+            const covise::Connection *clientConn = connections.add(std::move(conn)); // add new connection;
             soundClient *sc = new soundClient(clientConn);
             clients.push_back(sc);
         }
@@ -588,7 +533,7 @@ void mainWindow::onDirBrowser()
         soundConfig->save();
     }
 }
-void mainWindow::onDirChanged(const QString& d)
+void mainWindow::onDirChanged(const QString &d)
 {
     QString dirName = cacheDirectory->text();
     if (QDir(dirName).exists())
