@@ -22,12 +22,8 @@
 
 #include "Elevators.h"
 #include "RevitPlugin.h"
+#include <OpenVRUI/sginterface/vruiRendererInterface.h>
 
-
-int ElevatorPart::hit(vrui::vruiHit *hit)
-{
-    return vrui::coAction::Result::ACTION_DONE;
-}
 
 Elevator::Elevator(int id, const char *Name, const std::string &evn)
 {
@@ -37,6 +33,15 @@ Elevator::Elevator(int id, const char *Name, const std::string &evn)
 }
 bool Elevator::update(osg::Vec3 &viewerPosition)
 {
+
+    if ((cabin->isIdle()))
+    {
+        {
+            // tell it to move to next stop
+            cabin->moveToNext();
+        }
+        return false;
+    }
     cabin->update(viewerPosition);
     for (auto &landing : landings)
     {
@@ -47,25 +52,90 @@ bool Elevator::update(osg::Vec3 &viewerPosition)
     }
     return true;
 }
-void ElevatorPart::openDoor()
+
+int ElevatorPart::hit(vrui::vruiHit *hit)
 {
+
+    vruiRendererInterface *renderer = vruiRendererInterface::the();
+    vruiButtons *buttons = hit->isMouseHit()
+        ? renderer->getMouseButtons()
+        : renderer->getButtons();
+
+    if (buttons->wasPressed(vruiButtons::ACTION_BUTTON))
+    {
+        // left Button was pressed
+    }
+    else if (buttons->wasReleased(vruiButtons::ACTION_BUTTON))
+    {
+        // left Button was released
+        elevator->cabin->goTo(levelNumber);
+    }
+
+    return vrui::coAction::Result::ACTION_DONE;
+}
+/// Miss is called once after a hit, if the button is not intersected anymore.
+void ElevatorPart::miss()
+{
+    vruiRendererInterface::the()->miss(this);
+
+}
+
+bool ElevatorPart::isIdle()
+{
+
     for (auto &door : doors)
     {
-        if (door->type == Door)
+        if (door->state != DoorClosed && door->state != Idle)
         {
-            door->doorFraction = 1;
-            osg::Matrix newTrans = door->transformNode->getMatrix();
-            if (door->doorNumber > 0)
-            {
-                newTrans.setTrans(newTrans.getTrans() + osg::Vec3(door->boundingBox.xMax() - door->boundingBox.xMin(), 0, 0));
-            }
-            else
-            {
-                newTrans.setTrans(newTrans.getTrans() + osg::Vec3(door->boundingBox.xMin() - door->boundingBox.xMax(), 0, 0));
-            }
-            door->transformNode->setMatrix(newTrans);
+            return false;
         }
     }
+    return state == Idle;
+}
+
+void ElevatorPart::openDoor()
+    {
+    for (auto &door : doors)
+    {
+        door->state = Opening;
+        door->timeoutStart = cover->frameTime();
+    }
+}
+
+void ElevatorPart::setDestination(int landing)
+{
+    if (landing != currentLanding)
+    {
+        state = Moving;
+
+        startingY = elevator->landings[currentLanding]->elevation;
+
+        destinationY = elevator->landings[landing]->elevation;
+    }
+}
+void ElevatorPart::setTravelDirection(CabinState t)
+{
+    travelDirection = t;
+}
+void ElevatorPart::moveToNext()
+{
+    if (stationList.size() == 0)
+        return; // nowhere to go
+    int landing = *stationList.begin();
+    if (landing > currentLanding)
+    {
+        setTravelDirection(MoveUp);
+    }
+    else if (landing < currentLanding)
+    {
+        setTravelDirection(MoveDown);
+    }
+    else
+    {
+        // we already are at this station, just remove it, this was a duplicate entry
+        stationList.pop_front();
+    }
+    setDestination(landing);
 }
 bool ElevatorPart::update(osg::Vec3& viewerPosition) 
 {
@@ -150,7 +220,10 @@ bool ElevatorPart::update(osg::Vec3& viewerPosition)
         {
             v = 0;
             a = 0;
-            currentLanding = *stationList.begin();
+            if (stationList.size() > 0)
+            {
+                currentLanding = *stationList.begin();
+            }
             arrivedAtDestination();
         }
     }
@@ -172,7 +245,7 @@ bool ElevatorPart::update(osg::Vec3& viewerPosition)
                 doorFraction = 1;
                 state = DoorOpen;
             }
-            float doorPos = doorFraction * openingDistance * doorNumber;
+            float doorPos = doorFraction * openingDistance * (doorNumber+1);
 
             osg::Matrix newTrans = transformNode->getMatrix();
             newTrans.setTrans(initialTranslation + osg::Vec3(doorPos, 0, 0));
@@ -201,7 +274,7 @@ bool ElevatorPart::update(osg::Vec3& viewerPosition)
                 doorFraction = 0;
                 state = DoorClosed;
             }
-            float doorPos = doorFraction * openingDistance * doorNumber;
+            float doorPos = doorFraction * openingDistance * (doorNumber+1);
 
             osg::Matrix newTrans = transformNode->getMatrix();
             newTrans.setTrans(initialTranslation + osg::Vec3(doorPos, 0, 0));
@@ -280,11 +353,11 @@ void Elevator::addPart(const std::string &familyName, const std::string &subType
             }
             if (name == "elevatorSpeed")
             {
-                ep->vMax = d;
+                ep->vMax = d*10;
             }
             else if (name.substr(0,20) == "elevatorAcceleration")
             {
-                ep->aMax = d;
+                ep->aMax = d*10;
             }
             else if (name == "elevatorOpening")
             {
@@ -307,11 +380,11 @@ void Elevator::addPart(const std::string &familyName, const std::string &subType
     else if (subType.substr(0,12) == "elevatorDoor")
     {
         ep->type = ElevatorPart::Door;
+        std::string doorNumber = subType.substr(13, 1);
+        ep->doorNumber = std::stoi(doorNumber);
         if (familyName.substr(0, 5) == "Cabin")
         {
             cabin->doors.push_back(ep);
-            std::string doorNumber = subType.substr(13,1);
-            ep->doorNumber = std::stoi(doorNumber);
             if (subType.substr(16, 4) == "ight")
             {
 
@@ -334,13 +407,13 @@ void Elevator::addPart(const std::string &familyName, const std::string &subType
             if (landing == nullptr)
             {
                 landing = new ElevatorPart(this);
-                landings.push_back(landing);
-                std::sort(landings.begin(), landings.end(),
-                    [](ElevatorPart *const &a, ElevatorPart *const &b)
-                    { return a->elevation > b->elevation; });
                 landing->type = ElevatorPart::Landing;
                 landing->elevation = ep->elevation;
                 landing->levelName = ep->levelName;
+                landings.push_back(landing);
+                std::sort(landings.begin(), landings.end(),
+                    [](ElevatorPart *const &a, ElevatorPart *const &b)
+                    { return a->elevation < b->elevation; });
             }
             landing->doors.push_back(ep);
         }
@@ -362,7 +435,7 @@ void Elevator::addPart(const std::string &familyName, const std::string &subType
                 if (landingPart->elevation == ep->elevation)
                 {
                     ep->buttonLanding = landingPart;
-                    ep->levelNumber = -1;
+                    ep->levelNumber = levelNumber;
                     break;
                 }
                 else
@@ -374,44 +447,57 @@ void Elevator::addPart(const std::string &familyName, const std::string &subType
 
         OSGVruiNode *vNode = new OSGVruiNode(mt);
         vruiIntersection::getIntersectorForAction("coAction")->add(vNode, ep);
+
     }
 }
 
 
 void ElevatorPart::goTo(int landing)
 {
-    stationList.insert(landing);
-    if (currentLanding == landing)
-        arrivedAtDestination();
+    if (landing >= 0 && landing < elevator->landings.size())
+    {
+        stationList.push_back(landing);
+        if (currentLanding == landing && isIdle())
+            arrivedAtDestination();
+    }
 }
 
 
 void ElevatorPart::arrivedAtDestination() // the Cabin arrived at its destination
 {
     timeoutStart = cover->frameTime();
-    state = Opening;
     openDoor();
+
+    if (stationList.size() > 0)
+    {
+        int landing = *stationList.begin();
+        currentLanding = landing;
+    }
+    state = Idle;
 
     if (currentLanding < elevator->landings.size() && elevator->landings[currentLanding] != NULL)
     {
         elevator->landings[currentLanding]->openDoor();
     }
 
-    stationList.erase(currentLanding);
     if (stationList.size() > 0)
     {
-        int Landing = *stationList.begin();
+        stationList.pop_front();
+        if (stationList.size() > 0)
+        {
+            int Landing = *stationList.begin();
 
-        if (Landing != currentLanding) 
-        {
-            if (Landing > currentLanding)
-                travelDirection = MoveUp;
-            else
-                travelDirection = MoveDown;
-        }
-        if (travelDirection != oldTravelDirection)
-        {
-            oldTravelDirection = travelDirection;
+            if (Landing != currentLanding)
+            {
+                if (Landing > currentLanding)
+                    travelDirection = MoveUp;
+                else
+                    travelDirection = MoveDown;
+            }
+            if (travelDirection != oldTravelDirection)
+            {
+                oldTravelDirection = travelDirection;
+            }
         }
     }
 }

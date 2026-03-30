@@ -59,30 +59,35 @@ public:
     ElevatorPart *buttonLanding; // landing this button is for.
     int doorNumber;
     virtual int hit(vrui::vruiHit *hit);
+    virtual void miss();
 
     void goTo(int landing);
-    std::set<int> stationList; // landings this cabin should go to
+    std::list<int> stationList; // landings this cabin should go to
     double timeoutStart;
-    CabinState state;
-    CabinState travelDirection;
-    CabinState oldTravelDirection;
-    int currentLanding;
+    CabinState state = Idle;
+    CabinState travelDirection = MoveUp;
+    CabinState oldTravelDirection = MoveUp;
+    int currentLanding=0;
     float carPos = 0;
     float destinationY = 0;
     float startingY = 0;
     float v = 0;
-    float a;
+    float a = 0;
     double vMax = 5;
     double aMax = 1.2;
     float doorOpenTime = 6;
     float doorFraction = 0; // 0 = closed, 1 = open
     double openingDistance = 10;
+    bool isIdle();
     osg::Vec3 initialTranslation;
     
     void arrivedAtDestination();
     void openDoor();
     void closeDoor();
     bool update(osg::Vec3 &viewerPosition);
+    void moveToNext();
+    void setTravelDirection(enum CabinState t);
+    void setDestination(int Landing);
 };
 
 

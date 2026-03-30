@@ -3407,7 +3407,7 @@ RevitPlugin::checkDoors()
 	osg::Vec3 ViewerPosition = headmat.getTrans();
     for (std::list<Elevator *>::iterator it = elevators.begin(); it != elevators.end(); it++)
 	{
-		(*it)->update(ViewerPosition);
+		needUpdate = (*it)->update(ViewerPosition);
 	}
 	for (std::list<DoorInfo *>::iterator it = doors.begin(); it != doors.end(); it++)
 	{
