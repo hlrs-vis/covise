@@ -660,19 +660,6 @@ Vrml97Plugin::key(int type, int keySym, int mod)
         theCOVER->keyEvent(vrmlType, keyString);
     }
 
-    /*
-    if (vrmlType == VrmlNodeCOVER::Press && (!strcmp(keyString, "Alt-a") || !strcmp(keyString, "Alt-A")))
-    {
-        // reconnect audio server
-        if (!coVRMSController::instance()->isSlave())
-        {
-            if (cover->debugLevel(1))
-                cerr << "Reconnecting to audio server..." << endl;
-            plugin->player->restart();
-        }
-    }
-    */
-
     if (cover->debugLevel(1))
     {
         if (vrmlType == VrmlNodeCOVER::Release)

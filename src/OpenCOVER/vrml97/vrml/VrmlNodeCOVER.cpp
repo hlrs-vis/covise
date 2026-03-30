@@ -92,7 +92,6 @@
 #define PFUDEV_MOD_ALT_MASK 0x3800
 #define PFUDEV_MOD_MASK 0x3ff0
 #endif
-#include "audio/Player.h"
 
 #if defined(_WIN32) || defined(__APPLE__)
 #define KeyPress 1
@@ -108,7 +107,6 @@ VrmlNodeCOVER *theCOVER = NULL;
 }
 
 using namespace vrml;
-using opencover::audio::Player;
 
 void VrmlNodeCOVER::initFields(VrmlNodeCOVER *node, VrmlNodeType *t)
 {
@@ -119,13 +117,6 @@ void VrmlNodeCOVER::initFields(VrmlNodeCOVER *node, VrmlNodeType *t)
             exposedField("orientation" + std::to_string(i + 1), node->d_orientations[i]));
     }
     initFieldsHelper(node, t,
-        exposedField("soundEnvironment", node->d_soundEnvironment, [](auto fieldValue)
-            {
-                Player *player = System::the->getPlayer();
-                if (player)
-                {
-                    player->setEAXEnvironment(theCOVER->d_soundEnvironment.get());
-                } }),
         exposedField("animationTimeStep", node->d_animationTimeStep, [](auto fieldValue)
             { System::the->setTimeStep(theCOVER->d_animationTimeStep.get()); }),
         exposedField("activePerson", node->d_activePerson, [](auto fieldValue)
@@ -162,7 +153,6 @@ VrmlNodeCOVER::VrmlNodeCOVER(VrmlScene *scene)
 {
     assert(!theCOVER);
 
-    d_soundEnvironment.set(26);
     d_animationTimeStep.set(0);
     d_activePerson.set(0);
     d_saveTimestamp.set("");
@@ -226,16 +216,7 @@ void VrmlNodeCOVER::eventIn(double timeStamp,
     const char *eventName,
     const VrmlField *fieldValue)
 {
-    if ((strcmp(eventName, "set_soundEnvironment") == 0) || (strcmp(eventName, "soundEnvironment") == 0))
-    {
-        Player *player = System::the->getPlayer();
-
-        if (player)
-        {
-            player->setEAXEnvironment(d_soundEnvironment.get());
-        }
-    }
-    else if ((strcmp(eventName, "set_animationTimeStep") == 0) || (strcmp(eventName, "animationTimeStep") == 0))
+    if ((strcmp(eventName, "set_animationTimeStep") == 0) || (strcmp(eventName, "animationTimeStep") == 0))
     {
         System::the->setTimeStep(d_animationTimeStep.get());
     }

@@ -27,7 +27,7 @@
 namespace vrml
 {
 
-class VRMLEXPORT VrmlNodeCOVER: public VrmlNodeChild
+class VRMLEXPORT VrmlNodeCOVER : public VrmlNodeChild
 {
 
 public:
@@ -49,11 +49,9 @@ public:
 
     virtual void addToScene(VrmlScene *s, const char *relUrl);
 
-
     virtual void eventIn(double timeStamp,
-                         const char *eventName,
-                         const VrmlField *fieldValue);
-
+        const char *eventName,
+        const VrmlField *fieldValue);
 
     // process key events
     void keyEvent(enum KeyEventType type, const char *keyModString);
@@ -68,7 +66,6 @@ private:
     VrmlSFString d_keyReleased;
     VrmlSFString d_localKeyPressed;
     VrmlSFString d_localKeyReleased;
-    VrmlSFInt d_soundEnvironment;
     VrmlSFInt d_animationTimeStep;
     VrmlSFInt d_activePerson;
     VrmlSFVec3f d_avatar1Position;
@@ -77,18 +74,18 @@ private:
     VrmlSFRotation d_localOrientation;
     VrmlSFVec3f d_localViewerPosition;
     VrmlSFRotation d_localViewerOrientation;
-    
+
     static const int NUM_POSITIONS = 15;
     std::array<VrmlSFVec3f, NUM_POSITIONS> d_positions;
     std::array<VrmlSFRotation, NUM_POSITIONS> d_orientations;
-   
+
     VrmlSFString d_saveTimestamp;
     VrmlSFString d_loadPlugin;
 };
 
 extern VRMLEXPORT VrmlNodeCOVER *theCOVER;
 
-template<>
+template <>
 inline VrmlNode *VrmlNode::creator<VrmlNodeCOVER>(vrml::VrmlScene *scene)
 {
     if (theCOVER == NULL)
