@@ -27,6 +27,8 @@
 #include <config/CoviseConfig.h>
 #include <util/byteswap.h>
 #include <net/covise_connect.h>
+#include <audio/Audio.h>
+#include <audio/Player.h>
 
 #include <initialization/FGTrim.h>
 #include <FGFDMExec.h>
@@ -45,8 +47,6 @@
 #include <vrml97/vrml/VrmlNodeChild.h>
 #include <vrml97/vrml/VrmlSFFloat.h>
 #include <vrml97/vrml/VrmlSFVec3f.h>
-
-#include <rsClient/remoteSoundClient.h>
 
 class UDPComm;
 
@@ -94,7 +94,6 @@ private:
     ui::EditField *tS;
     ui::SelectionList *planeType;
     std::unique_ptr<config::Array<std::string>> aircrafts;
-    remoteSound::Client *rsClient;
     void initAircraft();
 
     Joystick *joystickDev = nullptr;
@@ -201,14 +200,14 @@ private:
     float currentTurbulence;
     osg::Vec3 targetVelocity;
     float targetTurbulence;
-    remoteSound::Sound *engineSound;
-    remoteSound::Sound *varioSound;
-    remoteSound::Sound *windSound;
-    std::string remoteSoundServer;
-    int remoteSoundPort;
-    std::string EngineSound;
-    std::string VarioSound;
-    std::string WindSound;
+
+    audio::Audio engineAudio;
+    audio::Audio varioAudio;
+    audio::Audio windAudio;
+    audio::Player::Source *engineSource;
+    audio::Player::Source *varioSource;
+    audio::Player::Source *windSource;
+
     std::string host;
     unsigned short serverPort;
     unsigned short localPort;

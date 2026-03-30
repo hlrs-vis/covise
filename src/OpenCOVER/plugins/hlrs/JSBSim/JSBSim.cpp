@@ -53,42 +53,24 @@ JSBSimPlugin::JSBSimPlugin()
     fprintf(stderr, "JSBSimPlugin::JSBSimPlugin\n");
     geometryTrans = new osg::MatrixTransform();
 
-    if (coVRMSController::instance()->isMaster())
+    audio::Player *player = cover->getPlayer();
+    if (coVRMSController::instance()->isMaster() && player)
     {
+        engineAudio.setURL(coVRFileManager::instance()->getName("share/covise/jsbsim/Sounds/engine.wav"));
+        varioAudio.setURL(coVRFileManager::instance()->getName("share/covise/jsbsim/Sounds/vario.wav"));
+        windAudio.setURL(coVRFileManager::instance()->getName("share/covise/jsbsim/Sounds/wind1.wav"));
 
-        remoteSoundServer = configString("Sound", "server", "localhost")->value();
-        remoteSoundPort = configInt("Sound", "port", 31805)->value();
+        engineSource = player->newSource(&engineAudio);
+        varioSource = player->newSource(&varioAudio);
+        windSource = player->newSource(&windAudio);
 
-        const char *ES = coVRFileManager::instance()->getName("share/covise/jsbsim/Sounds/engine.wav");
-        if (ES == nullptr)
-            ES = "";
-        EngineSound = configString("Sound", "engine", ES)->value();
-        const char *VS = coVRFileManager::instance()->getName("share/covise/jsbsim/Sounds/vario.wav");
-        if (VS == nullptr)
-            VS = "";
-        VarioSound = configString("Sound", "vario", VS)->value();
-        const char *WS = coVRFileManager::instance()->getName("share/covise/jsbsim/Sounds/wind1.wav");
-        if (WS == nullptr)
-            WS = "";
-        WindSound = configString("Sound", "wind", WS)->value();
-#if defined(_MSC_VER)
-        // _clearfp();
-        // _controlfp(_controlfp(0, 0) & ~(_EM_INVALID | _EM_ZERODIVIDE | _EM_OVERFLOW),
-        //     _MCW_EM);
-#elif defined(__GNUC__) && !defined(sgi) && !defined(__APPLE__)
-        // feenableexcept(FE_DIVBYZERO | FE_INVALID);
-#endif
+        engineSource->setLoop(true);
+        varioSource->setLoop(true);
+        windSource->setLoop(true);
 
-        rsClient = new remoteSound::Client(remoteSoundServer, remoteSoundPort, "JSBSim");
-        engineSound = rsClient->getSound(EngineSound);
-        varioSound = rsClient->getSound(VarioSound);
-        windSound = rsClient->getSound(WindSound);
-        engineSound->setLoop(true, -1);
-        varioSound->setLoop(true, -1);
-        windSound->setLoop(true, -1);
-        varioSound->play();
-        engineSound->play();
-        windSound->play();
+        varioSource->play();
+        engineSource->play();
+        windSource->play();
     }
     plugin = this;
     udp = 0;
@@ -173,7 +155,6 @@ JSBSimPlugin::~JSBSimPlugin()
         delete resetButton;
         delete upButton;
         delete JSBMenu;
-        delete rsClient;
     }
 }
 
@@ -757,7 +738,6 @@ bool JSBSimPlugin::update()
 
         updateUdp();
         // std::cout << "Entered coVRMSController::instance()_>isMAster()" << std::endl;
-        rsClient->update();
     }
 
     if (isEnabled())
@@ -933,17 +913,17 @@ bool JSBSimPlugin::update()
                         if (pitch > 1)
                             pitch = 1;
                         pitch = 0.8 + (pitch + 1.0) * 0.3;
-                        varioSound->setPitch(pitch);
-                        windSound->setVolume(1.0);
-                        engineSound->setVolume(1.0);
-                        engineSound->setPitch(1.0);
+                        varioSource->setPitch(pitch);
+                        windSource->setIntensity(1.0);
+                        engineSource->setIntensity(1.0);
+                        engineSource->setPitch(1.0);
 
                         float vol = (fabs((pitch - 1.0)) * 5.0) - 0.2;
                         if (vol > 1.0)
                             vol = 1.0;
                         if (vol < 0.0)
                             vol = 0.0;
-                        varioSound->setVolume(vol);
+                        varioSource->setIntensity(vol);
                         if (vol > 1.0)
                             vol = 1.0;
 
@@ -999,15 +979,15 @@ void JSBSimPlugin::setEnabled(bool flag)
         if (flag)
         {
             reset();
-            varioSound->play();
-            windSound->play();
-            engineSound->play();
+            varioSource->play();
+            windSource->play();
+            engineSource->play();
         }
         else
         {
-            varioSound->stop();
-            windSound->stop();
-            engineSound->stop();
+            varioSource->stop();
+            windSource->stop();
+            engineSource->stop();
         }
         if (udp)
         {

@@ -1,0 +1,5 @@
+The sound file at engine.wav has been sourced from Pixabay [0] and is covered
+by the Pixabay content license [1].
+
+[0]: https://pixabay.com/sound-effects/city-prop-plane-14513/
+[1]: https://pixabay.com/service/license-summary/
