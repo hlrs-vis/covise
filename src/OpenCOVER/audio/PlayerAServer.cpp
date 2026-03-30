@@ -151,20 +151,6 @@ void PlayerAServer::connect()
 
 PlayerAServer::~PlayerAServer()
 {
-    // CERR << "destruction of " << sources.size() << " sources" << endl;
-
-    // these would be deleted in the Player destructor, too,
-    // but then the asSocket is already closed
-    for (std::vector<Player::Source *>::iterator it = sources.begin();
-        it != sources.end(); it++)
-    {
-        delete *it;
-        *it = 0;
-    }
-    sources.resize(0);
-
-    // send_cmd("QUIT");
-
     if (asFd != -1)
 #ifdef WIN32
         closesocket(asFd);
@@ -355,38 +341,6 @@ int PlayerAServer::read_answer(char *buf, int maxsize) const
     return -1;
 }
 
-void PlayerAServer::restart()
-{
-    for (unsigned i = 0; i < sources.size(); i++)
-    {
-        if (sources[i])
-        {
-            sources[i]->stopForRestart();
-        }
-    }
-
-    if (asFd != -1)
-    {
-        send_cmd("QUIT");
-#ifdef WIN32
-        closesocket(asFd);
-#else
-        close(asFd);
-#endif
-        asFd = -1;
-    }
-
-    connect();
-
-    for (unsigned i = 0; i < sources.size(); i++)
-    {
-        if (sources[i])
-        {
-            sources[i]->restart();
-        }
-    }
-}
-
 PlayerAServer::Source::Source(const Audio *audio, PlayerAServer *player)
     : Player::Source(audio)
     , asHandle(-1)
@@ -544,39 +498,6 @@ void PlayerAServer::Source::stop()
     }
 }
 
-void PlayerAServer::Source::stopForRestart()
-{
-    Player::Source::stop();
-
-    if (asHandle >= 0)
-    {
-        char msg[MAX_BUFLEN];
-        snprintf(msg, sizeof(msg), "STOP %d", asHandle);
-        player->send_cmd(msg);
-
-        snprintf(msg, sizeof(msg), "RHDL %d", asHandle);
-        player->send_cmd(msg);
-    }
-}
-
-void PlayerAServer::Source::restart()
-{
-    loadAudio(audio);
-}
-
-void PlayerAServer::update()
-{
-    Player::update();
-
-    for (unsigned i = 0; i < sources.size(); i++)
-    {
-        if (sources[i])
-        {
-            sources[i]->update(this);
-        }
-    }
-}
-
 int PlayerAServer::Source::update(const Player *genericPlayer, char *buf, int bufsize)
 {
     Player::Source::update(genericPlayer, buf, bufsize);
@@ -658,20 +579,5 @@ void PlayerAServer::Source::setLoop(bool loop)
 Player::Source *
 PlayerAServer::newSource(const Audio *audio)
 {
-    Source *src = new Source(audio, this);
-    int handle = addSource(src);
-    if (-1 == handle)
-    {
-        delete src;
-        src = 0;
-    }
-
-    return src;
-}
-
-void PlayerAServer::setEAXEnvironment(int env)
-{
-    char msg[MAX_BUFLEN];
-    snprintf(msg, sizeof(msg), "SEEN %d", env);
-    send_cmd(msg);
+    return new Source(audio, this);
 }

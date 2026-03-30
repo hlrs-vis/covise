@@ -28,7 +28,6 @@ class COVEREXPORT PlayerOpenAL : public Player
 {
 public:
     PlayerOpenAL(const Listener *listener);
-    virtual void setSpeedOfSound(float speed);
     virtual void update();
 
     virtual Player::Source *newSource(const Audio *audio);
@@ -40,7 +39,6 @@ protected:
         Source(const Audio *audio);
         virtual ~Source();
 
-        virtual void setMute(bool mute);
         virtual void setLoop(bool loop);
         virtual void setPitch(float pitch);
         virtual void setSpatialize(bool spatialize);

@@ -21,15 +21,10 @@ public:
     PlayerAServer(const Listener *listener, const std::string &host, int port);
     virtual ~PlayerAServer();
     virtual Player::Source *newSource(const Audio *audio);
-    virtual void setEAXEnvironment(int environment);
-
-    virtual void update();
 
     virtual int send_cmd(const char *cmd) const;
     virtual int send_data(const char *data, int size, bool swapped = false) const;
     virtual int read_answer(char *buf, int maxsize) const;
-
-    virtual void restart();
 
 protected:
     void connect();
@@ -42,10 +37,7 @@ protected:
         virtual void play(double start);
         virtual void play();
         virtual void stop();
-        virtual void stopForRestart();
-        virtual void restart();
 
-        // virtual void setMute(bool mute);
         virtual void setLoop(bool loop);
 
         virtual int update(const Player *player, char *buf = 0, int numFrames = 0);

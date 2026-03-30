@@ -44,8 +44,6 @@ public:
      */
     void transmitConfiguration();
 
-    virtual void update();
-
 protected:
     void write(const char *buf, size_t len);
 
@@ -58,9 +56,6 @@ protected:
         virtual void play(double start);
         virtual void play();
         virtual void stop();
-        virtual void restart();
-
-        // virtual void setMute(bool mute);
         virtual void setLoop(bool loop);
 
         virtual int update(const Player *player, char *buf = 0, int numFrames = 0);

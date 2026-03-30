@@ -31,13 +31,11 @@ public:
 
     public:
         Source(const Audio *audio);
-        virtual ~Source();
         virtual void setPitch(float pitch);
         virtual void setIntensity(float intensity);
         virtual void setStart(double start);
         virtual void setStop(double stop);
-        virtual void setMute(bool mute);
-        virtual void setLoop(bool mute);
+        virtual void setLoop(bool loop);
         virtual void setSpatialize(bool spatialize);
         virtual void setPosition(float x, float y, float z);
         virtual void setVelocity(float vx, float vy, float vz);
@@ -58,41 +56,28 @@ public:
 
     protected:
         const Audio *audio;
-        float pitch;
-        float intensity;
-        float startTime, stopTime;
-        bool mute, loop, spatialize, playing;
-        glm::vec3 x;
-        glm::vec3 v;
-        Player *player;
-        int handle;
+        float pitch = 1.f;
+        float intensity = 0.f;
+        float startTime = 0.f;
+        float stopTime = 0.f;
+        bool loop = false;
+        bool spatialize = true;
+        bool playing = false;
+        glm::vec3 x = glm::vec3(0, 0, 0);
+        glm::vec3 v = glm::vec3(0, 0, 0);
     };
 
     Player(const Listener *listener);
-    virtual ~Player() = 0;
 
-    virtual void update() { }
-
-    // mm/second
-    virtual void setSpeedOfSound(float speed = 343000.0);
-    virtual void setEAXEnvironment(int /*environment*/) { }
+    virtual void update();
 
     // Source related
     virtual Source *newSource(const Audio *);
-    virtual void removeSource(int handle);
-
-    virtual void restart() { };
 
     static Player *createPlayer(Listener *listener, const std::string &type);
 
 protected:
-    virtual int checkHandle(int handle) const;
     const Listener *listener;
-    float speedOfSound;
-    unsigned numSources;
-
-    std::vector<Source *> sources;
-    virtual int addSource(Source *src);
 };
 } // namespace
 #endif

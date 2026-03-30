@@ -137,21 +137,6 @@ void PlayerOsc::Source::stop()
     // WRITE_MESSAGE("/source/%s/stop", uuid.c_str());
 }
 
-void PlayerOsc::Source::restart() { setAudio(audio); }
-
-void PlayerOsc::update()
-{
-    Player::update();
-
-    for (unsigned i = 0; i < sources.size(); i++)
-    {
-        if (sources[i])
-        {
-            sources[i]->update(this);
-        }
-    }
-}
-
 int PlayerOsc::Source::update(const Player *genericPlayer, char *buf, int bufsize)
 {
     Player::Source::update(genericPlayer, buf, bufsize);
@@ -181,13 +166,5 @@ void PlayerOsc::Source::setLoop(bool loop)
 
 Player::Source *PlayerOsc::newSource(const Audio *audio)
 {
-    Source *src = new Source(audio, this);
-    int handle = addSource(src);
-    if (-1 == handle)
-    {
-        delete src;
-        src = 0;
-    }
-
-    return src;
+    return new Source(audio, this);
 }

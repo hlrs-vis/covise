@@ -30,14 +30,7 @@ PlayerOpenAL::PlayerOpenAL(const Listener *listener)
     : Player(listener)
 {
     alDistanceModel(AL_NONE);
-    alDopplerVelocity(speedOfSound);
-}
-
-void PlayerOpenAL::setSpeedOfSound(float speed)
-{
-    Player::setSpeedOfSound(speed);
-
-    alDopplerVelocity(speed);
+    alDopplerVelocity(343000); // everything is in millimeters :(
 }
 
 void PlayerOpenAL::update()
@@ -72,15 +65,7 @@ void PlayerOpenAL::update()
 Player::Source *
 PlayerOpenAL::newSource(const Audio *audio)
 {
-    Source *src = new Source(audio);
-    int handle = addSource(src);
-    if (-1 == handle)
-    {
-        delete src;
-        src = 0;
-    }
-
-    return src;
+    return new Source(audio);
 }
 
 PlayerOpenAL::Source::Source(const Audio *audio)
@@ -134,20 +119,6 @@ void PlayerOpenAL::Source::setPitch(float pitch)
     Player::Source::setPitch(pitch);
 
     alSourcef(alSource, AL_PITCH, pitch);
-}
-
-void PlayerOpenAL::Source::setMute(bool mute)
-{
-    Player::Source::setMute(mute);
-
-    if (mute)
-    {
-        alSourcef(alSource, AL_GAIN, 0.0);
-    }
-    else
-    {
-        alSourcef(alSource, AL_GAIN, intensity);
-    }
 }
 
 void PlayerOpenAL::Source::setSpatialize(bool spatialize)
