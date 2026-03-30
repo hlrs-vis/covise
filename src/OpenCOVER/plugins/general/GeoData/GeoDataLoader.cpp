@@ -711,6 +711,9 @@ void GeoDataLoader::setSky(int selection)
                     osg::StateSet* stateset = TexturedSphere->getOrCreateStateSet();
                     stateset->setTextureAttributeAndModes(0, sky.skyTexture, osg::StateAttribute::ON);
 
+                    coVRShader *shader = coVRShaderList::instance()->get("skySphere");
+                    shader->apply(stateset);
+
                     osg::Matrixd tMat;
                     tMat.makeIdentity();
                     tMat(0, 0) = -1.0;
