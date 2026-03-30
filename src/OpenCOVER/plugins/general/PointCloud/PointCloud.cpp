@@ -846,6 +846,10 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
                 if (scanHeader.pointFields.cartesianXField)
                 {
                     xData = new double[nSize];
+                } else
+                {
+                    std::cerr << "Error: no cartesian X data in scan " << scanIndex << std::endl;
+                    continue;
                 }
                 double * yData = NULL;
                 if (scanHeader.pointFields.cartesianYField)
