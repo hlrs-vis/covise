@@ -18,16 +18,13 @@
 #include <cover/ui/Label.h>
 #include <cover/ui/EditField.h>
 #include <cover/ui/Owner.h>
-#include <proj_api.h>
+#include <proj.h>
 #include <gdal_priv.h>
 #include <xercesc/dom/DOM.hpp>
-
-
 
 #include "File.h"
 #include "PointSensor.h"
 #include "GPSPoint.h"
-
 
 using namespace opencover;
 using namespace covise;
@@ -39,18 +36,16 @@ class coVRLabel;
 class GPSPoint;
 class Track;
 
-
-
 class GPSPlugin : public opencover::coVRPlugin, public ui::Owner
 {
 public:
     GPSPlugin();
     ~GPSPlugin();
-    static GPSPlugin *instance(){return plugin;};
+    static GPSPlugin *instance() { return plugin; };
 
     float getAlt(double x, double y);
     void addFile(File *f);
-    bool checkBounds (double x, double y);
+    bool checkBounds(double x, double y);
 
     static int SloadGPX(const char *filename, osg::Group *parent, const char *);
     static int SunloadGPX(const char *filename, const char *);
@@ -69,8 +64,8 @@ public:
     ui::Button *ToggleFoto = nullptr;
     ui::Button *ToggleSprachaufnahme = nullptr;
     ui::Button *ToggleBarriere = nullptr;
-    ui::Slider *TrackSizeSlider=nullptr;
-    ui::Slider *PointSizeSlider=nullptr;
+    ui::Slider *TrackSizeSlider = nullptr;
+    ui::Slider *PointSizeSlider = nullptr;
 
     osg::ref_ptr<osg::Group> OSGGPSPlugin;
 
@@ -85,12 +80,11 @@ public:
     osg::ref_ptr<osg::Image> textbackground;
 
     coVRLabel *Label;
-    float zOffset=1.0;
+    float zOffset = 1.0;
 
+    std::string dir; // Coordinates
+    PJ *projection; // Coordinates
 
-    std::string dir;//Coordinates
-    projPJ pj_from, pj_to;//Coordinates
-    
 private:
     static GPSPlugin *plugin;
     bool update();
@@ -102,22 +96,20 @@ private:
     void GPSTab_create();
     void GPSTab_delete();
     void toggleButtonStatus(bool status);
-    std::list<File*> fileList;
+    std::list<File *> fileList;
     std::list<ui::Button *> ButtonList;
     bool detailView = true;
     bool showPoints = true;
 
-    float *rasterData=NULL;
+    float *rasterData = NULL;
     double xOrigin; // origin of the height map
     double yOrigin;
     double pixelWidth; // size of each pixel
     double pixelHeight;
     int cols; // number of pixel rows and columns
     int rows;
-    GDALDataset  *heightDataset;
-    GDALRasterBand  *heightBand;
-
-
+    GDALDataset *heightDataset;
+    GDALRasterBand *heightBand;
 };
 
 #endif

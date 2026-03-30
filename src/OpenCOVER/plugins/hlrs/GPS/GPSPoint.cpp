@@ -8,8 +8,6 @@
 #include "GPSPoint.h"
 #include "GPS.h"
 
-#include <vrml97/vrml/VrmlNodeAudioClip.h>
-
 #include <cover/coBillboard.h>
 #include <cover/coVRLabel.h>
 #include <osg/Material>
@@ -29,11 +27,11 @@
 #include <osg/AlphaFunc>
 #include <cover/coVRFileManager.h>
 #include <cover/coVRConfig.h>
-
+#include <cover/coVRPluginSupport.h>
 
 #include <OpenVRUI/coNavInteraction.h>
 
-#include <proj_api.h>
+#include <proj.h>
 #include <chrono>
 #include <iostream>
 
@@ -48,12 +46,13 @@
 #include <xercesc/parsers/XercesDOMParser.hpp>
 
 using namespace vrui;
-using namespace vrml;
+
+#define DEG_TO_RAD .017453292519943296
+
 namespace opencover
 {
 class coVRLabel;
 }
-
 
 GPSPoint::~GPSPoint()
 {
@@ -73,7 +72,7 @@ GPSPoint::GPSPoint(std::string path)
     source = nullptr;
 
     osg::Matrix m;
-    m.makeScale(osg::Vec3(1,1,1));
+    m.makeScale(osg::Vec3(1, 1, 1));
     geoScale->setMatrix(m);
 
     switchSphere = new osg::Switch();
@@ -87,7 +86,6 @@ GPSPoint::GPSPoint(std::string path)
     geoScale->addChild(Point);
     Point->addChild(switchSphere);
     Point->addChild(switchDetail);
-
 }
 void GPSPoint::setIndex(int i)
 {
@@ -96,21 +94,23 @@ void GPSPoint::setIndex(int i)
     geoScale->setName("Scale " + std::to_string(i) + ".");
 }
 
-void GPSPoint::readFile (xercesc::DOMElement *node)
+void GPSPoint::readFile(xercesc::DOMElement *node)
 {
     double x;
     double y;
-    //double t;
+    // double t;
     std::string typetext;
     XMLCh *t1 = NULL;
 
-    char *lon = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("lon"))); xercesc::XMLString::release(&t1);
-    char *lat = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("lat"))); xercesc::XMLString::release(&t1);
+    char *lon = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("lon")));
+    xercesc::XMLString::release(&t1);
+    char *lat = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("lat")));
+    xercesc::XMLString::release(&t1);
 
     sscanf(lon, "%lf", &x);
     sscanf(lat, "%lf", &y);
 
-    for (xercesc::DOMNode *currentContentNode = node->getFirstChild() ; currentContentNode != NULL; currentContentNode = currentContentNode->getNextSibling())
+    for (xercesc::DOMNode *currentContentNode = node->getFirstChild(); currentContentNode != NULL; currentContentNode = currentContentNode->getNextSibling())
     {
         xercesc::DOMElement *nodeContent = dynamic_cast<xercesc::DOMElement *>(currentContentNode);
         if (!nodeContent)
@@ -119,27 +119,27 @@ void GPSPoint::readFile (xercesc::DOMElement *node)
         std::string nodeContentName = tmp;
         xercesc::XMLString::release(&tmp);
 
-        //else if(nodeContentName == "time")
+        // else if(nodeContentName == "time")
         //{
-        //    char *time = xercesc::XMLString::transcode(nodeContent->getTextContent());
-        //    //fprintf(stderr, "read from file:   time: %s\n",time);
-        //    sscanf(time, "%lf", &t);
-        //    xercesc::XMLString::release(&time);
-        //}
-        if(nodeContentName == "name")
+        //     char *time = xercesc::XMLString::transcode(nodeContent->getTextContent());
+        //     //fprintf(stderr, "read from file:   time: %s\n",time);
+        //     sscanf(time, "%lf", &t);
+        //     xercesc::XMLString::release(&time);
+        // }
+        if (nodeContentName == "name")
         {
             char *name = xercesc::XMLString::transcode(nodeContent->getTextContent());
-            //fprintf(stderr, "read from file:   name: %s\n",name);
+            // fprintf(stderr, "read from file:   name: %s\n",name);
             typetext = name;
-            if(typetext.empty())
+            if (typetext.empty())
             {
                 typetext = "NO MESSAGE";
             }
             xercesc::XMLString::release(&name);
         }
-        else if(nodeContentName == "link")
+        else if (nodeContentName == "link")
         {
-            for (xercesc::DOMNode *currentExtensionNode = nodeContent->getFirstChild() ; currentExtensionNode != NULL; currentExtensionNode = currentExtensionNode->getNextSibling())
+            for (xercesc::DOMNode *currentExtensionNode = nodeContent->getFirstChild(); currentExtensionNode != NULL; currentExtensionNode = currentExtensionNode->getNextSibling())
             {
                 xercesc::DOMElement *extensionNode = dynamic_cast<xercesc::DOMElement *>(currentExtensionNode);
                 if (!extensionNode)
@@ -147,26 +147,27 @@ void GPSPoint::readFile (xercesc::DOMElement *node)
                 char *tmp = xercesc::XMLString::transcode(extensionNode->getNodeName());
                 std::string extensionNodeName = tmp;
                 xercesc::XMLString::release(&tmp);
-                if(extensionNodeName == "text")
+                if (extensionNodeName == "text")
                 {
                     char *linktext = xercesc::XMLString::transcode(extensionNode->getTextContent());
-                    fprintf(stderr, "name of related file: %s\n",linktext);
+                    fprintf(stderr, "name of related file: %s\n", linktext);
                     filename = linktext;
-                    if(typetext.empty())
+                    if (typetext.empty())
                     {
                         fprintf(stderr, "Error: no related file\n");
                     }
                     xercesc::XMLString::release(&linktext);
                 }
-                else {
-                    fprintf(stderr, "unknown extension node named: %s\n",nodeContentName.c_str() );
+                else
+                {
+                    fprintf(stderr, "unknown extension node named: %s\n", nodeContentName.c_str());
                 }
             }
         }
-        else {
-            fprintf(stderr, "unknown content node named: %s\n",nodeContentName.c_str() );
+        else
+        {
+            fprintf(stderr, "unknown content node named: %s\n", nodeContentName.c_str());
         }
-
     }
     this->setPointData(x, y, typetext);
 
@@ -174,87 +175,86 @@ void GPSPoint::readFile (xercesc::DOMElement *node)
     xercesc::XMLString::release(&lon);
 }
 
-void GPSPoint::setPointData (double x, double y, std::string &name)
+void GPSPoint::setPointData(double x, double y, std::string &name)
 {
-    if( GPSPlugin::instance()->checkBounds(x,y) )
+    inBound = GPSPlugin::instance()->checkBounds(x, y);
+
+    if (!inBound)
     {
-        inBound = true;
-        altitude = GPSPlugin::instance()->getAlt(x,y);
-        x *= DEG_TO_RAD;
-        y *= DEG_TO_RAD;
-        longitude = x;
-        latitude = y;
+        return;
+    }
 
-        int error = pj_transform(GPSPlugin::instance()->pj_from, GPSPlugin::instance()->pj_to, 1, 1, &longitude, &latitude, NULL);
+    altitude = GPSPlugin::instance()->getAlt(x, y);
+    longitude = x * DEG_TO_RAD;
+    latitude = y * DEG_TO_RAD;
 
-        osg::Matrix m;
-        m.makeTranslate(osg::Vec3(longitude,latitude,altitude));
-        geoTrans->setMatrix(m);
+    double z = GPSPlugin::instance()->getAlt(x, y) + GPSPlugin::instance()->zOffset;
+    PJ_COORD c, c2;
+    c.lpzt.lam = longitude;
+    c.lpzt.phi = latitude;
+    c.lpzt.z = altitude;
+    c.lpzt.t = HUGE_VAL;
 
+    c2 = proj_trans(GPSPlugin::instance()->projection, PJ_FWD, c);
 
-        if(error !=0 )
-        {
-            fprintf(stderr, "------ \nError transforming coordinates, code %d \n", error);
-            fprintf (stderr, "%s \n ------ \n", pj_strerrno (error));
-        }
+    osg::Matrix m;
+    m.makeTranslate(osg::Vec3(c2.xy.x, c2.xy.y, altitude));
+    geoTrans->setMatrix(m);
 
-        if(name.empty())
-        {
-            fprintf(stderr, "Error: unidentified GPSPoint\n");
-        }
-        else if(name == "Good")
-        {
-            PT = Good;
-        }
-        else if(name == "Medium")
-        {
-            PT = Medium;
-        }
-        else if(name == "Bad")
-        {
-            PT = Bad;
-        }
-        else if(name == "Angst")
-        {
-            PT = Angst;
-        }
-        else if(name == "Foto")
-        {
-            PT = Foto;
-            mySensor = new PointSensor(this, Point);
-        }
-        else if(name == "Sprachaufnahme")
-        {
-            PT = Sprachaufnahme;
-            mySensor = new PointSensor(this, Point);
-        }
-        else if(name == "Barriere")
-        {
-            PT = Barriere;
-        }
-        else if(name == "Fussgaenger" || name == "Fahrrad" || name == "Öpnv" || name == "Miv")
-        {
-            PT = OtherChoice;
-        }
-        else {
-            PT = Text;
-            text = name;
-            mySensor = new PointSensor(this, Point);
-        }
-        Point->setName(Point->getName() + " " + name);
-        geoTrans->setName(geoTrans->getName() + " " + name);
+    if (name.empty())
+    {
+        fprintf(stderr, "Error: unidentified GPSPoint\n");
+    }
+    else if (name == "Good")
+    {
+        PT = Good;
+    }
+    else if (name == "Medium")
+    {
+        PT = Medium;
+    }
+    else if (name == "Bad")
+    {
+        PT = Bad;
+    }
+    else if (name == "Angst")
+    {
+        PT = Angst;
+    }
+    else if (name == "Foto")
+    {
+        PT = Foto;
+        mySensor = new PointSensor(this, Point);
+    }
+    else if (name == "Sprachaufnahme")
+    {
+        PT = Sprachaufnahme;
+        mySensor = new PointSensor(this, Point);
+    }
+    else if (name == "Barriere")
+    {
+        PT = Barriere;
+    }
+    else if (name == "Fussgaenger" || name == "Fahrrad" || name == "Öpnv" || name == "Miv")
+    {
+        PT = OtherChoice;
     }
     else
     {
-        inBound = false;
+        PT = Text;
+        text = name;
+        mySensor = new PointSensor(this, Point);
     }
+    Point->setName(Point->getName() + " " + name);
+    geoTrans->setName(geoTrans->getName() + " " + name);
 }
 void GPSPoint::draw()
 {
     osg::Vec4 *color = new osg::Vec4();
     std::string name;
 
-    switch (PT){
+    switch (PT)
+    {
     case Good:
         *color = osg::Vec4(0.0f, 1.0f, 0.0f, 1.0f);
         createSphere(color);
@@ -299,21 +299,19 @@ void GPSPoint::draw()
     case OtherChoice:
         std::cerr << "GPSPoint::draw: no sign for this choice" << std::endl;
         break;
-        
     }
-
 }
 
 void GPSPoint::update()
 {
-    if(mySensor)
-       mySensor->update();
+    if (mySensor)
+        mySensor->update();
 }
 void GPSPoint::createSphere(osg::Vec4 *colVec)
 {
     float Radius = 5.0f;
 
-    sphere = new osg::Sphere(osg::Vec3(0, 0 , Radius), Radius);
+    sphere = new osg::Sphere(osg::Vec3(0, 0, Radius), Radius);
 
     osg::ref_ptr<osg::Material> material_sphere = new osg::Material();
     material_sphere->setDiffuse(osg::Material::FRONT_AND_BACK, *colVec);
@@ -328,16 +326,13 @@ void GPSPoint::createSphere(osg::Vec4 *colVec)
     PointSphere = new osg::Geode();
     PointSphere->addDrawable(sphereD);
     switchSphere->addChild(PointSphere);
-
 }
-
-
 
 void GPSPoint::createBillboard()
 {
     BBoard = new coBillboard();
-    BBoard->setNormal(osg::Vec3(0,-1,0));
-    BBoard->setAxis(osg::Vec3(0,0,1));
+    BBoard->setNormal(osg::Vec3(0, -1, 0));
+    BBoard->setAxis(osg::Vec3(0, 0, 1));
     BBoard->setMode(coBillboard::AXIAL_ROT);
 
     switchDetail->addChild(BBoard);
@@ -395,14 +390,14 @@ void GPSPoint::createSign(osg::Image *img)
     float pr = 0.03;
     float height = 2.5;
     osg::Vec3 v[12];
-    v[0].set(-hsize / 2.0, 0, 0 +height);
-    v[1].set(hsize / 2.0, 0, 0 +height);
-    v[2].set(hsize / 2.0, 0, vsize +height);
-    v[3].set(-hsize / 2.0, 0, vsize +height);
+    v[0].set(-hsize / 2.0, 0, 0 + height);
+    v[1].set(hsize / 2.0, 0, 0 + height);
+    v[2].set(hsize / 2.0, 0, vsize + height);
+    v[3].set(-hsize / 2.0, 0, vsize + height);
 
-    v[4].set(-pr, 0.01,+height);
-    v[5].set(-pr, 0.01 + 2 * pr,  +height);
-    v[6].set(pr, 0.01 + 2 * pr,  +height);
+    v[4].set(-pr, 0.01, +height);
+    v[5].set(-pr, 0.01 + 2 * pr, +height);
+    v[6].set(pr, 0.01 + 2 * pr, +height);
     v[7].set(pr, 0.01, +height);
     v[8].set(-pr, 0.01, 0);
     v[9].set(-pr, 0.01 + 2 * pr, 0);
@@ -452,7 +447,6 @@ void GPSPoint::createSign(osg::Image *img)
     signVertices->push_back(v[3]);
     signTexCoords->push_back(osg::Vec2(0, 1));
     signNormals->push_back(n);
-
 
     if (withPost)
     {
@@ -517,55 +511,48 @@ void GPSPoint::createSign(osg::Image *img)
 
     auto end = std::chrono::steady_clock::now();
     std::cerr << "Signcreation "
-        << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()
-        << " microseconds\n";
-
+              << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()
+              << " microseconds\n";
 }
-
 
 void GPSPoint::createSound()
 {
-    if (GPSPlugin::player)
+    auto player = opencover::cover->getPlayer();
+
+    if (player)
     {
-        audio = new Audio((myDirectory+"/data/"+filename).c_str());
+        audio = new opencover::audio::Audio((myDirectory + "/data/" + filename).c_str());
         if (audio == NULL)
         {
             fprintf(stderr, "Audio not found for %s\n", filename.c_str());
         }
-        source = GPSPlugin::player->newSource(audio);
-        if (source)
-        {
-            source->setLoop(false);
-            source->stop();
-            source->setIntensity(1.0);
-        }
-        else
-        {
-            fprintf(stderr, "newSource didnt work\n");
-        }
+        source = player->newSource(audio);
+        source->setLoop(false);
+        source->stop();
+        source->setIntensity(1.0);
     }
     else
     {
-        fprintf(stderr, "GPSPlugin::player not found \n");
+        fprintf(stderr, "GPS: No audio player found, cannot create sound for playback of recording\n");
     }
 }
 void GPSPoint::createText()
 {
     osgText::Text *textBox = new osgText::Text();
     textBox->setAlignment(osgText::Text::CENTER_BOTTOM);
-    textBox->setAxisAlignment(osgText::Text::XZ_PLANE );
+    textBox->setAxisAlignment(osgText::Text::XZ_PLANE);
     textBox->setColor(osg::Vec4(0, 0, 1, 1));
     textBox->setDrawMode(osgText::TextBase::DrawModeMask::TEXT);
     osgText::Font *font = coVRFileManager::instance()->loadFont(NULL);
     textBox->setFont(font);
-    //osgText::Style *style = textBox->getOrCreateStyle();
-    //style->setWidthRatio(1);
+    // osgText::Style *style = textBox->getOrCreateStyle();
+    // style->setWidthRatio(1);
     textBox->setCharacterSize(0.15);
     textBox->setText(text.c_str());
     textBox->setMaximumWidth(2);
-    //textBox->setMaximumHeight(textBox->getMaximumWidth());
+    // textBox->setMaximumHeight(textBox->getMaximumWidth());
 
-    //osg::BoundingBox box = textBox->getBoundingBox();
+    // osg::BoundingBox box = textBox->getBoundingBox();
     textBox->setPosition(osg::Vec3(0, -0.4, 3.6));
 
     TextGeode = new osg::Geode();
@@ -611,23 +598,23 @@ void GPSPoint::createText()
     BackgroundTex->setFilter(osg::Texture::MAG_FILTER, osg::Texture::NEAREST);
 
     float hsize = 2.5;
-    float vsize = 1.5; //must be greater than 1.2
+    float vsize = 1.5; // must be greater than 1.2
 
-#if OSG_VERSION_GREATER_OR_EQUAL(3,3,2)
-    vsize = 1.4 +(textBox->getBoundingBox().zMax() - textBox->getBoundingBox().zMin());
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 2)
+    vsize = 1.4 + (textBox->getBoundingBox().zMax() - textBox->getBoundingBox().zMin());
 #else
-    vsize = 1.4 +(textBox->getBound().zMax() - textBox->getBound().zMin());
+    vsize = 1.4 + (textBox->getBound().zMax() - textBox->getBound().zMin());
 #endif
 
-    float height = 2.5; //of pole
-    float frame = 0.5f; //thickness of frame
-    float offset = -0.2f; //offset so not drawn within eachother
+    float height = 2.5; // of pole
+    float frame = 0.5f; // thickness of frame
+    float offset = -0.2f; // offset so not drawn within eachother
 
     osg::Vec3 v[8];
     v[0].set(-hsize / 2.0, offset, height);
     v[1].set(hsize / 2.0, offset, height);
-    v[2].set(hsize / 2.0, offset, height + vsize );
-    v[3].set(-hsize / 2.0, offset, height + vsize );
+    v[2].set(hsize / 2.0, offset, height + vsize);
+    v[3].set(-hsize / 2.0, offset, height + vsize);
 
     v[4].set(-hsize / 2.0, offset, height + 1);
     v[5].set(hsize / 2.0, offset, height + 1);
@@ -656,8 +643,8 @@ void GPSPoint::createText()
     BackgroundTexCoords = new osg::Vec2Array;
     BackgroundGeometry->setTexCoordArray(3, BackgroundTexCoords);
 
-    //TEST
-    // I
+    // TEST
+    //  I
     BackgroundVertices->push_back(v[0]);
     BackgroundTexCoords->push_back(osg::Vec2(0, 0));
     BackgroundNormals->push_back(n);
@@ -728,13 +715,13 @@ void GPSPoint::createPicture()
     PictureTex->setWrap(osg::Texture2D::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
     PictureTex->setResizeNonPowerOfTwoHint(false);
 
-    if(!img)
+    if (!img)
     {
         fprintf(stderr, "Picture first run\n");
-        std::string fn = myDirectory+"/data/" + filename;
+        std::string fn = myDirectory + "/data/" + filename;
         fprintf(stderr, "fn %s\n", fn.c_str());
         const char *fn2 = opencover::coVRFileManager::instance()->getName(fn.c_str());
-        if(fn2 == NULL)
+        if (fn2 == NULL)
         {
             fprintf(stderr, "Picture not found\n");
         }
@@ -743,9 +730,6 @@ void GPSPoint::createPicture()
             img = osgDB::readImageFile(fn2);
         }
     }
-
-
-
 
     PictureTex->setImage(img);
 
@@ -771,10 +755,10 @@ void GPSPoint::createPicture()
 
     float height = 2.5;
     osg::Vec3 v[4];
-    v[0].set(-hsize / 2.0, -0.2, 0 +height);
-    v[1].set(hsize / 2.0, -0.2, 0 +height);
-    v[2].set(hsize / 2.0, -0.2, vsize +height);
-    v[3].set(-hsize / 2.0, -0.2, vsize +height);
+    v[0].set(-hsize / 2.0, -0.2, 0 + height);
+    v[1].set(hsize / 2.0, -0.2, 0 + height);
+    v[2].set(hsize / 2.0, -0.2, vsize + height);
+    v[3].set(-hsize / 2.0, -0.2, vsize + height);
 
     osg::Vec3 n;
     n.set(0, -1, 0);
@@ -817,65 +801,64 @@ void GPSPoint::createPicture()
     osg::DrawArrays *Picture = new osg::DrawArrays(osg::PrimitiveSet::QUADS, 0, PictureVertices->size());
     PictureGeometry->addPrimitiveSet(Picture);
     BBoard->addChild(PictureGeode);
-
 }
 
 void GPSPoint::activate()
 {
-    switch (PT){
+    switch (PT)
+    {
     case Text:
-        if(TextGeode)
+        if (TextGeode)
         {
-            fprintf(stderr,"Hide Text\n");
+            fprintf(stderr, "Hide Text\n");
             BBoard->removeChild(TextGeode);
             TextGeode = nullptr;
         }
         else
         {
-            fprintf(stderr,"Show  Text\n");
+            fprintf(stderr, "Show  Text\n");
             createText();
-            fprintf(stderr,"Show  Text finished\n");
+            fprintf(stderr, "Show  Text finished\n");
         }
         break;
     case Foto:
-        if(PictureGeode)
+        if (PictureGeode)
         {
-            fprintf(stderr,"Hide Picture\n");
+            fprintf(stderr, "Hide Picture\n");
             BBoard->removeChild(PictureGeode);
             PictureGeode = nullptr;
         }
         else
         {
-            fprintf(stderr,"Show  Picture\n");
+            fprintf(stderr, "Show  Picture\n");
             createPicture();
         }
         break;
     case Sprachaufnahme:
 
-        if(source)
+        if (source)
         {
             printf("isPlaying?: %s \n", source->isPlaying() ? "true" : "false");
-            if(source->isPlaying())
+            if (source->isPlaying())
             {
-                fprintf(stderr,"Sound stopped\n");
+                fprintf(stderr, "Sound stopped\n");
                 source->stop();
             }
             else
             {
-                fprintf(stderr,"Playing sound. Duration: %lf \n", audio->duration());
-                fprintf(stderr,"Audiofile name: %s \n", filename.c_str());
+                fprintf(stderr, "Playing sound. Duration: %lf \n", audio->duration());
+                fprintf(stderr, "Audiofile name: %s \n", filename.c_str());
                 source->play();
             }
         }
         else
         {
-            fprintf(stderr,"No sound to play\n");
+            fprintf(stderr, "No sound to play\n");
         }
         break;
     default:
         std::cerr << "No action for this Point" << std::endl;
         break;
-
     }
 }
 void GPSPoint::disactivate()

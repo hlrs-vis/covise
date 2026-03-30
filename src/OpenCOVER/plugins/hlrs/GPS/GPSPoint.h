@@ -17,6 +17,7 @@
 #include <cover/coBillboard.h>
 #include <osg/Material>
 
+#include <audio/Audio.h>
 #include <audio/Player.h>
 
 using namespace opencover;
@@ -86,8 +87,8 @@ public:
 
     osg::ref_ptr<osg::Material> streetmarkMaterial;
 
-    audio::Audio *audio;
-    audio::Player::Source *source;
+    opencover::audio::Audio *audio;
+    opencover::audio::Player::Source *source;
 
     PointSensor *mySensor;
     void activate();

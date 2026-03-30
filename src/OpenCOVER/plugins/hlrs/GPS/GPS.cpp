@@ -11,7 +11,6 @@
 #include <time.h>
 #include <iostream>
 
-
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRFileManager.h>
 #include <cover/coBillboard.h>
@@ -29,7 +28,6 @@
 #include <osg/Point>
 #include <osgDB/ReadFile>
 
-
 #include <xercesc/dom/DOM.hpp>
 #if XERCES_VERSION_MAJOR < 3
 #include <xercesc/dom/DOMWriter.hpp>
@@ -40,7 +38,6 @@
 #include <xercesc/util/XMLUni.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 
-
 GPSPlugin *GPSPlugin::plugin = NULL;
 
 static const int NUM_HANDLERS = 1;
@@ -49,20 +46,14 @@ using namespace opencover;
 
 static const FileHandler handlers[] = {
     { NULL,
-      GPSPlugin::SloadGPX,
-      GPSPlugin::SunloadGPX,
-      "gpx" }
-};
-
-
-void playerUnavailableCB()
-{
-    GPSPlugin::player = NULL;
+        GPSPlugin::SloadGPX,
+        GPSPlugin::SunloadGPX,
+        "gpx" }
 };
 
 GPSPlugin::GPSPlugin()
-: coVRPlugin(COVER_PLUGIN_NAME)
-, ui::Owner("GPSPlugin", cover->ui)
+    : coVRPlugin(COVER_PLUGIN_NAME)
+    , ui::Owner("GPSPlugin", cover->ui)
 {
     fprintf(stderr, "------------------\n GPSPlugin started\n------------------\n");
     plugin = this;
@@ -75,7 +66,7 @@ GPSPlugin::GPSPlugin()
     OSGGPSPlugin->setName("GPS");
     cover->getObjectsRoot()->addChild(OSGGPSPlugin);
 
-    //mapping of coordinates
+    // mapping of coordinates
     std::string covisedir;
     const char *pValue = getenv("ODDLOTDIR");
     if (!pValue || pValue[0] == '\0')
@@ -84,25 +75,30 @@ GPSPlugin::GPSPlugin()
         covisedir = pValue;
     dir = covisedir + "/share/covise/";
 
-    std::string proj_from = "+proj=latlong +datum=WGS84";
-    fprintf(stderr, "proj_from: %s\n",proj_from.c_str());
-    if (!(pj_from = pj_init_plus(proj_from.c_str())))
+    projection = proj_create_crs_to_crs(PJ_DEFAULT_CTX,
+        "EPSG:4326", // WGS84
+        // TODO: use proper UTM zone 32N instead ("EPSG:25832") and apply custom xyz-offset
+        "+proj=tmerc +lat_0=0 +lon_0=9 +k=1.000000 +x_0=9703.397 +y_0=-5384244.453 +ellps=bessel +datum=potsdam",
+        NULL);
+    if (projection == nullptr)
     {
-            fprintf(stderr, "ERROR: pj_from failed\n");
+        fprintf(stderr, "ERROR: could not create projection\n");
+    }
+    else
+    {
+        // Make sure all projections use easting-northing / longitude-latitude / x-y order
+        PJ *p = proj_normalize_for_visualization(PJ_DEFAULT_CTX, projection);
+        if (p != nullptr)
+        {
+            proj_destroy(projection);
+            projection = p;
+        }
     }
 
-    std::string proj_to ="+proj=tmerc +lat_0=0 +lon_0=9 +k=1.000000 +x_0=9703.397 +y_0=-5384244.453 +ellps=bessel +datum=potsdam";// +nadgrids=" + dir + std::string("BETA2007.gsb");
-    fprintf(stderr, "proj_to: %s\n",proj_to.c_str());
-
-    if (!(pj_to = pj_init_plus(proj_to.c_str())))
-    {
-            fprintf(stderr, "ERROR: pj_to failed\n");
-    }
-
+    //
     GDALAllRegister();
     std::string heightMapFileName = configString("GPS", "heightMap", "/data/reallabor/gelaende/Herrenberg10mwgs84.tif")->value();
     openImage(heightMapFileName);
-
 
     /* for sign icons*/
     iconGood = osgDB::readImageFile(opencover::coVRFileManager::instance()->getName("share/covise/GPS/icons/HappyFace.png"));
@@ -114,14 +110,7 @@ GPSPlugin::GPSPlugin()
     iconSprachaufnahme = osgDB::readImageFile(opencover::coVRFileManager::instance()->getName("share/covise/GPS/icons/Speechbubble.png"));
     iconBarriere = osgDB::readImageFile(opencover::coVRFileManager::instance()->getName("share/covise/GPS/icons/Roadblocksmall.png"));
     textbackground = osgDB::readImageFile(opencover::coVRFileManager::instance()->getName("share/covise/GPS/icons/Textbackground.png"));
-
-    player = cover->usePlayer(playerUnavailableCB);
-    if (player == NULL)
-    {
-        fprintf(stderr, "sorry, no VRML, no Sound support \n");
-    }
 }
-
 
 bool GPSPlugin::update()
 {
@@ -134,10 +123,18 @@ bool GPSPlugin::update()
 
 GPSPlugin::~GPSPlugin()
 {
-    for (int index = 0; index < NUM_HANDLERS; index++){
+    if (projection != nullptr)
+    {
+        proj_destroy(projection);
+        projection = nullptr;
+    }
+
+    for (int index = 0; index < NUM_HANDLERS; index++)
+    {
         coVRFileManager::instance()->unregisterFileHandler(&handlers[index]);
     }
-    for (auto *x : fileList){
+    for (auto *x : fileList)
+    {
         delete x;
     }
 
@@ -153,7 +150,8 @@ void GPSPlugin::GPSTab_create(void)
 
     TracksOn = new ui::Button(GPSTab, "TracksOn");
     TracksOn->setText("Tracks On/Off");
-    TracksOn->setCallback([this](bool) {
+    TracksOn->setCallback([this](bool)
+        {
         for (auto *x : fileList){
             if(x->SwitchTracks->getNewChildDefaultValue())
             {
@@ -163,14 +161,13 @@ void GPSPlugin::GPSTab_create(void)
             {
                 x->SwitchTracks->setAllChildrenOn();
             }
-        }
-    });
+        } });
     TracksOn->setState(true);
 
     PointsOff = new ui::Action(GPSTab, "HideallPoints");
     PointsOff->setText("Hide all Points");
     PointsOff->setCallback([this]
-    {
+        {
         for (auto *f : fileList)
         {
             for (auto *p : f->allPoints)
@@ -179,13 +176,12 @@ void GPSPlugin::GPSTab_create(void)
                 p->switchDetail->setAllChildrenOff();
             }
         }
-        toggleButtonStatus(false);
-    });
+        toggleButtonStatus(false); });
 
     ToggleLOD = new ui::Action(GPSTab, "ToggleLOD");
     ToggleLOD->setText("Toggle Signs - Spheres");
     ToggleLOD->setCallback([this]
-    {
+        {
         for (auto *f : fileList)
         {
             for (auto *p : f->allPoints)
@@ -203,93 +199,92 @@ void GPSPlugin::GPSTab_create(void)
             }
         }
         toggleButtonStatus(true);
-        detailView = !detailView;
-    });
+        detailView = !detailView; });
 
     ToggleGood = new ui::Button(GPSTab, "Good");
     ToggleGood->setText("Good");
     ButtonList.push_back(ToggleGood);
-    ToggleGood->setCallback([this](bool) {
+    ToggleGood->setCallback([this](bool)
+        {
         GPSPoint::pointType type= GPSPoint::pointType::Good;
-        toggleDetail(type , ToggleGood);
-    });
+        toggleDetail(type , ToggleGood); });
     ToggleMedium = new ui::Button(GPSTab, "Medium");
     ToggleMedium->setText("Medium");
     ButtonList.push_back(ToggleMedium);
-    ToggleMedium->setCallback([this](bool) {
+    ToggleMedium->setCallback([this](bool)
+        {
         GPSPoint::pointType type= GPSPoint::pointType::Medium;
-        toggleDetail(type , ToggleMedium);
-    });
+        toggleDetail(type , ToggleMedium); });
     ToggleBad = new ui::Button(GPSTab, "Bad");
     ToggleBad->setText("Bad");
     ButtonList.push_back(ToggleBad);
-    ToggleBad->setCallback([this](bool) {
+    ToggleBad->setCallback([this](bool)
+        {
         GPSPoint::pointType type= GPSPoint::pointType::Bad;
-        toggleDetail(type , ToggleBad);
-    });
+        toggleDetail(type , ToggleBad); });
     ToggleAngst = new ui::Button(GPSTab, "Angst");
     ToggleAngst->setText("Angst");
     ButtonList.push_back(ToggleAngst);
-    ToggleAngst->setCallback([this](bool) {
+    ToggleAngst->setCallback([this](bool)
+        {
         GPSPoint::pointType type= GPSPoint::pointType::Angst;
-        toggleDetail(type , ToggleAngst);
-    });
+        toggleDetail(type , ToggleAngst); });
     ToggleText = new ui::Button(GPSTab, "Text");
     ToggleText->setText("Text");
     ButtonList.push_back(ToggleText);
-    ToggleText->setCallback([this](bool) {
+    ToggleText->setCallback([this](bool)
+        {
         GPSPoint::pointType type= GPSPoint::pointType::Text;
-        toggleDetail(type , ToggleText);
-    });
+        toggleDetail(type , ToggleText); });
     ToggleFoto = new ui::Button(GPSTab, "Foto");
     ToggleFoto->setText("Foto");
     ButtonList.push_back(ToggleFoto);
-    ToggleFoto->setCallback([this](bool) {
+    ToggleFoto->setCallback([this](bool)
+        {
         GPSPoint::pointType type= GPSPoint::pointType::Foto;
-        toggleDetail(type , ToggleFoto);
-    });
+        toggleDetail(type , ToggleFoto); });
     ToggleSprachaufnahme = new ui::Button(GPSTab, "Sprachaufnahme");
     ToggleSprachaufnahme->setText("Sprachaufnahme");
     ButtonList.push_back(ToggleSprachaufnahme);
-    ToggleSprachaufnahme->setCallback([this](bool) {
+    ToggleSprachaufnahme->setCallback([this](bool)
+        {
         GPSPoint::pointType type= GPSPoint::pointType::Sprachaufnahme;
-        toggleDetail(type , ToggleSprachaufnahme);
-    });
+        toggleDetail(type , ToggleSprachaufnahme); });
     ToggleBarriere = new ui::Button(GPSTab, "Barriere");
     ToggleBarriere->setText("Barriere");
     ButtonList.push_back(ToggleBarriere);
-    ToggleBarriere->setCallback([this](bool) {
+    ToggleBarriere->setCallback([this](bool)
+        {
         GPSPoint::pointType type= GPSPoint::pointType::Barriere;
-        toggleDetail(type , ToggleBarriere);
-    });
+        toggleDetail(type , ToggleBarriere); });
     TrackSizeSlider = new ui::Slider(GPSTab, "ScaleTracksize");
     TrackSizeSlider->setText("Scale Tracksize");
     TrackSizeSlider->setBounds(1, 100);
     TrackSizeSlider->setScale(ui::Slider::Linear);
     TrackSizeSlider->setValue(5);
-    TrackSizeSlider->setCallback([this](double value, bool released){
+    TrackSizeSlider->setCallback([this](double value, bool released)
+        {
         for (auto *f : fileList){
             for (auto *t : f->allTracks){
                 osg::StateSet *geoState = t->geode->getOrCreateStateSet();
                 osg::LineWidth *lineWidth = new osg::LineWidth(value);
                 geoState->setAttributeAndModes(lineWidth, osg::StateAttribute::ON);
             }
-        }
-    });
+        } });
     PointSizeSlider = new ui::Slider(GPSTab, "ScalePointsize");
     PointSizeSlider->setText("Scale Pointsize");
     PointSizeSlider->setBounds(1, 100);
     PointSizeSlider->setScale(ui::Slider::Logarithmic);
     PointSizeSlider->setValue(1);
-    PointSizeSlider->setCallback([this](double value, bool released){
+    PointSizeSlider->setCallback([this](double value, bool released)
+        {
         for (auto *f : fileList){
             for (auto *p : f->allPoints){
                 osg::Matrix m;
                 m.makeScale(osg::Vec3(value,value,value));
                 p->geoScale->setMatrix(m);
             }
-        }
-    });
+        } });
     toggleButtonStatus(true);
 }
 void GPSPlugin::toggleButtonStatus(bool status)
@@ -302,17 +297,20 @@ void GPSPlugin::toggleButtonStatus(bool status)
 }
 void GPSPlugin::toggleDetail(GPSPoint::pointType type, ui::Button *button)
 {
-    for (auto *f : fileList){
-        for (auto *p : f->allPoints){
+    for (auto *f : fileList)
+    {
+        for (auto *p : f->allPoints)
+        {
             if (p->PT == type)
             {
-                if(!showPoints)
+                if (!showPoints)
                 {
                     showPoints = true;
                 }
-                if(detailView)
+                if (detailView)
                 {
-                    if(p->switchDetail->getNewChildDefaultValue()){
+                    if (p->switchDetail->getNewChildDefaultValue())
+                    {
                         button->setState(false);
                         p->switchDetail->setAllChildrenOff();
                     }
@@ -322,8 +320,10 @@ void GPSPlugin::toggleDetail(GPSPoint::pointType type, ui::Button *button)
                         button->setState(true);
                     }
                 }
-                else {
-                    if(p->switchSphere->getNewChildDefaultValue()){
+                else
+                {
+                    if (p->switchSphere->getNewChildDefaultValue())
+                    {
                         p->switchSphere->setAllChildrenOff();
                         button->setState(false);
                     }
@@ -342,7 +342,7 @@ void GPSPlugin::GPSTab_delete(void)
 {
     if (GPSTab)
     {
-        //delete infoLabel;
+        // delete infoLabel;
         delete GPSTab;
     }
 }
@@ -353,19 +353,19 @@ void GPSPlugin::addFile(File *f)
 
 void GPSPlugin::closeImage()
 {
-        if (heightDataset)
-                GDALClose(heightDataset);
+    if (heightDataset)
+        GDALClose(heightDataset);
 }
 void GPSPlugin::openImage(std::string &name)
 {
 
-        heightDataset = (GDALDataset *)GDALOpen(name.c_str(), GA_ReadOnly);
+    heightDataset = (GDALDataset *)GDALOpen(name.c_str(), GA_ReadOnly);
     if (heightDataset != NULL)
     {
-        int             nBlockXSize, nBlockYSize;
-        int             bGotMin, bGotMax;
-        double          adfMinMax[2];
-        double        adfGeoTransform[6];
+        int nBlockXSize, nBlockYSize;
+        int bGotMin, bGotMax;
+        double adfMinMax[2];
+        double adfGeoTransform[6];
 
         printf("Size is %dx%dx%d\n", heightDataset->GetRasterXSize(), heightDataset->GetRasterYSize(), heightDataset->GetRasterCount());
         if (heightDataset->GetGeoTransform(adfGeoTransform) == CE_None)
@@ -389,20 +389,21 @@ void GPSPlugin::openImage(std::string &name)
         pixelWidth = transform[1];
         pixelHeight = -transform[5];
         delete[] rasterData;
-        rasterData = new float[cols*rows];
+        rasterData = new float[cols * rows];
         float *pafScanline;
-        int   nXSize = heightBand->GetXSize();
-        pafScanline = (float *)CPLMalloc(sizeof(float)*nXSize);
+        int nXSize = heightBand->GetXSize();
+        pafScanline = (float *)CPLMalloc(sizeof(float) * nXSize);
         for (int i = 0; i < rows; i++)
         {
             if (heightBand->RasterIO(GF_Read, 0, i, nXSize, 1,
-                pafScanline, nXSize, 1, GDT_Float32,
-                0, 0) == CE_Failure)
+                    pafScanline, nXSize, 1, GDT_Float32,
+                    0, 0)
+                == CE_Failure)
             {
                 std::cerr << "GPSPlugin::openImage: GDALRasterBand::RasterIO failed" << std::endl;
                 break;
             }
-            memcpy(&(rasterData[(i*cols)]), pafScanline, nXSize * sizeof(float));
+            memcpy(&(rasterData[(i * cols)]), pafScanline, nXSize * sizeof(float));
         }
 
         if (heightBand->ReadBlock(0, 0, rasterData) == CE_Failure)
@@ -411,20 +412,19 @@ void GPSPlugin::openImage(std::string &name)
             return;
         }
 
-                adfMinMax[0] = heightBand->GetMinimum(&bGotMin);
-                adfMinMax[1] = heightBand->GetMaximum(&bGotMax);
-                if (!(bGotMin && bGotMax))
-                        GDALComputeRasterMinMax((GDALRasterBandH)heightBand, TRUE, adfMinMax);
+        adfMinMax[0] = heightBand->GetMinimum(&bGotMin);
+        adfMinMax[1] = heightBand->GetMaximum(&bGotMax);
+        if (!(bGotMin && bGotMax))
+            GDALComputeRasterMinMax((GDALRasterBandH)heightBand, TRUE, adfMinMax);
 
-                printf("Min=%.3fd, Max=%.3f\n", adfMinMax[0], adfMinMax[1]);
-
-        }
+        printf("Min=%.3fd, Max=%.3f\n", adfMinMax[0], adfMinMax[1]);
+    }
 }
 bool GPSPlugin::checkBounds(double x, double y)
 {
-    if( y<= 48.64 && y>=48.54)
+    if (y <= 48.64 && y >= 48.54)
     {
-        if( x<= 8.98 && x >= 8.77)
+        if (x <= 8.98 && x >= 8.77)
         {
             return true;
         }
@@ -437,7 +437,6 @@ bool GPSPlugin::checkBounds(double x, double y)
     {
         return false;
     }
-
 }
 float GPSPlugin::getAlt(double x, double y)
 {
@@ -446,22 +445,22 @@ float GPSPlugin::getAlt(double x, double y)
     if (col < 0)
         col = 0;
     if (col >= cols)
-        col = cols-1;
+        col = cols - 1;
     if (row < 0)
         row = 0;
     if (row >= rows)
         row = rows - 1;
-    return rasterData[col + (row*cols)];
-        float *pafScanline;
-        int   nXSize = heightBand->GetXSize();
+    return rasterData[col + (row * cols)];
+    float *pafScanline;
+    int nXSize = heightBand->GetXSize();
 
     delete[] pafScanline;
-        pafScanline = new float[nXSize];
-        auto err = heightBand->RasterIO(GF_Read, x, y, 1, 1,
-                pafScanline, nXSize, 1, GDT_Float32,
-                0, 0);
-        float height = pafScanline[0];
-        delete[] pafScanline;
+    pafScanline = new float[nXSize];
+    auto err = heightBand->RasterIO(GF_Read, x, y, 1, 1,
+        pafScanline, nXSize, 1, GDT_Float32,
+        0, 0);
+    float height = pafScanline[0];
+    delete[] pafScanline;
 
     if (err != CE_None)
     {
@@ -469,9 +468,9 @@ float GPSPlugin::getAlt(double x, double y)
         return 0.f;
     }
 
-        return height;
+    return height;
 }
-//GPS fileHandler
+// GPS fileHandler
 int GPSPlugin::SloadGPX(const char *filename, osg::Group *parent, const char *)
 {
     instance()->loadGPX(filename, parent);
@@ -479,8 +478,8 @@ int GPSPlugin::SloadGPX(const char *filename, osg::Group *parent, const char *)
 }
 int GPSPlugin::loadGPX(const char *filename, osg::Group *parent)
 {
-    if(parent == NULL)
-        parent =OSGGPSPlugin;
+    if (parent == NULL)
+        parent = OSGGPSPlugin;
     File *f = new File(filename, parent);
     this->addFile(f);
     return 0;
@@ -494,6 +493,5 @@ int GPSPlugin::unloadGPX(const char *filename)
 {
     return 0;
 }
-
 
 COVERPLUGIN(GPSPlugin)
