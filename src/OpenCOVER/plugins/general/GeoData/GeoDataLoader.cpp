@@ -279,78 +279,50 @@ bool GeoDataLoader::init()
     tMat(1, 1) = 1;
     tMat(2, 2) = 1;
     texMat->setMatrix(tMat);
-    stateset->setTextureAttributeAndModes(0,texMat, osg::StateAttribute::ON);
-    osg::CullFace* cF = new osg::CullFace();
+    stateset->setTextureAttributeAndModes(0, texMat, osg::StateAttribute::ON);
+    osg::CullFace *cF = new osg::CullFace();
     cF->setMode(osg::CullFace::BACK);
     stateset->setAttributeAndModes(cF, osg::StateAttribute::OFF);
-        TexturedSphere->setStateSet(stateset);
+    TexturedSphere->setStateSet(stateset);
 
-    auto datasetEntries = configFile->entries("datasets");
-    
-    for (const auto& entry : datasetEntries)
+    auto datasetEntries = configFile->array<opencover::config::Section>("", "datasets");
+
+    for (size_t i = 0; i < datasetEntries->size(); i++)
     {
-        std::vector<std::string> defaultArray = {"", "", "", "", "", ""};
-        std::vector<std::string> datasetArray = configStringArray("datasets", entry, defaultArray)->value();
-        if (datasetArray.size() < 7)
-        {
-            std::cerr << "GeoDataLoader: dataset entry " << entry << " has too few elements, skipping\n";
-            continue;
-        }
+        opencover::config::Section entry = (*datasetEntries)[i];
 
         DatasetInfo dataset;
-        dataset.name = datasetArray[0];
-        if (datasetArray[1] != "" && datasetArray[2] != "") // Origin given in lat/lon
-        {
-            double latitude = std::stod(datasetArray[1]);
-            double longitude = std::stod(datasetArray[2]);
-            PJ_COORD input;
-                input.lp.phi = longitude;
-                input.lp.lam = latitude;
+        dataset.name = entry.value<std::string>("", "name")->value();
+        dataset.height = entry.value<double>("", "altitude")->value();
+        dataset.trueNorth = entry.value<double>("", "trueNorth")->value();
 
-                // transform
-                PJ_COORD output = proj_trans(ProjInstance, PJ_FWD, input);
-                dataset.easting = output.enu.e;
-                dataset.northing = output.enu.n;
-        }
-        else if (datasetArray[3] != "" && datasetArray[4] != "") // Origin given in easting/northing
+        double latitude = entry.value<double>("", "latitude")->value();
+        double longitude = entry.value<double>("", "longitude")->value();
+
+        if (latitude || longitude)
         {
-            dataset.easting = std::stod(datasetArray[3]);
-            dataset.northing = std::stod(datasetArray[4]);
+            PJ_COORD input;
+            input.lp.phi = longitude;
+            input.lp.lam = latitude;
+
+            // transform
+            PJ_COORD output = proj_trans(ProjInstance, PJ_FWD, input);
+            dataset.easting = output.enu.e;
+            dataset.northing = output.enu.n;
         }
         else
         {
-            std::cerr << "GeoDataLoader: Invalid dataset entry for '" << dataset.name
-                  << "' (provide lat/lon or easting/northing). Using (0,0) as fallback.\n";
-            dataset.easting = 0.0;
-            dataset.northing = 0.0;
+            dataset.easting = entry.value<double>("", "easting")->value();
+            dataset.northing = entry.value<double>("", "northing")->value();
         }
-        if (datasetArray[5].empty())
-        {
-            std::cerr << "GeoDataLoader: No height given for dataset '" << dataset.name << "'. Using 0.0 as fallback.\n";
-            dataset.height = 0.0;
-        }
-        else 
-        {
-            dataset.height = std::stod(datasetArray[5]);
-        }
-        if (datasetArray[6].empty())
-        {
-            std::cerr << "GeoDataLoader: No trueNorth given for dataset '" << dataset.name << "'. Using 0.0 as fallback.\n";
-            dataset.trueNorth = 0.0;
-        }
-        else
-        {
-            dataset.trueNorth = std::stod(datasetArray[6]);
-        }
-        
 
         datasets.push_back(dataset);
         datasetList->append(dataset.name);
     }
-    
+
     datasetList->select(0, true); // select "None" by default
     datasetList->setCallback([this](int selection)
-    {
+        {
         if (selection == 0) // "None"
         {
             easting->setValue(0.0);

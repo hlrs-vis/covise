@@ -19,9 +19,24 @@ entry12 = ["Thüringen", "/data/Geodata/TH/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive
 entry13 = ["Brandenburg", "/data/Geodata/Brandenburg/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive", ""]
 entry14 = ["Schweiz", "/mnt/medium/geodata/Schweiz/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive", "/mnt/medium/geodata/Schweiz/lod/unzipped/lod2.ive"]
 
-[datasets] # set origin for datasets either in latitude/longitude or in easting/northing
-# entry = ["name", "latitude (°)", "longitude (°)", "easting (m)", "northing (m)", "height (m)", "trueNorth (degrees)"]
-entry1 = ["new building", "", "", "507128.7468984433", "5398535.803118772", "", "0"]
-entry2 = ["Thyssen Tower", "48.17916030799162", "8.625225717582271","","", "", "0"]
-entry3 = ["RFW", "", "", "449809.3", "5390640.2","0.0", "0"]
-entry4 = ["Campus", "", "", "507047.64631626336", "5398555.900845651", "450", "0"]
+
+[[datasets]]
+name = "New building"
+easting = 507128.7468984433
+northing = 5398535.803118772
+
+[[datasets]]
+name = "Thyssen Tower"
+latitude = 48.17916030799162
+longitude = 8.625225717582271
+
+[[datasets]]
+name = "RFW"
+easting = 449809.3
+northing = 5390640.2
+
+[[datasets]]
+name = "Campus"
+easting = 507047.64631626336
+northing = 5398555.900845651
+altitude = 450.0
