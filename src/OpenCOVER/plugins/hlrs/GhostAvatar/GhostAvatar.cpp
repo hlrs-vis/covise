@@ -11,6 +11,7 @@ GhostAvatar::GhostAvatar()
     : coVRPlugin(COVER_PLUGIN_NAME)
     , avatarControls(std::make_unique<TestAvatarControls>("/data/STARTS-ECHO/Avatars/shaderTests/ghost_cave_uniform.fbx", "LeftArm", ""))
     //, avatarControls(std::make_unique<PlanarAvatarControls>("/data/STARTS-ECHO/Avatars/planarAvatar/PLANEE6.fbx", "Arm", "Head"))
+    , avatarTexture(SplotchTexture("AvatarTrans"))
     , avatarControlsUI(GhostAvatarControlsUI(COVER_PLUGIN_NAME, *avatarControls))
 {
 }
@@ -24,6 +25,8 @@ bool GhostAvatar::update()
         avatarControls->loadAvatar();
 
         createInteractors();
+
+        avatarTexture.initialize();
 
         avatarControlsUI.initialize();
 
@@ -41,6 +44,7 @@ void GhostAvatar::preFrame()
         return;
 
     avatarControls->updateBones(m_interactorFloor->getMatrix(), m_interactorHand->getMatrix(), m_interactorHead->getMatrix());
+    avatarTexture.update();
     avatarControlsUI.update(m_interactorFloor->getMatrix(), m_interactorHand->getMatrix(), m_interactorHead->getMatrix());
 }
 

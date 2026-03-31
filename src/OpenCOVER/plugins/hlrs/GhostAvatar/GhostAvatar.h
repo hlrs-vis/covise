@@ -7,6 +7,7 @@
 #include <PluginUtil/coVR3DTransRotInteractor.h>
 
 #include "controls/GhostAvatarControls.h"
+#include "texture/SplotchTexture.h"
 #include "ui/GhostAvatarControlsUI.h"
 
 // TODO:
@@ -22,7 +23,9 @@ public:
 
 private:
     std::unique_ptr<GhostAvatarControls> avatarControls;
+    SplotchTexture avatarTexture;
     GhostAvatarControlsUI avatarControlsUI;
+
 
     // interactors
     std::unique_ptr<opencover::coVR3DTransRotInteractor> m_interactorHead, m_interactorFloor, m_interactorHand;

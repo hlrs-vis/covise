@@ -1,7 +1,5 @@
-#ifndef COVER_PLUGIN_SPLOTCH_COLOR_PLUGIN_H
-#define COVER_PLUGIN_SPLOTCH_COLOR_PLUGIN_H
-
-// TODO: make header guards match
+#ifndef COVER_PLUGIN_GHOSTAVATAR_TEXTURE_SplotchTexture_H
+#define COVER_PLUGIN_GHOSTAVATAR_TEXTURE_SplotchTexture_H
 
 #include <string>
 #include <vector>
@@ -10,21 +8,19 @@
 #include <osg/ref_ptr>
 #include <osg/Vec3>
 
-#include <cover/coVRPlugin.h>
-
 #include "RenderToTextureCamera.h"
 
-class SplotchAvatar : public opencover::coVRPlugin
+class SplotchTexture
 {
 public:
-    SplotchAvatar();
-    SplotchAvatar(RenderToTextureCamera rttCamera);
+    SplotchTexture(const std::string &nodeName);
+    SplotchTexture(const std::string &nodeName, RenderToTextureCamera rttCamera);
 
     void initialize();
-    virtual void preFrame() override;
+    void update();
 
 private:
-    std::string n_nodeName = "AvatarTrans";
+    std::string m_nodeName;
     osg::ref_ptr<osg::Node> m_node;
 
     osg::Vec3 m_previousPosition;
@@ -54,4 +50,4 @@ private:
     // makes the camera look ahead of the avatar
     osg::Vec3 m_cameraLookAt = osg::Vec3(20.0, 0.0, 0.0);
 };
-#endif // COVER_PLUGIN_SPLOTCH_COLOR_PLUGIN_H
+#endif // COVER_PLUGIN_GHOSTAVATAR_TEXTURE_SplotchTexture_H

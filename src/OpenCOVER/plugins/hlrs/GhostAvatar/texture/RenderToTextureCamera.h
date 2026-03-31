@@ -1,5 +1,5 @@
-#ifndef COVER_PLUGIN_SPLOTCHAVATAR_RENDERTOTEXTURECAMERA_H
-#define COVER_PLUGIN_SPLOTCHAVATAR_RENDERTOTEXTURECAMERA_H
+#ifndef COVER_PLUGIN_GHOSTAVATAR_TEXTURE_RenderToTextureCamera_H
+#define COVER_PLUGIN_GHOSTAVATAR_TEXTURE_RenderToTextureCamera_H
 
 #include <osg/Camera>
 #include <osg/Image>
@@ -85,4 +85,4 @@ private:
     void addSkyNode(const char *skyNodeName);
 };
 
-#endif // COVER_PLUGIN_SPLOTCHAVATAR_RENDERTOTEXTURECAMERA_H
+#endif // COVER_PLUGIN_GHOSTAVATAR_TEXTURE_RenderToTextureCamera_H

@@ -6,24 +6,24 @@
 
 #include <random>
 
-#include "SplotchAvatar.h"
+#include "SplotchTexture.h"
 
 using namespace opencover;
 
-SplotchAvatar::SplotchAvatar()
-    : SplotchAvatar(RenderToTextureCamera(true))
+SplotchTexture::SplotchTexture(const std::string &nodeName)
+    : SplotchTexture(nodeName, RenderToTextureCamera(true))
 {
 }
 
-SplotchAvatar::SplotchAvatar(RenderToTextureCamera rttCamera)
-    : coVRPlugin(COVER_PLUGIN_NAME)
+SplotchTexture::SplotchTexture(const std::string &nodeName, RenderToTextureCamera rttCamera)
+    : m_nodeName(nodeName)
     , m_rttCamera(rttCamera)
 {
 }
 
-void SplotchAvatar::initialize()
+void SplotchTexture::initialize()
 {
-    m_node = VRSceneGraph::instance()->findFirstNode<osg::Node>(n_nodeName.c_str());
+    m_node = VRSceneGraph::instance()->findFirstNode<osg::Node>(m_nodeName.c_str());
     if (!m_node)
         return;
 
@@ -35,7 +35,7 @@ void SplotchAvatar::initialize()
     m_rttCamera.update(getNodeTransform(m_node), m_cameraOffset, m_cameraLookAt);
 }
 
-void SplotchAvatar::preFrame()
+void SplotchTexture::update()
 {
     // initialize avatar node and transform
     // Note: Has to be done here (instead of init()), because the avatar model is
@@ -54,13 +54,13 @@ void SplotchAvatar::preFrame()
     updateShaderUniforms();
 }
 
-bool SplotchAvatar::enoughDistanceCovered(const osg::Vec3 &position)
+bool SplotchTexture::enoughDistanceCovered(const osg::Vec3 &position)
 {
     auto distanceCovered = (position - m_previousPosition).length();
     return distanceCovered >= m_distanceThreshold;
 }
 
-osg::Matrix SplotchAvatar::getNodeTransform(osg::Node *node) const
+osg::Matrix SplotchTexture::getNodeTransform(osg::Node *node) const
 {
     if (!node)
         return osg::Matrix::identity();
@@ -72,7 +72,7 @@ osg::Matrix SplotchAvatar::getNodeTransform(osg::Node *node) const
     return osg::computeLocalToWorld(node->getParentalNodePaths()[0]);
 }
 
-void SplotchAvatar::updateShaderUniforms()
+void SplotchTexture::updateShaderUniforms()
 {
     if (!m_splotchPositions.empty())
     {
@@ -88,13 +88,13 @@ void SplotchAvatar::updateShaderUniforms()
     m_node->getOrCreateStateSet()->addUniform(splotchRadiusUniform.get(), osg::StateAttribute::ON);
 }
 
-void SplotchAvatar::applyShaderToNode(const std::string &shaderName)
+void SplotchTexture::applyShaderToNode(const std::string &shaderName)
 {
     if (auto shader = coVRShaderList::instance()->get(shaderName.c_str()))
         shader->apply(m_node);
 }
 
-bool SplotchAvatar::isNearExistingSplotch(const osg::Vec3 &splotch) const
+bool SplotchTexture::isNearExistingSplotch(const osg::Vec3 &splotch) const
 {
     for (const auto &otherSplotch : m_splotchPositions)
         if ((otherSplotch.x() - splotch.x()) * (otherSplotch.x() - splotch.x()) + (otherSplotch.y() - splotch.y()) * (otherSplotch.y() - splotch.y()) < m_splotchRadius * m_splotchRadius)
@@ -132,7 +132,7 @@ void addToTextureSlot(osg::Node *node, int texId, osg::Texture *texture)
     }
 }
 
-void SplotchAvatar::updateSplotches(const osg::Vec3 &currentPosition)
+void SplotchTexture::updateSplotches(const osg::Vec3 &currentPosition)
 {
     if (enoughDistanceCovered(currentPosition))
     {
@@ -151,12 +151,10 @@ void SplotchAvatar::updateSplotches(const osg::Vec3 &currentPosition)
     }
 }
 
-void SplotchAvatar::updateSplotchPositions(const osg::Vec3 &splotch)
+void SplotchTexture::updateSplotchPositions(const osg::Vec3 &splotch)
 {
     if (m_splotchPositions.size() <= m_nrTextureSlots)
         m_splotchPositions.push_back(splotch);
     else
         m_splotchPositions[m_textureSlot] = splotch;
 }
-
-COVERPLUGIN(SplotchAvatar);

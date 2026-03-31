@@ -8,6 +8,8 @@ set(HEADERS
     controls/PlanarAvatarControls.h
     controls/TestAvatarControls.h
     controls/GhostAvatarControls.h
+    texture/SplotchTexture.h
+    texture/RenderToTextureCamera.h
     ui/GhostAvatarControlsUI.h
     ui/CoverDrawObject.h
 )
@@ -18,6 +20,8 @@ set(SOURCES
     controls/PlanarAvatarControls.cpp
     controls/TestAvatarControls.cpp
     controls/GhostAvatarControls.cpp
+    texture/SplotchTexture.cpp
+    texture/RenderToTextureCamera.cpp
     ui/GhostAvatarControlsUI.cpp
     ui/CoverDrawObject.cpp
 )
