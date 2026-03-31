@@ -712,6 +712,7 @@ void GeoDataLoader::setSky(std::string fileName)
         if (sky.fileName == fileName)// already have this file in the list
         {
             setSky(n+1); 
+            return;
         }
         n++;
     }
