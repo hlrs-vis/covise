@@ -1,5 +1,4 @@
 SET(HEADERS
-  RandomFloatGenerator.h
   SplotchAvatar.h
   RenderToTextureCamera.h
 )

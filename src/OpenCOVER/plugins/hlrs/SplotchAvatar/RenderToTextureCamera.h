@@ -5,6 +5,7 @@
 #include <osg/Image>
 #include <osg/Matrix>
 #include <osg/Node>
+#include <osg/ref_ptr>
 #include <osg/Texture2D>
 #include <osg/Vec3>
 
@@ -41,17 +42,19 @@ public:
     */
     void initialize();
 
-    osg::Image *getImage() const;
+    osg::ref_ptr<osg::Image> getImage() const;
 
     /*
         Returns a copy of `m_image`.
     */
-    osg::Image *getScreenshot() const;
+    osg::ref_ptr<osg::Image> getScreenshot() const;
+
+    osg::ref_ptr<osg::Texture2D> getScreenshotAsTexture() const;
 
     /*
         Sets the camera's z far distance to the far clipping plane distance set in COVER.
     */
-    void setZFarToClippingPlane();
+    void setZFarToClippingPlane(float scale = 1.0);
 
     /*
        Sets the position and orientation of the cameras based on a given `transform` matrix.
@@ -59,15 +62,11 @@ public:
        Moreover, the camera will look at the point defined by `lookDirection`,
        which is relative to `transform` as well.
    */
-    void updateCameraPosition(const osg::Matrix &transform, const osg::Vec3 &offset, const osg::Vec3 &lookAt);
-
-    /*
-        Adds a child node to the camera, so the node is rendered.
-    */
-    void addChildNode(osg::Node *node);
+    void update(const osg::Matrix &transform, const osg::Vec3 &offset, const osg::Vec3 &lookAt, const osg::Vec3 &baseUp = { 0.0, 0.0, 1.0 });
 
 private:
     osg::ref_ptr<osg::Image> m_image;
+    bool m_addedSkyNode = false;
 
     int m_viewPortSize;
     double m_fovy;
@@ -81,6 +80,9 @@ private:
     void configureCamera();
     void configureDebugCamera();
     void configureImage();
+
+    void addChildNode(osg::Node *node);
+    void addSkyNode(const char *skyNodeName);
 };
 
 #endif // COVER_PLUGIN_SPLOTCHAVATAR_RENDERTOTEXTURECAMERA_H

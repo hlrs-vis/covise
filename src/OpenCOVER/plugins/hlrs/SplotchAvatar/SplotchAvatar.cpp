@@ -1,49 +1,38 @@
-#include <array>
-#include <iostream>
-#include <random>
-#include <string>
-
-#include <cover/VRSceneGraph.h>
 #include <cover/coVRShader.h>
+#include <cover/VRSceneGraph.h>
 
-#include <osg/Math>
 #include <osg/Texture2D>
+#include <osg/Uniform>
+
+#include <random>
 
 #include "SplotchAvatar.h"
 
-using namespace covise;
 using namespace opencover;
-using namespace ui;
 
 SplotchAvatar::SplotchAvatar()
-    : coVRPlugin(COVER_PLUGIN_NAME)
-    , Owner(COVER_PLUGIN_NAME, cover->ui)
+    : SplotchAvatar(RenderToTextureCamera(true))
 {
-    // create RTT camera with default camera settings
-    m_rttCamera = new RenderToTextureCamera(true);
 }
 
-void addImageToTextureSlot(osg::Node *node, int texId, osg::Image *image)
+SplotchAvatar::SplotchAvatar(RenderToTextureCamera rttCamera)
+    : coVRPlugin(COVER_PLUGIN_NAME)
+    , m_rttCamera(rttCamera)
 {
-    auto texture = new osg::Texture2D(image);
+}
 
-    // make sure there is no undefined content at the texture's edges
-    texture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::CLAMP_TO_EDGE);
-    texture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::CLAMP_TO_EDGE);
+void SplotchAvatar::initialize()
+{
+    m_node = VRSceneGraph::instance()->findFirstNode<osg::Node>(n_nodeName.c_str());
+    if (!m_node)
+        return;
 
-    osg::StateSet *ss = node->getOrCreateStateSet();
-    ss->setTextureAttributeAndModes(texId + 1, texture, osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);
+    m_previousPosition = getNodeTransform(m_node).getTrans();
 
-    auto textureUniformName = ("texture" + std::to_string(texId + 1)).c_str();
-    ;
-    ss->addUniform(new osg::Uniform(textureUniformName, texId + 1));
+    applyShaderToNode(m_shaderName);
 
-    osg::Group *group = node->asGroup();
-    if (group)
-    {
-        for (unsigned int i = 0; i < group->getNumChildren(); ++i)
-            addImageToTextureSlot(group->getChild(i), texId, image);
-    }
+    m_rttCamera.initialize();
+    m_rttCamera.update(getNodeTransform(m_node), m_cameraOffset, m_cameraLookAt);
 }
 
 void SplotchAvatar::preFrame()
@@ -51,66 +40,24 @@ void SplotchAvatar::preFrame()
     // initialize avatar node and transform
     // Note: Has to be done here (instead of init()), because the avatar model is
     //       loaded in the GhostAvatar plugin's update function (first frame).
-    if (!m_avatarNode)
+    if (!m_node)
     {
-        m_avatarNode = VRSceneGraph::instance()->findFirstNode<osg::Node>(m_avatarNodeName.c_str());
-        if (!m_avatarNode)
-            return;
-
-        m_referencePosition = getNodeTransform(m_avatarNode).getTrans();
-
-        if (auto shader = coVRShaderList::instance()->get(m_splotchShaderName.c_str()))
-            shader->apply(m_avatarNode);
-
-        m_rttCamera->initialize();
-        m_rttCamera->updateCameraPosition(getNodeTransform(m_avatarNode), m_offsetRelativeToAvatar, m_lookAtRelativeToAvatar);
+        initialize();
+        return;
     }
 
-    auto avatarTransform = getNodeTransform(m_avatarNode);
+    auto nodeTransform = getNodeTransform(m_node);
 
-    // Since the GeoData plugin (which adds the sky node to the scene) can also be loaded after OpenCover
-    // has finished loading, we have to add it to the camera here in preFrame as soon as it becomes available.
-    if (!m_addedSkyNode)
-    {
-        // The node containing the skyspheres from the GeoData plugin is not part of OBJECTS_ROOT, but a child
-        // node of the main scene. This is why we have to pass the scene explictly to the findFirstNode method
-        // here (otherwise the node is not found and thus also not rendered by the camera).
-        if (auto skyNode = VRSceneGraph::instance()->findFirstNode<osg::Node>("sky", false,
-                VRSceneGraph::instance()->getScene()))
-        {
-            m_rttCamera->addChildNode(skyNode);
-            m_addedSkyNode = true;
-        }
-    }
-    m_rttCamera->updateCameraPosition(avatarTransform, m_offsetRelativeToAvatar, m_lookAtRelativeToAvatar);
+    m_rttCamera.update(nodeTransform, m_cameraOffset, m_cameraLookAt);
 
-    // add splotches based on the distance the avatar has covered
-    osg::Vec3 avatarPos = avatarTransform.getTrans();
-    if (auto distanceCovered = (avatarPos - m_referencePosition).length(); distanceCovered >= m_distanceForSplotches)
-    {
-        float texCoordX = m_randomFloat.generate(0.1f, 0.9f);
-        float texCoordY = m_randomFloat.generate(0.1f, 0.9f);
+    updateSplotches(nodeTransform.getTrans());
+    updateShaderUniforms();
+}
 
-        osg::Vec3 splotch(texCoordX, texCoordY, m_textureSlot);
-        if (!isNearExistingSplotch(splotch))
-        {
-            if (m_splotchPositions.size() <= m_nrTextureSlots)
-                m_splotchPositions.push_back(splotch);
-            else
-                m_splotchPositions[m_textureSlot] = splotch;
-            std::cout << "Added splotch at (" << splotch.x() << ", " << splotch.y() << ") of type " << splotch.z()
-                      << std::endl;
-
-            // update texture with current view
-            if (auto cameraScreenshot = m_rttCamera->getScreenshot())
-                addImageToTextureSlot(m_avatarNode, m_textureSlot, cameraScreenshot);
-
-            m_referencePosition = avatarPos;
-            m_textureSlot = (m_textureSlot + 1) % m_nrTextureSlots;
-        }
-    }
-
-    updateSplotchShaderUniforms();
+bool SplotchAvatar::enoughDistanceCovered(const osg::Vec3 &position)
+{
+    auto distanceCovered = (position - m_previousPosition).length();
+    return distanceCovered >= m_distanceThreshold;
 }
 
 osg::Matrix SplotchAvatar::getNodeTransform(osg::Node *node) const
@@ -125,6 +72,28 @@ osg::Matrix SplotchAvatar::getNodeTransform(osg::Node *node) const
     return osg::computeLocalToWorld(node->getParentalNodePaths()[0]);
 }
 
+void SplotchAvatar::updateShaderUniforms()
+{
+    if (!m_splotchPositions.empty())
+    {
+        osg::ref_ptr<osg::Uniform> splotchPositionsUniform = new osg::Uniform(osg::Uniform::FLOAT_VEC3, "splotchPositions", m_splotchPositions.size());
+        for (size_t i = 0; i < m_splotchPositions.size(); ++i)
+            splotchPositionsUniform->setElement(i, m_splotchPositions[i]);
+        m_node->getOrCreateStateSet()->addUniform(splotchPositionsUniform.get(), osg::StateAttribute::ON);
+    }
+    osg::ref_ptr<osg::Uniform> numSplotchesUniform = new osg::Uniform("numSplotches", int(m_splotchPositions.size()));
+    osg::ref_ptr<osg::Uniform> splotchRadiusUniform = new osg::Uniform("splotchRadius", m_splotchRadius);
+
+    m_node->getOrCreateStateSet()->addUniform(numSplotchesUniform.get(), osg::StateAttribute::ON);
+    m_node->getOrCreateStateSet()->addUniform(splotchRadiusUniform.get(), osg::StateAttribute::ON);
+}
+
+void SplotchAvatar::applyShaderToNode(const std::string &shaderName)
+{
+    if (auto shader = coVRShaderList::instance()->get(shaderName.c_str()))
+        shader->apply(m_node);
+}
+
 bool SplotchAvatar::isNearExistingSplotch(const osg::Vec3 &splotch) const
 {
     for (const auto &otherSplotch : m_splotchPositions)
@@ -133,20 +102,61 @@ bool SplotchAvatar::isNearExistingSplotch(const osg::Vec3 &splotch) const
     return false;
 }
 
-void SplotchAvatar::updateSplotchShaderUniforms()
+float generateRandomFloat(float start, float end)
 {
-    if (!m_splotchPositions.empty())
-    {
-        osg::ref_ptr<osg::Uniform> splotchPositionsUniform = new osg::Uniform(osg::Uniform::FLOAT_VEC3, "splotchPositions", m_splotchPositions.size());
-        for (size_t i = 0; i < m_splotchPositions.size(); ++i)
-            splotchPositionsUniform->setElement(i, m_splotchPositions[i]);
-        m_avatarNode->getOrCreateStateSet()->addUniform(splotchPositionsUniform.get(), osg::StateAttribute::ON);
-    }
-    osg::ref_ptr<osg::Uniform> numSplotchesUniform = new osg::Uniform("numSplotches", int(m_splotchPositions.size()));
-    osg::ref_ptr<osg::Uniform> splotchRadiusUniform = new osg::Uniform("splotchRadius", m_splotchRadius);
+    static thread_local std::mt19937 engine { std::random_device { }() };
+    return std::uniform_real_distribution<float> { start, end }(engine);
+}
 
-    m_avatarNode->getOrCreateStateSet()->addUniform(numSplotchesUniform.get(), osg::StateAttribute::ON);
-    m_avatarNode->getOrCreateStateSet()->addUniform(splotchRadiusUniform.get(), osg::StateAttribute::ON);
+osg::Vec3 generateRandomSplotch(int textureSlot)
+{
+    float texCoordX = generateRandomFloat(0.1f, 0.9f);
+    float texCoordY = generateRandomFloat(0.1f, 0.9f);
+
+    return { texCoordX, texCoordY, 1.0f * textureSlot };
+}
+
+void addToTextureSlot(osg::Node *node, int texId, osg::Texture *texture)
+{
+
+    auto stateSet = node->getOrCreateStateSet();
+    auto textureUniformName = ("texture" + std::to_string(texId + 1)).c_str();
+
+    stateSet->setTextureAttributeAndModes(texId + 1, texture, osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);
+    stateSet->addUniform(new osg::Uniform(textureUniformName, texId + 1));
+
+    if (auto group = node->asGroup())
+    {
+        for (unsigned int i = 0; i < group->getNumChildren(); ++i)
+            addToTextureSlot(group->getChild(i), texId, texture);
+    }
+}
+
+void SplotchAvatar::updateSplotches(const osg::Vec3 &currentPosition)
+{
+    if (enoughDistanceCovered(currentPosition))
+    {
+        auto splotch = generateRandomSplotch(m_textureSlot);
+        if (!isNearExistingSplotch(splotch))
+        {
+            updateSplotchPositions(splotch);
+
+            // update texture with current view
+            if (auto cameraScreenshot = m_rttCamera.getScreenshotAsTexture())
+                addToTextureSlot(m_node, m_textureSlot, cameraScreenshot);
+
+            m_previousPosition = currentPosition;
+            m_textureSlot = (m_textureSlot + 1) % m_nrTextureSlots;
+        }
+    }
+}
+
+void SplotchAvatar::updateSplotchPositions(const osg::Vec3 &splotch)
+{
+    if (m_splotchPositions.size() <= m_nrTextureSlots)
+        m_splotchPositions.push_back(splotch);
+    else
+        m_splotchPositions[m_textureSlot] = splotch;
 }
 
 COVERPLUGIN(SplotchAvatar);

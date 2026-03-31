@@ -3,52 +3,55 @@
 
 // TODO: make header guards match
 
+#include <string>
 #include <vector>
+
 #include <osg/Node>
+#include <osg/ref_ptr>
 #include <osg/Vec3>
 
 #include <cover/coVRPlugin.h>
-#include <cover/coVRPluginSupport.h>
-#include <cover/ui/Owner.h>
 
-#include "RandomFloatGenerator.h"
 #include "RenderToTextureCamera.h"
 
-class SplotchAvatar: public opencover::coVRPlugin, public opencover::ui::Owner {
+class SplotchAvatar : public opencover::coVRPlugin
+{
 public:
     SplotchAvatar();
+    SplotchAvatar(RenderToTextureCamera rttCamera);
 
+    void initialize();
     virtual void preFrame() override;
 
 private:
-    //  -- Avatar --
-    std::string m_avatarNodeName = "AvatarTrans";
-    osg::Node *m_avatarNode = nullptr;
+    std::string n_nodeName = "AvatarTrans";
+    osg::ref_ptr<osg::Node> m_node;
 
+    osg::Vec3 m_previousPosition;
+    float m_distanceThreshold = 100;
+
+    bool enoughDistanceCovered(const osg::Vec3 &currentPosition);
     osg::Matrix getNodeTransform(osg::Node *node) const;
+    void updateShaderUniforms();
 
     // -- Splotch shader --
-    std::string m_splotchShaderName = "TerroirAvatarStripes";
+    std::string m_shaderName = "TerroirAvatarStripes";
     std::vector<osg::Vec3> m_splotchPositions;
     float m_splotchRadius = 0.1f;
-    RandomFloatGenerator m_randomFloat;
-    osg::Vec3 m_referencePosition;
-    float m_distanceForSplotches = 100;
     int m_textureSlot = 0;
     int m_nrTextureSlots = 4;
 
+    void applyShaderToNode(const std::string &shaderName);
     bool isNearExistingSplotch(const osg::Vec3 &splotch) const;
-    void updateSplotchShaderUniforms();
+    void updateSplotches(const osg::Vec3 &currentPosition);
+    void updateSplotchPositions(const osg::Vec3 &splotch);
 
     // -- Render to Texture Camera --
-    RenderToTextureCamera *m_rttCamera;
+    RenderToTextureCamera m_rttCamera;
 
     // moves the camera slightly in front of the avatar so it won't be covered by the mesh
-    osg::Vec3 m_offsetRelativeToAvatar = osg::Vec3(50.0, 0.0, 0.0);
+    osg::Vec3 m_cameraOffset = osg::Vec3(50.0, 0.0, 0.0);
     // makes the camera look ahead of the avatar
-    osg::Vec3 m_lookAtRelativeToAvatar = osg::Vec3(20.0, 0.0, 0.0);
-
-    bool m_addedSkyNode = false;
-
+    osg::Vec3 m_cameraLookAt = osg::Vec3(20.0, 0.0, 0.0);
 };
 #endif // COVER_PLUGIN_SPLOTCH_COLOR_PLUGIN_H
