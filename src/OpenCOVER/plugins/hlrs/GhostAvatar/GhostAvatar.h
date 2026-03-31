@@ -6,7 +6,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <PluginUtil/coVR3DTransRotInteractor.h>
 
-#include "GhostAvatarControls.h"
+#include "controls/GhostAvatarControls.h"
 #include "ui/GhostAvatarControlsUI.h"
 
 // TODO:

@@ -2,19 +2,26 @@ if(NOT OSGANIMATION_FOUND)
 return()
 endif()
 
-cover_add_plugin(GhostAvatar GhostAvatar.cpp 
-                             GhostAvatar.h 
-                             BoneParser.cpp 
-                             BoneParser.h 
-                             PlanarAvatarControls.h 
-                             PlanarAvatarControls.cpp 
-                             TestAvatarControls.h 
-                             TestAvatarControls.cpp 
-                             GhostAvatarControls.h 
-                             GhostAvatarControls.cpp
-                             ui/GhostAvatarControlsUI.h
-                             ui/GhostAvatarControlsUI.cpp
-                             ui/CoverDrawObject.h
-                             ui/CoverDrawObject.cpp)
-                             
+set(HEADERS
+    GhostAvatar.h
+    controls/BoneParser.h
+    controls/PlanarAvatarControls.h
+    controls/TestAvatarControls.h
+    controls/GhostAvatarControls.h
+    ui/GhostAvatarControlsUI.h
+    ui/CoverDrawObject.h
+)
+
+set(SOURCES
+    GhostAvatar.cpp
+    controls/BoneParser.cpp
+    controls/PlanarAvatarControls.cpp
+    controls/TestAvatarControls.cpp
+    controls/GhostAvatarControls.cpp
+    ui/GhostAvatarControlsUI.cpp
+    ui/CoverDrawObject.cpp
+)
+
+cover_add_plugin(GhostAvatar ${HEADERS} ${SOURCES})
+
 target_link_libraries(GhostAvatar ${OPENSCENEGRAPH_LIBRARIES})

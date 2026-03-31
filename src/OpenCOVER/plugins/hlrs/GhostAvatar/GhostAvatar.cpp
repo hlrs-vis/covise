@@ -1,6 +1,7 @@
+#include "controls/PlanarAvatarControls.h"
+#include "controls/TestAvatarControls.h"
+
 #include "GhostAvatar.h"
-#include "PlanarAvatarControls.h"
-#include "TestAvatarControls.h"
 
 using namespace covise;
 using namespace opencover;

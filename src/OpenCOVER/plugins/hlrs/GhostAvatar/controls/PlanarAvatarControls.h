@@ -1,5 +1,5 @@
-#ifndef COVER_PLUGIN_GHOSTAVATAR_PlanarAvatarControls_H
-#define COVER_PLUGIN_GHOSTAVATAR_PlanarAvatarControls_H
+#ifndef COVER_PLUGIN_GHOSTAVATAR_CONTROLS_PlanarAvatarControls_H
+#define COVER_PLUGIN_GHOSTAVATAR_CONTROLS_PlanarAvatarControls_H
 
 #include "GhostAvatarControls.h"
 
@@ -11,4 +11,4 @@ public:
     void updateBones(const osg::Matrix &floorMatrix, const osg::Matrix &handMatrix, const osg::Matrix &headMatrix) override;
 };
 
-#endif // COVER_PLUGIN_GHOSTAVATAR_PlanarAvatarControls_H
+#endif // COVER_PLUGIN_GHOSTAVATAR_CONTROLS_PlanarAvatarControls_H

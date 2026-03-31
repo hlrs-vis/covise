@@ -16,7 +16,7 @@
 #include <cover/ui/VectorEditField.h>
 
 #include "CoverDrawObject.h"
-#include "../GhostAvatarControls.h"
+#include "../controls/GhostAvatarControls.h"
 
 class GhostAvatarControlsUI : public opencover::ui::Owner
 {

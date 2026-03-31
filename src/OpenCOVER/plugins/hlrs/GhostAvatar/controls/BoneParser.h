@@ -1,5 +1,5 @@
-#ifndef COVER_PLUGIN_GHOSTAVATAR_BoneParser_H
-#define COVER_PLUGIN_GHOSTAVATAR_BoneParser_H
+#ifndef COVER_PLUGIN_GHOSTAVATAR_CONTROLS_BoneParser_H
+#define COVER_PLUGIN_GHOSTAVATAR_CONTROLS_BoneParser_H
 
 // TODO: - find more scalable character animation library
 //       - need at least skin animation that runs on the GPU
@@ -40,4 +40,4 @@ public:
     void printBoneHierarchy() const;
 };
 
-#endif // COVER_PLUGIN_GHOSTAVATAR_BoneParser_H
+#endif // COVER_PLUGIN_GHOSTAVATAR_CONTROLS_BoneParser_H

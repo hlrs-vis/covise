@@ -1,5 +1,5 @@
-#ifndef COVER_PLUGIN_GHOSTAVATAR_GhostAvatarControls_H
-#define COVER_PLUGIN_GHOSTAVATAR_GhostAvatarControls_H
+#ifndef COVER_PLUGIN_GHOSTAVATAR_CONTROLS_GhostAvatarControls_H
+#define COVER_PLUGIN_GHOSTAVATAR_CONTROLS_GhostAvatarControls_H
 
 #include <string>
 
@@ -79,4 +79,4 @@ protected:
     osg::Vec3 getLocalTargetVector(const BoneParser::Bone &bone, const osg::Vec3 &targetPosition, const osg::Matrix &adjustMatrix) const;
 };
 
-#endif // COVER_PLUGIN_GHOSTAVATAR_GhostAvatarControls_H
+#endif // COVER_PLUGIN_GHOSTAVATAR_CONTROLS_GhostAvatarControls_H
