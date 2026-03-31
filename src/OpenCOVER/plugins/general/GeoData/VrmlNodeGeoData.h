@@ -55,6 +55,7 @@ public:
 private:
     // Fields
     VrmlSFVec3f d_offset;
+    VrmlSFString d_offsetName;
     VrmlSFBool d_enabled;
     VrmlSFString d_skyName;
 };

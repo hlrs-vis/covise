@@ -60,6 +60,15 @@ public:
 class  GeoDataLoader: public opencover::coVRPlugin, public opencover::ui::Owner
 {
 public:
+    struct DatasetInfo
+    {
+        std::string name;
+        double easting;
+        double northing;
+        double height;
+        double trueNorth;
+    };
+
     GeoDataLoader();
     bool init();
     ~GeoDataLoader();
@@ -92,6 +101,8 @@ public:
     std::optional<geoLocation> parseCoordinates(const std::string& jsonData);
     void jumpToLocation(const osg::Vec3d &worldPos);
 
+    const std::vector<DatasetInfo> &getDatasets() const { return datasets; }
+
 private:
     static GeoDataLoader *s_instance;
     PJ_CONTEXT* ProjContext;
@@ -123,14 +134,6 @@ private:
     opencover::ui::SelectionList* skys;
     std::list<skyEntry> skyEntries;
 
-    struct DatasetInfo
-    {
-        std::string name;
-        double easting;
-        double northing;
-        double height;
-        double trueNorth;
-    };
     std::vector<DatasetInfo> datasets;
 
     float northAngle;

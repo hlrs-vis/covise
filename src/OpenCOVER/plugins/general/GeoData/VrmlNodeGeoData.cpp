@@ -35,6 +35,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <OpenVRUI/osg/mathUtils.h>
 #include <math.h>
+#include <iostream>
 
 #include <util/byteswap.h>
 
@@ -62,16 +63,26 @@ void VrmlNodeGeoData::update()
 void VrmlNodeGeoData::initFields(VrmlNodeGeoData *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t); // Parent class
-    initFieldsHelper(node, t, 
-                     field("offset", node->d_offset, [node](auto f){
-                            GeoDataLoader::instance()->setRootTransform(osg::Vec3(node->d_offset.get()[0], node->d_offset.get()[1], node->d_offset.get()[2]), 0);
-                     }),
-        field("skyName", node->d_skyName, [node](auto f) {
-            GeoDataLoader::instance()->setSky(node->d_skyName.get()); }),
-        field("enabled", node->d_enabled, [node](auto f) {
-            }));
-                   
+    initFieldsHelper(node, t,
+        field("offset", node->d_offset, [node](auto f)
+            { GeoDataLoader::instance()->setRootTransform(osg::Vec3(node->d_offset.get()[0], node->d_offset.get()[1], node->d_offset.get()[2]), 0); }),
+        field("offsetName", node->d_offsetName, [node](auto f)
+            {
+                auto loader = GeoDataLoader::instance();
+                auto datasets = loader->getDatasets();
+                auto dataset = std::find_if(datasets.begin(), datasets.end(), [node](const GeoDataLoader::DatasetInfo &d)
+                    { return d.name == node->d_offsetName.get(); });
 
+                if (dataset == datasets.end())
+                {
+                    std::cerr << "[VrmlNodeGeoData::initFields] GeoData: invalid offsetName '" << node->d_offsetName.get() << "'." << std::endl;
+                    return;
+                }
+                osg::Vec3 origin = osg::Vec3(dataset->easting, dataset->northing, dataset->height);
+                loader->setRootTransform(-origin, dataset->trueNorth); }),
+        field("skyName", node->d_skyName, [node](auto f)
+            { GeoDataLoader::instance()->setSky(node->d_skyName.get()); }),
+        field("enabled", node->d_enabled, [node](auto f) { }));
 }
 
 const char *VrmlNodeGeoData::typeName() 
