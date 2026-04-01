@@ -78,7 +78,7 @@ void VrmlNodeGeoData::initFields(VrmlNodeGeoData *node, VrmlNodeType *t)
                     std::cerr << "[VrmlNodeGeoData::initFields] GeoData: invalid offsetName '" << node->d_offsetName.get() << "'." << std::endl;
                     return;
                 }
-                osg::Vec3 origin = osg::Vec3(dataset->easting, dataset->northing, dataset->height);
+                osg::Vec3 origin = osg::Vec3(dataset->easting, dataset->northing, dataset->altitude);
                 loader->setRootTransform(-origin, dataset->trueNorth); }),
         field("skyName", node->d_skyName, [node](auto f)
             { GeoDataLoader::instance()->setSky(node->d_skyName.get()); }),

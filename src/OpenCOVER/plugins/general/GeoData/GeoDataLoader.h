@@ -47,7 +47,7 @@ class skyEntry
 {
 public:
     enum skyType {texture=0,geometry};
-    skyEntry(const std::string& n, const std::string& fn);
+    skyEntry(const std::string& n, const std::string& fn, double lon, double lat);
     ~skyEntry();
     skyEntry(const skyEntry &se);
     std::string name;
@@ -55,6 +55,9 @@ public:
     osg::ref_ptr<osg::Node> skyNode;
     osg::ref_ptr<osg::Texture2D> skyTexture;
     skyType type = geometry;
+    double skyLongitude;
+    double skyLatitude;
+    double skyTrueNorth;
 };
 
 class  GeoDataLoader: public opencover::coVRPlugin, public opencover::ui::Owner
@@ -65,7 +68,7 @@ public:
         std::string name;
         double easting;
         double northing;
-        double height;
+        double altitude;
         double trueNorth;
     };
 
@@ -89,7 +92,7 @@ public:
         double longitude;
         double easting;
         double northing;
-        double height;
+        double altitude;
         std::string displayName;
     };
 
@@ -113,26 +116,32 @@ private:
     osg::ref_ptr<osg::Node> currentSkyNode;
     osg::ref_ptr<osg::Node> skyNode;
     osg::ref_ptr<osg::Node> terrainNode = nullptr;
+    osg::ref_ptr<osg::Node> buildingNode = nullptr;
     std::map<std::string, osg::ref_ptr<osg::Node>> loadedTerrains;
     std::map<std::string, osg::ref_ptr<osg::Node>> loadedBuildings;
+    bool showTerrain = true;
+    bool showBuildings = true;
 
     opencover::ui::Menu* geoDataMenu;
-    opencover::ui::Menu* terrainMenu;
-    opencover::ui::Menu* buildingMenu;
+    opencover::ui::Group* geoObjectGroup;
     opencover::ui::Group* skyGroup;
     opencover::ui::Group* originGroup;
     opencover::ui::Group* locationGroup;
+    opencover::ui::Group* visibilityGroup;
 
+    opencover::ui::Button* terrainVisibilityButton;
+    opencover::ui::Button* buildingVisibilityButton;
     opencover::ui::Button* skyButton;
     opencover::ui::Button* applyOffset;
     opencover::ui::EditField* location;
     opencover::ui::EditField* easting;
     opencover::ui::EditField* northing;
-    opencover::ui::EditField* height;
+    opencover::ui::EditField* altitude;
     opencover::ui::EditField* trueNorth;
     opencover::ui::SelectionList* datasetList;
     opencover::ui::SelectionList* skys;
-    std::list<skyEntry> skyEntries;
+    opencover::ui::Slider* skyNorthSlider = nullptr;
+    std::vector<skyEntry> skyEntries;
 
     std::vector<DatasetInfo> datasets;
 
@@ -143,7 +152,7 @@ private:
 
     std::string tempEastingText;
     std::string tempNorthingText;
-    std::string tempHeightText;
+    std::string tempAltitudeText;
     std::string tempTrueNorthText;
 };
 #endif
