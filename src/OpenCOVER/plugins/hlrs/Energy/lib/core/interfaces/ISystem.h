@@ -9,7 +9,9 @@ class ISystem : public ITimedependable, public IUpdateable {
   ISystem() = default;
   virtual ~ISystem() = default;
   ISystem(const ISystem&) = delete;
+  ISystem(ISystem&&) = delete;
   ISystem& operator=(const ISystem&) = delete;
+  ISystem& operator=(ISystem&&) = delete;
 
   // Initialize the system
   virtual void init() = 0;

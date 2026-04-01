@@ -14,6 +14,8 @@ class IEnergyGrid : public IDrawable,
   IEnergyGrid() = default;
   virtual ~IEnergyGrid() = default;
   IEnergyGrid(const IEnergyGrid&) = delete;
+  IEnergyGrid(IEnergyGrid&&) = delete;
   IEnergyGrid& operator=(const IEnergyGrid&) = delete;
+  IEnergyGrid& operator=(IEnergyGrid&&) = delete;
 };
 }  // namespace core::interface
