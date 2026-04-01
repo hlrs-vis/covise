@@ -10,7 +10,9 @@ class IInfoboard : public IInformable<InfoType>,
   IInfoboard() = default;
   virtual ~IInfoboard() = default;
   IInfoboard(const IInfoboard&) = delete;
+  IInfoboard(IInfoboard&&) = delete;
   IInfoboard& operator=(const IInfoboard&) = delete;
+  IInfoboard& operator=(IInfoboard&&) = delete;
   virtual void initInfoboard() = 0;
   virtual bool enabled() = 0;
   virtual DrawableType& getDrawable() = 0;

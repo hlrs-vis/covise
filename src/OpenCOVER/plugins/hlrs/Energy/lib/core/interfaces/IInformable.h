@@ -8,7 +8,9 @@ class IInformable : public IDrawable {
   IInformable() = default;
   virtual ~IInformable() = default;
   IInformable(const IInformable&) = delete;
+  IInformable(IInformable&&) = delete;
   IInformable& operator=(const IInformable&) = delete;
+  IInformable& operator=(IInformable&&) = delete;
   virtual void showInfo() = 0;
   virtual void hideInfo() = 0;
   virtual void updateInfo(const InfoType &info) = 0;

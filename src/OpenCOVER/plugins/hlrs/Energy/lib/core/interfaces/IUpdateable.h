@@ -5,7 +5,9 @@ class IUpdateable {
   IUpdateable() = default;
   virtual ~IUpdateable() = default;
   IUpdateable(const IUpdateable&) = delete;
+  IUpdateable(IUpdateable&&) = delete;
   IUpdateable operator=(const IUpdateable&) = delete;
+  IUpdateable operator=(IUpdateable&&) = delete;
   virtual void update() = 0;
 };
 }  // namespace core::interface
