@@ -9,10 +9,10 @@ using namespace ui;
 
 GhostAvatar::GhostAvatar()
     : coVRPlugin(COVER_PLUGIN_NAME)
-    , avatarControls(std::make_unique<TestAvatarControls>("/data/STARTS-ECHO/Avatars/shaderTests/ghost_cave_uniform.fbx", "LeftArm", ""))
-    //, avatarControls(std::make_unique<PlanarAvatarControls>("/data/STARTS-ECHO/Avatars/planarAvatar/PLANEE6.fbx", "Arm", "Head"))
-    , avatarTexture(SplotchTexture("AvatarTrans"))
-    , avatarControlsUI(GhostAvatarControlsUI(COVER_PLUGIN_NAME, *avatarControls))
+    , m_avatarControls(std::make_unique<TestAvatarControls>("/data/STARTS-ECHO/Avatars/shaderTests/ghost_cave_uniform.fbx", "LeftArm", ""))
+    //, m_avatarControls(std::make_unique<PlanarAvatarControls>("/data/STARTS-ECHO/Avatars/planarAvatar/PLANEE6.fbx", "Arm", "Head"))
+    , m_avatarTexture(SplotchTerroirTexture())
+    , m_avatarControlsUI(GhostAvatarControlsUI(COVER_PLUGIN_NAME, *m_avatarControls))
 {
 }
 
@@ -22,13 +22,11 @@ bool GhostAvatar::update()
     if (first)
     {
         first = false;
-        avatarControls->loadAvatar();
+        m_avatarControls->loadAvatar();
+        m_avatarTexture.applyTexture(m_avatarControls->getAvatarNode());
+        m_avatarControlsUI.initialize();
 
         createInteractors();
-
-        avatarTexture.initialize();
-
-        avatarControlsUI.initialize();
 
         return true;
     }
@@ -43,9 +41,9 @@ void GhostAvatar::preFrame()
     if (!m_interactorFloor || !m_interactorHead || !m_interactorHand)
         return;
 
-    avatarControls->updateBones(m_interactorFloor->getMatrix(), m_interactorHand->getMatrix(), m_interactorHead->getMatrix());
-    avatarTexture.update();
-    avatarControlsUI.update(m_interactorFloor->getMatrix(), m_interactorHand->getMatrix(), m_interactorHead->getMatrix());
+    m_avatarControls->updateBones(m_interactorFloor->getMatrix(), m_interactorHand->getMatrix(), m_interactorHead->getMatrix());
+    m_avatarTexture.updateTexture();
+    m_avatarControlsUI.update(m_interactorFloor->getMatrix(), m_interactorHand->getMatrix(), m_interactorHead->getMatrix());
 }
 
 void GhostAvatar::createInteractors()

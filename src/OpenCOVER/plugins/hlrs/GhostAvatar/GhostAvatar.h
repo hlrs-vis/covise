@@ -7,7 +7,8 @@
 #include <PluginUtil/coVR3DTransRotInteractor.h>
 
 #include "controls/GhostAvatarControls.h"
-#include "texture/SplotchTexture.h"
+#include "texture/StripesTerroirTexture.h"
+#include "texture/SplotchTerroirTexture.h"
 #include "ui/GhostAvatarControlsUI.h"
 
 // TODO:
@@ -22,10 +23,9 @@ public:
     void preFrame() override;
 
 private:
-    std::unique_ptr<GhostAvatarControls> avatarControls;
-    SplotchTexture avatarTexture;
-    GhostAvatarControlsUI avatarControlsUI;
-
+    std::unique_ptr<GhostAvatarControls> m_avatarControls;
+    SplotchTerroirTexture m_avatarTexture;
+    GhostAvatarControlsUI m_avatarControlsUI;
 
     // interactors
     std::unique_ptr<opencover::coVR3DTransRotInteractor> m_interactorHead, m_interactorFloor, m_interactorHand;

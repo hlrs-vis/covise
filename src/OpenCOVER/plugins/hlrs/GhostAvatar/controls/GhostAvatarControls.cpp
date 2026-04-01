@@ -1,18 +1,13 @@
 #include <osgDB/ReadFile>
 #include <cover/coVRPluginSupport.h> // includes cover
+#include <cover/VRSceneGraph.h>
 
 #include "GhostAvatarControls.h"
 
 using namespace opencover;
 
 GhostAvatarControls::GhostAvatarControls(const std::string &pathToFbx, const std::string &armNodeName, const std::string &headNodeName)
-    : m_pathToFbx(pathToFbx)
-    , m_armNodeName(armNodeName)
-    , m_headNodeName(headNodeName)
-    , m_armBaseVector({ 0, 1, 0 })
-    , m_headBaseVector({ 0, 1, 0 })
-    , m_armAdjustMatrix(osg::Matrix::identity())
-    , m_headAdjustMatrix(osg::Matrix::identity())
+    : GhostAvatarControls(pathToFbx, armNodeName, headNodeName, { 0, 1, 0 }, { 0, 1, 0 }, osg::Matrix::identity(), osg::Matrix::identity())
 {
 }
 
@@ -28,39 +23,11 @@ GhostAvatarControls::GhostAvatarControls(const std::string &pathToFbx, const std
 {
 }
 
-void GhostAvatarControls::loadArmBone()
-{
-    m_armBone = m_parser.getBoneByName(m_armNodeName);
-    if (m_armBone)
-    {
-        m_hasArm = true;
-    }
-    else
-    {
-        if (m_armNodeName != "")
-            std::cerr << "The avatar does not seem to have a bone called " << m_armNodeName << " -> can't move its arm!\n";
-    }
-}
-
-void GhostAvatarControls::loadHeadBone()
-{
-    m_headBone = m_parser.getBoneByName(m_headNodeName);
-    if (m_headBone)
-    {
-        m_hasHead = true;
-    }
-    else
-    {
-        if (m_headNodeName != "")
-            std::cerr << "The avatar does not seem to have a bone called " << m_headNodeName << " -> can't move its head!\n";
-    }
-}
-
 void GhostAvatarControls::loadAvatar()
 {
     auto model = osgDB::readNodeFile(m_pathToFbx);
     m_avatarTrans = new osg::MatrixTransform();
-    m_avatarTrans->setName("AvatarTrans");
+    m_avatarTrans->setName(m_nodeName);
     m_avatarTrans->addChild(model);
     cover->getObjectsRoot()->addChild(m_avatarTrans);
 
@@ -68,6 +35,11 @@ void GhostAvatarControls::loadAvatar()
 
     loadArmBone();
     loadHeadBone();
+}
+
+osg::ref_ptr<osg::Node> GhostAvatarControls::getAvatarNode() const
+{
+    return VRSceneGraph::instance()->findFirstNode<osg::Node>(m_nodeName.c_str());;
 }
 
 bool GhostAvatarControls::hasArm()
@@ -152,6 +124,34 @@ osg::Vec3 GhostAvatarControls::getInitialArmPosition() const
 osg::Vec3 GhostAvatarControls::getInitialHeadPosition() const
 {
     return getInitialBonePosition(*m_headBone);
+}
+
+void GhostAvatarControls::loadArmBone()
+{
+    m_armBone = m_parser.getBoneByName(m_armNodeName);
+    if (m_armBone)
+    {
+        m_hasArm = true;
+    }
+    else
+    {
+        if (m_armNodeName != "")
+            std::cerr << "The avatar does not seem to have a bone called " << m_armNodeName << " -> can't move its arm!\n";
+    }
+}
+
+void GhostAvatarControls::loadHeadBone()
+{
+    m_headBone = m_parser.getBoneByName(m_headNodeName);
+    if (m_headBone)
+    {
+        m_hasHead = true;
+    }
+    else
+    {
+        if (m_headNodeName != "")
+            std::cerr << "The avatar does not seem to have a bone called " << m_headNodeName << " -> can't move its head!\n";
+    }
 }
 
 void GhostAvatarControls::moveBoneToTarget(const BoneParser::Bone &bone, const osg::Vec3 &targetPosition, const osg::Matrix &adjustMatrix)

@@ -5,6 +5,7 @@
 
 #include <osg/Matrix>
 #include <osg/MatrixTransform>
+#include <osg/Node>
 #include <osg/ref_ptr>
 #include <osg/Vec3>
 #include <osg/Vec4>
@@ -19,6 +20,8 @@ public:
     virtual ~GhostAvatarControls() = default;
 
     void loadAvatar();
+
+    osg::ref_ptr<osg::Node> getAvatarNode() const;
 
     virtual void updateBones(const osg::Matrix &floorMatrix, const osg::Matrix &handMatrix, const osg::Matrix &headMatrix) = 0;
 
@@ -49,6 +52,7 @@ public:
 protected:
     std::string m_pathToFbx;
 
+    std::string m_nodeName = "AvatarTrans";
     std::string m_armNodeName;
     std::string m_headNodeName;
 
