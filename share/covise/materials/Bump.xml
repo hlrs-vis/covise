@@ -51,6 +51,9 @@ vec4 diffuseColor = texture2D( diffuseMap, Texcoord ) ;
       vec3 L = normalize(lightDir);
       	
       float lambertTerm = dot(N,L);
+
+      if(lambertTerm &lt; 0.0)
+        lambertTerm = -lambertTerm;
       	
       if(lambertTerm &gt; 0.0)
       {
@@ -72,6 +75,8 @@ else
       	               gl_FrontMaterial.specular * 
       				   specular;	
       	}
+else
+
       if(diffuseColor.a &lt; 0.5)
 	  {
 	      discard;

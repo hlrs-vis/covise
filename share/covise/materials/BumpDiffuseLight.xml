@@ -70,6 +70,8 @@ gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
       vec3 L = normalize(lightDir);
       	
       float lambertTerm = dot(N,L);
+      if(lambertTerm &lt; 0.0)
+        lambertTerm = -lambertTerm;
       	
       if(lambertTerm > 0.0)
       {
