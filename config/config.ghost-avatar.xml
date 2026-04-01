@@ -155,7 +155,6 @@
    <GeoData value="true" />
    <OsgAnimation value="true" />
    <GhostAvatar value="true" />
-   <SplotchAvatar value="true" />
    <Measure menu="true" />
    <PointCloud shared="true">
    <PointSize value="4" />
