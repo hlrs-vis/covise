@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include <osg/Vec3>
+
 #include "TerroirTexture.h"
 
 class SplotchTerroirTexture: public TerroirTexture
@@ -14,12 +16,12 @@ public:
 
 private:
     std::vector<osg::Vec3> m_splotchPositions;
-    int m_textureSlot = 0;
-    int m_nrTextureSlots = 4;
 
     void onEnoughDistanceCovered() override;
-    void updateSplotchPositions(const osg::Vec3 &splotch);
+    osg::Vec3 generateRandomSplotch(int textureSlot);
+
     void updateShaderUniforms();
+    void updateSplotchPositions(const osg::Vec3 &splotch);
 
 };
 

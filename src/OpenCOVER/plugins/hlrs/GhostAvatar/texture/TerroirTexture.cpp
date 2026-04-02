@@ -36,15 +36,6 @@ void TerroirTexture::applyTexture(osg::Node *node)
     m_rttCamera.update(getNodeTransform(m_node), m_cameraOffset, m_cameraLookAt);
 }
 
-void TerroirTexture::onEnoughDistanceCovered()
-{
-    if (auto cameraScreenshot = m_rttCamera.getScreenshotAsTexture())
-        recursivelyAddTextureToSlot(m_node, m_textureSlot, cameraScreenshot);
-
-    m_previousPosition = m_currentPosition;
-    m_textureSlot = (m_textureSlot + 1) % m_nrTextureSlots;
-}
-
 void TerroirTexture::updateTexture()
 {
     if (!m_node)
@@ -59,9 +50,24 @@ void TerroirTexture::updateTexture()
         onEnoughDistanceCovered();
 }
 
+int TerroirTexture::getCurrentTextureSlot()
+{
+    return m_textureSlot;
+}
+
+int TerroirTexture::getNumberOfTextureSlots()
+{
+    return m_nrTextureSlots;
+}
+
+void TerroirTexture::applyShaderToNode(const std::string &shaderName)
+{
+    if (auto shader = coVRShaderList::instance()->get(shaderName.c_str()))
+        shader->apply(m_node);
+}
+
 void TerroirTexture::recursivelyAddTextureToSlot(osg::Node *node, int texId, osg::Texture *texture)
 {
-
     auto stateSet = node->getOrCreateStateSet();
     auto textureUniformName = ("texture" + std::to_string(texId + 1)).c_str();
 
@@ -75,16 +81,19 @@ void TerroirTexture::recursivelyAddTextureToSlot(osg::Node *node, int texId, osg
     }
 }
 
-void TerroirTexture::applyShaderToNode(const std::string &shaderName)
-{
-    if (auto shader = coVRShaderList::instance()->get(shaderName.c_str()))
-        shader->apply(m_node);
-}
-
 bool TerroirTexture::enoughDistanceCovered()
 {
     auto distanceCovered = (m_currentPosition - m_previousPosition).length();
     return distanceCovered >= m_distanceThreshold;
+}
+
+void TerroirTexture::onEnoughDistanceCovered()
+{
+    if (auto cameraScreenshot = m_rttCamera.getScreenshotAsTexture())
+        recursivelyAddTextureToSlot(m_node, m_textureSlot, cameraScreenshot);
+
+    m_previousPosition = m_currentPosition;
+    m_textureSlot = (m_textureSlot + 1) % m_nrTextureSlots;
 }
 
 osg::Matrix TerroirTexture::getNodeTransform(osg::Node *node) const

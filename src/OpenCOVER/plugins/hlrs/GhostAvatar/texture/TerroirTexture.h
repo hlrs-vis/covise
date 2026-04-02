@@ -27,8 +27,8 @@ protected:
     osg::Vec3 m_previousPosition;
     float m_distanceThreshold = 100;
 
-    int m_textureSlot = 0;
-    int m_nrTextureSlots = 4;
+    int getCurrentTextureSlot();
+    int getNumberOfTextureSlots();
 
     void applyShaderToNode(const std::string &shaderName);
     void recursivelyAddTextureToSlot(osg::Node *node, int texId, osg::Texture *texture);
@@ -44,6 +44,10 @@ protected:
     osg::Vec3 m_cameraOffset = osg::Vec3(50.0, 0.0, 0.0);
     // makes the camera look ahead of the avatar
     osg::Vec3 m_cameraLookAt = osg::Vec3(20.0, 0.0, 0.0);
+
+private:
+    int m_textureSlot = 0;
+    int m_nrTextureSlots = 4;
 };
 
 #endif // COVER_PLUGIN_GHOSTAVATAR_TEXTURE_TerroirTexture_H
