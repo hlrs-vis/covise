@@ -55,20 +55,27 @@ PointRayTracerPlugin *PointRayTracerPlugin::instance()
 
 PointRayTracerPlugin::PointRayTracerPlugin()
 : coVRPlugin(COVER_PLUGIN_NAME)
+, m_numPointClouds(0)
+, m_currentPointCloud(0)
+, m_currentPointCloud_has_changed(false)
 {
+    fprintf(stderr, "PRT: constructor start\n");
     //register file handler
     coVRFileManager::instance()->registerFileHandler(&handlers[0]);
     coVRFileManager::instance()->registerFileHandler(&handlers[1]);
     coVRFileManager::instance()->registerFileHandler(&handlers[2]);
     coVRFileManager::instance()->registerFileHandler(&handlers[3]);
+    fprintf(stderr, "PRT: file handlers registered\n");
 
     //create drawable
     m_drawable = new PointRayTracerDrawable;
+    fprintf(stderr, "PRT: drawable created\n");
 }
 
 
 bool PointRayTracerPlugin::init()
 {
+    fprintf(stderr, "PRT: init start\n");
     if (cover->debugLevel(1)) fprintf(stderr, "\n    PointRayTracerPlugin::init\n");
 
     if (PointRayTracerPlugin::plugin != NULL)
@@ -113,19 +120,23 @@ bool PointRayTracerPlugin::init()
     interactionPrev = new coTrackerButtonInteraction(coInteraction::ButtonC,"Previous Point Cloud", coInteraction::Medium);
     coInteractionManager::the()->registerInteraction(interactionNext);
     coInteractionManager::the()->registerInteraction(interactionPrev);
-
+    fprintf(stderr, "PRT: init done\n");
     return true;
 }
 
 
 bool PointRayTracerPlugin::init2(){
+    fprintf(stderr, "PRT: init2 start\n");
     if (cover->debugLevel(1)) fprintf(stderr, "\n    PointRayTracerPlugin::init2\n");
 
     //init geode and add it to the scenegraph
     m_geode = new osg::Geode;
     m_geode->setName("PointRayTracer");
+    fprintf(stderr, "PRT: addDrawable\n");
     m_geode->addDrawable(m_drawable);
+    fprintf(stderr, "PRT: addChild geode\n");
     opencover::cover->getScene()->addChild(m_geode);
+    fprintf(stderr, "PRT: init2 done\n");
 
     /*
     m_visibility_has_changed = false;
@@ -145,9 +156,11 @@ int PointRayTracerPlugin::sloadPts(const char *filename, osg::Group *loadParent,
 
 
 int PointRayTracerPlugin::loadPts(const char *filename){
+    fprintf(stderr, "PRT: loadPts: %s\n", filename);
     if (cover->debugLevel(1)) fprintf(stderr, "\n    PointRayTracerPlugin::loadPts: %s\n", filename);
     if(!PointReader::instance()->readFile(std::string(filename), m_pointSize, m_bvh_vector, m_bbox, m_useCache, m_cutUTMdata)) return 1;
 
+    fprintf(stderr, "PRT: loadPts done, bvh_vector.size()=%zu\n", m_bvh_vector.size());
     m_numPointClouds++;
     return 0;
 }
@@ -167,8 +180,6 @@ PointRayTracerPlugin::~PointRayTracerPlugin()
     coVRFileManager::instance()->unregisterFileHandler(&handlers[0]);
     coInteractionManager::the()->unregisterInteraction(interactionNext);
     coInteractionManager::the()->unregisterInteraction(interactionPrev);
-
-    delete m_reader;
 
 }
 
@@ -260,12 +271,17 @@ void PointRayTracerPlugin::showPreviousPointCloud(){
 
 void PointRayTracerPlugin::preDraw(osg::RenderInfo &info)
 {
+    static bool first = true;
+    if (first) { fprintf(stderr, "PRT: preDraw first call, bvh_vector.size()=%zu\n", m_bvh_vector.size()); first = false; }
+
     static bool initialized = false;
-    if (!initialized)
+    if (!initialized && !m_bvh_vector.empty())
     {
         if (cover->debugLevel(1)) fprintf(stderr, "\n    PointRayTracerPlugin::preDraw\n");
         m_drawable->initData(m_bvh_vector);
         initialized = true;
+        m_currentPointCloud = 0;
+        m_currentPointCloud_has_changed = true;
     }
 
     /*

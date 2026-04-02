@@ -192,13 +192,14 @@ bool PointReader::readFile(std::string filename,
                 return false;
             }
 
-            nVertices = ply_set_read_cb(ply, "vertex", "x", &readVertexCallback, &points, 0);
-            ply_set_read_cb(ply, "vertex", "y", &readVertexCallback, &points, 1);
-            ply_set_read_cb(ply, "vertex", "z", &readVertexCallback, &points, 2);
+            PLYCallbackData cbdata{&points, 0, 0};
+            nVertices = ply_set_read_cb(ply, "vertex", "x", &readVertexCallback, &cbdata, 0);
+            ply_set_read_cb(ply, "vertex", "y", &readVertexCallback, &cbdata, 1);
+            ply_set_read_cb(ply, "vertex", "z", &readVertexCallback, &cbdata, 2);
 
-            ply_set_read_cb(ply, "vertex", "red", &readColorCallback, &points, 0);
-            ply_set_read_cb(ply, "vertex", "green", &readColorCallback, &points, 1);
-            ply_set_read_cb(ply, "vertex", "blue", &readColorCallback, &points, 2);
+            ply_set_read_cb(ply, "vertex", "red", &readColorCallback, &cbdata, 0);
+            ply_set_read_cb(ply, "vertex", "green", &readColorCallback, &cbdata, 1);
+            ply_set_read_cb(ply, "vertex", "blue", &readColorCallback, &cbdata, 2);
 
             for(long i = 0; i < nVertices; i++){
                 sphere_type sp;
