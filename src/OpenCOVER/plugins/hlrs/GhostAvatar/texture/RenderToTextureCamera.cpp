@@ -70,16 +70,32 @@ void RenderToTextureCamera::setZFarToClippingPlane(float scale)
     {
         m_zFar = newZFar;
         setProjectionMatrixAsPerspective(m_fovy, m_aspectRatio, m_zNear, m_zFar);
+
+        if (m_enableDebugCamera)
+            m_debugCamera->setProjectionMatrixAsPerspective(m_fovy, m_aspectRatio, m_zNear, m_zFar);
     }
 }
 
-void RenderToTextureCamera::update(const osg::Matrix &transform, const osg::Vec3 &offset, const osg::Vec3 &lookAt, const osg::Vec3 &baseUp)
+void RenderToTextureCamera::updateCamera(const osg::Matrix &transform, const osg::Vec3 &baseForward, const osg::Vec3 &baseUp)
 {
-    osg::Vec3 eye = transform.preMult(offset);
-    osg::Vec3 centerWorld = transform.preMult(offset + lookAt);
+    osg::Vec3 eye = transform.getTrans();
+    osg::Vec3 forward = osg::Matrix::transform3x3(baseForward, transform);
     osg::Vec3 up = osg::Matrix::transform3x3(baseUp, transform);
 
+    forward.normalize();
+    up.normalize();
+
+    osg::Vec3 centerWorld = eye + forward;
+
     setViewMatrixAsLookAt(eye, centerWorld, up);
+
+    if (m_enableDebugCamera)
+        m_debugCamera->setViewMatrixAsLookAt(eye, centerWorld, up);
+}
+
+void RenderToTextureCamera::update(const osg::Matrix &transform, const osg::Vec3 &baseForward, const osg::Vec3 &baseUp)
+{
+    updateCamera(transform, baseForward, baseUp);
 
     // Since the user can choose to change the far clipping plane value at any time
     // we have to check for changes every update.
@@ -90,12 +106,6 @@ void RenderToTextureCamera::update(const osg::Matrix &transform, const osg::Vec3
     // has finished loading, we have to add it to the camera here as soon as it becomes available.
     if (!m_addedSkyNode)
         addSkyNode("sky");
-
-    if (m_enableDebugCamera)
-    {
-        m_debugCamera->setProjectionMatrixAsPerspective(m_fovy, m_aspectRatio, m_zNear, m_zFar);
-        m_debugCamera->setViewMatrixAsLookAt(eye, centerWorld, up);
-    }
 }
 
 void RenderToTextureCamera::configureCamera()

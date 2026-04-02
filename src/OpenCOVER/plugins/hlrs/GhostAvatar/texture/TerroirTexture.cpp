@@ -53,7 +53,7 @@ void TerroirTexture::applyTexture(osg::Node *node)
     setReferencePosition(m_currentPosition);
 
     m_rttCamera.initialize();
-    m_rttCamera.update(getNodeTransform(m_node), m_cameraOffset, m_cameraLookAt);
+    m_rttCamera.update(getNodeTransform(m_node));
 }
 
 void TerroirTexture::updateTexture()
@@ -68,7 +68,7 @@ void TerroirTexture::updateTexture()
     auto nodeTransform = getNodeTransform(m_node);
     m_currentPosition = nodeTransform.getTrans();
 
-    m_rttCamera.update(nodeTransform, m_cameraOffset, m_cameraLookAt);
+    m_rttCamera.update(nodeTransform);
 
     if (enoughDistanceCovered())
         onEnoughDistanceCovered();

@@ -49,20 +49,17 @@ public:
     */
     osg::ref_ptr<osg::Image> getScreenshot() const;
 
+    /*
+        Calls `getScreenshot` and converts the screenshot to a texture.
+    */
     osg::ref_ptr<osg::Texture2D> getScreenshotAsTexture() const;
 
     /*
-        Sets the camera's z far distance to the far clipping plane distance set in COVER.
-    */
-    void setZFarToClippingPlane(float scale = 1.0);
-
-    /*
-       Sets the position and orientation of the cameras based on a given `transform` matrix.
-       Note that the camera will be moved relative to `transform` by `offset`.
-       Moreover, the camera will look at the point defined by `lookDirection`,
-       which is relative to `transform` as well.
+       Sets the camera's pose directly from a given node transform.
+       The camera position is taken from the transform translation and looks along
+       the transformed local forward axis.
    */
-    void update(const osg::Matrix &transform, const osg::Vec3 &offset, const osg::Vec3 &lookAt, const osg::Vec3 &baseUp = { 0.0, 0.0, 1.0 });
+    void update(const osg::Matrix &transform, const osg::Vec3 &baseForward = { 1.0, 0.0, 0.0 }, const osg::Vec3 &baseUp = { 0.0, 0.0, 1.0 });
 
 private:
     osg::ref_ptr<osg::Image> m_image;
@@ -80,6 +77,9 @@ private:
     void configureCamera();
     void configureDebugCamera();
     void configureImage();
+
+    void setZFarToClippingPlane(float scale = 1.0);
+    void updateCamera(const osg::Matrix &transform, const osg::Vec3 &baseForward, const osg::Vec3 &baseUp);
 
     void addChildNode(osg::Node *node);
     void addSkyNode(const char *skyNodeName);
