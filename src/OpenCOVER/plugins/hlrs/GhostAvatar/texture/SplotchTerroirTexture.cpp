@@ -1,3 +1,4 @@
+#include <iostream>
 #include <random>
 
 #include <osg/Uniform>
@@ -57,7 +58,7 @@ void SplotchTerroirTexture::updateShaderUniforms()
 
 void SplotchTerroirTexture::updateSplotchPositions(const osg::Vec3 &splotch)
 {
-    if (m_splotchPositions.size() <= getNumberOfTextureSlots())
+    if (m_splotchPositions.size() < getNumberOfTextureSlots())
         m_splotchPositions.push_back(splotch);
     else
         m_splotchPositions[getCurrentTextureSlot()] = splotch;

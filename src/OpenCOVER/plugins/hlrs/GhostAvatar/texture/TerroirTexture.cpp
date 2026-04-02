@@ -1,3 +1,4 @@
+#include <cassert>
 #include <iostream>
 
 #include <osg/MatrixTransform>
@@ -21,16 +22,13 @@ TerroirTexture::TerroirTexture(const std::string &shaderName, RenderToTextureCam
 
 void TerroirTexture::applyTexture(osg::Node *node)
 {
+    assert(node);
+
     m_node = node;
-    if (!m_node)
-    {
-        std::cerr << "ERROR: Node is invalid, cannot apply shader to it!" << std::endl;
-        return;
-    }
     applyShaderToNode(m_shaderName);
 
     m_currentPosition = getNodeTransform(m_node).getTrans();
-    m_previousPosition = m_currentPosition;
+    setReferencePosition(m_currentPosition);
 
     m_rttCamera.initialize();
     m_rttCamera.update(getNodeTransform(m_node), m_cameraOffset, m_cameraLookAt);
@@ -48,6 +46,32 @@ void TerroirTexture::updateTexture()
 
     if (enoughDistanceCovered())
         onEnoughDistanceCovered();
+}
+
+osg::Vec3 TerroirTexture::getCurrentPosition()
+{
+    return m_currentPosition;
+}
+
+osg::Vec3 TerroirTexture::getReferencePosition()
+{
+    return m_referencePosition;
+}
+
+void TerroirTexture::setReferencePosition(osg::Vec3 position)
+{
+    m_referencePosition = position;
+}
+
+float TerroirTexture::getDistanceThreshold()
+{
+    return m_distanceThreshold;
+}
+
+void TerroirTexture::setDistanceThreshold(float threshold)
+{
+    assert(threshold > 0);
+    m_distanceThreshold = threshold;
 }
 
 int TerroirTexture::getCurrentTextureSlot()
@@ -68,6 +92,10 @@ void TerroirTexture::applyShaderToNode(const std::string &shaderName)
 
 void TerroirTexture::recursivelyAddTextureToSlot(osg::Node *node, int texId, osg::Texture *texture)
 {
+    assert(node);
+    assert(texture);
+    assert(texId >= 0 && texId < m_nrTextureSlots);
+
     auto stateSet = node->getOrCreateStateSet();
     auto textureUniformName = ("texture" + std::to_string(texId + 1)).c_str();
 
@@ -83,7 +111,7 @@ void TerroirTexture::recursivelyAddTextureToSlot(osg::Node *node, int texId, osg
 
 bool TerroirTexture::enoughDistanceCovered()
 {
-    auto distanceCovered = (m_currentPosition - m_previousPosition).length();
+    auto distanceCovered = (m_currentPosition - m_referencePosition).length();
     return distanceCovered >= m_distanceThreshold;
 }
 
@@ -92,14 +120,13 @@ void TerroirTexture::onEnoughDistanceCovered()
     if (auto cameraScreenshot = m_rttCamera.getScreenshotAsTexture())
         recursivelyAddTextureToSlot(m_node, m_textureSlot, cameraScreenshot);
 
-    m_previousPosition = m_currentPosition;
+    setReferencePosition(m_currentPosition);
     m_textureSlot = (m_textureSlot + 1) % m_nrTextureSlots;
 }
 
 osg::Matrix TerroirTexture::getNodeTransform(osg::Node *node) const
 {
-    if (!node)
-        return osg::Matrix::identity();
+    assert(node);
 
     osg::MatrixTransform *mt = dynamic_cast<osg::MatrixTransform *>(node);
     if (mt)

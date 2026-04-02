@@ -23,9 +23,13 @@ protected:
     osg::ref_ptr<osg::Node> m_node;
     std::string m_shaderName;
 
-    osg::Vec3 m_currentPosition;
-    osg::Vec3 m_previousPosition;
-    float m_distanceThreshold = 100;
+    osg::Vec3 getCurrentPosition();
+
+    osg::Vec3 getReferencePosition();
+    void setReferencePosition(osg::Vec3 position);
+
+    float getDistanceThreshold();
+    void setDistanceThreshold(float threshold);
 
     int getCurrentTextureSlot();
     int getNumberOfTextureSlots();
@@ -46,6 +50,11 @@ protected:
     osg::Vec3 m_cameraLookAt = osg::Vec3(20.0, 0.0, 0.0);
 
 private:
+    osg::Vec3 m_currentPosition;
+    osg::Vec3 m_referencePosition;
+
+    float m_distanceThreshold = 100;
+
     int m_textureSlot = 0;
     int m_nrTextureSlots = 4;
 };
