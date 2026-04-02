@@ -62,14 +62,14 @@ void PlayerOpenAL::update()
     }
 }
 
-Player::Source *
-PlayerOpenAL::newSource(const Audio *audio)
+std::unique_ptr<Player::Source>
+PlayerOpenAL::makeSource(const Audio *audio)
 {
-    return new Source(audio);
+    return std::make_unique<PlayerOpenAL::Source>(this, audio);
 }
 
-PlayerOpenAL::Source::Source(const Audio *audio)
-    : Player::Source(audio)
+PlayerOpenAL::Source::Source(Player* player, const Audio *audio)
+    : Player::Source(player, audio)
 {
     alGenSources(1, &alSource);
     alSource3f(alSource, AL_POSITION, x.x, x.y, x.z);

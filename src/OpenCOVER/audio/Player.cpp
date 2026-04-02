@@ -8,6 +8,7 @@
 #include "Listener.h"
 #include "Player.h"
 #include <assert.h>
+#include <algorithm>
 #include <boost/algorithm/string.hpp>
 
 #include <config/CoviseConfig.h>
@@ -20,9 +21,16 @@ using std::endl;
 using namespace opencover::audio;
 using covise::coCoviseConfig;
 
-Player::Source::Source(const Audio *audio)
-    : audio(audio)
+Player::Source::Source(Player *player, const Audio *audio)
+    : player(player)
+    , audio(audio)
 {
+    player->registerSource(this);
+}
+
+Player::Source::~Source()
+{
+    player->unregisterSource(this);
 }
 
 void Player::Source::setAudio(const Audio *audio)
@@ -98,7 +106,10 @@ Player::Player(const Listener *listener)
 
 void Player::update()
 {
-    //
+    for (auto &source : sources)
+    {
+        source->update(this);
+    }
 }
 
 Player *Player::createPlayer(Listener *listener, const std::string &type)
@@ -135,8 +146,19 @@ Player *Player::createPlayer(Listener *listener, const std::string &type)
     return nullptr;
 }
 
-Player::Source *
-Player::newSource(const Audio *audio)
+std::unique_ptr<Player::Source>
+Player::makeSource(const Audio *audio)
 {
-    return new Source(audio);
+    return std::make_unique<Player::Source>(this, audio);
+}
+
+void Player::registerSource(Source *source)
+{
+    sources.insert(source);
+}
+
+void Player::unregisterSource(Source *source)
+{
+
+    sources.erase(source);
 }

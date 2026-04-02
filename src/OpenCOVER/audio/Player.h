@@ -11,7 +11,8 @@
 #include <util/coExport.h>
 #include "Audio.h"
 
-#include <vector>
+#include <set>
+#include <memory>
 #include <glm/vec3.hpp>
 
 #include "Listener.h"
@@ -30,7 +31,9 @@ public:
         friend class PlayerOsc;
 
     public:
-        Source(const Audio *audio);
+        Source(Player *player, const Audio *audio);
+        virtual ~Source();
+
         virtual void setPitch(float pitch);
         virtual void setIntensity(float intensity);
         virtual void setStart(double start);
@@ -44,17 +47,12 @@ public:
         virtual void play(double start);
         virtual void stop();
         virtual bool isPlaying();
-        virtual int update(const Player *genericPlayer = 0, char *buf = 0, int bufsiz = 0)
-        {
-            (void)genericPlayer;
-            (void)buf;
-            (void)bufsiz;
-            return -1;
-        }
+        virtual void update(const Player *genericPlayer) { }
         virtual void stopForRestart() { }
         virtual void restart() { }
 
     protected:
+        Player *player;
         const Audio *audio;
         float pitch = 1.f;
         float intensity = 0.f;
@@ -68,16 +66,17 @@ public:
     };
 
     Player(const Listener *listener);
-
     virtual void update();
-
-    // Source related
-    virtual Source *newSource(const Audio *);
+    virtual std::unique_ptr<Source> makeSource(const Audio *);
 
     static Player *createPlayer(Listener *listener, const std::string &type);
 
 protected:
     const Listener *listener;
+
+    std::set<Source *> sources;
+    void registerSource(Source *source);
+    void unregisterSource(Source *source);
 };
 } // namespace
 #endif

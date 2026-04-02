@@ -526,7 +526,7 @@ void GPSPoint::createSound()
         {
             fprintf(stderr, "Audio not found for %s\n", filename.c_str());
         }
-        source = player->newSource(audio);
+        source = player->makeSource(audio);
         source->setLoop(false);
         source->stop();
         source->setIntensity(1.0);

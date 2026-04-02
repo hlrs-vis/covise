@@ -115,7 +115,7 @@ protected:
     double velocitySetpoint;
     bool oldParkState;
 #ifndef USE_CAR_SOUND
-    Player::Source *anlasserSource;
+    std::shared_ptr<Player::Source> anlasserSource;
 #endif
 };
 

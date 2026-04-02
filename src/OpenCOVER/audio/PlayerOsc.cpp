@@ -96,10 +96,9 @@ void PlayerOsc::transmitConfiguration()
     }
 }
 
-PlayerOsc::Source::Source(const Audio *audio, PlayerOsc *player)
-    : Player::Source(audio)
-    , uuid(boost::uuids::to_string(player->uuid_generator()))
-    , player(player)
+PlayerOsc::Source::Source(Player *player, const Audio *audio)
+    : Player::Source(player, audio)
+    , uuid(boost::uuids::to_string(((PlayerOsc *)player)->uuid_generator()))
 {
     setAudio(audio);
 }
@@ -126,6 +125,7 @@ void PlayerOsc::Source::play(double start)
 
     OSCPP::Client::Packet packet(buffer, sizeof(buffer));
     packet.openMessage(addr, 0).closeMessage();
+    PlayerOsc *player = (PlayerOsc *)this->player;
     player->write(buffer, packet.size());
 }
 
@@ -137,13 +137,13 @@ void PlayerOsc::Source::stop()
     // WRITE_MESSAGE("/source/%s/stop", uuid.c_str());
 }
 
-int PlayerOsc::Source::update(const Player *genericPlayer, char *buf, int bufsize)
+void PlayerOsc::Source::update(const Player *genericPlayer)
 {
-    Player::Source::update(genericPlayer, buf, bufsize);
+    Player::Source::update(genericPlayer);
 
     if (!isPlaying())
     {
-        return -1;
+        return;
     }
 
     char buffer[MAX_BUFLEN];
@@ -152,9 +152,8 @@ int PlayerOsc::Source::update(const Player *genericPlayer, char *buf, int bufsiz
 
     OSCPP::Client::Packet packet(buffer, sizeof(buffer));
     packet.openMessage(addr, 3).float32(x.x).float32(x.y).float32(x.z).closeMessage();
+    PlayerOsc *player = (PlayerOsc *)this->player;
     player->write(buffer, packet.size());
-
-    return 0;
 }
 
 void PlayerOsc::Source::setLoop(bool loop)
@@ -164,7 +163,7 @@ void PlayerOsc::Source::setLoop(bool loop)
     // TODO: send loop parameter
 }
 
-Player::Source *PlayerOsc::newSource(const Audio *audio)
+std::unique_ptr<Player::Source> PlayerOsc::makeSource(const Audio *audio)
 {
-    return new Source(audio, this);
+    return std::make_unique<PlayerOsc::Source>(this, audio);
 }

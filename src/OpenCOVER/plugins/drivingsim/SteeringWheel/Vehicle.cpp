@@ -304,9 +304,9 @@ osg::Matrix *VrmlNodeVehicle::getCarTransMatrix()
 void VrmlNodeVehicle::init()
 {
 #ifndef USE_CAR_SOUND
-    source = NULL;
-    gearSound = NULL;
-    hornSound = NULL;
+    source = nullptr;
+    gearSound = nullptr;
+    hornSound = nullptr;
 
     Player* player = cover->getPlayer();
     if (player == NULL)
@@ -319,21 +319,21 @@ void VrmlNodeVehicle::init()
     Audio *hornAudio = new Audio("horn.wav");
     if (player)
     {
-        source = player->newSource(engineAudio);
+        source = player->makeSource(engineAudio);
         if (source)
         {
             source->setLoop(true);
             source->stop();
             source->setIntensity(1.0);
         }
-        gearSound = player->newSource(gearAudio);
+        gearSound = player->makeSource(gearAudio);
         if (gearSound)
         {
             gearSound->setLoop(false);
             gearSound->stop();
             gearSound->setIntensity(1.0);
         }
-        hornSound = player->newSource(hornAudio);
+        hornSound = player->makeSource(hornAudio);
         if (hornSound)
         {
             hornSound->setLoop(true);

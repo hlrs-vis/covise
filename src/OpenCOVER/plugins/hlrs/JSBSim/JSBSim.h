@@ -204,9 +204,9 @@ private:
     audio::Audio engineAudio;
     audio::Audio varioAudio;
     audio::Audio windAudio;
-    audio::Player::Source *engineSource;
-    audio::Player::Source *varioSource;
-    audio::Player::Source *windSource;
+    std::shared_ptr<audio::Player::Source> engineSource;
+    std::shared_ptr<audio::Player::Source> varioSource;
+    std::shared_ptr<audio::Player::Source> windSource;
 
     std::string host;
     unsigned short serverPort;

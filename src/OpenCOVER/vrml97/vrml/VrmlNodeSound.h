@@ -44,7 +44,6 @@ public:
 
     VrmlNodeSound(VrmlScene *scene = 0);
     VrmlNodeSound(VrmlNodeSound *sound);
-    virtual ~VrmlNodeSound();
 
     virtual void cloneChildren(VrmlNamespace *);
 
@@ -73,7 +72,7 @@ private:
     // data for rendering
     VrmlSFVec3f lastLocation;
     double lastTime;
-    Player::Source *source;
+    std::shared_ptr<Player::Source> source = nullptr;
 };
 }
 #endif //_VRMLNODESOUND_

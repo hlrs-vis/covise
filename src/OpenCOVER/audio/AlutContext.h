@@ -19,8 +19,8 @@ public:
     AlutContext();
     ~AlutContext();
 
-    bool is_initialized;
-    bool has_context;
+    static bool is_initialized;
+    static bool has_context;
 
 private:
     static int _refcount;

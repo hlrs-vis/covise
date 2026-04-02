@@ -34,7 +34,7 @@ public:
     PlayerOsc(const Listener *listener);
     // ~PlayerOsc();
 
-    virtual Player::Source *newSource(const Audio *audio);
+    virtual std::unique_ptr<Player::Source> makeSource(const Audio *audio);
 
     void connect();
 
@@ -50,18 +50,17 @@ protected:
     class Source : public Player::Source
     {
     public:
-        Source(const Audio *audio, PlayerOsc *player);
+        Source(Player *player, const Audio *audio);
         virtual ~Source();
-        virtual void setAudio(const Audio *audio);
-        virtual void play(double start);
-        virtual void play();
-        virtual void stop();
-        virtual void setLoop(bool loop);
+        virtual void setAudio(const Audio *audio) override;
+        virtual void play(double start) override;
+        virtual void play() override;
+        virtual void stop() override;
+        virtual void setLoop(bool loop) override;
 
-        virtual int update(const Player *player, char *buf = 0, int numFrames = 0);
+        virtual void update(const Player *player) override;
 
         std::string uuid;
-        PlayerOsc *player;
     };
 
     boost::uuids::random_generator uuid_generator;

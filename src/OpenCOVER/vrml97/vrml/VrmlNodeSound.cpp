@@ -47,9 +47,7 @@ void VrmlNodeSound::initFields(VrmlNodeSound *node, VrmlNodeType *t)
         exposedField("minFront", node->d_minFront),
         exposedField("priority", node->d_priority),
         exposedField("source", node->d_source, [node](auto value)
-            {
-                        delete node->source;
-                        node->source = NULL; }),
+            { node->source = nullptr; }),
         field("spatialize", node->d_spatialize),
         exposedField("doppler", node->d_doppler));
 }
@@ -67,7 +65,7 @@ VrmlNodeSound::VrmlNodeSound(VrmlScene *scene)
     , d_minFront(1)
     , d_spatialize(true)
     , d_doppler(false)
-    , source(0)
+    , source(nullptr)
 {
     forceTraversal(false);
 }
@@ -85,11 +83,6 @@ VrmlNodeSound::VrmlNodeSound(VrmlNodeSound *sound)
     , source(sound->source)
 {
     forceTraversal(false);
-}
-
-VrmlNodeSound::~VrmlNodeSound()
-{
-    delete source;
 }
 
 void VrmlNodeSound::cloneChildren(VrmlNamespace *ns)
@@ -146,7 +139,7 @@ void VrmlNodeSound::render(Viewer *viewer)
             if (!source)
             {
                 if (clip->getAudio()->numSamples() > 0)
-                    source = player->newSource(clip->getAudio());
+                    source = player->makeSource(clip->getAudio());
             }
             else if (clip->audioLastModified > lastTime)
             {

@@ -341,14 +341,13 @@ int PlayerAServer::read_answer(char *buf, int maxsize) const
     return -1;
 }
 
-PlayerAServer::Source::Source(const Audio *audio, PlayerAServer *player)
-    : Player::Source(audio)
+PlayerAServer::Source::Source(Player *player, const Audio *audio)
+    : Player::Source(player, audio)
     , asHandle(-1)
     , odirection(0.0)
     , ointensity(0.0)
     , opitch(1.0)
     , ov(0.0, 0.0, 0.0)
-    , player(player)
 {
     loadAudio(audio);
 }
@@ -359,6 +358,8 @@ PlayerAServer::Source::Source(const Audio *audio, PlayerAServer *player)
 
 void PlayerAServer::Source::loadAudio(const Audio *audio)
 {
+    const PlayerAServer *player = (PlayerAServer *)this->player;
+
     if (!player)
         return;
 
@@ -443,6 +444,7 @@ void PlayerAServer::Source::setAudio(const Audio *audio)
     if (asHandle >= 0)
     {
         snprintf(msg, sizeof(msg), "RHDL %d", asHandle);
+        const PlayerAServer *player = (PlayerAServer *)this->player;
         player->send_cmd(msg);
     }
 
@@ -460,6 +462,7 @@ PlayerAServer::Source::~Source()
     if (asHandle >= 0)
     {
         snprintf(msg, sizeof(msg), "RHDL %d", asHandle);
+        const PlayerAServer *player = (PlayerAServer *)this->player;
         player->send_cmd(msg);
     }
 }
@@ -471,6 +474,7 @@ void PlayerAServer::Source::play(double start)
     if (asHandle >= 0)
     {
         snprintf(msg, sizeof(msg), "PLAY %d %f", asHandle, start);
+        const PlayerAServer *player = (PlayerAServer *)this->player;
         if (player->send_cmd(msg) < 0)
         {
             CERR << "playing handle " << asHandle << " failed" << endl;
@@ -494,30 +498,21 @@ void PlayerAServer::Source::stop()
     if (asHandle >= 0)
     {
         snprintf(msg, sizeof(msg), "STOP %d", asHandle);
+        const PlayerAServer *player = (PlayerAServer *)this->player;
         player->send_cmd(msg);
     }
 }
 
-int PlayerAServer::Source::update(const Player *genericPlayer, char *buf, int bufsize)
+void PlayerAServer::Source::update(const Player *genericPlayer)
 {
-    Player::Source::update(genericPlayer, buf, bufsize);
+    Player::Source::update(genericPlayer);
 
     // dynamic_cast causes problems on gcc2 systems
     // const PlayerAServer *player = dynamic_cast<const PlayerAServer *>(genericPlayer);
     const PlayerAServer *player = (const PlayerAServer *)(genericPlayer);
-    if (!player)
+    if (!player || asHandle < 0 || !isPlaying())
     {
-        return -1;
-    }
-
-    if (asHandle < 0)
-    {
-        return -1;
-    }
-
-    if (!isPlaying())
-    {
-        return -1;
+        return;
     }
 
     char msg[MAX_BUFLEN];
@@ -559,8 +554,6 @@ int PlayerAServer::Source::update(const Player *genericPlayer, char *buf, int bu
         player->send_cmd(msg);
         opitch = pitch;
     }
-
-    return 0;
 }
 
 void PlayerAServer::Source::setLoop(bool loop)
@@ -572,12 +565,13 @@ void PlayerAServer::Source::setLoop(bool loop)
     if (asHandle >= 0)
     {
         snprintf(msg, sizeof(msg), "SSLP %d %d", asHandle, loop ? 1 : 0);
+        const PlayerAServer *player = (PlayerAServer *)this->player;
         player->send_cmd(msg);
     }
 }
 
-Player::Source *
-PlayerAServer::newSource(const Audio *audio)
+std::unique_ptr<Player::Source>
+PlayerAServer::makeSource(Player *player, const Audio *audio)
 {
-    return new Source(audio, this);
+    return std::make_unique<PlayerAServer::Source>(this, audio);
 }

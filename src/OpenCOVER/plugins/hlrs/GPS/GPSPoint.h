@@ -88,7 +88,7 @@ public:
     osg::ref_ptr<osg::Material> streetmarkMaterial;
 
     opencover::audio::Audio *audio;
-    opencover::audio::Player::Source *source;
+    std::shared_ptr<opencover::audio::Player::Source> source;
 
     PointSensor *mySensor;
     void activate();

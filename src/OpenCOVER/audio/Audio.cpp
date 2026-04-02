@@ -45,7 +45,7 @@ void Audio::loadFile()
         return;
     }
 
-    if (!_alut.is_initialized)
+    if (!AlutContext::is_initialized)
     {
         std::cerr << "Audio: ALUT not loaded" << std::endl;
         return;
@@ -92,13 +92,13 @@ void Audio::loadFileToBuffer()
         return;
     }
 
-    if (!_alut.has_context)
+    if (!AlutContext::has_context)
     {
         std::cerr << "Audio: no ALUT context available to load audio file to buffer" << std::endl;
         return;
     }
 
-    if (!_alut.is_initialized)
+    if (!AlutContext::is_initialized)
     {
         std::cerr << "Audio: ALUT not loaded" << std::endl;
         return;

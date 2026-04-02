@@ -19,7 +19,7 @@ SoundStep::SoundStep(Player *p, float umin)
         char name[500];
         sprintf(name, "%d.wav", (int)speed);
         Audio *engineAudio = new Audio(name);
-        source = player->newSource(engineAudio);
+        source = player->makeSource(engineAudio);
         if (source)
         {
             source->setLoop(true);

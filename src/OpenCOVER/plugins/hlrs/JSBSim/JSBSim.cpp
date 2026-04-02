@@ -60,9 +60,9 @@ JSBSimPlugin::JSBSimPlugin()
         varioAudio.setURL(coVRFileManager::instance()->getName("share/covise/jsbsim/Sounds/vario.wav"));
         windAudio.setURL(coVRFileManager::instance()->getName("share/covise/jsbsim/Sounds/wind1.wav"));
 
-        engineSource = player->newSource(&engineAudio);
-        varioSource = player->newSource(&varioAudio);
-        windSource = player->newSource(&windAudio);
+        engineSource = player->makeSource(&engineAudio);
+        varioSource = player->makeSource(&varioAudio);
+        windSource = player->makeSource(&windAudio);
 
         engineSource->setLoop(true);
         varioSource->setLoop(true);

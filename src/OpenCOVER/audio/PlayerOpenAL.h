@@ -30,23 +30,23 @@ public:
     PlayerOpenAL(const Listener *listener);
     virtual void update();
 
-    virtual Player::Source *newSource(const Audio *audio);
+    virtual std::unique_ptr<Player::Source> makeSource(const Audio *audio);
 
 protected:
     class Source : public Player::Source
     {
     public:
-        Source(const Audio *audio);
+        Source(Player* player, const Audio *audio);
         virtual ~Source();
 
-        virtual void setLoop(bool loop);
-        virtual void setPitch(float pitch);
-        virtual void setSpatialize(bool spatialize);
-        virtual void setPosition(float x, float y, float z);
-        virtual void setVelocity(float vx, float vy, float vz);
-        virtual void setIntensity(float intensity);
-        virtual void play(double start);
-        virtual void stop();
+        virtual void setLoop(bool loop) override;
+        virtual void setPitch(float pitch) override;
+        virtual void setSpatialize(bool spatialize) override;
+        virtual void setPosition(float x, float y, float z) override;
+        virtual void setVelocity(float vx, float vy, float vz) override;
+        virtual void setIntensity(float intensity) override;
+        virtual void play(double start) override;
+        virtual void stop() override;
         ALuint alSource;
     };
 
