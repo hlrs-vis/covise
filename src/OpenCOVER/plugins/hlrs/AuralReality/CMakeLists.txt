@@ -1,5 +1,15 @@
-find_package(Protobuf CONFIG REQUIRED)
-find_package(gRPC CONFIG REQUIRED)
+covise_find_package(Protobuf CONFIG)
+covise_find_package(gRPC CONFIG)
+
+if (NOT TARGET protobuf::libprotobuf)
+    return()
+endif()
+if (NOT TARGET gRPC::grpc)
+    return()
+endif()
+if (NOT TARGET gRPC::grpc++)
+    return()
+endif()
 
 set(PROTO_FILES
     aural-reality-protocol/audio_file.proto
