@@ -59,10 +59,6 @@ jobs:
       run: >
         sudo apt install -y -V ca-certificates lsb-release wget && UBUNTU_VERSION=$(lsb_release --codename --short) && wget "https://apache.jfrog.io/artifactory/arrow/$(lsb_release --id --short | tr 'A-Z' 'a-z')/apache-arrow-apt-source-latest-${UBUNTU_VERSION}.deb" && sudo apt install -y -V "./apache-arrow-apt-source-latest-${UBUNTU_VERSION}.deb" && sudo apt update && sudo apt install libarrow-dev  
         
-    - uses: eWaterCycle/setup-grpc@v5
-      with:
-        grpc-version: 1.80.0
-
     - name: Install Linux Dependencies
       if: runner.os == 'Linux'
       run: >
