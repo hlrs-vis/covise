@@ -3,11 +3,29 @@
 
 #include <osg/MatrixTransform>
 
+#include <cover/coVRPluginSupport.h> // for Isect::NoMirror
 #include <cover/coVRShader.h>
 
 #include "TerroirTexture.h"
 
 using namespace opencover;
+
+namespace
+{
+void clearNodeMaskBitRecursively(osg::Node *node, unsigned int bit)
+{
+    if (!node)
+        return;
+
+    node->setNodeMask(node->getNodeMask() & ~bit);
+
+    if (auto group = node->asGroup())
+    {
+        for (unsigned int i = 0; i < group->getNumChildren(); ++i)
+            clearNodeMaskBitRecursively(group->getChild(i), bit);
+    }
+}
+}
 
 TerroirTexture::TerroirTexture(const std::string &shaderName, float distanceThreshold)
     : TerroirTexture(shaderName, RenderToTextureCamera(true), distanceThreshold)
@@ -27,6 +45,8 @@ void TerroirTexture::applyTexture(osg::Node *node)
     assert(node);
 
     m_node = node;
+    // make sure the node itself is not rendered by the camera
+    clearNodeMaskBitRecursively(m_node, Isect::NoMirror);
     applyShaderToNode(m_shaderName);
 
     m_currentPosition = getNodeTransform(m_node).getTrans();

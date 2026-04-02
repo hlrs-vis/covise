@@ -48,7 +48,7 @@ protected:
     RenderToTextureCamera m_rttCamera;
 
     // moves the camera slightly in front of the avatar so it won't be covered by the mesh
-    osg::Vec3 m_cameraOffset = osg::Vec3(50.0, 0.0, 0.0);
+    osg::Vec3 m_cameraOffset = osg::Vec3(0.0, 0.0, 0.0);
     // makes the camera look ahead of the avatar
     osg::Vec3 m_cameraLookAt = osg::Vec3(20.0, 0.0, 0.0);
 

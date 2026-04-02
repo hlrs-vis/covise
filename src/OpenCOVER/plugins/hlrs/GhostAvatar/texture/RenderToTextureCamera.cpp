@@ -25,11 +25,13 @@ void RenderToTextureCamera::initialize()
 {
     addChild(opencover::cover->getObjectsRoot());
     opencover::cover->getScene()->addChild(this);
+    setCullMask(opencover::Isect::NoMirror);
 
     if (m_debugCamera)
     {
         m_debugCamera->addChild(opencover::cover->getObjectsRoot());
         opencover::cover->getScene()->addChild(m_debugCamera);
+        m_debugCamera->setCullMask(opencover::Isect::NoMirror);
     }
 }
 

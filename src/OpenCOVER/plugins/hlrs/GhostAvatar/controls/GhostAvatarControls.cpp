@@ -1,6 +1,5 @@
 #include <osgDB/ReadFile>
 #include <cover/coVRPluginSupport.h> // includes cover
-#include <cover/VRSceneGraph.h>
 
 #include "GhostAvatarControls.h"
 
@@ -39,7 +38,7 @@ void GhostAvatarControls::loadAvatar()
 
 osg::ref_ptr<osg::Node> GhostAvatarControls::getAvatarNode() const
 {
-    return VRSceneGraph::instance()->findFirstNode<osg::Node>(m_nodeName.c_str());;
+    return m_avatarTrans;
 }
 
 bool GhostAvatarControls::hasArm()
