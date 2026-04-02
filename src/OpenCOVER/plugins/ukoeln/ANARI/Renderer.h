@@ -143,6 +143,10 @@ private:
         glm::vec3 eye, dir, up;
         float fovy, aspect;
         glm::box2 imgRegion;
+        int accumFrames{0};
+        int renderWidth{1}, renderHeight{1}; // ANARI frame dims (may be < display dims)
+        std::vector<float>    depthBuffer;   // pre-allocated, reused each frame
+        std::vector<uint32_t> colorBuffer;   // pre-allocated, reused when upscaling
     };
     std::vector<ChannelInfo> channelInfos;
     int numChannels{0};

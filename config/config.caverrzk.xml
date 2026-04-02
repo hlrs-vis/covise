@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <COCONFIG version="1">
     
-    <GLOBAL>
+<GLOBAL>
 	<Module>
 		<CuttingSurface>
         <SupportPolyhedra value="true" />
@@ -65,14 +65,14 @@
                 <FileType name="c2m" plugin="PointCloud" />                
                 <!--FileType name="ply" plugin="PointCloud" /-->
                                 
-                <FileType name="pts" plugin="PointRayTracer" />
-		        <!--FileType name="xyz" plugin="PointRayTracer" />
-		        <FileType name="ptsb" plugin="PointRayTracer" /-->
-                <!--FileType name="ply" plugin="PointRayTracer" /-->
-                <!--FileType name="e57" plugin="PointRayTracer" /-->
+                <!--FileType name="pts" plugin="PointRayTracer" />
+		        <FileType name="xyz" plugin="PointRayTracer" />
+		        <FileType name="ptsb" plugin="PointRayTracer" />
+                <FileType name="ply" plugin="PointRayTracer" />
+                <FileType name="e57" plugin="PointRayTracer" /-->
                 
                 <FileType name="ply" plugin="ANARI" />
-                <FileType name="obj" plugin="AssimpPlugin" />
+                <!--FileType name="obj" plugin="AssimpPlugin" /-->
 
                 <FileType name="x3dv" plugin="Vrml97" />
                 <FileType name="wrl" plugin="Vrml97" />
@@ -154,12 +154,7 @@
             </Menu>
             
             <Sound server="134.95.85.134" />
-  <!-- 
-            <Menu>
-                <Orientation h="-20" p="0" r="0" />
-                <Position x="1200" y="0" z="1150" />
-            </Menu-->
-
+             
             <DebugTUI value="false" />
             <MenuMode value="false" />
             <OMPThreads value="off" />
@@ -181,7 +176,6 @@
             <Spheres>
                 <UseVertexArrays value="on" />
             </Spheres>
-  
 
             <MultiProcess value="ON" />
             <MultiThreaded value="ON" />
@@ -246,11 +240,11 @@
             <TabletUI host="134.95.95.253" />
 
             <Plugin>
-                <MADIconnect value ="on">
+                <MADIconnect value ="off">
                     <DataPath value ="/share/data/KeiItoTest" />
                 </MADIconnect>
 
-                <AssimpPlugin value="on">
+                <AssimpPlugin value="off">
                     <!-- Commonly used flags (enabled by default) -->
                     <Triangulate              value="off" />
                     <GenNormals               value="off" />
@@ -292,14 +286,17 @@
 
                     <!-- Barbarastollen: 0.006  -->
                     <!-- Roemergrab:     0.035  -->
-                    <PointCloud radius="0.004" />
+                    <PointCloud radius="0.04" />
 
                     <Library value="visrtx" />
-                    <Renderer subtype="raycast" />  <!--Wird nicht gelesen-->
+                    <Renderer subtype="raycast" />
 
-                    <AmbientRadiance value="0.1" />
-                    <AmbientRadius   value="0.04" />
+                    <AmbientRadiance value="0.5" />
+                    <!--AmbientRadius   value="0.04" /-->
+                    <AmbientRadius   value="0" />
                     <AmbientColor r="1.0" g="1.0" b="1.0" />
+                    <Denoise value="on" />
+                    <RenderScale value="0.75" />
                 </ANARI>
 
                 <Revit value="off" ignoreDepthOnly="true" textures="/data/revit/Textures" localTextures="/data/revit/Textures"/>
@@ -326,7 +323,7 @@
                     <CPUScheduler numThreads="16" />                 <!-- numThreads:Integer   -->
                 </Visionaray>
 
-                <Volume value="on" >
+                <Volume value="off" >
                     <Renderer value="rayrendcuda" />
                     <!--Renderer value="texrend" /-->
                     <!--Renderer value="rayrendcuda" /-->
