@@ -10,14 +10,14 @@
 class SplotchTerroirTexture: public TerroirTexture
 {
 public:
-    SplotchTerroirTexture();
-
-    void updateTexture() override;
+    SplotchTerroirTexture(float distanceThreshold);
 
 private:
     std::vector<osg::Vec3> m_splotchPositions;
 
     void onEnoughDistanceCovered() override;
+    void updateShader() override;
+
     osg::Vec3 generateRandomSplotch(int textureSlot);
 
     void updateShaderUniforms();

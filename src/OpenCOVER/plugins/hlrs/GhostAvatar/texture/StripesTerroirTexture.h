@@ -8,7 +8,7 @@
 class StripesTerroirTexture : public TerroirTexture
 {
 public:
-    StripesTerroirTexture();
+    StripesTerroirTexture(float distanceThreshold);
 };
 
 #endif // COVER_PLUGIN_GHOSTAVATAR_TEXTURE_StripesTerroirTexture_H

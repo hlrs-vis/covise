@@ -13,15 +13,19 @@
 class TerroirTexture
 {
 public:
-    TerroirTexture(const std::string &shaderName);
-    TerroirTexture(const std::string &shaderName, RenderToTextureCamera rttCamera);
+    TerroirTexture(const std::string &shaderName, float distanceThreshold);
+    TerroirTexture(const std::string &shaderName, RenderToTextureCamera rttCamera, float distanceThreshold);
 
     void applyTexture(osg::Node *node);
-    virtual void updateTexture();
+    void updateTexture();
 
 protected:
-    osg::ref_ptr<osg::Node> m_node;
-    std::string m_shaderName;
+    virtual void onEnoughDistanceCovered();
+    virtual void updateShader();
+
+    osg::ref_ptr<osg::Node> getNode();
+
+    std::string getShaderName();
 
     osg::Vec3 getCurrentPosition();
 
@@ -38,7 +42,6 @@ protected:
     void recursivelyAddTextureToSlot(osg::Node *node, int texId, osg::Texture *texture);
 
     bool enoughDistanceCovered();
-    virtual void onEnoughDistanceCovered();
     osg::Matrix getNodeTransform(osg::Node *node) const;
 
     // -- Render to Texture Camera --
@@ -50,6 +53,9 @@ protected:
     osg::Vec3 m_cameraLookAt = osg::Vec3(20.0, 0.0, 0.0);
 
 private:
+    osg::ref_ptr<osg::Node> m_node;
+    std::string m_shaderName;
+
     osg::Vec3 m_currentPosition;
     osg::Vec3 m_referencePosition;
 

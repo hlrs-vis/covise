@@ -1,5 +1,7 @@
 #include "controls/PlanarAvatarControls.h"
 #include "controls/TestAvatarControls.h"
+#include "texture/StripesTerroirTexture.h"
+#include "texture/SplotchTerroirTexture.h"
 
 #include "GhostAvatar.h"
 
@@ -11,7 +13,8 @@ GhostAvatar::GhostAvatar()
     : coVRPlugin(COVER_PLUGIN_NAME)
     , m_avatarControls(std::make_unique<TestAvatarControls>("/data/STARTS-ECHO/Avatars/shaderTests/ghost_cave_uniform.fbx", "LeftArm", ""))
     //, m_avatarControls(std::make_unique<PlanarAvatarControls>("/data/STARTS-ECHO/Avatars/planarAvatar/PLANEE6.fbx", "Arm", "Head"))
-    , m_avatarTexture(SplotchTerroirTexture())
+    , m_avatarTexture(std::make_unique<SplotchTerroirTexture>(100))
+    //, m_avatarTexture(std::make_unique<StripesTerroirTexture>(100))
     , m_avatarControlsUI(GhostAvatarControlsUI(COVER_PLUGIN_NAME, *m_avatarControls))
 {
 }
@@ -23,7 +26,7 @@ bool GhostAvatar::update()
     {
         first = false;
         m_avatarControls->loadAvatar();
-        m_avatarTexture.applyTexture(m_avatarControls->getAvatarNode());
+        m_avatarTexture->applyTexture(m_avatarControls->getAvatarNode());
         m_avatarControlsUI.initialize();
 
         createInteractors();
@@ -42,7 +45,7 @@ void GhostAvatar::preFrame()
         return;
 
     m_avatarControls->updateBones(m_interactorFloor->getMatrix(), m_interactorHand->getMatrix(), m_interactorHead->getMatrix());
-    m_avatarTexture.updateTexture();
+    m_avatarTexture->updateTexture();
     m_avatarControlsUI.update(m_interactorFloor->getMatrix(), m_interactorHand->getMatrix(), m_interactorHead->getMatrix());
 }
 

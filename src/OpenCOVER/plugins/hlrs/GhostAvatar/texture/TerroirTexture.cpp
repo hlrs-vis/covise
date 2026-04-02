@@ -9,15 +9,17 @@
 
 using namespace opencover;
 
-TerroirTexture::TerroirTexture(const std::string &shaderName)
-    : TerroirTexture(shaderName, RenderToTextureCamera(true))
+TerroirTexture::TerroirTexture(const std::string &shaderName, float distanceThreshold)
+    : TerroirTexture(shaderName, RenderToTextureCamera(true), distanceThreshold)
 {
 }
 
-TerroirTexture::TerroirTexture(const std::string &shaderName, RenderToTextureCamera rttCamera)
+TerroirTexture::TerroirTexture(const std::string &shaderName, RenderToTextureCamera rttCamera, float distanceThreshold)
     : m_shaderName(shaderName)
     , m_rttCamera(rttCamera)
+    , m_distanceThreshold(distanceThreshold)
 {
+    assert(distanceThreshold > 0);
 }
 
 void TerroirTexture::applyTexture(osg::Node *node)
@@ -37,7 +39,11 @@ void TerroirTexture::applyTexture(osg::Node *node)
 void TerroirTexture::updateTexture()
 {
     if (!m_node)
+    {
+        std::cerr << "TerroirTexture::updateTexture: Node is invalid, can't update texture!\n"
+                  << "Have you called TerroirTexture::applyTexture before?\n";
         return;
+    }
 
     auto nodeTransform = getNodeTransform(m_node);
     m_currentPosition = nodeTransform.getTrans();
@@ -46,6 +52,31 @@ void TerroirTexture::updateTexture()
 
     if (enoughDistanceCovered())
         onEnoughDistanceCovered();
+
+    updateShader();
+}
+
+void TerroirTexture::onEnoughDistanceCovered()
+{
+    if (auto cameraScreenshot = m_rttCamera.getScreenshotAsTexture())
+        recursivelyAddTextureToSlot(m_node, m_textureSlot, cameraScreenshot);
+
+    setReferencePosition(m_currentPosition);
+    m_textureSlot = (m_textureSlot + 1) % m_nrTextureSlots;
+}
+
+void TerroirTexture::updateShader()
+{
+}
+
+osg::ref_ptr<osg::Node> TerroirTexture::getNode()
+{
+    return m_node;
+}
+
+std::string TerroirTexture::getShaderName()
+{
+    return m_shaderName;
 }
 
 osg::Vec3 TerroirTexture::getCurrentPosition()
@@ -87,7 +118,13 @@ int TerroirTexture::getNumberOfTextureSlots()
 void TerroirTexture::applyShaderToNode(const std::string &shaderName)
 {
     if (auto shader = coVRShaderList::instance()->get(shaderName.c_str()))
+    {
         shader->apply(m_node);
+    }
+    else
+    {
+        std::cerr << "TerroirTexture::applyShaderToNode: Could not find shader with the" << "  name " << shaderName << "!" << std::endl;
+    }
 }
 
 void TerroirTexture::recursivelyAddTextureToSlot(osg::Node *node, int texId, osg::Texture *texture)
@@ -113,15 +150,6 @@ bool TerroirTexture::enoughDistanceCovered()
 {
     auto distanceCovered = (m_currentPosition - m_referencePosition).length();
     return distanceCovered >= m_distanceThreshold;
-}
-
-void TerroirTexture::onEnoughDistanceCovered()
-{
-    if (auto cameraScreenshot = m_rttCamera.getScreenshotAsTexture())
-        recursivelyAddTextureToSlot(m_node, m_textureSlot, cameraScreenshot);
-
-    setReferencePosition(m_currentPosition);
-    m_textureSlot = (m_textureSlot + 1) % m_nrTextureSlots;
 }
 
 osg::Matrix TerroirTexture::getNodeTransform(osg::Node *node) const

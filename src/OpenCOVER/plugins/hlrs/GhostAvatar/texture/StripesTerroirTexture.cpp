@@ -1,6 +1,6 @@
 #include "StripesTerroirTexture.h"
 
-StripesTerroirTexture::StripesTerroirTexture()
-    : TerroirTexture("TerroirTextureStripes")
+StripesTerroirTexture::StripesTerroirTexture(float distanceThreshold)
+    : TerroirTexture("TerroirTextureStripes", distanceThreshold)
 {
 }
