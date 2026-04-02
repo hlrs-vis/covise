@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
- /****************************************************************************\
-  **                                                            (C)2024 HLRS  **
-  **                                                                          **
-  ** Description: GeoDataLoader Plugin                                        **
-  **                                                                          **
-  **                                                                          **
-  ** Author: Uwe Woessner 		                                              **
-  **                                                                          **
-  ** History:  								                                  **
-  **                                                                          **
-  **                                                                          **
- \****************************************************************************/
+/****************************************************************************\
+ **                                                            (C)2024 HLRS  **
+ **                                                                          **
+ ** Description: GeoDataLoader Plugin                                        **
+ **                                                                          **
+ **                                                                          **
+ ** Author: Uwe Woessner 		                                              **
+ **                                                                          **
+ ** History:  								                                  **
+ **                                                                          **
+ **                                                                          **
+\****************************************************************************/
 
 #include "GeoDataLoader.h"
 
@@ -56,7 +56,7 @@
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
-#include <rapidjson/prettywriter.h> 
+#include <rapidjson/prettywriter.h>
 #include <rapidjson/rapidjson.h>
 #include "cover/coVRConfig.h"
 #include <PluginUtil/PluginMessageTypes.h>
@@ -64,20 +64,20 @@
 #include <stdio.h>
 namespace opencover
 {
-    namespace ui
-    {
-        class Menu;
-        class Label;
-        class Group;
-        class Button;
-        class EditField;
-    }
+namespace ui
+{
+    class Menu;
+    class Label;
+    class Group;
+    class Button;
+    class EditField;
+}
 }
 
 using namespace covise;
 using namespace opencover;
 
-skyEntry::skyEntry(const std::string& n, const std::string& fn, double lon, double lat)
+skyEntry::skyEntry(const std::string &n, const std::string &fn, double lon, double lat)
 {
     name = n;
     fileName = fn;
@@ -86,9 +86,8 @@ skyEntry::skyEntry(const std::string& n, const std::string& fn, double lon, doub
 }
 skyEntry::~skyEntry()
 {
-
 }
-skyEntry::skyEntry(const skyEntry& se)
+skyEntry::skyEntry(const skyEntry &se)
 {
     name = se.name;
     fileName = se.fileName;
@@ -105,17 +104,20 @@ std::string fileName;
 osg::ref_ptr<osg::Node> skyNode;
 osg::ref_ptr<osg::Texture2D> skyTexture;
 
-std::string getCoordinates(const std::string& address) {
+std::string getCoordinates(const std::string &address)
+{
     using namespace opencover::httpclient::curl;
     std::string readBuffer;
 
     CURL *curl = curl_easy_init();
-    if (!curl) {
+    if (!curl)
+    {
         return "[ERROR] Failed to initialize CURL.";
     }
 
     char *encoded = curl_easy_escape(curl, address.c_str(), address.length());
-    if (!encoded) {
+    if (!encoded)
+    {
         curl_easy_cleanup(curl);
         return "[ERROR] Failed to encode address.";
     }
@@ -126,7 +128,7 @@ std::string getCoordinates(const std::string& address) {
 
     GET getRequest(url);
     Request::Options options = {
-        {CURLOPT_USERAGENT, "Covise Plugin GeoDataLoader (https://github.com/hlrs-vis/covise)"},
+        { CURLOPT_USERAGENT, "Covise Plugin GeoDataLoader (https://github.com/hlrs-vis/covise)" },
     };
     if (!Request().httpRequest(getRequest, readBuffer, options))
         readBuffer = "[ERROR] Failed to fetch data from Nominatim. With request: " + url;
@@ -134,7 +136,7 @@ std::string getCoordinates(const std::string& address) {
     return readBuffer;
 }
 
-std::optional<GeoDataLoader::geoLocation> GeoDataLoader::parseCoordinates(const std::string& jsonData)
+std::optional<GeoDataLoader::geoLocation> GeoDataLoader::parseCoordinates(const std::string &jsonData)
 {
     rapidjson::Document document;
 
@@ -144,12 +146,12 @@ std::optional<GeoDataLoader::geoLocation> GeoDataLoader::parseCoordinates(const 
     if (!document.IsArray() || document.Empty())
         return std::nullopt;
 
-    const rapidjson::Value& location = document[0];
+    const rapidjson::Value &location = document[0];
     if (!location.HasMember("lat") || !location.HasMember("lon"))
         return std::nullopt;
 
     GeoDataLoader::geoLocation result;
-    result.latitude  = std::stod(location["lat"].GetString());
+    result.latitude = std::stod(location["lat"].GetString());
     result.longitude = std::stod(location["lon"].GetString());
 
     PJ_COORD input;
@@ -178,75 +180,78 @@ void GeoDataLoader::jumpToLocation(const osg::Vec3d &worldPos)
     double scale = cover->getScale();
 
     // --- Intersection-Test for zVal ---
-    osg::ref_ptr<osgUtil::LineSegmentIntersector> intersector =
-        new osgUtil::LineSegmentIntersector(
-            osg::Vec3d(easting, northing, 10000.0),
-            osg::Vec3d(easting, northing, -10000.0));
+    osg::ref_ptr<osgUtil::LineSegmentIntersector> intersector = new osgUtil::LineSegmentIntersector(
+        osg::Vec3d(easting, northing, 10000.0),
+        osg::Vec3d(easting, northing, -10000.0));
     osgUtil::IntersectionVisitor iv(intersector);
-        if (terrainNode)
-            terrainNode->accept(iv);
+    if (terrainNode)
+        terrainNode->accept(iv);
 
-        if (intersector->containsIntersections()) {
-            altitude = intersector->getFirstIntersection().getLocalIntersectPoint().z();
-            altitude += 100;
-            std::cout << "Intersection found, Z = " << (altitude-100) << std::endl;
-        } else {
-            std::cout << "No intersection found, using default Z = " << altitude << std::endl;
-        }
+    if (intersector->containsIntersections())
+    {
+        altitude = intersector->getFirstIntersection().getLocalIntersectPoint().z();
+        altitude += 100;
+        std::cout << "Intersection found, Z = " << (altitude - 100) << std::endl;
+    }
+    else
+    {
+        std::cout << "No intersection found, using default Z = " << altitude << std::endl;
+    }
 
-        // set the viewer position
-        osg::Matrix mat;
-        osg::Vec3 targetPos(easting, northing, altitude);
-        std::cout << "Target Position in Meters (UTM): " << targetPos.x() << ", " << targetPos.y() << ", " << targetPos.z() << std::endl;
-        targetPos += rootOffset;
+    // set the viewer position
+    osg::Matrix mat;
+    osg::Vec3 targetPos(easting, northing, altitude);
+    std::cout << "Target Position in Meters (UTM): " << targetPos.x() << ", " << targetPos.y() << ", " << targetPos.z() << std::endl;
+    targetPos += rootOffset;
 
-        float trueNorthRadian = osg::DegreesToRadians(trueNorthDegree);
-        osg::Matrix rot = osg::Matrix::rotate(-trueNorthRadian, osg::Vec3(0,0,1));
+    float trueNorthRadian = osg::DegreesToRadians(trueNorthDegree);
+    osg::Matrix rot = osg::Matrix::rotate(-trueNorthRadian, osg::Vec3(0, 0, 1));
 
-        targetPos = targetPos * rot;
-        targetPos = targetPos * scale;
-        mat.setTrans(-targetPos);
-        cover->setXformMat(mat);
-        
-        // set the closest sky //TODO set sky based on viewer pos not only after location jump
-        double minDistance = 1e30;
-        int closestSky = -1;
-        for (size_t i = 0; i < skyEntries.size(); ++i)
+    targetPos = targetPos * rot;
+    targetPos = targetPos * scale;
+    mat.setTrans(-targetPos);
+    cover->setXformMat(mat);
+
+    // set the closest sky //TODO set sky based on viewer pos not only after location jump
+    double minDistance = 1e30;
+    int closestSky = -1;
+    for (size_t i = 0; i < skyEntries.size(); ++i)
+    {
+        const skyEntry &se = skyEntries[i];
+        PJ_COORD input;
+        input.lp.phi = se.skyLongitude;
+        input.lp.lam = se.skyLatitude;
+
+        // Perform the transformation
+        PJ_COORD output;
+        output = proj_trans(ProjInstance, PJ_FWD, input); // Forward transformation (WGS84 -> UTM)
+
+        double skyEasting = output.enu.e;
+        double skyNorthing = output.enu.n;
+        double dx = skyEasting - easting;
+        double dy = skyNorthing - northing;
+        double distance = sqrt(dx * dx + dy * dy);
+        if (distance < minDistance)
         {
-            const skyEntry& se = skyEntries[i];
-            PJ_COORD input;
-            input.lp.phi = se.skyLongitude;
-            input.lp.lam = se.skyLatitude;
-
-            // Perform the transformation
-            PJ_COORD output;
-            output = proj_trans(ProjInstance, PJ_FWD, input); // Forward transformation (WGS84 -> UTM)
-
-            double skyEasting = output.enu.e;
-            double skyNorthing = output.enu.n;
-            double dx = skyEasting - easting;
-            double dy = skyNorthing - northing;
-            double distance = sqrt(dx*dx + dy*dy);
-            if (distance < minDistance)
-            {
-                minDistance = distance;
-                closestSky = static_cast<int>(i) + 1; // +1 because sky selection list has "None" at index 0
-            }
+            minDistance = distance;
+            closestSky = static_cast<int>(i) + 1; // +1 because sky selection list has "None" at index 0
         }
-        if (closestSky >= 0)
-        {
-            setSky(closestSky);
-            skys->select(closestSky);
-        }
+    }
+    if (closestSky >= 0)
+    {
+        setSky(closestSky);
+        skys->select(closestSky);
+    }
 }
 
-GeoDataLoader* GeoDataLoader::s_instance = nullptr;
+GeoDataLoader *GeoDataLoader::s_instance = nullptr;
 
-GeoDataLoader::GeoDataLoader(): coVRPlugin(COVER_PLUGIN_NAME), ui::Owner("GeoData", cover->ui)
+GeoDataLoader::GeoDataLoader()
+    : coVRPlugin(COVER_PLUGIN_NAME)
+    , ui::Owner("GeoData", cover->ui)
 {
     assert(s_instance == nullptr);
     s_instance = this;
-
 }
 bool GeoDataLoader::init()
 {
@@ -254,7 +259,7 @@ bool GeoDataLoader::init()
     ProjContext = proj_context_create();
     // Define the transformation from WGS84 to UTM Zone 32N (EPSG:32632)
     ProjInstance = proj_create_crs_to_crs(ProjContext, "EPSG:4326", "EPSG:32632", NULL); // EPSG:4326 is WGS84, EPSG:32632 is UTM Zone 32N
-    
+
     geoDataMenu = new ui::Menu("GeoData", this);
     geoDataMenu->setText("GeoData");
     geoDataMenu->allowRelayout(true);
@@ -281,21 +286,21 @@ bool GeoDataLoader::init()
     TexturedSphere = new osg::Geode;
     osg::Sphere *_Sphere = new osg::Sphere();
     _Sphere->setRadius(8000);
-    osg::TessellationHints* hint = new osg::TessellationHints();
+    osg::TessellationHints *hint = new osg::TessellationHints();
     hint->setDetailRatio(1.0);
     hint->setCreateBackFace(true);
     hint->setCreateFrontFace(false);
     hint->setCreateTextureCoords(true);
-    //hint->setCreateNormals(true);
-    osg::ShapeDrawable *_sphereDrawable = new osg:: ShapeDrawable(_Sphere, hint);
-    _sphereDrawable->setColor(osg::Vec4(1,1,1,1));
+    // hint->setCreateNormals(true);
+    osg::ShapeDrawable *_sphereDrawable = new osg::ShapeDrawable(_Sphere, hint);
+    _sphereDrawable->setColor(osg::Vec4(1, 1, 1, 1));
     _sphereDrawable->setUseDisplayList(false); // turn off display list so that we can change the pointer length
     TexturedSphere->addDrawable(_sphereDrawable);
-    osg::StateSet * stateset = TexturedSphere->getOrCreateStateSet();
+    osg::StateSet *stateset = TexturedSphere->getOrCreateStateSet();
     stateset->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
-    osg::Material* spheremtl = new osg::Material;
+    osg::Material *spheremtl = new osg::Material;
     spheremtl->setColorMode(osg::Material::OFF);
-    spheremtl->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(1,1,1,1));
+    spheremtl->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(1, 1, 1, 1));
     spheremtl->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(1, 1, 1, 1));
     spheremtl->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
     spheremtl->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
@@ -391,8 +396,7 @@ bool GeoDataLoader::init()
                 tempAltitudeText = std::to_string(dataset.altitude);
                 tempTrueNorthText = std::to_string(dataset.trueNorth);
             }
-        }
-    });
+        } });
     tempEastingText = "0.0";
     tempNorthingText = "0.0";
     tempAltitudeText = "0.0";
@@ -400,35 +404,27 @@ bool GeoDataLoader::init()
 
     easting = new ui::EditField(originGroup, "easting");
     easting->setText("Easting (m):");
-    easting->setCallback([this](std::string val) 
-        {
-            this->tempEastingText = val;
-        });
-    
+    easting->setCallback([this](std::string val)
+        { this->tempEastingText = val; });
+
     northing = new ui::EditField(originGroup, "northing");
     northing->setText("Northing (m):");
     northing->setCallback([this](std::string val)
-        {
-            this->tempNorthingText = val;
-        });
-    
+        { this->tempNorthingText = val; });
+
     altitude = new ui::EditField(originGroup, "altitude");
     altitude->setText("Altitude (m):");
-    altitude->setCallback([this](std::string val) 
-        {
-            this->tempAltitudeText = val;
-        });
-    
+    altitude->setCallback([this](std::string val)
+        { this->tempAltitudeText = val; });
+
     trueNorth = new ui::EditField(originGroup, "trueNorth");
     trueNorth->setText("True North (°):");
-    trueNorth->setCallback([this](std::string val) 
-        {
-            this->tempTrueNorthText = val;
-        });
-    
+    trueNorth->setCallback([this](std::string val)
+        { this->tempTrueNorthText = val; });
+
     applyOffset = new ui::Button(originGroup, "applyOffset");
     applyOffset->setText("apply");
-    applyOffset->setCallback([this](bool state) 
+    applyOffset->setCallback([this](bool state)
         {
             double originEasting = 0.0;
             double originNorthing = 0.0;
@@ -453,8 +449,7 @@ bool GeoDataLoader::init()
 
             osg::Vec3 origin = osg::Vec3(originEasting, originNorthing, originAltitude);
             setRootTransform(-origin, trueNorth);
-            applyOffset->setState(false);
-        });
+            applyOffset->setState(false); });
 
     visibilityGroup = new ui::Group(geoDataMenu, "visibility");
     visibilityGroup->setText("Toggle Visibility");
@@ -464,35 +459,32 @@ bool GeoDataLoader::init()
     terrainVisibilityButton->setText("Terrain");
     terrainVisibilityButton->setState(true);
     terrainVisibilityButton->setCallback([this](bool state)
-    {
+        {
         for (const auto& pair : loadedTerrains)
         {
             if (pair.second)
                 pair.second->setNodeMask(state ? 0xffffffff : 0x0);
         }
-        showTerrain = state;
-    });
+        showTerrain = state; });
 
     buildingVisibilityButton = new ui::Button(visibilityGroup, "buildingVisibility");
     buildingVisibilityButton->setText("Buildings");
     buildingVisibilityButton->setState(true);
     buildingVisibilityButton->setCallback([this](bool state)
-    {
+        {
         for (const auto& pair : loadedBuildings)
         {
             if (pair.second)
                 pair.second->setNodeMask(state ? 0xffffffff : 0x0);
         }
-        showBuildings = state;
-    });
+        showBuildings = state; });
 
-    
     // create Button for each region in config
     geoObjectGroup = new ui::Group(geoDataMenu, "GeoObjects");
     geoObjectGroup->setText("Geo-Objects");
     geoObjectGroup->allowRelayout(true);
 
-    std::map<std::string, ui::Button*> regionButtons;
+    std::map<std::string, ui::Button *> regionButtons;
 
     auto terrainEntries = configFile->array<opencover::config::Section>("", "regions");
 
@@ -507,11 +499,11 @@ bool GeoDataLoader::init()
 
         if (terrain_path != "" || lod_path != "")
         {
-            ui::Button* regionButton = new ui::Button(geoObjectGroup, region_name);
+            ui::Button *regionButton = new ui::Button(geoObjectGroup, region_name);
             regionButton->setText(region_name);
             regionButton->setState(false);
             regionButton->setCallback([this, region_name, terrain_path, lod_path](bool state)
-            {
+                {
                 if (state)
                 {
                     if (loadedTerrains.find(region_name) == loadedTerrains.end())
@@ -551,27 +543,28 @@ bool GeoDataLoader::init()
                         rootNode->removeChild(loadedBuildings[region_name]);
                         loadedBuildings.erase(region_name);
                     }
-                }
-            });
+                } });
             regionButtons[region_name] = regionButton;
-        }  
+        }
     }
-    
+
     skyGroup = new ui::Group(geoDataMenu, "sky");
     skyGroup->setText("Sky");
     skyGroup->allowRelayout(true);
 
     skys = new ui::SelectionList(skyGroup, "Skys");
     skys->append("None");
-    skyPath = configString("sky", "skyDir" ,"/data/Geodata/sky")->value();
+    skyPath = configString("sky", "skyDir", "/data/Geodata/sky")->value();
     defaultSky = configInt("sky", "defaultSky", 6)->value();
     int skyNumber = 1;
-    try {
-        for (const auto& entry : fs::directory_iterator(skyPath))
+    try
+    {
+        for (const auto &entry : fs::directory_iterator(skyPath))
         {
-            if (entry.is_regular_file() && ((entry.path().extension() == ".wrl") || (entry.path().extension() == ".WRL"))) {
+            if (entry.is_regular_file() && ((entry.path().extension() == ".wrl") || (entry.path().extension() == ".WRL")))
+            {
                 std::string name = entry.path().filename().string();
-                skyEntry se(name.substr(0, name.length() - 4),entry.path().string(), 0.0, 0.0);
+                skyEntry se(name.substr(0, name.length() - 4), entry.path().string(), 0.0, 0.0);
                 se.fileName = name;
                 skyEntries.push_back(se);
                 skys->append(se.name);
@@ -582,24 +575,26 @@ bool GeoDataLoader::init()
                 }
                 skyNumber++;
             }
-            if (entry.is_regular_file() && ((entry.path().extension() == ".jpg") || (entry.path().extension() == ".JPG"))) {
+            if (entry.is_regular_file() && ((entry.path().extension() == ".jpg") || (entry.path().extension() == ".JPG")))
+            {
                 std::string name = entry.path().filename().string();
                 skyEntry se(name.substr(0, name.length() - 4), entry.path().string(), 0.0, 0.0);
                 se.fileName = name;
                 se.type = skyEntry::texture;
-                FILE* fp = fopen(entry.path().string().c_str(), "rb");
-                if(fp == nullptr) {
-                    printf("Can't open file %s.\n",entry.path().string().c_str());
+                FILE *fp = fopen(entry.path().string().c_str(), "rb");
+                if (fp == nullptr)
+                {
+                    printf("Can't open file %s.\n", entry.path().string().c_str());
                     return -1;
                 }
                 else
                 {
 
                     int toread = 400000;
-                    //fseek(fp, -toread, SEEK_END);
-                    //unsigned long fsize = ftell(fp);
+                    // fseek(fp, -toread, SEEK_END);
+                    // unsigned long fsize = ftell(fp);
                     int bsize;
-                    unsigned char* buf = new unsigned char[toread];
+                    unsigned char *buf = new unsigned char[toread];
                     bsize = fread(buf, 1, toread, fp);
                     fclose(fp);
 
@@ -612,7 +607,8 @@ bool GeoDataLoader::init()
                     se.skyLatitude = skyLat;
                     se.skyTrueNorth = 0.0; // TODO: read true north from config if available
                     delete[] buf;
-                    if (code) {
+                    if (code)
+                    {
                         printf("Error parsing EXIF: code %d\n", code);
                     }
                 }
@@ -627,22 +623,22 @@ bool GeoDataLoader::init()
             }
         }
     }
-    catch (const fs::filesystem_error& err) {
+    catch (const fs::filesystem_error &err)
+    {
         std::cerr << "Filesystem error: " << err.what() << std::endl;
     }
-    catch (const std::exception& ex) {
+    catch (const std::exception &ex)
+    {
         std::cerr << "General error: " << ex.what() << std::endl;
     }
     skys->setCallback([this](int selection)
-        {
-            setSky(selection);
-        });
+        { setSky(selection); });
     northAngle = 0;
 
     float farValue = coVRConfig::instance()->farClip();
     float scale = (farValue * 2) / 20000;
-    skyRootNode->setMatrix(osg::Matrix::scale(scale, scale, scale)*osg::Matrix::rotate(northAngle,osg::Vec3(0,0,1)));
-    
+    skyRootNode->setMatrix(osg::Matrix::scale(scale, scale, scale) * osg::Matrix::rotate(northAngle, osg::Vec3(0, 0, 1)));
+
     skyNorthSlider = new ui::Slider(skyGroup, "skyNorth");
     skyNorthSlider->setText("Sky True North (°)");
     skyNorthSlider->setBounds(-180.0, 180.0);
@@ -652,8 +648,7 @@ bool GeoDataLoader::init()
             northAngle = osg::DegreesToRadians(value);
             float farValue = coVRConfig::instance()->farClip();
             float scale = (farValue * 2) / 20000;
-            skyRootNode->setMatrix(osg::Matrix::scale(scale, scale, scale)*osg::Matrix::rotate(northAngle,osg::Vec3(0,0,1)));
-        });
+            skyRootNode->setMatrix(osg::Matrix::scale(scale, scale, scale)*osg::Matrix::rotate(northAngle,osg::Vec3(0,0,1))); });
 
     locationGroup = new ui::Group(geoDataMenu, "locationGroup");
     locationGroup->setText("Location");
@@ -673,8 +668,7 @@ bool GeoDataLoader::init()
             jumpToLocation(targetPos);
 
             if (!geo->displayName.empty())
-                location->setText(geo->displayName);
-        });
+                location->setText(geo->displayName); });
     return true;
 }
 
@@ -686,15 +680,15 @@ GeoDataLoader::~GeoDataLoader()
     proj_context_destroy(ProjContext);
 }
 
-void GeoDataLoader::message(int toWhom, int type, int length, const void* data)
+void GeoDataLoader::message(int toWhom, int type, int length, const void *data)
 {
-    const char* messageData = (const char*)data;
-    if(type == PluginMessageTypes::LoadTerrain)
-        loadTerrain(messageData+20, osg::Vec3d(0, 0, 0)); // 20= opencover://terrain/
+    const char *messageData = (const char *)data;
+    if (type == PluginMessageTypes::LoadTerrain)
+        loadTerrain(messageData + 20, osg::Vec3d(0, 0, 0)); // 20= opencover://terrain/
     else if (type == PluginMessageTypes::setSky)
     {
         int offset = 0;
-        if(messageData[0]=='/' || messageData[0] == '\\')
+        if (messageData[0] == '/' || messageData[0] == '\\')
             offset = 1;
         int num = atoi(messageData + offset);
         setSky(num);
@@ -708,7 +702,7 @@ void GeoDataLoader::setSky(int selection)
     currentSkyNode = nullptr;
     if (selection > 0 && selection <= static_cast<int>(skyEntries.size()))
     {
-        skyEntry& sky = skyEntries[selection - 1];
+        skyEntry &sky = skyEntries[selection - 1];
         if (sky.type == skyEntry::geometry)
         {
             if (sky.skyNode != nullptr)
@@ -736,7 +730,7 @@ void GeoDataLoader::setSky(int selection)
                         sky.skyTexture->setWrap(osg::Texture::WRAP_T, osg::Texture::REPEAT);
                         sky.skyTexture->setResizeNonPowerOfTwoHint(false);
                     }
-                    osg::StateSet* stateset = TexturedSphere->getOrCreateStateSet();
+                    osg::StateSet *stateset = TexturedSphere->getOrCreateStateSet();
                     stateset->setTextureAttributeAndModes(0, sky.skyTexture, osg::StateAttribute::ON);
 
                     coVRShader *shader = coVRShaderList::instance()->get("skySphere");
@@ -748,9 +742,8 @@ void GeoDataLoader::setSky(int selection)
                     tMat(1, 1) = 1.0;
                     tMat(2, 2) = 1.0;
                     texMat->setMatrix(tMat);
-                    stateset->setTextureAttributeAndModes(0,texMat, osg::StateAttribute::ON);
+                    stateset->setTextureAttributeAndModes(0, texMat, osg::StateAttribute::ON);
                     skyRootNode->addChild(sky.skyNode);
-
                 }
                 currentSkyNode = sky.skyNode;
             }
@@ -766,7 +759,7 @@ void GeoDataLoader::setSky(int selection)
                 sky.skyTexture->setWrap(osg::Texture::WRAP_T, osg::Texture::REPEAT);
                 sky.skyTexture->setResizeNonPowerOfTwoHint(false);
             }
-            osg::StateSet* stateset = TexturedSphere->getOrCreateStateSet();
+            osg::StateSet *stateset = TexturedSphere->getOrCreateStateSet();
             stateset->setTextureAttributeAndModes(0, sky.skyTexture, osg::StateAttribute::ON);
 
             osg::Matrixd tMat;
@@ -775,9 +768,8 @@ void GeoDataLoader::setSky(int selection)
             tMat(1, 1) = 1.0;
             tMat(2, 2) = 1.0;
             texMat->setMatrix(tMat);
-            stateset->setTextureAttributeAndModes(0,texMat, osg::StateAttribute::ON);
+            stateset->setTextureAttributeAndModes(0, texMat, osg::StateAttribute::ON);
             skyRootNode->addChild(sky.skyNode);
-
         }
         currentSkyNode = sky.skyNode;
         northAngle = sky.skyTrueNorth;
@@ -789,11 +781,11 @@ void GeoDataLoader::setSky(int selection)
 void GeoDataLoader::setSky(std::string fileName)
 {
     int n = 0;
-    for (const auto& sky : skyEntries)
+    for (const auto &sky : skyEntries)
     {
-        if (sky.fileName == fileName)// already have this file in the list
+        if (sky.fileName == fileName) // already have this file in the list
         {
-            setSky(n+1); 
+            setSky(n + 1);
             return;
         }
         n++;
@@ -805,27 +797,27 @@ void GeoDataLoader::setSky(std::string fileName)
     skys->append(se.name);
 }
 
-void GeoDataLoader::setRootTransform(const osg::Vec3& off, float trueNorthDeg)
+void GeoDataLoader::setRootTransform(const osg::Vec3 &off, float trueNorthDeg)
 {
     rootOffset = off;
     trueNorthDegree = trueNorthDeg;
 
     float trueNorthRad = osg::DegreesToRadians(trueNorthDegree);
     osg::Matrix trans = osg::Matrix::translate(rootOffset);
-    osg::Matrix rot = osg::Matrix::rotate(-trueNorthRad, osg::Vec3(0,0,1));
+    osg::Matrix rot = osg::Matrix::rotate(-trueNorthRad, osg::Vec3(0, 0, 1));
     rootNode->setMatrix(trans * rot);
 }
 
 bool GeoDataLoader::update()
 {
     const osg::Matrix &m = cover->getObjectsXform()->getMatrix();
-    //double x = m(0, 0);
-    //double y = m(1, 0);
-    //northAngle = -atan2(y, x);
-    //skyRootNode->setMatrix(osg::Matrix::scale(1000, 1000, 1000) * osg::Matrix::rotate(northAngle, osg::Vec3(0, 0, 1)));
+    // double x = m(0, 0);
+    // double y = m(1, 0);
+    // northAngle = -atan2(y, x);
+    // skyRootNode->setMatrix(osg::Matrix::scale(1000, 1000, 1000) * osg::Matrix::rotate(northAngle, osg::Vec3(0, 0, 1)));
     float farValue = coVRConfig::instance()->farClip();
-    float scale = ((farValue) /20000)+500; // scale the sphere so that it stays a bit closer than the far clipping plane.
-    skyRootNode->setMatrix( osg::Matrix::scale(scale, scale, scale) * osg::Matrix::rotate(northAngle, osg::Vec3(0, 0, 1)) * osg::Matrix::rotate(cover->getObjectsXform()->getMatrix().getRotate()));
+    float scale = ((farValue) / 20000) + 500; // scale the sphere so that it stays a bit closer than the far clipping plane.
+    skyRootNode->setMatrix(osg::Matrix::scale(scale, scale, scale) * osg::Matrix::rotate(northAngle, osg::Vec3(0, 0, 1)) * osg::Matrix::rotate(cover->getObjectsXform()->getMatrix().getRotate()));
     return false; // don't request that scene be re-rendered
 }
 GeoDataLoader *GeoDataLoader::instance()
@@ -834,7 +826,6 @@ GeoDataLoader *GeoDataLoader::instance()
         s_instance = new GeoDataLoader;
     return s_instance;
 }
-
 
 osg::ref_ptr<osg::Node> GeoDataLoader::loadTerrain(std::string filename, osg::Vec3d localOffset)
 {
@@ -847,7 +838,7 @@ osg::ref_ptr<osg::Node> GeoDataLoader::loadTerrain(std::string filename, osg::Ve
     std::cout << "\t getApplyPBOToImages: " << (pager->getApplyPBOToImages() ? "yes" : "no") << std::endl;
     std::cout << "\t getTargetMaximumNumberOfPageLOD: " << pager->getTargetMaximumNumberOfPageLOD() << std::endl;
     viewer->setIncrementalCompileOperation(new osgUtil::IncrementalCompileOperation());
-    //pager->setIncrementalCompileOperation(new osgUtil::IncrementalCompileOperation());
+    // pager->setIncrementalCompileOperation(new osgUtil::IncrementalCompileOperation());
     osgUtil::IncrementalCompileOperation *coop = pager->getIncrementalCompileOperation();
     if (coop)
     {
@@ -894,15 +885,15 @@ osg::ref_ptr<osg::Node> GeoDataLoader::loadTerrain(std::string filename, osg::Ve
 
         terrainStateSet->setMode(GL_LIGHTING, osg::StateAttribute::ON);
         terrainStateSet->setMode(GL_LIGHT0, osg::StateAttribute::ON);
-        //terrainStateSet->setMode ( GL_LIGHT1, osg::StateAttribute::ON);
+        // terrainStateSet->setMode ( GL_LIGHT1, osg::StateAttribute::ON);
 
-        //osgUtil::Optimizer optimizer;
-        //optimizer.optimize(terrain);
+        // osgUtil::Optimizer optimizer;
+        // optimizer.optimize(terrain);
 
         terrain->setNodeMask(terrain->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
 
-        //std::vector<BoundingArea> voidBoundingAreaVector;
-        //voidBoundingAreaVector.push_back(BoundingArea(osg::Vec2(506426.839,5398055.357),osg::Vec2(508461.865,5399852.0)));
+        // std::vector<BoundingArea> voidBoundingAreaVector;
+        // voidBoundingAreaVector.push_back(BoundingArea(osg::Vec2(506426.839,5398055.357),osg::Vec2(508461.865,5399852.0)));
         osgTerrain::TerrainTile::setTileLoadedCallback(new CutGeometry(this));
 
         osg::PositionAttitudeTransform *terrainTransform = new osg::PositionAttitudeTransform();
@@ -923,25 +914,25 @@ osg::ref_ptr<osg::Node> GeoDataLoader::loadTerrain(std::string filename, osg::Ve
 
 bool GeoDataLoader::addLayer(std::string filename)
 {
-#if GDAL_VERSION_MAJOR<2
+#if GDAL_VERSION_MAJOR < 2
 
 #else
-        if (GDALGetDriverCount() == 0)
-            GDALAllRegister();
+    if (GDALGetDriverCount() == 0)
+        GDALAllRegister();
 
-        // Try to open data source
-        GDALDataset* poDS  = (GDALDataset*) GDALOpenEx( filename.c_str(), GDAL_OF_VECTOR, NULL, NULL, NULL );
+    // Try to open data source
+    GDALDataset *poDS = (GDALDataset *)GDALOpenEx(filename.c_str(), GDAL_OF_VECTOR, NULL, NULL, NULL);
 #endif
-        /*
-    if (poDS == NULL)
-    {
-        std::cout << "GeoDataLoader: Could not open layer " << filename << "!" << std::endl;
-        return false;
-    }
+    /*
+if (poDS == NULL)
+{
+    std::cout << "GeoDataLoader: Could not open layer " << filename << "!" << std::endl;
+    return false;
+}
 
-    for (int layerIt = 0; layerIt < poDS->GetLayerCount(); ++layerIt)
-    {
-    }*/
+for (int layerIt = 0; layerIt < poDS->GetLayerCount(); ++layerIt)
+{
+}*/
 
     return true;
 }

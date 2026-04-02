@@ -30,7 +30,7 @@
 using namespace opencover;
 using namespace vrml;
 
-class  VrmlNodeGeoData : public VrmlNodeChild
+class VrmlNodeGeoData : public VrmlNodeChild
 {
 
 public:

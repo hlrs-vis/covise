@@ -85,14 +85,14 @@ void VrmlNodeGeoData::initFields(VrmlNodeGeoData *node, VrmlNodeType *t)
         field("enabled", node->d_enabled, [node](auto f) { }));
 }
 
-const char *VrmlNodeGeoData::typeName() 
+const char *VrmlNodeGeoData::typeName()
 {
     return "GeoData";
 }
 
 VrmlNodeGeoData::VrmlNodeGeoData(VrmlScene *scene)
     : VrmlNodeChild(scene, typeName())
-    , d_offset(0,0,0)
+    , d_offset(0, 0, 0)
     , d_enabled(true)
     , d_skyName("")
 {
@@ -139,5 +139,4 @@ void VrmlNodeGeoData::render(Viewer *viewer)
 {
     (void)viewer;
     double timeNow = System::the->time();
-
 }

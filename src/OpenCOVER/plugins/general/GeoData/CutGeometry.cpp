@@ -18,7 +18,6 @@
 #include <osg/PositionAttitudeTransform>
 #include <osg/LightModel>
 
-
 #include <osgDB/WriteFile>
 
 #include <osg/Depth>
@@ -26,19 +25,19 @@
 
 using namespace opencover;
 
-//CutGeometry::CutGeometry(osg::Vec3d offset_, const std::vector<OGRLayer*>& layers_)
+// CutGeometry::CutGeometry(osg::Vec3d offset_, const std::vector<OGRLayer*>& layers_)
 CutGeometry::CutGeometry(GeoDataLoader *plugin_)
     : plugin(plugin_)
 {
-    //std::vector<std::string> treeFileVector;
-    //treeFileVector.push_back("Maple_silver_alone_16_1/Maple_silver_alone_16_1.osg");
-    //treeFileVector.push_back("Maple_silver_alone_21_1/Maple_silver_alone_21_1.osg");
-    //treeFileVector.push_back("Maple_silver_alone_32_1/Maple_silver_alone_32_1.osg");
+    // std::vector<std::string> treeFileVector;
+    // treeFileVector.push_back("Maple_silver_alone_16_1/Maple_silver_alone_16_1.osg");
+    // treeFileVector.push_back("Maple_silver_alone_21_1/Maple_silver_alone_21_1.osg");
+    // treeFileVector.push_back("Maple_silver_alone_32_1/Maple_silver_alone_32_1.osg");
     /*treeFileVector.push_back("trees/tree1");
    treeFileVector.push_back("trees/tree2");
    treeFileVector.push_back("trees/tree3");
    for(int treeIt = 0; treeIt<treeFileVector.size(); ++treeIt) {
-   
+
       osg::Node* treeNode = coVRFileManager::instance()->loadIcon(treeFileVector[treeIt].c_str());
       if(treeNode) {
          treeNode->setName("Tree");
@@ -46,8 +45,8 @@ CutGeometry::CutGeometry(GeoDataLoader *plugin_)
       }
    }*/
 
-    //Define voids by aligned bounding area:
-    //voidBoundingAreaVector.push_back(BoundingArea(osg::Vec2(3450410.0,5389240.0),osg::Vec2(3450510.0,5389340.0)));
+    // Define voids by aligned bounding area:
+    // voidBoundingAreaVector.push_back(BoundingArea(osg::Vec2(3450410.0,5389240.0),osg::Vec2(3450510.0,5389340.0)));
 
     treeStateSet = new osg::StateSet;
     const char *treeFileName = coVRFileManager::instance()->getName("share/covise/materials/trees_map.png");
@@ -89,7 +88,7 @@ CutGeometry::CutGeometry(GeoDataLoader *plugin_)
    treeStateSet->setMode( GL_LIGHTING, osg::StateAttribute::OFF );*/
 
     buildingStateSet = new osg::StateSet;
-    //const char *buildingFileName = coVRFileManager::instance()->getName("share/covise/materials/house_two-sides.png");
+    // const char *buildingFileName = coVRFileManager::instance()->getName("share/covise/materials/house_two-sides.png");
     const char *buildingFileName = coVRFileManager::instance()->getName("share/covise/materials/house-texture.jpg");
     if (buildingFileName)
     {
@@ -108,8 +107,8 @@ CutGeometry::CutGeometry(GeoDataLoader *plugin_)
 
 void CutGeometry::loaded(osgTerrain::TerrainTile *tile, const osgDB::ReaderWriter::Options *options) const
 {
-    //Change TerrainTechnique
-   // tile->setTerrainTechnique(new DecoratedGeometryTechnique(voidBoundingAreaVector, treeStateSet.get(), buildingStateSet.get(), shapeFileVector));
+    // Change TerrainTechnique
+    // tile->setTerrainTechnique(new DecoratedGeometryTechnique(voidBoundingAreaVector, treeStateSet.get(), buildingStateSet.get(), shapeFileVector));
     std::stringstream nameStream;
     nameStream << "tile_L" << tile->getTileID().level << "_X" << tile->getTileID().x << "_Y" << tile->getTileID().y;
     tile->setName(nameStream.str());
@@ -122,7 +121,7 @@ void CutGeometry::loaded(osgTerrain::TerrainTile *tile, const osgDB::ReaderWrite
    sprintf(name,"X%f_Y%f_Z%f", model.x(), model.y(), model.z());
    tile->setName(name);*/
 
-    //node->setNodeMask(node->getNodeMask() & (~Isect::Visible));
+    // node->setNodeMask(node->getNodeMask() & (~Isect::Visible));
     osgTerrain::HeightFieldLayer *hflayer = dynamic_cast<osgTerrain::HeightFieldLayer *>(tile->getElevationLayer());
     osg::HeightField *field = NULL;
     if (hflayer)
@@ -141,13 +140,12 @@ void CutGeometry::loaded(osgTerrain::TerrainTile *tile, const osgDB::ReaderWrite
     double tileXMax = tileXMin + tileXInterval * (double)field->getNumColumns();
     double tileYMin = plugin->rootOffset.y() + field->getOrigin().y();
     double tileYMax = tileYMin + tileYInterval * (double)field->getNumRows();
-    //osg::BoundingBox tileBB(tileXMin, tileYMin, -10.000, tileXMax, tileYMax, 10.000);
+    // osg::BoundingBox tileBB(tileXMin, tileYMin, -10.000, tileXMax, tileYMax, 10.000);
 
     if (tileXInterval > 10.0 && tileYInterval > 10.0)
     {
         return;
     }
-
 
 #if 0
    
@@ -584,6 +582,6 @@ void CutGeometry::loaded(osgTerrain::TerrainTile *tile, const osgDB::ReaderWrite
    }
 #endif
 
-    //tile->setDirty(true);
-    //tile->dirtyBound();
+    // tile->setDirty(true);
+    // tile->dirtyBound();
 }

@@ -14,11 +14,10 @@
 #include <osg/ref_ptr>
 class GeoDataLoader;
 
-
 /** Callback for post processing loaded TerrainTile, and for filling in missing elements such as external external imagery.*/
 struct CutGeometry : public osgTerrain::TerrainTile::TileLoadedCallback
 {
-    //CutGeometry(osg::Vec3d offset_, const std::vector<OGRLayer*>& = std::vector<OGRLayer*>());
+    // CutGeometry(osg::Vec3d offset_, const std::vector<OGRLayer*>& = std::vector<OGRLayer*>());
     CutGeometry(GeoDataLoader *plugin);
 
     bool deferExternalLayerLoading() const
@@ -29,11 +28,10 @@ struct CutGeometry : public osgTerrain::TerrainTile::TileLoadedCallback
     void loaded(osgTerrain::TerrainTile *tile, const osgDB::ReaderWriter::Options *options) const;
 
 protected:
-    GeoDataLoader* plugin;
-    //const std::vector<OGRLayer*>& layers;
+    GeoDataLoader *plugin;
+    // const std::vector<OGRLayer*>& layers;
 
-    //std::vector< osg::ref_ptr<osg::Node> > treeNodeVector;
-
+    // std::vector< osg::ref_ptr<osg::Node> > treeNodeVector;
 
     osg::ref_ptr<osg::StateSet> treeStateSet;
     opencover::coVRShader *treeShader;
