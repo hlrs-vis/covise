@@ -707,49 +707,17 @@ void GeoDataLoader::setSky(int selection)
         {
             if (sky.skyNode != nullptr)
             {
-                if (sky.type == skyEntry::geometry)
-                {
-                    if (sky.skyNode != nullptr)
-                    {
-                        skyRootNode->addChild(sky.skyNode);
-                    }
-                    else
-                    {
-                        sky.skyNode = coVRFileManager::instance()->loadFile((skyPath + "/" + sky.fileName).c_str(), nullptr, skyRootNode);
-                        skyRootNode->addChild(sky.skyNode);
-                    }
-                }
-                else
-                {
-                    sky.skyNode = TexturedSphere;
-                    if (sky.skyTexture == nullptr)
-                    {
-                        sky.skyTexture = coVRFileManager::instance()->loadTexture((skyPath + "/" + sky.fileName).c_str());
-                        sky.skyTexture->setWrap(osg::Texture::WRAP_R, osg::Texture::REPEAT);
-                        sky.skyTexture->setWrap(osg::Texture::WRAP_S, osg::Texture::REPEAT);
-                        sky.skyTexture->setWrap(osg::Texture::WRAP_T, osg::Texture::REPEAT);
-                        sky.skyTexture->setResizeNonPowerOfTwoHint(false);
-                    }
-                    osg::StateSet *stateset = TexturedSphere->getOrCreateStateSet();
-                    stateset->setTextureAttributeAndModes(0, sky.skyTexture, osg::StateAttribute::ON);
-
-                    coVRShader *shader = coVRShaderList::instance()->get("skySphere");
-                    shader->apply(stateset);
-
-                    osg::Matrixd tMat;
-                    tMat.makeIdentity();
-                    tMat(0, 0) = -1.0;
-                    tMat(1, 1) = 1.0;
-                    tMat(2, 2) = 1.0;
-                    texMat->setMatrix(tMat);
-                    stateset->setTextureAttributeAndModes(0, texMat, osg::StateAttribute::ON);
-                    skyRootNode->addChild(sky.skyNode);
-                }
-                currentSkyNode = sky.skyNode;
+                skyRootNode->addChild(sky.skyNode);
+            }
+            else
+            {
+                sky.skyNode = coVRFileManager::instance()->loadFile((skyPath + "/" + sky.fileName).c_str(), nullptr, skyRootNode);
+                skyRootNode->addChild(sky.skyNode);
             }
         }
         else
         {
+
             sky.skyNode = TexturedSphere;
             if (sky.skyTexture == nullptr)
             {
@@ -761,6 +729,9 @@ void GeoDataLoader::setSky(int selection)
             }
             osg::StateSet *stateset = TexturedSphere->getOrCreateStateSet();
             stateset->setTextureAttributeAndModes(0, sky.skyTexture, osg::StateAttribute::ON);
+
+            coVRShader *shader = coVRShaderList::instance()->get("skySphere");
+            shader->apply(stateset);
 
             osg::Matrixd tMat;
             tMat.makeIdentity();
