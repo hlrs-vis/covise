@@ -15,7 +15,7 @@ namespace opencover::audio
 
 class Listener;
 
-class COVEREXPORT PlayerAServer : public Player
+class COVRAUDIOEXPORT PlayerAServer : public Player
 {
 public:
     PlayerAServer(const Listener *listener, const std::string &host, int port);

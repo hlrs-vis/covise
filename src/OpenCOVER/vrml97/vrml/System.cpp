@@ -47,6 +47,7 @@ using std::endl;
 #include "config.h"
 #include "System.h"
 #include "Byteswap.h"
+#include <audio/Player.h>
 
 using namespace vrml;
 

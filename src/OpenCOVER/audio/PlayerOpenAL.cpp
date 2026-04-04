@@ -13,9 +13,6 @@ using namespace opencover::audio;
 #if defined(__APPLE__)
 #include <OpenAL/al.h>
 #include <OpenAL/alc.h>
-#elif defined(_MSC_VER)
-#include <al.h>
-#include <alc.h>
 #else
 #include <AL/al.h>
 #include <AL/alc.h>

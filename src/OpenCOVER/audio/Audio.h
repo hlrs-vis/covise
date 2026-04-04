@@ -13,12 +13,13 @@
 #include <stdio.h>
 #include <string>
 #include <util/coExport.h>
-#include "AL/al.h"
+// do not include al.h here, otherwise we need OpenAL dependency everywhere #include "AL/al.h"
+typedef unsigned int ALuint;
 
 namespace opencover::audio
 {
 
-class COVEREXPORT Audio
+class COVRAUDIOEXPORT Audio
 {
 public:
     Audio();
@@ -125,7 +126,7 @@ private:
     int _num_samples = 0;
 
     unsigned char *_sample_data = nullptr;
-    ALuint _buffer = AL_NONE;
+    ALuint _buffer = 0;
 };
 }
 

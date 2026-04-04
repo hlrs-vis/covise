@@ -398,7 +398,7 @@ void PlayerAServer::Source::loadAudio(const Audio *audio)
         }
 
         // Send file contents
-        FILE *fd = fopen(path.c_str(), "rb");
+        FILE *fd = fopen(path.string().c_str(), "rb");
         char buf[4096];
         for (size_t i = 0; i < file_size; i += 4096)
         {

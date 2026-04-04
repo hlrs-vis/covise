@@ -28,7 +28,7 @@ namespace opencover::audio
 
 class Listener;
 
-class COVEREXPORT PlayerOsc : public Player
+class COVRAUDIOEXPORT PlayerOsc : public Player
 {
 public:
     PlayerOsc(const Listener *listener);

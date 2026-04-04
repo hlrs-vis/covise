@@ -20,7 +20,10 @@
 #include <sys/types.h>
 #include <stdlib.h>
 
-#include <audio/Player.h>
+namespace opencover::audio
+{
+    class Player;
+}
 
 namespace vrml
 {

@@ -20,7 +20,7 @@
 namespace opencover::audio
 {
 
-class COVEREXPORT Player
+class COVRAUDIOEXPORT Player
 {
 public:
     class Source

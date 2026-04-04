@@ -19,7 +19,7 @@ namespace opencover::audio
 
 class Player;
 
-class COVEREXPORT Listener
+class COVRAUDIOEXPORT Listener
 {
 public:
     Listener();

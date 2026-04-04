@@ -32,7 +32,6 @@ SoundStep::SoundStep(Player *p, float umin)
 
 SoundStep::~SoundStep()
 {
-    delete source;
 }
 
 void SoundStep::stop()

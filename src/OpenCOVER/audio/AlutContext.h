@@ -13,7 +13,7 @@
 namespace opencover::audio
 {
 
-class COVEREXPORT AlutContext
+class COVRAUDIOEXPORT AlutContext
 {
 public:
     AlutContext();
