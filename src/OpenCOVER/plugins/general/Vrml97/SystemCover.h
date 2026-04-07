@@ -24,13 +24,15 @@
 #include <cover/coTabletUI.h>
 #include <cover/ui/Owner.h>
 
-namespace opencover {
-namespace ui {
-class Action;
-class Button;
-class ButtonGroup;
-class Menu;
-class Group;
+namespace opencover
+{
+namespace ui
+{
+    class Action;
+    class Button;
+    class ButtonGroup;
+    class Menu;
+    class Group;
 }
 }
 
@@ -97,7 +99,7 @@ public:
     void sendAndDeleteMessage(VrmlMessage *msg) override;
     bool hasRemoteConnection() override;
 
-    Player *getPlayer() override;
+    opencover::audio::Player *getPlayer() override;
 
     long getMaxHeapBytes() override;
     bool getHeadlight() override;
@@ -140,7 +142,7 @@ public:
     CacheMode getCacheMode() const override;
     std::string getCacheName(const char *url, const char *pathname) const override;
     void storeInline(const char *name, const Viewer::Object d_viewerObject) override;
-    int isUTF8(const char* data, size_t size);
+    int isUTF8(const char *data, size_t size);
     Viewer::Object getInline(const char *name) override;
     void insertObject(Viewer::Object d_viewerObject, Viewer::Object sgObject) override;
 
@@ -162,7 +164,8 @@ public:
     {
         return viewpointEntries;
     }
-	bool doOptimize() override;
+    bool doOptimize() override;
+
 protected:
     ui::Menu *vrmlMenu = nullptr;
     ui::Group *viewpointGroup = nullptr;
@@ -183,6 +186,6 @@ protected:
     int viewPointCount = 0;
     CacheMode cacheMode = CACHE_CREATE;
 
-	bool m_optimize;
+    bool m_optimize;
 };
 #endif // SYSTEM_COVER_H

@@ -31,7 +31,7 @@ SET(CS_HEADERS
   SoundSample.h
   SoundSweep.h
   soundClient.h
-  remoteSoundMessages.h
+  carSoundMessages.h
   EventSoundSample.h
   ClientSoundSample.h
 )

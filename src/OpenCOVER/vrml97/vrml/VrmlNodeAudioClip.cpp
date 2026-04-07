@@ -13,19 +13,33 @@
 //  VrmlNodeAudioClip.cpp
 //    contributed by Kumaran Santhanam
 
+#include <audio/Audio.h>
+
 #include "VrmlNodeAudioClip.h"
 #include "VrmlNodeType.h"
 #include "VrmlScene.h"
 #include "MathUtils.h"
-#include "Audio.h"
 #include "Doc.h"
 #include "VrmlNodeSound.h"
+#include "System.h"
 
 using std::cerr;
 using std::endl;
 using namespace vrml;
+using namespace opencover::audio;
 
 // Render
+bool fileExists(std::string &url, const Doc &relativeTo)
+{
+    Doc doc(url, &relativeTo);
+    FILE *fp = doc.fopen("rb");
+    if (!fp)
+    {
+        return false;
+    }
+    url = doc.url();
+    return true;
+}
 
 void VrmlNodeAudioClip::update(VrmlSFTime &now)
 {
@@ -33,14 +47,23 @@ void VrmlNodeAudioClip::update(VrmlSFTime &now)
     if (d_url_modified)
     {
         Doc relDoc(d_relativeUrl.get());
-        if (d_audio->tryURLs(d_url.size(),
-                             d_url.get(),
-                             &relDoc))
+
+        for (int i = 0; i < d_url.size(); i++)
         {
-            d_duration.set(d_audio->duration());
-            eventOut(now.get(), "duration_changed", d_duration);
+            std::string url(d_url.get(i));
+            if (fileExists(url, relDoc))
+            {
+                d_audio->setURL(url);
+                d_duration.set(d_audio->duration());
+                eventOut(now.get(), "duration_changed", d_duration);
+                d_url_modified = false;
+                audioLastModified = System::the->time();
+                break;
+            }
         }
-        else
+
+        // Still
+        if (d_url_modified)
         {
             cerr << "Error: couldn't read AudioClip from URL "
                  << d_url << endl;
@@ -63,15 +86,15 @@ void VrmlNodeAudioClip::update(VrmlSFTime &now)
 void VrmlNodeAudioClip::initFields(VrmlNodeAudioClip *node, VrmlNodeType *t)
 {
     initFieldsHelper(node, t,
-                     exposedField("description", node->d_description),
-                     exposedField("loop", node->d_loop),
-                     exposedField("pitch", node->d_pitch),
-                     exposedField("startTime", node->d_startTime),
-                     exposedField("stopTime", node->d_stopTime),
-                     exposedField("url", node->d_url, [node](const VrmlMFString *field){
+        exposedField("description", node->d_description),
+        exposedField("loop", node->d_loop),
+        exposedField("pitch", node->d_pitch),
+        exposedField("startTime", node->d_startTime),
+        exposedField("stopTime", node->d_stopTime),
+        exposedField("url", node->d_url, [node](const VrmlMFString *field)
+            {
                         node->d_url_modified = true;
-                        node->setModified();
-                     }));
+                        node->setModified(); }));
     if (t)
     {
         t->addEventOut("duration_changed", VrmlField::SFTIME);
@@ -81,15 +104,14 @@ void VrmlNodeAudioClip::initFields(VrmlNodeAudioClip *node, VrmlNodeType *t)
 
 const char *VrmlNodeAudioClip::typeName() { return "AudioClip"; }
 
-
 VrmlNodeAudioClip::VrmlNodeAudioClip(VrmlScene *scene)
     : VrmlNode(scene, typeName())
     , d_pitch(1.0)
     , d_isActive(false)
-    , d_audio(new Audio(0))
+    , d_audio(new Audio())
     , d_url_modified(false)
     , _doc(0)
-    , lastActive(true)
+    , lastActive(false)
 {
     if (d_scene)
         d_scene->addAudioClip(this);
@@ -109,7 +131,8 @@ VrmlNodeAudioClip::VrmlNodeAudioClip(const VrmlNodeAudioClip &n)
     , d_audio(new Audio(*n.d_audio))
     , d_url_modified(true)
     , _doc(0)
-    , lastActive(true)
+    , lastActive(false)
+    , audioLastModified(System::the->time())
 {
     if (d_scene)
         d_scene->addAudioClip(this);
@@ -166,7 +189,7 @@ double VrmlNodeAudioClip::currentCliptime(VrmlSFTime &inTime) const
     double cliptime = 0.0;
     if (isAudible(inTime))
         cliptime = fmod((inTime.get() - d_startTime.get()) * d_pitch.get(),
-                        d_audio->duration());
+            d_audio->duration());
 
     return cliptime;
 }

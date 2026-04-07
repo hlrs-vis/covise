@@ -34,7 +34,6 @@ static const int NUM_TEXUNITS = 4;
 #include <vrml97/vrml/VrmlScene.h>
 #include <vrml97/vrml/VrmlNodeNavigationInfo.h>
 #include <vrml97/vrml/VrmlNode.h>
-#include <vrml97/vrml/Player.h>
 
 #include <osg/Group>
 #include <osg/MatrixTransform>

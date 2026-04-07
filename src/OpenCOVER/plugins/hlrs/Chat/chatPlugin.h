@@ -15,7 +15,6 @@
 #include <cover/coTabletUI.h>
 #include <OpenVRUI/coPopupHandle.h>
 #include <cover/coVRPlugin.h>
-#include <vrml97/vrml/Player.h>
 #include <cover/ui/Menu.h>
 #include <cover/ui/Button.h>
 #include <cover/ui/SelectionList.h>

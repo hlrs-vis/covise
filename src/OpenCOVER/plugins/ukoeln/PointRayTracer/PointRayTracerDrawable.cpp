@@ -24,9 +24,9 @@ visionaray::mat4 osg_cast(osg::Matrixd const &m)
 
 struct RenderTarget : render_target, opencover::MultiChannelDrawer
 {
-    using ref_type = render_target_ref<PF_RGBA8, PF_DEPTH24_STENCIL8>;
+    using ref_type = render_target_ref<PF_RGBA8, PF_DEPTH32F>;
     using color_type = typename pixel_traits<PF_RGBA8>::type;
-    using depth_type = typename pixel_traits<PF_DEPTH24_STENCIL8>::type;
+    using depth_type = typename pixel_traits<PF_DEPTH32F>::type;
     using accum_type = typename pixel_traits<PF_UNSPECIFIED>::type;
 
     RenderTarget(bool cuda=false) : MultiChannelDrawer(false, cuda)
@@ -37,7 +37,7 @@ struct RenderTarget : render_target, opencover::MultiChannelDrawer
     {
         render_target::resize(w, h);
         opencover::MultiChannelDrawer::resizeView(
-            channel, w, h, GL_UNSIGNED_INT_24_8, GL_UNSIGNED_BYTE);
+            channel, w, h, GL_FLOAT, GL_UNSIGNED_BYTE);
 
         clearColor(channel);
         clearDepth(channel);
@@ -74,9 +74,11 @@ struct PointRayTracerDrawable::Impl
         // Initialize CUDA scheduler with block dimensions
         : scheduler(8, 8) // TODO: determine best
         , multiChannelRenderTarget(true)
+        , host_bvh_vector(nullptr)
 #else
         // Initialize CPU scheduler with #threads
         : scheduler(15)
+        , host_bvh_vector(nullptr)
 #endif
     {
     }
@@ -97,9 +99,13 @@ struct PointRayTracerDrawable::Impl
 PointRayTracerDrawable::PointRayTracerDrawable()
     : m_impl(new Impl)
 {
+    fprintf(stderr, "PRT: Drawable ctor: Impl created\n");
     setSupportsDisplayList(false);
+    fprintf(stderr, "PRT: Drawable ctor: setMode\n");
     m_impl->multiChannelRenderTarget.setMode(opencover::MultiChannelDrawer::AsIs);
+    fprintf(stderr, "PRT: Drawable ctor: addChild multiChannelRenderTarget\n");
     opencover::cover->getScene()->addChild(&m_impl->multiChannelRenderTarget);
+    fprintf(stderr, "PRT: Drawable ctor done\n");
 }
 
 PointRayTracerDrawable::~PointRayTracerDrawable()
@@ -186,6 +192,10 @@ viewing_params PointRayTracerDrawable::getViewingParams(const osg::RenderInfo& i
 
 void PointRayTracerDrawable::expandBoundingSphere(osg::BoundingSphere &bs)
 {
+    fprintf(stderr, "PRT: expandBoundingSphere, host_bvh_vector=%p\n", (void*)m_impl->host_bvh_vector);
+    if (!m_impl->host_bvh_vector)
+        return;
+
     aabb bounds(vec3(std::numeric_limits<float>::max()), -vec3(std::numeric_limits<float>::max()));
 
     for(int i = 0; i < m_impl->host_bvh_vector->size(); i++){
@@ -257,10 +267,12 @@ void PointRayTracerDrawable::setVisibility(std::vector<bool>& visibility){
 */
 
 void PointRayTracerDrawable::setCurrentPointCloud(int pointCloudID){
+    if (!m_impl->host_bvh_vector)
+        return;
     if(pointCloudID < 0){
         std::cout << "PointRayTracerDrawable::setCurrentPointCloud pointCloud id < 0 : " << pointCloudID << std::endl;
         return;
-     } else if (pointCloudID >= m_impl->host_bvh_vector->size()) {
+     } else if (pointCloudID >= (int)m_impl->host_bvh_vector->size()) {
         std::cout << "PointRayTracerDrawable::setCurrentPointCloud pointCloud too big. pointCloudID: " << pointCloudID << "  host_bvh_vector->size(): " << m_impl->host_bvh_vector->size() << std::endl;
         return;
     }
@@ -292,10 +304,8 @@ osg::Object* PointRayTracerDrawable::clone(const osg::CopyOp &op) const
 
 void PointRayTracerDrawable::drawImplementation(osg::RenderInfo &info) const
 {
-    m_impl->multiChannelRenderTarget.update();
-
-    m_impl->multiChannelRenderTarget.clearColor(0);
-    m_impl->multiChannelRenderTarget.clearDepth(0);
+    static bool first = true;
+    if (first) { fprintf(stderr, "PRT: drawImplementation first call, bvh_refs=%zu\n", m_impl->bvh_refs.size()); first = false; }
 
     //delay rendering until we actually have data
     if (m_impl->bvh_refs.size() == 0)
@@ -306,6 +316,11 @@ void PointRayTracerDrawable::drawImplementation(osg::RenderInfo &info) const
        vparams.height != m_impl->multiChannelRenderTarget.height()){
         m_impl->multiChannelRenderTarget.resize(vparams.width, vparams.height);
     }
+
+    m_impl->multiChannelRenderTarget.update();
+
+    m_impl->multiChannelRenderTarget.clearColor(0);
+    m_impl->multiChannelRenderTarget.clearDepth(0);
 
     auto sparams = make_sched_params(
         vparams.view_matrix,

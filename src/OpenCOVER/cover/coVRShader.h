@@ -112,6 +112,7 @@ public:
     void setValue(bool b);
     void setValue(int i);
     void setValue(float f);
+    void setValue(osg::Vec2 v);
     void setValue(osg::Vec3 v);
     void setValue(osg::Vec4 v);
     void setWrapMode(std::string wm);
@@ -262,6 +263,7 @@ public:
     void setBoolUniform(const std::string &name, bool b);
     void setIntUniform(const std::string &name, int i);
     void setFloatUniform(const std::string &name, float f);
+    void setVec2Uniform(const std::string &name, osg::Vec2 v);
     void setVec3Uniform(const std::string &name, osg::Vec3 v);
     void setVec4Uniform(const std::string &name, osg::Vec4 v);
     void setNumVertices(int);

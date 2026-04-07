@@ -8,9 +8,9 @@
 
 #include "EngineSound.h"
 
-using namespace vrml;
+using namespace opencover::audio;
 
-SoundStep::SoundStep(vrml::Player *p, float umin)
+SoundStep::SoundStep(Player *p, float umin)
 {
     player = p;
     speed = umin;
@@ -19,7 +19,7 @@ SoundStep::SoundStep(vrml::Player *p, float umin)
         char name[500];
         sprintf(name, "%d.wav", (int)speed);
         Audio *engineAudio = new Audio(name);
-        source = player->newSource(engineAudio);
+        source = player->makeSource(engineAudio);
         if (source)
         {
             source->setLoop(true);
@@ -32,7 +32,6 @@ SoundStep::SoundStep(vrml::Player *p, float umin)
 
 SoundStep::~SoundStep()
 {
-    delete source;
 }
 
 void SoundStep::stop()
@@ -56,7 +55,7 @@ void SoundStep::start()
     }
 }
 
-EngineSound::EngineSound(vrml::Player *p)
+EngineSound::EngineSound(Player *p)
 {
     player = p;
     for (int i = 0; i < NUM_SPEEDS; i++)

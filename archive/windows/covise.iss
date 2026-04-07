@@ -338,6 +338,17 @@ Source: {#PNG}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Comp
 Source: {#EXTERNLIBS}\libpng\lib\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#EXTERNLIBS}\libpng\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core    
 Source: {#EXTERNLIBS}\OpenVR\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+;lamure
+
+Source: {#EXTERNLIBS}\Freeimage\bin\Freeimage.dll; DestDir: {#DBIN}; Components: core   
+Source: {#EXTERNLIBS}\Freeimage\bin\FreeimagePlus.dll; DestDir: {#DBIN}; Components: core           
+Source: {#EXTERNLIBS}\schism\bin\scm_cl_core.dll; DestDir: {#DBIN}; Components: core          
+Source: {#EXTERNLIBS}\schism\bin\scm_core.dll; DestDir: {#DBIN}; Components: core          
+Source: {#EXTERNLIBS}\schism\bin\scm_gl_core.dll; DestDir: {#DBIN}; Components: core          
+Source: {#EXTERNLIBS}\schism\bin\scm_gl_util.dll; DestDir: {#DBIN}; Components: core      
+Source: {#EXTERNLIBS}\schism\bin\scm_input.dll; DestDir: {#DBIN}; Components: core        
+Source: {#EXTERNLIBS}\lamure\bin\Release\*.dll; DestDir: {#DBIN}; Components: core           
+Source: {#EXTERNLIBS}\lamure\bin\Release\*.EXE; DestDir: {#DBIN}; Components: core   
 
 Source: {#EXTERNLIBS}\fmod\lowlevel\lib\*64.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#EXTERNLIBS}\fmod\studio\lib\*64.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core

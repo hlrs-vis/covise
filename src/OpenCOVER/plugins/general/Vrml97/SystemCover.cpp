@@ -557,9 +557,9 @@ void SystemCover::callBuiltInFunctionCallback(const char *fname)
 }
 #endif
 
-Player *SystemCover::getPlayer()
+opencover::audio::Player *SystemCover::getPlayer()
 {
-    return NULL;
+    return cover->getPlayer();
 }
 
 VrmlMessage *SystemCover::newMessage(size_t len)

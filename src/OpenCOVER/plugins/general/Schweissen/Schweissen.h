@@ -182,7 +182,5 @@ public:
     int menuSelected; // TRUE if menu itme "Cube" was selected
     //void setSchweissens(string);
     void deleteAllSchweissens();
-
-    static vrml::Player *player;
 };
 #endif

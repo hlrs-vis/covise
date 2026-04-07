@@ -269,6 +269,14 @@ void coVRUniform::setValue(int i)
     uniform->set(i);
 }
 
+void coVRUniform::setValue(osg::Vec2 v)
+{
+    char vs[200];
+    sprintf(vs, "%f %f", v[0], v[1]);
+    value = vs;
+    uniform->set(v);
+}
+
 void coVRUniform::setValue(osg::Vec3 v)
 {
     char vs[300];
@@ -980,6 +988,18 @@ void coVRShader::setFloatUniform(const std::string &name, float f)
     }
 }
 
+void coVRShader::setVec2Uniform(const std::string &name, osg::Vec2 v)
+{
+    std::list<coVRUniform *>::iterator it;
+    for (it = uniforms.begin(); it != uniforms.end(); it++)
+    {
+        if ((*it)->getName() == name)
+        {
+            (*it)->setValue(v);
+        }
+    }
+}
+
 void coVRShader::setVec3Uniform(const std::string &name, osg::Vec3 v)
 {
     std::list<coVRUniform *>::iterator it;
@@ -1475,7 +1495,16 @@ void coVRShaderList::remove(osg::Node *node)
 void coVRShader::apply(osg::StateSet *stateset)
 {
     if (!stateset)
+    {
+        if (cover->debugLevel(3))
+            std::cerr << "coVRShader::apply: No stateset provided, cannot apply shader " << name << std::endl;
         return;
+    }
+
+    if (cover->debugLevel(3))
+    {
+        std::cerr << "coVRShader::apply: Applying shader " << name << " to stateset " << stateset << std::endl;
+    }
 
     if (transparent)
     {
@@ -1485,6 +1514,10 @@ void coVRShader::apply(osg::StateSet *stateset)
     }
     if (program.get() == NULL)
     {
+        if (cover->debugLevel(3))
+        {
+            std::cerr << "coVRShader::apply: Creating program for shader " << name << std::endl;
+        }
         program = new osg::Program;
         program->setName(name);
         if (fragmentShader.get())

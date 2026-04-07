@@ -38,7 +38,6 @@ static const int NUM_TEXUNITS = 4;
 #include <vrml97/vrml/VrmlNode.h>
 #include <vrml97/vrml/VrmlNodeLight.h>
 #include <vrml97/vrml/VrmlNodeMovieTexture.h>
-#include <vrml97/vrml/Player.h>
 
 #include <cover/coTabletUI.h>
 #include <cover/coVRTui.h>
@@ -922,11 +921,6 @@ ViewerOsg::ViewerOsg(VrmlScene *s, Group *rootNode)
 
     font = coVRFileManager::instance()->loadFont(NULL);
 
-    d_player = NULL;
-
-    if (cover->debugLevel(3))
-        CERR << "d_player: " << d_player << endl;
-
     if (cover->debugLevel(5))
         cerr << "END ViewerOsg::ViewerOsg\n";
 #ifdef DEBUG_LINES
@@ -1145,7 +1139,7 @@ Viewer::Object ViewerOsg::beginObject(const char *name,
         else
         {
             // make sure, we come back this way (needed for used nodes)
-            //CERR << "already have child" << endl;
+            //cerr << "already have child" << endl;
             to->parent = d_currentObject;
         }
         d_currentObject = to;
@@ -2662,7 +2656,7 @@ bool ViewerOsg::addToScene(osgViewerObject *obj)
                 else
                 {
                     if (cover->debugLevel(2))
-                        CERR << "Kacke" << endl;
+                        cerr << "Kacke" << endl;
                 }
             }
             //cerr << "add a Child to Parent" << d_currentObject->node->name() << endl;
@@ -2689,7 +2683,7 @@ bool ViewerOsg::addToScene(osgViewerObject *obj)
                 else
                 {
                     if (cover->debugLevel(2))
-                        CERR << "Oberkacke" << endl;
+                        cerr << "Oberkacke" << endl;
                 }
 //cerr << "choiceMap : " <<  d_currentObject->parent->choiceMap[d_currentObject->parent->whichChoice] << endl;
 
@@ -3024,7 +3018,7 @@ Viewer::Object ViewerOsg::insertReference(Object existingObject)
 
     if (d_currentObject->hasChild(obj) || d_currentObject == obj)
     {
-        //CERR << "insertReference: nothing to do" << endl;
+        //cerr << "insertReference: nothing to do" << endl;
     }
     else
     {
@@ -3259,7 +3253,7 @@ void ViewerOsg::setFog(float *color,
    }
    else
    {
-      CERR << "unknown fog mode " << fogType << endl;
+      cerr << "unknown fog mode " << fogType << endl;
    }
    fog->setMode(fogMode);
    state->setAttributeAndModes(fog, StateAttribute::ON);

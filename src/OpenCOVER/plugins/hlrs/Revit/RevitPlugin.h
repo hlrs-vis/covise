@@ -37,6 +37,8 @@
 
 #include "IK/CRobot.h"
 #include "IK/CAlgoFactory.h"
+#include "Doors.h"
+#include "Elevators.h"
 
 
 
@@ -326,38 +328,6 @@ public:
     ~PhaseInfo();
 };
 
-class DoorInfo
-{
-public:
-
-    enum SlidingDirection { dirLeft=-1, dirNone=0,dirRight=1 };
-
-	DoorInfo(int id, const char *Name, osg::MatrixTransform *tn, TokenBuffer &tb);
-	std::string name;
-	osg::MatrixTransform *transformNode;
-	int ID;
-	bool HandFlipped;
-	bool FaceFlipped;
-    SlidingDirection isSliding;
-	osg::Vec3 HandOrientation;
-	osg::Vec3 FaceOrientation;
-	osg::Vec3 Direction;
-	osg::Vec3 Origin;
-	double maxDistance;
-    double openingPercentage=0;
-	osg::Vec3 Center;
-	float activationDistance2;
-	bool entered;
-	bool left;
-	bool isActive;
-	double startTime;
-	double animationTime;
-	void checkStart(osg::Vec3 &viewerPosition); 
-	void translateDoor(float fraction);
-	osg::BoundingBox boundingBox;
-	bool update(osg::Vec3 &viewerPosition); // returns false if updates are done and it can be removed from the list
-};
-
 
 class RevitParameter
 {
@@ -510,7 +480,8 @@ public:
         MSG_AddRoomInfo = 537,
         MSG_ObjectInfo = 538,
         MSG_Flip = 539,
-        MSG_SelectType = 540
+        MSG_SelectType = 540,
+        MSG_ElevatorPart = 541
     };
     enum ObjectTypes
     {
@@ -588,7 +559,8 @@ public:
     void createNewAnnotation(int id, AnnotationMessage *am);
     void changeAnnotation(int id, AnnotationMessage *am);
 	std::list<DoorInfo *> doors;
-	std::list<DoorInfo*> activeDoors;
+    std::list<DoorInfo *> activeDoors;
+    std::list<Elevator *> elevators;
 	std::map<int, ARMarkerInfo*> ARMarkers;
     std::list<RevitDesignOptionSet*> designOptionSets;
     std::list<PhaseInfo*> phaseInfos;

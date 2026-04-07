@@ -410,12 +410,6 @@ void CALLBACK FTPMidiInProc(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD 
 #endif
 MidiPlugin *MidiPlugin::plugin = NULL;
 
-void playerUnavailableCB()
-{
-	MidiPlugin::instance()->player = NULL;
-}
-
-
 static FileHandler handlers[] = {
 	{ NULL,
 	  MidiPlugin::loadMidi,
@@ -569,7 +563,6 @@ MidiPlugin::MidiPlugin()
 , ui::Owner("MidiPlugin", cover->ui)
 {
 	plugin = this;
-	player = NULL;
 	coVRPluginList::instance()->addPlugin("Vrml97");
 
 	initOPCUA();
@@ -915,20 +908,6 @@ device_list();
 	coVRFileManager::instance()->registerFileHandler(&handlers[0]);
 	coVRFileManager::instance()->registerFileHandler(&handlers[1]);
 	//----------------------------------------------------------------------------
-  /*  if (player == NULL)
-	{
-		player = cover->usePlayer(playerUnavailableCB);
-		if (player == NULL)
-		{
-			cover->unusePlayer(playerUnavailableCB);
-			cover->addPlugin("Vrml97");
-			player = cover->usePlayer(playerUnavailableCB);
-			if (player == NULL)
-			{
-				cerr << "sorry, no VRML, no Sound support " << endl;
-			}
-		}
-	}*/
 
 	MIDIRoot = new osg::Group;
 	MIDIRoot->setName("MIDIRoot");
@@ -2129,26 +2108,6 @@ Track::Track(int tn, bool l)
 		}
 	}
 
-	char soundName[200];
-	snprintf(soundName, 200, "RENDERS/S%d.wav", tn);
-	//trackAudio = new vrml::Audio(soundName);
-	trackAudio = NULL;
-	trackSource = NULL;
-	if (trackAudio != NULL && MidiPlugin::instance()->player)
-	{
-		trackSource = MidiPlugin::instance()->player->newSource(trackAudio);
-		if (trackSource)
-		{
-			trackSource->setLoop(false);
-			trackSource->setPitch(1);
-			trackSource->stop();
-			trackSource->setIntensity(1.0);
-			trackSource->setSpatialize(false);
-			trackSource->setVelocity(0, 0, 0);
-
-		}
-	}
-
 	geometryLines = createLinesGeometry();
 	TrackRoot->addChild(geometryLines);
 	lastNum = 0;
@@ -2357,10 +2316,6 @@ void Track::clearStore()
 void Track::reset()
 {
 	eventNumber = 0;
-	if (trackSource != NULL)
-	{
-		trackSource->play();
-	}
 	for (std::list<Note *>::iterator it = notes.begin(); it != notes.end(); it++)
 	{
 		delete *it;
@@ -2619,18 +2574,10 @@ void Track::setVisible(bool state)
 	if (state)
 	{
 		MidiPlugin::instance()->MIDITrans[trackNumber%MidiPlugin::instance()->NUMMidiStreams]->addChild(TrackRoot);
-		if (trackSource != NULL)
-		{
-			trackSource->play();
-		}
 	}
 	else
 	{
 		MidiPlugin::instance()->MIDIRoot->removeChild(TrackRoot);
-		if (trackSource != NULL)
-		{
-			trackSource->stop();
-		}
 	}
 }
 

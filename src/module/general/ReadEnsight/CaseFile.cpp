@@ -39,6 +39,7 @@ CaseFile::CaseFile(const CaseFile &cf)
 , geoTsIdx_(cf.geoTsIdx_)
 , binType_(cf.binType_)
 , connectivityFileIndex_(cf.connectivityFileIndex_)
+, usedTimeSets_(cf.usedTimeSets_)
 {}
 
 void CaseFile::setGeoFileNm(const std::string &fn)
@@ -96,6 +97,7 @@ void CaseFile::addDataItem(const DataItem &it)
 {
     dataIts_[it.getDesc()] = it;
     fieldMap_[it.getDesc()] = it.getTimeSet();
+    usedTimeSets_.insert(it.getTimeSet());
     std::cerr << "CaseFile::addDataItem: " << it.getDesc() << ", time set: " << it.getTimeSet() << std::endl;
 }
 
@@ -160,6 +162,7 @@ std::string CaseFile::getProjectName()
 void CaseFile::setGeoTsIdx(const int &idx)
 {
     geoTsIdx_ = idx;
+    usedTimeSets_.insert(idx);
 }
 
 int CaseFile::getGeoTsIdx() const
@@ -248,30 +251,27 @@ std::vector<std::string> CaseFile::makeFileNames(const std::string &baseName, co
     }
 
     // we may have transient data
-    // this is the timeset index of the geometry file
-    // name of geometry file
-    std::vector<std::string> allGeoFiles;
-    auto times = refts->getRealTimes();
-    std::vector<std::string> ff = refts->getFileNames(baseName);
-    auto tit = times.begin();
-    auto fit = ff.begin();
-    assert(ff.size() == times.size());
-    assert(!times.empty());
-    std::string file = *fit;
-    for (auto t: allTimes) {
-        allGeoFiles.push_back(file);
-        if (tit != times.end() && *tit <= t) {
-            file = *fit;
-            ++fit;
-            ++tit;
-        }
+    // this is the timeset index of the geometry file name of geometry file
+    ret = refts->getFileNames(baseName);
+    if (ret.size() == 1) {
+        return ret;
     }
-    return allGeoFiles;
+    auto times = refts->getRealTimes();
+    if (ret.size() == times.size()) {
+        return ret;
+    }
+
+    ret.clear();
+    return ret;
 }
 
-const TimeSets &CaseFile::getAllTimeSets() const
+TimeSets CaseFile::getAllTimeSets() const
 {
-    return timeSets_;
+    TimeSets ts;
+    for (int idx: usedTimeSets_) {
+        ts.push_back(timeSets_[idx]);
+    }
+    return ts;
 }
 
 //
@@ -333,7 +333,7 @@ std::vector<std::string> TimeSet::getFileNames(const std::string &t) const
 
     char ch[64]; // that's more then enough
     for (auto it = fileNums_.begin(); it != fileNums_.end(); it++) {
-        sprintf(ch, "%0*d", width, *it);
+        snprintf(ch, sizeof(ch), "%0*d", width, *it);
         std::string fname(pre + std::string(ch) + post);
         ret.push_back(fname);
     }

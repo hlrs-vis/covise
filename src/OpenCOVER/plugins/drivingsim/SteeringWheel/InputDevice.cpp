@@ -604,11 +604,11 @@ InputDeviceMotionPlatform::InputDeviceMotionPlatform()
     ccSpeed = 0;
     ccActive = false;
 #ifndef USE_CAR_SOUND
-    anlasserSource = NULL;
+    anlasserSource = nullptr;
     Audio *anlasserAudio = new Audio("AnlasserInnen.wav");
     if (player)
     {
-        anlasserSource = player->newSource(anlasserAudio);
+        anlasserSource = player->makeSource(anlasserAudio);
         if (anlasserSource)
         {
             anlasserSource->setLoop(false);

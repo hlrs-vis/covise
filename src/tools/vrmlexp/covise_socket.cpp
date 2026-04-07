@@ -47,7 +47,7 @@ Revision 1.1  93/09/25  20:50:47  zrhk0125
 Initial revision
 
 */
-\n// Description: The Socket class handles the operating system
+// Description: The Socket class handles the operating system
 //              part of the socket handling.
 
 #define MAX_SOCK_BUF 65536

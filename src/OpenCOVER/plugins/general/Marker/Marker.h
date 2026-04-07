@@ -176,7 +176,5 @@ public:
     int menuSelected; // TRUE if menu itme "Cube" was selected
     //void setMarkers(string);
     void deleteAllMarkers();
-
-    static vrml::Player *player;
 };
 #endif

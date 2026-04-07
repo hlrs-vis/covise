@@ -67,13 +67,11 @@ endif()
 covise_install_target(Vrml97Cover)
 
 set(HEADERS
-  ListenerCover.h
   SystemCover.h
   Vrml97Plugin.h
 )
 
 set(SOURCES
-  ListenerCover.cpp
   SystemCover.cpp
   Vrml97Plugin.cpp
 )

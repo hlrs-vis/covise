@@ -20,10 +20,14 @@
 #include <sys/types.h>
 #include <stdlib.h>
 
+namespace opencover::audio
+{
+    class Player;
+}
+
 namespace vrml
 {
 
-class Player;
 class VRMLEXPORT VrmlScene;
 class VRMLEXPORT VrmlNodeViewpoint;
 
@@ -77,7 +81,7 @@ public:
 
     virtual const char *httpHost(const char *url, int *port);
     virtual std::string remoteFetch(const std::string &filename) = 0;
-	virtual int getFileId(const std::string &url) = 0;
+    virtual int getFileId(const std::string &url) = 0;
     virtual void removeFile(const char *fn);
 
 #if 0
@@ -94,7 +98,7 @@ public:
     virtual void setTimeStep(int ts) = 0; // set the timestep number for COVISE Animations
     virtual void setActivePerson(int p) = 0; // set the active Person
 
-    virtual Player *getPlayer() = 0;
+    virtual opencover::audio::Player *getPlayer() = 0;
 
     virtual VrmlMessage *newMessage(size_t size) = 0;
     virtual void sendAndDeleteMessage(VrmlMessage *msg) = 0;
@@ -137,7 +141,6 @@ public:
     virtual void setMenuVisibility(bool visible) = 0;
     virtual void createMenu() = 0;
     virtual void destroyMenu() = 0;
-
 
     virtual void setNavigationType(std::string) = 0;
     virtual void setNavigationStepSize(double stepsize) = 0;
@@ -241,7 +244,7 @@ public:
 
     virtual void saveTimestamp(const char *name);
 
-	virtual bool doOptimize();
+    virtual bool doOptimize();
 };
 }
 #endif // SYSTEM_H

@@ -46,7 +46,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <fcntl.h>
-#include <vrml97/vrml/Player.h>
 #include <cover/VRViewer.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRPluginSupport.h>

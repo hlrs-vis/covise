@@ -53,7 +53,6 @@
 #include <osgUtil/Optimizer>
 #include <osgUtil/Statistics>
 
-#include <vrml97/vrml/Player.h>
 #include <vrml97/vrml/VrmlNodeCOVER.h>
 #include <vrml97/vrml/VrmlScene.h>
 #include <vrml97/vrml/VrmlMFString.h>
@@ -150,7 +149,6 @@ PDBPlugin::PDBPlugin()
 : coVRPlugin(COVER_PLUGIN_NAME)
 , viewer(NULL)
 , vrmlScene(NULL)
-, player(NULL)
 {
     uidcounter = 0;
 }
