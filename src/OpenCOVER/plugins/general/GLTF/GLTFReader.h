@@ -394,7 +394,7 @@ public:
                     OSG_NOTICE << paramItr->first << "=" << paramItr->second.string_value << std::endl;
                 }
                 */
-                if (material.emissiveTexture.index > 0)
+                if (material.emissiveTexture.index >= 0)
                 {
 
 
