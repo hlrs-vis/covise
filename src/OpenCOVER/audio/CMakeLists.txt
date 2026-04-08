@@ -1,14 +1,18 @@
-FIND_PACKAGE(glm REQUIRED)
-FIND_PACKAGE(ALUT REQUIRED)
 USING(OpenSceneGraph)
 USING(OpenAL)
+covise_find_package(glm)
+covise_find_package(ALUT)
 
 # Workaround for GLM 0.9.9 broken glmTargets.cmake
-if(NOT TARGET glm::glm)
+if(NOT TARGET glm::glm AND GLM_INCLUDE_DIRS)
     add_library(glm::glm INTERFACE IMPORTED)
     set_target_properties(glm::glm PROPERTIES
         INTERFACE_INCLUDE_DIRECTORIES "${GLM_INCLUDE_DIRS}"
     )
+endif()
+
+if (NOT TARGET glm::glm)
+    return()
 endif()
 
 set(AUDIO_HEADERS 
