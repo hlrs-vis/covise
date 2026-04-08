@@ -46,15 +46,15 @@ TARGET_LINK_LIBRARIES(coVRAudio
     coConfig
     coNet
     ${COVISE_UTIL_LIBRARY}
-    ${OPENAL_LIBRARY}
     ${ALUT_LIBRARIES}
+    OpenAL::OpenAL
     glm::glm
 	${BCRYPT}
 )
 target_include_directories(coVRAudio 
     PRIVATE 
-    ${OPENAL_INCLUDE_DIR}
     ${ALUT_INCLUDE_DIR}
+    ${OPENAL_INCLUDE_DIR}
     "${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/oscpp/include"
 )
 if(APPLE)
