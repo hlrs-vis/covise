@@ -57,6 +57,10 @@ target_include_directories(coVRAudio
     ${ALUT_INCLUDE_DIR}
     "${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/oscpp/include"
 )
+if(APPLE)
+    # silence macos deprecation warnings
+    target_compile_definitions(coVRAudio PRIVATE -DOPENAL_DEPRECATED=)
+endif()
 
 COVISE_INSTALL_TARGET(coVRAudio)
 COVISE_INSTALL_HEADERS(audio ${AUDIO_HEADERS})
