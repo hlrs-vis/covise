@@ -1,5 +1,5 @@
 [sky]
-skyDir = "/data/Geodata/sky/maps"
+skyDir = "/data/Geodata/sky"
 defaultSky = 6
 
 [[regions]]
