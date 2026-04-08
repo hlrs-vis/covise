@@ -1,4 +1,3 @@
-USING(OpenSceneGraph)
 USING(OpenAL)
 covise_find_package(glm)
 covise_find_package(ALUT)
