@@ -5,8 +5,8 @@
 
  * License: LGPL 2+ */
 
-#include "AL/al.h"
-#include "AL/alut.h"
+#include <al.h>
+#include <AL/alut.h>
 
 #include "Audio.h"
 #include <util/coErr.h>

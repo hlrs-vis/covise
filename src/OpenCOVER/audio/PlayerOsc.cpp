@@ -6,7 +6,7 @@
  * License: LGPL 2+ */
 
 #include "PlayerOsc.h"
-#include "net/covise_host.h"
+#include <net/covise_host.h>
 #include <fcntl.h>
 #include <memory>
 #include <sys/types.h>

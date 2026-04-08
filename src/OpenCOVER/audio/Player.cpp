@@ -13,9 +13,9 @@
 
 #include <config/CoviseConfig.h>
 
-#include "audio/PlayerAServer.h"
-#include "audio/PlayerOpenAL.h"
-#include "audio/PlayerOsc.h"
+#include "PlayerAServer.h"
+#include "PlayerOpenAL.h"
+#include "PlayerOsc.h"
 
 using std::endl;
 using namespace opencover::audio;

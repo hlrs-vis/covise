@@ -10,11 +10,7 @@
 
 #include "Player.h"
 
-#if defined(__APPLE__)
-#include <OpenAL/al.h>
-#else
-#include <AL/al.h>
-#endif
+#include <al.h>
 #include <util/coExport.h>
 
 #include "AlutContext.h"
@@ -34,7 +30,7 @@ protected:
     class Source : public opencover::audio::Source
     {
     public:
-        Source(Player* player, const Audio *audio);
+        Source(Player *player, const Audio *audio);
         virtual ~Source();
 
         virtual void setLoop(bool loop) override;

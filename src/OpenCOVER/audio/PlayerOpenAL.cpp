@@ -10,13 +10,10 @@
 
 using namespace opencover::audio;
 
-#if defined(__APPLE__)
-#include <OpenAL/al.h>
-#include <OpenAL/alc.h>
-#else
-#include <AL/al.h>
-#include <AL/alc.h>
-#include <AL/alext.h>
+#include <al.h>
+#include <alc.h>
+#ifndef __APPLE__
+#include <alext.h>
 #endif
 
 #include <AL/alut.h>
@@ -65,7 +62,7 @@ PlayerOpenAL::makeSource(const Audio *audio)
     return std::make_unique<PlayerOpenAL::Source>(this, audio);
 }
 
-PlayerOpenAL::Source::Source(Player* player, const Audio *audio)
+PlayerOpenAL::Source::Source(Player *player, const Audio *audio)
     : opencover::audio::Source(player, audio)
 {
     alGenSources(1, &alSource);

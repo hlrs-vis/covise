@@ -1,5 +1,5 @@
 #include "AlutContext.h"
-#include "AL/alut.h"
+#include <AL/alut.h>
 
 using namespace opencover::audio;
 
