@@ -72,20 +72,12 @@ class VRML97PLUGINEXPORT SystemCover : public System, public ui::Owner, public c
 
 public:
     SystemCover();
-    virtual ~SystemCover()
-    {
-    }
+    ~SystemCover() override;
     double time() override;
 
     std::string remoteFetch(const std::string &filename) override;
     int getFileId(const std::string &url) override;
     bool loadUrl(const char *url, int np, char **parameters) override;
-
-#if 0
-    virtual void setBuiltInFunctionState(const char *fname, int val);
-    virtual void setBuiltInFunctionValue(const char *fname, float val);
-    virtual void callBuiltInFunctionCallback(const char *fname);
-#endif
 
     void setSyncMode(const char *mode) override;
 
