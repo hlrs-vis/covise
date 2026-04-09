@@ -6,7 +6,7 @@
 #include <memory>
 
 SimulationSystem::SimulationSystem(opencover::coVRPlugin *plugin, opencover::ui::Group *parentMenu,
-    CityGMLSystem *cityGMLSystem, osg::ref_ptr<osg::Switch> parent, core::interface::ILogger &logger, const std::string& scenarioDir)
+    CityGMLSystem *cityGMLSystem, osg::ref_ptr<osg::Switch> parent, core::interface::ILogger &logger, const std::string &scenarioDir)
     : core::ClassLogger(logger, "SimulationSystem")
     , m_plugin(plugin)
     , m_enabled(false)
@@ -16,9 +16,7 @@ SimulationSystem::SimulationSystem(opencover::coVRPlugin *plugin, opencover::ui:
     , m_gridUIManager(parentMenu)
     , m_gridRenderer(parent)
     , m_currentStorageSelection(Storage::ARROW)
-    , m_currentScenario()
     , m_scenarioDir(scenarioDir)
-
 {
 }
 
@@ -45,14 +43,14 @@ void SimulationSystem::updateTime(int timestep)
 
 void SimulationSystem::onScenarioSelectionChanged(int scenarioId)
 {
-    m_currentScenario = { scenarioId, m_scenarioManager.getCurrentScenarioString() };
+    auto currentScenario = m_scenarioManager.getScenario();
     info("Switching to scenario ID: " + std::to_string(scenarioId));
 
-    m_dataManager.loadScenario(m_currentStorageSelection, m_currentScenario, m_dataLoadManager);
+    m_dataManager.loadScenario(m_currentStorageSelection, currentScenario, m_dataLoadManager);
 
     for (auto type : ENERGYTYPE_RANGE)
     {
-        auto result = m_dataManager.getResult(m_currentScenario, type);
+        auto result = m_dataManager.getResult(currentScenario, type);
         if (result)
         {
             m_gridRenderer.setData(type, result);
