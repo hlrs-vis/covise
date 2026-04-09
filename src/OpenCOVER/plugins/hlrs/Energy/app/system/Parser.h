@@ -1,6 +1,7 @@
 #pragma once
 #include "EnergyType.h"
 #include "DataPackage.h"
+#include "Scenario.h"
 #include <lib/core/simulation/powerresult.h>
 #include <lib/core/simulation/heatingresult.h>
 #include <utility>
@@ -34,7 +35,7 @@ struct HeatingParser : public Parser
 struct ParseManager
 {
     template <typename T>
-    std::shared_ptr<cs::SimulationResult> operator()(int scenarioID, EnergyType type, T &&data)
+    std::shared_ptr<cs::SimulationResult> operator()(const Scenario &scenario, EnergyType type, T &&data)
     {
         switch (type)
         {

@@ -3,7 +3,7 @@
 #include "Storage.h"
 #include "Provider.h"
 #include "DataPackage.h"
-// #include <algorithm>
+#include "Scenario.h"
 #include <map>
 #include <memory>
 #include <stdexcept>
@@ -16,10 +16,10 @@ public:
         m_provider[type] = std::move(provider);
     }
 
-    auto fetch(Storage storageType, int scenarioId, EnergyType energyType)
+    auto fetch(Storage storageType, const Scenario &scenario, EnergyType energyType)
     {
         loaderExist(storageType);
-        return m_provider[storageType]->load(scenarioId, energyType);
+        return m_provider[storageType]->load(scenario, energyType);
     }
 
 private:

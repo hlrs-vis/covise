@@ -3,9 +3,9 @@
 #include <filesystem>
 #include <algorithm>
 
-std::string FileProvider::createFilePath(int scenarioId, EnergyType type, const std::string &filename)
+std::string FileProvider::createFilePath(const Scenario &scenario, EnergyType type, const std::string &filename) const
 {
-    std::string folder = (scenarioId == -1) ? "static" : std::to_string(scenarioId);
+    auto folder = (scenario.id == -1) ? "static" : scenario.name;
     std::string typeFolder(EnergyTypeToString(type));
     std::string filePath = m_dirPath + "/" + folder + "/" + typeFolder;
 
@@ -14,15 +14,15 @@ std::string FileProvider::createFilePath(int scenarioId, EnergyType type, const 
     return filePath;
 }
 
-std::vector<std::string> FileProvider::createFilePaths(int scenarioID, EnergyType type, const std::string &extension)
+std::vector<std::string> FileProvider::createFilePaths(const Scenario &scenario, EnergyType type, const std::string &extension) const
 {
-    auto filePath = createFilePath(scenarioID, type);
+    auto filePath = createFilePath(scenario, type);
     auto files = discoverFiles(filePath, extension);
-    std::for_each(files.begin(), files.end(), [&](auto &file){ createFilePath(scenarioID, type, file); });
+    std::for_each(files.begin(), files.end(), [&](auto &file){ createFilePath(scenario, type, file); });
     return files;
 }
 
-std::vector<std::string> FileProvider::discoverFiles(const std::string &dirPath, const std::string &extension)
+std::vector<std::string> FileProvider::discoverFiles(const std::string &dirPath, const std::string &extension) const
 {
     std::vector<std::string> files(0);
     if (std::filesystem::exists(dirPath))

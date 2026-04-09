@@ -16,7 +16,7 @@ SimulationSystem::SimulationSystem(opencover::coVRPlugin *plugin, opencover::ui:
     , m_gridUIManager(parentMenu)
     , m_gridRenderer(parent)
     , m_currentStorageSelection(Storage::ARROW)
-    , m_currentScenario(0)
+    , m_currentScenario()
     , m_scenarioDir(scenarioDir)
 
 {
@@ -26,34 +26,33 @@ void SimulationSystem::init()
 {
     m_dataLoadManager.registerProvider(Storage::ARROW, std::make_unique<ArrowLoader>(m_scenarioDir));
     m_dataLoadManager.registerProvider(Storage::CSV, std::make_unique<CSVLoader>(m_scenarioDir));
-    
-    m_scenarioManager.setOnScenarioChanged([this](int id){
-        this->onScenarioSelectionChanged(id);
-    });
+
+    m_scenarioManager.setOnScenarioChanged([this](int id)
+        { this->onScenarioSelectionChanged(id); });
 }
 
-void SimulationSystem::enable(bool on) {
-    
+void SimulationSystem::enable(bool on)
+{
 }
 
-void SimulationSystem::update() {
-    
+void SimulationSystem::update()
+{
 }
 
-void SimulationSystem::updateTime(int timestep) {
-    
+void SimulationSystem::updateTime(int timestep)
+{
 }
 
 void SimulationSystem::onScenarioSelectionChanged(int scenarioId)
 {
-    m_currentScenario = scenarioId;
+    m_currentScenario = { scenarioId, m_scenarioManager.getCurrentScenarioString() };
     info("Switching to scenario ID: " + std::to_string(scenarioId));
 
-    m_dataManager.loadScenario(m_currentStorageSelection, scenarioId, m_dataLoadManager);
+    m_dataManager.loadScenario(m_currentStorageSelection, m_currentScenario, m_dataLoadManager);
 
     for (auto type : ENERGYTYPE_RANGE)
     {
-        auto result = m_dataManager.getResult(scenarioId, type);
+        auto result = m_dataManager.getResult(m_currentScenario, type);
         if (result)
         {
             m_gridRenderer.setData(type, result);

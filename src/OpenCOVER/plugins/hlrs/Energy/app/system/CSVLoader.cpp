@@ -14,10 +14,10 @@ std::unique_ptr<opencover::utils::read::CSVStream> createStream(const std::strin
 }
 }
 
-DataPackages CSVLoader::load(int scenarioId, EnergyType type)
+DataPackages CSVLoader::load(const Scenario &scenario, EnergyType type) const
 {
     CSVDataMap packages;
-    auto files = createFilePaths(scenarioId, type, ".csv");
+    auto files = createFilePaths(scenario, type, ".csv");
     for (const auto &filePath : files) {
         auto fileName = std::filesystem::path(filePath);
         packages.emplace(fileName.stem(), std::move(createStream(filePath)));
