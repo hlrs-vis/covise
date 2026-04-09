@@ -18,8 +18,7 @@ std::vector<std::string> FileProvider::createFilePaths(int scenarioID, EnergyTyp
 {
     auto filePath = createFilePath(scenarioID, type);
     auto files = discoverFiles(filePath, extension);
-    std::for_each(files.begin(), files.end(), [&](auto &file)
-        { createFilePath(scenarioID, type, file); });
+    std::for_each(files.begin(), files.end(), [&](auto &file){ createFilePath(scenarioID, type, file); });
     return files;
 }
 
