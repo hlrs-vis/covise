@@ -25,6 +25,11 @@ public:
         return m_selectionList->selectedIndex();
     }
 
+    auto getCurrentScenarioString() const
+    {
+        return m_selectionList->selectedItem();
+    }
+
 private:
     opencover::ui::SelectionList *m_selectionList;
     std::function<void(int)> m_scenarioChangedCb;
