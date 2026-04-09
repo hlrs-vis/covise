@@ -1,10 +1,12 @@
 #pragma once
 
+#undef signals
 #include <arrow/api.h>
 #include <arrow/chunked_array.h>
 #include <arrow/ipc/api.h>
 #include <arrow/ipc/reader.h>
 #include <arrow/status.h>
+#define signals QT_SIGNALS
 
 #include <memory>
 
