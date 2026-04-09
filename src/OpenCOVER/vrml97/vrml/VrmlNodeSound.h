@@ -25,9 +25,12 @@
 
 #include "VrmlNodeChild.h"
 
-#include "audio/Player.h"
 
-using opencover::audio::Player;
+namespace opencover {
+namespace audio {
+class Source;
+}
+}
 
 namespace vrml
 {
@@ -72,7 +75,7 @@ private:
     // data for rendering
     VrmlSFVec3f lastLocation;
     double lastTime;
-    std::shared_ptr<Player::Source> source = nullptr;
+    std::shared_ptr<opencover::audio::Source> source = nullptr;
 };
 }
 #endif //_VRMLNODESOUND_

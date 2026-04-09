@@ -14,6 +14,10 @@ if (NOT TARGET glm::glm)
     return()
 endif()
 
+if (NOT ALUT_FOUND)
+    return()
+endif()
+
 set(AUDIO_HEADERS 
     AlutContext.h
     Audio.h
@@ -64,6 +68,11 @@ if(APPLE)
     # silence macos deprecation warnings
     target_compile_definitions(coVRAudio PRIVATE -DOPENAL_DEPRECATED=)
 endif()
+if (TARGET OpenAL::OpenAL)
+    target_compile_definitions(coVRAudio PRIVATE -DHAVE_OPENAL)
+endif()
+target_compile_definitions(coVRAudio INTERFACE -DHAVE_AUDIO)
+
 
 COVISE_INSTALL_TARGET(coVRAudio)
 COVISE_INSTALL_HEADERS(audio ${AUDIO_HEADERS})

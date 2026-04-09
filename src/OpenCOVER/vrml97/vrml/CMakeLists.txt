@@ -347,10 +347,13 @@ TARGET_LINK_LIBRARIES(coVRML
     coJS
     coNet
     coOpenConfig
-    coVRAudio
     ${COVISE_UTIL_LIBRARY}
     ${EXTRA_LIBS}
     ${CMAKE_THREAD_LIBS_INIT}
 )
+
+if (TARGET coVRAudio)
+  TARGET_LINK_LIBRARIES(coVRML coVRAudio)
+endif()
 
 COVISE_INSTALL_TARGET(coVRML)

@@ -612,6 +612,7 @@ void coVRPluginSupport::update()
     coVRMSController::instance()->syncData((char *)&frontHorizontalSize, sizeof(frontHorizontalSize));
     coVRMSController::instance()->syncData((char *)&frontVerticalSize, sizeof(frontVerticalSize));
 
+#ifdef HAVE_AUDIO
     auto v = getInvBaseMat() * cover->getViewerMat();
     glm::mat4x4 mat(
         v(0, 0), v(0, 1), v(0, 2), v(0, 3),
@@ -621,6 +622,7 @@ void coVRPluginSupport::update()
     listener->update(frameDuration(), mat);
     if (player)
         player->update();
+#endif
 }
 
 coVRPlugin *coVRPluginSupport::addPlugin(const char *name)
@@ -900,8 +902,10 @@ coVRPluginSupport::coVRPluginSupport()
     DoFrameBuffer = new osg::ColorMask(true, true, true, true);
 
     // Setup audio subsystem
+#ifdef HAVE_AUDIO
     listener = new audio::Listener();
     player = listener->createPlayer();
+#endif
 
     pointerButton = NULL;
     mouseButton = NULL;
