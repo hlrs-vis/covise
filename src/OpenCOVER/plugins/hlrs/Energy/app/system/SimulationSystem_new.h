@@ -6,7 +6,6 @@
 #include "DataLoadManager.h"
 #include "DataManager.h"
 #include "Storage.h"
-#include "Scenario.h"
 #include "ScenarioManager.h"
 #include <lib/core/interfaces/ISystem.h>
 #include <lib/core/ClassLogger.h>
@@ -36,7 +35,6 @@ private:
     //TODO: put this into GUIManager
     Storage m_currentStorageSelection;
     // int m_currentScenario;
-    Scenario m_currentScenario;
     bool m_enabled;
     std::string m_scenarioDir;
 };

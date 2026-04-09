@@ -1,4 +1,5 @@
 #pragma once
+#include "Scenario.h"
 #include <cover/ui/Group.h>
 #include <cover/ui/SelectionList.h>
 
@@ -7,7 +8,10 @@
 class ScenarioManager
 {
 public:
-    ScenarioManager(opencover::ui::Group *parentMenu);
+    ScenarioManager(opencover::ui::Group *parentMenu)
+        : m_selectionList(new opencover::ui::SelectionList("Scenarios", parentMenu))
+    {
+    }
 
     void setOnScenarioChanged(std::function<void(int)> cb)
     {
@@ -29,6 +33,8 @@ public:
     {
         return m_selectionList->selectedItem();
     }
+
+    Scenario getScenario() const { return { getCurrentScenario(), getCurrentScenarioString() }; }
 
 private:
     opencover::ui::SelectionList *m_selectionList;
