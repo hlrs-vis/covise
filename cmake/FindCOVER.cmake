@@ -12,6 +12,8 @@ set(OpenGL_GL_PREFERENCE LEGACY)
 covise_find_package(OpenGL)
 covise_find_package(GLEW)
 covise_find_package(glm)
+covise_find_package(OpenAL)
+covise_find_package(ALUT)
 if(NOT OPENSCENEGRAPH_FOUND)
    message("COVER: OpenSceneGraph not found")
    return()
@@ -31,6 +33,7 @@ find_path(COVER_INCLUDE_DIR "cover/coVRPluginSupport.h"
 )
 
 covise_find_library(COVER coOpenCOVER)
+covise_find_library(COVER_AUDIO coVRAudio)
 covise_find_library(COVER_CONFIG coOpenConfig)
 covise_find_library(COVER_VRUI coOpenVRUI)
 covise_find_library(COVER_OSGVRUI coOSGVRUI)
@@ -51,6 +54,7 @@ find_package_handle_standard_args(COVER DEFAULT_MSG
    COVER_INCLUDE_DIR COVISE_INCLUDE_DIR)
 mark_as_advanced(COVER_LIBRARY
    COVER_CONFIG_LIBRARY
+   COVER_AUDIO_LIBRARY
    COVER_VRUI_LIBRARY
    COVER_OSGVRUI_LIBRARY
    COVER_PLUGINUTIL_LIBRARY
