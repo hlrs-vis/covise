@@ -20,51 +20,58 @@
 namespace opencover::audio
 {
 
+class Player;
+class PlayerOpenAL;
+class PlayerAServer;
+class PlayerOsc;
+
+class COVRAUDIOEXPORT Source
+{
+    friend class Player;
+    friend class PlayerOpenAL;
+    friend class PlayerAServer;
+    friend class PlayerOsc;
+
+public:
+    Source(Player *player, const Audio *audio);
+    virtual ~Source();
+
+    virtual void setPitch(float pitch);
+    virtual void setIntensity(float intensity);
+    virtual void setStart(double start);
+    virtual void setStop(double stop);
+    virtual void setLoop(bool loop);
+    virtual void setSpatialize(bool spatialize);
+    virtual void setPosition(float x, float y, float z);
+    virtual void setVelocity(float vx, float vy, float vz);
+    virtual void setAudio(const Audio *audio);
+    virtual void play();
+    virtual void play(double start);
+    virtual void stop();
+    virtual bool isPlaying();
+    virtual void update(const Player *genericPlayer) { }
+    virtual void stopForRestart() { }
+    virtual void restart() { }
+
+protected:
+    Player *player;
+    const Audio *audio;
+    float pitch = 1.f;
+    float intensity = 0.f;
+    float startTime = 0.f;
+    float stopTime = 0.f;
+    bool loop = false;
+    bool spatialize = true;
+    bool playing = false;
+    glm::vec3 x = glm::vec3(0, 0, 0);
+    glm::vec3 v = glm::vec3(0, 0, 0);
+};
+
 class COVRAUDIOEXPORT Player
 {
+    friend class Source;
+
 public:
-    class Source
-    {
-        friend class Player;
-        friend class PlayerOpenAL;
-        friend class PlayerAServer;
-        friend class PlayerOsc;
-
-    public:
-        Source(Player *player, const Audio *audio);
-        virtual ~Source();
-
-        virtual void setPitch(float pitch);
-        virtual void setIntensity(float intensity);
-        virtual void setStart(double start);
-        virtual void setStop(double stop);
-        virtual void setLoop(bool loop);
-        virtual void setSpatialize(bool spatialize);
-        virtual void setPosition(float x, float y, float z);
-        virtual void setVelocity(float vx, float vy, float vz);
-        virtual void setAudio(const Audio *audio);
-        virtual void play();
-        virtual void play(double start);
-        virtual void stop();
-        virtual bool isPlaying();
-        virtual void update(const Player *genericPlayer) { }
-        virtual void stopForRestart() { }
-        virtual void restart() { }
-
-    protected:
-        Player *player;
-        const Audio *audio;
-        float pitch = 1.f;
-        float intensity = 0.f;
-        float startTime = 0.f;
-        float stopTime = 0.f;
-        bool loop = false;
-        bool spatialize = true;
-        bool playing = false;
-        glm::vec3 x = glm::vec3(0, 0, 0);
-        glm::vec3 v = glm::vec3(0, 0, 0);
-    };
-
     Player(const Listener *listener);
     virtual void update();
     virtual std::unique_ptr<Source> makeSource(const Audio *);

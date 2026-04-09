@@ -34,7 +34,7 @@ public:
     PlayerOsc(const Listener *listener);
     // ~PlayerOsc();
 
-    virtual std::unique_ptr<Player::Source> makeSource(const Audio *audio);
+    virtual std::unique_ptr<opencover::audio::Source> makeSource(const Audio *audio);
 
     void connect();
 
@@ -47,7 +47,7 @@ public:
 protected:
     void write(const char *buf, size_t len);
 
-    class Source : public Player::Source
+    class Source : public opencover::audio::Source
     {
     public:
         Source(Player *player, const Audio *audio);

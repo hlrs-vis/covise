@@ -59,14 +59,14 @@ void PlayerOpenAL::update()
     }
 }
 
-std::unique_ptr<Player::Source>
+std::unique_ptr<opencover::audio::Source>
 PlayerOpenAL::makeSource(const Audio *audio)
 {
     return std::make_unique<PlayerOpenAL::Source>(this, audio);
 }
 
 PlayerOpenAL::Source::Source(Player* player, const Audio *audio)
-    : Player::Source(player, audio)
+    : opencover::audio::Source(player, audio)
 {
     alGenSources(1, &alSource);
     alSource3f(alSource, AL_POSITION, x.x, x.y, x.z);
@@ -89,14 +89,14 @@ PlayerOpenAL::Source::~Source()
 
 void PlayerOpenAL::Source::setIntensity(float intensity)
 {
-    Player::Source::setIntensity(intensity);
+    opencover::audio::Source::setIntensity(intensity);
 
     alSourcef(alSource, AL_GAIN, this->intensity);
 }
 
 void PlayerOpenAL::Source::setPosition(float x, float y, float z)
 {
-    Player::Source::setPosition(x, y, z);
+    opencover::audio::Source::setPosition(x, y, z);
 
     if (spatialize)
         alSource3f(alSource, AL_POSITION, x, y, z);
@@ -106,21 +106,21 @@ void PlayerOpenAL::Source::setPosition(float x, float y, float z)
 
 void PlayerOpenAL::Source::setVelocity(float vx, float vy, float vz)
 {
-    Player::Source::setVelocity(vx, vy, vz);
+    opencover::audio::Source::setVelocity(vx, vy, vz);
 
     alSource3f(alSource, AL_VELOCITY, vx, vy, vz);
 }
 
 void PlayerOpenAL::Source::setPitch(float pitch)
 {
-    Player::Source::setPitch(pitch);
+    opencover::audio::Source::setPitch(pitch);
 
     alSourcef(alSource, AL_PITCH, pitch);
 }
 
 void PlayerOpenAL::Source::setSpatialize(bool spatialize)
 {
-    Player::Source::setSpatialize(spatialize);
+    opencover::audio::Source::setSpatialize(spatialize);
 
     if (spatialize)
     {
@@ -136,7 +136,7 @@ void PlayerOpenAL::Source::setSpatialize(bool spatialize)
 
 void PlayerOpenAL::Source::setLoop(bool loop)
 {
-    Player::Source::setLoop(loop);
+    opencover::audio::Source::setLoop(loop);
 
     if (loop)
     {
@@ -150,7 +150,7 @@ void PlayerOpenAL::Source::setLoop(bool loop)
 
 void PlayerOpenAL::Source::play(double start)
 {
-    Player::Source::play(start);
+    opencover::audio::Source::play(start);
 
     if (start > 0)
     {
@@ -175,5 +175,5 @@ void PlayerOpenAL::Source::stop()
 {
     alSourceStop(alSource);
 
-    Player::Source::stop();
+    opencover::audio::Source::stop();
 }

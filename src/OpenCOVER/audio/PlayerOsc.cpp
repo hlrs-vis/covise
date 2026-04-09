@@ -97,7 +97,7 @@ void PlayerOsc::transmitConfiguration()
 }
 
 PlayerOsc::Source::Source(Player *player, const Audio *audio)
-    : Player::Source(player, audio)
+    : opencover::audio::Source(player, audio)
     , uuid(boost::uuids::to_string(((PlayerOsc *)player)->uuid_generator()))
 {
     setAudio(audio);
@@ -117,7 +117,7 @@ PlayerOsc::Source::~Source()
 void PlayerOsc::Source::play(double start)
 {
     // WRITE_MESSAGE("/source/%s/play", uuid.c_str());
-    Player::Source::play(start);
+    opencover::audio::Source::play(start);
 
     char buffer[MAX_BUFLEN];
     char addr[MAX_BUFLEN];
@@ -129,17 +129,17 @@ void PlayerOsc::Source::play(double start)
     player->write(buffer, packet.size());
 }
 
-void PlayerOsc::Source::play() { Player::Source::play(); }
+void PlayerOsc::Source::play() { opencover::audio::Source::play(); }
 
 void PlayerOsc::Source::stop()
 {
-    Player::Source::stop();
+    opencover::audio::Source::stop();
     // WRITE_MESSAGE("/source/%s/stop", uuid.c_str());
 }
 
 void PlayerOsc::Source::update(const Player *genericPlayer)
 {
-    Player::Source::update(genericPlayer);
+    opencover::audio::Source::update(genericPlayer);
 
     if (!isPlaying())
     {
@@ -158,12 +158,12 @@ void PlayerOsc::Source::update(const Player *genericPlayer)
 
 void PlayerOsc::Source::setLoop(bool loop)
 {
-    Player::Source::setLoop(loop);
+    opencover::audio::Source::setLoop(loop);
 
     // TODO: send loop parameter
 }
 
-std::unique_ptr<Player::Source> PlayerOsc::makeSource(const Audio *audio)
+std::unique_ptr<opencover::audio::Source> PlayerOsc::makeSource(const Audio *audio)
 {
     return std::make_unique<PlayerOsc::Source>(this, audio);
 }

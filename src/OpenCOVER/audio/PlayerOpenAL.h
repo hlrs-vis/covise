@@ -28,10 +28,10 @@ public:
     PlayerOpenAL(const Listener *listener);
     virtual void update();
 
-    virtual std::unique_ptr<Player::Source> makeSource(const Audio *audio);
+    virtual std::unique_ptr<opencover::audio::Source> makeSource(const Audio *audio);
 
 protected:
-    class Source : public Player::Source
+    class Source : public opencover::audio::Source
     {
     public:
         Source(Player* player, const Audio *audio);

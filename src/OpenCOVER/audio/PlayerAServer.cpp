@@ -342,7 +342,7 @@ int PlayerAServer::read_answer(char *buf, int maxsize) const
 }
 
 PlayerAServer::Source::Source(Player *player, const Audio *audio)
-    : Player::Source(player, audio)
+    : opencover::audio::Source(player, audio)
     , asHandle(-1)
     , odirection(0.0)
     , ointensity(0.0)
@@ -481,17 +481,17 @@ void PlayerAServer::Source::play(double start)
         }
     }
 
-    Player::Source::play(start);
+    opencover::audio::Source::play(start);
 }
 
 void PlayerAServer::Source::play()
 {
-    Player::Source::play();
+    opencover::audio::Source::play();
 }
 
 void PlayerAServer::Source::stop()
 {
-    Player::Source::stop();
+    opencover::audio::Source::stop();
 
     char msg[MAX_BUFLEN];
 
@@ -505,7 +505,7 @@ void PlayerAServer::Source::stop()
 
 void PlayerAServer::Source::update(const Player *genericPlayer)
 {
-    Player::Source::update(genericPlayer);
+    opencover::audio::Source::update(genericPlayer);
 
     // dynamic_cast causes problems on gcc2 systems
     // const PlayerAServer *player = dynamic_cast<const PlayerAServer *>(genericPlayer);
@@ -558,7 +558,7 @@ void PlayerAServer::Source::update(const Player *genericPlayer)
 
 void PlayerAServer::Source::setLoop(bool loop)
 {
-    Player::Source::setLoop(loop);
+    opencover::audio::Source::setLoop(loop);
 
     char msg[MAX_BUFLEN];
 
@@ -570,7 +570,7 @@ void PlayerAServer::Source::setLoop(bool loop)
     }
 }
 
-std::unique_ptr<Player::Source>
+std::unique_ptr<opencover::audio::Source>
 PlayerAServer::makeSource(Player *player, const Audio *audio)
 {
     return std::make_unique<PlayerAServer::Source>(this, audio);
