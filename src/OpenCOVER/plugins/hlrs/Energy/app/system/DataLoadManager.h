@@ -16,24 +16,13 @@ public:
         m_provider[type] = std::move(provider);
     }
 
-    // auto fetch(Storage storageType, int scenarioId, EnergyType energyType, const std::string &fileName = "")
     auto fetch(Storage storageType, int scenarioId, EnergyType energyType)
     {
         loaderExist(storageType);
-
-        // if (isFileProvider(storageType) && !fileName.empty()) {   
-
-        // }
-
         return m_provider[storageType]->load(scenarioId, energyType);
     }
 
 private:
-    // bool isFileProvider(Storage storageType) {
-    //     return std::any_of(FILE_STORAGE_RANGE.begin(), FILE_STORAGE_RANGE.end(), [&](auto type)
-    //             { return type == storageType; });
-    // }
-
     void loaderExist(Storage storageType) {
         if (m_provider.find(storageType) == m_provider.end())
             throw std::runtime_error("No loader for this storage type!");
