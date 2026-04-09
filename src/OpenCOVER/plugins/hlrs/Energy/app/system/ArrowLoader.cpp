@@ -2,10 +2,10 @@
 #include <filesystem>
 #include <utils/read/apache/arrow.h>
 
-DataPackages ArrowLoader::load(int scenarioId, EnergyType type)
+DataPackages ArrowLoader::load(const Scenario &scenario, EnergyType type) const
 {
     ArrowDataMap packages;
-    auto files = createFilePaths(scenarioId, type, ".arrow");
+    auto files = createFilePaths(scenario, type, ".arrow");
     for (const auto &filePath : files)
     {
         auto fileName = std::filesystem::path(filePath);

@@ -1,5 +1,6 @@
 #pragma once
 #include "EnergyType.h"
+#include "Scenario.h"
 
 template <typename T>
 class Provider
@@ -12,5 +13,5 @@ public:
     Provider& operator=(const Provider&) = delete;
     Provider& operator=(Provider&&) = delete;
     
-    virtual T load(int scenarioId, EnergyType type) = 0;
+    virtual T load(const Scenario &scenario, EnergyType type) const = 0;
 };
