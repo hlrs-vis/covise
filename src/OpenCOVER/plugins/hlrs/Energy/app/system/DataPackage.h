@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
-#include <utils/read/apache/arrow.h>
 #include <utils/read/csv/csv.h>
+#include <utils/read/apache/arrow.h>
 #include <variant>
 #include <map>
 
@@ -13,4 +13,3 @@ using ArrowDataMap = std::map<std::string, ArrowData>;
 using DataPackage = std::variant<CSVData, ArrowData>;
 // map[name][DataPackage]
 using DataPackages = std::variant<CSVDataMap, ArrowDataMap>;
-// using DataPackages = std::map<std::string, DataPackage>;
