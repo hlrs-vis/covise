@@ -12,7 +12,7 @@ SimulationSystem::SimulationSystem(opencover::coVRPlugin *plugin, opencover::ui:
     , m_enabled(false)
     , m_dataManager()
     , m_dataLoadManager()
-    , m_scenarioManager(parentMenu)
+    , m_scenarioManager(parentMenu, scenarioDir)
     , m_gridUIManager(parentMenu)
     , m_gridRenderer(parent)
     , m_currentStorageSelection(Storage::ARROW)
