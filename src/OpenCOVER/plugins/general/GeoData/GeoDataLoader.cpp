@@ -278,7 +278,6 @@ bool GeoDataLoader::init()
     originGroup->allowRelayout(true);
 
     // selection list for offsets for different datasets
-    // TODO add option to save new dataset to config file
     datasetList = new ui::SelectionList(originGroup, "datasets");
     datasetList->setText("Choose Datasets");
     datasetList->append("None");
@@ -450,7 +449,87 @@ bool GeoDataLoader::init()
             osg::Vec3 origin = osg::Vec3(originEasting, originNorthing, originAltitude);
             setRootTransform(-origin, trueNorth);
             applyOffset->setState(false); });
+    // TODO add option to rename dataset either with edit field or with editable selection list
+    saveOffsetToConfig = new ui::Button(originGroup, "saveOffsetToConfig");
+    saveOffsetToConfig->setText("Save to Config");
+    saveOffsetToConfig->setCallback([this](bool state)
+        {
+            if (!state) return;
 
+            auto configFile = config();
+            if (!configFile) return;
+
+            int selectedDataset = datasetList->selectedIndex();
+            int datasetIndex = 0;
+            std::string newName;
+
+            if (selectedDataset <= 0) // "None" selected, save as new dataset
+            {
+                newName = "Dataset_" + std::to_string(datasets.size() + 1);
+                datasetIndex = datasets.size();
+            }
+            else // existing dataset selected, overwrite
+            {
+                datasetIndex = selectedDataset - 1; // adjust for "None" entry
+                newName = datasets[datasetIndex].name;
+            }
+
+            std::string baseKey = "datasets[" + std::to_string(datasetIndex) + "]";
+            try
+            {
+                double newEasting  = tempEastingText.empty()  ? 0.0 : std::stod(tempEastingText);
+                double newNorthing = tempNorthingText.empty() ? 0.0 : std::stod(tempNorthingText);
+                double newAltitude = tempAltitudeText.empty() ? 0.0 : std::stod(tempAltitudeText);
+                double newNorth    = tempTrueNorthText.empty() ? 0.0 : std::stod(tempTrueNorthText);
+
+                auto nameValuePtr = configFile->value<std::string>(baseKey, "name", "");
+                *nameValuePtr = newName;
+
+                *configFile->value<double>(baseKey, "easting", 0.0) = newEasting;
+                *configFile->value<double>(baseKey, "northing", 0.0) = newNorthing;
+                *configFile->value<double>(baseKey, "altitude", 0.0) = newAltitude;
+                *configFile->value<double>(baseKey, "trueNorth", 0.0) = newNorth;
+                *configFile->value<double>(baseKey, "latitude", 0.0) = 0.0;
+                *configFile->value<double>(baseKey, "longitude", 0.0) = 0.0;
+
+                if (configFile->save())
+                {
+                    if (selectedDataset <= 0) // "None" selected, add new entry to list
+                    {
+                        DatasetInfo newDs;
+                        newDs.name = newName;
+                        newDs.easting = newEasting;
+                        newDs.northing = newNorthing;
+                        newDs.altitude = newAltitude;
+                        newDs.trueNorth = newNorth;
+                        
+                        datasets.push_back(newDs);
+                        datasetList->append(newName);
+                        datasetList->select(datasets.size());
+                        std::cerr << "GeoData: Created NEW dataset: " << newName << std::endl;
+                    }
+                    else // existing dataset selected, update values
+                    {
+                        datasets[datasetIndex].easting = newEasting;
+                        datasets[datasetIndex].northing = newNorthing;
+                        datasets[datasetIndex].altitude = newAltitude;
+                        datasets[datasetIndex].trueNorth = newNorth;
+                        std::cerr << "GeoData: Updated dataset: " << newName << std::endl;
+                    }
+                }
+                else
+                {
+                    std::cerr << "GeoData: Failed to save config file!" << std::endl;
+                }
+            }
+            catch (const std::exception& e)
+            {
+                std::cerr << "GeoData Error: Invalid input" << std::endl;
+            }
+
+            saveOffsetToConfig->setState(false);
+        });
+    
     visibilityGroup = new ui::Group(geoDataMenu, "visibility");
     visibilityGroup->setText("Toggle Visibility");
     visibilityGroup->allowRelayout(true);

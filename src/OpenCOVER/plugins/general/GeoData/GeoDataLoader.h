@@ -137,6 +137,7 @@ private:
     opencover::ui::Button *buildingVisibilityButton;
     opencover::ui::Button *skyButton;
     opencover::ui::Button *applyOffset;
+    opencover::ui::Button *saveOffsetToConfig;
     opencover::ui::EditField *location;
     opencover::ui::EditField *easting;
     opencover::ui::EditField *northing;

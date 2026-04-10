@@ -1,7 +1,11 @@
-covise_find_package(Protobuf CONFIG)
+covise_find_package(Protobuf 27.0 CONFIG)
 covise_find_package(gRPC CONFIG)
 
 if (NOT TARGET protobuf::libprotobuf)
+    return()
+endif()
+if(Protobuf_VERSION VERSION_LESS 27)
+    # protocol editions have been introduced with Protobuf version 27
     return()
 endif()
 if (NOT TARGET gRPC::grpc)
