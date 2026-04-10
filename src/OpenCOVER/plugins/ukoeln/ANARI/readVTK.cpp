@@ -7,6 +7,7 @@
 #include <vtkUnstructuredGridReader.h>
 #include <vtkXMLUnstructuredGridReader.h>
 #include "readVTK.h"
+#include <iostream>
 
 // uint8_t VKL_TETRAHEDRON = 10;
 // uint8_t VKL_HEXAHEDRON = 12;
