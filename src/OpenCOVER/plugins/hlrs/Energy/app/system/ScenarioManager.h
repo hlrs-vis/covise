@@ -4,27 +4,19 @@
 #include <cover/ui/SelectionList.h>
 
 #include <functional>
+#include <string_view>
 
 class ScenarioManager
 {
 public:
-    ScenarioManager(opencover::ui::Group *parentMenu)
-        : m_selectionList(new opencover::ui::SelectionList("Scenarios", parentMenu))
-    {
-    }
+    ScenarioManager(opencover::ui::Group *parentMenu, std::string_view scenarioDir);
 
     void setOnScenarioChanged(std::function<void(int)> cb)
     {
         m_scenarioChangedCb = cb;
     }
 
-    void setScenarios(const std::vector<std::string> &names)
-    {
-        m_selectionList->setList(names);
-        m_selectionList->select(0);
-    }
-
-    int getCurrentScenario() const
+    int getCurrentScenarioIndex() const
     {
         return m_selectionList->selectedIndex();
     }
@@ -34,9 +26,11 @@ public:
         return m_selectionList->selectedItem();
     }
 
-    Scenario getScenario() const { return { getCurrentScenario(), getCurrentScenarioString() }; }
+    Scenario getScenario() const { return { getCurrentScenarioIndex(), getCurrentScenarioString() }; }
 
 private:
+    void setScenarios(const std::vector<std::string> &names);
+
     opencover::ui::SelectionList *m_selectionList;
     std::function<void(int)> m_scenarioChangedCb;
 };
