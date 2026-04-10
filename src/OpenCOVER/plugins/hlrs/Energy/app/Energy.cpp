@@ -73,9 +73,9 @@ EnergyPlugin::~EnergyPlugin()
 
 void EnergyPlugin::preFrame()
 {
-    auto simSystem = getSimulationSystem();
-    if (!simSystem)
-        simSystem->preFrame();
+    // auto simSystem = getSimulationSystem();
+    // if (!simSystem)
+    //     simSystem->preFrame();
 }
 
 bool EnergyPlugin::update()
@@ -113,7 +113,7 @@ void EnergyPlugin::initSystems()
     // TODO: not yet ported => do later
     auto cMenu = dynamic_cast<CoverMenu*>(tabMenu);
     if (cMenu)
-        m_systems[System::Simulation] = std::make_unique<SimulationSystem>(this, cMenu->getMenu(), getCityGMLSystem(), m_grid, m_logger);
+        m_systems[System::Simulation] = std::make_unique<SimulationSystem>(this, cMenu->getMenu(), getCityGMLSystem(), m_grid, m_logger, this->configString("Simulation", "scenarioDir", "default")->value());
 
     for (auto &[type, system] : m_systems)
     {

@@ -1,7 +1,7 @@
 #pragma once
 #include "app/ui/cover/CoverOwner.h"
 #include "app/system/CityGMLSystem.h"
-#include "app/system/SimulationSystem.h"
+#include "app/system/SimulationSystem_new.h"
 #include "app/ui/EnergyUI.h"
 #include "EnergyLogger.h"
 

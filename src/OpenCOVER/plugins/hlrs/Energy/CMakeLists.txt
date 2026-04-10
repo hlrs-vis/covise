@@ -16,7 +16,23 @@ endif()
 SET(HEADERS
     app/Energy.h
     app/system/CityGMLSystem.h
-    app/system/SimulationSystem.h
+    # app/system/SimulationSystem.h
+    app/system/SimulationSystem_new.h
+    app/system/ArrowLoader.h
+    app/system/CSVLoader.h
+    app/system/DataFactory.h
+    app/system/DataLoadManager.h
+    app/system/DataPackage.h
+    app/system/DataManager.h
+    app/system/EnergyType.h
+    app/system/FileProvider.h
+    app/system/GridBuilder.h
+    app/system/GridRenderer.h
+    app/system/GridUIManager.h
+    app/system/Parser.h
+    app/system/Provider.h
+    app/system/ScenarioManager.h
+    app/system/Storage.h
     app/typedefs.h
     app/EnergyLogger.h
     app/ui/BaseUI.h
@@ -45,7 +61,16 @@ SET(HEADERS
 SET(SOURCES
     app/Energy.cpp
     app/system/CityGMLSystem.cpp
-    app/system/SimulationSystem.cpp
+    # app/system/SimulationSystem.cpp
+    app/system/SimulationSystem_new.cpp
+    app/system/ArrowLoader.cpp
+    app/system/CSVLoader.cpp
+    app/system/DataManager.cpp
+    app/system/FileProvider.cpp
+    app/system/Parser.cpp
+    app/system/GridRenderer.cpp
+    app/system/ScenarioManager.cpp
+    app/system/GridUIManager.cpp
     app/EnergyLogger.cpp
     app/ui/CityGMLUI.cpp
     app/ui/EnergyUI.cpp
