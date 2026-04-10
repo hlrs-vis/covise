@@ -619,7 +619,8 @@ void coVRPluginSupport::update()
         v(2, 0), v(2, 1), v(2, 2), v(2, 3),
         v(3, 0), v(3, 1), v(3, 2), v(3, 3));
     listener->update(frameDuration(), mat);
-    player->update();
+    if (player)
+        player->update();
 }
 
 coVRPlugin *coVRPluginSupport::addPlugin(const char *name)
