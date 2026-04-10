@@ -11,6 +11,7 @@ public:
 
     void buildGrid(EnergyType type);
     void setData(EnergyType type, std::shared_ptr<core::simulation::SimulationResult> data);
+    void update();
     void updateStep(int timestep);
     void setVisible(EnergyType type, bool visible);
 

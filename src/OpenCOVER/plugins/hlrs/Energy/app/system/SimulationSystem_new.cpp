@@ -35,10 +35,12 @@ void SimulationSystem::enable(bool on)
 
 void SimulationSystem::update()
 {
+    m_gridRenderer.update();
 }
 
 void SimulationSystem::updateTime(int timestep)
 {
+    m_gridRenderer.updateStep(timestep);
 }
 
 void SimulationSystem::onScenarioSelectionChanged(int scenarioId)
