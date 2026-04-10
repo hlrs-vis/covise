@@ -6,8 +6,8 @@
 std::string FileProvider::createFilePath(const Scenario &scenario, EnergyType type, const std::string &filename) const
 {
     auto folder = (scenario.id == -1) ? "static" : scenario.name;
-    std::string typeFolder(EnergyTypeToString(type));
-    std::string filePath = m_dirPath + "/" + folder + "/" + typeFolder;
+    auto typeFolder(EnergyTypeToString(type));
+    auto filePath = m_dirPath + "/" + folder + "/" + typeFolder;
 
     if (filename != "")
         filePath += "/" + filename;
