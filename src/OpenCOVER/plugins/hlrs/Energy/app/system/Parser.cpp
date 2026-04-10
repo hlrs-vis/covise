@@ -1,6 +1,5 @@
 #include "Parser.h"
 
-
 std::shared_ptr<cs::SimulationResult> PowerParser::operator()(const CSVDataMap &map)
 {
     auto result = std::make_shared<cs::power::PowerSimulationResult>();
