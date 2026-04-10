@@ -25,6 +25,8 @@ void SimulationSystem::init()
     m_dataLoadManager.registerProvider(Storage::ARROW, std::make_unique<ArrowLoader>(m_scenarioDir));
     m_dataLoadManager.registerProvider(Storage::CSV, std::make_unique<CSVLoader>(m_scenarioDir));
 
+    //TODO: init grid renderer by loading data via loader via m_dataLoadManger
+
     m_scenarioManager.setOnScenarioChanged([this](int id)
         { this->onScenarioSelectionChanged(id); });
 }
