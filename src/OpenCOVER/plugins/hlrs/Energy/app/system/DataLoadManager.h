@@ -18,15 +18,14 @@ public:
 
     auto fetch(Storage storageType, const Scenario &scenario, EnergyType energyType)
     {
-        loaderExist(storageType);
-        return m_provider[storageType]->load(scenario, energyType);
+        if (auto p_iter = m_provider.find(storageType); p_iter != m_provider.end())
+        {
+            auto &p = p_iter->second;
+            return p->load(scenario, energyType);
+        }
+        throw std::runtime_error("No loader for this storage type!");
     }
 
 private:
-    void loaderExist(Storage storageType) {
-        if (m_provider.find(storageType) == m_provider.end())
-            throw std::runtime_error("No loader for this storage type!");
-    }
-
     std::map<Storage, std::unique_ptr<Provider<DataPackages>>> m_provider;
 };
