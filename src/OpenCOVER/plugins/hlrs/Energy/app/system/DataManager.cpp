@@ -12,7 +12,7 @@ void DataManager::loadScenario(Storage storageType, const Scenario &scenario, Da
 
         auto package = loader.fetch(storageType, scenario, type);
         if (package) {
-            auto result = DataFactory::create(package, scenario, type);
+            auto result = DataFactory::create(*package, scenario, type);
             m_cache[scenario.id][type] = result;
         } else {
             error("Failed to load data for scenario" + scenario.name);
