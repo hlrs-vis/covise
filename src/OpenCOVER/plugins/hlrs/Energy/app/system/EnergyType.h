@@ -1,5 +1,5 @@
 #pragma once
-#include <initializer_list>
+#include <array>
 
 enum class EnergyType
 {
@@ -8,7 +8,7 @@ enum class EnergyType
     COOLING,
 };
 
-constexpr auto ENERGYTYPE_RANGE = { EnergyType::HEATING, EnergyType::POWER };
+inline constexpr std::array<EnergyType, 2> ENERGYTYPE_RANGE = { EnergyType::HEATING, EnergyType::POWER };
 
 inline auto EnergyTypeToString(EnergyType type) {
     switch(type) {
