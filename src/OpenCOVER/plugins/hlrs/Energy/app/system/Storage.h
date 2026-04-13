@@ -1,11 +1,12 @@
 #pragma once
-#include <initializer_list>
+#include <array>
 
-enum class Storage {
+enum class Storage
+{
     CSV,
     ARROW,
     PSQL
 };
 
-constexpr auto FILE_STORAGE_RANGE = { Storage::ARROW, Storage::CSV };
-constexpr auto FULL_STORAGE_RANGE = { Storage::ARROW, Storage::CSV , Storage::PSQL};
+inline constexpr std::array<Storage, 2> FILE_STORAGE_RANGE = { Storage::ARROW, Storage::CSV };
+inline constexpr std::array<Storage, 3> FULL_STORAGE_RANGE = { Storage::ARROW, Storage::CSV, Storage::PSQL };
