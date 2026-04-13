@@ -6,7 +6,7 @@
 #include "Scenario.h"
 #include <map>
 #include <memory>
-#include <stdexcept>
+#include <optional>
 
 class DataLoadManager
 {
@@ -16,14 +16,14 @@ public:
         m_provider.insert_or_assign(storageType, std::move(provider));
     }
 
-    auto fetch(Storage storageType, const Scenario &scenario, EnergyType energyType)
+    std::optional<DataPackages> fetch(Storage storageType, const Scenario &scenario, EnergyType energyType)
     {
         if (auto p_iter = m_provider.find(storageType); p_iter != m_provider.end())
         {
             auto &p = p_iter->second;
             return p->load(scenario, energyType);
         }
-        throw std::runtime_error("No loader for this storage type!");
+        return {};
     }
 
 private:
