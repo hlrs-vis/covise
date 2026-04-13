@@ -10,7 +10,7 @@ SimulationSystem::SimulationSystem(opencover::coVRPlugin *plugin, opencover::ui:
     : core::ClassLogger(logger, "SimulationSystem")
     , m_plugin(plugin)
     , m_enabled(false)
-    , m_dataManager()
+    , m_dataManager(logger)
     , m_dataLoadManager()
     , m_scenarioManager(parentMenu, scenarioDir)
     , m_gridUIManager(parentMenu)
