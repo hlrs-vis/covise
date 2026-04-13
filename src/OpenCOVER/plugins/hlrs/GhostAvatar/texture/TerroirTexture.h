@@ -14,7 +14,8 @@ class TerroirTexture
 {
 public:
     TerroirTexture(const std::string &shaderName, float distanceThreshold);
-    TerroirTexture(const std::string &shaderName, RenderToTextureCamera rttCamera, float distanceThreshold);
+    TerroirTexture(const std::string &shaderName, osg::ref_ptr<RenderToTextureCamera> rttCamera, float distanceThreshold);
+    virtual ~TerroirTexture();
 
     void applyTexture(osg::Node *node);
     void updateTexture();
@@ -45,7 +46,7 @@ protected:
     osg::Matrix getNodeTransform(osg::Node *node) const;
 
     // -- Render to Texture Camera --
-    RenderToTextureCamera m_rttCamera;
+    osg::ref_ptr<RenderToTextureCamera> m_rttCamera;
 
 private:
     osg::ref_ptr<osg::Node> m_node;

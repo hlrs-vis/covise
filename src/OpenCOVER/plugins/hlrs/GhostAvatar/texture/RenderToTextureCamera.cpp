@@ -21,8 +21,16 @@ RenderToTextureCamera::RenderToTextureCamera(int viewPortSize, double fovy, doub
     configureImage();
 }
 
+RenderToTextureCamera::~RenderToTextureCamera()
+{
+    deinitialize();
+}
+
 void RenderToTextureCamera::initialize()
 {
+    if (m_isInitialized)
+        return;
+
     addChild(opencover::cover->getObjectsRoot());
     opencover::cover->getScene()->addChild(this);
     setCullMask(opencover::Isect::NoMirror);
@@ -33,6 +41,28 @@ void RenderToTextureCamera::initialize()
         opencover::cover->getScene()->addChild(m_debugCamera);
         m_debugCamera->setCullMask(opencover::Isect::NoMirror);
     }
+
+    m_isInitialized = true;
+}
+
+void RenderToTextureCamera::deinitialize()
+{
+    if (!m_isInitialized)
+        return;
+
+    opencover::cover->getScene()->removeChild(this);
+    removeChild(opencover::cover->getObjectsRoot());
+    removeChildren(0, getNumChildren());
+
+    if (m_debugCamera)
+    {
+        opencover::cover->getScene()->removeChild(m_debugCamera);
+        m_debugCamera->removeChild(opencover::cover->getObjectsRoot());
+        m_debugCamera->removeChildren(0, m_debugCamera->getNumChildren());
+    }
+
+    m_addedSkyNode = false;
+    m_isInitialized = false;
 }
 
 osg::ref_ptr<osg::Image> RenderToTextureCamera::getImage() const

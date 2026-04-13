@@ -22,9 +22,24 @@ GhostAvatarControls::GhostAvatarControls(const std::string &pathToFbx, const std
 {
 }
 
+GhostAvatarControls::~GhostAvatarControls()
+{
+    if (m_avatarTrans && cover && cover->getObjectsRoot())
+        cover->getObjectsRoot()->removeChild(m_avatarTrans);
+}
+
 void GhostAvatarControls::loadAvatar()
 {
     auto model = osgDB::readNodeFile(m_pathToFbx);
+    if (!model)
+    {
+        std::cerr << "GhostAvatarControls::loadAvatar: failed to load model " << m_pathToFbx << "\n";
+        return;
+    }
+
+    if (m_avatarTrans)
+        cover->getObjectsRoot()->removeChild(m_avatarTrans);
+
     m_avatarTrans = new osg::MatrixTransform();
     m_avatarTrans->setName(m_nodeName);
     m_avatarTrans->addChild(model);

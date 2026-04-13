@@ -35,12 +35,13 @@ class RenderToTextureCamera : public osg::Camera
 public:
     RenderToTextureCamera(bool enableDefaultCamera = false);
     RenderToTextureCamera(int viewPortSize, double fovy, double aspectRatio, double zNear, double zFar, bool enableDebugCamera = false);
-    virtual ~RenderToTextureCamera() { }
+    virtual ~RenderToTextureCamera() override;
 
     /*
         Makes camera render the scene and adds it to the scene graph.
     */
     void initialize();
+    void deinitialize();
 
     osg::ref_ptr<osg::Image> getImage() const;
 
@@ -73,6 +74,7 @@ private:
 
     bool m_enableDebugCamera;
     osg::ref_ptr<DebugCamera> m_debugCamera;
+    bool m_isInitialized = false;
 
     void configureCamera();
     void configureDebugCamera();

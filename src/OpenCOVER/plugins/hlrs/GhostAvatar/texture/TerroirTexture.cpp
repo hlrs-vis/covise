@@ -1,5 +1,6 @@
 #include <cassert>
 #include <iostream>
+#include <utility>
 
 #include <osg/MatrixTransform>
 
@@ -28,16 +29,22 @@ void clearNodeMaskBitRecursively(osg::Node *node, unsigned int bit)
 }
 
 TerroirTexture::TerroirTexture(const std::string &shaderName, float distanceThreshold)
-    : TerroirTexture(shaderName, RenderToTextureCamera(true), distanceThreshold)
+    : TerroirTexture(shaderName, new RenderToTextureCamera(true), distanceThreshold)
 {
 }
 
-TerroirTexture::TerroirTexture(const std::string &shaderName, RenderToTextureCamera rttCamera, float distanceThreshold)
+TerroirTexture::TerroirTexture(const std::string &shaderName, osg::ref_ptr<RenderToTextureCamera> rttCamera, float distanceThreshold)
     : m_shaderName(shaderName)
-    , m_rttCamera(rttCamera)
+    , m_rttCamera(std::move(rttCamera))
     , m_distanceThreshold(distanceThreshold)
 {
     assert(distanceThreshold > 0);
+}
+
+TerroirTexture::~TerroirTexture()
+{
+    if (m_rttCamera)
+        m_rttCamera->deinitialize();
 }
 
 void TerroirTexture::applyTexture(osg::Node *node)
@@ -52,8 +59,11 @@ void TerroirTexture::applyTexture(osg::Node *node)
     m_currentPosition = getNodeTransform(m_node).getTrans();
     setReferencePosition(m_currentPosition);
 
-    m_rttCamera.initialize();
-    m_rttCamera.update(getNodeTransform(m_node));
+    if (m_rttCamera)
+    {
+        m_rttCamera->initialize();
+        m_rttCamera->update(getNodeTransform(m_node));
+    }
 }
 
 void TerroirTexture::updateTexture()
@@ -68,7 +78,8 @@ void TerroirTexture::updateTexture()
     auto nodeTransform = getNodeTransform(m_node);
     m_currentPosition = nodeTransform.getTrans();
 
-    m_rttCamera.update(nodeTransform);
+    if (m_rttCamera)
+        m_rttCamera->update(nodeTransform);
 
     if (enoughDistanceCovered())
         onEnoughDistanceCovered();
@@ -78,8 +89,11 @@ void TerroirTexture::updateTexture()
 
 void TerroirTexture::onEnoughDistanceCovered()
 {
-    if (auto cameraScreenshot = m_rttCamera.getScreenshotAsTexture())
-        recursivelyAddTextureToSlot(m_node, m_textureSlot, cameraScreenshot);
+    if (m_rttCamera)
+    {
+        if (auto cameraScreenshot = m_rttCamera->getScreenshotAsTexture())
+            recursivelyAddTextureToSlot(m_node, m_textureSlot, cameraScreenshot);
+    }
 
     setReferencePosition(m_currentPosition);
     m_textureSlot = (m_textureSlot + 1) % m_nrTextureSlots;

@@ -17,7 +17,7 @@ class GhostAvatarControls
 public:
     GhostAvatarControls(const std::string &pathToFbx, const std::string &armNodeName, const std::string &headNodeName);
     GhostAvatarControls(const std::string &pathToFbx, const std::string &armNodeName, const std::string &headNodeName, const osg::Vec3 &armBaseVector, const osg::Vec3 &headBaseVector, const osg::Matrix &armAdjustMatrix, const osg::Matrix &headAdjustMatrix);
-    virtual ~GhostAvatarControls() = default;
+    virtual ~GhostAvatarControls();
 
     void loadAvatar();
 
@@ -56,11 +56,11 @@ protected:
     std::string m_armNodeName;
     std::string m_headNodeName;
 
-    osg::MatrixTransform *m_avatarTrans = nullptr;
+    osg::ref_ptr<osg::MatrixTransform> m_avatarTrans;
 
     BoneParser m_parser;
-    BoneParser::Bone *m_armBone;
-    BoneParser::Bone *m_headBone;
+    BoneParser::Bone *m_armBone = nullptr;
+    BoneParser::Bone *m_headBone = nullptr;
 
     bool m_hasArm = false;
     bool m_hasHead = false;
