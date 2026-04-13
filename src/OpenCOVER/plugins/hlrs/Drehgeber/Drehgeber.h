@@ -40,6 +40,7 @@ private:
     std::shared_ptr<config::File>m_config;
     ui::Menu * m_menu;
     ui::Slider *m_rotator;
+    std::unique_ptr<ui::EditFieldConfigValue> m_serialDeviceHint;
     std::unique_ptr<ui::EditFieldConfigValue> m_serialDevice;
     std::unique_ptr<ui::EditFieldConfigValue> m_baudrate;
     std::unique_ptr<ui::SliderConfigValue>m_delay;
