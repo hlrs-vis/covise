@@ -3,12 +3,17 @@
 #include "EnergyType.h"
 #include "Scenario.h"
 #include <lib/core/simulation/simulationresult.h>
+#include <lib/core/ClassLogger.h>
 #include <map>
 #include <memory>
 
-class DataManager
+class DataManager : public core::ClassLogger
 {
 public:
+    DataManager(core::interface::ILogger &logger)
+        : core::ClassLogger(logger, "DataManager")
+    {
+    }
     void loadScenario(Storage storageType, const Scenario &scenario, DataLoadManager &loader);
     std::shared_ptr<core::simulation::SimulationResult> getResult(const Scenario &scenario, EnergyType type)
     {
