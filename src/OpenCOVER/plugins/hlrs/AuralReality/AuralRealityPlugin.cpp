@@ -31,10 +31,13 @@ namespace ui = opencover::ui;
 
 Speaker::Speaker(const std::string &id)
     : id(id)
-    , interactor(osg::Matrix::identity(), 100, vrui::coInteraction::ButtonA, "hand", "speakerInteractor", vrui::coInteraction::Medium)
+    , interactor(osg::Matrix::identity(), 1000, vrui::coInteraction::ButtonA, "hand", "speakerInteractor", vrui::coInteraction::Medium)
 {
     interactor.show();
     interactor.enableIntersection();
+
+    offset.makeTranslate(0, 0, 0.4);
+    offset_i.invert(offset);
 
     transform = new osg::MatrixTransform;
     cover->getObjectsRoot()->addChild(transform);
@@ -62,7 +65,7 @@ void Speaker::preFrame()
 
     if (interactor.isRunning())
     {
-        osg::Matrix m = interactor.getMatrix();
+        osg::Matrix m = offset_i * interactor.getMatrix();
         transform->setMatrix(m);
 
         AuralRealityPlugin::instance()->pushSpeaker(id);

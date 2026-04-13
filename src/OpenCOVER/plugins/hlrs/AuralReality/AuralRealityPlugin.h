@@ -51,7 +51,7 @@ public:
     void setTransform(osg::Matrix transform)
     {
         this->transform->setMatrix(transform);
-        interactor.updateTransform(transform);
+        interactor.updateTransform(offset * transform);
     }
     osg::Matrix getTransform() const
     {
@@ -72,6 +72,9 @@ private:
     opencover::coVR3DTransRotInteractor interactor;
     osg::ref_ptr<osg::MatrixTransform> transform;
     SpeakerProperties properties;
+
+    osg::Matrix offset;
+    osg::Matrix offset_i;
 };
 
 class AuralRealityPlugin : public opencover::coVRPlugin,
