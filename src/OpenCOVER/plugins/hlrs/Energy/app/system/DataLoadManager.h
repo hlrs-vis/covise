@@ -13,7 +13,7 @@ class DataLoadManager
 public:
     void registerProvider(Storage storageType, std::unique_ptr<Provider<DataPackages>> provider)
     {
-        m_provider[storageType] = std::move(provider);
+        m_provider.insert_or_assign(storageType, std::move(provider));
     }
 
     auto fetch(Storage storageType, const Scenario &scenario, EnergyType energyType)
