@@ -109,6 +109,8 @@ void Audio::loadFileToBuffer()
     {
         ALenum error = alutGetError();
         std::cerr << "Audio: Error creating buffer: " << alutGetErrorString(error) << std::endl;
+        _num_samples = 0;
+	return; // do not continue with a broken _buffer (will generate a devision by 0)
     }
 
     ALsizei size;
@@ -117,7 +119,7 @@ void Audio::loadFileToBuffer()
     alGetBufferi(_buffer, AL_BITS, &_bits_per_sample);
     alGetBufferi(_buffer, AL_CHANNELS, &_channels);
     alGetBufferi(_buffer, AL_SIZE, &size);
-
+    
     _num_samples = (int)size * 8 / _channels / _bits_per_sample;
 }
 

@@ -2990,7 +2990,8 @@ void LamureRenderer::shutdown()
             ctxRes.scm_cameras.clear();
             ctxRes.view_ids.clear();
         }
-        m_ctx_res.clear();
+        //this crashes because the gpu_context has not been deleted yet
+        //m_ctx_res.clear();
     }
     {
         std::lock_guard<std::mutex> lock(m_timing_mutex);
