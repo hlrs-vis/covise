@@ -25,7 +25,7 @@ public:
     virtual ~SoundStep();
     void stop();
     void start();
-    std::shared_ptr<Player::Source> source;
+    std::shared_ptr<Source> source;
     float speed;
     bool playing;
     Player *player;
