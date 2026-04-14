@@ -10,4 +10,4 @@ target_compile_definitions(vvOpenConfig PRIVATE CONFIG_NAMESPACE=vive COVCONFIG_
 target_include_directories(vvOpenConfig PRIVATE ${COVCONFIG_PRIVATE_INCLUDES})
 target_link_libraries(vvOpenConfig ${COVCONFIG_PRIVATE_LIBRARIES})
 covise_install_target(vvOpenConfig)
-covise_install_headers(OpenConfig ${CONFIG_HEADERS})
+covise_install_headers(vvOpenConfig ${CONFIG_HEADERS})
