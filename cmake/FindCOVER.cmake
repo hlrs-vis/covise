@@ -38,6 +38,7 @@ covise_find_library(COVER_OSGVRUI coOSGVRUI)
 covise_find_library(COVER_PLUGINUTIL coOpenPluginUtil)
 covise_find_library(COVER_AUDIO coVRAudio)
 covise_find_library(COVER_VRML coVRML)
+covise_find_library(COVER_VRMLINTERFACE Vrml97Cover)
 
 include(FindPackageHandleStandardArgs)
 
@@ -54,6 +55,8 @@ find_package_handle_standard_args(COVER DEFAULT_MSG
 mark_as_advanced(COVER_LIBRARY
    COVER_CONFIG_LIBRARY
    COVER_AUDIO_LIBRARY
+   COVER_VRML_LIBRARY
+   COVER_VRMLINTERFACE_LIBRARY
    COVER_VRUI_LIBRARY
    COVER_OSGVRUI_LIBRARY
    COVER_PLUGINUTIL_LIBRARY
