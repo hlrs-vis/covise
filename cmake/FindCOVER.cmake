@@ -32,11 +32,12 @@ find_path(COVER_INCLUDE_DIR "cover/coVRPluginSupport.h"
 )
 
 covise_find_library(COVER coOpenCOVER)
-covise_find_library(COVER_AUDIO coVRAudio)
 covise_find_library(COVER_CONFIG coOpenConfig)
 covise_find_library(COVER_VRUI coOpenVRUI)
 covise_find_library(COVER_OSGVRUI coOSGVRUI)
 covise_find_library(COVER_PLUGINUTIL coOpenPluginUtil)
+covise_find_library(COVER_AUDIO coVRAudio)
+covise_find_library(COVER_VRML coVRML)
 
 include(FindPackageHandleStandardArgs)
 
