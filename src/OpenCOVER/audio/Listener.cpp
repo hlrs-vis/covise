@@ -15,8 +15,6 @@
 #include <windows.h>
 #endif
 #include <util/unixcompat.h>
-#include <cover/coVRPluginSupport.h>
-#include <cover/VRSceneGraph.h>
 
 #include "Player.h"
 #include "Listener.h"
