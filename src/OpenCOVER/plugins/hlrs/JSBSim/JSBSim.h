@@ -27,8 +27,10 @@
 #include <config/CoviseConfig.h>
 #include <util/byteswap.h>
 #include <net/covise_connect.h>
+#ifdef HAVE_AUDIO
 #include <audio/Audio.h>
 #include <audio/Player.h>
+#endif
 
 #include <initialization/FGTrim.h>
 #include <FGFDMExec.h>
@@ -201,12 +203,14 @@ private:
     osg::Vec3 targetVelocity;
     float targetTurbulence;
 
+#ifdef HAVE_AUDIO
     audio::Audio engineAudio;
     audio::Audio varioAudio;
     audio::Audio windAudio;
     std::shared_ptr<audio::Source> engineSource;
     std::shared_ptr<audio::Source> varioSource;
     std::shared_ptr<audio::Source> windSource;
+#endif
 
     std::string host;
     unsigned short serverPort;

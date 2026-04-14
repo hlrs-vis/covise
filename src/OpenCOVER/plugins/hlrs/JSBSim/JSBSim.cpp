@@ -53,6 +53,7 @@ JSBSimPlugin::JSBSimPlugin()
     fprintf(stderr, "JSBSimPlugin::JSBSimPlugin\n");
     geometryTrans = new osg::MatrixTransform();
 
+#ifdef HAVE_AUDIO
     audio::Player *player = cover->getPlayer();
     if (coVRMSController::instance()->isMaster() && player)
     {
@@ -72,6 +73,7 @@ JSBSimPlugin::JSBSimPlugin()
         engineSource->play();
         windSource->play();
     }
+#endif
     plugin = this;
     udp = 0;
 }
@@ -907,6 +909,7 @@ bool JSBSimPlugin::update()
                         float vSpeed = location.vUVW(3);
                         VzLabel->setText("Vz: " + std::to_string(vSpeed));
                         VLabel->setText("V: " + std::to_string(location.vUVW.Entry(1)) + " ; " + std::to_string(location.vUVW.Entry(2)) + " ; " + std::to_string(location.vUVW.Entry(3)));
+#ifdef HAVE_AUDIO
                         float pitch = -vSpeed / 10.0;
                         if (pitch < -1)
                             pitch = -1;
@@ -926,6 +929,7 @@ bool JSBSimPlugin::update()
                         varioSource->setIntensity(vol);
                         if (vol > 1.0)
                             vol = 1.0;
+#endif
 
                         Winds->SetWindNED(currentVelocity.y(), currentVelocity.x(), -currentVelocity.z());
                         Winds->SetTurbGain(currentTurbulence);
@@ -979,6 +983,10 @@ void JSBSimPlugin::setEnabled(bool flag)
         if (flag)
         {
             reset();
+        }
+#ifdef HAVE_AUDIO
+        if (flag)
+        {
             varioSource->play();
             windSource->play();
             engineSource->play();
@@ -989,6 +997,7 @@ void JSBSimPlugin::setEnabled(bool flag)
             windSource->stop();
             engineSource->stop();
         }
+#endif
         if (udp)
         {
             if (flag)

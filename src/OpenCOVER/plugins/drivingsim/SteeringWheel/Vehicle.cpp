@@ -304,6 +304,7 @@ osg::Matrix *VrmlNodeVehicle::getCarTransMatrix()
 void VrmlNodeVehicle::init()
 {
 #ifndef USE_CAR_SOUND
+#ifdef HAVE_AUDIO
     source = nullptr;
     gearSound = nullptr;
     hornSound = nullptr;
@@ -341,6 +342,7 @@ void VrmlNodeVehicle::init()
             hornSound->setIntensity(1.0);
         }
     }
+#endif
 #else
     carSound = CarSound::instance();
 #endif

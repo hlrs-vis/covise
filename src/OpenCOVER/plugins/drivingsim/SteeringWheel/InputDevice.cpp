@@ -604,6 +604,7 @@ InputDeviceMotionPlatform::InputDeviceMotionPlatform()
     ccSpeed = 0;
     ccActive = false;
 #ifndef USE_CAR_SOUND
+#ifdef HAVE_AUDIO
     anlasserSource = nullptr;
     Audio *anlasserAudio = new Audio("AnlasserInnen.wav");
     if (player)
@@ -616,6 +617,7 @@ InputDeviceMotionPlatform::InputDeviceMotionPlatform()
             anlasserSource->setIntensity(1.0);
         }
     }
+#endif
 #endif
 
     if (coVRMSController::instance()->isMaster())

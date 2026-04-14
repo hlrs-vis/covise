@@ -12,6 +12,7 @@ using namespace opencover::audio;
 
 SoundStep::SoundStep(Player *p, float umin)
 {
+#ifdef HAVE_AUDIO
     player = p;
     speed = umin;
     if (p != NULL)
@@ -27,6 +28,7 @@ SoundStep::SoundStep(Player *p, float umin)
             source->setIntensity(0.0);
         }
     }
+#endif
     playing = false;
 }
 
@@ -38,9 +40,11 @@ void SoundStep::stop()
 {
     if (playing)
     {
+#ifdef HAVE_AUDIO
         //source->stop();
         if (source)
             source->setIntensity(0);
+#endif
         playing = false;
     }
 }
@@ -48,9 +52,11 @@ void SoundStep::start()
 {
     if (!playing)
     {
+#ifdef HAVE_AUDIO
         //source->play();
         if (source)
             source->setIntensity(1);
+#endif
         playing = true;
     }
 }
@@ -179,6 +185,7 @@ void EngineSound::setSpeed(float s)
         else
         {
             sounds[i]->start();
+#ifdef HAVE_AUDIO
             if (s < sounds[i]->speed - (SPEED_STEP)) // einblenden
             {
                 if (sounds[i]->source)
@@ -199,6 +206,7 @@ void EngineSound::setSpeed(float s)
             }
             if (sounds[i]->source)
                 sounds[i]->source->setPitch(22000.0 + ((s - sounds[i]->speed) / (float)SPEED_STEP) * pitchValues[i]);
+#endif
             static int oldSample = -1;
             currentSample = i;
             if (currentSample != oldSample)

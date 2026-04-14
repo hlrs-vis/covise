@@ -9,10 +9,22 @@
 #define _EngineSound_H
 
 #include <string>
-#include <audio/Player.h>
 #include <cover/coVRTui.h>
-using namespace opencover;
+
+namespace opencover 
+{
+namespace audio
+{
+class Player;
+class Source;
+}
+}
+#ifdef HAVE_AUDIO
+#include <audio/Player.h>
+#endif
 using namespace opencover::audio;
+
+using namespace opencover;
 using namespace covise;
 
 #define NUM_SPEEDS 30
@@ -25,16 +37,16 @@ public:
     virtual ~SoundStep();
     void stop();
     void start();
-    std::shared_ptr<Source> source;
     float speed;
     bool playing;
-    Player *player;
+    std::shared_ptr<Source> source;
+    Player *player = nullptr;
 };
 
 class EngineSound : public coTUIListener
 {
 public:
-    Player *player;
+    Player *player = nullptr;
 
     EngineSound(Player *p);
     virtual ~EngineSound();
