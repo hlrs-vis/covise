@@ -1,28 +1,37 @@
 #pragma once
 #include "EnergyType.h"
 #include "Parser.h"
-#include "Scenario.h"
 #include <lib/core/simulation/simulationresult.h>
 #include <lib/core/simulation/powerresult.h>
 #include <lib/core/simulation/heatingresult.h>
-#include <memory>
+#include <tuple>
+#include <utility>
 
-struct ResultVisitor {
-    Scenario scenario;
+template <typename... Args>
+struct DataPackageVisitor
+{
     EnergyType energyType;
-    
-    template<typename T>
-    std::shared_ptr<cs::SimulationResult> operator()(T &&data) const
+    std::tuple<Args...> extraArgs;
+
+    DataPackageVisitor(EnergyType t, Args &&...args)
+        : energyType(t)
+        , extraArgs(std::forward<Args>(args)...)
     {
-        return ParseManager()(scenario, energyType, std::forward<T>(data));
+    }
+
+    template <typename T>
+    decltype(auto) operator()(T &&data) const
+    {
+        return std::apply([&](auto &&...args)
+            { return ParseManager {}(energyType, std::forward<T>(data), std::forward<decltype(args)>(args)...); }, extraArgs);
     }
 };
 
 struct DataFactory
 {
-    template<typename T>
-    static std::shared_ptr<cs::SimulationResult> create(T &&package, const Scenario &scenario, EnergyType type)
+    template <typename T, typename... Args>
+    static decltype(auto) create(T &&package, EnergyType type, Args &&...args)
     {
-        return std::visit(ResultVisitor{ scenario, type }, std::forward<T>(package));
+        return std::visit(DataPackageVisitor<Args...> { type, std::forward<Args>(args)... }, std::forward<T>(package));
     }
 };
