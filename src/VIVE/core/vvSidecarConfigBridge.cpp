@@ -1,6 +1,6 @@
 #include "vvSidecarConfigBridge.h"
-#include "../OpenConfig/array.h"
-#include "../OpenConfig/value.h"
+#include "../ViveConfig/array.h"
+#include "../ViveConfig/value.h"
 #include <locale>
 #include <iostream>
 
@@ -8,9 +8,11 @@ using namespace vive;
 
 vvSidecarConfigBridge::Key::Key() = default;
 vvSidecarConfigBridge::Key::Key(const vive::config::ConfigBase *entry)
-: path(entry->path()), section(entry->section()), name(entry->name())
+    : path(entry->path())
+    , section(entry->section())
+    , name(entry->name())
 {
-    //std::cerr << "Key: " << configSection() << ":" << configName() << std::endl;
+    // std::cerr << "Key: " << configSection() << ":" << configName() << std::endl;
 }
 
 bool vvSidecarConfigBridge::Key::operator<(const vvSidecarConfigBridge::Key &o) const
@@ -30,7 +32,7 @@ std::string vvSidecarConfigBridge::Key::configSection() const
 {
     std::locale C("C");
     std::string cleanPath;
-    for (auto c: path)
+    for (auto c : path)
     {
         if (std::isalnum(c, C))
         {
@@ -50,7 +52,6 @@ std::string vvSidecarConfigBridge::Key::configName() const
     return name;
 }
 
-
 std::ostream &operator<<(std::ostream &os, const vvSidecarConfigBridge::Key &key)
 {
     os << key.path << ":" << key.section << ":" << key.name;
@@ -59,11 +60,11 @@ std::ostream &operator<<(std::ostream &os, const vvSidecarConfigBridge::Key &key
 
 namespace
 {
-template<class V>
+template <class V>
 std::ostream &operator<<(std::ostream &os, const std::vector<V> &vec)
 {
     os << "{";
-    for (const auto &val: vec)
+    for (const auto &val : vec)
     {
         os << " " << val;
     }
@@ -72,9 +73,9 @@ std::ostream &operator<<(std::ostream &os, const std::vector<V> &vec)
 }
 } // namespace
 
-
 vvSidecarConfigBridge::vvSidecarConfigBridge(const std::string &file, bool saveOnDestroy)
-: m_file(file + ".cover"), m_save(saveOnDestroy)
+    : m_file(file + ".cover")
+    , m_save(saveOnDestroy)
 {
     try
     {
@@ -143,9 +144,9 @@ vvSidecarConfigBridge::~vvSidecarConfigBridge()
 }
 
 // store values to TOML, unless when seen for the first time: then retrieve from TOML and set value, for both Value<V>'s and Array<V>'s
-template<class V>
+template <class V>
 bool vvSidecarConfigBridge::toOrFromToml(const vive::config::ConfigBase *entry, const vvSidecarConfigBridge::Key &key,
-                                       bool seen)
+    bool seen)
 {
     auto tbl = m_toml[key.configSection()].as_table();
     if (!tbl)
@@ -200,7 +201,7 @@ bool vvSidecarConfigBridge::toOrFromToml(const vive::config::ConfigBase *entry, 
                 auto arr = acc.array<V>(entry->path(), entry->section(), entry->name());
                 bool ok = true;
                 std::vector<V> vals;
-                for (auto &v: *a)
+                for (auto &v : *a)
                 {
                     if (auto vv = v.as<V>())
                     {
@@ -228,7 +229,7 @@ bool vvSidecarConfigBridge::toOrFromToml(const vive::config::ConfigBase *entry, 
         }
         toml::array arr;
         auto val = array->value();
-        for (auto v: val)
+        for (auto v : val)
             arr.push_back(V(v));
         tbl->insert_or_assign(key.configName(), arr);
         return true;

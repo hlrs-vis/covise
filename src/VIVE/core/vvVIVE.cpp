@@ -73,9 +73,8 @@
 #include "ui/Group.h"
 #include "ui/Manager.h"
 #include "vvSceneGraph.h"
-#include "../OpenConfig/access.h"
+#include "../ViveConfig/access.h"
 #include "vvVIVE.h"
-
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -86,7 +85,6 @@ using namespace covise;
 static char envOsgNotifyLevel[200];
 static char envDisplay[1000];
 class vvVive;
-
 
 static void usage()
 {
@@ -100,20 +98,20 @@ static void usage()
     fprintf(stderr, "       -g : Collaborative Session to load\n");
 }
 
-//Signal handler
+// Signal handler
 static void handler(int signo)
 {
-        vsg::info("signal handler got signal", signo," \n");
+    vsg::info("signal handler got signal", signo, " \n");
 #ifndef _WIN32
-    switch(signo)
+    switch (signo)
     {
-        case SIGTERM:
-            vvMSController::instance()->killClients();
-            vvVIVE::instance()->setExitFlag(true);
-            break;
-        case SIGTTIN:
-        case SIGTTOU:
-            break;
+    case SIGTERM:
+        vvMSController::instance()->killClients();
+        vvVIVE::instance()->setExitFlag(true);
+        break;
+    case SIGTTIN:
+    case SIGTTOU:
+        break;
     }
 #endif
 }
@@ -198,7 +196,6 @@ vvVIVE::vvVIVE(const MPI_Comm *comm, pthread_barrier_t *shmBarrier)
 }
 #endif
 
-
 #ifdef WIN32
 vvVIVE::vvVIVE(HWND pw)
     : m_visPlugin(NULL)
@@ -241,7 +238,7 @@ void vvVIVE::waitForWindowID()
 
         if (parentWindow != 0)
         {
-            //sleep(5); // we have to wait, window is in creation
+            // sleep(5); // we have to wait, window is in creation
             validWindowID = true;
         }
         else
@@ -253,7 +250,7 @@ void vvVIVE::waitForWindowID()
 
 bool vvVIVE::run()
 {
-	// always parse floats with . as separator
+    // always parse floats with . as separator
     setlocale(LC_NUMERIC, "C");
     int dl = coCoviseConfig::getInt("VIVE.DebugLevel", 0);
 
@@ -286,18 +283,14 @@ bool vvVIVE::init()
 
     installSignalHandlers();
 
-
-
-
-
 #ifdef _WIN32
 
     const auto processor_count = std::thread::hardware_concurrency();
-	// Require at least 4 processors, otherwise the process could occupy the machine.
-	if (processor_count >= 4)
-	{
-		SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
-	}
+    // Require at least 4 processors, otherwise the process could occupy the machine.
+    if (processor_count >= 4)
+    {
+        SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
+    }
 #endif
 
     std::string startCommand = coCoviseConfig::getEntry("VIVE.StartCommand");
@@ -340,7 +333,6 @@ bool vvVIVE::init()
         vvCommandLine::shift(4);
     }
 
-
     int c = 0;
     std::string collaborativeOptionsFile, viewpointsFile;
     bool saveAndExit = false;
@@ -361,11 +353,13 @@ bool vvVIVE::init()
             break;
         case 'S':
             saveFormat = 0;
-            saveAndExit = true;;
+            saveAndExit = true;
+            ;
             break;
         case 'I':
             saveFormat = 1;
-            saveAndExit = true;;
+            saveAndExit = true;
+            ;
             break;
         case 'C':
         {
@@ -383,20 +377,20 @@ bool vvVIVE::init()
                 tcpPort = atoi(sep);
                 sep = strchr(sep + 1, ':');
             }
-            if(sep)
+            if (sep)
             {
                 *sep = '\0';
                 ++sep;
                 udpPort = atoi(sep);
             }
-            m_vrbCredentials.reset( new vrb::VrbCredentials(std::string{vrbHost}, tcpPort, udpPort));
+            m_vrbCredentials.reset(new vrb::VrbCredentials(std::string { vrbHost }, tcpPort, udpPort));
             break;
         }
-		case 'g':
-		{
-			m_startSession = optarg;
-		}
-		break;
+        case 'g':
+        {
+            m_startSession = optarg;
+        }
+        break;
         case 'h':
             usage();
             exit(EXIT_SUCCESS);
@@ -413,7 +407,7 @@ bool vvVIVE::init()
         while (*c != '\0')
         {
             if (!isdigit(*c)) // this is not a port number for a covise connection,
-            //thus we load the files given in the command line
+            // thus we load the files given in the command line
             {
                 loadFiles = true;
                 break;
@@ -424,7 +418,6 @@ bool vvVIVE::init()
 
     frameNum = 0;
 
-    
 #ifdef HAS_MPI
     if (m_forceMpi)
     {
@@ -444,7 +437,7 @@ bool vvVIVE::init()
     vvConfig::instance()->collaborativeOptionsFile = collaborativeOptionsFile;
     vvConfig::instance()->viewpointsFile = viewpointsFile;
 
-    //vvConfig::instance()->m_stereoState = vvMSController::instance()->allReduceOr(vvConfig::instance()->m_stereoState);
+    // vvConfig::instance()->m_stereoState = vvMSController::instance()->allReduceOr(vvConfig::instance()->m_stereoState);
 
 #ifdef _OPENMP
     std::string openmpThreads = coCoviseConfig::getEntry("value", "VIVE.OMPThreads", "default");
@@ -531,11 +524,11 @@ bool vvVIVE::init()
     {
         m_vistlePlugin = vvMSController::instance()->syncString(vistlePlugin);
     }
-    
+
     vvCommunication::instance();
     interactionManager.initializeRemoteLock();
     vv = vvPluginSupport::instance();
-    
+
     vvCommunication::instance()->init();
     vvFileManager::instance()->initUI();
     if (vv->debugLevel(2))
@@ -563,11 +556,9 @@ bool vvVIVE::init()
 
     vvPluginSupport::instance()->updateTime();
 
-   
     vvPluginList::instance();
 
-
-    	Input::instance()->init();
+    Input::instance()->init();
 
     auto mainTui = vvTabletUI::instance();
     auto vrtui = new vvTui(nullptr);
@@ -587,13 +578,12 @@ bool vvVIVE::init()
 
     // init channels and view
     vvViewer::instance();
-    
 
     vvAnimationManager::instance();
     vvShaderList::instance();
 
     // init scene graph
-    
+
     vvSceneGraph::instance()->init();
     vvShaderList::instance()->update();
     /*
@@ -604,13 +594,11 @@ bool vvVIVE::init()
     pointLight->position.set(static_cast<float>(0.0), static_cast<float>(-100.0), static_cast<float>(0.0));
     pointLight->radius = 5000;*/
 
-    //vv->getScene()->addChild(pointLight);
+    // vv->getScene()->addChild(pointLight);
 
+    Input::instance()->update(); // requires scenegraph
 
-	Input::instance()->update(); // requires scenegraph
-    
     vv->setScale(coCoviseConfig::getFloat("VIVE.DefaultScaleFactor", 1.f));
-
 
     /*std::stringstream str;
     auto loadedScene = vsg::MatrixTransform::create();
@@ -625,13 +613,13 @@ bool vvVIVE::init()
     haveWindows = vvMSController::instance()->allReduceOr(haveWindows);
     if (!haveWindows)
         return false;
-        
+
     // initialize communication
     bool loadCovisePlugin = false;
     if (!m_loadVistlePlugin && loadFiles == false && vvConfig::instance()->collaborativeOptionsFile.empty() && vvCommandLine::argc() > 3 && m_vrbCredentials == NULL)
     {
         loadCovisePlugin = true;
-        //fprintf(stderr, "need covise connection\n");
+        // fprintf(stderr, "need covise connection\n");
 
         // if there's an embedded vvVIVE, then wait for a window ID
         for (int i = 0; i < vvConfig::instance()->numWindows(); i++)
@@ -644,23 +632,21 @@ bool vvVIVE::init()
     }
     else
     {
-        //fprintf(stderr, "no covise connection\n");
+        // fprintf(stderr, "no covise connection\n");
     }
-    
+
     vv->vruiView = new ui::VruiView;
     vv->ui->addView(vv->vruiView);
 
     hud = vvHud::instance();
-    
 
     vvViewer::instance()->config();
 
-    
     vvShaderList::instance()->init();
 
     hud->setText2("loading plugins");
     hud->redraw();
-    
+
     if (m_loadVistlePlugin)
     {
         loadFiles = false;
@@ -682,7 +668,7 @@ bool vvVIVE::init()
                 fprintf(stderr, "failed to load COVISE plugin\n");
                 exit(1);
             }
-            
+
             auto mapeditorTui = new vvTabletUI("localhost", 31803);
             auto mapeditorVrTui = new vvTui(mapeditorTui);
             mapeditorVrTui->config();
@@ -694,7 +680,7 @@ bool vvVIVE::init()
     vvPluginList::instance()->loadDefault(); // vive and other tracking system plugins have to be loaded before Input is initialized
 
     string welcomeMessage = coCoviseConfig::getEntry("value", "VIVE.WelcomeMessage", "Welcome to vvVIVE at HLRS");
-    
+
     hud->setText1(welcomeMessage.c_str());
 
     hud->setText2("startup");
@@ -712,7 +698,6 @@ bool vvVIVE::init()
 
     MarkerTracking::instance()->config(); // setup Rendering Node
 
-    
     vvSceneGraph::instance()->config();
 
     if (vv->debugLevel(5))
@@ -736,22 +721,23 @@ bool vvVIVE::init()
    Input::instance()->printConfig();
    sleep(10);
 #endif
-   
-    //beginAppTraversal = vvViewer::instance()->elapsedTime();
+
+    // beginAppTraversal = vvViewer::instance()->elapsedTime();
 
     m_quitGroup = new ui::Group(vv->fileMenu, "QuitGroup");
     m_quitGroup->setText("");
     m_quit = new ui::Action(m_quitGroup, "Quit");
     m_quit->setShortcut("q");
     m_quit->addShortcut("Q");
-    m_quit->setCallback([this](){
+    m_quit->setCallback([this]()
+        {
 #if 1
-        requestQuit();
+            requestQuit();
 #else
-        auto qd = new vvQuitDialog;
-        qd->show();
+            auto qd = new vvQuitDialog;
+            qd->show();
 #endif
-    });
+        });
     m_quit->setIcon("application-exit");
     if ((vvConfig::instance()->numWindows() > 0) && vvConfig::instance()->windows[0].embedded)
     {
@@ -761,34 +747,37 @@ bool vvVIVE::init()
 
     hud->setText2("initialising plugins");
     hud->redraw();
-    
+
     vvPluginList::instance()->init();
-    
+
     hud->redraw();
 
-    for (auto &tui: tabletUIs)
+    for (auto &tui : tabletUIs)
     {
         tui->tryConnect();
         tui->update();
     }
-    
+
     // Connect to VRBroker, if available
     if (vvMSController::instance()->isMaster())
     {
-        if (loadCovisePlugin)//use covise session
+        if (loadCovisePlugin) // use covise session
         {
             auto cmdExec = getExecFromCmdArgs(vvCommandLine::instance()->argc(), vvCommandLine::instance()->argv());
             std::stringstream ss;
             ss << "covise" << cmdExec.vrbClientIdOfController() << "_" << cmdExec.moduleId();
             m_startSession = ss.str();
-            m_vrbCredentials.reset( new vrb::VrbCredentials{cmdExec.vrbCredentials()});
+            m_vrbCredentials.reset(new vrb::VrbCredentials { cmdExec.vrbCredentials() });
         }
-        
-        if (m_vrbCredentials) {
+
+        if (m_vrbCredentials)
+        {
             hud->setText2("connecting(VRB)");
             hud->setText3("AG mode");
             hud->redraw();
-        } else {
+        }
+        else
+        {
             hud->setText2("connecting");
             hud->setText3("to VRB");
         }
@@ -797,7 +786,7 @@ bool vvVIVE::init()
     }
 
     double loadStart = vv->currentTime();
-    //fprintf(stderr,"isMaster %d\n",vvMSController::instance()->isMaster());
+    // fprintf(stderr,"isMaster %d\n",vvMSController::instance()->isMaster());
     if (vvMSController::instance()->isMaster())
     {
         int num = 0;
@@ -805,21 +794,21 @@ bool vvVIVE::init()
         {
             num = vvCommandLine::argc() - optind;
             vvMSController::instance()->sendSlaves(&num, sizeof(int));
-            //fprintf(stderr,"NumToLoad %d\n",num);
+            // fprintf(stderr,"NumToLoad %d\n",num);
             for (; optind < vvCommandLine::argc(); optind++)
             {
-                //fprintf(stderr,"Arg %d : %s",optind, vvCommandLine::argv(optind));
+                // fprintf(stderr,"Arg %d : %s",optind, vvCommandLine::argv(optind));
                 vvMSController::instance()->loadFile(vvCommandLine::argv(optind));
                 if (saveAndExit)
                 {
                     std::string saveFile = vvCommandLine::argv(optind);
-                    if(saveFormat == 0)
-                    saveFile = saveFile.substr(0,saveFile.length() - 3) + "obj";
-                    else if(saveFormat == 1)
+                    if (saveFormat == 0)
+                        saveFile = saveFile.substr(0, saveFile.length() - 3) + "obj";
+                    else if (saveFormat == 1)
                         saveFile = saveFile.substr(0, saveFile.length() - 3) + "ive";
                     else
                         saveFile = saveFile.substr(0, saveFile.length() - 3) + "osg";
-                    //osgDB::writeNodeFile(*vv->getObjectsRoot(), saveFile.c_str());
+                    // osgDB::writeNodeFile(*vv->getObjectsRoot(), saveFile.c_str());
                 }
             }
             if (saveAndExit)
@@ -831,14 +820,14 @@ bool vvVIVE::init()
         {
 
             vvMSController::instance()->sendSlaves(&num, sizeof(int));
-            //fprintf(stderr,"NumToLoad %d\n",num);
+            // fprintf(stderr,"NumToLoad %d\n",num);
         }
     }
     else
     {
         int num = 0;
         vvMSController::instance()->readMaster(&num, sizeof(int));
-        //fprintf(stderr,"NumToLoad %d\n",num);
+        // fprintf(stderr,"NumToLoad %d\n",num);
         for (int i = 0; i < num; i++)
             vvMSController::instance()->loadFile(NULL);
     }
@@ -846,36 +835,35 @@ bool vvVIVE::init()
 
     vvPluginList::instance()->init2();
     double init2End = vv->currentTime();
-    
+
     if (!vvConfig::instance()->continuousRendering())
     {
         if (vv->debugLevel(2))
         {
             fprintf(stderr, "vvVIVE: disabling continuous rendering\n");
         }
-        //vvViewer::instance()->setRunFrameScheme(osgViewer::Viewer::ON_DEMAND);
+        // vvViewer::instance()->setRunFrameScheme(osgViewer::Viewer::ON_DEMAND);
     }
 
-    if (vv->viewOptionsMenu) {
+    if (vv->viewOptionsMenu)
+    {
         auto cr = new ui::Button(vv->viewOptionsMenu, "ContinuousRendering");
         cr->setText("Continuous rendering");
         cr->setState(vvConfig::instance()->continuousRendering());
-        cr->setCallback([this](bool state){
-            vvConfig::instance()->setContinuousRendering(state);
-        });
+        cr->setCallback([this](bool state)
+            { vvConfig::instance()->setContinuousRendering(state); });
     }
 
+    vvViewer::instance()->clearWindow = true; // clear the whole window to get rid of white remains that sticked there during startup (Who knows where they are comming from)
 
-    vvViewer::instance()->clearWindow=true; // clear the whole window to get rid of white remains that sticked there during startup (Who knows where they are comming from)
-    
-    //frame();
+    // frame();
 
     double frameEnd = vv->currentTime();
-    
+
     hud->hideLater();
 
     Input::instance()->discovery()->init();
-    
+
     config::Access config;
     config.setErrorHandler(); // make parse errors in configuration files non-fatal
 
@@ -883,22 +871,17 @@ bool vvVIVE::init()
 
     if (vv->debugLevel(1))
     {
-        std::cerr << std::endl << "INIT TIMES:"
-                  << " load " << loadEnd-loadStart << "s"
-                  << ", init2 " << init2End-loadEnd << "s"
-                  << ", 1st frame " << frameEnd-init2End << "s"
+        std::cerr << std::endl
+                  << "INIT TIMES:"
+                  << " load " << loadEnd - loadStart << "s"
+                  << ", init2 " << init2End - loadEnd << "s"
+                  << ", 1st frame " << frameEnd - init2End << "s"
                   << std::endl;
     }
 
     // set up defaults and read command line arguments to override them
 
-
-
-
-
-
-// add close handler to respond to the close window button and pressing escape
-
+    // add close handler to respond to the close window button and pressing escape
 
     vvViewer::instance()->InitialCompile();
 
@@ -910,7 +893,7 @@ bool vvVIVE::initDone()
     return (frameNum > 1);
 }
 /*
-class CheckVisitor: public vsg::NodeVisitor 
+class CheckVisitor: public vsg::NodeVisitor
 {
  public:
    CheckVisitor()
@@ -937,19 +920,18 @@ void vvVIVE::loop()
 {
     while (true)
     {
-        //if(vvViewer::instance()->done())
-        //    exitFlag = true;
+        // if(vvViewer::instance()->done())
+        //     exitFlag = true;
         exitFlag = vvMSController::instance()->syncBool(exitFlag);
         if (exitFlag)
             break;
         frame();
     }
-    
+
     if (vv->debugLevel(1))
         fprintf(stderr, "vvVIVE: Shutting down\n\n");
-    
+
     vvViewer::instance()->disableSync();
-    
 
     std::string exitCommand = coCoviseConfig::getEntry("VIVE.ExitCommand");
     if (!exitCommand.empty())
@@ -973,31 +955,26 @@ void vvVIVE::loop()
     frame();
 }
 
-
 bool vvVIVE::frame()
 {
     bool render = m_renderNext;
     m_renderNext = false;
 
-
-
-    
     // NO MODIFICATION OF SCENEGRAPH DATA PRIOR TO THIS POINT
     //=========================================================
-    //cerr << "-- vvVIVE::frame" << endl;
+    // cerr << "-- vvVIVE::frame" << endl;
 
     DeletionManager::the()->run();
 
+    // MARK0("COVER reading input devices");
 
-    //MARK0("COVER reading input devices");
-    
     vv->updateTime();
 
     // update window size and process events
     vvWindows::instance()->update();
 
     vvViewer::instance()->handleEvents();
-    
+
     if (Input::instance()->update())
     {
         if (vv->debugLevel(4))
@@ -1058,22 +1035,22 @@ bool vvVIVE::frame()
     }
     // update transformations node according to interaction
     vvNavigationManager::instance()->update();
-    
+
     vvSceneGraph::instance()->update();
-    
+
     if (vvCollaboration::instance()->update())
     {
-        
+
         if (vv->debugLevel(4))
             std::cerr << "vvVIVE::frame: rendering because of collaborative action" << std::endl;
         render = true;
     }
-    
+
     if (vrb::SharedStateManager::instance())
     {
         vrb::SharedStateManager::instance()->frame(vv->frameTime());
     }
-    for (auto& tui : tabletUIs)
+    for (auto &tui : tabletUIs)
     {
         if (tui->update())
         {
@@ -1083,10 +1060,9 @@ bool vvVIVE::frame()
         }
     }
 
-    //Remote AR update (send picture if required)
+    // Remote AR update (send picture if required)
     if (MarkerTracking::instance()->remoteAR)
         MarkerTracking::instance()->remoteAR->update();
-    
 
     if (interactionManager.update())
     {
@@ -1107,7 +1083,7 @@ bool vvVIVE::frame()
         render = true;
     }
 
-	//double beginPluginTime = vvViewer::instance()->elapsedTime();
+    // double beginPluginTime = vvViewer::instance()->elapsedTime();
     if (frameNum > 2)
     {
         if (vvPluginList::instance()->update())
@@ -1142,13 +1118,17 @@ bool vvVIVE::frame()
         int maxfd = -1;
         fd_set fds;
         FD_ZERO(&fds);
-        for (const auto &fd: m_watchedFds) {
+        for (const auto &fd : m_watchedFds)
+        {
             FD_SET(fd, &fds);
             if (maxfd < fd)
                 maxfd = fd;
         }
-        struct timeval tenms {0, 10000};
-        int nready = select(maxfd+1, &fds, &fds, &fds, &tenms);
+        struct timeval tenms
+        {
+            0, 10000
+        };
+        int nready = select(maxfd + 1, &fds, &fds, &fds, &tenms);
 
         if (nready > 0)
         {
@@ -1165,14 +1145,14 @@ bool vvVIVE::frame()
     }
     if (frameNum > 2)
     {
-        //double beginPreFrameTime = vvViewer::instance()->elapsedTime();
+        // double beginPreFrameTime = vvViewer::instance()->elapsedTime();
 
         // call preFrame for all plugins
         vvPluginList::instance()->preFrame();
     }
-    
+
     MarkerTracking::instance()->update();
-    
+
     // print frame rate
     fl_time = vv->frameRealTime();
 
@@ -1192,16 +1172,16 @@ bool vvVIVE::frame()
             {
                 cout << "avg fps: " << frameCount / sum_time << ", min fps: " << 1.0 / maxTime << '\r' << flush;
             }
-            //vvTui::instance()->updateFPS(1.0 / (fl_time - old_fl_time));
+            // vvTui::instance()->updateFPS(1.0 / (fl_time - old_fl_time));
         }
         sum_time = 0;
         maxTime = -1;
         frameCount = 0;
     }
     old_fl_time = fl_time;
-    
+
     vvMSController::instance()->barrierApp(frameNum++);
-    
+
     // NO MODIFICATION OF SCENEGRAPH DATA AFTER THIS POINT
 
     if (vvMSController::instance()->isMaster() && vv->frameRealTime() < Input::instance()->mouse()->eventTime() + 1.5)
@@ -1214,15 +1194,14 @@ bool vvVIVE::frame()
     }
 
     vvShaderList::instance()->update();
-    
-    //beginAppTraversal = vvViewer::instance()->elapsedTime();
+
+    // beginAppTraversal = vvViewer::instance()->elapsedTime();
     if (frameNum > 2)
         vvPluginList::instance()->postFrame();
-    
+
     if (hud->update())
         m_renderNext = true;
 
-    
     /*double frameTime = vvViewer::instance()->elapsedTime();
     double frameDuration = frameTime - lastFrameTime;
     lastFrameTime = frameTime;
@@ -1230,18 +1209,17 @@ bool vvVIVE::frame()
     if (frameDurations.size() > 20)
         frameDurations.pop_front();*/
 
-    //cerr << "vvVIVE::frame EMD " << frameCount << endl;
+    // cerr << "vvVIVE::frame EMD " << frameCount << endl;
     return render;
 }
 
 void vvVIVE::doneRendering()
 {
-    
+
     vvMSController::instance()->killClients();
 
     if (vv->debugLevel(3))
         fprintf(stderr, "vvVIVE: done with the loop\n");
-        
 }
 
 vvVIVE::~vvVIVE()
@@ -1252,24 +1230,24 @@ vvVIVE::~vvVIVE()
     }
 
     vvViewer::instance()->stopThreading();
-    
+
     delete vvAnimationManager::instance();
     delete vvNavigationManager::instance();
     delete vvCommunication::instance();
     delete vvPartnerList::instance();
     delete MarkerTracking::instance();
 
-    //vv->intersectedNode = NULL;
-    
-    //vvViewer::instance()->unconfig();
-    //delete vvSceneGraph::instance();
-    
+    // vv->intersectedNode = NULL;
+
+    // vvViewer::instance()->unconfig();
+    // delete vvSceneGraph::instance();
+
     delete vvShaderList::instance();
     delete vvLighting::instance();
-    
+
     vvViewer::destroy();
-    //delete vvWindow::instance();
-    
+    // delete vvWindow::instance();
+
     delete vvPluginList::instance();
 
     vvShutDownHandlerList::instance()->shutAllDown();
@@ -1285,7 +1263,7 @@ vvVIVE::~vvVIVE()
         fprintf(stderr, "\nThank you for using COVER!\nBye\n");
     }
     delete Input::instance();
-    
+
     vvPluginSupport::destroy();
     vvMSController::destroy();
     vvConfig::destroy();
@@ -1293,12 +1271,11 @@ vvVIVE::~vvVIVE()
 #ifdef DOTIMING
     coTimer::quit();
 #endif
-
 }
 
 void vvVIVE::setExitFlag(bool flag)
 {
-    
+
     if (vv)
     {
         if (vv && vv->debugLevel(3))
@@ -1307,16 +1284,12 @@ void vvVIVE::setExitFlag(bool flag)
         }
         exitFlag = flag;
     }
-    
 }
 
-
-
-void
-vvVIVE::requestQuit()
+void vvVIVE::requestQuit()
 {
     setExitFlag(true);
-     bool terminateOnCoverQuit = coCoviseConfig::isOn("VIVE.TerminateCoviseOnQuit", false);
+    bool terminateOnCoverQuit = coCoviseConfig::isOn("VIVE.TerminateCoviseOnQuit", false);
     if (getenv("COVER_TERMINATE_SESSION"))
     {
         terminateOnCoverQuit = true;
@@ -1327,7 +1300,6 @@ vvVIVE::requestQuit()
     m_vrbc.reset(nullptr);
     setExitFlag(true);
     // exit COVER, even if COVER has a vrb connection
-    
 }
 
 vvPlugin *
@@ -1382,7 +1354,6 @@ void vvVIVE::popTui()
     tabletUIs.pop_back();
 }
 
-
 bool vvVIVE::watchFileDescriptor(int fd)
 {
     return m_watchedFds.insert(fd).second;
@@ -1393,7 +1364,7 @@ bool vvVIVE::unwatchFileDescriptor(int fd)
     auto it = m_watchedFds.find(fd);
     if (it == m_watchedFds.end())
 
-    m_watchedFds.erase(it);
+        m_watchedFds.erase(it);
     return true;
 }
 
@@ -1415,22 +1386,27 @@ void vvVIVE::startVrbc()
 
 void vvVIVE::restartVrbc()
 {
-    if (exitFlag) {
+    if (exitFlag)
+    {
         m_vrbc.reset();
         return;
     }
 
-    if (m_loadVistlePlugin) {
-        class PluginMessageSender : public covise::MessageSenderInterface {
+    if (m_loadVistlePlugin)
+    {
+        class PluginMessageSender : public covise::MessageSenderInterface
+        {
 
-          public:
-            bool sendMessage(const covise::Message *msg) const override {
+        public:
+            bool sendMessage(const covise::Message *msg) const override
+            {
                 if (vvVIVE::instance()->m_visPlugin)
                     return vvPluginList::instance()->sendVisMessage(msg);
                 return false;
             }
 
-            bool sendMessage(const UdpMessage *msg) const override {
+            bool sendMessage(const UdpMessage *msg) const override
+            {
                 return false;
             }
         };
@@ -1456,7 +1432,6 @@ void vvVIVE::restartVrbc()
         m_vrbc.reset(new vrb::VRBClient(covise::Program::vive, vvConfig::instance()->collaborativeOptionsFile.c_str(), vvMSController::instance()->isSlave(), true));
     }
     m_vrbc->connectToServer(m_startSession);
-    
 }
 
 bool vvVIVE::useVistle() const
@@ -1469,8 +1444,7 @@ bool vvVIVE::isVRBconnected() const
     return m_vrbc && m_vrbc->isConnected();
 }
 
-
-void EventHandler::apply(vsg::KeyPressEvent& keyPress)
+void EventHandler::apply(vsg::KeyPressEvent &keyPress)
 {
 
     int type = (int)KEYDOWN;
@@ -1485,7 +1459,7 @@ void EventHandler::apply(vsg::KeyPressEvent& keyPress)
             case 'T':
             case 't':
                 cerr << "calling: vvTabletUI::instance()->close()" << endl;
-                for (auto& tui : vvVIVE::instance()->tabletUIs)
+                for (auto &tui : vvVIVE::instance()->tabletUIs)
                     tui->close();
                 break;
             }
@@ -1495,12 +1469,12 @@ void EventHandler::apply(vsg::KeyPressEvent& keyPress)
             switch (keyPress.keyBase)
             {
             case 'b':
-                 vvConfig::instance()->m_stereoSeparation *= -1;
-                 cerr << vvConfig::instance()->m_stereoSeparation << endl;
+                vvConfig::instance()->m_stereoSeparation *= -1;
+                cerr << vvConfig::instance()->m_stereoSeparation << endl;
                 break;
 
             case 'd':
-                //vvOnscreenDebug::instance()->toggleVisibility();
+                // vvOnscreenDebug::instance()->toggleVisibility();
                 break;
 
 #if 0
@@ -1528,7 +1502,7 @@ void EventHandler::apply(vsg::KeyPressEvent& keyPress)
                 break;
             case 't':
                 cerr << "calling: vvTabletUI::instance()->tryConnect()" << endl;
-                for (auto& tui : vvVIVE::instance()->tabletUIs)
+                for (auto &tui : vvVIVE::instance()->tabletUIs)
                     tui->tryConnect();
                 break;
             case 'x':
@@ -1544,44 +1518,46 @@ void EventHandler::apply(vsg::KeyPressEvent& keyPress)
     }
     vvPluginList::instance()->key(type, code, state);
 }
-void EventHandler::apply(vsg::KeyReleaseEvent& keyRelease)
+void EventHandler::apply(vsg::KeyReleaseEvent &keyRelease)
 {
     int type = (int)KEYUP;
     int code = (int)keyRelease.keyBase;
     int state = (int)keyRelease.keyModifier;
     if (!vv->isKeyboardGrabbed())
     {
-        //vv->ui->keyEvent(type, state, code);
+        // vv->ui->keyEvent(type, state, code);
     }
     vvPluginList::instance()->key(type, code, state);
 }
-void EventHandler::apply(vsg::FocusInEvent& focusIn)
-{}
-void EventHandler::apply(vsg::FocusOutEvent& focusOut)
-{}
-void EventHandler::apply(vsg::ButtonPressEvent& buttonPress)
+void EventHandler::apply(vsg::FocusInEvent &focusIn)
+{
+}
+void EventHandler::apply(vsg::FocusOutEvent &focusOut)
+{
+}
+void EventHandler::apply(vsg::ButtonPressEvent &buttonPress)
 {
     Input::instance()->mouse()->handleEvent(buttonPress);
 }
-void EventHandler::apply(vsg::ButtonReleaseEvent& buttonRelease)
+void EventHandler::apply(vsg::ButtonReleaseEvent &buttonRelease)
 {
     Input::instance()->mouse()->handleEvent(buttonRelease);
 }
-void EventHandler::apply(vsg::MoveEvent& moveEvent)
+void EventHandler::apply(vsg::MoveEvent &moveEvent)
 {
     Input::instance()->mouse()->handleEvent(moveEvent);
 }
-void EventHandler::apply(vsg::ScrollWheelEvent& scrollWheel)
+void EventHandler::apply(vsg::ScrollWheelEvent &scrollWheel)
 {
     Input::instance()->mouse()->handleEvent(scrollWheel);
 }
 
-void EventHandler::apply(vsg::CloseWindowEvent&)
+void EventHandler::apply(vsg::CloseWindowEvent &)
 {
     _vive->setExitFlag(true);
 }
 
-void EventHandler::apply(vsg::TerminateEvent&)
+void EventHandler::apply(vsg::TerminateEvent &)
 {
     _vive->setExitFlag(true);
 }

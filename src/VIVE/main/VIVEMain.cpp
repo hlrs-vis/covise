@@ -5,25 +5,25 @@
 
  * License: LGPL 2+ */
 
- /************************************************************************
-  *                                                                      *
-  *  (C) 1996-2002                                                       *
-  *  Computer Centre University of Stuttgart                             *
-  *  Allmandring 30                                                      *
-  *  D-70550 Stuttgart                                                   *
-  *  Germany                                                             *
-  *                                                                      *
-  *  Vircinity GmbH                                                      *
-  *  Nobelstrasse 15                                                      *
-  *  D-70550 Stuttgart                                                   *
-  *  Germany                                                             *
-  *                                                                      *
-  *	Description		main for COVER                                      *
-  *                                                                      *
-  *	Author			D. Rainer                                           *
-  *                                                                      *
-  *                                                                      *
-  ************************************************************************/
+/************************************************************************
+ *                                                                      *
+ *  (C) 1996-2002                                                       *
+ *  Computer Centre University of Stuttgart                             *
+ *  Allmandring 30                                                      *
+ *  D-70550 Stuttgart                                                   *
+ *  Germany                                                             *
+ *                                                                      *
+ *  Vircinity GmbH                                                      *
+ *  Nobelstrasse 15                                                      *
+ *  D-70550 Stuttgart                                                   *
+ *  Germany                                                             *
+ *                                                                      *
+ *	Description		main for COVER                                      *
+ *                                                                      *
+ *	Author			D. Rainer                                           *
+ *                                                                      *
+ *                                                                      *
+ ************************************************************************/
 
 #include <util/common.h>
 #include <util/unixcompat.h>
@@ -32,7 +32,7 @@
 #include <covise/coTimer.h>
 #endif
 
-#include <OpenConfig/access.h>
+#include <ViveConfig/access.h>
 #include <config/CoviseConfig.h>
 #include <config/coConfigConstants.h>
 #include <core/vvCommandLine.h>
@@ -45,7 +45,7 @@
 #include <mpi.h>
 #endif
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     covise::Socket::initialize();
 
@@ -125,16 +125,16 @@ int main(int argc, char* argv[])
     {
 
         // find the module's name
-        const char* modname = argv[0];
-        const char* lastSlash = strrchr(modname, '/');
+        const char *modname = argv[0];
+        const char *lastSlash = strrchr(modname, '/');
         if (lastSlash)
             modname = lastSlash + 1;
 
         // create port and parameter output if called with the option -d
         cout << "Module:      \"" << modname << "\"" << endl;
         cout << "Desc:        \""
-            << "VR-Renderer"
-            << "\"" << endl;
+             << "VR-Renderer"
+             << "\"" << endl;
 
         cout << "Parameters:   " << 4 << endl;
         cout << "  \"Viewpoints\" \"Browser\" \"./default.vwp\" \"Viewpoints\" \"IMM\"" << endl;
@@ -144,24 +144,23 @@ int main(int argc, char* argv[])
         cout << "OutPorts:     " << 0 << endl;
         cout << "InPorts:     " << 1 << endl;
         cout << "  \""
-            << "RenderData"
-            << "\" \""
-            << "Geometry|UnstructuredGrid|Points|StructuredGrid|Polygons|Triangles|Quads|TriangleStrips|Lines|Spheres"
-            << "\" \""
-            << "render geometry"
-            << "\" \""
-            << "req" << '"' << endl;
+             << "RenderData"
+             << "\" \""
+             << "Geometry|UnstructuredGrid|Points|StructuredGrid|Polygons|Triangles|Quads|TriangleStrips|Lines|Spheres"
+             << "\" \""
+             << "render geometry"
+             << "\" \""
+             << "req" << '"' << endl;
         exit(EXIT_SUCCESS);
     }
-
 
     if (!forceMpi)
     {
         //   sleep(30);
         if (covise::coCoviseConfig::getEntry("COVER.MultiPC.SyncMode") == "MPI")
         {
-            const char* coviseDir = getenv("COVISEDIR");
-            const char* archsuffix = getenv("ARCHSUFFIX");
+            const char *coviseDir = getenv("COVISEDIR");
+            const char *archsuffix = getenv("ARCHSUFFIX");
             if (coviseDir == 0)
             {
                 std::cerr << "COVISEDIR not set" << std::endl;
@@ -185,7 +184,7 @@ int main(int argc, char* argv[])
             std::stringstream noOfHosts;
             noOfHosts << (std::count(hostlist.begin(), hostlist.end(), ',') + 1);
 
-            char** argv_mpi = new char* [argc + 8];
+            char **argv_mpi = new char *[argc + 8];
             argv_mpi[0] = strdup(mpiRun.c_str());
             argv_mpi[1] = strdup("-n");
             argv_mpi[2] = strdup(noOfHosts.str().c_str());
@@ -230,14 +229,14 @@ int main(int argc, char* argv[])
         std::string filebase = covise::coCoviseConfig::getEntry("file", "COVER.Console");
         if (!filebase.empty())
         {
-            char* filename = new char[strlen(filebase.c_str()) + 100];
+            char *filename = new char[strlen(filebase.c_str()) + 100];
             sprintf(filename, "%s%d.err.txt", filebase.c_str(), 0);
             freopen(filename, "w", stderr);
             sprintf(filename, "%s%d.out.txt", filebase.c_str(), 0);
             freopen("conout$", "w", stdout);
             delete[] filename;
         }
-        else if (!getenv("COVISEDEAMONSTART")) //if the coviseDaemon starts OpenCOVER it pipes STDOUT and STDERR in its ui
+        else if (!getenv("COVISEDEAMONSTART")) // if the coviseDaemon starts OpenCOVER it pipes STDOUT and STDERR in its ui
         {
             AllocConsole();
 
@@ -303,13 +302,13 @@ int main(int argc, char* argv[])
     }
 #endif
 
-    //MARK2("COVER STARTING UP on host %s with pid %d", my_hostname, getpid());
+    // MARK2("COVER STARTING UP on host %s with pid %d", my_hostname, getpid());
 
     int dl = covise::coCoviseConfig::getInt("COVER.DebugLevel", 0);
 
     if (dl >= 1)
         fprintf(stderr, "VIVE: Starting up\n\n");
-    vive::vvVIVE* Renderer = NULL;
+    vive::vvVIVE *Renderer = NULL;
 #ifdef MPI_COVER
     if (forceMpi)
     {
@@ -322,11 +321,11 @@ int main(int argc, char* argv[])
     }
     Renderer->run();
     config.save();
-    delete Renderer; 
+    delete Renderer;
 
 #ifdef MPI_COVER
-        if (!mpiinit)
-            MPI_Finalize();
+    if (!mpiinit)
+        MPI_Finalize();
 #endif
 
     return 0;

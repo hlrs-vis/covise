@@ -14,9 +14,9 @@
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/maths/vec3.h>
 
-#include "../OpenConfig/array.h"
-#include "../OpenConfig/value.h"
-#include "../OpenConfig/file.h"
+#include "../ViveConfig/array.h"
+#include "../ViveConfig/value.h"
+#include "../ViveConfig/file.h"
 
 #include "vvTabletUI.h"
 namespace vive
@@ -50,15 +50,15 @@ public:
     MarkerTrackingNode(std::string MarkerTrackingVariant);
     virtual ~MarkerTrackingNode();
     static MarkerTrackingNode *theNode;
-    //virtual void drawImplementation(osg::RenderInfo &renderInfo) const;
+    // virtual void drawImplementation(osg::RenderInfo &renderInfo) const;
 };
 
 class VVCORE_EXPORT MarkerTrackingInterface
 {
 public:
-    MarkerTrackingInterface(){};
-    virtual ~MarkerTrackingInterface(){};
-    virtual std::string loadPattern(const std::string& /*patternId*/)
+    MarkerTrackingInterface() {};
+    virtual ~MarkerTrackingInterface() {};
+    virtual std::string loadPattern(const std::string & /*patternId*/)
     {
         return "";
     };
@@ -70,7 +70,7 @@ public:
     {
         (void)vp;
     }
-    virtual void updateMarkerParams(){};
+    virtual void updateMarkerParams() {};
     virtual bool isMarkerTracking()
     {
         return false;
@@ -107,7 +107,6 @@ public:
 class VVCORE_EXPORT MarkerTracking : public vvTUIListener
 {
 public:
-
     enum ColorMode
     {
         RGB,
@@ -119,7 +118,7 @@ public:
     static MarkerTracking *instance();
     MarkerTrackingMarker *getMarker(const std::string &name);
     MarkerTrackingMarker *getOrCreateMarker(const std::string &name, const std::string &pattern, double size, const vsg::dmat4 &offset, bool vrml, bool isObjectMarker = false);
-    
+
     vvTUITab *artTab;
     bool flipH;
     MarkerTrackingInterface *arInterface = nullptr;
@@ -141,11 +140,12 @@ public:
     std::string m_MarkerTrackingVariant = "MarkerTracking";
     std::map<std::string, std::unique_ptr<MarkerTrackingMarker>> markers;
     bool testImage = false;
-    vvTUIFrame* m_trackingFrame = nullptr;
+    vvTUIFrame *m_trackingFrame = nullptr;
+
 private:
     static MarkerTracking *art;
     MarkerTracking();
-    void tabletPressEvent(vvTUIElement* tUIItem) override;
+    void tabletPressEvent(vvTUIElement *tUIItem) override;
 
     std::string m_configPath;
     covise::Message msg;
@@ -154,21 +154,20 @@ private:
     int numObjectMarkers;
     std::vector<MarkerTrackingMarker *> objectMarkers;
     std::unique_ptr<vive::config::File> m_markerDatabase;
-    vvTUIButton* m_configureMarkerBtn = nullptr;
-    vvTUIButton* m_saveBtn = nullptr;
-    vvTUIFrame* m_buttonsFrame = nullptr;
+    vvTUIButton *m_configureMarkerBtn = nullptr;
+    vvTUIButton *m_saveBtn = nullptr;
+    vvTUIFrame *m_buttonsFrame = nullptr;
 };
 
 constexpr int noMarkerGroup = -1;
 
 class VVCORE_EXPORT MarkerTrackingMarker : public vvTUIListener
 {
-friend class MarkerTracking;
+    friend class MarkerTracking;
 
 private:
-
     float m_oldpattGroup = -1;
-    double m_pattCenter[2] = {0.0, 0.0};
+    double m_pattCenter[2] = { 0.0, 0.0 };
     double m_pattTrans[3][4];
     vsg::dmat4 m_offset;
     vsg::dmat4 m_cameraTransform;
@@ -183,23 +182,24 @@ private:
     std::unique_ptr<covTUIEditFloatField> m_size;
     std::unique_ptr<covTUIEditIntField> m_pattGroup;
     // std::array<std::shared_ptr<Coord>, 6> m_transform;
-    std::unique_ptr<covTUIEditFloatFieldVec3> m_xyz; 
-    std::unique_ptr<covTUIEditFloatFieldVec3> m_hpr; 
+    std::unique_ptr<covTUIEditFloatFieldVec3> m_xyz;
+    std::unique_ptr<covTUIEditFloatFieldVec3> m_hpr;
     void createUiandConfigValues(const std::string &configName);
     void matToEuler(const vsg::dmat4 &mat);
     vsg::dmat4 eulerToMat() const;
     void updateMatrices();
     void init();
-	void updateData(double markerSize, const vsg::dmat4& mat, bool vrmlToOsg);
+    void updateData(double markerSize, const vsg::dmat4 &mat, bool vrmlToOsg);
 
-	MarkerTrackingMarker(const std::string &configName, const std::string &pattern, double size, const vsg::dmat4 &mat, bool vrml);
-	MarkerTrackingMarker(const std::string &Name);
+    MarkerTrackingMarker(const std::string &configName, const std::string &pattern, double size, const vsg::dmat4 &mat, bool vrml);
+    MarkerTrackingMarker(const std::string &Name);
+
 public:
     virtual ~MarkerTrackingMarker();
-    MarkerTrackingMarker(const MarkerTrackingMarker&) = delete;
-    MarkerTrackingMarker& operator=(const MarkerTrackingMarker&) = delete;
-    MarkerTrackingMarker(MarkerTrackingMarker&&) = default;
-    MarkerTrackingMarker& operator=(MarkerTrackingMarker&&) = default;
+    MarkerTrackingMarker(const MarkerTrackingMarker &) = delete;
+    MarkerTrackingMarker &operator=(const MarkerTrackingMarker &) = delete;
+    MarkerTrackingMarker(MarkerTrackingMarker &&) = default;
+    MarkerTrackingMarker &operator=(MarkerTrackingMarker &&) = default;
 
     const vsg::dmat4 &getCameraTrans();
     vsg::dmat4 getMarkerTrans();
@@ -217,7 +217,7 @@ public:
     void setColor(float r, float g, float b);
     osg::Node *quadGeode = nullptr;
     vsg::ref_ptr<vsg::MatrixTransform> markerQuad;
-    vsg::MatrixTransform *posSize=nullptr;
+    vsg::MatrixTransform *posSize = nullptr;
     vsg::vec4Array *colors = nullptr;
     vsg::Node *geom = nullptr;
     vvTUIToggleButton *displayQuad = nullptr;

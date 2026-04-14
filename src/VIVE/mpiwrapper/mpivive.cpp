@@ -31,7 +31,7 @@
 #include <covise/coTimer.h>
 #endif
 
-#include <OpenConfig/access.h>
+#include <ViveConfig/access.h>
 #include <config/CoviseConfig.h>
 #include <config/coConfigConstants.h>
 #include <core/vvCommandLine.h>
@@ -115,7 +115,7 @@ extern "C" COEXPORT int mpi_main(MPI_Comm comm, int shmGroupRoot, pthread_barrie
     }
 #endif
 
-    //MARK2("COVER STARTING UP on host %s with pid %d", my_hostname, getpid());
+    // MARK2("COVER STARTING UP on host %s with pid %d", my_hostname, getpid());
 
     int dl = covise::coCoviseConfig::getInt("COVER.DebugLevel", 0);
     if (dl >= 1)
@@ -123,7 +123,7 @@ extern "C" COEXPORT int mpi_main(MPI_Comm comm, int shmGroupRoot, pthread_barrie
 #ifdef HAS_MPI
     vive::vvVIVE *Renderer = new vive::vvVIVE(&comm, shmBarrier);
 #else
-    vive::vvVIVE*Renderer = new vive::vvVIVE();
+    vive::vvVIVE *Renderer = new vive::vvVIVE();
 #endif
     Renderer->run();
     config->save();

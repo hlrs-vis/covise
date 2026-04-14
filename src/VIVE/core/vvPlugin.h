@@ -9,9 +9,9 @@
 #include <util/coExport.h>
 #include <core/vvDynLib.h>
 #include <cstdlib>
-#include "../OpenConfig/array.h"
-#include "../OpenConfig/value.h"
-#include "../OpenConfig/file.h"
+#include "../ViveConfig/array.h"
+#include "../ViveConfig/value.h"
+#include "../ViveConfig/file.h"
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/mat4.h>
 #include <vsg/nodes/Node.h>
@@ -38,10 +38,10 @@ class DataHandle;
 }
 
 // use VIVEPLUGIN(YourMainPluginClass) in your plugin implementation
-#define VIVEPLUGIN(Plugin)                                         \
+#define VIVEPLUGIN(Plugin)                                 \
     extern "C" PLUGINEXPORT vive::vvPlugin *vvPluginInit() \
-    {                                                               \
-        return new Plugin();                                        \
+    {                                                      \
+        return new Plugin();                               \
     }
 
 namespace vive
@@ -58,13 +58,13 @@ class Url;
 //
 //! make sure to clean up properly in the plugin's dtor
 
-
 class VVCORE_EXPORT vvPlugin
 {
     friend class vvPluginList;
 
 public:
-    enum NotificationLevel {
+    enum NotificationLevel
+    {
         Info,
         Warning,
         Error,
@@ -82,7 +82,7 @@ public:
     {
         return true;
     }
-    
+
     //! this function is called when files have been loaded
     virtual bool init2()
     {
@@ -101,41 +101,39 @@ public:
         return m_name.c_str();
     }
 
-
     std::shared_ptr<config::File> config();
 
-    template<class V>
+    template <class V>
     std::unique_ptr<config::Value<V>> config(const std::string &section, const std::string &name, const V &defVal,
-                                             config::Flag flags = config::Flag::Default);
+        config::Flag flags = config::Flag::Default);
     std::unique_ptr<config::Value<bool>> configBool(const std::string &section, const std::string &name,
-                                                    const bool &defVal, config::Flag flags = config::Flag::Default);
+        const bool &defVal, config::Flag flags = config::Flag::Default);
     std::unique_ptr<config::Value<int64_t>> configInt(const std::string &section, const std::string &name,
-                                                      const int64_t &defVal,
-                                                      config::Flag flags = config::Flag::Default);
+        const int64_t &defVal,
+        config::Flag flags = config::Flag::Default);
     std::unique_ptr<config::Value<double>> configFloat(const std::string &section, const std::string &name,
-                                                       const double &defVal,
-                                                       config::Flag flags = config::Flag::Default);
+        const double &defVal,
+        config::Flag flags = config::Flag::Default);
     std::unique_ptr<config::Value<std::string>> configString(const std::string &section, const std::string &name,
-                                                             const std::string &defVal,
-                                                             config::Flag flags = config::Flag::Default);
+        const std::string &defVal,
+        config::Flag flags = config::Flag::Default);
 
-    template<class V>
+    template <class V>
     std::unique_ptr<config::Array<V>> configArray(const std::string &section, const std::string &name,
-                                                  const std::vector<V> &defVal,
-                                                  config::Flag flags = config::Flag::Default);
+        const std::vector<V> &defVal,
+        config::Flag flags = config::Flag::Default);
     std::unique_ptr<config::Array<bool>> configBoolArray(const std::string &section, const std::string &name,
-                                                         const std::vector<bool> &defVal,
-                                                         config::Flag flags = config::Flag::Default);
+        const std::vector<bool> &defVal,
+        config::Flag flags = config::Flag::Default);
     std::unique_ptr<config::Array<int64_t>> configIntArray(const std::string &section, const std::string &name,
-                                                           const std::vector<int64_t> &defVal,
-                                                           config::Flag flags = config::Flag::Default);
+        const std::vector<int64_t> &defVal,
+        config::Flag flags = config::Flag::Default);
     std::unique_ptr<config::Array<double>> configFloatArray(const std::string &section, const std::string &name,
-                                                            const std::vector<double> &defVal,
-                                                            config::Flag flags = config::Flag::Default);
+        const std::vector<double> &defVal,
+        config::Flag flags = config::Flag::Default);
     std::unique_ptr<config::Array<std::string>> configStringArray(const std::string &section, const std::string &name,
-                                                                  const std::vector<std::string> &devVal,
-                                                                  config::Flag flags = config::Flag::Default);
-
+        const std::vector<std::string> &devVal,
+        config::Flag flags = config::Flag::Default);
 
     /// first parameter is a pointer to the scene graph node,
     /// second parameter is a pointer to the COVISE object,
@@ -158,7 +156,7 @@ public:
 
     //! this function is called whenever a COVISE object is received
     virtual void addObject(const vvRenderObject *container, vsg::Group *parent,
-            const vvRenderObject *geometry, const vvRenderObject *normals, const vvRenderObject *colors, const vvRenderObject *texture)
+        const vvRenderObject *geometry, const vvRenderObject *normals, const vvRenderObject *colors, const vvRenderObject *texture)
     {
         (void)container;
         (void)parent;
@@ -198,7 +196,7 @@ public:
     }
 
     //! this function is called if a message from the gui is received
-    virtual void guiToRenderMsg(const grmsg::coGRMsg &msg) 
+    virtual void guiToRenderMsg(const grmsg::coGRMsg &msg)
     {
         (void)(msg);
     };
@@ -269,12 +267,11 @@ public:
         (void)length;
         (void)data;
     }
-	// this function is called if a UDPmessage arrives
-	virtual void UDPmessage(covise::UdpMessage* msg)
-	{
-		(void)msg;
-	}
-
+    // this function is called if a UDPmessage arrives
+    virtual void UDPmessage(covise::UdpMessage *msg)
+    {
+        (void)msg;
+    }
 
     //! this functions is called when the current timestep is changed
     //! plugins should display this timestep if possible
@@ -337,14 +334,12 @@ public:
         return "";
     }
 
-
     //! for visualisation system plugins: wait for message, return NULL if no such plugin
     virtual covise::Message *waitForVisMessage(int messageType)
     {
         (void)messageType;
         return NULL;
     }
-
 
     virtual bool windowCreate(int num)
     {

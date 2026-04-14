@@ -64,7 +64,7 @@ include_directories(${COVISE_INCLUDE_DIRS})
 include_directories(.)
 
 
-ADD_SUBDIRECTORY(OpenConfig)
+ADD_SUBDIRECTORY(ViveConfig)
 
 ADD_SUBDIRECTORY(core)
 ADD_SUBDIRECTORY(main)
