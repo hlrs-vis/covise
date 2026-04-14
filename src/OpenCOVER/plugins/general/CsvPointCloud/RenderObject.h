@@ -2,7 +2,7 @@
 #define COVISE_CSV_POINT_CLOUD_RENDER_OBJ
 
 #include <cover/RenderObject.h>
-#include <PluginUtil/colors/coColorMap.h>
+#include <PluginUtil/coColorMap.h>
 
 class CsvRenderObject : public opencover::RenderObject
 {
@@ -19,18 +19,23 @@ public:
 
     const char *getAttribute(const char *) const override;
 
-    //XXX: hacks for Volume plugin and Tracer
+    // XXX: hacks for Volume plugin and Tracer
     bool isSet() const override { return false; }
     size_t getNumElements() const override { return 0; }
     RenderObject *getElement(size_t idx) const override { return nullptr; }
 
     bool isUniformGrid() const override { return false; }
-    void getSize(int &nx, int &ny, int &nz) const override { nx = 0; ny = 0; nz = 0; }
+    void getSize(int &nx, int &ny, int &nz) const override
+    {
+        nx = 0;
+        ny = 0;
+        nz = 0;
+    }
     float getMin(int channel) const override { return 0; }
     float getMax(int channel) const override { return 0; }
     void getMinMax(float &xmin, float &xmax,
-                           float &ymin, float &ymax,
-                           float &zmin, float &zmax) const override { }
+        float &ymin, float &ymax,
+        float &zmin, float &zmax) const override { }
 
     bool isVectors() const override { return false; }
     const unsigned char *getByte(opencover::Field::Id idx) const override { return nullptr; }
@@ -44,4 +49,4 @@ private:
     std::string m_objName;
 };
 
-#endif //COVISE_CSV_POINT_CLOUD_RENDER_OBJ
+#endif // COVISE_CSV_POINT_CLOUD_RENDER_OBJ

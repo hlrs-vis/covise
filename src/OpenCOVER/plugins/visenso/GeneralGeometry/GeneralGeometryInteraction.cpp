@@ -12,7 +12,7 @@
 #include <net/message_types.h>
 #include <net/message.h>
 
-#include <PluginUtil/colors/ColorBar.h>
+#include <PluginUtil/ColorBar.h>
 
 #include <OpenVRUI/coCheckboxMenuItem.h>
 #include <OpenVRUI/coPotiMenuItem.h>
@@ -59,8 +59,7 @@ GeneralGeometryInteraction::~GeneralGeometryInteraction()
     delete transparencyPoti_;
 }
 
-void
-GeneralGeometryInteraction::update(const RenderObject *container, const RenderObject *obj)
+void GeneralGeometryInteraction::update(const RenderObject *container, const RenderObject *obj)
 {
     (void)container;
     (void)obj;
@@ -77,8 +76,7 @@ GeneralGeometryInteraction::update(const RenderObject *container, const RenderOb
         fprintf(stderr, "\nGeneralGeometryInteraction::update done\n");
 }
 
-void
-GeneralGeometryInteraction::preFrame()
+void GeneralGeometryInteraction::preFrame()
 {
     if (cover->debugLevel(5))
         fprintf(stderr, "\nGeneralGeometryInteraction::preFrame newObject=%d\n", newObject_);
@@ -92,8 +90,7 @@ GeneralGeometryInteraction::preFrame()
     }
 }
 
-bool
-GeneralGeometryInteraction::paramsOk()
+bool GeneralGeometryInteraction::paramsOk()
 {
     if (cover->debugLevel(2))
         fprintf(stderr, "\nGeneralGeometryInteraction::paramsOk\n");
@@ -101,8 +98,7 @@ GeneralGeometryInteraction::paramsOk()
     return (true);
 }
 
-void
-GeneralGeometryInteraction::menuEvent(coMenuItem *item)
+void GeneralGeometryInteraction::menuEvent(coMenuItem *item)
 {
     //    fprintf(stderr,"GeneralGeometryInteraction::menuEvent(%s)\n", item->getName());
     ModuleFeedbackManager::menuEvent(item);
@@ -110,14 +106,14 @@ GeneralGeometryInteraction::menuEvent(coMenuItem *item)
     if (item == transparencyPoti_)
     {
         float transparency = transparencyPoti_->getValue();
-        //check if we can use shaders
+        // check if we can use shaders
 
         setTransparencyWithoutShader(transparency);
 
-        //send to GUI
-        //       std::vector<osg::Geode*> geodes = findMyGeode();
-        //       for( std::vector<osg::Geode*>::iterator it= geodes.begin(); it != geodes.end(); it++)
-        //       {
+        // send to GUI
+        //        std::vector<osg::Geode*> geodes = findMyGeode();
+        //        for( std::vector<osg::Geode*>::iterator it= geodes.begin(); it != geodes.end(); it++)
+        //        {
         coGRObjSetTransparencyMsg vMsg(coGRMsg::SET_TRANSPARENCY, initialObjectName_.c_str(), transparency);
         cover->sendGrMessage(vMsg);
         //       }
@@ -126,7 +122,7 @@ GeneralGeometryInteraction::menuEvent(coMenuItem *item)
 
 void GeneralGeometryInteraction::setTransparencyWithoutShader(float transparency)
 {
-    //fprintf(stderr, "GeneralGeometryInteraction::setTransparencyWithoutShader(%f)\n",  transparency);
+    // fprintf(stderr, "GeneralGeometryInteraction::setTransparencyWithoutShader(%f)\n",  transparency);
     osg::ref_ptr<osg::Vec4Array> oldColors;
 
     std::vector<osg::Geode *> geodes = findMyGeode();
@@ -221,10 +217,9 @@ void GeneralGeometryInteraction::setTransparencyWithoutShader(float transparency
     transparency_ = transparency;
 }
 
-void
-GeneralGeometryInteraction::setColor(int *color)
+void GeneralGeometryInteraction::setColor(int *color)
 {
-    //fprintf(stderr,"GeneralGeometryInteraction::setColor of object \n");
+    // fprintf(stderr,"GeneralGeometryInteraction::setColor of object \n");
     std::vector<osg::Geode *> geodes = findMyGeode();
 
     if (geodes.size() == 0)
@@ -241,8 +236,7 @@ GeneralGeometryInteraction::setColor(int *color)
     }
 }
 
-void
-GeneralGeometryInteraction::setTransparency(float transparency)
+void GeneralGeometryInteraction::setTransparency(float transparency)
 {
     std::vector<osg::Geode *> geodes = findMyGeode();
 
@@ -261,8 +255,8 @@ GeneralGeometryInteraction::setTransparency(float transparency)
 }
 
 // not implemented
-//void
-//GeneralGeometryInteraction::setShader(const char* shaderName, const char* paraFloat, const char* paraVec2, const char* paraVec3, const char* paraVec4, const char* paraInt, const char* paraBool, const char* paraMat2, const char* paraMat3, const char* paraMat4)
+// void
+// GeneralGeometryInteraction::setShader(const char* shaderName, const char* paraFloat, const char* paraVec2, const char* paraVec3, const char* paraVec4, const char* paraInt, const char* paraBool, const char* paraMat2, const char* paraMat3, const char* paraMat4)
 //{
 //   //fprintf(stderr, "GeneralGeometryInteraction::setShader()\n");
 //   (void) shaderName;
@@ -323,10 +317,9 @@ GeneralGeometryInteraction::setTransparency(float transparency)
 ////    VRSceneGraph::instance()->setShader(geode->getName(), shaderName, paraFloat, paraVec2, paraVec3, paraVec4, paraInt, paraBool, paraMat2, paraMat3, paraMat4);
 //}
 
-void
-GeneralGeometryInteraction::setMaterial(const int *ambient, const int *diffuse, const int *specular, float shininess, float transparency)
+void GeneralGeometryInteraction::setMaterial(const int *ambient, const int *diffuse, const int *specular, float shininess, float transparency)
 {
-    //fprintf(stderr,"GeneralGeometryInteraction::setMaterial of object \n");
+    // fprintf(stderr,"GeneralGeometryInteraction::setMaterial of object \n");
 
     std::vector<osg::Geode *> geodes = findMyGeode();
 

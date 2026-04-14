@@ -7,24 +7,24 @@
 
 #ifndef _RecordPath_PLUGIN_H
 #define _RecordPath_PLUGIN_H
- /****************************************************************************\
- **                                                            (C)2023 HLRS  **
- **                                                                          **
- ** Description: RecordPath Plugin (records viewpoints and viewing directions and targets)                              **
- **    Visualises path and workpiece of CNC machining                        **
- **                                                                          **
- ** Author: U.Woessner, A.Kaiser		                                     **
- **                                                                          **
- ** History:  								                                 **
- ** April-05  v1	    				       		                         **
- ** April-23  v2                                                             **
- **                                                                          **
- \****************************************************************************/
+/****************************************************************************\
+**                                                            (C)2023 HLRS  **
+**                                                                          **
+** Description: RecordPath Plugin (records viewpoints and viewing directions and targets)                              **
+**    Visualises path and workpiece of CNC machining                        **
+**                                                                          **
+** Author: U.Woessner, A.Kaiser		                                     **
+**                                                                          **
+** History:  								                                 **
+** April-05  v1	    				       		                         **
+** April-23  v2                                                             **
+**                                                                          **
+\****************************************************************************/
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRFileManager.h>
 
 #include <cover/coTabletUI.h>
-#include <PluginUtil/colors/coColorMap.h>
+#include <PluginUtil/coColorMap.h>
 
 #include <osg/Geode>
 #include <osg/ref_ptr>
@@ -72,27 +72,26 @@ public:
     static int unloadGCode(const char *filename, const char *covise_key);
 
     void straightFeed(double x, double y, double z, double a, double b, double c, double feedRate, int tool, int gmode);
-    void arcFeed(double x, double y, double z, double centerX, double centerY, int rotation, double feedRate, int tool); //rotation positive: counterclockwise
+    void arcFeed(double x, double y, double z, double centerX, double centerY, int rotation, double feedRate, int tool); // rotation positive: counterclockwise
 private:
-
     // this will be called in PreFrame
-//    ui::Menu *PathTab = nullptr;
-/*    ui::Button*record = nullptr, *playPause = nullptr;
-    ui::Action *reset = nullptr, *saveButton = nullptr;
-    ui::Button *viewPath = nullptr, *viewlookAt = nullptr, *viewDirections = nullptr;
-    ui::Label *numSamples = nullptr;
-    ui::EditField *recordRateTUI = nullptr;
-    ui::EditField *lengthEdit = nullptr;
-    ui::EditField*radiusEdit = nullptr;
-    ui::FileBrowser *fileNameBrowser = nullptr;
-    ui::SelectionList *renderMethod = nullptr;
-    covise::ColorMapSelector colorMap;
+    //    ui::Menu *PathTab = nullptr;
+    /*    ui::Button*record = nullptr, *playPause = nullptr;
+        ui::Action *reset = nullptr, *saveButton = nullptr;
+        ui::Button *viewPath = nullptr, *viewlookAt = nullptr, *viewDirections = nullptr;
+        ui::Label *numSamples = nullptr;
+        ui::EditField *recordRateTUI = nullptr;
+        ui::EditField *lengthEdit = nullptr;
+        ui::EditField*radiusEdit = nullptr;
+        ui::FileBrowser *fileNameBrowser = nullptr;
+        ui::SelectionList *renderMethod = nullptr;
+        covise::ColorMapSelector colorMap;
 
-    ui::Button *EnableWpButton = nullptr;
-    std::unique_ptr<ConfigBool> enableWp;
-*/
+        ui::Button *EnableWpButton = nullptr;
+        std::unique_ptr<ConfigBool> enableWp;
+    */
 
-    std::shared_ptr<config::File>cnc_config;
+    std::shared_ptr<config::File> cnc_config;
     ui::Menu *CNCPluginMenu;
     std::unique_ptr<ui::ButtonConfigValue> showPathBtn;
     std::unique_ptr<ui::ButtonConfigValue> showWorkpieceBtn;
@@ -102,9 +101,9 @@ private:
     osg::ref_ptr<osg::LineWidth> lineWidth;
     void setTimestep(int t) override;
 
-    static CNCPlugin* thePlugin;
+    static CNCPlugin *thePlugin;
 
-//    osg::Vec4 getColor(float pos);
+    //    osg::Vec4 getColor(float pos);
     int frameNumber = 0;
     osg::Group *parentNode = nullptr;
     osg::Vec3Array *vert = nullptr;
@@ -126,13 +125,13 @@ private:
     osg::DrawArrayLengths *pathPrimitives = nullptr;
     osg::ref_ptr<osg::Geometry> pathGeom;
     osg::ref_ptr<osg::Geode> pathGeode;
-    void createPath(osg::Group* loadParent);
+    void createPath(osg::Group *loadParent);
     vector<double> arcApproximation(int t);
-    double approxLength = 3.2;      //approxLength *2PI = #CornersInPolygon
+    double approxLength = 3.2; // approxLength *2PI = #CornersInPolygon
     osg::Vec4 colorG0, colorG1, colorG2, colorG3;
     bool colorModeGCode = true;
 
-    //workpiece wp
+    // workpiece wp
     osg::ref_ptr<osg::Switch> wpSwitch;
     osg::ref_ptr<osg::Group> wpGroup;
     osg::ref_ptr<osg::Geode> wpDynamicGeode;
@@ -157,44 +156,44 @@ private:
     osg::ref_ptr<osg::Vec3Array> wpStaticNormalsY;
     osg::DrawArrayLengths *wpDynamicPrimitives = nullptr;
     osg::DrawArrayLengths *wpStaticPrimitives = nullptr;
-    osg::DrawElementsUInt *wpDynamicVerticalPrimX = nullptr; //parallel X
-    osg::DrawElementsUInt *wpDynamicVerticalPrimY = nullptr; //parallel Y
-    osg::DrawElementsUInt *wpStaticVerticalPrimX = nullptr; //parallel X
-    osg::DrawElementsUInt *wpStaticVerticalPrimY = nullptr; //parallel Y
-    
+    osg::DrawElementsUInt *wpDynamicVerticalPrimX = nullptr; // parallel X
+    osg::DrawElementsUInt *wpDynamicVerticalPrimY = nullptr; // parallel Y
+    osg::DrawElementsUInt *wpStaticVerticalPrimX = nullptr; // parallel X
+    osg::DrawElementsUInt *wpStaticVerticalPrimY = nullptr; // parallel Y
+
     osg::ref_ptr<osg::StateSet> wpStateSet;
     osg::ref_ptr<osg::Material> wpMaterial;
     osg::ref_ptr<osg::LineWidth> wpLineWidth;
 
-    void createWorkpiece(osg::Group*);
-    void wpAddQuadsToTree(TreeNode*);
-    void wpAddQuadsG0G1(double z, int t, TreeNode*);
-    void wpAddQuadsG2G3(double z, int t, TreeNode*);
-    
-    //double distancePointLine(double px, double py, double x1, double y1, double x2, double y2);
+    void createWorkpiece(osg::Group *);
+    void wpAddQuadsToTree(TreeNode *);
+    void wpAddQuadsG0G1(double z, int t, TreeNode *);
+    void wpAddQuadsG2G3(double z, int t, TreeNode *);
+
+    // double distancePointLine(double px, double py, double x1, double y1, double x2, double y2);
     double distancePointLineSegment(double px, double py, double x1, double y1, double x2, double y2);
     double distancePointPoint(double px, double py, double x1, double y1);
     double anglePointPoint(double px, double py, double x1, double y1);
     bool checkInsideArcG2(double pAngle, double angle1, double angle2);
 
-    void wpTreeToGeometry(osg::Geometry& dynamicGeo, osg::Geometry& staticGeo, osg::Geometry& dynamicGeoX, osg::Geometry& staticGeoX, osg::Geometry& dynamicGeoY, osg::Geometry& staticGeoY);
-    void wpTreeToGeoTop(osg::Vec3Array& pointsDynamic, osg::Vec3Array& pointsStatic);
-    void wpTreeToGeoSideWalls(osg::Vec3Array& pointsDynamic, osg::Vec3Array& pointsStatic, osg::DrawElementsUInt& wpDynamicVerticalPrimX, osg::DrawElementsUInt& wpDynamicVerticalPrimY, osg::DrawElementsUInt& wpStaticVerticalPrimX, osg::DrawElementsUInt& wpStaticVerticalPrimY);
-    void wpAddVertexsForGeo(osg::Vec3Array* points, int minIX, int maxIX, int minIY, int maxIY, double z, int &primPosCounter);
-    void wpAddSideForGeo(osg::DrawElementsUInt* wpVerticalPrimitivesX, osg::DrawElementsUInt* wpVerticalPrimitivesY, int primPosTop, int primPosBot, int side);
+    void wpTreeToGeometry(osg::Geometry &dynamicGeo, osg::Geometry &staticGeo, osg::Geometry &dynamicGeoX, osg::Geometry &staticGeoX, osg::Geometry &dynamicGeoY, osg::Geometry &staticGeoY);
+    void wpTreeToGeoTop(osg::Vec3Array &pointsDynamic, osg::Vec3Array &pointsStatic);
+    void wpTreeToGeoSideWalls(osg::Vec3Array &pointsDynamic, osg::Vec3Array &pointsStatic, osg::DrawElementsUInt &wpDynamicVerticalPrimX, osg::DrawElementsUInt &wpDynamicVerticalPrimY, osg::DrawElementsUInt &wpStaticVerticalPrimX, osg::DrawElementsUInt &wpStaticVerticalPrimY);
+    void wpAddVertexsForGeo(osg::Vec3Array *points, int minIX, int maxIX, int minIY, int maxIY, double z, int &primPosCounter);
+    void wpAddSideForGeo(osg::DrawElementsUInt *wpVerticalPrimitivesX, osg::DrawElementsUInt *wpVerticalPrimitivesY, int primPosTop, int primPosBot, int side);
 
-    void wpCreateTimestepVector(TreeNode*);
+    void wpCreateTimestepVector(TreeNode *);
     void setWpSize();
     void setWpResolution();
     void setWpMaterial();
-    void extractToolInfos(const std::string& filename);
+    void extractToolInfos(const std::string &filename);
     void setActiveTool(int slot);
 
     void wpMillCutVec(int t);
     void wpResetCutsVec();
 
-    TreeNode* treeRoot;
-    std::vector<std::vector<TreeNode*>> timestepVec;
+    TreeNode *treeRoot;
+    std::vector<std::vector<TreeNode *>> timestepVec;
     int primitivePosCounterDynamic = 0;
     int primitivePosCounterStatic = 0;
     int primitiveResetCounterDynamic = 0;
@@ -207,10 +206,11 @@ private:
 
     double wpAllowance = 10.0;
     double wpResolution = 0.05;
-    double wpResX, wpResY;              //is
+    double wpResX, wpResY; // is
     int wpTotalQuadsX, wpTotalQuadsY;
 
-    struct ToolInfo {
+    struct ToolInfo
+    {
         int toolNumber;
         double diameter;
         double cornerRadius;

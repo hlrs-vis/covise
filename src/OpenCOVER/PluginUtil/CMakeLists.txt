@@ -20,11 +20,11 @@ SET(PLUGINUTIL_HEADERS
     coIntersecCheckboxMenuItem.h
     coLine.h
     coLOD.h
-    colors/coColorBar.h
-    colors/coColorHUD.h
-    colors/coColorMap.h
-    colors/ColorBar.h
-    colors/ColorMaterials.h
+    coColorBar.h
+    coColorHUD.h
+    coColorMap.h
+    ColorBar.h
+    ColorMaterials.h
     coPlane.h
     coSensor.h
     coShaderUtil.h
@@ -69,11 +69,11 @@ SET(SOURCES
   coInstanceRenderer.cpp
   coLine.cpp
   coLOD.cpp
-  colors/coColorBar.cpp
-  colors/coColorHUD.cpp
-  colors/coColorMap.cpp
-  colors/ColorBar.cpp
-  colors/ColorMaterials.cpp
+  coColorBar.cpp
+  coColorHUD.cpp
+  coColorMap.cpp
+  ColorBar.cpp
+  ColorMaterials.cpp
   coPlane.cpp
   coSensor.cpp
   coShaderUtil.cpp

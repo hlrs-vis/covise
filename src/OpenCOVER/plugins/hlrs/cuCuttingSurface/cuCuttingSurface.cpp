@@ -11,8 +11,7 @@
 #include <do/coDoUnstructuredGrid.h>
 #include <do/coDoData.h>
 
-#include <PluginUtil/colors/ColorBar.h>
-
+#include <PluginUtil/ColorBar.h>
 
 #include <cover/OpenCOVER.h>
 #include <cover/coVRPluginSupport.h>
@@ -49,16 +48,16 @@ CUDAEngine cuttingEngine;
 void RenderCUDAState(State *);
 
 void getMinMax(const float *data, int numElem, float *min,
-               float *max, float minV = -FLT_MAX, float maxV = FLT_MAX);
+    float *max, float minV = -FLT_MAX, float maxV = FLT_MAX);
 
 void removeSpikesAdaptive(const float *data, int numElem,
-                          float *min, float *max);
+    float *min, float *max);
 
 cuCuttingSurface::cuCuttingSurface()
-: coVRPlugin(COVER_PLUGIN_NAME)
-, ui::Owner("cuCuttingSurface", cover->ui)
-, initDone(false)
-, menu(NULL)
+    : coVRPlugin(COVER_PLUGIN_NAME)
+    , ui::Owner("cuCuttingSurface", cover->ui)
+    , initDone(false)
+    , menu(NULL)
 {
 }
 
@@ -99,8 +98,8 @@ void cuCuttingSurface::preDraw(osg::RenderInfo &)
 }
 
 ui::Button *cuCuttingSurface::getMenu(const RenderObject *container,
-                                              const RenderObject * /*data*/,
-                                              const RenderObject *tex)
+    const RenderObject * /*data*/,
+    const RenderObject *tex)
 {
     ui::Button *check = NULL;
 
@@ -120,9 +119,9 @@ ui::Button *cuCuttingSurface::getMenu(const RenderObject *container,
             if (tex->isSet())
             {
                 // TODO
-                //int numElements;
-                //RenderObject **e = tex->getAllElements(&numElements);
-                //if (numElements > 0)
+                // int numElements;
+                // RenderObject **e = tex->getAllElements(&numElements);
+                // if (numElements > 0)
                 //   name = e[0]->getAttribute("LABEL");
             }
             else
@@ -131,7 +130,7 @@ ui::Button *cuCuttingSurface::getMenu(const RenderObject *container,
         if (!name)
             name = container->getName();
 
-        ui::Menu *subMenu = new ui::Menu(menu, name); 
+        ui::Menu *subMenu = new ui::Menu(menu, name);
         check = new ui::Button(subMenu, "enable");
         check->setState(true);
         menus[container->getName()] = subMenu;
@@ -143,13 +142,13 @@ ui::Button *cuCuttingSurface::getMenu(const RenderObject *container,
             struct minmax m = { cm.min(), cm.max() };
             minMax[container->getName()] = m;
 
-            //ColorBar *bar = new ColorBar(name, species, min, max, numColors, r, g, b, a);
+            // ColorBar *bar = new ColorBar(name, species, min, max, numColors, r, g, b, a);
         }
     }
     else
     {
         auto sm = i->second;
-        auto path = sm->path()+"."+"enable";
+        auto path = sm->path() + "." + "enable";
         check = dynamic_cast<ui::Button *>(cover->ui->getByPath(path));
     }
 
@@ -169,10 +168,10 @@ void cuCuttingSurface::removeObject(const char *objName, bool /*replace*/)
 
             std::string name = node->getName();
             geode.erase(name);
-            //delete(dynamic_cast<osg::Geode *>(node));
+            // delete(dynamic_cast<osg::Geode *>(node));
         }
         // TODO: delete group contents + drawable
-        //printf("objectsroot removechild [%s]\n", i->second->getName().c_str());
+        // printf("objectsroot removechild [%s]\n", i->second->getName().c_str());
         cover->getObjectsRoot()->removeChild(i->second);
         groups.erase(i);
     }
@@ -207,7 +206,7 @@ void cuCuttingSurface::addObject(const RenderObject *container, osg::Group *, co
     {
         group = new osg::Group();
         group->setName(container->getName());
-        //printf("objectsroot addchild [%s]\n", container->getName());
+        // printf("objectsroot addchild [%s]\n", container->getName());
         cover->getObjectsRoot()->addChild(group);
         groups[container->getName()] = group;
     }
@@ -282,15 +281,15 @@ void cuCuttingSurface::addObject(const RenderObject *container, osg::Group *, co
 
                     colorTex->setImage(texImage);
                     colorTex->setFilter(osg::Texture1D::MIN_FILTER,
-                                        osg::Texture1D::LINEAR);
+                        osg::Texture1D::LINEAR);
                     colorTex->setFilter(osg::Texture1D::MAG_FILTER,
-                                        osg::Texture1D::LINEAR);
+                        osg::Texture1D::LINEAR);
 
                     state->setTextureAttributeAndModes(0, colorTex,
-                                                       osg::StateAttribute::ON);
+                        osg::StateAttribute::ON);
 
                     state->setTextureMode(0, GL_TEXTURE_1D,
-                                          osg::StateAttribute::ON);
+                        osg::StateAttribute::ON);
                 }
                 osg::ref_ptr<osg::Geode> g = new osg::Geode();
 
@@ -334,9 +333,9 @@ void cuCuttingSurface::addObject(const RenderObject *container, osg::Group *, co
                         noiseTex->setImage(noiseImage);
                 }
                 noiseTex->setFilter(osg::Texture1D::MIN_FILTER,
-                                    osg::Texture1D::LINEAR);
+                    osg::Texture1D::LINEAR);
                 noiseTex->setFilter(osg::Texture1D::MAG_FILTER,
-                                    osg::Texture1D::LINEAR);
+                    osg::Texture1D::LINEAR);
 
                 state->setTextureAttributeAndModes(0, colorTex, osg::StateAttribute::ON);
                 state->setTextureAttributeAndModes(1, noiseTex, osg::StateAttribute::ON);
@@ -354,7 +353,7 @@ void cuCuttingSurface::addObject(const RenderObject *container, osg::Group *, co
                 {
                     osg::Matrix m;
                     m.makeTranslate(osg::Vec3f(-1.0, 2.0, 0.5));
-                    //interactor = new coVR3DTransRotInteractor(m, cover->getSceneSize() / 80.0, coVR3DTransRotInteractor::TwoD, coInteraction::ButtonA, "hand", "Plane_S0", coInteraction::High);
+                    // interactor = new coVR3DTransRotInteractor(m, cover->getSceneSize() / 80.0, coVR3DTransRotInteractor::TwoD, coInteraction::ButtonA, "hand", "Plane_S0", coInteraction::High);
                     interactor = new coVR3DTransRotInteractor(m, cover->getSceneSize() / 50.0, coInteraction::ButtonA, "hand", "Plane_S0", coInteraction::High);
 
                     interactor->show();
@@ -365,11 +364,11 @@ void cuCuttingSurface::addObject(const RenderObject *container, osg::Group *, co
                     interactor = pi->second;
 
                 osg::ref_ptr<CuttingDrawable> draw = new CuttingDrawable(check, interactor, geometry, normals,
-                                                                         colorObj, box, min, max);
+                    colorObj, box, min, max);
 
                 char name[256];
                 snprintf(name, 256, "%s_%s", container->getName(),
-                         geometry->getName());
+                    geometry->getName());
                 geode[std::string(name)] = g.get();
                 g->setName(strdup(name));
 
@@ -384,7 +383,7 @@ void cuCuttingSurface::addObject(const RenderObject *container, osg::Group *, co
                 opencover::coVRShader *shader = coVRShaderList::instance()->get("tex1dreplace");
                 shader->apply(g);
 #endif
-                //printf(" group [%s] addchild [%p]\n", g->getName().c_str(), name);
+                // printf(" group [%s] addchild [%p]\n", g->getName().c_str(), name);
             }
             else
                 cerr << "no/wrong data received" << endl;
@@ -465,9 +464,9 @@ void cuCuttingSurface::message(int toWhom, int type, int len, const void *buf)
 }
 
 CuttingDrawable::CuttingDrawable(ui::Button *m,
-                                 coVR3DTransRotInteractor *i, const RenderObject *g,
-                                 const RenderObject *map, const RenderObject *data,
-                                 float *b, float min = 0.0, float max = 0.0)
+    coVR3DTransRotInteractor *i, const RenderObject *g,
+    const RenderObject *map, const RenderObject *data,
+    float *b, float min = 0.0, float max = 0.0)
     : osg::Geometry()
     , state(NULL)
     , geom(g)
@@ -509,9 +508,9 @@ CuttingDrawable::CuttingDrawable(ui::Button *m,
             dataName = data->getName();
 
         state = cuttingEngine.InitState(geom->getName(), dataName, mapName,
-                                        typeList, elemList, connList, x, y, z,
-                                        numElem, numConn, numCoord, red,
-                                        xm, ym, zm, min, max);
+            typeList, elemList, connList, x, y, z,
+            numElem, numConn, numCoord, red,
+            xm, ym, zm, min, max);
 
         box = osg::BoundingBox(b[0], b[1], b[2], b[3], b[4], b[5]);
 
@@ -519,13 +518,13 @@ CuttingDrawable::CuttingDrawable(ui::Button *m,
 
         name = geom->getName();
     }
-	if (menu)
-	{
-		menu->setCallback([this](bool state) {
+    if (menu)
+    {
+        menu->setCallback([this](bool state)
+            {
 			if (!state)
-				interactorChanged = true;
-			});
-	}
+				interactorChanged = true; });
+    }
 }
 
 CuttingDrawable::~CuttingDrawable()
@@ -565,10 +564,10 @@ void CuttingDrawable::preDraw()
         osg::Vec4 normal = axis * m;
         normal.normalize();
 
-        //const osg::Quat::value_type *r = m.getRotate().inverse()._v;
+        // const osg::Quat::value_type *r = m.getRotate().inverse()._v;
         const osg::Quat invRot = m.getRotate().inverse();
         const double *r = invRot._v;
-        //printf("......... %f (%f %f %f)\n", r[0], r[1], r[2], r[3]);
+        // printf("......... %f (%f %f %f)\n", r[0], r[1], r[2], r[3]);
         float rot[4];
         for (int index = 0; index < 4; index++)
             rot[index] = r[index];
@@ -576,9 +575,9 @@ void CuttingDrawable::preDraw()
         int numVertices;
         distance = (point * normal);
         cuttingEngine.computeCuttingMesh(state, rot,
-                                         normal.x(), normal.y(), normal.z(),
-                                         distance, &numVertices, 0, 0);
-        //printf("numVertices: %d\n", numVertices);
+            normal.x(), normal.y(), normal.z(),
+            distance, &numVertices, 0, 0);
+        // printf("numVertices: %d\n", numVertices);
 
         interactorChanged = false;
     }
@@ -589,7 +588,7 @@ void CuttingDrawable::postFrame()
 }
 
 CuttingDrawable::CuttingDrawable(const CuttingDrawable &draw,
-                                 const osg::CopyOp &op)
+    const osg::CopyOp &op)
     : osg::Geometry(draw, op)
 {
 }

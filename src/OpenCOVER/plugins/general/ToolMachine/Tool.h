@@ -16,34 +16,36 @@
 
 #include <osg/MatrixTransform>
 #include <osg/Observer>
-#include <PluginUtil/colors/ColorBar.h>
+#include <PluginUtil/ColorBar.h>
 #include <DataClient/DataClient.h>
 #include <DataClient/MultiDimensionalArray.h>
 
-
 #include <exprtk.hpp>
 
-struct UpdateValues{
+struct UpdateValues
+{
     std::string name;
     std::function<void(double)> func;
 };
 
 class SelfDeletingTool;
 
-class Tool{
+class Tool
+{
 public:
     friend SelfDeletingTool;
-    Tool(opencover::ui::Group* group, opencover::config::File &file, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode);
+    Tool(opencover::ui::Group *group, opencover::config::File &file, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode);
     virtual ~Tool() = default;
     void update(const opencover::dataclient::MultiDimensionalArray<double> &data);
     void update();
     void pause(bool state);
     const std::vector<UpdateValues> &getUpdateValues();
     void frameOver();
+
 protected:
     virtual void updateGeo(bool paused, const opencover::dataclient::MultiDimensionalArray<double> &data) = 0;
     virtual void clear() = 0;
-    virtual void applyShader(const opencover::ColorMap& map) = 0;
+    virtual void applyShader(const opencover::ColorMap &map) = 0;
     virtual std::vector<std::string> getAttributes() = 0;
     virtual void attributeChanged(float value) = 0;
     osg::Vec3 toolHeadInTableCoords();
@@ -57,6 +59,7 @@ protected:
 
     opencover::dataclient::Client *m_client;
     bool m_paused = false;
+
 private:
     void observeCustomAttributes();
     void attributeChanged();
@@ -67,25 +70,24 @@ private:
     // min and max attribute only needed to store values
     // but creating redundant sliders
     std::unique_ptr<opencover::ui::EditFieldConfigValue> m_minAttribute, m_maxAttribute, m_customAttribute;
-    struct CustomAttributeVariable{
+    struct CustomAttributeVariable
+    {
         float value = 0;
         bool updated = false;
-        
     };
     MathExpressionObserver::ObserverHandle::ptr m_customAttributeHandle;
-
 };
-
 
 class SelfDeletingTool : public osg::Observer
 {
 public:
     static void create(std::unique_ptr<SelfDeletingTool> &selfDeletingToolPtr, std::unique_ptr<Tool> &&tool);
-    void objectDeleted(void*) override;
+    void objectDeleted(void *) override;
     std::unique_ptr<Tool> value;
+
 private:
     SelfDeletingTool(std::unique_ptr<Tool> &&tool);
-    std::unique_ptr<SelfDeletingTool>* m_this;
+    std::unique_ptr<SelfDeletingTool> *m_this;
 };
 
 #endif // COVER_TOOLMACHINE_TOOL_H
