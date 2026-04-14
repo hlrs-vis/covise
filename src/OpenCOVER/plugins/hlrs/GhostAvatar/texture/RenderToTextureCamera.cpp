@@ -103,6 +103,69 @@ osg::ref_ptr<osg::Texture2D> RenderToTextureCamera::getScreenshotAsTexture() con
     return nullptr;
 }
 
+void RenderToTextureCamera::update(const osg::Matrix &transform)
+{
+    updateCamera(transform);
+
+    // Since the user can choose to change the far clipping plane value at any time
+    // we have to check for changes every update.
+    // TODO: find a more efficient way to do this
+    setZFarToClippingPlane(10.);
+
+    // Since the GeoData plugin (which adds the sky node to the scene) can also be loaded after OpenCover
+    // has finished loading, we have to add it to the camera here as soon as it becomes available.
+    if (!m_addedSkyNode)
+        addSkyNode("sky");
+}
+
+osg::Vec3 RenderToTextureCamera::getForwardDirection()
+{
+    return m_forwardDirection;
+}
+
+osg::Vec3 RenderToTextureCamera::getUpDirection()
+{
+    return m_upDirection;
+}
+
+void RenderToTextureCamera::setForwardDirection(osg::Vec3 direction)
+{
+    m_forwardDirection = direction;
+}
+
+void RenderToTextureCamera::setUpDirection(osg::Vec3 direction)
+{
+    m_upDirection = direction;
+}
+
+void RenderToTextureCamera::configureCamera()
+{
+    setClearMask(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    setReferenceFrame(osg::Transform::ABSOLUTE_RF);
+    setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);
+    setRenderOrder(osg::Camera::PRE_RENDER);
+    setName("RenderToTextureCamera");
+    setViewport(0, 0, m_viewPortSize, m_viewPortSize);
+    setProjectionMatrixAsPerspective(m_fovy, m_aspectRatio, m_zNear, m_zFar);
+}
+
+void RenderToTextureCamera::configureDebugCamera()
+{
+    if (m_enableDebugCamera)
+    {
+        m_debugCamera = new DebugCamera();
+        m_debugCamera->setViewport(0, 0, m_viewPortSize, m_viewPortSize);
+        m_debugCamera->setProjectionMatrixAsPerspective(m_fovy, m_aspectRatio, m_zNear, m_zFar);
+    }
+}
+
+void RenderToTextureCamera::configureImage()
+{
+    m_image = new osg::Image();
+    m_image->allocateImage(m_viewPortSize, m_viewPortSize, 1, GL_RGBA, GL_FLOAT);
+    attach(osg::Camera::COLOR_BUFFER, m_image.get());
+}
+
 void RenderToTextureCamera::setZFarToClippingPlane(float scale)
 {
     auto newZFar = opencover::coVRConfig::instance()->farClip() * scale;
@@ -131,49 +194,6 @@ void RenderToTextureCamera::updateCamera(const osg::Matrix &transform)
 
     if (m_enableDebugCamera)
         m_debugCamera->setViewMatrixAsLookAt(eye, centerWorld, up);
-}
-
-void RenderToTextureCamera::update(const osg::Matrix &transform)
-{
-    updateCamera(transform);
-
-    // Since the user can choose to change the far clipping plane value at any time
-    // we have to check for changes every update.
-    // TODO: find a more efficient way to do this
-    setZFarToClippingPlane(10.);
-
-    // Since the GeoData plugin (which adds the sky node to the scene) can also be loaded after OpenCover
-    // has finished loading, we have to add it to the camera here as soon as it becomes available.
-    if (!m_addedSkyNode)
-        addSkyNode("sky");
-}
-
-void RenderToTextureCamera::configureCamera()
-{
-    setClearMask(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    setReferenceFrame(osg::Transform::ABSOLUTE_RF);
-    setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);
-    setRenderOrder(osg::Camera::PRE_RENDER);
-    setName("RenderToTextureCamera");
-    setViewport(0, 0, m_viewPortSize, m_viewPortSize);
-    setProjectionMatrixAsPerspective(m_fovy, m_aspectRatio, m_zNear, m_zFar);
-}
-
-void RenderToTextureCamera::configureImage()
-{
-    m_image = new osg::Image();
-    m_image->allocateImage(m_viewPortSize, m_viewPortSize, 1, GL_RGBA, GL_FLOAT);
-    attach(osg::Camera::COLOR_BUFFER, m_image.get());
-}
-
-void RenderToTextureCamera::configureDebugCamera()
-{
-    if (m_enableDebugCamera)
-    {
-        m_debugCamera = new DebugCamera();
-        m_debugCamera->setViewport(0, 0, m_viewPortSize, m_viewPortSize);
-        m_debugCamera->setProjectionMatrixAsPerspective(m_fovy, m_aspectRatio, m_zNear, m_zFar);
-    }
 }
 
 void RenderToTextureCamera::addChildNode(osg::Node *node)

@@ -87,6 +87,18 @@ void TerroirTexture::updateTexture()
     updateShader();
 }
 
+void TerroirTexture::setCameraForwardDir(osg::Vec3 direction)
+{
+    if (m_rttCamera)
+        m_rttCamera->setForwardDirection(direction);
+}
+
+void TerroirTexture::setCameraUpDir(osg::Vec3 direction)
+{
+    if (m_rttCamera)
+        m_rttCamera->setUpDirection(direction);
+}
+
 void TerroirTexture::onEnoughDistanceCovered()
 {
     if (m_rttCamera)

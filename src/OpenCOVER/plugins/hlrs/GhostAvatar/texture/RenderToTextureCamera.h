@@ -63,6 +63,12 @@ public:
    */
     void update(const osg::Matrix &transform);
 
+    osg::Vec3 getForwardDirection();
+    osg::Vec3 getUpDirection();
+
+    void setForwardDirection(osg::Vec3 direction);
+    void setUpDirection(osg::Vec3 direction);
+
 private:
     osg::ref_ptr<osg::Image> m_image;
     bool m_addedSkyNode = false;

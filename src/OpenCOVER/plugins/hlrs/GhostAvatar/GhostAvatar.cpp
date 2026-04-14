@@ -17,6 +17,8 @@ GhostAvatar::GhostAvatar()
     //, m_avatarTexture(std::make_unique<StripesTerroirTexture>(100))
     , m_avatarControlsUI(GhostAvatarControlsUI(COVER_PLUGIN_NAME, *m_avatarControls))
 {
+    m_avatarTexture->setCameraForwardDir({ 0, -1, 0 }); // planar
+    m_avatarTexture->setCameraUpDir({ 0, 0, -1 }); // planar
 }
 
 bool GhostAvatar::update()
@@ -55,19 +57,19 @@ void GhostAvatar::createInteractors()
     osg::Matrix m;
     auto interSize = 10;
     m.setTrans(0, 0, 0);
-    //m.setRotate(osg::Quat(0, 0, 0.707107, 0.707107)); // ghost
+    // m.setRotate(osg::Quat(0, 0, 0.707107, 0.707107)); // ghost
     m.setRotate(osg::Quat(1, 0, 0, 0)); // planar
     m_interactorFloor.reset(new coVR3DTransRotInteractor(m, interSize, vrui::coInteraction::InteractionType::ButtonA, "floor", "targetInteractor", vrui::coInteraction::InteractionPriority::Medium));
     m_interactorFloor->enableIntersection();
     m_interactorFloor->show();
 
-    //m.setTrans(-120, 0, 80); // ghost
+    // m.setTrans(-120, 0, 80); // ghost
     m.setTrans(900, 0, 1100); // planar
     m_interactorHand.reset(new coVR3DTransRotInteractor(m, interSize, vrui::coInteraction::InteractionType::ButtonA, "hand", "targetInteractor", vrui::coInteraction::InteractionPriority::Medium));
     m_interactorHand->enableIntersection();
     m_interactorHand->show();
 
-    //m.setTrans(0, 0, 160); //ghost
+    // m.setTrans(0, 0, 160); //ghost
     m.setTrans(0, 0, 1900); // planar
     m_interactorHead.reset(new coVR3DTransRotInteractor(m, interSize, vrui::coInteraction::InteractionType::ButtonA, "head", "targetInteractor", vrui::coInteraction::InteractionPriority::Medium));
     m_interactorHead->enableIntersection();

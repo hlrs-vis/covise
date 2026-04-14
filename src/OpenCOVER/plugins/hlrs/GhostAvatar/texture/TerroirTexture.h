@@ -20,6 +20,9 @@ public:
     void applyTexture(osg::Node *node);
     void updateTexture();
 
+    void setCameraForwardDir(osg::Vec3 direction);
+    void setCameraUpDir(osg::Vec3 direction);
+
 protected:
     virtual void onEnoughDistanceCovered();
     virtual void updateShader();
