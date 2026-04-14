@@ -5,11 +5,21 @@
 #include "RenderToTextureCamera.h"
 
 RenderToTextureCamera::RenderToTextureCamera(bool enableDefaultCamera)
-    : RenderToTextureCamera(512, 90.0, 1.0, 1.0, 1000.0, enableDefaultCamera) { };
+    : RenderToTextureCamera({ 1.0, 0.0, 0.0 }, { 0.0, 0.0, 1.0 }, enableDefaultCamera)
+{
+}
 
-RenderToTextureCamera::RenderToTextureCamera(int viewPortSize, double fovy, double aspectRatio, double zNear,
+RenderToTextureCamera::RenderToTextureCamera(osg::Vec3 forwardDirection, osg::Vec3 upDirection, bool enableDefaultCamera)
+    : RenderToTextureCamera(forwardDirection, upDirection, 512, 90.0, 1.0, 1.0, 1000.0, enableDefaultCamera)
+
+{
+}
+
+RenderToTextureCamera::RenderToTextureCamera(osg::Vec3 forwardDirection, osg::Vec3 upDirection, int viewPortSize, double fovy, double aspectRatio, double zNear,
     double zFar, bool enableDebugCamera)
-    : m_viewPortSize { viewPortSize }
+    : m_forwardDirection { forwardDirection }
+    , m_upDirection { upDirection }
+    , m_viewPortSize { viewPortSize }
     , m_fovy { fovy }
     , m_aspectRatio { aspectRatio }
     , m_zNear { zNear }
@@ -106,11 +116,11 @@ void RenderToTextureCamera::setZFarToClippingPlane(float scale)
     }
 }
 
-void RenderToTextureCamera::updateCamera(const osg::Matrix &transform, const osg::Vec3 &baseForward, const osg::Vec3 &baseUp)
+void RenderToTextureCamera::updateCamera(const osg::Matrix &transform)
 {
     osg::Vec3 eye = transform.getTrans();
-    osg::Vec3 forward = osg::Matrix::transform3x3(baseForward, transform);
-    osg::Vec3 up = osg::Matrix::transform3x3(baseUp, transform);
+    osg::Vec3 forward = osg::Matrix::transform3x3(m_forwardDirection, transform);
+    osg::Vec3 up = osg::Matrix::transform3x3(m_upDirection, transform);
 
     forward.normalize();
     up.normalize();
@@ -123,9 +133,9 @@ void RenderToTextureCamera::updateCamera(const osg::Matrix &transform, const osg
         m_debugCamera->setViewMatrixAsLookAt(eye, centerWorld, up);
 }
 
-void RenderToTextureCamera::update(const osg::Matrix &transform, const osg::Vec3 &baseForward, const osg::Vec3 &baseUp)
+void RenderToTextureCamera::update(const osg::Matrix &transform)
 {
-    updateCamera(transform, baseForward, baseUp);
+    updateCamera(transform);
 
     // Since the user can choose to change the far clipping plane value at any time
     // we have to check for changes every update.

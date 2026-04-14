@@ -34,7 +34,8 @@ class RenderToTextureCamera : public osg::Camera
 {
 public:
     RenderToTextureCamera(bool enableDefaultCamera = false);
-    RenderToTextureCamera(int viewPortSize, double fovy, double aspectRatio, double zNear, double zFar, bool enableDebugCamera = false);
+    RenderToTextureCamera(osg::Vec3 forwardDirection, osg::Vec3 upDirection, bool enableDefaultCamera = false);
+    RenderToTextureCamera(osg::Vec3 forwardDirection, osg::Vec3 upDirection, int viewPortSize, double fovy, double aspectRatio, double zNear, double zFar, bool enableDebugCamera = false);
     virtual ~RenderToTextureCamera() override;
 
     /*
@@ -60,7 +61,7 @@ public:
        The camera position is taken from the transform translation and looks along
        the transformed local forward axis.
    */
-    void update(const osg::Matrix &transform, const osg::Vec3 &baseForward = { 1.0, 0.0, 0.0 }, const osg::Vec3 &baseUp = { 0.0, 0.0, 1.0 });
+    void update(const osg::Matrix &transform);
 
 private:
     osg::ref_ptr<osg::Image> m_image;
@@ -72,6 +73,9 @@ private:
     double m_zNear;
     double m_zFar;
 
+    osg::Vec3 m_forwardDirection;
+    osg::Vec3 m_upDirection;
+
     bool m_enableDebugCamera;
     osg::ref_ptr<DebugCamera> m_debugCamera;
     bool m_isInitialized = false;
@@ -81,7 +85,7 @@ private:
     void configureImage();
 
     void setZFarToClippingPlane(float scale = 1.0);
-    void updateCamera(const osg::Matrix &transform, const osg::Vec3 &baseForward, const osg::Vec3 &baseUp);
+    void updateCamera(const osg::Matrix &transform);
 
     void addChildNode(osg::Node *node);
     void addSkyNode(const char *skyNodeName);
