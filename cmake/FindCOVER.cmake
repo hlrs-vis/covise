@@ -23,11 +23,10 @@ if(COVER_INCLUDE_DIR)
    set(COVER_FIND_QUIETLY TRUE)
 endif()
 
-set(COVER_DIR "${COVISEDIR}/src/OpenCOVER")
-
 find_path(COVER_INCLUDE_DIR "cover/coVRPluginSupport.h"
    PATHS
-   ${COVER_DIR}
+   ${COVISEDIR}/src/OpenCOVER
+   ${COVISEDIR}/include
    PATH_SUFFIXES covise
    DOC "COVER - Headers"
 )
@@ -42,7 +41,6 @@ covise_find_library(COVER_PLUGINUTIL coOpenPluginUtil)
 include(FindPackageHandleStandardArgs)
 
 find_package_handle_standard_args(COVER DEFAULT_MSG
-   COVER_DIR
    COVER_LIBRARY
    COVER_VRUI_LIBRARY
    COVER_OSGVRUI_LIBRARY
