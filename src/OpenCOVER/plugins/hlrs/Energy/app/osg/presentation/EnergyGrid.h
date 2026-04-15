@@ -2,7 +2,6 @@
 #include <PluginUtil/colors/coColorMap.h>
 #include <lib/core/interfaces/IEnergyGrid.h>
 #include <lib/core/interfaces/IInfoboard.h>
-#include <lib/core/interfaces/IInfoboard.h>
 #include <lib/core/simulation/simulationresult.h>
 #include <lib/core/ClassLogger.h>
 
