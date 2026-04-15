@@ -6,6 +6,7 @@ GridRenderer::GridRenderer(osg::ref_ptr<osg::Group> rootNode)
 {
     for (auto type : ENERGYTYPE_RANGE)
     {
+        // each energygrid has multiple scenarios
         m_gridNodes[type] = new osg::Switch();
         m_root->addChild(m_gridNodes[type]);
     }
