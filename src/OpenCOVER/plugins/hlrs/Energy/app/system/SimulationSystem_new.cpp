@@ -9,13 +9,13 @@ SimulationSystem::SimulationSystem(opencover::coVRPlugin *plugin, opencover::ui:
     CityGMLSystem *cityGMLSystem, osg::ref_ptr<osg::Switch> parent, core::interface::ILogger &logger, const std::string &scenarioDir)
     : core::ClassLogger(logger, "SimulationSystem")
     , m_plugin(plugin)
-    , m_enabled(false)
-    , m_dataManager(logger)
     , m_dataLoadManager()
     , m_scenarioManager(parentMenu, scenarioDir)
+    , m_dataManager(logger)
     , m_gridUIManager(parentMenu)
     , m_gridRenderer(parent)
     , m_currentStorageSelection(Storage::ARROW)
+    , m_enabled(false)
     , m_scenarioDir(scenarioDir)
 {
 }
