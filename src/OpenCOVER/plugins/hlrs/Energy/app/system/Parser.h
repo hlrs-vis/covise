@@ -15,8 +15,6 @@ template <typename T>
 struct DataPackageParser
 {
     typedef T Type;
-    // template<typename...Args>
-    // DataPackageParser<T>(Args&&... args){}
     virtual T operator()(const CSVDataMap &map) = 0;
     virtual T operator()(const ArrowDataMap &map) = 0;
     virtual T operator()(const ArrowData &data) = 0;
