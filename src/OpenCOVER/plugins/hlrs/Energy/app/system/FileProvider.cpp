@@ -18,7 +18,7 @@ std::vector<std::string> FileProvider::createFilePaths(const Scenario &scenario,
 {
     auto filePath = createFilePath(scenario, type);
     auto files = discoverFiles(filePath, extension);
-    std::for_each(files.begin(), files.end(), [&](auto &file){ createFilePath(scenario, type, file); });
+    std::for_each(files.begin(), files.end(), [&](auto &file){ file = createFilePath(scenario, type, file); });
     return files;
 }
 
