@@ -24,13 +24,14 @@ struct DataPackageParser
     virtual T operator()(CSVData &data) = 0;
 };
 
-struct GridParser : DataPackageParser<grid_ptr>
+struct GridParser : DataPackageParser<grid_ptr>, core::ClassLogger
 {
+    GridParser(core::interface::ILogger &logger, const std::string &name) : core::ClassLogger(logger, name) {}
 };
 
-struct PowerGridParser final : GridParser, core::ClassLogger
+struct PowerGridParser final : GridParser
 {
-    PowerGridParser(core::interface::ILogger &logger) : core::ClassLogger(logger, "PowerGridParser"){}
+    using GridParser::GridParser;
     grid_ptr operator()(CSVDataMap &map) override;
     grid_ptr operator()(const ArrowDataMap &map) override;
     grid_ptr operator()(const ArrowData &data) override;
@@ -55,6 +56,7 @@ private:
 
 struct HeatingGridParser final : GridParser
 {
+    using GridParser::GridParser;
     grid_ptr operator()(CSVDataMap &map) override;
     grid_ptr operator()(const ArrowDataMap &map) override;
     grid_ptr operator()(const ArrowData &data) override;
