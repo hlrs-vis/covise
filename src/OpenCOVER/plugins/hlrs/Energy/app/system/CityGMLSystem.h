@@ -4,8 +4,9 @@
 #include <cover/coVRPlugin.h>
 
 #include <lib/core/interfaces/ISystem.h>
-#include <lib/core/ClassLogger.h>
+#include <lib/core/interfaces/ui/IComponent.h>
 #include <lib/core/simulation/simulationresult.h>
+#include <lib/core/ClassLogger.h>
 #include <lib/core/simulation/unitmap.h>
 #include <lib/core/simulation/powerresult.h>
 #include <lib/core/utils/osgUtils.h>
@@ -20,7 +21,6 @@
 #include "app/osg/CityGMLSceneObject.h"
 #include "app/osg/SolarPanelSceneObject.h"
 #include "lib/core/interfaces/ui/IGUIFactory.h"
-#include <lib/core/interfaces/ui/IComponent.h>
 
 struct CityGMLConfig {
   std::string pvDir;
