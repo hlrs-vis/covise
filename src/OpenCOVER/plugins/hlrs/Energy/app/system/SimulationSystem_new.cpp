@@ -13,7 +13,11 @@ SimulationSystem::SimulationSystem(opencover::coVRPlugin *plugin, opencover::ui:
     , m_scenarioManager(parentMenu, scenarioDir)
     , m_dataManager(logger)
     , m_gridUIManager(parentMenu)
-    , m_gridRenderer(parent)
+    , m_gridRenderer(
+          parent,
+          { { plugin->configFloatArray("General", "offset", std::vector<double> { 0, 0, 0 })->value() },
+              { plugin->configString("Billboard", "font", "default")->value() } },
+          logger)
     , m_currentStorageSelection(Storage::ARROW)
     , m_enabled(false)
     , m_scenarioDir(scenarioDir)
@@ -25,7 +29,8 @@ void SimulationSystem::init()
     m_dataLoadManager.registerProvider(Storage::ARROW, std::make_unique<ArrowLoader>(m_scenarioDir));
     m_dataLoadManager.registerProvider(Storage::CSV, std::make_unique<CSVLoader>(m_scenarioDir));
 
-    //TODO: init grid renderer by loading data via loader via m_dataLoadManger
+    for (auto type: ENERGYTYPE_RANGE)
+        m_gridRenderer.buildGrid(type, m_dataLoadManager);
 
     m_scenarioManager.setOnScenarioChanged([this](int id)
         { this->onScenarioSelectionChanged(id); });
