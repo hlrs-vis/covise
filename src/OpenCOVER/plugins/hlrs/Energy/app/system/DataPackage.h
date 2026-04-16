@@ -6,7 +6,8 @@
 #include <map>
 
 using CSVData = std::shared_ptr<opencover::utils::read::CSVStream>;
-using CSVDataMap = opencover::utils::read::StreamMap;
+// using CSVDataMap = opencover::utils::read::StreamMap;
+using CSVDataMap = std::map<std::string, CSVData>;
 using ArrowData = std::shared_ptr<arrow::Table>;
 using ArrowDataMap = std::map<std::string, ArrowData>;
 
