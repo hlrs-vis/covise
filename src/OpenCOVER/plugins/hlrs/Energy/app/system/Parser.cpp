@@ -11,7 +11,7 @@ namespace {
     std::vector<double> m_offset{-507048.0, -53988554.0, 50.0};
 }
 
-std::unique_ptr<core::interface::IEnergyGrid> PowerGridParser::operator()(CSVDataMap &map)
+grid_ptr PowerGridParser::operator()(CSVDataMap &map)
 {
     using grid::Point;
     if (map.empty())
@@ -255,42 +255,42 @@ PowerGridParser::getAdditionalPowerGridPointData(const std::size_t &numOfBus, CS
     return std::make_unique<PDL>(additionalData);
 }
 
-std::unique_ptr<core::interface::IEnergyGrid> PowerGridParser::operator()(const ArrowDataMap &map)
+grid_ptr PowerGridParser::operator()(const ArrowDataMap &map)
 {
     return nullptr;
 }
 
-std::unique_ptr<core::interface::IEnergyGrid> PowerGridParser::operator()(const ArrowData &data)
+grid_ptr PowerGridParser::operator()(const ArrowData &data)
 {
     return nullptr;
 }
 
-std::unique_ptr<core::interface::IEnergyGrid> PowerGridParser::operator()(CSVData &data)
+grid_ptr PowerGridParser::operator()(CSVData &data)
 {
     return nullptr;
 }
 
-std::unique_ptr<core::interface::IEnergyGrid> HeatingGridParser::operator()(CSVDataMap &map)
+grid_ptr HeatingGridParser::operator()(CSVDataMap &map)
 {
     return nullptr;
 }
 
-std::unique_ptr<core::interface::IEnergyGrid> HeatingGridParser::operator()(const ArrowDataMap &map)
+grid_ptr HeatingGridParser::operator()(const ArrowDataMap &map)
 {
     return nullptr;
 }
 
-std::unique_ptr<core::interface::IEnergyGrid> HeatingGridParser::operator()(const ArrowData &data)
+grid_ptr HeatingGridParser::operator()(const ArrowData &data)
 {
     return nullptr;
 }
 
-std::unique_ptr<core::interface::IEnergyGrid> HeatingGridParser::operator()(CSVData &data)
+grid_ptr HeatingGridParser::operator()(CSVData &data)
 {
     return nullptr;
 }
 
-std::shared_ptr<cs::SimulationResult> PowerParser::operator()(CSVDataMap &map)
+result_ptr PowerParser::operator()(CSVDataMap &map)
 {
     auto result = std::make_shared<cs::power::PowerSimulationResult>();
     for (auto &[name, stream] : map)
@@ -300,7 +300,7 @@ std::shared_ptr<cs::SimulationResult> PowerParser::operator()(CSVDataMap &map)
     return result;
 }
 
-std::shared_ptr<cs::SimulationResult> PowerParser::operator()(const ArrowDataMap &map)
+result_ptr PowerParser::operator()(const ArrowDataMap &map)
 {
     auto result = std::make_shared<cs::power::PowerSimulationResult>();
     for (auto &[name, table] : map)
@@ -310,21 +310,21 @@ std::shared_ptr<cs::SimulationResult> PowerParser::operator()(const ArrowDataMap
     return result;
 }
 
-std::shared_ptr<cs::SimulationResult> PowerParser::operator()(const ArrowData &data)
+result_ptr PowerParser::operator()(const ArrowData &data)
 {
     auto result = std::make_shared<cs::power::PowerSimulationResult>();
     // TODO: put data into result
     return result;
 }
 
-std::shared_ptr<cs::SimulationResult> PowerParser::operator()(CSVData &data)
+result_ptr PowerParser::operator()(CSVData &data)
 {
     auto result = std::make_shared<cs::power::PowerSimulationResult>();
     // TODO: put data into result
     return result;
 }
 
-std::shared_ptr<cs::SimulationResult> HeatingParser::operator()(CSVDataMap &map)
+result_ptr HeatingParser::operator()(CSVDataMap &map)
 {
     auto result = std::make_shared<cs::power::PowerSimulationResult>();
     for (auto &[name, stream] : map)
@@ -334,7 +334,7 @@ std::shared_ptr<cs::SimulationResult> HeatingParser::operator()(CSVDataMap &map)
     return result;
 }
 
-std::shared_ptr<cs::SimulationResult> HeatingParser::operator()(const ArrowDataMap &map)
+result_ptr HeatingParser::operator()(const ArrowDataMap &map)
 {
     auto result = std::make_shared<cs::power::PowerSimulationResult>();
     for (auto &[name, table] : map)
@@ -344,14 +344,14 @@ std::shared_ptr<cs::SimulationResult> HeatingParser::operator()(const ArrowDataM
     return result;
 }
 
-std::shared_ptr<cs::SimulationResult> HeatingParser::operator()(const ArrowData &data)
+result_ptr HeatingParser::operator()(const ArrowData &data)
 {
     auto result = std::make_shared<cs::power::PowerSimulationResult>();
     // TODO: put data into result
     return result;
 }
 
-std::shared_ptr<cs::SimulationResult> HeatingParser::operator()(CSVData &data)
+result_ptr HeatingParser::operator()(CSVData &data)
 {
     auto result = std::make_shared<cs::power::PowerSimulationResult>();
     // TODO: put data into result
