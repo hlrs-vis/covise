@@ -132,7 +132,7 @@ private:
         {
             return typename Map::Sim(std::forward<Args>(args)...)(std::forward<T>(data));
         }
-        else
+        if constexpr (std::is_constructible_v<typename Map::Grid, Args...>)
         {
             return typename Map::Grid(std::forward<Args>(args)...)(std::forward<T>(data));
         }
