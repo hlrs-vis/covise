@@ -394,6 +394,9 @@ void VRSceneGraph::initSceneGraph()
     std::string shadowTechnique = covise::coCoviseConfig::getEntry("value","COVER.ShadowTechnique","none");
     coVRShadowManager::instance()->setTechnique(shadowTechnique);
 
+    m_objectsScene = new osg::Group();
+    m_objectsScene->setName("VR_RENDER_OBJECT_SCENE_NODE");
+
     // Create a lit scene osg::StateSet for the scene
     m_rootStateSet = loadGlobalGeostate();
     m_objectsStateSet = loadGlobalGeostate();
@@ -407,6 +410,7 @@ void VRSceneGraph::initSceneGraph()
 
     // attach the osg::StateSet to the scene
     m_scene->setStateSet(m_rootStateSet);
+    m_objectsScene->setStateSet(m_rootStateSet);
 
     // create the pointer (hand) DCS node
     // add it to the scene graph as the first child
@@ -455,6 +459,7 @@ void VRSceneGraph::initSceneGraph()
     m_scaleTransform->setName("ScaleTransform");
     m_objectsTransform->addChild(m_scaleTransform);
     m_scene->addChild(m_objectsTransform);
+    m_objectsScene->addChild(m_objectsTransform);
 
     // root node for all objects
     osg::ClipNode *clipNode = new osg::ClipNode();

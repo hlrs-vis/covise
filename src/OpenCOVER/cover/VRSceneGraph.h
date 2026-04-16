@@ -111,6 +111,11 @@ public:
         return m_scene.get();
     };
 
+    osg::Group *getObjectsScene()
+    {
+        return m_objectsScene.get();
+    }
+
     void config();
     void init();
     void update();
@@ -268,7 +273,7 @@ private:
     float m_forceScale;
 #endif
 
-    osg::ref_ptr<osg::Group> m_scene;
+    osg::ref_ptr<osg::Group> m_scene, m_objectsScene;
     osg::ref_ptr<osgFX::Scribe> m_lineHider;
     osg::ref_ptr<osg::MatrixTransform> m_handTransform;
     osg::ref_ptr<osg::MatrixTransform> m_handAxisTransform, m_viewerAxisTransform, m_smallSceneAxisTransform;
