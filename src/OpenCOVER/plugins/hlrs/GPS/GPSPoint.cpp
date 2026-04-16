@@ -45,10 +45,8 @@
 #include <xercesc/util/XMLUni.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 
-#ifdef HAVE_AUDIO
 #include <audio/Audio.h>
 #include <audio/Player.h>
-#endif
 
 using namespace vrui;
 
@@ -522,7 +520,6 @@ void GPSPoint::createSign(osg::Image *img)
 
 void GPSPoint::createSound()
 {
-#ifdef HAVE_AUDIO
     auto player = opencover::cover->getPlayer();
 
     if (player)
@@ -538,7 +535,6 @@ void GPSPoint::createSound()
         source->setIntensity(1.0);
     }
     else
-#endif
     {
         fprintf(stderr, "GPS: No audio player found, cannot create sound for playback of recording\n");
     }
@@ -843,7 +839,6 @@ void GPSPoint::activate()
         break;
     case Sprachaufnahme:
 
-#ifdef HAVE_AUDIO
         if (source)
         {
             printf("isPlaying?: %s \n", source->isPlaying() ? "true" : "false");
@@ -860,7 +855,6 @@ void GPSPoint::activate()
             }
         }
         else
-#endif
         {
             fprintf(stderr, "No sound to play\n");
         }

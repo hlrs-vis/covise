@@ -10,12 +10,14 @@
 #include <assert.h>
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
+#include <iostream>
 
 #include <config/CoviseConfig.h>
 
+#ifdef HAVE_AUDIO
 #include "PlayerAServer.h"
 #include "PlayerOpenAL.h"
-#include "PlayerOsc.h"
+#endif
 
 using std::endl;
 using namespace opencover::audio;
@@ -114,6 +116,7 @@ void Player::update()
 
 Player *Player::createPlayer(Listener *listener, const std::string &type)
 {
+#ifdef HAVE_AUDIO
     if (type.empty())
     {
         return nullptr;
@@ -132,11 +135,6 @@ Player *Player::createPlayer(Listener *listener, const std::string &type)
     {
         return new PlayerOpenAL(listener);
     }
-    else if (boost::iequals(type, "osc"))
-    {
-
-        return new PlayerOsc(listener);
-    }
     else if (boost::iequals(type, "none"))
     {
         return nullptr;
@@ -144,6 +142,10 @@ Player *Player::createPlayer(Listener *listener, const std::string &type)
 
     std::cerr << "Player::createPlayer: unknown player type: " << type << endl;
     return nullptr;
+#else
+    std::cerr << "OpenCOVER compiled without audio support; audio playback is disabled." << endl;
+    return nullptr;
+#endif
 }
 
 std::unique_ptr<Source>

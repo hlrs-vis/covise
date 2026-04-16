@@ -41,7 +41,7 @@ static void myplayerUnavailableCB()
 }
 #endif
 
-//INPUTDEVICE
+// INPUTDEVICE
 InputDevice::InputDevice()
 {
     pedalA = 0; // Acceleration	[0,1]
@@ -139,7 +139,7 @@ int InputDevice::getMirrorLightRight()
     return mirrorLightRight;
 }
 
-//SAITEK
+// SAITEK
 InputDeviceSaitek::InputDeviceSaitek()
     : InputDevice()
 {
@@ -177,7 +177,7 @@ void InputDeviceSaitek::updateInputState()
     hornButton = false;
 }
 
-//THRUSTMASTER
+// THRUSTMASTER
 InputDeviceThrustmaster::InputDeviceThrustmaster()
     : InputDevice()
 {
@@ -216,7 +216,7 @@ void InputDeviceThrustmaster::updateInputState()
     pedalC = 0;
 }
 
-//MOMO
+// MOMO
 InputDeviceMomo::InputDeviceMomo()
     : InputDevice()
 {
@@ -256,7 +256,7 @@ void InputDeviceMomo::updateInputState()
     hornButton = false;
 }
 
-//LOGITECH
+// LOGITECH
 InputDeviceLogitech::InputDeviceLogitech()
     : InputDevice()
 {
@@ -295,7 +295,7 @@ void InputDeviceLogitech::updateInputState()
     hornButton = false;
 }
 
-//SITZKISTE
+// SITZKISTE
 InputDeviceSitzkiste::InputDeviceSitzkiste()
     : InputDevice()
 {
@@ -421,7 +421,7 @@ void InputDeviceHLRSRealtimeSim::updateInputState()
     }
 }
 
-//PORSCHE_SIM
+// PORSCHE_SIM
 InputDevicePorscheSim::InputDevicePorscheSim()
     : InputDevice()
 {
@@ -533,11 +533,11 @@ void InputDevicePorscheSim::updateInputState()
         if (pedalAtmp < pedalA)
             pedalA = pedalAtmp;
 
-        //std::cerr << "Pedal A: " << pedalA << std::endl;
+        // std::cerr << "Pedal A: " << pedalA << std::endl;
     }
 }
 
-//KEYBOARD
+// KEYBOARD
 InputDeviceKeyboard::InputDeviceKeyboard()
     : InputDevice()
 {
@@ -550,7 +550,7 @@ void InputDeviceKeyboard::updateInputState()
     Keyboard *keyb = dynamic_cast<Keyboard *>(SteeringWheelPlugin::plugin->sitzkiste);
     if (keyb)
     {
-        //std::cerr << "Keyboard in!" << std::endl;
+        // std::cerr << "Keyboard in!" << std::endl;
         steeringWheelAngle = keyb->getAngle() * angleRatio;
         pedalC = keyb->getClutch();
         pedalB = keyb->getBrake();
@@ -604,7 +604,6 @@ InputDeviceMotionPlatform::InputDeviceMotionPlatform()
     ccSpeed = 0;
     ccActive = false;
 #ifndef USE_CAR_SOUND
-#ifdef HAVE_AUDIO
     anlasserSource = nullptr;
     Audio *anlasserAudio = new Audio("AnlasserInnen.wav");
     if (player)
@@ -618,22 +617,21 @@ InputDeviceMotionPlatform::InputDeviceMotionPlatform()
         }
     }
 #endif
-#endif
 
     if (coVRMSController::instance()->isMaster())
     {
 #ifdef __XENO__
-        //can0 = new XenomaiSocketCan("rtcan0");
-        //linMot = new LinearMotorControlTask(*can0);
-        //con1 = new CanOpenController("rtcan1");
-        //steeringWheel = new XenomaiSteeringWheel(*con1, 1);
-        //can3 = new XenomaiSocketCan("rtcan3");
+        // can0 = new XenomaiSocketCan("rtcan0");
+        // linMot = new LinearMotorControlTask(*can0);
+        // con1 = new CanOpenController("rtcan1");
+        // steeringWheel = new XenomaiSteeringWheel(*con1, 1);
+        // can3 = new XenomaiSocketCan("rtcan3");
 
         p_kombi = KI::instance();
         p_klsm = KLSM::instance();
         p_klima = Klima::instance();
         p_beckhoff = Beckhoff::instance();
-        //p_brakepedal = BrakePedal::instance();
+        // p_brakepedal = BrakePedal::instance();
         p_gaspedal = GasPedal::instance();
         p_ignitionLock = IgnitionLock::instance();
         vehicleUtil = VehicleUtil::instance();
@@ -649,10 +647,10 @@ InputDeviceMotionPlatform::InputDeviceMotionPlatform()
         p_beckhoff->setDigitalOut(0, 6, false);
         p_beckhoff->setDigitalOut(0, 7, false);
 
-//vehicleUtil->setVehicleState(VehicleUtil::KEYIN);
-//vehicleUtil->setVehicleState(VehicleUtil::KEYIN_IGNITED);
-//vehicleUtil->setVehicleState(VehicleUtil::KEYIN_ESTART);
-//vehicleUtil->setVehicleState(VehicleUtil::KEYIN_ERUNNING);
+// vehicleUtil->setVehicleState(VehicleUtil::KEYIN);
+// vehicleUtil->setVehicleState(VehicleUtil::KEYIN_IGNITED);
+// vehicleUtil->setVehicleState(VehicleUtil::KEYIN_ESTART);
+// vehicleUtil->setVehicleState(VehicleUtil::KEYIN_ERUNNING);
 
 /*linMot->setVelocityOne(1000);
       linMot->setVelocityTwo(1000);
@@ -663,15 +661,15 @@ InputDeviceMotionPlatform::InputDeviceMotionPlatform()
       linMot->setPositionOne(linMot->posMiddle);
       linMot->setPositionTwo(linMot->posMiddle);
       linMot->setPositionThree(linMot->posMiddle);
-  
+
       linMot->start();
       linMot->changeStateOne(linMot->statePositioning);
       linMot->changeStateTwo(linMot->statePositioning);
       linMot->changeStateThree(linMot->statePositioning);*/
 
-//p_brakePedal->start();
+// p_brakePedal->start();
 
-//steeringWheel->start();
+// steeringWheel->start();
 
 /*p_kombi->initDevice();
       p_klsm->initDevice();
@@ -705,8 +703,8 @@ InputDeviceMotionPlatform::~InputDeviceMotionPlatform()
     if (coVRMSController::instance()->isMaster())
     {
 #ifdef __XENO__
-//vehicleUtil->setVehicleState(VehicleUtil::KEYIN_ESTOP);
-//vehicleUtil->setVehicleState(VehicleUtil::KEYOUT);
+// vehicleUtil->setVehicleState(VehicleUtil::KEYIN_ESTOP);
+// vehicleUtil->setVehicleState(VehicleUtil::KEYOUT);
 /*linMot->setVelocityOne(1000);
       linMot->setVelocityTwo(1000);
       linMot->setVelocityThree(1000);
@@ -726,10 +724,10 @@ InputDeviceMotionPlatform::~InputDeviceMotionPlatform()
       linMot->changeStateThree(linMot->stateDisable);*/
 // Stop the car
 
-//delete can3;
+// delete can3;
 #endif
     }
-    //delete anlasserSource;
+    // delete anlasserSource;
 }
 
 void InputDeviceMotionPlatform::updateInputState()
@@ -827,10 +825,10 @@ void InputDeviceMotionPlatform::updateInputState()
             ParkState = true;
             sharedState.pedalA = 0.0;
         }
-        //p_CANProv->GW_D_4.values.canmsg.cansignals.S_Gurt_F_D = 1;
+        // p_CANProv->GW_D_4.values.canmsg.cansignals.S_Gurt_F_D = 1;
 
-        //std::cerr << "gas: " << sharedState.pedalA << std::endl;
-        //sharedState.pedalB = (double)p_brakepedal->getPosition() / (double)p_brakepedal->maxPosition;
+        // std::cerr << "gas: " << sharedState.pedalA << std::endl;
+        // sharedState.pedalB = (double)p_brakepedal->getPosition() / (double)p_brakepedal->maxPosition;
         sharedState.pedalB = std::max(0.0, std::min(1.0, ValidateMotionPlatform::instance()->getBrakePedalPosition() * 5.0));
         sharedState.pedalC = 0;
 
@@ -839,7 +837,7 @@ void InputDeviceMotionPlatform::updateInputState()
           automatic = false;
           p_kombi->set_gwh(4); //M
           default;
-         case        
+         case
       }*/
         resetButton = p_klsm->getReturnStat();
 
@@ -863,13 +861,13 @@ void InputDeviceMotionPlatform::updateInputState()
                 if (p_beckhoff->getDigitalIn(0, 7))
                 {
                     automatic = false;
-                    p_kombi->setGearshiftLever(KI::GEAR_M); //M
+                    p_kombi->setGearshiftLever(KI::GEAR_M); // M
                     currentLeverState = KI::GEAR_M;
                 }
                 else if (!p_beckhoff->getDigitalIn(0, 2))
                 {
                     automatic = true;
-                    p_kombi->setGearshiftLever(KI::GEAR_D); //D
+                    p_kombi->setGearshiftLever(KI::GEAR_D); // D
                     currentLeverState = KI::GEAR_D;
                 }
             }
@@ -877,7 +875,7 @@ void InputDeviceMotionPlatform::updateInputState()
             {
                 sharedState.gear = -1;
                 automatic = false;
-                p_kombi->setGearshiftLever(KI::GEAR_R); //R
+                p_kombi->setGearshiftLever(KI::GEAR_R); // R
                 currentLeverState = KI::GEAR_R;
             }
         }
@@ -885,14 +883,14 @@ void InputDeviceMotionPlatform::updateInputState()
         {
             sharedState.gear = 0;
             ParkState = true;
-            p_kombi->setGearshiftLever(KI::GEAR_P); //P
+            p_kombi->setGearshiftLever(KI::GEAR_P); // P
             currentLeverState = KI::GEAR_P;
             automatic = false;
         }
         else if (p_beckhoff->getDigitalIn(0, 2))
         {
             automatic = false;
-            p_kombi->setGearshiftLever(KI::GEAR_N); //N
+            p_kombi->setGearshiftLever(KI::GEAR_N); // N
             currentLeverState = KI::GEAR_N;
             sharedState.gear = 0;
         }
@@ -1046,10 +1044,10 @@ void InputDeviceMotionPlatform::updateInputState()
         leds |= sharedState.DamperState << 1;
         leds |= sharedState.SportMode << 2;
         leds |= sharedState.PSMState << 3;
-        //fprintf(stderr,"leds %d\n" ,leds);
+        // fprintf(stderr,"leds %d\n" ,leds);
         p_kombi->setLEDState(leds);
 
-        //std::cerr << "p_beckhoff digitil in 0:" << (int)p_beckhoff->getDigitalIn(0) << ", 1: "  << (int)p_beckhoff->getDigitalIn(1) << ", 2: "  << (int)p_beckhoff->getDigitalIn(2) << std::endl;
+        // std::cerr << "p_beckhoff digitil in 0:" << (int)p_beckhoff->getDigitalIn(0) << ", 1: "  << (int)p_beckhoff->getDigitalIn(1) << ", 2: "  << (int)p_beckhoff->getDigitalIn(2) << std::endl;
         if (automatic)
         {
             static double oldShiftTime = 0;
@@ -1062,7 +1060,7 @@ void InputDeviceMotionPlatform::updateInputState()
                 }
                 else
                 {
-                    //fprintf(stderr,"gas %f %f \n" ,sharedState.pedalA,SteeringWheelPlugin::plugin->dynamics->getEngineSpeed());
+                    // fprintf(stderr,"gas %f %f \n" ,sharedState.pedalA,SteeringWheelPlugin::plugin->dynamics->getEngineSpeed());
 
                     gearDiff = getAutoGearDiff(19.0 + (35 * sharedState.pedalA * sharedState.pedalA), 32 + (73 * sharedState.pedalA * sharedState.pedalA));
                 }
@@ -1186,7 +1184,7 @@ void InputDevice::destroy()
 
 int InputDevice::autoDetectRetries = 0;
 InputDevice *InputDevice::inDevice = NULL;
-//Find Input Device with name
+// Find Input Device with name
 InputDevice *InputDevice::findInputDevice(std::string name)
 {
     if (name == "SAITEK")
@@ -1215,7 +1213,7 @@ InputDevice *InputDevice::findInputDevice(std::string name)
         return autodetect();
 }
 
-//Autodetect routine
+// Autodetect routine
 InputDevice *InputDevice::autodetect()
 {
     static int autoDetectRetries = 0;
@@ -1242,10 +1240,10 @@ InputDevice *InputDevice::autodetect()
          d_inputDevice.set("PORSCHE_REALTIME_SIMULATOR");
          fprintf(stderr,"PORSCHE_REALTIME_SIMULATOR\n");
       }
-		*/
+                */
         else if (cover->numJoysticks > 1 && cover->number_axes[2] == 1 && SteeringWheelPlugin::plugin->sitzkiste && SteeringWheelPlugin::plugin->sitzkiste->doRun && cover->axes[BRAKE_NUMBER] && cover->axes[GAS_NUMBER])
         {
-            //d_inputDevice.set("SITZKISTE");
+            // d_inputDevice.set("SITZKISTE");
             return (new InputDeviceSitzkiste());
         }
         else if ((cover->number_axes[0] == 4) && (cover->number_buttons[0] == 11))

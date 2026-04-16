@@ -13,9 +13,7 @@
 //  VrmlNodeAudioClip.cpp
 //    contributed by Kumaran Santhanam
 
-#ifdef HAVE_AUDIO
 #include <audio/Audio.h>
-#endif
 
 #include "VrmlNodeAudioClip.h"
 #include "VrmlNodeType.h"
@@ -55,10 +53,8 @@ void VrmlNodeAudioClip::update(VrmlSFTime &now)
             std::string url(d_url.get(i));
             if (fileExists(url, relDoc))
             {
-#ifdef HAVE_AUDIO
                 d_audio->setURL(url);
                 d_duration.set(d_audio->duration());
-#endif
                 eventOut(now.get(), "duration_changed", d_duration);
                 d_url_modified = false;
                 audioLastModified = System::the->time();
@@ -112,9 +108,7 @@ VrmlNodeAudioClip::VrmlNodeAudioClip(VrmlScene *scene)
     : VrmlNode(scene, typeName())
     , d_pitch(1.0)
     , d_isActive(false)
-#ifdef HAVE_AUDIO
     , d_audio(new Audio())
-#endif
     , d_url_modified(false)
     , _doc(0)
     , lastActive(false)
@@ -134,9 +128,7 @@ VrmlNodeAudioClip::VrmlNodeAudioClip(const VrmlNodeAudioClip &n)
     , d_url(n.d_url)
     , d_duration(n.d_duration)
     , d_isActive(false)
-#ifdef HAVE_AUDIO
     , d_audio(new Audio(*n.d_audio))
-#endif
     , d_url_modified(true)
     , _doc(0)
     , lastActive(false)
@@ -150,9 +142,7 @@ VrmlNodeAudioClip::~VrmlNodeAudioClip()
 {
     if (d_scene)
         d_scene->removeAudioClip(this);
-#ifdef HAVE_AUDIO
     delete d_audio;
-#endif
 }
 
 void VrmlNodeAudioClip::addToScene(VrmlScene *s, const char *rel)
@@ -187,11 +177,9 @@ bool VrmlNodeAudioClip::isAudible(VrmlSFTime &inTime) const
 
     // If the clip is not looping, it's not audible after
     // its duration has expired.
-#ifdef HAVE_AUDIO
     if (d_loop.get() == false)
         if (inTime.get() - d_startTime.get() > d_audio->duration())
             audible = false;
-#endif
 
     return audible;
 }
@@ -199,11 +187,9 @@ bool VrmlNodeAudioClip::isAudible(VrmlSFTime &inTime) const
 double VrmlNodeAudioClip::currentCliptime(VrmlSFTime &inTime) const
 {
     double cliptime = 0.0;
-#ifdef HAVE_AUDIO
     if (isAudible(inTime))
         cliptime = fmod((inTime.get() - d_startTime.get()) * d_pitch.get(),
             d_audio->duration());
-#endif
 
     return cliptime;
 }

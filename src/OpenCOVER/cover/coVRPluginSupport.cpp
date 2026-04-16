@@ -612,17 +612,19 @@ void coVRPluginSupport::update()
     coVRMSController::instance()->syncData((char *)&frontHorizontalSize, sizeof(frontHorizontalSize));
     coVRMSController::instance()->syncData((char *)&frontVerticalSize, sizeof(frontVerticalSize));
 
-#ifdef HAVE_AUDIO
-    auto v = getInvBaseMat() * cover->getViewerMat();
-    glm::mat4x4 mat(
-        v(0, 0), v(0, 1), v(0, 2), v(0, 3),
-        v(1, 0), v(1, 1), v(1, 2), v(1, 3),
-        v(2, 0), v(2, 1), v(2, 2), v(2, 3),
-        v(3, 0), v(3, 1), v(3, 2), v(3, 3));
-    listener->update(frameDuration(), mat);
     if (player)
+    {
+        // Only need to update the listener if we actually have a player too.
+        auto v = getInvBaseMat() * cover->getViewerMat();
+        glm::mat4x4 mat(
+            v(0, 0), v(0, 1), v(0, 2), v(0, 3),
+            v(1, 0), v(1, 1), v(1, 2), v(1, 3),
+            v(2, 0), v(2, 1), v(2, 2), v(2, 3),
+            v(3, 0), v(3, 1), v(3, 2), v(3, 3));
+        listener.update(frameDuration(), mat);
+
         player->update();
-#endif
+    }
 }
 
 coVRPlugin *coVRPluginSupport::addPlugin(const char *name)
@@ -902,10 +904,8 @@ coVRPluginSupport::coVRPluginSupport()
     DoFrameBuffer = new osg::ColorMask(true, true, true, true);
 
     // Setup audio subsystem
-#ifdef HAVE_AUDIO
-    listener = new audio::Listener();
-    player = listener->createPlayer();
-#endif
+    std::string audioPlayerType = coCoviseConfig::getEntry("value", "COVER.Plugin.Vrml97.Audio", "none");
+    player = audio::Player::createPlayer(&listener, audioPlayerType);
 
     pointerButton = NULL;
     mouseButton = NULL;
@@ -963,6 +963,12 @@ coVRPluginSupport::~coVRPluginSupport()
     intersectedDrawable = nullptr;
     intersectedNode = nullptr;
     cover = NULL;
+
+    if (player)
+    {
+        delete player;
+        player = nullptr;
+    }
 }
 
 int coVRPluginSupport::getNumClipPlanes()

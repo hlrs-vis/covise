@@ -23,14 +23,12 @@ namespace opencover::audio
 class Player;
 class PlayerOpenAL;
 class PlayerAServer;
-class PlayerOsc;
 
 class COVRAUDIOEXPORT Source
 {
     friend class Player;
     friend class PlayerOpenAL;
     friend class PlayerAServer;
-    friend class PlayerOsc;
 
 public:
     Source(Player *player, const Audio *audio);

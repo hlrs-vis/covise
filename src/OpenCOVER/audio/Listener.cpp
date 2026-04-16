@@ -62,25 +62,3 @@ void Listener::getOrientation(glm::vec3 *at, glm::vec3 *up) const
     *at = glm::normalize((glm::vec4(0.0, 1.0, 0.0, 1.0) * m).xyz());
     *up = glm::normalize((glm::vec4(0.0, 0.0, 1.0, 1.0) * m).xyz());
 }
-
-// from object to world coordinates
-glm::vec3 Listener::OCtoWC(const glm::vec3 &pos) const
-{
-    glm::vec4 v = glm::vec4(pos, 1.0) * transform;
-    return v.xyz() / v.w;
-}
-
-// from world to object coordinates
-glm::vec3 Listener::WCtoOC(const glm::vec3 &pos) const
-{
-    glm::vec4 v = glm::vec4(pos, 1.0) * glm::inverse(transform);
-    return v.xyz() / v.w;
-}
-
-Player *
-Listener::createPlayer()
-{
-    std::string type = coCoviseConfig::getEntry("value", "COVER.Plugin.Vrml97.Audio", "none");
-    return Player::createPlayer(this, type);
-}
-

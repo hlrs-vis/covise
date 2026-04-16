@@ -25,12 +25,7 @@ public:
     Listener();
     ~Listener();
 
-    Player *createPlayer();
-
     glm::mat4 getCurrentTransform() const;
-
-    glm::vec3 WCtoOC(const glm::vec3 &pos) const;
-    glm::vec3 OCtoWC(const glm::vec3 &pos) const;
 
     glm::vec3 getPosition() const;
 

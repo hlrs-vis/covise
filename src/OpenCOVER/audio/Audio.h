@@ -13,7 +13,8 @@
 #include <stdio.h>
 #include <string>
 #include <util/coExport.h>
-// do not include al.h here, otherwise we need OpenAL dependency everywhere #include <al.h>
+
+// do not include al.h here, otherwise we need OpenAL dependency everywhere
 typedef unsigned int ALuint;
 
 namespace opencover::audio

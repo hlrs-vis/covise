@@ -9,22 +9,10 @@
 #define _EngineSound_H
 
 #include <string>
-#include <cover/coVRTui.h>
-
-namespace opencover 
-{
-namespace audio
-{
-class Player;
-class Source;
-}
-}
-#ifdef HAVE_AUDIO
 #include <audio/Player.h>
-#endif
-using namespace opencover::audio;
-
+#include <cover/coVRTui.h>
 using namespace opencover;
+using namespace opencover::audio;
 using namespace covise;
 
 #define NUM_SPEEDS 30

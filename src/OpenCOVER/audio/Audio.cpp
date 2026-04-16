@@ -5,12 +5,15 @@
 
  * License: LGPL 2+ */
 
-#include <al.h>
-#include <AL/alut.h>
-
 #include "Audio.h"
+
 #include <util/coErr.h>
 #include <iostream>
+
+#ifdef HAVE_AUDIO
+#include <al.h>
+#include <AL/alut.h>
+#endif
 
 using namespace opencover::audio;
 
@@ -39,6 +42,7 @@ bool Audio::setURL(const std::string &url)
 
 void Audio::loadFile()
 {
+#ifdef HAVE_AUDIO
     if (_sample_data != nullptr)
     {
         // Already loaded.
@@ -82,10 +86,12 @@ void Audio::loadFile()
 
     _samples_per_sec = (int)frequency;
     _num_samples = (int)size * 8 / _channels / _bits_per_sample;
+#endif
 }
 
 void Audio::loadFileToBuffer()
 {
+#if HAVE_AUDIO
     if (_buffer != AL_NONE)
     {
         // Already loaded.
@@ -110,7 +116,7 @@ void Audio::loadFileToBuffer()
         ALenum error = alutGetError();
         std::cerr << "Audio: Error creating buffer: " << alutGetErrorString(error) << std::endl;
         _num_samples = 0;
-	return; // do not continue with a broken _buffer (will generate a devision by 0)
+        return; // do not continue with a broken _buffer (will generate a devision by 0)
     }
 
     ALsizei size;
@@ -119,13 +125,14 @@ void Audio::loadFileToBuffer()
     alGetBufferi(_buffer, AL_BITS, &_bits_per_sample);
     alGetBufferi(_buffer, AL_CHANNELS, &_channels);
     alGetBufferi(_buffer, AL_SIZE, &size);
-    
+
     _num_samples = (int)size * 8 / _channels / _bits_per_sample;
+#endif
 }
 
 void Audio::unload()
 {
-
+#if HAVE_AUDIO
     if (_sample_data)
     {
         delete[] _sample_data;
@@ -137,4 +144,5 @@ void Audio::unload()
         alDeleteBuffers(1, &_buffer);
         _buffer = AL_NONE;
     }
+#endif
 }

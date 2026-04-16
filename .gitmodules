@@ -41,9 +41,6 @@
 [submodule "src/3rdparty/easyexif"]
 	path = src/3rdparty/easyexif
 	url = https://github.com/mayanklahiri/easyexif.git
-[submodule "src/3rdparty/oscpp"]
-	path = src/3rdparty/oscpp
-	url = https://github.com/kaoskorobase/oscpp.git
 [submodule "src/OpenCOVER/plugins/hlrs/AuralReality/aural-reality-protocol"]
 	path = src/OpenCOVER/plugins/hlrs/AuralReality/aural-reality-protocol
 	url = https://github.com/hlrs-vis/aural-reality-protocol.git

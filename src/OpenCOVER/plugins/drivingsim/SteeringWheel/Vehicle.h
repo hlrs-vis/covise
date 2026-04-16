@@ -36,9 +36,7 @@
 
 #include <util/coTypes.h>
 
-#ifdef HAVE_AUDIO
 #include <audio/Player.h>
-#endif
 #include <vrml97/vrml/config.h>
 #include <vrml97/vrml/VrmlNodeType.h>
 #include <vrml97/vrml/coEventQueue.h>

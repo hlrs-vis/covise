@@ -22,9 +22,7 @@
 #include "System.h"
 
 #include <algorithm>
-#ifdef HAVE_AUDIO
 #include <audio/Player.h>
-#endif
 
 using namespace vrml;
 using opencover::audio::Player;
@@ -133,7 +131,6 @@ void VrmlNodeSound::render(Viewer *viewer)
     double timeNow = System::the->time();
     VrmlSFTime now(timeNow);
 
-#ifdef HAVE_AUDIO
     Player *player = System::the->getPlayer();
     if (d_source.get() && player)
     {
@@ -212,7 +209,6 @@ void VrmlNodeSound::render(Viewer *viewer)
             }
         }
     }
-#endif
     setModified();
 
     lastLocation = d_location;
