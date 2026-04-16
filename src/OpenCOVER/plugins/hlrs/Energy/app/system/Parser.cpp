@@ -6,9 +6,10 @@
 
 using namespace opencover::utils::read;
 
-namespace {
-    // TODO: remove that later offset = [ -507048.0, -5398554.0, 50.0 ]
-    std::vector<double> m_offset{-507048.0, -53988554.0, 50.0};
+namespace
+{
+// TODO: remove that later offset = [ -507048.0, -5398554.0, 50.0 ]
+std::vector<double> m_offset { -507048.0, -53988554.0, 50.0 };
 }
 
 grid_ptr PowerGridParser::operator()(CSVDataMap &map)
@@ -231,10 +232,10 @@ PowerGridParser::getAdditionalPowerGridPointData(const std::size_t &numOfBus, CS
             // column
             for (auto &colName : header)
             {
-                //TODO: move this into GridUIManager
-                // if (!checkBoxSelection_powergrid(tableName, colName))
-                //     continue;
-                // get bus id without adding it
+                // TODO: move this into GridUIManager
+                //  if (!checkBoxSelection_powergrid(tableName, colName))
+                //      continue;
+                //  get bus id without adding it
                 if (colName == "bus")
                 {
                     ACCESS_CSV_ROW(row, colName, busId);
