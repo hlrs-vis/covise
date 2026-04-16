@@ -13,7 +13,7 @@ public:
 
     void setOnScenarioChanged(std::function<void(int)> cb)
     {
-        m_scenarioChangedCb = cb;
+        m_selectionList->setCallback(cb);
     }
 
     int getCurrentScenarioIndex() const
@@ -32,5 +32,4 @@ private:
     void setScenarios(const std::vector<std::string> &names);
 
     opencover::ui::SelectionList *m_selectionList;
-    std::function<void(int)> m_scenarioChangedCb;
 };
