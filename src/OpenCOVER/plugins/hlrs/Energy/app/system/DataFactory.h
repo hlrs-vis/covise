@@ -20,7 +20,7 @@ struct DataPackageVisitor
     }
 
     template <typename T>
-    decltype(auto) operator()(T &&data) const
+    auto operator()(T &&data) const -> decltype(auto)
     {
         return std::apply([&](auto &&...args)
             { return ParseManager {}(energyType, std::forward<T>(data), std::forward<decltype(args)>(args)...); }, extraArgs);
@@ -30,7 +30,7 @@ struct DataPackageVisitor
 struct DataFactory
 {
     template <typename T, typename... Args>
-    static decltype(auto) create(T &&package, EnergyType type, Args &&...args)
+    static auto create(T &&package, EnergyType type, Args &&...args) -> decltype(auto) 
     {
         return std::visit(DataPackageVisitor<Args...> { type, std::forward<Args>(args)... }, std::forward<T>(package));
     }
