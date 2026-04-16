@@ -4,9 +4,9 @@
 
 namespace
 {
-std::unique_ptr<opencover::utils::read::CSVStream> createStream(const std::string &path)
+CSVData createStream(const std::string &path)
 {
-    auto csvStream = std::make_unique<opencover::utils::read::CSVStream>(path);
+    auto csvStream = std::make_shared<opencover::utils::read::CSVStream>(path);
     if (!csvStream->is_open())
         throw std::runtime_error("Could not open file: " + path);
 
