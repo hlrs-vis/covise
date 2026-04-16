@@ -1077,9 +1077,15 @@ void SimulationSystem::buildPowerGrid() {
       {0, 0, 0}, "EnergyGridText", font, 50, 50, 2.0f, 0.1, 2);
   powerGroup->setName("PowerGrid");
 
-  EnergyGridConfig econfig("POWER", {}, grid::Indices(), mergedPoints, powerGroup,
-                           connectionsRadius, mergedOptData, infoboardAttributes,
-                           EnergyGridConnectionType::Line, mergedLines);
+  EnergyGridConfig econfig;
+  econfig.name = "POWER";
+  econfig.pointsMap = mergedPoints;
+  econfig.parent = powerGroup;
+  econfig.connectionRadius = connectionsRadius;
+  econfig.additionalConnectionData = mergedOptData;
+  econfig.infoboardAttributes = infoboardAttributes;
+  econfig.connectionType = EnergyGridConnectionType::Line;
+  econfig.lines = mergedLines;
 
   auto powerGrid = std::make_unique<EnergyGrid>(econfig, getLogger(), false);
   powerGrid->initDrawable();
@@ -1388,17 +1394,18 @@ void SimulationSystem::readHeatingGridStream(CSVStream &heatingStream) {
 
   auto &heatingGrid = m_energyGrids[egridIdx];
   heatingGrid.group->setName(heatingGrid.name);
+  EnergyGridConfig config;
+  config.name = "HEATING";
+  config.points = points;
+  config.parent = heatingGrid.group;
+  config.connectionRadius = 0.5f;
+  config.additionalConnectionData = additionalConnectionData;
+  config.infoboardAttributes = infoboardAttributes;
+  config.connectionType = EnergyGridConnectionType::Line;
+  config.lines = lines;
+
   heatingGrid.grid =
-      std::make_unique<EnergyGrid>(EnergyGridConfig{"HEATING",
-                                                    points,
-                                                    {},
-                                                    {},
-                                                    heatingGrid.group,
-                                                    0.5f,
-                                                    additionalConnectionData,
-                                                    infoboardAttributes,
-                                                    EnergyGridConnectionType::Line,
-                                                    lines}, getLogger());
+      std::make_unique<EnergyGrid>(config, getLogger());
   heatingGrid.grid->initDrawable();
   addEnergyGridToGridSwitch(heatingGrid.group);
   switchEnergyGrid(EnergyGridType::HeatingGrid);
