@@ -1,19 +1,34 @@
 #include "GridRenderer.h"
-#include <osg/Switch>
+#include "Storage.h"
+#include "Scenario.h"
+#include "DataFactory.h"
 
-GridRenderer::GridRenderer(osg::ref_ptr<osg::Group> rootNode)
-    : m_root(rootNode)
+GridRenderer::GridRenderer(osg::ref_ptr<osg::Switch> rootNode, const GridRenderConfig &config, core::interface::ILogger &logger)
+    : core::ClassLogger(logger, "GridRenderer")
+    , m_config(config)
+    , m_root(rootNode)
 {
     for (auto type : ENERGYTYPE_RANGE)
     {
-        // each energygrid has multiple scenarios
-        m_gridNodes[type] = new osg::Switch();
+        m_gridNodes[type] = new osg::MatrixTransform;
+        m_gridNodes[type]->setName(EnergyTypeToString(type));
         m_root->addChild(m_gridNodes[type]);
     }
 }
 
-void GridRenderer::buildGrid(EnergyType type)
+void GridRenderer::buildGrid(EnergyType type, DataLoadManager &loader)
 {
+    Scenario staticScenario { -1, "static" };
+    auto package = loader.fetch(Storage::CSV, staticScenario, type);
+    if (package)
+    {
+        // auto grid = DataFactory::create(*package, type, getLogger());
+    }
+    else
+    {
+        std::string typeString(EnergyTypeToString(type));
+        error("Failed to build grid for " + typeString);
+    }
 }
 
 void GridRenderer::setData(EnergyType type, std::shared_ptr<core::simulation::SimulationResult> data)
