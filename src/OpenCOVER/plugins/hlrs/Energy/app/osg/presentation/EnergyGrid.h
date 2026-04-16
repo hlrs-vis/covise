@@ -23,66 +23,30 @@ using namespace core;
 
 enum class EnergyGridConnectionType { Index, Line };
 
-/**
- * @struct EnergyGridConfig
- * @brief A struct representing the data needed to create an energy grid.
- *
- * This struct is used to store the data needed to create an energy grid.
- *
- * @param name The name of the energy grid.
- * @param points The points that define the grid.
- * @param indices The indices that define the connections between points.
- * @param parent The parent OSG group node (default is nullptr).
- * @param connectionRadius The radius for connections (default is 1.0f).
- * @param additionalConData Additional connection data (default is an empty list).
- */
-struct EnergyGridConfig {
-  EnergyGridConfig(const std::string &gridName, const grid::Points &gridPoints,
-                   const grid::Indices &gridIndices,
-                   const grid::PointsMap &gridPointsMap = {},
-                   osg::ref_ptr<osg::MatrixTransform> gridParent = nullptr,
-                   const float &gridConnectionRadius = 1.0f,
-                   const grid::ConnectionDataList &extraConnectionData =
-                       grid::ConnectionDataList(),
-                   const OsgTxtBoxAttributes &gridInfoAttributes =
-                       OsgTxtBoxAttributes({0, 0, 0}, "EnergyGridText",
-                                           "DejaVuSans-Bold.ttf", 50, 50, 2.0f, 0.1,
-                                           2),
-                   const EnergyGridConnectionType &gridConnectionType =
-                       EnergyGridConnectionType::Index,
-                   const grid::Lines &gridLines = grid::Lines())
-      : name(gridName),
-        points(gridPoints),
-        indices(gridIndices),
-        pointsMap(gridPointsMap),
-        parent(gridParent),
-        connectionRadius(gridConnectionRadius),
-        additionalConnectionData(extraConnectionData),
-        infoboardAttributes(gridInfoAttributes),
-        connectionType(gridConnectionType),
-        lines(gridLines) {}
+struct EnergyGridConfig
+{
+    // Identity & Presentation
+    std::string name;
+    osg::ref_ptr<osg::MatrixTransform> parent = nullptr;
+    OsgTxtBoxAttributes infoboardAttributes = { { 0, 0, 0 }, "EnergyGridText", "DejaVuSans-Bold.ttf", 50, 50, 2.0f, 0.1, 2 };
 
-  // mandatory
-  std::string name;
-  grid::Points points;
-  grid::Indices indices;
-  // optional
-  grid::PointsMap pointsMap;  // for faster access
-  osg::ref_ptr<osg::MatrixTransform> parent;
-  float connectionRadius;
-  grid::ConnectionDataList additionalConnectionData;
-  OsgTxtBoxAttributes infoboardAttributes;
-  EnergyGridConnectionType connectionType;
-  grid::Lines lines;
+    // Topology
+    EnergyGridConnectionType connectionType = EnergyGridConnectionType::Line;
+    float connectionRadius = 1.0f;
 
-  bool valid() const {
-    bool isMandatoryValid = !name.empty() ||
-                            ((points.empty() || pointsMap.empty()) &&
-                             (points.empty() && pointsMap.empty())) ||
-                            !indices.empty();
-    return connectionType == EnergyGridConnectionType::Index ? isMandatoryValid
-                                                             : !lines.empty();
-  }
+    // Geometry & Connection Data
+    grid::Points points;
+    grid::PointsMap pointsMap; // for faster access
+    grid::Indices indices; // used if connectionType == Index
+    grid::Lines lines; // used if connectionType = Line
+    grid::ConnectionDataList additionalConnectionData;
+
+    bool valid() const
+    {
+        bool isMandatoryValid = !name.empty() || ((points.empty() || pointsMap.empty()) && (points.empty() && pointsMap.empty())) || !indices.empty();
+        return connectionType == EnergyGridConnectionType::Index ? isMandatoryValid
+                                                                 : !lines.empty();
+    }
 };
 
 /**
