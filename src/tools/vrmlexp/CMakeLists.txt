@@ -181,20 +181,10 @@ set_property(TARGET Vrmlexp PROPERTY CXX_STANDARD 17)
       "$<TARGET_FILE:Vrmlexp>"
       ${3DSMAX_STDPLUGS_DIR} 
    COMMENT "Copying lib to output directory")
-#only copy pdb files during debug build
-string(
-    APPEND _cmd
-    "$<IF:$<CONFIG:Debug>,"
-        "${CMAKE_COMMAND}" -E copy 
-      "$<TARGET_PDB_FILE:Vrmlexp>"
-      ${3DSMAX_STDPLUGS_DIR}
-    ">"
-)
+ add_custom_command(TARGET Vrmlexp POST_BUILD 
+   COMMAND "${CMAKE_COMMAND}" -E copy 
+      "$<$<CONFIG:Debug>:$<TARGET_PDB_FILE:Vrmlexp>>"
+      "$<$<CONFIG:Debug>:${3DSMAX_STDPLUGS_DIR}>"
+   COMMENT "Copying PDB to output directory")
 
-add_custom_target(
-    VrmlexpCopyPDB
-    ALL
-    COMMAND "${_cmd}"
-    COMMAND_EXPAND_LISTS
-)
 
