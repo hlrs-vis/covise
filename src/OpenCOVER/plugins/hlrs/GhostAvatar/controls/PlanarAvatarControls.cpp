@@ -21,20 +21,12 @@ PlanarAvatarControls::PlanarAvatarControls(const std::string &pathToFbx, const s
 
 void PlanarAvatarControls::updateBones(const osg::Matrix &floorMatrix, const osg::Matrix &handMatrix, const osg::Matrix &headMatrix)
 {
-    osg::Matrix translationMatrix;
-    translationMatrix.makeTranslate(floorMatrix.getTrans());
-    osg::Matrix rotationMatrix;
-    rotationMatrix.makeRotate(floorMatrix.getRotate());
-
     auto targetHeight = headMatrix.getTrans().z() - floorMatrix.getTrans().z();
+    float scale = targetHeight / (getInitialBounds())[1];
 
-    float scale = targetHeight / m_initialHeight;
-
-    // scale matrix
-    osg::Matrix scaleMatrix;
-    scaleMatrix.makeScale(scale, scale, scale);
-
-    m_avatarTrans->setMatrix(scaleMatrix * rotationMatrix * translationMatrix);
+    m_avatarTrans->setMatrix(osg::Matrix::scale(scale, scale, scale) *
+                             osg::Matrix::rotate(floorMatrix.getRotate()) * 
+                             osg::Matrix::translate(floorMatrix.getTrans()));
 
     if (m_armBone)
         moveBoneToTarget(*m_armBone, handMatrix.getTrans(), m_armAdjustMatrix);

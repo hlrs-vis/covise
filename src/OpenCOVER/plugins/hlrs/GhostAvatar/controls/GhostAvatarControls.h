@@ -54,8 +54,11 @@ public:
 protected:
     std::string m_pathToFbx;
 
-    void setForwardDirection(const osg::Vec3& direction);
-    void setUpDirection(const osg::Vec3& direction);
+    osg::Vec3 getBounds() const;
+    osg::Vec3 getInitialBounds() const;
+
+    void setForwardDirection(const osg::Vec3 &direction);
+    void setUpDirection(const osg::Vec3 &direction);
 
     std::string m_nodeName = "AvatarTrans";
     std::string m_armNodeName;
@@ -76,8 +79,6 @@ protected:
     osg::Matrix m_armAdjustMatrix;
     osg::Matrix m_headAdjustMatrix;
 
-    float m_initialHeight = 0;
-
     void loadArmBone();
     void loadHeadBone();
 
@@ -90,6 +91,8 @@ protected:
     osg::Vec3 getLocalTargetVector(const BoneParser::Bone &bone, const osg::Vec3 &targetPosition, const osg::Matrix &adjustMatrix) const;
 
 private:
+    osg::Vec3 m_initialBounds = { 0, 0, 0 };
+
     osg::Vec3 m_forwardDirection = { 1.0, 0.0, 0.0 };
     osg::Vec3 m_upDirection = { 0.0, 0.0, 1.0 };
 };

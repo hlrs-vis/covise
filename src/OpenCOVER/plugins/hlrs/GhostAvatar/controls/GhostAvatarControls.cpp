@@ -1,10 +1,10 @@
 #include <osg/BoundingSphere>
 #include <osg/ComputeBoundsVisitor>
-#include <osgAnimation/RigGeometry>
 #include <osgDB/ReadFile>
 #include <cover/coVRPluginSupport.h> // includes cover
 
 #include "GhostAvatarControls.h"
+#include "RigGeometryBoundsFixer.h"
 
 #include <iostream>
 
@@ -41,57 +41,18 @@ void GhostAvatarControls::loadAvatar()
         std::cerr << "GhostAvatarControls::loadAvatar: failed to load model " << m_pathToFbx << "\n";
         return;
     }
+    
     if (m_avatarTrans)
         cover->getObjectsRoot()->removeChild(m_avatarTrans);
 
     m_avatarTrans = new osg::MatrixTransform();
     m_avatarTrans->setName(m_nodeName);
     m_avatarTrans->addChild(model);
-
     cover->getObjectsRoot()->addChild(m_avatarTrans);
 
+    m_initialBounds = getBounds();
+
     m_avatarTrans->accept(m_parser);
-
-    // Todo: Do we really need this anymore? Only seems to swap x and y for ghost avatar, no difference for planar avatar...
-    struct RigGeometryBoundsFixer : public osg::NodeVisitor
-    {
-        RigGeometryBoundsFixer()
-            : osg::NodeVisitor(TRAVERSE_ALL_CHILDREN)
-        {
-        }
-        void apply(osg::Geode &geode) override
-        {
-            for (unsigned int i = 0; i < geode.getNumDrawables(); ++i)
-            {
-                if (auto rig = dynamic_cast<osgAnimation::RigGeometry *>(geode.getDrawable(i)))
-                {
-                    std::cout << "Found RigGeometry '" << rig->getName() << "' -> setting compute bounding box callback\n";
-                    rig->setComputeBoundingBoxCallback(
-                        new osgAnimation::RigComputeBoundingBoxCallback(1.0));
-                    static_cast<osgAnimation::RigComputeBoundingBoxCallback *>(
-                        rig->getComputeBoundingBoxCallback())
-                        ->reset();
-                    rig->dirtyBound();
-                }
-            }
-            traverse(geode);
-        }
-    };
-    RigGeometryBoundsFixer rigFixer;
-    m_avatarTrans->accept(rigFixer);
-
-    osg::ComputeBoundsVisitor computeBounds;
-    m_avatarTrans->accept(computeBounds);
-    osg::BoundingBox boundingBox = computeBounds.getBoundingBox();
-
-    float sizeX = boundingBox.xMax() - boundingBox.xMin();
-    float sizeY = boundingBox.yMax() - boundingBox.yMin();
-    float sizeZ = boundingBox.zMax() - boundingBox.zMin();
-
-    m_initialHeight = sizeY;
-
-    std::cerr << "--------- x size: " << sizeX << ", y size: " << sizeY << ", z size: " << sizeZ << std::endl;
-
     loadArmBone();
     loadHeadBone();
 }
@@ -193,6 +154,26 @@ osg::Vec3 GhostAvatarControls::getInitialArmPosition() const
 osg::Vec3 GhostAvatarControls::getInitialHeadPosition() const
 {
     return getInitialBonePosition(*m_headBone);
+}
+
+osg::Vec3 GhostAvatarControls::getBounds() const
+{
+    if (!m_avatarTrans)
+        return { 0, 0, 0 };
+
+    RigGeometryBoundsFixer rigFixer;
+    m_avatarTrans->accept(rigFixer);
+
+    osg::ComputeBoundsVisitor computeBounds;
+    m_avatarTrans->accept(computeBounds);
+    osg::BoundingBox boundingBox = computeBounds.getBoundingBox();
+
+    return { boundingBox.xMax() - boundingBox.xMin(), boundingBox.yMax() - boundingBox.yMin(), boundingBox.zMax() - boundingBox.zMin() };
+}
+
+osg::Vec3 GhostAvatarControls::getInitialBounds() const
+{
+    return m_initialBounds;
 }
 
 void GhostAvatarControls::setForwardDirection(const osg::Vec3 &direction)

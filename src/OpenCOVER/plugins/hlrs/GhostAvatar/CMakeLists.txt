@@ -6,6 +6,7 @@ set(HEADERS
     GhostAvatar.h
 
     controls/BoneParser.h
+    controls/RigGeometryBoundsFixer.h
     controls/PlanarAvatarControls.h
     controls/TestAvatarControls.h
     controls/GhostAvatarControls.h
@@ -23,6 +24,7 @@ set(SOURCES
     GhostAvatar.cpp
 
     controls/BoneParser.cpp
+    controls/RigGeometryBoundsFixer.cpp
     controls/PlanarAvatarControls.cpp
     controls/TestAvatarControls.cpp
     controls/GhostAvatarControls.cpp
