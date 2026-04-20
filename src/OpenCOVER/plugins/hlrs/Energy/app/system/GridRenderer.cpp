@@ -2,7 +2,9 @@
 #include "Storage.h"
 #include "Scenario.h"
 #include "DataFactory.h"
+#include "app/osg/presentation/EnergyGrid.h"
 #include "app/system/EnergyType.h"
+#include <memory>
 
 GridRenderer::GridRenderer(osg::ref_ptr<osg::Switch> rootNode, const GridRenderConfig &config, core::interface::ILogger &logger)
     : core::ClassLogger(logger, "GridRenderer")
@@ -35,10 +37,19 @@ void GridRenderer::buildGrid(EnergyType type, DataLoadManager &loader)
     }
 }
 
-void GridRenderer::setData(EnergyType type, std::shared_ptr<core::simulation::SimulationResult> data)
+void GridRenderer::setData(EnergyType type, std::shared_ptr<core::simulation::SimulationResult> data, const std::string &species)
 {
+    if (m_gridMap.find(type) == m_gridMap.end()) {
+       std::string typeString(EnergyTypeToString(type));
+       warn("Need to build grid for type " + typeString + " before updating shader.");
+       return;
+    }
+
     m_activeData[type] = data;
-    // TODO: set shader correctly
+    // TODO: rework this to initialize it without species
+    auto energyGrid = std::dynamic_pointer_cast<EnergyGrid>(m_gridMap[type]);
+    if (energyGrid)
+        energyGrid->setData(*data, species);
 }
 
 void GridRenderer::update()

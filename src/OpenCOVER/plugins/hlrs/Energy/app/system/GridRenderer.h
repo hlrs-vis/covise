@@ -23,7 +23,7 @@ public:
     GridRenderer(osg::ref_ptr<osg::Switch> rootNode, const GridRenderConfig& offset, core::interface::ILogger& logger);
 
     void buildGrid(EnergyType type, DataLoadManager& loader);
-    void setData(EnergyType type, std::shared_ptr<core::simulation::SimulationResult> data);
+    void setData(EnergyType type, std::shared_ptr<core::simulation::SimulationResult> data, const std::string &species);
     void update();
     void updateStep(int timestep);
     void setVisible(bool visible);
@@ -32,6 +32,6 @@ private:
     GridRenderConfig m_config;
     osg::ref_ptr<osg::Switch> m_root;
     std::map<EnergyType, osg::ref_ptr<osg::MatrixTransform>> m_gridNodes;
-    std::map<EnergyType, std::unique_ptr<core::interface::IEnergyGrid>> m_gridMap;
+    std::map<EnergyType, std::shared_ptr<core::interface::IEnergyGrid>> m_gridMap;
     std::map<EnergyType, std::shared_ptr<core::simulation::SimulationResult>> m_activeData;
 };
