@@ -1,5 +1,6 @@
 #pragma once
 #include "GridParser.h"
+#include "app/osg/presentation/grid.h"
 #include <utils/read/csv/csv.h>
 
 struct PowerGridParser final : GridParser

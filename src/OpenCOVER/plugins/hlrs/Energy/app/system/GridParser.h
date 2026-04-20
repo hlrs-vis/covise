@@ -1,7 +1,6 @@
 #pragma once
 #include "Parser.h"
 #include "GridRenderer.h"
-#include "app/osg/presentation/grid.h"
 #include <lib/core/interfaces/IEnergyGrid.h>
 #include <lib/core/ClassLogger.h>
 
@@ -15,6 +14,5 @@ struct GridParser : DataPackageParser<grid_ptr>, core::ClassLogger
     {
     }
 
-public:
     GridRenderConfig m_config;
 };
