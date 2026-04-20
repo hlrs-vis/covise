@@ -4,7 +4,7 @@
 #include <lib/core/interfaces/IEnergyGrid.h>
 #include <lib/core/ClassLogger.h>
 
-using grid_ptr = std::unique_ptr<core::interface::IEnergyGrid>;
+using grid_ptr = std::shared_ptr<core::interface::IEnergyGrid>;
 
 struct GridParser : DataPackageParser<grid_ptr>, core::ClassLogger
 {
