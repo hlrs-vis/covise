@@ -32,6 +32,6 @@ private:
     GridRenderConfig m_config;
     osg::ref_ptr<osg::Switch> m_root;
     std::map<EnergyType, osg::ref_ptr<osg::MatrixTransform>> m_gridNodes;
-    std::map<EnergyType, std::unique_ptr<core::interface::IEnergyGrid>> m_gridObj;
+    std::map<EnergyType, std::unique_ptr<core::interface::IEnergyGrid>> m_gridMap;
     std::map<EnergyType, std::shared_ptr<core::simulation::SimulationResult>> m_activeData;
 };
