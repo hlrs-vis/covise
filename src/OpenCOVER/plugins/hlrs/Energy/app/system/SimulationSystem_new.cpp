@@ -16,7 +16,10 @@ SimulationSystem::SimulationSystem(opencover::coVRPlugin *plugin, opencover::ui:
     , m_gridRenderer(
           parent,
           { { plugin->configFloatArray("General", "offset", std::vector<double> { 0, 0, 0 })->value() },
-              { plugin->configString("Billboard", "font", "default")->value() } },
+              { plugin->configString("Billboard", "font", "default")->value() },
+              { m_plugin->configString("General", "projFrom", "default")->value() },
+              { m_plugin->configString("General", "projTo", "default")->value() }
+          },
           logger)
     , m_currentStorageSelection(Storage::ARROW)
     , m_enabled(false)
@@ -29,7 +32,7 @@ void SimulationSystem::init()
     m_dataLoadManager.registerProvider(Storage::ARROW, std::make_unique<ArrowLoader>(m_scenarioDir));
     m_dataLoadManager.registerProvider(Storage::CSV, std::make_unique<CSVLoader>(m_scenarioDir));
 
-    for (auto type: ENERGYTYPE_RANGE)
+    for (auto type : ENERGYTYPE_RANGE)
         m_gridRenderer.buildGrid(type, m_dataLoadManager);
 
     m_scenarioManager.setOnScenarioChanged([this](int id)
@@ -63,7 +66,7 @@ void SimulationSystem::onScenarioSelectionChanged(int scenarioId)
         auto result = m_dataManager.getResult(currentScenario, type);
         if (result)
         {
-            //TODO: use scalar selector from later UI implementation for species
+            // TODO: use scalar selector from later UI implementation for species
             m_gridRenderer.setData(type, result, "");
             m_gridUIManager.updateUIState(type, result);
         }
