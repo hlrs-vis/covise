@@ -47,8 +47,8 @@ target_link_libraries(coVRAudio
 )
 
 if (HAVE_AUDIO)
-    target_link_libraries(coVRAudio OpenAL::OpenAL ${ALUT_LIBRARIES})
-    target_include_directories(coVRAudio PRIVATE ${OPENAL_INCLUDE_DIR} ${ALUT_INCLUDE_DIR})
+    target_link_libraries(coVRAudio ${ALUT_LIBRARIES} OpenAL::OpenAL)
+    target_include_directories(coVRAudio PRIVATE ${ALUT_INCLUDE_DIR} ${OPENAL_INCLUDE_DIR})
     target_compile_definitions(coVRAudio PRIVATE -DHAVE_AUDIO)
 endif()
 
