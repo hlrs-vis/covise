@@ -22,8 +22,11 @@ struct DataPackageVisitor
     template <typename T>
     auto operator()(T &&data) const -> decltype(auto)
     {
-        return std::apply([&](auto &&...args)
-            { return ParseManager {}(energyType, std::forward<T>(data), std::forward<decltype(args)>(args)...); }, extraArgs);
+        // apply(function, tuple)
+        return std::apply(
+            [&](auto &&...args){ return ParseManager {}(energyType, std::forward<T>(data), std::forward<decltype(args)>(args)...); }, 
+            extraArgs
+        );
     }
 };
 
