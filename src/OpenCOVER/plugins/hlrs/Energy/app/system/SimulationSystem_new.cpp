@@ -62,7 +62,8 @@ void SimulationSystem::onScenarioSelectionChanged(int scenarioId)
         auto result = m_dataManager.getResult(currentScenario, type);
         if (result)
         {
-            m_gridRenderer.setData(type, result);
+            //TODO: use scalar selector from later UI implementation for species
+            m_gridRenderer.setData(type, result, "");
             m_gridUIManager.updateUIState(type, result);
         }
     }
