@@ -571,7 +571,7 @@ void PlayerAServer::Source::setLoop(bool loop)
 }
 
 std::unique_ptr<opencover::audio::Source>
-PlayerAServer::makeSource(Player *player, const Audio *audio)
+PlayerAServer::makeSource(const Audio *audio)
 {
     return std::make_unique<PlayerAServer::Source>(this, audio);
 }

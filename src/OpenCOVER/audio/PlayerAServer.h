@@ -20,7 +20,7 @@ class COVRAUDIOEXPORT PlayerAServer : public Player
 public:
     PlayerAServer(const Listener *listener, const std::string &host, int port);
     virtual ~PlayerAServer();
-    virtual std::unique_ptr<opencover::audio::Source> makeSource(Player *player, const Audio *audio);
+    virtual std::unique_ptr<opencover::audio::Source> makeSource(const Audio *audio) override;
 
     virtual int send_cmd(const char *cmd) const;
     virtual int send_data(const char *data, int size, bool swapped = false) const;
