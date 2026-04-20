@@ -1,10 +1,10 @@
 #pragma once
 #include "Parser.h"
+#include "app/typedefs.h"
 #include "GridRenderer.h"
 #include <lib/core/interfaces/IEnergyGrid.h>
 #include <lib/core/ClassLogger.h>
 
-using grid_ptr = std::shared_ptr<core::interface::IEnergyGrid>;
 
 struct GridParser : DataPackageParser<grid_ptr>, core::ClassLogger
 {

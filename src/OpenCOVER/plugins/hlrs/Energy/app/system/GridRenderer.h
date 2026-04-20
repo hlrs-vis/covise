@@ -1,6 +1,7 @@
 #pragma once
 #include "EnergyType.h"
 #include "DataLoadManager.h"
+#include "app/typedefs.h"
 #include <lib/core/interfaces/IEnergyGrid.h>
 #include <lib/core/simulation/simulationresult.h>
 #include <lib/core/ClassLogger.h>
@@ -34,6 +35,6 @@ private:
     GridRenderConfig m_config;
     osg::ref_ptr<osg::Switch> m_root;
     std::map<EnergyType, osg::ref_ptr<osg::MatrixTransform>> m_gridNodes;
-    std::map<EnergyType, std::shared_ptr<core::interface::IEnergyGrid>> m_gridMap;
-    std::map<EnergyType, std::shared_ptr<core::simulation::SimulationResult>> m_activeData;
+    std::map<EnergyType, grid_ptr> m_gridMap;
+    std::map<EnergyType, result_ptr> m_activeData;
 };
