@@ -23,17 +23,8 @@ void GridRenderer::buildGrid(EnergyType type, DataLoadManager &loader)
     std::string typeString(EnergyTypeToString(type));
     if (package)
     {
-        if (!m_config.parent) {
-            if (m_gridNodes.find(type) != m_gridNodes.end())
-            {
-                m_config.parent = m_gridNodes[type];
-            }
-            else
-            {
-                error("No valid grid type");
-                return;
-            }
-        }
+        if (!m_config.parent)
+            m_config.parent = m_gridNodes[type];
 
         m_gridObj[type] = DataFactory::create(*package, type, getLogger(), typeString, m_config);
     }
