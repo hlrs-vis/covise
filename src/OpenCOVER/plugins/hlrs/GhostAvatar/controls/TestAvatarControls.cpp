@@ -3,6 +3,8 @@
 TestAvatarControls::TestAvatarControls(const std::string &pathToFbx, const std::string &armNodeName, const std::string &headNodeName)
     : GhostAvatarControls(pathToFbx, armNodeName, headNodeName)
 {
+    setBaseRotation(osg::Quat(0, 0, 0.707107, 0.707107)); // make sure the avatar is facing forward
+
     setForwardDirection({ 1.0, 0.0, 0.0 });
     setUpDirection({ 0.0, 0.0, 1.0 });
 
@@ -30,7 +32,7 @@ void TestAvatarControls::updateBones(const osg::Matrix &floorMatrix, const osg::
     float scale = targetHeight / (getInitialBounds())[1];
 
     m_avatarTrans->setMatrix(osg::Matrix::scale(scale, scale, scale) *
-                             osg::Matrix::rotate(floorMatrix.getRotate()) * 
+                             osg::Matrix::rotate(getBaseRotation()) * osg::Matrix::rotate(floorMatrix.getRotate()) * 
                              osg::Matrix::translate(floorMatrix.getTrans()));
 
     if (m_armBone)

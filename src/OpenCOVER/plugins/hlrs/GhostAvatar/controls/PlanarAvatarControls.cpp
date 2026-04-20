@@ -3,6 +3,8 @@
 PlanarAvatarControls::PlanarAvatarControls(const std::string &pathToFbx, const std::string &armNodeName, const std::string &headNodeName)
     : GhostAvatarControls(pathToFbx, armNodeName, headNodeName)
 {
+    setBaseRotation(osg::Quat(1, 0, 0, 0)); // make sure avatar is upright
+
     setForwardDirection({ 0, -1, 0 });
     setUpDirection({ 0, 0, -1 });
 
@@ -25,7 +27,7 @@ void PlanarAvatarControls::updateBones(const osg::Matrix &floorMatrix, const osg
     float scale = targetHeight / (getInitialBounds())[1];
 
     m_avatarTrans->setMatrix(osg::Matrix::scale(scale, scale, scale) *
-                             osg::Matrix::rotate(floorMatrix.getRotate()) * 
+                             osg::Matrix::rotate(getBaseRotation()) * osg::Matrix::rotate(floorMatrix.getRotate()) * 
                              osg::Matrix::translate(floorMatrix.getTrans()));
 
     if (m_armBone)

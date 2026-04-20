@@ -6,6 +6,7 @@
 #include <osg/Matrix>
 #include <osg/MatrixTransform>
 #include <osg/Node>
+#include <osg/Quat>
 #include <osg/ref_ptr>
 #include <osg/Vec3>
 #include <osg/Vec4>
@@ -54,6 +55,9 @@ public:
 protected:
     std::string m_pathToFbx;
 
+    osg::Quat getBaseRotation() const;
+    void setBaseRotation(const osg::Quat &rotation);
+
     osg::Vec3 getBounds() const;
     osg::Vec3 getInitialBounds() const;
 
@@ -91,6 +95,7 @@ protected:
     osg::Vec3 getLocalTargetVector(const BoneParser::Bone &bone, const osg::Vec3 &targetPosition, const osg::Matrix &adjustMatrix) const;
 
 private:
+    osg::Quat m_baseRotation = osg::Quat(0, 0, 0, 1);
     osg::Vec3 m_initialBounds = { 0, 0, 0 };
 
     osg::Vec3 m_forwardDirection = { 1.0, 0.0, 0.0 };

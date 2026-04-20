@@ -41,7 +41,7 @@ void GhostAvatarControls::loadAvatar()
         std::cerr << "GhostAvatarControls::loadAvatar: failed to load model " << m_pathToFbx << "\n";
         return;
     }
-    
+
     if (m_avatarTrans)
         cover->getObjectsRoot()->removeChild(m_avatarTrans);
 
@@ -154,6 +154,16 @@ osg::Vec3 GhostAvatarControls::getInitialArmPosition() const
 osg::Vec3 GhostAvatarControls::getInitialHeadPosition() const
 {
     return getInitialBonePosition(*m_headBone);
+}
+
+osg::Quat GhostAvatarControls::getBaseRotation() const
+{
+    return m_baseRotation;
+}
+
+void GhostAvatarControls::setBaseRotation(const osg::Quat &rotation)
+{
+    m_baseRotation = rotation;
 }
 
 osg::Vec3 GhostAvatarControls::getBounds() const
