@@ -5,6 +5,7 @@
 #include "app/osg/presentation/EnergyGrid.h"
 #include "app/system/EnergyType.h"
 #include <memory>
+#include <lib/core/utils/osgUtils.h>
 
 GridRenderer::GridRenderer(osg::ref_ptr<osg::Switch> rootNode, const GridRenderConfig &config, core::interface::ILogger &logger)
     : core::ClassLogger(logger, "GridRenderer")
@@ -17,6 +18,7 @@ GridRenderer::GridRenderer(osg::ref_ptr<osg::Switch> rootNode, const GridRenderC
         m_gridNodes[type]->setName(EnergyTypeToString(type));
         m_root->addChild(m_gridNodes[type]);
     }
+    core::utils::osgUtils::switchTo(m_gridNodes[EnergyType::POWER], m_root);
 }
 
 void GridRenderer::buildGrid(EnergyType type, DataLoadManager &loader)
@@ -37,10 +39,11 @@ void GridRenderer::buildGrid(EnergyType type, DataLoadManager &loader)
 
 void GridRenderer::setData(EnergyType type, std::shared_ptr<core::simulation::SimulationResult> data, const std::string &species)
 {
-    if (m_gridMap.find(type) == m_gridMap.end()) {
-       std::string typeString(EnergyTypeToString(type));
-       warn("Need to build grid for type " + typeString + " before updating shader.");
-       return;
+    if (m_gridMap.find(type) == m_gridMap.end())
+    {
+        std::string typeString(EnergyTypeToString(type));
+        warn("Need to build grid for type " + typeString + " before updating shader.");
+        return;
     }
 
     m_activeData[type] = data;
