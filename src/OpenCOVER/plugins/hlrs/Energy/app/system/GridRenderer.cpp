@@ -26,24 +26,32 @@ void GridRenderer::buildGrid(EnergyType type, DataLoadManager &loader)
         if (!m_config.parent)
             m_config.parent = m_gridNodes[type];
 
-        m_gridObj[type] = DataFactory::create(*package, type, getLogger(), typeString, m_config);
+        m_gridMap[type] = DataFactory::create(*package, type, getLogger(), typeString, m_config);
     }
     else
     {
-        error("Failed to build grid for " + typeString);
+        error("Failed to build grid for " + typeString + "; Datapackage not read correctly.");
     }
 }
 
 void GridRenderer::setData(EnergyType type, std::shared_ptr<core::simulation::SimulationResult> data)
 {
+    m_activeData[type] = data;
+    // TODO: set shader correctly
 }
 
 void GridRenderer::update()
 {
+    for (auto &[_, grid] : m_gridMap)
+        if (grid)
+            grid->update();
 }
 
 void GridRenderer::updateStep(int timestep)
 {
+    for (auto &[_, grid] : m_gridMap)
+        if (grid)
+            grid->updateTime(timestep);
 }
 
 void GridRenderer::setVisible(EnergyType type, bool visible)
