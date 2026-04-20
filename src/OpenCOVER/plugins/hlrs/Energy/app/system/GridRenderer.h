@@ -12,6 +12,8 @@
 struct GridRenderConfig {
     std::vector<double> offset;
     std::string font;
+    std::string projFrom = "";
+    std::string projTo = "";
     osg::ref_ptr<osg::MatrixTransform> parent = nullptr;
     static constexpr float sphereRadius = 2.0f;
     static constexpr float connectionsRadius = 1.0f;
