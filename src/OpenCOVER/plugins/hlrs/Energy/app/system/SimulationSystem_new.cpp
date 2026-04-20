@@ -38,6 +38,7 @@ void SimulationSystem::init()
 
 void SimulationSystem::enable(bool on)
 {
+    m_gridRenderer.setVisible(on);
 }
 
 void SimulationSystem::update()
