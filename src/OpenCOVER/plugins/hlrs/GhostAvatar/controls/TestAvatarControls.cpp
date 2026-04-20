@@ -3,6 +3,9 @@
 TestAvatarControls::TestAvatarControls(const std::string &pathToFbx, const std::string &armNodeName, const std::string &headNodeName)
     : GhostAvatarControls(pathToFbx, armNodeName, headNodeName)
 {
+    setForwardDirection({ 1.0, 0.0, 0.0 });
+    setUpDirection({ 0.0, 0.0, 1.0 });
+
     if (m_armNodeName == "LeftArm")
     {
         m_armAdjustMatrix.set(
@@ -37,7 +40,7 @@ void TestAvatarControls::updateBones(const osg::Matrix &floorMatrix, const osg::
     osg::Matrix scaleMatrix;
     scaleMatrix.makeScale(scale, scale, scale);
 
-    m_avatarTrans->setMatrix(scaleMatrix * rotationMatrix * translationMatrix); 
+    m_avatarTrans->setMatrix(scaleMatrix * rotationMatrix * translationMatrix);
 
     if (m_armBone)
         makeBonePointAtTarget(*m_armBone, handMatrix.getTrans(), m_armAdjustMatrix, m_armBaseVector);

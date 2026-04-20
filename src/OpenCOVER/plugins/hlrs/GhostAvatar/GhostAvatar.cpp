@@ -11,14 +11,14 @@ using namespace ui;
 
 GhostAvatar::GhostAvatar()
     : coVRPlugin(COVER_PLUGIN_NAME)
-    //, m_avatarControls(std::make_unique<TestAvatarControls>("/data/STARTS-ECHO/Avatars/shaderTests/ghost_cave_minimal_fix.fbx", "LeftArm", ""))
-    , m_avatarControls(std::make_unique<PlanarAvatarControls>("/data/STARTS-ECHO/Avatars/planarAvatar/PLANEE6_fix.fbx", "Arm", "Head"))
+    , m_avatarControls(std::make_unique<TestAvatarControls>("/data/STARTS-ECHO/Avatars/shaderTests/ghost_cave_minimal_fix.fbx", "RightArm", ""))
+    //, m_avatarControls(std::make_unique<PlanarAvatarControls>("/data/STARTS-ECHO/Avatars/planarAvatar/PLANEE6_fix.fbx", "Arm", "Head"))
     , m_avatarTexture(std::make_unique<SplotchTerroirTexture>(100))
     //, m_avatarTexture(std::make_unique<StripesTerroirTexture>(100))
     , m_avatarControlsUI(GhostAvatarControlsUI(COVER_PLUGIN_NAME, *m_avatarControls))
 {
-    m_avatarTexture->setCameraForwardDir({ 0, -1, 0 }); // planar
-    m_avatarTexture->setCameraUpDir({ 0, 0, -1 }); // planar
+    m_avatarTexture->setCameraForwardDir(m_avatarControls->getForwardDirection());
+    m_avatarTexture->setCameraUpDir(m_avatarControls->getUpDirection());
 }
 
 bool GhostAvatar::update()
@@ -53,17 +53,16 @@ void GhostAvatar::preFrame()
 
 void GhostAvatar::createInteractors()
 {
-    // TODO: try to set them to the default position first
     osg::Matrix m;
     auto interSize = 10;
     m.setTrans(0, 0, 0);
-    //m.setRotate(osg::Quat(0, 0, 0.707107, 0.707107)); // ghost
-    m.setRotate(osg::Quat(1, 0, 0, 0)); // planar
+    m.setRotate(osg::Quat(0, 0, 0.707107, 0.707107)); // ghost
+    //m.setRotate(osg::Quat(1, 0, 0, 0)); // planar
     m_interactorFloor.reset(new coVR3DTransRotInteractor(m, interSize, vrui::coInteraction::InteractionType::ButtonA, "floor", "targetInteractor", vrui::coInteraction::InteractionPriority::Medium));
     m_interactorFloor->enableIntersection();
     m_interactorFloor->show();
 
-    m.setTrans(-120, 0, 80);
+    m.setTrans(120, 0, 80);
     m_interactorHand.reset(new coVR3DTransRotInteractor(m, interSize, vrui::coInteraction::InteractionType::ButtonA, "hand", "targetInteractor", vrui::coInteraction::InteractionPriority::Medium));
     m_interactorHand->enableIntersection();
     m_interactorHand->show();

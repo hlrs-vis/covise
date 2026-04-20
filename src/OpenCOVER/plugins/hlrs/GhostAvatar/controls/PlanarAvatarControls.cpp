@@ -3,6 +3,9 @@
 PlanarAvatarControls::PlanarAvatarControls(const std::string &pathToFbx, const std::string &armNodeName, const std::string &headNodeName)
     : GhostAvatarControls(pathToFbx, armNodeName, headNodeName)
 {
+    setForwardDirection({ 0, -1, 0 });
+    setUpDirection({ 0, 0, -1 });
+
     m_armAdjustMatrix.set(
         0, 0, 1, 0,
         1, 0, 0, 0,

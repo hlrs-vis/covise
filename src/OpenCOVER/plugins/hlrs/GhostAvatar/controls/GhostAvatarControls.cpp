@@ -101,6 +101,16 @@ osg::ref_ptr<osg::Node> GhostAvatarControls::getAvatarNode() const
     return m_avatarTrans;
 }
 
+osg::Vec3 GhostAvatarControls::getForwardDirection() const
+{
+    return m_forwardDirection;
+}
+
+osg::Vec3 GhostAvatarControls::getUpDirection() const
+{
+    return m_upDirection;
+}
+
 bool GhostAvatarControls::hasArm()
 {
     return m_hasArm;
@@ -183,6 +193,16 @@ osg::Vec3 GhostAvatarControls::getInitialArmPosition() const
 osg::Vec3 GhostAvatarControls::getInitialHeadPosition() const
 {
     return getInitialBonePosition(*m_headBone);
+}
+
+void GhostAvatarControls::setForwardDirection(const osg::Vec3 &direction)
+{
+    m_forwardDirection = direction;
+}
+
+void GhostAvatarControls::setUpDirection(const osg::Vec3 &direction)
+{
+    m_upDirection = direction;
 }
 
 void GhostAvatarControls::loadArmBone()

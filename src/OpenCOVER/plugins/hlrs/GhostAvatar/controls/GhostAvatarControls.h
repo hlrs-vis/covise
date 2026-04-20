@@ -22,6 +22,8 @@ public:
     void loadAvatar();
 
     osg::ref_ptr<osg::Node> getAvatarNode() const;
+    osg::Vec3 getForwardDirection() const;
+    osg::Vec3 getUpDirection() const;
 
     virtual void updateBones(const osg::Matrix &floorMatrix, const osg::Matrix &handMatrix, const osg::Matrix &headMatrix) = 0;
 
@@ -51,6 +53,9 @@ public:
 
 protected:
     std::string m_pathToFbx;
+
+    void setForwardDirection(const osg::Vec3& direction);
+    void setUpDirection(const osg::Vec3& direction);
 
     std::string m_nodeName = "AvatarTrans";
     std::string m_armNodeName;
@@ -83,6 +88,10 @@ protected:
     osg::Matrix getLocalToWorldMatrix(const BoneParser::Bone &bone) const;
     osg::Vec3 getPositionInLocalCoordinates(const BoneParser::Bone &bone, const osg::Vec3 &positionInWorldCoordinates) const;
     osg::Vec3 getLocalTargetVector(const BoneParser::Bone &bone, const osg::Vec3 &targetPosition, const osg::Matrix &adjustMatrix) const;
+
+private:
+    osg::Vec3 m_forwardDirection = { 1.0, 0.0, 0.0 };
+    osg::Vec3 m_upDirection = { 0.0, 0.0, 1.0 };
 };
 
 #endif // COVER_PLUGIN_GHOSTAVATAR_CONTROLS_GhostAvatarControls_H
