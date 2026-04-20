@@ -72,10 +72,8 @@ grid_ptr PowerGridParser::operator()(CSVDataMap &map)
     econfig.connectionType = EnergyGridConnectionType::Line;
     econfig.lines = mergedLines;
 
-    auto powerGrid = std::make_unique<EnergyGrid>(econfig, getLogger(), false);
+    auto powerGrid = std::make_shared<EnergyGrid>(econfig, getLogger(), false);
     powerGrid->initDrawable();
-    // TODO: add group to switch
-    // addEnergyGridToGridSwitch(egrid.group);
     return std::move(powerGrid);
 }
 
