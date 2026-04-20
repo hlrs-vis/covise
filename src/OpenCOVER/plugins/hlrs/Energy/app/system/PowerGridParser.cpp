@@ -1,4 +1,4 @@
-#include "Parser.h"
+#include "PowerGridParser.h"
 #include "app/osg/presentation/EnergyGrid.h"
 
 #include <filesystem>
@@ -360,92 +360,4 @@ grid_ptr PowerGridParser::operator()(const ArrowData &data)
 grid_ptr PowerGridParser::operator()(CSVData &data)
 {
     return nullptr;
-}
-
-grid_ptr HeatingGridParser::operator()(CSVDataMap &map)
-{
-    return nullptr;
-}
-
-grid_ptr HeatingGridParser::operator()(const ArrowDataMap &map)
-{
-    return nullptr;
-}
-
-grid_ptr HeatingGridParser::operator()(const ArrowData &data)
-{
-    return nullptr;
-}
-
-grid_ptr HeatingGridParser::operator()(CSVData &data)
-{
-    return nullptr;
-}
-
-result_ptr PowerParser::operator()(CSVDataMap &map)
-{
-    auto result = std::make_shared<cs::power::PowerSimulationResult>();
-    for (auto &[name, stream] : map)
-    {
-        // TODO: put data into result
-    }
-    return result;
-}
-
-result_ptr PowerParser::operator()(const ArrowDataMap &map)
-{
-    auto result = std::make_shared<cs::power::PowerSimulationResult>();
-    for (auto &[name, table] : map)
-    {
-        // TODO: put data into result
-    }
-    return result;
-}
-
-result_ptr PowerParser::operator()(const ArrowData &data)
-{
-    auto result = std::make_shared<cs::power::PowerSimulationResult>();
-    // TODO: put data into result
-    return result;
-}
-
-result_ptr PowerParser::operator()(CSVData &data)
-{
-    auto result = std::make_shared<cs::power::PowerSimulationResult>();
-    // TODO: put data into result
-    return result;
-}
-
-result_ptr HeatingParser::operator()(CSVDataMap &map)
-{
-    auto result = std::make_shared<cs::power::PowerSimulationResult>();
-    for (auto &[name, stream] : map)
-    {
-        // TODO: put data into result
-    }
-    return result;
-}
-
-result_ptr HeatingParser::operator()(const ArrowDataMap &map)
-{
-    auto result = std::make_shared<cs::power::PowerSimulationResult>();
-    for (auto &[name, table] : map)
-    {
-        // TODO: put data into result
-    }
-    return result;
-}
-
-result_ptr HeatingParser::operator()(const ArrowData &data)
-{
-    auto result = std::make_shared<cs::power::PowerSimulationResult>();
-    // TODO: put data into result
-    return result;
-}
-
-result_ptr HeatingParser::operator()(CSVData &data)
-{
-    auto result = std::make_shared<cs::power::PowerSimulationResult>();
-    // TODO: put data into result
-    return result;
 }

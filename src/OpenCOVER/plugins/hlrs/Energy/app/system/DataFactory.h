@@ -1,6 +1,6 @@
 #pragma once
 #include "EnergyType.h"
-#include "Parser.h"
+#include "ParseManager.h"
 #include <lib/core/simulation/simulationresult.h>
 #include <lib/core/simulation/powerresult.h>
 #include <lib/core/simulation/heatingresult.h>
