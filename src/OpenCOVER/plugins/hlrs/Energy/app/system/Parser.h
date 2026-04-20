@@ -9,6 +9,7 @@
 #include <lib/core/ClassLogger.h>
 #include <utils/read/csv/csv.h>
 #include <utility>
+#include "GridRenderer.h"
 
 namespace cs = core::simulation;
 using result_ptr = std::shared_ptr<cs::SimulationResult>;
@@ -26,7 +27,14 @@ struct DataPackageParser
 
 struct GridParser : DataPackageParser<grid_ptr>, core::ClassLogger
 {
-    GridParser(core::interface::ILogger &logger, const std::string &name) : core::ClassLogger(logger, name) {}
+    GridParser(core::interface::ILogger &logger, const std::string &name, GridRenderConfig &config)
+        : core::ClassLogger(logger, name)
+        , m_config(config)
+    {
+    }
+
+public:
+    GridRenderConfig m_config;
 };
 
 struct PowerGridParser final : GridParser
@@ -43,15 +51,18 @@ private:
     std::vector<IDLookupTable> retrieveBusNameIdMapping(opencover::utils::read::CSVStream &stream);
     std::vector<grid::PointsMap> createPowerGridPoints(
         opencover::utils::read::CSVStream &stream, size_t &numPoints,
-        const float &sphereRadius, const std::vector<IDLookupTable> &busNames, CSVDataMap& map);
+        const float &sphereRadius, const std::vector<IDLookupTable> &busNames, CSVDataMap &map);
     std::pair<std::vector<grid::Lines>, std::vector<grid::ConnectionDataList>>
     getPowerGridLines(opencover::utils::read::CSVStream &stream, const std::vector<grid::PointsMap> &points);
+    osg::ref_ptr<grid::Line> createLine(
+        const std::string &name, int &from, const std::string &geoBuses_comma_seperated,
+        grid::Data &data, const std::vector<grid::PointsMap> &points);
     void helper_getAdditionalPowerGridPointData_addData(
         int busId, grid::PointDataList &additionalData, const grid::Data &data);
     void helper_getAdditionalPowerGridPointData_handleDuplicate(
         std::string &name, std::map<std::string, uint> &duplicateMap);
     std::unique_ptr<grid::PointDataList> getAdditionalPowerGridPointData(
-        const std::size_t &numOfBus, CSVDataMap& map);
+        const std::size_t &numOfBus, CSVDataMap &map);
 };
 
 struct HeatingGridParser final : GridParser

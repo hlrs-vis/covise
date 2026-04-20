@@ -1,16 +1,9 @@
 #include "Parser.h"
 #include "app/osg/presentation/EnergyGrid.h"
-#include "app/system/DataPackage.h"
-#include "app/osg/presentation/grid.h"
-#include <utils/read/csv/csv.h>
+
+#include <filesystem>
 
 using namespace opencover::utils::read;
-
-namespace
-{
-// TODO: remove that later offset = [ -507048.0, -5398554.0, 50.0 ]
-std::vector<double> m_offset { -507048.0, -53988554.0, 50.0 };
-}
 
 grid_ptr PowerGridParser::operator()(CSVDataMap &map)
 {
@@ -18,8 +11,6 @@ grid_ptr PowerGridParser::operator()(CSVDataMap &map)
     if (map.empty())
         return nullptr;
 
-    constexpr float connectionsRadius(1.0f);
-    constexpr float sphereRadius(2.0f);
     size_t numPoints(0);
 
     // fetch bus names
@@ -40,7 +31,7 @@ grid_ptr PowerGridParser::operator()(CSVDataMap &map)
     if (pointsData != map.end())
     {
         auto &[name, pointStream] = *pointsData;
-        points = createPowerGridPoints(*pointStream, numPoints, sphereRadius, busNames, map);
+        points = createPowerGridPoints(*pointStream, numPoints, m_config.sphereRadius, busNames, map);
     }
 
     // create line
@@ -66,20 +57,16 @@ grid_ptr PowerGridParser::operator()(CSVDataMap &map)
     grid::ConnectionDataList mergedOptData = optData[0];
     mergedOptData.insert(mergedOptData.end(), optData[1].begin(), optData[1].end());
 
-    osg::ref_ptr<osg::MatrixTransform> powerGroup = new osg::MatrixTransform;
-    powerGroup = new osg::MatrixTransform;
-
-    // FIX: NEED font
-    // auto font = m_plugin->configString("Billboard", "font", "default")->value();
-    EnergyGridConfig econfig;
+    auto powerGroup = m_config.parent;
     OsgTxtBoxAttributes infoboardAttributes = OsgTxtBoxAttributes(
-        { 0, 0, 0 }, "EnergyGridText", econfig.infoboardAttributes.fontFile, 50, 50, 2.0f, 0.1, 2);
+        { 0, 0, 0 }, "EnergyGridText", m_config.font, 50, 50, 2.0f, 0.1, 2);
     powerGroup->setName("PowerGrid");
 
+    EnergyGridConfig econfig;
     econfig.name = "POWER";
     econfig.pointsMap = mergedPoints;
     econfig.parent = powerGroup;
-    econfig.connectionRadius = connectionsRadius;
+    econfig.connectionRadius = m_config.connectionsRadius;
     econfig.additionalConnectionData = mergedOptData;
     econfig.infoboardAttributes = infoboardAttributes;
     econfig.connectionType = EnergyGridConnectionType::Line;
@@ -142,8 +129,9 @@ std::vector<grid::PointsMap> PowerGridParser::createPowerGridPoints(
         ACCESS_CSV_ROW(point, "id", busID);
 
         // x = lon, y = lat
-        lon += m_offset[0];
-        lat += m_offset[1];
+        lon += m_config.offset[0];
+        lat += m_config.offset[1];
+        auto height = m_config.offset[2];
 
         int i = 0;
         for (const auto &busNames : busNames)
@@ -174,7 +162,7 @@ std::vector<grid::PointsMap> PowerGridParser::createPowerGridPoints(
             busData["base_point_data"] = "";
         }
 
-        osg::ref_ptr<grid::Point> p = new grid::Point(busName, lon, lat, m_offset[2], sphereRadius, getLogger(), busData);
+        osg::ref_ptr<grid::Point> p = new grid::Point(busName, lon, lat, height, sphereRadius, getLogger(), busData);
         if (type == "Sondernetz")
             pointsSonder.insert({ busID, p });
         else
@@ -254,6 +242,109 @@ PowerGridParser::getAdditionalPowerGridPointData(const std::size_t &numOfBus, CS
         }
     }
     return std::make_unique<PDL>(additionalData);
+}
+
+std::pair<std::vector<grid::Lines>, std::vector<grid::ConnectionDataList>>
+PowerGridParser::getPowerGridLines(opencover::utils::read::CSVStream &stream, const std::vector<grid::PointsMap> &points)
+{
+    using Lines = grid::Lines;
+    using CDL = grid::ConnectionDataList;
+    Lines lines;
+    CDL additionalData(points[0].size());
+    Lines linesSonder;
+    CDL additionalDataSonder(points[1].size());
+
+    CSVStream::CSVRow row;
+    int from = 0, to = 0;
+    std::string geoBuses = "";
+    std::string name = "", type = "";
+    auto header = stream.getHeader();
+    while (stream.readNextRow(row))
+    {
+        grid::Data data;
+
+        for (auto colName : header)
+        {
+            auto filename = std::filesystem::path(stream.getFilename());
+            //   fs::path filename(stream.getFilename());
+            auto filename_without_ext = filename.stem().string();
+            //   if (!checkBoxSelection_powergrid(filename_without_ext, colName)) continue;
+            std::string value;
+            ACCESS_CSV_ROW(row, colName, value);
+            data[colName] = value;
+        }
+
+        ACCESS_CSV_ROW(row, "geo_buses", geoBuses);
+        ACCESS_CSV_ROW(row, "from_bus", from);
+        ACCESS_CSV_ROW(row, "name", name);
+        if (row.find("grid") != row.end())
+            ACCESS_CSV_ROW(row, "grid", type);
+        else
+            type = "Normalnetz"; // default type if not specified
+
+        if (geoBuses.empty())
+            continue;
+        auto line = createLine(name, from, geoBuses, data, points);
+        if (type == "Sondernetz")
+        {
+            linesSonder.push_back(line);
+        }
+        else
+        {
+            lines.push_back(line);
+        }
+    }
+
+    return std::make_pair<std::vector<Lines>, std::vector<grid::ConnectionDataList>>(
+        { lines, linesSonder }, { additionalData, additionalDataSonder });
+}
+
+osg::ref_ptr<grid::Line> PowerGridParser::createLine(
+    const std::string &name, int &from, const std::string &geoBuses_comma_seperated,
+    grid::Data &data, const std::vector<grid::PointsMap> &points)
+{
+    std::stringstream ss(geoBuses_comma_seperated);
+    std::string bus("");
+
+    int from_last = from;
+
+    grid::Connections connections;
+    while (std::getline(ss, bus, ','))
+    {
+        auto to_new = std::stoi(bus);
+        if (from_last == to_new)
+            continue;
+
+        osg::ref_ptr<grid::Point> fromPoint = nullptr;
+        osg::ref_ptr<grid::Point> toPoint = nullptr;
+        for (auto points : points)
+        {
+            auto toIt = points.find(to_new);
+            if (!toPoint && toIt != points.end())
+                toPoint = toIt->second;
+
+            auto fromIt = points.find(from_last);
+            if (!fromPoint && fromIt != points.end())
+                fromPoint = fromIt->second;
+        }
+        if (!fromPoint || !toPoint)
+        {
+            std::stringstream ss;
+            ss << "Invalid bus ID: " << from_last << " or " << to_new << std::endl;
+            warn(ss.str());
+            continue;
+        }
+
+        std::string name = fromPoint->getName() + " > " + toPoint->getName();
+        float radius = 0.5f;
+
+        grid::ConnectionData conData { name, fromPoint, toPoint, radius,
+            false, nullptr, data };
+        connections.push_back(
+            new grid::DirectedConnection(conData, getLogger(), grid::ConnectionType::LineWithShader));
+        from_last = to_new;
+    }
+    return new grid::Line(name, connections, getLogger());
 }
 
 grid_ptr PowerGridParser::operator()(const ArrowDataMap &map)
