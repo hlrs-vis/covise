@@ -26,9 +26,15 @@ SET(HEADERS
     app/system/DataManager.h
     app/system/EnergyType.h
     app/system/FileProvider.h
-    app/system/GridBuilder.h
     app/system/GridRenderer.h
     app/system/GridUIManager.h
+    app/system/HeatingGridParser.h
+    app/system/HeatingParser.h
+    app/system/PowerGridParser.h
+    app/system/PowerParser.h
+    app/system/SimulationParser.h
+    app/system/GridParser.h
+    app/system/ParseManager.h
     app/system/Parser.h
     app/system/Provider.h
     app/system/ScenarioManager.h
@@ -67,7 +73,10 @@ SET(SOURCES
     app/system/CSVLoader.cpp
     app/system/DataManager.cpp
     app/system/FileProvider.cpp
-    app/system/Parser.cpp
+    app/system/HeatingGridParser.cpp
+    app/system/HeatingParser.cpp
+    app/system/PowerGridParser.cpp
+    app/system/PowerParser.cpp
     app/system/GridRenderer.cpp
     app/system/ScenarioManager.cpp
     app/system/GridUIManager.cpp
