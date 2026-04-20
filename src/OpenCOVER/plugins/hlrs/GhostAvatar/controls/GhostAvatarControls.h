@@ -71,6 +71,8 @@ protected:
     osg::Matrix m_armAdjustMatrix;
     osg::Matrix m_headAdjustMatrix;
 
+    float m_initialHeight = 0;
+
     void loadArmBone();
     void loadHeadBone();
 
