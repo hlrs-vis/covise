@@ -2,6 +2,7 @@
 #include "Storage.h"
 #include "Scenario.h"
 #include "DataFactory.h"
+#include "app/system/EnergyType.h"
 
 GridRenderer::GridRenderer(osg::ref_ptr<osg::Switch> rootNode, const GridRenderConfig &config, core::interface::ILogger &logger)
     : core::ClassLogger(logger, "GridRenderer")
@@ -54,6 +55,26 @@ void GridRenderer::updateStep(int timestep)
             grid->updateTime(timestep);
 }
 
-void GridRenderer::setVisible(EnergyType type, bool visible)
+void GridRenderer::setVisible(bool visible)
 {
+    for (auto [type, node] : m_gridNodes)
+    {
+        std::string typeString(EnergyTypeToString(type));
+        if (visible)
+        {
+            if (auto it = m_gridMap.find(type); it != m_gridMap.end())
+            {
+                m_root->addChild(node);
+            }
+            else
+            {
+                warn("Grid for type " + typeString + " has not been initialized.");
+                continue;
+            }
+        }
+        else
+        {
+            m_root->removeChild(node);
+        }
+    }
 }
