@@ -4,7 +4,7 @@
 #include <memory>
 
 #include <cover/coVRPluginSupport.h>
-#include <PluginUtil/coVR3DTransRotInteractor.h>
+#include <PluginUtil/coVR3DTransformInteractor.h>
 
 #include "controls/GhostAvatarControls.h"
 #include "texture/TerroirTexture.h"
@@ -27,7 +27,7 @@ private:
     GhostAvatarControlsUI m_avatarControlsUI;
 
     // interactors
-    std::unique_ptr<opencover::coVR3DTransRotInteractor> m_interactorHead, m_interactorFloor, m_interactorHand;
+    std::unique_ptr<opencover::coVR3DTransformInteractor> m_interactorHead, m_interactorFloor, m_interactorHand;
     void createInteractors();
     void updateInteractors();
 };
