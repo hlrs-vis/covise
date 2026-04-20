@@ -20,13 +20,25 @@ void GridRenderer::buildGrid(EnergyType type, DataLoadManager &loader)
 {
     Scenario staticScenario { -1, "static" };
     auto package = loader.fetch(Storage::CSV, staticScenario, type);
+    std::string typeString(EnergyTypeToString(type));
     if (package)
     {
-        // auto grid = DataFactory::create(*package, type, getLogger());
+        if (!m_config.parent) {
+            if (m_gridNodes.find(type) != m_gridNodes.end())
+            {
+                m_config.parent = m_gridNodes[type];
+            }
+            else
+            {
+                error("No valid grid type");
+                return;
+            }
+        }
+
+        m_gridObj[type] = DataFactory::create(*package, type, getLogger(), typeString, m_config);
     }
     else
     {
-        std::string typeString(EnergyTypeToString(type));
         error("Failed to build grid for " + typeString);
     }
 }
