@@ -18,7 +18,7 @@ public:
     virtual ~TerroirTexture();
 
     void applyTexture(osg::Node *node);
-    void updateTexture();
+    void updateTexture(const osg::Vec3 &offset = { 0, 0, 0 });
 
     void setCameraForwardDir(osg::Vec3 direction);
     void setCameraUpDir(osg::Vec3 direction);

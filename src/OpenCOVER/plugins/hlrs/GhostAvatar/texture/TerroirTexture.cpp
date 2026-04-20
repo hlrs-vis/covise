@@ -66,7 +66,7 @@ void TerroirTexture::applyTexture(osg::Node *node)
     }
 }
 
-void TerroirTexture::updateTexture()
+void TerroirTexture::updateTexture(const osg::Vec3& offset)
 {
     if (!m_node)
     {
@@ -79,7 +79,7 @@ void TerroirTexture::updateTexture()
     m_currentPosition = nodeTransform.getTrans();
 
     if (m_rttCamera)
-        m_rttCamera->update(nodeTransform);
+        m_rttCamera->update(nodeTransform * osg::Matrix::translate(offset));
 
     if (enoughDistanceCovered())
         onEnoughDistanceCovered();

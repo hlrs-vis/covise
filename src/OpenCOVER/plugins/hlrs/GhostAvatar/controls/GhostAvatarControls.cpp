@@ -1,3 +1,4 @@
+#include <cassert>
 #include <osg/BoundingSphere>
 #include <osg/ComputeBoundsVisitor>
 #include <osgDB/ReadFile>
@@ -60,6 +61,11 @@ void GhostAvatarControls::loadAvatar()
 osg::ref_ptr<osg::Node> GhostAvatarControls::getAvatarNode() const
 {
     return m_avatarTrans;
+}
+
+osg::Vec3 GhostAvatarControls::getEyeOffset() const
+{
+    return { 0, 0, 0 };
 }
 
 osg::Vec3 GhostAvatarControls::getForwardDirection() const
@@ -166,6 +172,11 @@ void GhostAvatarControls::setBaseRotation(const osg::Quat &rotation)
     m_baseRotation = rotation;
 }
 
+osg::Vec3 GhostAvatarControls::getInitialBounds() const
+{
+    return m_initialBounds;
+}
+
 osg::Vec3 GhostAvatarControls::getBounds() const
 {
     if (!m_avatarTrans)
@@ -181,9 +192,11 @@ osg::Vec3 GhostAvatarControls::getBounds() const
     return { boundingBox.xMax() - boundingBox.xMin(), boundingBox.yMax() - boundingBox.yMin(), boundingBox.zMax() - boundingBox.zMin() };
 }
 
-osg::Vec3 GhostAvatarControls::getInitialBounds() const
+float GhostAvatarControls::getBounds(int i) const
 {
-    return m_initialBounds;
+    assert(i < 3);
+    auto bounds = getBounds();
+    return bounds[i];
 }
 
 void GhostAvatarControls::setForwardDirection(const osg::Vec3 &direction)

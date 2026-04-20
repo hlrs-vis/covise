@@ -26,6 +26,12 @@ TestAvatarControls::TestAvatarControls(const std::string &pathToFbx, const std::
     }
 }
 
+osg::Vec3 TestAvatarControls::getEyeOffset() const
+{
+    auto bounds = getBounds();
+    return { 0, 0, 0.7f * getBounds(2) };
+}
+
 void TestAvatarControls::updateBones(const osg::Matrix &floorMatrix, const osg::Matrix &handMatrix, const osg::Matrix &headMatrix)
 {
     auto targetHeight = headMatrix.getTrans().z() - floorMatrix.getTrans().z();

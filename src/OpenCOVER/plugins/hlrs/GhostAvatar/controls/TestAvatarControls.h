@@ -8,6 +8,8 @@ class TestAvatarControls : public GhostAvatarControls
 public:
     TestAvatarControls(const std::string &pathToFbx, const std::string &armNodeName, const std::string &headNodeName);
 
+    osg::Vec3 getEyeOffset() const override;
+
     void updateBones(const osg::Matrix &floorMatrix, const osg::Matrix &handMatrix, const osg::Matrix &headMatrix) override;
 };
 

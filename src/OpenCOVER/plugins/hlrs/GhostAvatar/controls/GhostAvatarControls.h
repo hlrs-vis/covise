@@ -23,8 +23,10 @@ public:
     void loadAvatar();
 
     osg::ref_ptr<osg::Node> getAvatarNode() const;
+
     osg::Vec3 getForwardDirection() const;
     osg::Vec3 getUpDirection() const;
+    virtual osg::Vec3 getEyeOffset() const;
 
     virtual void updateBones(const osg::Matrix &floorMatrix, const osg::Matrix &handMatrix, const osg::Matrix &headMatrix) = 0;
 
@@ -58,8 +60,9 @@ protected:
     osg::Quat getBaseRotation() const;
     void setBaseRotation(const osg::Quat &rotation);
 
-    osg::Vec3 getBounds() const;
     osg::Vec3 getInitialBounds() const;
+    osg::Vec3 getBounds() const;
+    float getBounds(int i) const;
 
     void setForwardDirection(const osg::Vec3 &direction);
     void setUpDirection(const osg::Vec3 &direction);
