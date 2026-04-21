@@ -41,6 +41,7 @@ class Slider;
 #include <osg/Geometry>
 
 #include "coVRNavigationProvider.h"
+#include "TeleportNavigationProvider.h"
 
 namespace vrui
 {
@@ -374,6 +375,8 @@ private:
     osg::Vec3 getCenter() const;
     void centerView();
     osg::Vec3 mouseNavCenter;
+
+    TeleportNavigationProvider teleportNavigationProvider;
 };
 }
 #endif
