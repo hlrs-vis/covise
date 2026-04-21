@@ -10,10 +10,79 @@
 
 using namespace opencover;
 
+#include <osg/Quat>
+#include <osg/Vec3d>
+#include <cmath>
+#include <algorithm>
+
+static inline double determinant3x3(const osg::Matrix &m)
+{
+    return m(0, 0) * (m(1, 1) * m(2, 2) - m(1, 2) * m(2, 1))
+        - m(0, 1) * (m(1, 0) * m(2, 2) - m(1, 2) * m(2, 0))
+        + m(0, 2) * (m(1, 0) * m(2, 1) - m(1, 1) * m(2, 0));
+}
+
+static osg::Matrix extractRotation(const osg::Matrix &m)
+{
+    auto noTrans = m;
+    noTrans.setTrans(osg::Vec3(0, 0, 0));
+
+    {
+        auto noTransposed = noTrans;
+        noTransposed.transpose(noTrans);
+        auto ata = noTransposed * noTrans;
+
+        double maxDev = 0.0;
+        for (int r = 0; r < 3; ++r)
+            for (int c = 0; c < 3; ++c)
+                maxDev = std::max(maxDev, std::fabs(ata(r, c) - (r == c ? 1.0 : 0.0)));
+
+        if (maxDev < 1e-6)
+            return noTrans;
+    }
+
+    auto x = noTrans;
+    constexpr int maxIter = 12;
+    for (int iter = 0; iter < maxIter; ++iter)
+    {
+        auto invX = osg::Matrix::inverse(x);
+        auto tInv = invX;
+        tInv.transpose(invX);
+
+        double maxDiff = 0.0;
+        for (int r = 0; r < 3; ++r)
+            for (int c = 0; c < 3; ++c)
+            {
+                const double next = 0.5 * (x(r, c) + tInv(r, c));
+                maxDiff = std::max(maxDiff, std::fabs(next - x(r, c)));
+                x(r, c) = next;
+            }
+
+        if (maxDiff < 1e-9)
+            break;
+    }
+
+    const double d = determinant3x3(x);
+    if (d < 0.0)
+    {
+        for (int c = 0; c < 3; ++c)
+            x(0, c) = -x(0, c);
+    }
+
+    return x;
+}
+
+static osg::Matrix sanitizeRigid(const osg::Matrix &m)
+{
+    auto rot = extractRotation(m);
+    rot.setTrans(m.getTrans());
+    return rot;
+}
+
 GhostAvatar::GhostAvatar()
     : coVRPlugin(COVER_PLUGIN_NAME)
-    , m_avatarControls(std::make_unique<TestAvatarControls>("/data/STARTS-ECHO/Avatars/shaderTests/ghost_cave_minimal_fix.fbx", "RightArm", ""))
-    //, m_avatarControls(std::make_unique<PlanarAvatarControls>("/data/STARTS-ECHO/Avatars/planarAvatar/PLANEE6_fix.fbx", "Arm", "Head"))
+    //, m_avatarControls(std::make_unique<TestAvatarControls>("/data/STARTS-ECHO/Avatars/shaderTests/ghost_cave_minimal_fix.fbx", "RightArm", ""))
+    , m_avatarControls(std::make_unique<PlanarAvatarControls>("/data/STARTS-ECHO/Avatars/planarAvatar/PLANEE6_fix.fbx", "Arm", "Head"))
     //, m_avatarTexture(std::make_unique<SplotchTerroirTexture>(100))
     , m_avatarTexture(std::make_unique<StripesTerroirTexture>(100))
     , m_avatarControlsUI(GhostAvatarControlsUI(COVER_PLUGIN_NAME, *m_avatarControls))
@@ -103,6 +172,7 @@ void GhostAvatar::updateInteractors()
     m_interactorHead->preFrame();
 }
 
+// TODO: use CAVE transform for feet and viewerMat for moving head
 void GhostAvatar::initializeTransforms()
 {
     osg::Matrix invbase = cover->getInvBaseMat();
@@ -112,25 +182,55 @@ void GhostAvatar::initializeTransforms()
     osg::Vec3 toFeet;
     toFeet = headmat.getTrans();
     toFeet[2] = VRSceneGraph::instance()->floorHeight();
-    osg::Matrix feetmat;
-    feetmat.makeTranslate(toFeet[0], toFeet[1], toFeet[2]);
+    osg::Matrix feetmat = headmat;
+    feetmat.setTrans(toFeet);
+
     headmat *= invbase;
     feetmat *= invbase;
 
-    // offset for testing in the CAVE (if kept, change to double)
-    float offset = 5.0f;
+    // offset for testing in the CAVE
+    double offset = 5.0f;
 
-    auto offsetFloorTrans = osg::Vec3 { (feetmat.getTrans())[0], (feetmat.getTrans())[1] + offset, feetmat.getTrans()[2] };
-    auto offsetHandTrans = osg::Vec3 { (handmat.getTrans())[0], (handmat.getTrans())[1] + offset, handmat.getTrans()[2] };
-    auto offsetHeadTrans = osg::Vec3 { (headmat.getTrans())[0], (headmat.getTrans())[1] + offset, headmat.getTrans()[2] };
+    auto headMat = headmat;
+    auto headTrans = headMat.getTrans();
+    headTrans.y() += offset;
+    headMat.setTrans(headTrans);
 
-    m_handTransform = new osg::MatrixTransform(osg::Matrix::scale(handmat.getScale()) * osg::Matrix::rotate(handmat.getRotate()) * osg::Matrix::translate(offsetHandTrans));
-    m_headTransform = new osg::MatrixTransform(osg::Matrix::scale(headmat.getScale()) * osg::Matrix::rotate(headmat.getRotate()) * osg::Matrix::translate(offsetHeadTrans));
-    m_floorTransform = new osg::MatrixTransform(osg::Matrix::scale(feetmat.getScale()) * osg::Matrix::rotate(feetmat.getRotate()) * osg::Matrix::translate(offsetFloorTrans));
+    auto handMat = handmat;
+    auto handTrans = handMat.getTrans();
+    handTrans.y() += offset;
+    handMat.setTrans(handTrans);
 
+    auto floorMat = feetmat;
+    auto floorTrans = floorMat.getTrans();
+    floorTrans.y() += offset;
+    floorMat.setTrans(floorTrans);
+
+    // Match interactor behavior: keep translation, strip scale/shear from rotation basis.
+    handMat = sanitizeRigid(handMat);
+    headMat = sanitizeRigid(headMat);
+    floorMat = sanitizeRigid(floorMat);
     // offset for testing in the CAVE
 
-    /* m_handTransform = new osg::MatrixTransform(handmat);
-    m_headTransform = new osg::MatrixTransform(headmat);
-    m_floorTransform = new osg::MatrixTransform(feetmat); */
+    if (!m_handTransform)
+        m_handTransform = new osg::MatrixTransform;
+    if (!m_headTransform)
+        m_headTransform = new osg::MatrixTransform;
+    if (!m_floorTransform)
+        m_floorTransform = new osg::MatrixTransform;
+
+    m_handTransform->setMatrix(handMat);
+    m_headTransform->setMatrix(headMat);
+    m_floorTransform->setMatrix(floorMat);
+
+    // TODO: delete, this is just for debugging
+    if (!m_interactorFloor)
+    {
+        auto interSize = 0.1;
+        m_interactorFloor.reset(new coVR3DTransformInteractor(interSize, vrui::coInteraction::InteractionType::ButtonA, "floor", "targetInteractor", vrui::coInteraction::InteractionPriority::Medium));
+        m_interactorFloor->enableIntersection();
+        m_interactorFloor->show();
+    }
+
+    m_interactorFloor->updateTransform(m_floorTransform->getMatrix());
 }
