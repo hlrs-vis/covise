@@ -3,15 +3,15 @@
 
 #include <memory>
 
-#include <cover/coVRPluginSupport.h>
+#include <osg/MatrixTransform>
+#include <osg/ref_ptr>
+
+#include <cover/coVRPlugin.h>
 #include <PluginUtil/coVR3DTransformInteractor.h>
 
 #include "controls/GhostAvatarControls.h"
 #include "texture/TerroirTexture.h"
 #include "ui/GhostAvatarControlsUI.h"
-
-// TODO:
-//   - think about how to deal with avatar scale (checkout VR avatar for that first)?
 
 class GhostAvatar : public opencover::coVRPlugin
 {
@@ -22,14 +22,19 @@ public:
     void preFrame() override;
 
 private:
+    const bool m_useInteractors = false;
+
     std::unique_ptr<GhostAvatarControls> m_avatarControls;
     std::unique_ptr<TerroirTexture> m_avatarTexture;
     GhostAvatarControlsUI m_avatarControlsUI;
 
     // interactors
-    std::unique_ptr<opencover::coVR3DTransformInteractor> m_interactorHead, m_interactorFloor, m_interactorHand;
+    std::unique_ptr<opencover::coVR3DTransformInteractor> m_interactorFloor, m_interactorHand, m_interactorHead;
     void createInteractors();
     void updateInteractors();
+
+    osg::ref_ptr<osg::MatrixTransform> m_floorTransform, m_handTransform, m_headTransform;
+    void initializeTransforms();
 };
 
 COVERPLUGIN(GhostAvatar)
