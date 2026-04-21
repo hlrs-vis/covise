@@ -218,15 +218,18 @@ osg::ref_ptr<grid::Line> HeatingGridParser::createHeatingGridLine(
 
 grid_ptr HeatingGridParser::operator()(const ArrowDataMap &map)
 {
+    error("HeatingGridParser cannot parse ArrowDataMap at the moment.");
     return nullptr;
 }
 
 grid_ptr HeatingGridParser::operator()(const ArrowData &data)
 {
+    error("HeatingGridParser cannot parse ArrowData at the moment.");
     return nullptr;
 }
 
 grid_ptr HeatingGridParser::operator()(CSVData &data)
 {
+    error("HeatingGridParser cannot parse CSVData at the moment.");
     return nullptr;
 }
