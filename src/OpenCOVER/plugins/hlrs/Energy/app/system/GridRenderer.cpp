@@ -4,6 +4,7 @@
 #include "DataFactory.h"
 #include "app/osg/presentation/EnergyGrid.h"
 #include "app/system/EnergyType.h"
+#include "cover/coVRAnimationManager.h"
 #include <memory>
 #include <lib/core/utils/osgUtils.h>
 
@@ -19,6 +20,7 @@ GridRenderer::GridRenderer(osg::ref_ptr<osg::Switch> rootNode, const GridRenderC
         m_root->addChild(m_gridNodes[type]);
     }
     core::utils::osgUtils::switchTo(m_gridNodes[EnergyType::POWER], m_root);
+    opencover::coVRAnimationManager::instance()->setNumTimesteps(100, m_root);
 }
 
 void GridRenderer::buildGrid(EnergyType type, DataLoadManager &loader)
