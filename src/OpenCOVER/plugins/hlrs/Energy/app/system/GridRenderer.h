@@ -2,6 +2,7 @@
 #include "EnergyType.h"
 #include "DataLoadManager.h"
 #include "app/typedefs.h"
+#include <PluginUtil/colors/coColorMap.h>
 #include <lib/core/interfaces/IEnergyGrid.h>
 #include <lib/core/simulation/simulationresult.h>
 #include <lib/core/ClassLogger.h>
@@ -29,6 +30,7 @@ public:
     void setData(EnergyType type, std::shared_ptr<core::simulation::SimulationResult> data, const std::string &species);
     void update();
     void updateStep(int timestep);
+    void updateColorMapInShader(const opencover::ColorMap &map, EnergyType type);
     void setVisible(bool visible);
 
 private:
