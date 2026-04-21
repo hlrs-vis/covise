@@ -53,17 +53,20 @@ void GhostAvatar::preFrame()
     {
         updateInteractors();
 
-        if (!m_interactorFloor || !m_interactorHand || !m_interactorHead )
+        if (!m_interactorFloor || !m_interactorHand || !m_interactorHead)
             return;
 
         m_avatarControls->updateBones(m_interactorFloor->getMatrix(), m_interactorHand->getMatrix(), m_interactorHead->getMatrix());
         m_avatarTexture->updateTexture(m_avatarControls->getEyeOffset());
         m_avatarControlsUI.update(m_interactorFloor->getMatrix(), m_interactorHand->getMatrix(), m_interactorHead->getMatrix());
-    } else 
+    }
+    else
     {
         if (!m_floorTransform || !m_handTransform || !m_headTransform)
             return;
-        
+
+        initializeTransforms();
+
         m_avatarControls->updateBones(m_floorTransform->getMatrix(), m_handTransform->getMatrix(), m_headTransform->getMatrix());
         m_avatarTexture->updateTexture(m_avatarControls->getEyeOffset());
         m_avatarControlsUI.update(m_floorTransform->getMatrix(), m_handTransform->getMatrix(), m_headTransform->getMatrix());
@@ -114,7 +117,20 @@ void GhostAvatar::initializeTransforms()
     headmat *= invbase;
     feetmat *= invbase;
 
-    m_handTransform = new osg::MatrixTransform(handmat);
+    // offset for testing in the CAVE (if kept, change to double)
+    float offset = 5.0f;
+
+    auto offsetFloorTrans = osg::Vec3 { (feetmat.getTrans())[0], (feetmat.getTrans())[1] + offset, feetmat.getTrans()[2] };
+    auto offsetHandTrans = osg::Vec3 { (handmat.getTrans())[0], (handmat.getTrans())[1] + offset, handmat.getTrans()[2] };
+    auto offsetHeadTrans = osg::Vec3 { (headmat.getTrans())[0], (headmat.getTrans())[1] + offset, headmat.getTrans()[2] };
+
+    m_handTransform = new osg::MatrixTransform(osg::Matrix::scale(handmat.getScale()) * osg::Matrix::rotate(handmat.getRotate()) * osg::Matrix::translate(offsetHandTrans));
+    m_headTransform = new osg::MatrixTransform(osg::Matrix::scale(headmat.getScale()) * osg::Matrix::rotate(headmat.getRotate()) * osg::Matrix::translate(offsetHeadTrans));
+    m_floorTransform = new osg::MatrixTransform(osg::Matrix::scale(feetmat.getScale()) * osg::Matrix::rotate(feetmat.getRotate()) * osg::Matrix::translate(offsetFloorTrans));
+
+    // offset for testing in the CAVE
+
+    /* m_handTransform = new osg::MatrixTransform(handmat);
     m_headTransform = new osg::MatrixTransform(headmat);
-    m_floorTransform = new osg::MatrixTransform(feetmat);
+    m_floorTransform = new osg::MatrixTransform(feetmat); */
 }

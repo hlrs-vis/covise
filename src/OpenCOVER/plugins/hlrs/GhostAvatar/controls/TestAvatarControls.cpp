@@ -37,18 +37,10 @@ void TestAvatarControls::updateBones(const osg::Matrix &floorMatrix, const osg::
     auto targetHeight = headMatrix.getTrans().z() - floorMatrix.getTrans().z();
     float scale = targetHeight / (getInitialBounds())[1];
 
-    float offset = 5.0f;
-
-    auto offsetFloorTrans = osg::Vec3{(floorMatrix.getTrans())[0], (floorMatrix.getTrans())[1] + offset, floorMatrix.getTrans()[2]};
-    auto offsetHandTrans = osg::Vec3{(handMatrix.getTrans())[0], (handMatrix.getTrans())[1] + offset, handMatrix.getTrans()[2]};
-    auto offsetHeadTrans = osg::Vec3{(headMatrix.getTrans())[0], (headMatrix.getTrans())[1] + offset, headMatrix.getTrans()[2]};
-
     m_avatarTrans->setMatrix(osg::Matrix::scale(scale, scale, scale) *
                              osg::Matrix::rotate(getBaseRotation()) * osg::Matrix::rotate(floorMatrix.getRotate()) * 
-                             osg::Matrix::translate(offsetFloorTrans));
-                             //osg::Matrix::translate(floorMatrix.getTrans()));
+                             osg::Matrix::translate(floorMatrix.getTrans()));
 
     if (m_armBone)
-        makeBonePointAtTarget(*m_armBone, offsetHandTrans, m_armAdjustMatrix, m_armBaseVector);
-        //makeBonePointAtTarget(*m_armBone, handMatrix.getTrans(), m_armAdjustMatrix, m_armBaseVector);
+        makeBonePointAtTarget(*m_armBone, handMatrix.getTrans(), m_armAdjustMatrix, m_armBaseVector);
 }
