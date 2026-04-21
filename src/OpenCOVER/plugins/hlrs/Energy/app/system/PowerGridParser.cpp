@@ -347,15 +347,18 @@ osg::ref_ptr<grid::Line> PowerGridParser::createLine(
 
 grid_ptr PowerGridParser::operator()(const ArrowDataMap &map)
 {
+    error("PowerGridParser cannot parse ArrowDataMap at the moment.");
     return nullptr;
 }
 
 grid_ptr PowerGridParser::operator()(const ArrowData &data)
 {
+    error("PowerGridParser cannot parse ArrowData at the moment.");
     return nullptr;
 }
 
 grid_ptr PowerGridParser::operator()(CSVData &data)
 {
+    error("PowerGridParser cannot parse CSVData at the moment.");
     return nullptr;
 }
