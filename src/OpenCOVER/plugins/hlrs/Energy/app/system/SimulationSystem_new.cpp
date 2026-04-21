@@ -67,7 +67,12 @@ void SimulationSystem::onScenarioSelectionChanged(int scenarioId)
         if (result)
         {
             // TODO: use scalar selector from later UI implementation for species
-            m_gridRenderer.setData(type, result, "");
+            if (type == EnergyType::POWER)
+            {
+                // m_gridRenderer.updateColorMapInShader(colorMapMenu.selector->colorMap(),
+                //     type);
+                m_gridRenderer.setData(type, result, "loading_percent");
+            }
             m_gridUIManager.updateUIState(type, result);
         }
     }
