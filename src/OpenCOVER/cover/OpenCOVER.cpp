@@ -668,9 +668,7 @@ bool OpenCOVER::init()
     coVRShaderList::instance()->update();
     VRViewer::instance()->setSceneData(cover->getScene());
 
-	Input::instance()->update(); // requires scenegraph
-
-    cover->setScale(coCoviseConfig::getFloat("COVER.DefaultScaleFactor", 1.f));
+    Input::instance()->update(); // requires scenegraph
 
     bool haveWindows = VRWindow::instance()->config();
     haveWindows = coVRMSController::instance()->allReduceOr(haveWindows);
@@ -708,6 +706,9 @@ bool OpenCOVER::init()
 
     hud->setText2("loading plugins");
     hud->redraw();
+
+    coVRNavigationManager::instance();
+    cover->setScale(coCoviseConfig::getFloat("COVER.DefaultScaleFactor", 1.f));
 
     if (m_loadVistlePlugin)
     {
