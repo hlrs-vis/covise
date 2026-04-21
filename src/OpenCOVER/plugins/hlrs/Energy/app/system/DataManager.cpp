@@ -14,8 +14,7 @@ void DataManager::loadScenario(Storage storageType, const Scenario &scenario,
         auto package = loader.fetch(storageType, scenario, type);
         if (package)
         {
-            auto result = DataFactory::create(*package, type, scenario);
-            m_cache[scenario.id][type] = result;
+            m_cache[scenario.id][type] = std::move(DataFactory::create(*package, type, scenario));
         }
         else
         {
