@@ -5,7 +5,6 @@
 #include <lib/core/interfaces/IEnergyGrid.h>
 #include <lib/core/ClassLogger.h>
 
-
 struct GridParser : DataPackageParser<grid_ptr>, core::ClassLogger
 {
     GridParser(core::interface::ILogger &logger, const std::string &name, GridRenderConfig &config)
