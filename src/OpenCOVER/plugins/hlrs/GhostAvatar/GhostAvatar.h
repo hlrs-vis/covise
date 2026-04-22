@@ -22,6 +22,7 @@ public:
 
 private:
     const bool m_useInteractors = false;
+    bool m_initialized = false;
 
     std::unique_ptr<GhostAvatarControls> m_avatarControls;
     std::unique_ptr<TerroirTexture> m_avatarTexture;
@@ -32,7 +33,8 @@ private:
     void createInteractors();
     void updateInteractors();
 
-    osg::Matrix m_floorMatrix, m_handMatrix, m_headMatrix;
+    float m_floorHeight = 0.f;
+    osg::Matrix m_trackedFloor, m_trackedHand, m_trackedHead;
     void updateMatrices();
 };
 

@@ -26,22 +26,17 @@ GhostAvatar::GhostAvatar()
 
 bool GhostAvatar::update()
 {
-    static bool first = true;
-    if (first)
+    if (!m_initialized)
     {
-        first = false;
+        m_initialized = true;
         m_avatarControls->loadAvatar();
         m_avatarTexture->applyTexture(m_avatarControls->getAvatarNode());
         m_avatarControlsUI.initialize();
 
         if (m_useInteractors)
-        {
             createInteractors();
-        }
         else
-        {
-            updateMatrices();
-        }
+            m_floorHeight = VRSceneGraph::instance()->floorHeight();
 
         return true;
     }
@@ -51,12 +46,12 @@ bool GhostAvatar::update()
 
 void GhostAvatar::preFrame()
 {
+    if (!m_initialized)
+        return;
+
     if (m_useInteractors)
     {
         updateInteractors();
-
-        if (!m_interactorFloor || !m_interactorHand || !m_interactorHead)
-            return;
 
         m_avatarControls->updateBones(m_interactorFloor->getMatrix(), m_interactorHand->getMatrix(), m_interactorHead->getMatrix());
         m_avatarTexture->updateTexture(m_avatarControls->getEyeOffset());
@@ -66,9 +61,9 @@ void GhostAvatar::preFrame()
     {
         updateMatrices();
 
-        m_avatarControls->updateBones(m_floorMatrix, m_handMatrix, m_headMatrix);
+        m_avatarControls->updateBones(m_trackedFloor, m_trackedHand, m_trackedHead);
         m_avatarTexture->updateTexture(m_avatarControls->getEyeOffset());
-        m_avatarControlsUI.update(m_floorMatrix, m_handMatrix, m_headMatrix);
+        m_avatarControlsUI.update(m_trackedFloor, m_trackedHand, m_trackedHead);
     }
 }
 
@@ -105,40 +100,30 @@ void GhostAvatar::updateInteractors()
 // TODO: use CAVE transform for feet and viewerMat for moving head
 void GhostAvatar::updateMatrices()
 {
-    osg::Matrix invbase = cover->getInvBaseMat();
+    m_trackedHand = cover->getPointerMat();
+    m_trackedHead = cover->getViewerMat();
+    m_trackedFloor.makeTranslate(m_trackedHead.getTrans().x(), m_trackedHead.getTrans().y(), m_floorHeight);
 
-    m_handMatrix = cover->getPointerMat();
-    m_handMatrix *= invbase;
-
-    m_headMatrix = cover->getViewerMat();
-
-    osg::Vec3 toFeet;
-    toFeet = m_headMatrix.getTrans();
-    toFeet[2] = VRSceneGraph::instance()->floorHeight();
-    m_floorMatrix.makeTranslate(toFeet[0], toFeet[1], toFeet[2]);
-    m_floorMatrix *= invbase;
-
-    m_headMatrix *= invbase;
+    auto invbase = cover->getInvBaseMat();
+    m_trackedHand *= invbase;
+    m_trackedHead *= invbase;
+    m_trackedFloor *= invbase;
 
     // offset for testing in the CAVE
     double offset = 5.0f;
 
-    auto headTrans = m_headMatrix.getTrans();
-    headTrans.y() += offset;
-    m_headMatrix.setTrans(headTrans);
+    auto headTrans = m_trackedHead.getTrans();
+    m_trackedHead.setTrans(headTrans.x(), headTrans.y() + offset, headTrans.z());
 
-    auto handTrans = m_handMatrix.getTrans();
-    handTrans.y() += offset;
-    m_handMatrix.setTrans(handTrans);
+    auto handTrans = m_trackedHand.getTrans();
+    m_trackedHand.setTrans(handTrans.x(), handTrans.y() + offset, handTrans.z());
 
-    m_floorMatrix = m_floorMatrix;
-    auto floorTrans = m_floorMatrix.getTrans();
-    floorTrans.y() += offset;
-    m_floorMatrix.setTrans(floorTrans);
+    auto floorTrans = m_trackedFloor.getTrans();
+    m_trackedFloor.setTrans(floorTrans.x(), floorTrans.y() + offset, floorTrans.z());
     // offset for testing in the CAVE
 
     // match interactor behavior: keep translation, strip scale/shear from rotation basis
     // otherwise rotation does not match rotation of the glasses/3D controller
-    m_handMatrix = sanitizeRigidTransform(m_handMatrix);
-    m_headMatrix = sanitizeRigidTransform(m_headMatrix);
+    m_trackedHand = sanitizeRigidTransform(m_trackedHand);
+    m_trackedHead = sanitizeRigidTransform(m_trackedHead);
 }
