@@ -40,7 +40,7 @@ bool GhostAvatar::update()
         }
         else
         {
-            initializeTransforms();
+            updateMatrices();
         }
 
         return true;
@@ -64,14 +64,11 @@ void GhostAvatar::preFrame()
     }
     else
     {
-        if (!m_floorTransform || !m_handTransform || !m_headTransform)
-            return;
+        updateMatrices();
 
-        initializeTransforms();
-
-        m_avatarControls->updateBones(m_floorTransform->getMatrix(), m_handTransform->getMatrix(), m_headTransform->getMatrix());
+        m_avatarControls->updateBones(m_floorMatrix, m_handMatrix, m_headMatrix);
         m_avatarTexture->updateTexture(m_avatarControls->getEyeOffset());
-        m_avatarControlsUI.update(m_floorTransform->getMatrix(), m_handTransform->getMatrix(), m_headTransform->getMatrix());
+        m_avatarControlsUI.update(m_floorMatrix, m_handMatrix, m_headMatrix);
     }
 }
 
@@ -106,7 +103,7 @@ void GhostAvatar::updateInteractors()
 }
 
 // TODO: use CAVE transform for feet and viewerMat for moving head
-void GhostAvatar::initializeTransforms()
+void GhostAvatar::updateMatrices()
 {
     osg::Matrix invbase = cover->getInvBaseMat();
     osg::Matrix handmat = cover->getPointerMat();
@@ -124,35 +121,24 @@ void GhostAvatar::initializeTransforms()
     // offset for testing in the CAVE
     double offset = 5.0f;
 
-    auto headMat = headmat;
-    auto headTrans = headMat.getTrans();
+    m_headMatrix = headmat;
+    auto headTrans = m_headMatrix.getTrans();
     headTrans.y() += offset;
-    headMat.setTrans(headTrans);
+    m_headMatrix.setTrans(headTrans);
 
-    auto handMat = handmat;
-    auto handTrans = handMat.getTrans();
+    m_handMatrix = handmat;
+    auto handTrans = m_handMatrix.getTrans();
     handTrans.y() += offset;
-    handMat.setTrans(handTrans);
+    m_handMatrix.setTrans(handTrans);
 
-    auto floorMat = feetmat;
-    auto floorTrans = floorMat.getTrans();
+    m_floorMatrix = feetmat;
+    auto floorTrans = m_floorMatrix.getTrans();
     floorTrans.y() += offset;
-    floorMat.setTrans(floorTrans);
+    m_floorMatrix.setTrans(floorTrans);
     // offset for testing in the CAVE
 
     // match interactor behavior: keep translation, strip scale/shear from rotation basis
     // otherwise rotation does not match rotation of the glasses/3D controller
-    handMat = sanitizeRigidTransform(handMat);
-    headMat = sanitizeRigidTransform(headMat);
-
-    if (!m_handTransform)
-        m_handTransform = new osg::MatrixTransform;
-    if (!m_headTransform)
-        m_headTransform = new osg::MatrixTransform;
-    if (!m_floorTransform)
-        m_floorTransform = new osg::MatrixTransform;
-
-    m_handTransform->setMatrix(handMat);
-    m_headTransform->setMatrix(headMat);
-    m_floorTransform->setMatrix(floorMat);
+    m_handMatrix = sanitizeRigidTransform(m_handMatrix);
+    m_headMatrix = sanitizeRigidTransform(m_headMatrix);
 }

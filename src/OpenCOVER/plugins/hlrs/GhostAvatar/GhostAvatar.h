@@ -3,8 +3,7 @@
 
 #include <memory>
 
-#include <osg/MatrixTransform>
-#include <osg/ref_ptr>
+#include <osg/Matrix>
 
 #include <cover/coVRPlugin.h>
 #include <PluginUtil/coVR3DTransformInteractor.h>
@@ -33,8 +32,8 @@ private:
     void createInteractors();
     void updateInteractors();
 
-    osg::ref_ptr<osg::MatrixTransform> m_floorTransform, m_handTransform, m_headTransform;
-    void initializeTransforms();
+    osg::Matrix m_floorMatrix, m_handMatrix, m_headMatrix;
+    void updateMatrices();
 };
 
 COVERPLUGIN(GhostAvatar)
