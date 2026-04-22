@@ -104,13 +104,14 @@ void GhostAvatar::updateMatrices()
     m_trackedHead = cover->getViewerMat();
     m_trackedFloor.makeTranslate(m_trackedHead.getTrans().x(), m_trackedHead.getTrans().y(), m_floorHeight);
 
+    // transform from world to object coordinates
     auto invbase = cover->getInvBaseMat();
     m_trackedHand *= invbase;
     m_trackedHead *= invbase;
     m_trackedFloor *= invbase;
 
     // offset for testing in the CAVE
-    double offset = 5.0f;
+    double offset = 2.0f;
 
     auto headTrans = m_trackedHead.getTrans();
     m_trackedHead.setTrans(headTrans.x(), headTrans.y() + offset, headTrans.z());
