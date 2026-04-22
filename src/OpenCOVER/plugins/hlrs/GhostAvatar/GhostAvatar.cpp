@@ -115,8 +115,8 @@ void GhostAvatar::initializeTransforms()
     osg::Vec3 toFeet;
     toFeet = headmat.getTrans();
     toFeet[2] = VRSceneGraph::instance()->floorHeight();
-    osg::Matrix feetmat = headmat;
-    feetmat.setTrans(toFeet);
+    osg::Matrix feetmat;
+    feetmat.makeTranslate(toFeet[0], toFeet[1], toFeet[2]);
 
     headmat *= invbase;
     feetmat *= invbase;
@@ -138,12 +138,12 @@ void GhostAvatar::initializeTransforms()
     auto floorTrans = floorMat.getTrans();
     floorTrans.y() += offset;
     floorMat.setTrans(floorTrans);
+    // offset for testing in the CAVE
 
-    // Match interactor behavior: keep translation, strip scale/shear from rotation basis.
+    // match interactor behavior: keep translation, strip scale/shear from rotation basis
+    // otherwise rotation does not match rotation of the glasses/3D controller
     handMat = sanitizeRigidTransform(handMat);
     headMat = sanitizeRigidTransform(headMat);
-    floorMat = sanitizeRigidTransform(floorMat);
-    // offset for testing in the CAVE
 
     if (!m_handTransform)
         m_handTransform = new osg::MatrixTransform;
@@ -155,15 +155,4 @@ void GhostAvatar::initializeTransforms()
     m_handTransform->setMatrix(handMat);
     m_headTransform->setMatrix(headMat);
     m_floorTransform->setMatrix(floorMat);
-
-    // TODO: delete, this is just for debugging
-    if (!m_interactorFloor)
-    {
-        auto interSize = 0.1;
-        m_interactorFloor.reset(new coVR3DTransformInteractor(interSize, vrui::coInteraction::InteractionType::ButtonA, "floor", "targetInteractor", vrui::coInteraction::InteractionPriority::Medium));
-        m_interactorFloor->enableIntersection();
-        m_interactorFloor->show();
-    }
-
-    m_interactorFloor->updateTransform(m_floorTransform->getMatrix());
 }
