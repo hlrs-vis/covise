@@ -15,12 +15,13 @@ public:
     {
     }
     void loadScenario(Storage storageType, const Scenario &scenario, DataLoadManager &loader);
-    std::shared_ptr<core::simulation::SimulationResult> getResult(const Scenario &scenario, EnergyType type)
+    std::shared_ptr<core::simulation::SimulationResult> getResult(Storage storageType, const Scenario &scenario, EnergyType type)
     {
-        return m_cache[scenario.id][type];
+        return m_cache[storageType][scenario.id][type];
     }
 
 private:
     // Memory Storage: [ScenarioID][EnergyType] -> Data
-    std::map<decltype(Scenario().id), std::map<EnergyType, std::shared_ptr<core::simulation::SimulationResult>>> m_cache;
+    std::map<Storage, std::map<decltype(Scenario().id), std::map<EnergyType, std::shared_ptr<core::simulation::SimulationResult>>>> m_cache;
+    // std::map<decltype(Scenario().id), std::map<EnergyType, std::shared_ptr<core::simulation::SimulationResult>>> m_cache;
 };
