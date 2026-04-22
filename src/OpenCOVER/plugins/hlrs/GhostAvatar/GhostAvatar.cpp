@@ -106,32 +106,32 @@ void GhostAvatar::updateInteractors()
 void GhostAvatar::updateMatrices()
 {
     osg::Matrix invbase = cover->getInvBaseMat();
-    osg::Matrix handmat = cover->getPointerMat();
-    handmat *= invbase;
-    osg::Matrix headmat = cover->getViewerMat();
-    osg::Vec3 toFeet;
-    toFeet = headmat.getTrans();
-    toFeet[2] = VRSceneGraph::instance()->floorHeight();
-    osg::Matrix feetmat;
-    feetmat.makeTranslate(toFeet[0], toFeet[1], toFeet[2]);
 
-    headmat *= invbase;
-    feetmat *= invbase;
+    m_handMatrix = cover->getPointerMat();
+    m_handMatrix *= invbase;
+
+    m_headMatrix = cover->getViewerMat();
+
+    osg::Vec3 toFeet;
+    toFeet = m_headMatrix.getTrans();
+    toFeet[2] = VRSceneGraph::instance()->floorHeight();
+    m_floorMatrix.makeTranslate(toFeet[0], toFeet[1], toFeet[2]);
+    m_floorMatrix *= invbase;
+
+    m_headMatrix *= invbase;
 
     // offset for testing in the CAVE
     double offset = 5.0f;
 
-    m_headMatrix = headmat;
     auto headTrans = m_headMatrix.getTrans();
     headTrans.y() += offset;
     m_headMatrix.setTrans(headTrans);
 
-    m_handMatrix = handmat;
     auto handTrans = m_handMatrix.getTrans();
     handTrans.y() += offset;
     m_handMatrix.setTrans(handTrans);
 
-    m_floorMatrix = feetmat;
+    m_floorMatrix = m_floorMatrix;
     auto floorTrans = m_floorMatrix.getTrans();
     floorTrans.y() += offset;
     m_floorMatrix.setTrans(floorTrans);
