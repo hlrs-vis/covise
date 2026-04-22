@@ -20,8 +20,12 @@
 
 %}
 
+#ifndef PYMAJ
+#error "Python major version not defined"
+#endif
 
-#if PY_VERSION_HEX >= 0x03000000
+
+#if PYMAJ >= 3
 #define PyString_Check(name) PyBytes_Check(name)
 #define PyString_FromString(x) PyUnicode_FromString(x)
 #define PyString_Format(fmt, args)  PyUnicode_Format(fmt, args)
@@ -34,18 +38,17 @@
     /* Check if is a list */
     if (PyList_Check($input)) {
 	int size = PyList_Size($input);
-	int i = 0;
 	$1 = (char **) malloc((size+1)*sizeof(char *));
 		//DebugBreak();
-	for (i = 0; i < size; i++) {
+	for (int i = 0; i < size; i++) {
 	    PyObject *str = PyList_GetItem($input,i);
 
 #if SWIG_VERSION >= 0x040100
-    #if PY_VERSION_HEX >= 0x03000000
-        $1[i] = PyUnicode_AsUTF8(str);
-    #else
+#if PYMAJ >= 3
+        $1[i] = strdup(PyUnicode_AsUTF8(str));
+#else
         $1[i] = PyString_AsString(str);
-    #endif
+#endif
 #else
 		$1[i] = SWIG_Python_str_AsChar(str);
 #endif
@@ -58,7 +61,7 @@
 		//return NULL;
 	    //}
 	}
-	$1[i] = 0;
+	$1[size] = 0;
     } else {
 	PyErr_SetString(PyExc_TypeError,"not a list");
 	return NULL;
