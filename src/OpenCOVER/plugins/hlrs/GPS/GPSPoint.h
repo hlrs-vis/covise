@@ -17,8 +17,13 @@
 #include <cover/coBillboard.h>
 #include <osg/Material>
 
-#include <audio/Audio.h>
-#include <audio/Player.h>
+namespace opencover {
+namespace audio {
+class Audio;
+class Player;
+class Source;
+}
+}
 
 using namespace opencover;
 using namespace covise;
@@ -87,8 +92,8 @@ public:
 
     osg::ref_ptr<osg::Material> streetmarkMaterial;
 
-    opencover::audio::Audio *audio;
-    std::shared_ptr<opencover::audio::Player::Source> source;
+    opencover::audio::Audio *audio = nullptr;
+    std::shared_ptr<opencover::audio::Source> source;
 
     PointSensor *mySensor;
     void activate();

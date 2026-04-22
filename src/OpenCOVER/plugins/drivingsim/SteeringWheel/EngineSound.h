@@ -25,16 +25,16 @@ public:
     virtual ~SoundStep();
     void stop();
     void start();
-    std::shared_ptr<Player::Source> source;
     float speed;
     bool playing;
-    Player *player;
+    std::shared_ptr<Source> source;
+    Player *player = nullptr;
 };
 
 class EngineSound : public coTUIListener
 {
 public:
-    Player *player;
+    Player *player = nullptr;
 
     EngineSound(Player *p);
     virtual ~EngineSound();

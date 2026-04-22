@@ -4,4 +4,3 @@
 #include "../../OpenCOVER/OpenConfig/covconfig/access.h"
 
 #undef CONFIG_NAMESPACE
-

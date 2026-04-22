@@ -7,11 +7,10 @@
 #include <iostream>
 #include <osg/StateSet>
 #include <osgDB/StreamOperator>
-#include <PluginUtil/colors/ColorMaterials.h>
+#include <PluginUtil/ColorMaterials.h>
 #include <PluginUtil/coShaderUtil.h>
 
 using namespace opencover;
-
 
 opencover::coVRShader *applyLineShader(osg::Drawable *drawable, const opencover::ColorMap &colorMap)
 {
@@ -19,7 +18,7 @@ opencover::coVRShader *applyLineShader(osg::Drawable *drawable, const opencover:
 }
 
 Currents::Currents(ui::Group *group, config::File &file, osg::MatrixTransform *toolHeadNode, osg::MatrixTransform *tableNode)
-: Tool(group, file, toolHeadNode, tableNode)
+    : Tool(group, file, toolHeadNode, tableNode)
 {
     initGeo();
 }
@@ -30,7 +29,7 @@ void Currents::clear()
     m_values->clear();
 }
 
-void Currents::applyShader(const opencover::ColorMap& map)
+void Currents::applyShader(const opencover::ColorMap &map)
 {
     applyLineShader(m_traceLine, map);
 }
@@ -39,7 +38,6 @@ std::vector<std::string> Currents::getAttributes()
 {
     return m_client->availableNumericalScalars();
 }
-
 
 void Currents::initGeo()
 {
@@ -58,13 +56,12 @@ void Currents::initGeo()
     m_traceLine->setStateSet(stateSet);
     m_drawArrays->setDataVariance(osg::Object::DYNAMIC);
     m_traceLine->addPrimitiveSet(m_drawArrays);
-    osg::LineWidth* linewidth = new osg::LineWidth();
+    osg::LineWidth *linewidth = new osg::LineWidth();
     linewidth->setWidth(10.0f);
     stateSet->setAttributeAndModes(linewidth, osg::StateAttribute::ON);
     m_tableNode->addChild(m_traceLine);
     m_colorMapSelector->setMinMax(getMinAttribute(), getMaxAttribute());
     applyLineShader(m_traceLine, m_colorMapSelector->colorMap());
-
 }
 
 void Currents::updateGeo(bool paused, const opencover::dataclient::MultiDimensionalArray<double> &data)
@@ -72,15 +69,13 @@ void Currents::updateGeo(bool paused, const opencover::dataclient::MultiDimensio
     std::cerr << "updateGeo not implemented for currents tool" << std::endl;
 }
 
-
 void Currents::attributeChanged(float value)
 {
     m_values->push_back(value);
     m_vertices->push_back(toolHeadInTableCoords());
-    int numElements = m_numSectionsSlider->getValue() < 0? (int)m_vertices->size() : m_numSectionsSlider->getValue();
+    int numElements = m_numSectionsSlider->getValue() < 0 ? (int)m_vertices->size() : m_numSectionsSlider->getValue();
     m_drawArrays->setFirst(std::max(0, (int)m_vertices->size() - numElements));
     m_drawArrays->setCount(std::min(numElements, (int)m_vertices->size()));
     m_traceLine->setVertexArray(m_vertices);
     m_traceLine->setVertexAttribArray(DataAttrib, m_values, osg::Array::BIND_PER_VERTEX);
 }
-

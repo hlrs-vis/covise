@@ -12,6 +12,7 @@
 #include <vrml97/vrml/System.h>
 
 #include <util/coExport.h>
+#include <iostream>
 #include <vector>
 using namespace vrml;
 
@@ -54,6 +55,109 @@ private:
 };
 
 
+static std::string trim(const std::string &s)
+{
+    size_t b = 0;
+    while (b < s.size() && std::isspace(static_cast<unsigned char>(s[b])))
+        ++b;
+
+    size_t e = s.size();
+    while (e > b && std::isspace(static_cast<unsigned char>(s[e - 1])))
+        --e;
+
+    return s.substr(b, e - b);
+}
+
+static int parseComNumber(const std::string &deviceId)
+{
+    // Expects "COM12" -> 12
+    if (deviceId.size() < 4 || deviceId.rfind("COM", 0) != 0)
+        return -1;
+
+    try
+    {
+        return std::stoi(deviceId.substr(3));
+    }
+    catch (...)
+    {
+        return -1;
+    }
+}
+
+std::map<int, std::string> getComPortDescriptions()
+{
+    std::map<int, std::string> result;
+#ifdef _WIN32
+    // Output format per line: COMx<TAB>Description
+    const char *cmd =
+        "powershell -NoProfile -Command "
+        "\"Get-PnpDevice -Class Ports -PresentOnly -ErrorAction SilentlyContinue | "
+        "ForEach-Object { "
+        "$name = if ($_.FriendlyName) { $_.FriendlyName } elseif ($_.Name) { $_.Name } else { '' }; "
+        "if ($name -match '\\((COM\\d+)\\)') { "
+        "[string]::Format('{0}{1}{2}', $matches[1], [char]9, $name) "
+        "} "
+        "}\"";
+
+
+
+        
+    std::unique_ptr<FILE, int (*)(FILE *)> pipe(_popen(cmd, "r"), _pclose);
+    if (!pipe)
+        return result;
+
+    char buffer[1024];
+    while (fgets(buffer, sizeof(buffer), pipe.get()))
+    {
+        std::string line = trim(buffer);
+        if (line.empty())
+        {
+            std::cerr << "[Drehgeber] Serial port parse: ignoring empty line" << std::endl;
+            continue;
+        }
+
+        size_t tabPos = line.find('\t');
+        std::string deviceId;
+        std::string description;
+
+        if (tabPos != std::string::npos)
+        {
+            deviceId = trim(line.substr(0, tabPos));      // COM12
+            description = trim(line.substr(tabPos + 1));  // USB Serial Device ...
+        }
+        else
+        {
+            // Fallback for unexpected output format, e.g. only a friendly name like "USB ... (COM12)"
+            size_t comStart = line.rfind("(COM");
+            size_t comEnd = (comStart != std::string::npos) ? line.find(')', comStart) : std::string::npos;
+            if (comStart != std::string::npos && comEnd != std::string::npos && comEnd > comStart + 1)
+            {
+                deviceId = line.substr(comStart + 1, comEnd - comStart - 1); // COM12
+                description = line;
+                std::cerr << "[Drehgeber] Serial port parse: no tab found, used fallback for line: " << line << std::endl;
+            }
+            else
+            {
+                std::cerr << "[Drehgeber] Serial port parse: could not parse line: " << line << std::endl;
+                continue;
+            }
+        }
+
+        int comNumber = parseComNumber(deviceId);
+        if (comNumber >= 0 && !description.empty())
+        {
+            result[comNumber] = description;
+            std::cerr << "[Drehgeber] Serial port parse: COM" << comNumber << " -> " << description << std::endl;
+        }
+        else
+        {
+            std::cerr << "[Drehgeber] Serial port parse: invalid entry: deviceId='" << deviceId
+                      << "', description='" << description << "'" << std::endl;
+        }
+    }
+#endif
+    return result;
+}
 
 COVERPLUGIN(Drehgeber)
 
@@ -63,10 +167,27 @@ Drehgeber::Drehgeber()
 , m_config(config())
 , m_menu(new ui::Menu("Drehgeber", this))
 , m_rotator(new ui::Slider(m_menu, "rotation_angle_in_degree")) 
-, m_serialDevice(std::make_unique<ui::EditFieldConfigValue>(m_menu, "serialDevice", "\\\\.\\COM12", *m_config, "Serial")) 
+, m_serialDeviceHint(std::make_unique<ui::EditFieldConfigValue>(m_menu, "serialDeviceHint", "", *m_config, "Serial")) 
 , m_baudrate(std::make_unique<ui::EditFieldConfigValue>(m_menu, "baudrate", "115200", *m_config, "Serial")) 
 , m_delay(std::make_unique<ui::SliderConfigValue>(m_menu, "delay", 0, *m_config, "Serial")) 
 {
+    std::string serialDevice = "\\\\.\\COM12";
+    auto ports = getComPortDescriptions();
+    auto hint = m_serialDeviceHint->getValue();
+    if(!hint.empty())
+    {
+        // Try to find a port matching the hint
+        for (const auto& [comNumber, description] : ports)
+        {
+            if (description.find(hint) != std::string::npos)
+            {
+                serialDevice = std::string("\\\\.\\COM") + std::to_string(comNumber);
+                break;
+            }
+        }
+    }
+    m_serialDevice = std::make_unique<ui::EditFieldConfigValue>(m_menu, "serialDevice", serialDevice, *m_config, "Serial");
+    std::cerr << m_serialDevice->getValue() << std::endl;
     m_rotator->setBounds(0, 360);
 
     VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeDrehgeber>());

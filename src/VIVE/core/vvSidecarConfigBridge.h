@@ -1,10 +1,10 @@
-#include "../OpenConfig/access.h"
+#include "../ViveConfig/access.h"
 #include <string>
 #include <set>
 
 #include <OpenConfig/covconfig/detail/toml/toml.hpp> // in order to avoid another copy of toml.hpp
 
-class vvSidecarConfigBridge: public vive::config::Bridge
+class vvSidecarConfigBridge : public vive::config::Bridge
 {
 public:
     vvSidecarConfigBridge(const std::string &file, bool saveOnDestroy = false);
@@ -27,7 +27,7 @@ public:
     };
 
 private:
-    template<class V>
+    template <class V>
     bool toOrFromToml(const vive::config::ConfigBase *entry, const Key &key, bool seen);
 
     std::string m_file;

@@ -12,6 +12,8 @@ set(OpenGL_GL_PREFERENCE LEGACY)
 covise_find_package(OpenGL)
 covise_find_package(GLEW)
 covise_find_package(glm)
+covise_find_package(OpenAL)
+covise_find_package(ALUT)
 if(NOT OPENSCENEGRAPH_FOUND)
    message("COVER: OpenSceneGraph not found")
    return()
@@ -21,11 +23,10 @@ if(COVER_INCLUDE_DIR)
    set(COVER_FIND_QUIETLY TRUE)
 endif()
 
-set(COVER_DIR "${COVISEDIR}/src/OpenCOVER")
-
 find_path(COVER_INCLUDE_DIR "cover/coVRPluginSupport.h"
    PATHS
-   ${COVER_DIR}
+   ${COVISEDIR}/src/OpenCOVER
+   ${COVISEDIR}/include
    PATH_SUFFIXES covise
    DOC "COVER - Headers"
 )
@@ -35,13 +36,16 @@ covise_find_library(COVER_CONFIG coOpenConfig)
 covise_find_library(COVER_VRUI coOpenVRUI)
 covise_find_library(COVER_OSGVRUI coOSGVRUI)
 covise_find_library(COVER_PLUGINUTIL coOpenPluginUtil)
+covise_find_library(COVER_AUDIO coVRAudio)
+covise_find_library(COVER_VRML coVRML)
+covise_find_library(COVER_VRMLINTERFACE Vrml97Cover)
 
 include(FindPackageHandleStandardArgs)
 
 find_package_handle_standard_args(COVER DEFAULT_MSG
-   COVER_DIR
    COVER_LIBRARY
    COVER_VRUI_LIBRARY
+   COVER_AUDIO_LIBRARY
    COVER_OSGVRUI_LIBRARY
    COVER_PLUGINUTIL_LIBRARY
    COVISE_VRBCLIENT_LIBRARY
@@ -51,6 +55,9 @@ find_package_handle_standard_args(COVER DEFAULT_MSG
    COVER_INCLUDE_DIR COVISE_INCLUDE_DIR)
 mark_as_advanced(COVER_LIBRARY
    COVER_CONFIG_LIBRARY
+   COVER_AUDIO_LIBRARY
+   COVER_VRML_LIBRARY
+   COVER_VRMLINTERFACE_LIBRARY
    COVER_VRUI_LIBRARY
    COVER_OSGVRUI_LIBRARY
    COVER_PLUGINUTIL_LIBRARY
@@ -58,6 +65,7 @@ mark_as_advanced(COVER_LIBRARY
 
 if(COVER_FOUND)
    set(COVER_INCLUDE_DIRS ${COVER_INCLUDE_DIR} ${COVISE_INCLUDE_DIR})
+   target_link_libraries(${COVER_AUDIO_LIBRARY} INTERFACE glm::glm)
 endif()
 
 MACRO(COVER_ADD_PLUGIN targetname)
@@ -117,7 +125,7 @@ MACRO(COVER_ADD_PLUGIN_TARGET targetname)
   ENDIF()
     
   TARGET_LINK_LIBRARIES(${targetname} ${COVER_PLUGINUTIL_LIBRARY}
-     ${COVER_LIBRARY} ${COVER_VRUI_LIBRARY} ${COVER_OSGVRUI_LIBRARY} ${COVER_CONFIG_LIBRARY}
+     ${COVER_LIBRARY} ${COVER_AUDIO_LIBRARY} ${COVER_VRUI_LIBRARY} ${COVER_OSGVRUI_LIBRARY} ${COVER_CONFIG_LIBRARY}
      ${COVISE_VRBCLIENT_LIBRARY} ${COVISE_CONFIG_LIBRARY} ${COVISE_UTIL_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES})
   
   qt_use_modules(${targetname} Core)

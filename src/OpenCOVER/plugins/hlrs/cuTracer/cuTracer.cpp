@@ -13,8 +13,7 @@
 #include <do/coDoUnstructuredGrid.h>
 #include <do/coDoData.h>
 
-#include <PluginUtil/colors/ColorBar.h>
-
+#include <PluginUtil/ColorBar.h>
 
 #include <OpenVRUI/coMenuItem.h>
 #include <cover/OpenCOVER.h>
@@ -73,11 +72,11 @@ static struct cudaGraphicsResource *vertexResource, *velocityResource, *vortexRe
 void init_trace(const struct usg &usg, float3 *pos, int *outCell, float3 *outPos, unsigned char *outVel, int num, int ts);
 
 void trace(const struct usg &usg, float3 *pos,
-           const float periodic, int *outCell, float3 *outPos, int *outPart,
-           unsigned char *outVel, int numParticles, int steps);
+    const float periodic, int *outCell, float3 *outPos, int *outPart,
+    unsigned char *outVel, int numParticles, int steps);
 
 void getMinMax(const float *data, int numElem, float *min,
-               float *max, float minV = -FLT_MAX, float maxV = FLT_MAX);
+    float *max, float minV = -FLT_MAX, float maxV = FLT_MAX);
 
 void insertNeighbor(struct usg *usg, int e0, int e1)
 {
@@ -86,11 +85,11 @@ void insertNeighbor(struct usg *usg, int e0, int e1)
     int start1 = (usg->elementList)[e1];
 
     int faces[6][4] = { { 0, 1, 4, 5 },
-                        { 1, 2, 5, 6 },
-                        { 2, 3, 6, 7 },
-                        { 0, 3, 4, 7 },
-                        { 0, 1, 2, 3 },
-                        { 4, 5, 6, 7 } };
+        { 1, 2, 5, 6 },
+        { 2, 3, 6, 7 },
+        { 0, 3, 4, 7 },
+        { 0, 1, 2, 3 },
+        { 4, 5, 6, 7 } };
 
     bool sharedFace = false;
     for (int face = 0; face < 6; face++)
@@ -145,7 +144,7 @@ void createNeighborList(struct usg *usg)
                     insertNeighbor(usg, *e0, *e1);
             }
     }
-    //delete[] corner_elements;
+    // delete[] corner_elements;
     /*
    for (int elem = 0; elem < 10; elem ++) {
       printf("%05d %05d %05d %05d %05d %05d\n", (*usg->neighbors)[elem * 6],
@@ -160,11 +159,11 @@ void createNeighborList(struct usg *usg)
 }
 
 void removeSpikesAdaptive(const float *data, int numElem,
-                          float *min, float *max);
+    float *min, float *max);
 
 cuTracer::cuTracer()
-: coVRPlugin(COVER_PLUGIN_NAME)
-, menu(NULL)
+    : coVRPlugin(COVER_PLUGIN_NAME)
+    , menu(NULL)
 {
 }
 
@@ -198,7 +197,7 @@ void cuTracer::removeObject(const char *objName, bool /*replace*/)
 
             std::string name = node->getName();
             geode.erase(name);
-            //delete(dynamic_cast<osg::Geode *>(node));
+            // delete(dynamic_cast<osg::Geode *>(node));
         }
 
         // TODO: delete group contents + drawable
@@ -271,14 +270,14 @@ void cuTracer::addObject(const RenderObject *container, osg::Group *, const Rend
             state->setTextureAttributeAndModes(0, texture, osg::StateAttribute::ON);
 
             state->setTextureAttributeAndModes(0, new osg::PointSprite(),
-                                               osg::StateAttribute::ON);
+                osg::StateAttribute::ON);
             state->setDataVariance(osg::Object::DYNAMIC);
             state->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
             state->setRenderBinDetails(3, "RenderBin");
 
             char name[256];
             snprintf(name, 256, "%s_%s", container->getName(),
-                     geometry->getName());
+                geometry->getName());
 
             coVR3DTransInteractor *inter = new coVR3DTransInteractor(osg::Vec3(0.0, 0.0, 0.0), cover->getSceneSize() / 50.0, coInteraction::ButtonA, "hand", "Plane_S0", coInteraction::Medium);
             inter->show();
@@ -324,7 +323,7 @@ void cuTracer::postFrame()
 }
 
 TracerDrawable::TracerDrawable(RenderObject *g, RenderObject *vel,
-                               coVR3DTransInteractor *inter)
+    coVR3DTransInteractor *inter)
     : osg::Geometry()
     , geom(g)
     , interactor(inter)
@@ -339,7 +338,7 @@ TracerDrawable::TracerDrawable(RenderObject *g, RenderObject *vel,
 
         geom->getSize(usg.numElements, usg.numCorners, usg.numPoints);
         geom->getAddresses(usg.x, usg.y, usg.z, usg.cornerList, usg.elementList,
-                           tl);
+            tl);
 
         usg.boundingSpheres = new float[usg.numElements * 4];
 
@@ -359,8 +358,8 @@ TracerDrawable::TracerDrawable(RenderObject *g, RenderObject *vel,
             {
 
                 osg::Vec3 a(usg.x[usg.cornerList[i]],
-                            usg.y[usg.cornerList[i]],
-                            usg.z[usg.cornerList[i]]);
+                    usg.y[usg.cornerList[i]],
+                    usg.z[usg.cornerList[i]]);
 
                 for (int j = begin; j <= end; j++)
                 {
@@ -368,8 +367,8 @@ TracerDrawable::TracerDrawable(RenderObject *g, RenderObject *vel,
                     if (i != j)
                     {
                         osg::Vec3 b(usg.x[usg.cornerList[j]],
-                                    usg.y[usg.cornerList[j]],
-                                    usg.z[usg.cornerList[j]]);
+                            usg.y[usg.cornerList[j]],
+                            usg.z[usg.cornerList[j]]);
                         float d = (a - b).length();
                         if (d > dist)
                         {
@@ -440,7 +439,7 @@ TracerDrawable::TracerDrawable(RenderObject *g, RenderObject *vel,
                 }
                 else
                     fprintf(stderr, "cuTracer: writing kdtree [%s] failed\n",
-                            treeName);
+                        treeName);
             }
         }
 
@@ -459,7 +458,7 @@ TracerDrawable::TracerDrawable(RenderObject *g, RenderObject *vel,
             }
             else
                 fprintf(stderr, "cuTracer: reading neighbor list [%s] failed\n",
-                        neighborName);
+                    neighborName);
         }
         else
         {
@@ -480,7 +479,7 @@ TracerDrawable::TracerDrawable(RenderObject *g, RenderObject *vel,
                 }
                 else
                     fprintf(stderr, "cuTracer: writing neighbor list [%s] failed\n",
-                            treeName);
+                        treeName);
             }
         }
 
@@ -504,86 +503,86 @@ TracerDrawable::TracerDrawable(RenderObject *g, RenderObject *vel,
         cudaError_t err = cudaGetLastError();
 
         CUDA_SAFE_CALL(cudaMalloc((void **)&cuda_usg.elementList,
-                                  usg.numElements * sizeof(int)));
+            usg.numElements * sizeof(int)));
         CUDA_SAFE_CALL(cudaMalloc((void **)&cuda_usg.cornerList,
-                                  usg.numCorners * sizeof(int)));
+            usg.numCorners * sizeof(int)));
 
         CUDA_SAFE_CALL(cudaMalloc((void **)&cuda_usg.x,
-                                  usg.numPoints * sizeof(float)));
+            usg.numPoints * sizeof(float)));
         CUDA_SAFE_CALL(cudaMalloc((void **)&cuda_usg.y,
-                                  usg.numPoints * sizeof(float)));
+            usg.numPoints * sizeof(float)));
         CUDA_SAFE_CALL(cudaMalloc((void **)&cuda_usg.z,
-                                  usg.numPoints * sizeof(float)));
+            usg.numPoints * sizeof(float)));
 
         CUDA_SAFE_CALL(cudaMalloc((void **)&cuda_usg.vx,
-                                  usg.numPoints * sizeof(float)));
+            usg.numPoints * sizeof(float)));
         CUDA_SAFE_CALL(cudaMalloc((void **)&cuda_usg.vy,
-                                  usg.numPoints * sizeof(float)));
+            usg.numPoints * sizeof(float)));
         CUDA_SAFE_CALL(cudaMalloc((void **)&cuda_usg.vz,
-                                  usg.numPoints * sizeof(float)));
+            usg.numPoints * sizeof(float)));
 
         CUDA_SAFE_CALL(cudaMalloc((void **)&cuda_usg.boundingSpheres,
-                                  usg.numElements * sizeof(float) * 4));
+            usg.numElements * sizeof(float) * 4));
 
         CUDA_SAFE_CALL(cudaMalloc((void **)&cuda_usg.flat,
-                                  usg.numFlat * sizeof(BB)));
+            usg.numFlat * sizeof(BB)));
         CUDA_SAFE_CALL(cudaMalloc((void **)&cuda_usg.cells,
-                                  usg.numCells * sizeof(int)));
+            usg.numCells * sizeof(int)));
 
         CUDA_SAFE_CALL(cudaMalloc((void **)&pos,
-                                  numParticles * sizeof(float3)));
+            numParticles * sizeof(float3)));
         CUDA_SAFE_CALL(cudaMalloc((void **)&outCell,
-                                  numParticles * sizeof(int)));
+            numParticles * sizeof(int)));
 
         CUDA_SAFE_CALL(cudaMalloc((void **)&outPart, numParticles * sizeof(int)));
 
         CUDA_SAFE_CALL(cudaMalloc((void **)&cuda_usg.flat,
-                                  usg.numFlat * sizeof(BB)));
+            usg.numFlat * sizeof(BB)));
         CUDA_SAFE_CALL(cudaMalloc((void **)&cuda_usg.cells,
-                                  usg.numCells * sizeof(int)));
+            usg.numCells * sizeof(int)));
 
         if (usg.neighbors)
         {
             CUDA_SAFE_CALL(cudaMalloc((void **)&cuda_usg.neighbors,
-                                      usg.numElements * 6 * sizeof(int)));
+                usg.numElements * 6 * sizeof(int)));
             CUDA_SAFE_CALL(cudaMemcpy((void *)cuda_usg.neighbors, usg.neighbors,
-                                      usg.numElements * 6 * sizeof(int),
-                                      cudaMemcpyHostToDevice));
+                usg.numElements * 6 * sizeof(int),
+                cudaMemcpyHostToDevice));
         }
 
         CUDA_SAFE_CALL(cudaMemcpy((void *)cuda_usg.elementList, usg.elementList,
-                                  usg.numElements * sizeof(int),
-                                  cudaMemcpyHostToDevice));
+            usg.numElements * sizeof(int),
+            cudaMemcpyHostToDevice));
 
         CUDA_SAFE_CALL(cudaMemcpy((void *)cuda_usg.cornerList, usg.cornerList,
-                                  usg.numCorners * sizeof(int),
-                                  cudaMemcpyHostToDevice));
+            usg.numCorners * sizeof(int),
+            cudaMemcpyHostToDevice));
 
         CUDA_SAFE_CALL(cudaMemcpy((void *)cuda_usg.x, usg.x, usg.numPoints * sizeof(float),
-                                  cudaMemcpyHostToDevice));
+            cudaMemcpyHostToDevice));
         CUDA_SAFE_CALL(cudaMemcpy((void *)cuda_usg.y, usg.y, usg.numPoints * sizeof(float),
-                                  cudaMemcpyHostToDevice));
+            cudaMemcpyHostToDevice));
         CUDA_SAFE_CALL(cudaMemcpy((void *)cuda_usg.z, usg.z, usg.numPoints * sizeof(float),
-                                  cudaMemcpyHostToDevice));
+            cudaMemcpyHostToDevice));
 
         CUDA_SAFE_CALL(cudaMemcpy((void *)cuda_usg.vx, usg.vx, usg.numPoints * sizeof(float),
-                                  cudaMemcpyHostToDevice));
+            cudaMemcpyHostToDevice));
         CUDA_SAFE_CALL(cudaMemcpy((void *)cuda_usg.vy, usg.vy, usg.numPoints * sizeof(float),
-                                  cudaMemcpyHostToDevice));
+            cudaMemcpyHostToDevice));
         CUDA_SAFE_CALL(cudaMemcpy((void *)cuda_usg.vz, usg.vz, usg.numPoints * sizeof(float),
-                                  cudaMemcpyHostToDevice));
+            cudaMemcpyHostToDevice));
 
         CUDA_SAFE_CALL(cudaMemcpy((void *)cuda_usg.boundingSpheres,
-                                  usg.boundingSpheres,
-                                  usg.numElements * sizeof(float) * 4,
-                                  cudaMemcpyHostToDevice));
+            usg.boundingSpheres,
+            usg.numElements * sizeof(float) * 4,
+            cudaMemcpyHostToDevice));
 
         CUDA_SAFE_CALL(cudaMemcpy((void *)cuda_usg.flat, usg.flat,
-                                  usg.numFlat * sizeof(BB),
-                                  cudaMemcpyHostToDevice));
+            usg.numFlat * sizeof(BB),
+            cudaMemcpyHostToDevice));
         CUDA_SAFE_CALL(cudaMemcpy((void *)cuda_usg.cells, usg.cells,
-                                  usg.numCells * sizeof(int),
-                                  cudaMemcpyHostToDevice));
+            usg.numCells * sizeof(int),
+            cudaMemcpyHostToDevice));
 
         BB bbox = usg.flat[0];
         float wx = bbox.maxx - bbox.minx;
@@ -627,10 +626,10 @@ TracerDrawable::TracerDrawable(RenderObject *g, RenderObject *vel,
             startPos[index].z = ((b[5] - b[2]) * rand() / (RAND_MAX + 1.0)) + b[2];
         }
         CUDA_SAFE_CALL(cudaMemcpy((void *)pos, startPos, numParticles * sizeof(float3),
-                                  cudaMemcpyHostToDevice));
+            cudaMemcpyHostToDevice));
 
         box = osg::BoundingBox(bbox.minx, bbox.miny, bbox.minz,
-                               bbox.maxx, bbox.maxy, bbox.maxz);
+            bbox.maxx, bbox.maxy, bbox.maxz);
 
         name = geom->getName();
         /*
@@ -663,7 +662,7 @@ void TracerDrawable::postFrame()
 }
 
 TracerDrawable::TracerDrawable(const TracerDrawable &draw,
-                               const osg::CopyOp &op)
+    const osg::CopyOp &op)
     : osg::Geometry(draw, op)
 {
 }
@@ -679,17 +678,17 @@ void TracerDrawable::drawImplementation(osg::RenderInfo & /*info*/) const
         createVBO(&vertexVBO, numParticles * numSteps * sizeof(float3));
 
         CUDA_SAFE_CALL(cudaGraphicsGLRegisterBuffer(&vertexResource, vertexVBO,
-                                                    cudaGraphicsMapFlagsNone));
+            cudaGraphicsMapFlagsNone));
 
         createVBO(&velocityVBO, numParticles * numSteps * 3 * sizeof(unsigned char));
 
         CUDA_SAFE_CALL(cudaGraphicsGLRegisterBuffer(&velocityResource, velocityVBO,
-                                                    cudaGraphicsMapFlagsNone));
+            cudaGraphicsMapFlagsNone));
 
         createVBO(&vortexVBO, numParticles * numSteps * sizeof(float));
 
         CUDA_SAFE_CALL(cudaGraphicsGLRegisterBuffer(&vortexResource, vortexVBO,
-                                                    cudaGraphicsMapFlagsNone));
+            cudaGraphicsMapFlagsNone));
     }
 
     if (!initialized || (interactor && interactor->wasStopped()))
@@ -717,18 +716,18 @@ void TracerDrawable::drawImplementation(osg::RenderInfo & /*info*/) const
         }
 
         CUDA_SAFE_CALL(cudaMemcpy((void *)pos, startPos, numParticles * sizeof(float3),
-                                  cudaMemcpyHostToDevice));
+            cudaMemcpyHostToDevice));
 
         CUDA_SAFE_CALL(cudaGraphicsMapResources(1, &vertexResource, 0));
         CUDA_SAFE_CALL(cudaGraphicsMapResources(1, &velocityResource, 0));
         CUDA_SAFE_CALL(cudaGraphicsMapResources(1, &vortexResource, 0));
 
         CUDA_SAFE_CALL(cudaGraphicsResourceGetMappedPointer((void **)&outPos, &s,
-                                                            vertexResource));
+            vertexResource));
         CUDA_SAFE_CALL(cudaGraphicsResourceGetMappedPointer((void **)&outVel, &s,
-                                                            velocityResource));
+            velocityResource));
         CUDA_SAFE_CALL(cudaGraphicsResourceGetMappedPointer((void **)&outVort, &s,
-                                                            vortexResource));
+            vortexResource));
 
         CUDA_SAFE_CALL(cudaMemset((void *)outCell, -1, numParticles * sizeof(int)));
         CUDA_SAFE_CALL(cudaMemset((void *)outPart, 0, numParticles * sizeof(int)));
@@ -754,14 +753,14 @@ void TracerDrawable::drawImplementation(osg::RenderInfo & /*info*/) const
         CUDA_SAFE_CALL(cudaGraphicsMapResources(1, &vortexResource, 0));
 
         CUDA_SAFE_CALL(cudaGraphicsResourceGetMappedPointer((void **)&outPos, &s,
-                                                            vertexResource));
+            vertexResource));
         CUDA_SAFE_CALL(cudaGraphicsResourceGetMappedPointer((void **)&outVel, &s,
-                                                            velocityResource));
+            velocityResource));
         CUDA_SAFE_CALL(cudaGraphicsResourceGetMappedPointer((void **)&outVort, &s,
-                                                            vortexResource));
+            vortexResource));
 
         trace(cuda_usg, pos, 0.0, outCell, outPos, outPart, outVel,
-              numParticles, numSteps);
+            numParticles, numSteps);
 
         cudaThreadSynchronize();
 

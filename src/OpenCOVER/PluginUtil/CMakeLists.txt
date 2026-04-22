@@ -13,46 +13,53 @@ ADD_DEFINITIONS(-DCOVISE_PLUGIN_UTIL)
 
 
 SET(PLUGINUTIL_HEADERS
-  BoxSelection.h
-  BoxSelectionInteractor.h
-  coArrow.h
-  coInstanceRenderer.h
-  coLine.h
-  coLOD.h
-  colors/coColorBar.h
-  colors/coColorHUD.h
-  colors/coColorMap.h
-  colors/ColorBar.h
-  colors/ColorMaterials.h
-  coPlane.h
-  coSensor.h
-  coShaderUtil.h
-  coSphere.h
-  coVR1DTransInteractor.h
-  coVR2DTransInteractor.h
-  coVR3DGizmo.h
-  coVR3DGizmoType.h
-  coVR3DRotCenterInteractor.h
-  coVR3DRotGizmo.h
-  coVR3DRotInteractor.h
-  coVR3DScaleGizmo.h
-  coVR3DTransformInteractor.h
-  coVR3DTransGizmo.h
-  coVR3DTransInteractor.h
-  coVR3DTransRotInteractor.h
-  CudaGraphicsResource.h
-  CudaTextureRectangle.h
-  FeedbackManager.h
-  FileReference.h
-  GenericGuiObject.h
-  ModuleFeedbackManager.h
-  ModuleFeedbackPlugin.h
-  MultiChannelDrawer.h
-  PluginMessageTypes.h
-  ProgramCache.h
-  SimReference.h
-  StaticSequence.h
-  Tipsify.h
+    BoxSelection.h
+    BoxSelectionInteractor.h
+    coArrow.h
+    coInstanceRenderer.h
+    coIntersecCheckboxMenuItem.h
+    coLine.h
+    coLOD.h
+    coColorBar.h
+    coColorHUD.h
+    coColorMap.h
+    ColorBar.h
+    ColorMaterials.h
+    coPlane.h
+    coSensor.h
+    coShaderUtil.h
+    coSphere.h
+    coSyncActionManager.h
+    coSynchronizedAction.h
+    coVR1DTransInteractor.h
+    coVR2DTransInteractor.h
+    coVR3DGizmo.h
+    coVR3DGizmoType.h
+    coVR3DRotCenterInteractor.h
+    coVR3DRotGizmo.h
+    coVR3DRotInteractor.h
+    coVR3DScaleGizmo.h
+    coVR3DTransformInteractor.h
+    coVR3DTransGizmo.h
+    coVR3DTransInteractor.h
+    coVR3DTransRotInteractor.h
+    CudaGraphicsResource.h
+    CudaSafeCall.h
+    CudaTextureRectangle.h
+    FeedbackManager.h
+    FileReference.h
+    GenericGuiObject.h
+    ModuleFeedbackManager.h
+    ModuleFeedbackPlugin.h
+    ModuleInteraction.h
+    MultiChannelDrawer.h
+    PluginMessageTypes.h
+    ProgramCache.h
+    SimReference.h
+    StaticSequence.h
+    SurfaceInteraction.h
+    SurfacePlugin.h
+    Tipsify.h
 )
 
 SET(SOURCES
@@ -62,11 +69,11 @@ SET(SOURCES
   coInstanceRenderer.cpp
   coLine.cpp
   coLOD.cpp
-  colors/coColorBar.cpp
-  colors/coColorHUD.cpp
-  colors/coColorMap.cpp
-  colors/ColorBar.cpp
-  colors/ColorMaterials.cpp
+  coColorBar.cpp
+  coColorHUD.cpp
+  coColorMap.cpp
+  ColorBar.cpp
+  ColorMaterials.cpp
   coPlane.cpp
   coSensor.cpp
   coShaderUtil.cpp

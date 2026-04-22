@@ -45,6 +45,9 @@
 #include <xercesc/util/XMLUni.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 
+#include <audio/Audio.h>
+#include <audio/Player.h>
+
 using namespace vrui;
 
 #define DEG_TO_RAD .017453292519943296

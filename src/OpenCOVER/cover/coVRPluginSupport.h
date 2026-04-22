@@ -40,6 +40,10 @@
 #endif
 #endif
 
+#include <list>
+#include <array>
+#include <ostream>
+
 #include <osg/Matrix>
 #include <osg/Geode>
 #include <osg/Drawable>
@@ -48,17 +52,15 @@
 #include <osgViewer/GraphicsWindow>
 #include <osg/BoundingBox>
 
-#include <list>
-#include <ostream>
-
 #include <OpenVRUI/sginterface/vruiButtons.h>
+#include <OpenConfig/access.h>
+#include <net/message_types.h>
+#include <audio/Player.h>
+#include <audio/Listener.h>
 
 #include "coVRPlugin.h"
 #include "units.h"
-#include <OpenConfig/access.h>
 
-#include <net/message_types.h>
-#include <array>
 namespace opencover
 {
 
@@ -68,11 +70,6 @@ namespace ui
     class Menu;
     class Manager;
     class VruiView;
-}
-namespace audio
-{
-    class Player;
-    class Listener;
 }
 }
 
@@ -570,7 +567,7 @@ private:
     osgViewer::GraphicsWindow::MouseCursor currentCursor;
     bool cursorVisible = true;
 
-    audio::Listener *listener = nullptr;
+    audio::Listener listener;
     audio::Player *player = nullptr;
 
     int activeClippingPlane = 0;

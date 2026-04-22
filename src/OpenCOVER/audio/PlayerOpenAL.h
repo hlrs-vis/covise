@@ -10,11 +10,7 @@
 
 #include "Player.h"
 
-#if defined(__APPLE__)
-#include <OpenAL/al.h>
-#else
-#include <AL/al.h>
-#endif
+#include <al.h>
 #include <util/coExport.h>
 
 #include "AlutContext.h"
@@ -28,13 +24,13 @@ public:
     PlayerOpenAL(const Listener *listener);
     virtual void update();
 
-    virtual std::unique_ptr<Player::Source> makeSource(const Audio *audio);
+    virtual std::unique_ptr<opencover::audio::Source> makeSource(const Audio *audio);
 
 protected:
-    class Source : public Player::Source
+    class Source : public opencover::audio::Source
     {
     public:
-        Source(Player* player, const Audio *audio);
+        Source(Player *player, const Audio *audio);
         virtual ~Source();
 
         virtual void setLoop(bool loop) override;

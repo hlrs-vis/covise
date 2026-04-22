@@ -40,13 +40,12 @@ SET(SOURCES
     AuralRealityPlugin.cpp
 )
 
-LIST(APPEND EXTRA_LIBS 
+cover_add_plugin(AuralReality ${HEADERS} ${SOURCES})
+target_link_libraries(AuralReality
     protobuf::libprotobuf 
     gRPC::grpc 
     gRPC::grpc++
 )
-
-cover_add_plugin(AuralReality ${HEADERS} ${SOURCES})
 
 get_target_property(grpc_cpp_plugin_location gRPC::grpc_cpp_plugin LOCATION)
 protobuf_generate(

@@ -116,9 +116,7 @@ System::System()
 {
 }
 
-System::~System()
-{
-}
+System::~System() = default;
 
 // Should make these iostream objects...
 

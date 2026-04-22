@@ -11,8 +11,7 @@
 #include <do/coDoUnstructuredGrid.h>
 #include <do/coDoData.h>
 
-#include <PluginUtil/colors/ColorBar.h>
-
+#include <PluginUtil/ColorBar.h>
 
 #include <cover/OpenCOVER.h>
 #include <cover/coVRPluginSupport.h>
@@ -39,16 +38,16 @@ CUDAEngine isoEngine;
 void RenderCUDAState(State *);
 
 void getMinMax(const float *data, int numElem, float *min,
-               float *max, float minV = -FLT_MAX, float maxV = FLT_MAX);
+    float *max, float minV = -FLT_MAX, float maxV = FLT_MAX);
 
 void removeSpikesAdaptive(const float *data, int numElem,
-                          float *min, float *max);
+    float *min, float *max);
 
 cuIsoSurface::cuIsoSurface()
-: coVRPlugin(COVER_PLUGIN_NAME)
-, ui::Owner("cuIsoSurface", cover->ui)
-, initDone(false)
-, menu(NULL)
+    : coVRPlugin(COVER_PLUGIN_NAME)
+    , ui::Owner("cuIsoSurface", cover->ui)
+    , initDone(false)
+    , menu(NULL)
 {
     tuiTab = new coTUITab("cuIsoSurface", coVRTui::instance()->mainFolder->getID());
     tuiTab->setPos(0, 0);
@@ -159,7 +158,7 @@ void cuIsoSurface::addObject(const RenderObject *container, osg::Group * /*setNa
                         max = atof(attrMax);
                     }
                 }
-                //fprintf("stderr, Iso minmax: %f %f\n", min, max);
+                // fprintf("stderr, Iso minmax: %f %f\n", min, max);
 
                 osg::ref_ptr<osg::StateSet> state = new osg::StateSet();
                 state->setGlobalDefaults();
@@ -183,15 +182,15 @@ void cuIsoSurface::addObject(const RenderObject *container, osg::Group * /*setNa
 
                     colorTex->setImage(texImage);
                     colorTex->setFilter(osg::Texture1D::MIN_FILTER,
-                                        osg::Texture1D::LINEAR);
+                        osg::Texture1D::LINEAR);
                     colorTex->setFilter(osg::Texture1D::MAG_FILTER,
-                                        osg::Texture1D::LINEAR);
+                        osg::Texture1D::LINEAR);
 
                     state->setTextureAttributeAndModes(0, colorTex,
-                                                       osg::StateAttribute::ON);
+                        osg::StateAttribute::ON);
 
                     state->setTextureMode(0, GL_TEXTURE_1D,
-                                          osg::StateAttribute::ON);
+                        osg::StateAttribute::ON);
                 }
                 osg::ref_ptr<osg::Geode> g = new osg::Geode();
 
@@ -273,7 +272,7 @@ void cuIsoSurface::addObject(const RenderObject *container, osg::Group * /*setNa
                     tuiSlider = ti->second;
 
                 osg::ref_ptr<IsoDrawable> draw = new IsoDrawable(slider, tuiSlider, tuiButton,
-                                                                 geometry, normals, colorObj, box, min, max);
+                    geometry, normals, colorObj, box, min, max);
 
                 opencover::coVRShader *shader = coVRShaderList::instance()->get("texture1d");
                 if (shader)
@@ -284,10 +283,10 @@ void cuIsoSurface::addObject(const RenderObject *container, osg::Group * /*setNa
                 group->addChild(g.get());
                 char name[256];
                 snprintf(name, 256, "%s_%s", container->getName(),
-                         geometry->getName());
+                    geometry->getName());
                 geode[std::string(name)] = g.get();
                 g->setName(strdup(name));
-                //printf("added geode [%s]\n", name);
+                // printf("added geode [%s]\n", name);
             }
             else
                 cerr << "no/wrong data received" << endl;
@@ -341,10 +340,10 @@ void cuIsoSurface::postFrame()
 }
 
 IsoDrawable::IsoDrawable(ui::Slider *s, coTUIFloatSlider *tui,
-                         coTUIToggleButton *button,
-                         const RenderObject *g, const RenderObject *map,
-                         const RenderObject *data,
-                         float *b, float mi = 0.0, float ma = 0.0)
+    coTUIToggleButton *button,
+    const RenderObject *g, const RenderObject *map,
+    const RenderObject *data,
+    float *b, float mi = 0.0, float ma = 0.0)
     : osg::Drawable()
     , coTUIListener()
     , state(NULL)
@@ -391,9 +390,9 @@ IsoDrawable::IsoDrawable(ui::Slider *s, coTUIFloatSlider *tui,
             dataName = data->getName();
 
         state = isoEngine.InitState(geom->getName(), dataName, mapName,
-                                    typeList, elemList, connList, x, y, z,
-                                    numElem, numConn, numCoord, red,
-                                    xm, ym, zm, min, max);
+            typeList, elemList, connList, x, y, z,
+            numElem, numConn, numCoord, red,
+            xm, ym, zm, min, max);
 
         box = osg::BoundingBox(b[0], b[1], b[2], b[3], b[4], b[5]);
 
@@ -417,8 +416,8 @@ void IsoDrawable::tabletEvent(coTUIElement *tUIItem)
     if (tUIItem == tuiSlider)
     {
 
-        //float thresh = tuiSlider->getValue();
-        //slider->setValue(thresh);
+        // float thresh = tuiSlider->getValue();
+        // slider->setValue(thresh);
     }
 
     else if (tUIItem == tuiButton)
@@ -443,7 +442,7 @@ void IsoDrawable::preFrame()
         threshold += (max - min) / 500;
         if (threshold > max)
             threshold = min;
-        //slider->setValue(threshold);
+        // slider->setValue(threshold);
         tuiSlider->setValue(threshold);
     }
     else if (thresh != threshold)
@@ -463,7 +462,7 @@ void IsoDrawable::preDraw()
 
         int numVertices;
         isoEngine.computeIsoMesh(state, threshold,
-                                 &numVertices, 0, 0);
+            &numVertices, 0, 0);
         printf("num: %d\n", numVertices);
     }
 }

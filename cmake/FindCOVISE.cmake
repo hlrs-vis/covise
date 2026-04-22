@@ -62,6 +62,7 @@ endif()
 find_path(COVISE_INCLUDE_DIR "util/coExport.h"
    PATHS
    ${COVISEDIR}/src/kernel
+   ${COVISEDIR}/include
    PATH_SUFFIXES covise
    DOC "COVISE - Headers"
 )
@@ -69,6 +70,7 @@ if (NOT COVISE_INCLUDE_DIR)
     find_path(COVISE_INCLUDE_DIR "file/coFileExport.h"
         PATHS
         ${COVISEDIR}/src/kernel
+        ${COVISEDIR}/include
         PATH_SUFFIXES covise
         DOC "COVISE - Headers"
         )

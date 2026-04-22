@@ -72,9 +72,9 @@ public:
 #ifdef USE_CAR_SOUND
     CarSound *carSound;
 #else
-    std::shared_ptr<Player::Source> source;
-    std::shared_ptr<Player::Source> gearSound;
-    std::shared_ptr<Player::Source> hornSound;
+    std::shared_ptr<Source> source;
+    std::shared_ptr<Source> gearSound;
+    std::shared_ptr<Source> hornSound;
     EngineSound *engineSound;
 #endif
     // Define the fields of SteeringWheel nodes

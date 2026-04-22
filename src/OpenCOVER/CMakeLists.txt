@@ -167,3 +167,4 @@ INSTALL(FILES "../../cmake/FindCOVER.cmake" DESTINATION
     # && cp -HR ${OPENSCENEGRAPH_LIBPATH}/osgPlugins-2.9.7/* "$@"/Contents/PlugIns/ \
     # && cp -HR $$COVISEDIR/$$COVISE_ARCHSUFFIX/lib/OpenCOVER/plugins/* "$@"/Contents/PlugIns/ \
     # && ${COVISEDIR}/../common/mkspecs/makebundle.sh "$@"
+

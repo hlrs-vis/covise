@@ -175,6 +175,8 @@ SystemCover::SystemCover()
     coVRMSController::instance()->syncData(&cacheMode, sizeof(cacheMode));
 }
 
+SystemCover::~SystemCover() = default;
+
 bool SystemCover::loadUrl(const char *url, int np, char **parameters)
 {
     if (!url)
@@ -539,23 +541,6 @@ void SystemCover::becomeMaster()
 {
     coVRCommunication::instance()->becomeMaster();
 }
-
-#if 0
-void SystemCover::setBuiltInFunctionState(const char *fname, int val)
-{
-    cover->setBuiltInFunctionState(fname, val);
-}
-
-void SystemCover::setBuiltInFunctionValue(const char *fname, float val)
-{
-    cover->setBuiltInFunctionValue(fname, val);
-}
-
-void SystemCover::callBuiltInFunctionCallback(const char *fname)
-{
-    cover->callBuiltInFunctionCallback(fname);
-}
-#endif
 
 opencover::audio::Player *SystemCover::getPlayer()
 {

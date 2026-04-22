@@ -28,15 +28,15 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/coInteractor.h>
 #include <cover/VRSceneGraph.h>
+#include <cover/OpenCOVER.h>
 
-#include <PluginUtil/colors/ColorBar.h>
+#include <PluginUtil/ColorBar.h>
 
 #include <config/CoviseConfig.h>
 
 #include <cover/RenderObject.h>
 
 #include <osg/MatrixTransform>
-
 using namespace vrui;
 using namespace opencover;
 
@@ -150,8 +150,7 @@ TracerInteraction::~TracerInteraction()
         cover->getObjectsScale()->removeChild(smokeRoot.get());
 }
 
-void
-TracerInteraction::update(const RenderObject *container, coInteractor *inter)
+void TracerInteraction::update(const RenderObject *container, coInteractor *inter)
 {
 
     // base class updates the item in the COVISE menu
@@ -187,10 +186,9 @@ TracerInteraction::update(const RenderObject *container, coInteractor *inter)
     newObject_ = true;
 }
 
-void
-TracerInteraction::addSmoke(const RenderObject *grid, const RenderObject *velo)
+void TracerInteraction::addSmoke(const RenderObject *grid, const RenderObject *velo)
 {
-    //fprintf(stderr,"TracerInteraction::addSmoke...");
+    // fprintf(stderr,"TracerInteraction::addSmoke...");
 
     if (grid && velo)
     {
@@ -212,7 +210,7 @@ TracerInteraction::addSmoke(const RenderObject *grid, const RenderObject *velo)
         const float *w = velo->getFloat(Field::Z);
         int nvx, nvy, nvz;
         uvelo->getSize(nvx, nvy, nvz);
-        //assert(nx==nvx && ny==nvy && nz==nvz);
+        // assert(nx==nvx && ny==nvy && nz==nvz);
 
         xmin_ = xmin;
         xmax_ = xmax;
@@ -240,9 +238,8 @@ TracerInteraction::addSmoke(const RenderObject *grid, const RenderObject *velo)
                 fprintf(stderr, "adding checkbox Smoke to menu\n");
             smokeCheckbox_ = new ui::Button("Smoke", this);
             smokeCheckbox_->setState(false);
-            smokeCheckbox_->setCallback([this](bool state){
-                showSmoke_ = state;
-            });
+            smokeCheckbox_->setCallback([this](bool state)
+                { showSmoke_ = state; });
             if (_startStyle->selectedIndex() == STARTSTYLE_LINE || _startStyle->selectedIndex() == STARTSTYLE_PLANE)
             {
                 menu_->add(smokeCheckbox_);
@@ -256,7 +253,7 @@ TracerInteraction::addSmoke(const RenderObject *grid, const RenderObject *velo)
             fprintf(stderr, "grid and velo not available\n");
 
         if ((_startStyle->selectedIndex() == STARTSTYLE_LINE || _startStyle->selectedIndex() == STARTSTYLE_PLANE)
-                && smokeCheckbox_ && smokeInMenu_)
+            && smokeCheckbox_ && smokeInMenu_)
         {
             menu_->remove(smokeCheckbox_);
         }
@@ -273,8 +270,7 @@ TracerInteraction::addSmoke(const RenderObject *grid, const RenderObject *velo)
     }
 }
 
-void
-TracerInteraction::getParameters()
+void TracerInteraction::getParameters()
 {
     inter_->getIntSliderParam(P_NO_STARTPOINTS, _numStartPointsMin, _numStartPointsMax, _numStartPoints);
     inter_->getFloatScalarParam(P_TRACE_LEN, traceLen_);
@@ -283,8 +279,7 @@ TracerInteraction::getParameters()
     inter_->getChoiceParam(P_TDIRECTION, _numTimeDirections, _timeDirectionNames, _selectedTimeDirection);
 }
 
-void
-TracerInteraction::createMenuContents()
+void TracerInteraction::createMenuContents()
 {
 
     if (cover->debugLevel(3))
@@ -297,20 +292,20 @@ TracerInteraction::createMenuContents()
     _numStartPointsPoti = new ui::Slider(menu_, "NumStartPoints");
     _numStartPointsPoti->setPresentation(ui::Slider::AsDial);
     _numStartPointsPoti->setIntegral(true);
-    _numStartPointsPoti->setCallback([this](double value, bool released){
+    _numStartPointsPoti->setCallback([this](double value, bool released)
+        {
         _numStartPoints = (int)value;
         inter_->setSliderParam(P_NO_STARTPOINTS, _numStartPointsMin, _numStartPointsMax, _numStartPoints);
         if (released)
-            inter_->executeModule();
-    });
+            inter_->executeModule(); });
 
     traceLenPoti_ = new ui::Slider(menu_, P_TRACE_LEN);
-    traceLenPoti_->setCallback([this](double value, bool released){
+    traceLenPoti_->setCallback([this](double value, bool released)
+        {
         traceLen_ = value;
         inter_->setScalarParam(P_TRACE_LEN, traceLen_);
         if (released)
-            inter_->executeModule();
-    });
+            inter_->executeModule(); });
 
     _taskType = new ui::SelectionList(menu_, "TaskType");
     _taskType->setText("Task type");
@@ -319,10 +314,10 @@ TracerInteraction::createMenuContents()
     _taskType->append("Pathlines");
     _taskType->append("Streaklines");
     _taskType->select(0);
-    _taskType->setCallback([this](int idx){
+    _taskType->setCallback([this](int idx)
+        {
         inter_->setChoiceParam(P_TASKTYPE, _numTaskTypes, _taskTypeNames, idx);
-        inter_->executeModule();
-    });
+        inter_->executeModule(); });
     _startStyle = new ui::SelectionList(menu_, "StartStyle");
     _startStyle->setText("Start style");
     _startStyle->append("Line");
@@ -335,7 +330,8 @@ TracerInteraction::createMenuContents()
     {
         _startStyle->append("Cylinder");
     }
-    _startStyle->setCallback([this](int idx){
+    _startStyle->setCallback([this](int idx)
+        {
         if (idx == STARTSTYLE_PLANE)
         {
             inter_->setChoiceParam(P_STARTSTYLE, _numStartStyles, _startStyleNames, STARTSTYLE_PLANE);
@@ -381,14 +377,12 @@ TracerInteraction::createMenuContents()
                 smokeInMenu_ = false;
             }
             inter_->executeModule();
-        }
-    });
+        } });
 
     updateMenuContents();
 }
 
-void
-TracerInteraction::updateMenuContents()
+void TracerInteraction::updateMenuContents()
 {
     if (cover->debugLevel(4))
         fprintf(stderr, "TracerInteraction::updateMenuContents \n");
@@ -397,7 +391,7 @@ TracerInteraction::updateMenuContents()
     _numStartPointsPoti->setValue(_numStartPoints);
 
     if (traceLen_ > 1e-6)
-        traceLenPoti_->setBounds(0., 5*traceLen_);
+        traceLenPoti_->setBounds(0., 5 * traceLen_);
     else
         traceLenPoti_->setBounds(0., 1.);
     traceLenPoti_->setValue(traceLen_);
@@ -431,13 +425,11 @@ TracerInteraction::updateMenuContents()
     }
 }
 
-void
-TracerInteraction::deleteMenuContents()
+void TracerInteraction::deleteMenuContents()
 {
 }
 
-void
-TracerInteraction::preFrame()
+void TracerInteraction::preFrame()
 {
     if (cover->debugLevel(5))
         fprintf(stderr, "\nTracerInteraction::preFrame\n");
@@ -477,31 +469,28 @@ TracerInteraction::preFrame()
     }
 }
 
-void
-TracerInteraction::showSmoke()
+void TracerInteraction::showSmoke()
 {
-    //fprintf(stderr,"--------TracerInteraction::showSmoke\n");
+    // fprintf(stderr,"--------TracerInteraction::showSmoke\n");
     if (smokeRoot->getNumParents() == 0)
         cover->getObjectsScale()->addChild(smokeRoot.get());
 }
-void
-TracerInteraction::hideSmoke()
+void TracerInteraction::hideSmoke()
 {
-    //fprintf(stderr,"--------TracerInteraction::hideSmoke\n");
+    // fprintf(stderr,"--------TracerInteraction::hideSmoke\n");
 
     if (smokeRoot->getNumParents())
         cover->getObjectsScale()->removeChild(smokeRoot.get());
 }
 
-void
-TracerInteraction::updateSmokeLine()
+void TracerInteraction::updateSmokeLine()
 {
 #ifdef USE_COVISE
     if (debugSmoke_)
         fprintf(stderr, "TracerInteraction::updateSmokeLine\n");
 
     // update solutions_
-    vector<vector<coUniState> > solus;
+    vector<vector<coUniState>> solus;
 
     osg::Vec3 s1, s2, dir;
     float d;
@@ -518,9 +507,9 @@ TracerInteraction::updateSmokeLine()
         yarrini[0] = s1[0] + i * d * dir[0];
         yarrini[1] = s1[1] + i * d * dir[1];
         yarrini[2] = s1[2] + i * d * dir[2];
-        //fprintf(stderr,"startpoint: %f %f %f\n", yarrini[0], yarrini[1], yarrini[2]);
+        // fprintf(stderr,"startpoint: %f %f %f\n", yarrini[0], yarrini[1], yarrini[2]);
         coUniTracer unitracer(xmin_, xmax_, ymin_, ymax_, zmin_, zmax_, nx_, ny_, nz_,
-                              &u_[0], &v_[0], &w_[0]);
+            &u_[0], &v_[0], &w_[0]);
         vector<coUniState> solution;
         if (_selectedTimeDirection == 0)
         {
@@ -546,8 +535,7 @@ TracerInteraction::updateSmokeLine()
 #endif
 }
 
-void
-TracerInteraction::updateSmokePlane()
+void TracerInteraction::updateSmokePlane()
 {
 #ifdef USE_COVISE
 
@@ -555,7 +543,7 @@ TracerInteraction::updateSmokePlane()
         fprintf(stderr, "TracerInteraction::updateSmokePlane\n");
 
     // update solutions_
-    vector<vector<coUniState> > solus;
+    vector<vector<coUniState>> solus;
 
     osg::Vec3 s1, s2, s3, s4, dir1, dir2;
     float d0, d1; // distance between two startpoints
@@ -566,10 +554,10 @@ TracerInteraction::updateSmokePlane()
     s2 = _tPlane->getEndpoint();
     s3 = _tPlane->getPos3();
     s4 = _tPlane->getPos4();
-    ///dir1=_tPlane->getDirection1();
+    /// dir1=_tPlane->getDirection1();
     dir1 = s3 - s1;
     dir1.normalize();
-    ///dir2=_tPlane->getDirection2();
+    /// dir2=_tPlane->getDirection2();
     dir2 = s4 - s1;
     dir2.normalize();
 
@@ -599,9 +587,9 @@ TracerInteraction::updateSmokePlane()
     d0 = r / (n0 - 1);
     d1 = s / (n1 - 1);
 
-    //fprintf(stderr,"n0=%d n1=%d d0=%f d1=%f\n", n0, n1, d0, d1);
-    //fprintf(stderr,"dir1=[%f %f %f]\n", dir1[0], dir1[1], dir1[2]);
-    //fprintf(stderr,"dir2=[%f %f %f]\n", dir2[0], dir2[1], dir2[2]);
+    // fprintf(stderr,"n0=%d n1=%d d0=%f d1=%f\n", n0, n1, d0, d1);
+    // fprintf(stderr,"dir1=[%f %f %f]\n", dir1[0], dir1[1], dir1[2]);
+    // fprintf(stderr,"dir2=[%f %f %f]\n", dir2[0], dir2[1], dir2[2]);
     for (int i = 0; i < n0; ++i)
     {
         for (int j = 0; j < n1; ++j)
@@ -610,9 +598,9 @@ TracerInteraction::updateSmokePlane()
             yarrini[0] = s1[0] + i * d0 * dir1[0] + j * d1 * dir2[0];
             yarrini[1] = s1[1] + i * d0 * dir1[1] + j * d1 * dir2[1];
             yarrini[2] = s1[2] + i * d0 * dir1[2] + j * d1 * dir2[2];
-            //fprintf(stderr,"startpoint at i=%d j=%d: %f %f %f\n", i, j, yarrini[0], yarrini[1], yarrini[2]);
+            // fprintf(stderr,"startpoint at i=%d j=%d: %f %f %f\n", i, j, yarrini[0], yarrini[1], yarrini[2]);
             coUniTracer unitracer(xmin_, xmax_, ymin_, ymax_, zmin_, zmax_, nx_, ny_, nz_,
-                                  &u_[0], &v_[0], &w_[0]);
+                &u_[0], &v_[0], &w_[0]);
             vector<coUniState> solution;
             unitracer.solve(yarrini, solution, 0.0001, traceLen_);
             solus.push_back(solution);
@@ -642,13 +630,12 @@ void TracerInteraction::setNew()
 }
 */
 
-void
-TracerInteraction::displaySmoke()
+void TracerInteraction::displaySmoke()
 {
     if (debugSmoke_)
         fprintf(stderr, "TracerInteraction::displaySmoke\n");
 
-    if (!smokeGeode_) //firsttime
+    if (!smokeGeode_) // firsttime
     {
         smokeGeode_ = new osg::Geode();
         smokeRoot->addChild(smokeGeode_.get());
@@ -676,7 +663,7 @@ TracerInteraction::displaySmoke()
 #ifdef USE_COVISE
     for (int i = 0; i < solutions_.size(); i++)
     {
-        //fprintf(stderr,"line %d has %d points\n", i, (const_cast<int *>(solutions_.lengths())[i]));
+        // fprintf(stderr,"line %d has %d points\n", i, (const_cast<int *>(solutions_.lengths())[i]));
         numPoints += solutions_.lengths()->at(i);
     }
     if (debugSmoke_)
@@ -708,11 +695,10 @@ void TracerInteraction::updateInteractorVisibility()
     updatePickInteractors(!hideCheckbox_->state() && showPickInteractorCheckbox_->state());
 }
 
-void
-TracerInteraction::setStartpoint1FromGui(float x, float y, float z)
+void TracerInteraction::setStartpoint1FromGui(float x, float y, float z)
 {
-    //fprintf(stderr,"TracerInteraction::setStartpoint1 %f %f %f\n", x, y, z);
-    //showInteractor(true);
+    // fprintf(stderr,"TracerInteraction::setStartpoint1 %f %f %f\n", x, y, z);
+    // showInteractor(true);
     if (_selectedStartStyle == STARTSTYLE_LINE)
     {
         Vec3 pos(x, y, z);
@@ -722,16 +708,15 @@ TracerInteraction::setStartpoint1FromGui(float x, float y, float z)
     {
         Vec3 pos(x, y, z);
         _tPlane->setStartpoint1(pos);
-        //updateSmokePlane();
+        // updateSmokePlane();
     }
 }
 
-void
-TracerInteraction::setStartpoint2FromGui(float x, float y, float z)
+void TracerInteraction::setStartpoint2FromGui(float x, float y, float z)
 {
-    //fprintf(stderr,"TracerInteraction::setStartpoint2 %f %f %f\n", x, y, z);
+    // fprintf(stderr,"TracerInteraction::setStartpoint2 %f %f %f\n", x, y, z);
 
-    //showInteractor(true);
+    // showInteractor(true);
     if (_selectedStartStyle == STARTSTYLE_LINE)
     {
         Vec3 pos(x, y, z);
@@ -742,16 +727,15 @@ TracerInteraction::setStartpoint2FromGui(float x, float y, float z)
     {
         Vec3 pos(x, y, z);
         _tPlane->setStartpoint2(pos);
-        //updateSmokePlane();
+        // updateSmokePlane();
     }
 }
 
-void
-TracerInteraction::setDirectionFromGui(float x, float y, float z)
+void TracerInteraction::setDirectionFromGui(float x, float y, float z)
 {
-    //fprintf(stderr,"TracerInteraction::setDirection %f %f %f\n", x, y, z);
+    // fprintf(stderr,"TracerInteraction::setDirection %f %f %f\n", x, y, z);
 
-    //showInteractor(true);
+    // showInteractor(true);
     if (STARTSTYLE_PLANE == _selectedStartStyle)
     {
         Vec3 pos(x, y, z);
@@ -760,21 +744,21 @@ TracerInteraction::setDirectionFromGui(float x, float y, float z)
         {
             if (guiSliderFirsttime_)
             {
-                //fprintf(stderr,"guiSliderFirsttime_\n");
-                //showSmoke(true);
+                // fprintf(stderr,"guiSliderFirsttime_\n");
+                // showSmoke(true);
                 ModuleFeedbackManager::hideGeometry(true);
                 guiSliderFirsttime_ = false;
             }
-            //updateSmokePlane();
+            // updateSmokePlane();
         }
     }
 }
 
 /*
-void 
+void
 TracerInteraction::setUseInteractorFromGui(bool use)
 {
- 
+
    if (use && !interactorUsed_)
 {
       if (showDirectInteractorCheckbox_)
@@ -806,7 +790,7 @@ TracerInteraction::setUseInteractorFromGui(bool use)
       ////showPickInteractorCheckbox_->setState(false, true);
       showPickInteractorCheckbox_->setState(false);
       _tPlane->hidePickInteractor();
-      
+
       menu_->remove(showPickInteractorCheckbox_);
 
       if (smokeCheckbox_ && smokeInMenu_)
@@ -820,10 +804,9 @@ TracerInteraction::setUseInteractorFromGui(bool use)
 }
 */
 
-void
-TracerInteraction::setShowSmokeFromGui(bool state)
+void TracerInteraction::setShowSmokeFromGui(bool state)
 {
-    //fprintf(stderr,"\n\n\n *** TracerInteraction::setShowSmokeCheckbox %d ***\n\n\n", state);
+    // fprintf(stderr,"\n\n\n *** TracerInteraction::setShowSmokeCheckbox %d ***\n\n\n", state);
     if (smokeCheckbox_)
     {
         if (state)
@@ -852,10 +835,9 @@ TracerInteraction::setShowSmokeFromGui(bool state)
     updateInteractorVisibility();
 }
 
-void
-TracerInteraction::interactorSetCaseFromGui(const char *caseName)
+void TracerInteraction::interactorSetCaseFromGui(const char *caseName)
 {
-    //fprintf(stderr,"TracerInteraction::interactorSetCaseFromGui case=%s \n", caseName);
+    // fprintf(stderr,"TracerInteraction::interactorSetCaseFromGui case=%s \n", caseName);
 
     string interactorCaseName(caseName);
     interactorCaseName += "_INTERACTOR";
@@ -864,7 +846,7 @@ TracerInteraction::interactorSetCaseFromGui(const char *caseName)
 
     {
         // firsttime we create also a case DCS
-        //fprintf(stderr,"ModuleFeedbackManager::setCaseFromGui create case DCS\n");
+        // fprintf(stderr,"ModuleFeedbackManager::setCaseFromGui create case DCS\n");
         interDCS_ = new osg::MatrixTransform();
         interDCS_->setName(interactorCaseName.c_str());
         cover->getObjectsScale()->addChild(interDCS_);
@@ -877,7 +859,7 @@ TracerInteraction::interactorSetCaseFromGui(const char *caseName)
         _tFree->setCaseTransform(interDCS_);
     }
     //   else
-    //fprintf(stderr,"TracerInteraction::interactorSetCaseFromGui didn't find case dcs\n");
+    // fprintf(stderr,"TracerInteraction::interactorSetCaseFromGui didn't find case dcs\n");
 }
 
 void TracerInteraction::updatePickInteractors(bool show)

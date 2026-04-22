@@ -22,8 +22,10 @@
 #include "System.h"
 
 #include <algorithm>
+#include <audio/Player.h>
 
 using namespace vrml;
+using opencover::audio::Player;
 
 // Sound factory. Add each Sound to the scene for fast access.
 

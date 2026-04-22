@@ -5542,7 +5542,6 @@ bool ViewerOsg::update(double timeNow)
         else
         {
             updated = true;
-#ifdef NEW_OSG
             if (imageS->getStatus() != osg::ImageStream::PAUSED)
             {
                 if (movDat->movieProp->stop > 0)
@@ -5560,7 +5559,6 @@ bool ViewerOsg::update(double timeNow)
                     movDat->movieProp->speed = -movDat->movieProp->speed;
                 }
             }
-#endif
         }
     }
 
