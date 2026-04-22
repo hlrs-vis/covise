@@ -59,7 +59,6 @@ void SimulationSystem::onScenarioSelectionChanged(int scenarioId)
     auto currentScenario = m_scenarioManager.getScenario();
     info("Switching to scenario ID: " + std::to_string(scenarioId));
 
-    // m_dataManager.loadScenario(m_currentStorageSelection, currentScenario, m_dataLoadManager);
     // POWER
     m_dataManager.loadScenario(Storage::ARROW, currentScenario, m_dataLoadManager);
 
@@ -68,7 +67,6 @@ void SimulationSystem::onScenarioSelectionChanged(int scenarioId)
 
     std::vector<std::pair<Storage, EnergyType>> StorageEnergyTypeList = { { Storage::ARROW, EnergyType::POWER }, { Storage::CSV, EnergyType::HEATING } };
 
-    // for (auto type : ENERGYTYPE_RANGE)
     for (auto &[storage, type] : StorageEnergyTypeList)
     {
         auto result = m_dataManager.getResult(storage, currentScenario, type);
