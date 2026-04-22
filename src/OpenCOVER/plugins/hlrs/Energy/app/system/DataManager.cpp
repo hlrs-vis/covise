@@ -6,15 +6,16 @@ void DataManager::loadScenario(Storage storageType, const Scenario &scenario,
 {
     for (auto type : ENERGYTYPE_RANGE)
     {
-        if (m_cache.count(scenario.id) && m_cache[scenario.id].count(type))
+        // if (m_cache.count(scenario.id) && m_cache[scenario.id].count(type))
+        if (m_cache.count(storageType) && m_cache[storageType].count(scenario.id) && m_cache[storageType][scenario.id].count(type))
             // check if data is valid/stale
-            if (m_cache[scenario.id][type].use_count() > 0)
+            if (m_cache[storageType][scenario.id][type].use_count() > 0)
                 continue;
 
         auto package = loader.fetch(storageType, scenario, type);
         if (package)
         {
-            m_cache[scenario.id][type] = std::move(DataFactory::create(*package, type, scenario));
+            m_cache[storageType][scenario.id][type] = std::move(DataFactory::create(*package, type, scenario));
         }
         else
         {
