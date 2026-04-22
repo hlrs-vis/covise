@@ -32,12 +32,16 @@ void PlanarAvatarControls::updateBones(const osg::Matrix &floorMatrix, const osg
     float scale = targetHeight / (getInitialBounds())[1];
 
     m_avatarTrans->setMatrix(osg::Matrix::scale(scale, scale, scale) *
-                             osg::Matrix::rotate(getBaseRotation()) * osg::Matrix::rotate(headMatrix.getRotate()) *
+                             osg::Matrix::rotate(getBaseRotation()) *
                              osg::Matrix::translate(floorMatrix.getTrans()));
 
     if (m_armBone)
         moveBoneToTarget(*m_armBone, handMatrix.getTrans(), m_armAdjustMatrix);
 
     if (m_headBone)
-        makeBonePointAtTarget(*m_headBone, headMatrix.getTrans(), m_headAdjustMatrix, m_headBaseVector);
+    {
+        auto headRotation = headMatrix.getRotate();
+        m_headBone->rot->setQuaternion(headRotation);
+        // makeBonePointAtTarget(*m_headBone, headMatrix.getTrans(), m_headAdjustMatrix, m_headBaseVector);
+    }
 }
