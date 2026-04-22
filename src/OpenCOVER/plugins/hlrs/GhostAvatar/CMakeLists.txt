@@ -18,6 +18,8 @@ set(HEADERS
 
     ui/GhostAvatarControlsUI.h
     ui/CoverDrawObject.h
+
+    util/SanitizeRigidTransform.h
 )
 
 set(SOURCES
@@ -36,6 +38,9 @@ set(SOURCES
 
     ui/GhostAvatarControlsUI.cpp
     ui/CoverDrawObject.cpp
+
+    util/SanitizeRigidTransform.cpp
+
 )
 
 cover_add_plugin(GhostAvatar ${HEADERS} ${SOURCES})
