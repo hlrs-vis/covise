@@ -202,11 +202,13 @@ float GhostAvatarControls::getBounds(int i) const
 void GhostAvatarControls::setForwardDirection(const osg::Vec3 &direction)
 {
     m_forwardDirection = direction;
+    m_forwardDirection.normalize();
 }
 
 void GhostAvatarControls::setUpDirection(const osg::Vec3 &direction)
 {
     m_upDirection = direction;
+    m_upDirection.normalize();
 }
 
 void GhostAvatarControls::loadArmBone()
