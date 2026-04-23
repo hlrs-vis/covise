@@ -85,6 +85,7 @@ JSBSimPlugin::JSBSimPlugin()
     plugin = this;
     udp = 0;
 }
+
 void JSBSimPlugin::updateTrans()
 {
     float tx = cX->value();
@@ -123,8 +124,12 @@ void JSBSimPlugin::initAircraft()
     tS->setValue(cS->value());
 
     updateTrans();
+
     while (geometryTrans->getNumChildren())
+    {
         geometryTrans->removeChild(0, 1); // remove old geometries
+    }
+
     osg::Node *n = osgDB::readNodeFile(geometryFile.c_str());
 
     if (n != nullptr)
@@ -890,26 +895,18 @@ bool JSBSimPlugin::update()
 
                         if (varioSource)
                         {
-                            float pitch = -vSpeed / 10.0;
-                            if (pitch < -1)
-                                pitch = -1;
-                            if (pitch > 1)
-                                pitch = 1;
-                            pitch = 0.8 + (pitch + 1.0) * 0.3;
+                            float varioPitch = (std::clamp(-vSpeed / 10.f, -1.f, 1.f) + 1.f) * 0.3f + 0.8f;
+                            varioSource->setPitch(varioPitch);
 
-                            varioSource->setPitch(pitch);
-
-                            float vol = (fabs((pitch - 1.0)) * 5.0) - 0.2;
-                            if (vol > 1.0)
-                                vol = 1.0;
-                            if (vol < 0.0)
-                                vol = 0.0;
-                            varioSource->setIntensity(vol);
+                            float varioVolume = std::clamp((fabs((varioPitch - 1.f)) * 5.f) - 0.2f, 0.f, 1.f);
+                            varioSource->setIntensity(varioVolume);
                         }
+
                         if (windSource)
                         {
                             windSource->setIntensity(1.0);
                         }
+
                         if (engineSource)
                         {
                             engineSource->setIntensity(1.0);
