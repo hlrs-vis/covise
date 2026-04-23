@@ -57,13 +57,8 @@ void PlanarAvatarControls::updateBones(const osg::Matrix &floorMatrix, const osg
     }
 
     m_avatarTrans->setMatrix(osg::Matrix::scale(scale, scale, scale) *
-                             osg::Matrix::rotate(getBaseRotation()) *
-                             osg::Matrix::rotate(bodyFlip) *
+                             osg::Matrix::rotate(getBaseRotation()) * osg::Matrix::rotate(bodyFlip) * 
                              osg::Matrix::translate(floorMatrix.getTrans()));
-
-/*     m_avatarTrans->setMatrix(osg::Matrix::scale(scale, scale, scale) *
-                             osg::Matrix::rotate(getBaseRotation()) *
-                             osg::Matrix::translate(floorMatrix.getTrans())); */
 
     // TODO: the adjust matrix should be part of the bone and not have to be passed to these methods
     if (m_armBone)
@@ -71,8 +66,6 @@ void PlanarAvatarControls::updateBones(const osg::Matrix &floorMatrix, const osg
 
     if (m_headBone)
     {
-        // Compensate the body flip so the head doesn't over-rotate
-        osg::Quat headRot = flipBody ? bodyFlip.inverse() * headMatrix.getRotate() : headMatrix.getRotate();
-        rotateBone(*m_headBone, headRot, m_headAdjustMatrix);
+        rotateBone(*m_headBone, headMatrix.getRotate() * bodyFlip, m_headAdjustMatrix);
     }
 }
