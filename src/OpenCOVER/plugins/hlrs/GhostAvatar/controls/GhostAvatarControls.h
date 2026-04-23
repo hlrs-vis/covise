@@ -9,7 +9,6 @@
 #include <osg/Quat>
 #include <osg/ref_ptr>
 #include <osg/Vec3>
-#include <osg/Vec4>
 
 #include "BoneParser.h"
 
@@ -88,6 +87,8 @@ protected:
 
     void loadArmBone();
     void loadHeadBone();
+
+    void rotateBone(const BoneParser::Bone& bone, const osg::Quat & rotation, const osg::Matrix& adjustMatrix);
 
     void moveBoneToTarget(const BoneParser::Bone &bone, const osg::Vec3 &targetPosition, const osg::Matrix &adjustMatrix);
     void makeBonePointAtTarget(const BoneParser::Bone &bone, const osg::Vec3 &targetPosition, const osg::Matrix &adjustMatrix, const osg::Vec3 &baseVector);

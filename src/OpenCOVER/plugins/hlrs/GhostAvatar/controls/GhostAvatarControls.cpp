@@ -237,6 +237,12 @@ void GhostAvatarControls::loadHeadBone()
     }
 }
 
+void GhostAvatarControls::rotateBone(const BoneParser::Bone& bone, const osg::Quat &rotation, const osg::Matrix& adjustMatrix)
+{
+    auto adjustedMatrix = osg::Matrix::inverse(adjustMatrix) * osg::Matrix::rotate(rotation) * adjustMatrix;
+    bone.rot->setQuaternion(adjustedMatrix.getRotate());
+}
+
 void GhostAvatarControls::moveBoneToTarget(const BoneParser::Bone &bone, const osg::Vec3 &targetPosition, const osg::Matrix &adjustMatrix)
 {
     auto targetVector = getLocalTargetVector(bone, targetPosition, adjustMatrix);

@@ -31,15 +31,14 @@ void PlanarAvatarControls::updateBones(const osg::Matrix &floorMatrix, const osg
     auto targetHeight = headMatrix.getTrans().z() - floorMatrix.getTrans().z();
     float scale = targetHeight / (getInitialBounds())[1];
 
-    m_avatarTrans->setMatrix(osg::Matrix::scale(scale, scale, scale) * osg::Matrix::rotate(getBaseRotation()) * osg::Matrix::translate(floorMatrix.getTrans()));
+    m_avatarTrans->setMatrix(osg::Matrix::scale(scale, scale, scale) *
+                             osg::Matrix::rotate(getBaseRotation()) *
+                             osg::Matrix::translate(floorMatrix.getTrans()));
 
+    // TODO: the adjust matrix should be part of the bone and not have to be passed to these methods
     if (m_armBone)
         moveBoneToTarget(*m_armBone, handMatrix.getTrans(), m_armAdjustMatrix);
 
     if (m_headBone)
-    {
-        //TODO: add this as method to GhostAvatarControls
-        auto adjustedMatrix = osg::Matrix::inverse(m_headAdjustMatrix) * osg::Matrix::rotate(headMatrix.getRotate()) * m_headAdjustMatrix;
-        m_headBone->rot->setQuaternion(adjustedMatrix.getRotate());
-    }
+        rotateBone(*m_headBone, headMatrix.getRotate(), m_headAdjustMatrix);
 }
