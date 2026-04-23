@@ -25,6 +25,8 @@
 
 using namespace vrml;
 
+#define ALL_REGIONS_STRING "all"
+
 class VrmlNodeGeoData : public VrmlNodeChild
 {
 public:
@@ -37,5 +39,8 @@ public:
 private:
     VrmlSFVec3f d_offset;
     VrmlSFString d_offsetName;
+    VrmlMFString d_regions; // list of region names (see config/plugin/GeoData.toml), include ALL_REGIONS_STRING in the list to enable all regions
+    VrmlSFBool d_showTerrain;
+    VrmlSFBool d_showBuildings;
 };
 #endif //_VRMLNODEGeoData_

@@ -28,6 +28,7 @@
 #include <cover/coVRConfig.h>
 #include <cover/VRViewer.h>
 #include <cover/VRSceneGraph.h>
+#include <osgEarth/TerrainOptions>
 #include <vrml97/vrml/VrmlNamespace.h>
 #include <VrmlNodeGeoData.h>
 #include <cover/ui/Manager.h>
@@ -170,7 +171,9 @@ bool GeoDataLoader::init()
 
                 tempTrueNorthText = std::to_string(dataset.trueNorth);
             }
-        } });
+        }
+        applyOffset(); });
+
     tempEastingText = "0.0";
     tempNorthingText = "0.0";
     tempAltitudeText = "0.0";
@@ -196,35 +199,13 @@ bool GeoDataLoader::init()
     trueNorth->setCallback([this](std::string val)
         { this->tempTrueNorthText = val; });
 
-    applyOffset = new ui::Button(originGroup, "applyOffset");
-    applyOffset->setText("apply");
-    applyOffset->setCallback([this](bool state)
+    applyOffsetButton = new ui::Button(originGroup, "applyOffset");
+    applyOffsetButton->setText("apply");
+    applyOffsetButton->setCallback([this](bool state)
         {
-            double originEasting = 0.0;
-            double originNorthing = 0.0;
-            double originAltitude = 0.0; 
-            double trueNorth = 0.0;
-            if (tempEastingText != "" )
-            {
-                originEasting = std::stod(tempEastingText);
-            }
-            if (tempNorthingText != "")
-            {
-                originNorthing = std::stod(tempNorthingText);
-            }
-            if (tempAltitudeText != "")
-            {
-                originAltitude = std::stod(tempAltitudeText);
-            }
-            if (tempTrueNorthText != "")
-            {
-                trueNorth = std::stod(tempTrueNorthText);
-            }
+        applyOffset();
+        applyOffsetButton->setState(false); });
 
-            osg::Vec3 origin = osg::Vec3(originEasting, originNorthing, originAltitude);
-            setRootTransform(origin, trueNorth);
-
-            applyOffset->setState(false); });
     // TODO add option to rename dataset either with edit field or with editable selection list
     saveOffsetToConfig = new ui::Button(originGroup, "saveOffsetToConfig");
     saveOffsetToConfig->setText("Save to Config");
@@ -325,20 +306,12 @@ bool GeoDataLoader::init()
     buildingVisibilityButton->setText("Buildings");
     buildingVisibilityButton->setState(true);
     buildingVisibilityButton->setCallback([this](bool state)
-        {
-        for (const auto& pair : loadedBuildings)
-        {
-            if (pair.second)
-                pair.second->setNodeMask(state ? 0xffffffff : 0x0);
-        }
-        showBuildings = state; });
+        { setShowBuildings(state); });
 
     // create Button for each region in config
     geoObjectGroup = new ui::Group(geoDataMenu, "GeoObjects");
     geoObjectGroup->setText("Geo-Objects");
     geoObjectGroup->allowRelayout(true);
-
-    std::map<std::string, ui::Button *> regionButtons;
 
     auto terrainEntries = configFile->array<opencover::config::Section>("", "regions");
 
@@ -351,54 +324,15 @@ bool GeoDataLoader::init()
         std::string terrain_path = terrainEntry.value<std::string>("", "terrainPath")->value();
         std::string lod_path = terrainEntry.value<std::string>("", "lodPath")->value();
 
+        regions.emplace(region_name, regionEntry { region_name, terrain_path, lod_path });
+
         if (terrain_path != "" || lod_path != "")
         {
             ui::Button *regionButton = new ui::Button(geoObjectGroup, region_name);
             regionButton->setText(region_name);
             regionButton->setState(false);
-            regionButton->setCallback([this, region_name, terrain_path, lod_path](bool state)
-                {
-                auto terrainRoot = GeoData::instance()->terrainRoot();
-                if (state)
-                {
-                    if (loadedTerrains.find(region_name) == loadedTerrains.end())
-                    {
-                        terrainNode = loadTerrain(terrain_path,osg::Vec3d(0,0,0));
-                        if (terrainNode)
-                        {
-                            loadedTerrains[region_name] = terrainNode;
-                            terrainRoot->addChild(terrainNode);
-                            terrainNode->setName(region_name);
-                            terrainNode->setNodeMask(showTerrain ? 0xffffffff : 0x0);
-                        }
-                    }
-
-                    if(loadedBuildings.find(region_name) == loadedBuildings.end())
-                    {
-                        buildingNode = loadTerrain(lod_path,osg::Vec3d(0,0,0));
-                        if (buildingNode)
-                        {
-                            loadedBuildings[region_name] = buildingNode;
-                            terrainRoot->addChild(buildingNode);
-                            buildingNode->setName(region_name);
-                            buildingNode->setNodeMask(showBuildings ? 0xffffffff : 0x0);
-                        }
-                    }                    
-                }
-                else
-                {
-                    if (loadedTerrains.find(region_name) != loadedTerrains.end())
-                    {
-                        terrainRoot->removeChild(loadedTerrains[region_name]);
-                        loadedTerrains.erase(region_name);
-                    }
-
-                    if (loadedBuildings.find(region_name) != loadedBuildings.end())
-                    {
-                        terrainRoot->removeChild(loadedBuildings[region_name]);
-                        loadedBuildings.erase(region_name);
-                    }
-                } });
+            regionButton->setCallback([this, region_name](bool state)
+                { setRegionEnabled(region_name, state); });
             regionButtons[region_name] = regionButton;
         }
     }
@@ -452,6 +386,90 @@ GeoDataLoader::~GeoDataLoader()
     delete originGroup;
     delete visibilityGroup;
     geoDataMenu->setVisible(geoDataMenu->numChildren() > 0);
+}
+
+void GeoDataLoader::setRegionEnabled(const std::string &region_name, bool enabled)
+{
+    const auto &region = regions.find(region_name);
+    if (region == regions.end())
+    {
+        // No region found with this name
+        return;
+    }
+
+    auto terrainRoot = GeoData::instance()->terrainRoot();
+
+    if (enabled)
+    {
+        if (loadedTerrains.find(region_name) == loadedTerrains.end())
+        {
+            terrainNode = loadTerrain(region->second.terrain_path, osg::Vec3d(0, 0, 0));
+            if (terrainNode)
+            {
+                loadedTerrains[region_name] = terrainNode;
+                terrainRoot->addChild(terrainNode);
+                terrainNode->setName(region_name);
+                terrainNode->setNodeMask(showTerrain ? 0xffffffff : 0x0);
+            }
+        }
+
+        if (loadedBuildings.find(region_name) == loadedBuildings.end())
+        {
+            buildingNode = loadTerrain(region->second.lod_path, osg::Vec3d(0, 0, 0));
+            if (buildingNode)
+            {
+                loadedBuildings[region_name] = buildingNode;
+                terrainRoot->addChild(buildingNode);
+                buildingNode->setName(region_name);
+                buildingNode->setNodeMask(showBuildings ? 0xffffffff : 0x0);
+            }
+        }
+    }
+    else
+    {
+        if (loadedTerrains.find(region_name) != loadedTerrains.end())
+        {
+            terrainRoot->removeChild(loadedTerrains[region_name]);
+            loadedTerrains.erase(region_name);
+        }
+
+        if (loadedBuildings.find(region_name) != loadedBuildings.end())
+        {
+            terrainRoot->removeChild(loadedBuildings[region_name]);
+            loadedBuildings.erase(region_name);
+        }
+    }
+
+    // We can assume that the button exists, because the region was found above.
+    regionButtons[region_name]->setState(enabled);
+}
+
+void GeoDataLoader::setAllRegionsEnabled(bool enabled)
+{
+    for (auto &[region_name, _] : regions)
+    {
+        setRegionEnabled(region_name, enabled);
+    }
+}
+
+void GeoDataLoader::setShowBuildings(bool state)
+{
+    showBuildings = state;
+    buildingVisibilityButton->setState(state);
+    for (const auto &[_, buildings] : loadedBuildings)
+    {
+        buildings->setNodeMask(state ? 0xffffffff : 0x0);
+    }
+}
+
+void GeoDataLoader::setShowTerrain(bool state)
+{
+    showTerrain = state;
+    terrainVisibilityButton->setState(state);
+    for (const auto &[_, terrain] : loadedTerrains)
+    {
+        terrain->setNodeMask(state ? 0xffffffff : 0x0);
+    }
 }
 
 void GeoDataLoader::message(int toWhom, int type, int length, const void *data)
@@ -664,6 +682,33 @@ osg::ref_ptr<osg::Node> GeoDataLoader::loadTerrain(std::string filename, osg::Ve
     }
 
     return terrain;
+}
+
+void GeoDataLoader::applyOffset()
+{
+    double originEasting = 0.0;
+    double originNorthing = 0.0;
+    double originAltitude = 0.0;
+    double trueNorth = 0.0;
+    if (tempEastingText != "")
+    {
+        originEasting = std::stod(tempEastingText);
+    }
+    if (tempNorthingText != "")
+    {
+        originNorthing = std::stod(tempNorthingText);
+    }
+    if (tempAltitudeText != "")
+    {
+        originAltitude = std::stod(tempAltitudeText);
+    }
+    if (tempTrueNorthText != "")
+    {
+        trueNorth = std::stod(tempTrueNorthText);
+    }
+
+    osg::Vec3 origin = osg::Vec3(originEasting, originNorthing, originAltitude);
+    setRootTransform(origin, trueNorth);
 }
 
 COVERPLUGIN(GeoDataLoader)

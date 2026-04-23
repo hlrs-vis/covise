@@ -75,6 +75,13 @@ class EditInfo
     std::string fileName;
 };
 
+struct regionEntry
+{
+    std::string region_name;
+    std::string terrain_path;
+    std::string lod_path;
+};
+
 class GeoDataLoader : public opencover::coVRPlugin, public opencover::ui::Owner
 {
 public:
@@ -106,7 +113,15 @@ public:
     void doInteraction();
     bool update();
 
+    void setRegionEnabled(const std::string &region_name, bool enabled);
+    void setAllRegionsEnabled(bool enabled);
+
+    void setShowBuildings(bool state);
+    void setShowTerrain(bool state);
+
 private:
+    void applyOffset();
+
     static GeoDataLoader *s_instance;
     PJ_CONTEXT *ProjContext;
     PJ *ProjInstance;
@@ -115,6 +130,8 @@ private:
     osg::ref_ptr<osg::Node> buildingNode = nullptr;
     std::map<std::string, osg::ref_ptr<osg::Node>> loadedTerrains;
     std::map<std::string, osg::ref_ptr<osg::Node>> loadedBuildings;
+    std::map<std::string, regionEntry> regions;
+    std::map<std::string, opencover::ui::Button *> regionButtons;
     bool showTerrain = true;
     bool showBuildings = true;
     osg::Node *oldIntersectedNode;
@@ -138,7 +155,7 @@ private:
 
     opencover::ui::Button *terrainVisibilityButton;
     opencover::ui::Button *buildingVisibilityButton;
-    opencover::ui::Button *applyOffset;
+    opencover::ui::Button *applyOffsetButton;
     opencover::ui::Button *saveOffsetToConfig;
     opencover::ui::EditField *easting;
     opencover::ui::EditField *northing;
