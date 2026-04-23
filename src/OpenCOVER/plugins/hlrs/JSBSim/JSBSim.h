@@ -70,6 +70,8 @@ public:
     void addThermal(const osg::Vec3 &velocity, float turbulence);
 
 private:
+    osg::Vec3f getOriginOffset() const;
+
     static JSBSimPlugin *plugin;
     ui::Menu *JSBMenu;
     ui::Action *printCatalog;

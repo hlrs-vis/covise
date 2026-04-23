@@ -26,8 +26,15 @@
 #include "models/propulsion/FGPiston.h"
 #include "cover/VRSceneGraph.h"
 #include "cover/coVRCollaboration.h"
+#include <algorithm>
+#include <cover/coVRPluginList.h>
 #include <cover/input/input.h>
 #include "cover/input/deviceDiscovery.h"
+#include <osg/Matrix>
+#include <osg/MatrixTransform>
+#include <osg/Vec3f>
+#include <plugins/general/GeoData/GeoDataLoader.h>
+#include <proj.h>
 #include <util/UDPComm.h>
 #include <util/byteswap.h>
 #include <util/unixcompat.h>
@@ -42,6 +49,9 @@
 #include <osg/Vec3>
 
 #include <cover/input/input.h>
+
+inline constexpr float METERS_PER_FOOT = 0.3048f;
+inline constexpr float FEET_PER_INCH = 1.f / 12.f;
 
 JSBSimPlugin *JSBSimPlugin::plugin = NULL;
 
@@ -158,6 +168,8 @@ JSBSimPlugin::~JSBSimPlugin()
     }
 }
 
+#include <osg/io_utils>
+
 void JSBSimPlugin::reset(double dz)
 {
     if (FDMExec == nullptr)
@@ -169,66 +181,47 @@ void JSBSimPlugin::reset(double dz)
 
     FDMExec->Setsim_time(0.0);
     SimStartTime = cover->frameTime();
-    osg::Vec3 viewerPosInFeet = cover->getInvBaseMat().getTrans() / 0.3048;
 
-    // viewerPosInFeet.set(0, 0, 0);
-    osg::Vec3 dir;
-    // dir.set(0, 1, 0);
+    osg::Matrix viewer = cover->getInvBaseMat();
+    std::cout << "Viewer position: " << viewer.getTrans() << std::endl;
+    osg::Vec3 viewerPosition = viewer.getTrans() - getOriginOffset();
+    std::cout << "Viewer position (offset): " << viewerPosition << std::endl;
 
-    double radius = (Propagate->GetVState().vLocation.GetSeaLevelRadius() + viewerPosInFeet[2]);
-    double ecX, ecY, ecZ;
-    ecX = viewerPosInFeet[2] + radius;
-    ecY = -viewerPosInFeet[1];
-    ecZ = viewerPosInFeet[0];
-    double r02 = ecX * ecX + ecY * ecY;
-    double rxy = sqrt(r02);
-    double mLon, mLat;
-    eyePoint.makeTranslate(Aircraft->GetXYZep(1) * 25.4, Aircraft->GetXYZep(2) * 25.4, Aircraft->GetXYZep(3) * 25.4);
-
-    // Compute the longitude and latitude itself
-    if (ecX == 0.0 && ecY == 0.0)
-        mLon = 0.0;
-    else
-        mLon = atan2(ecY, ecX);
-
-    if (rxy == 0.0 && ecZ == 0.0)
-        mLat = 0.0;
-    else
-        mLat = atan2(ecZ, rxy);
-    osg::Matrix viewer = cover->getBaseMat();
-    for (int i = 0; i < 3; i++)
-        dir[i] = viewer(1, i);
-    osg::Vec3 y(0, 1, 0);
-    dir.normalize();
-    /*
-
-        double v[3];
-
-        v[0] = viewerPosInFeet[0] - projectOffset[0];
-        v[1] = viewerPosInFeet[1] - projectOffset[1];
-        v[2] = viewerPosInFeet[2] - projectOffset[2];
-        int error = pj_transform(pj_to, pj_from, 1, 0, v,v+1, v+2);
-        if (error != 0)
-        {
-            fprintf(stderr, "%s \n ------ \n", pj_strerrno(error));
-        }
-        mLon = v[0];
-        mLat = v[1];*/
+    // Compute the eyepoint transformation from the aircraft. The GetXYZep method returns
+    // a dimension in inches, so we divide by
+    osg::Vec3 aircraftEyePoint(Aircraft->GetXYZep(1), Aircraft->GetXYZep(2), Aircraft->GetXYZep(3));
+    eyePoint = osg::Matrix::translate(aircraftEyePoint / 0.00254);
 
     std::shared_ptr<JSBSim::FGInitialCondition> IC = FDMExec->GetIC();
     if (!IC->Load(SGPath(resetFile)))
     {
         cerr << "Initialization unsuccessful" << endl;
     }
-    IC->SetLatitudeRadIC(mLat);
-    IC->SetLongitudeRadIC(mLon);
-    IC->SetAltitudeASLFtIC(viewerPosInFeet[2] - Aircraft->GetXYZep(3) * 0.0833 + (dz) / 0.3048);
-    IC->SetAltitudeAGLFtIC(viewerPosInFeet[2] - Aircraft->GetXYZep(3) * 0.0833 + (dz) / 0.3048);
-    IC->SetPsiRadIC((-(atan2(y[1], y[0]) - atan2(dir[1], dir[0]))) - M_PI_2); // heading
+
+    // Transform the viewer coordinates to lat/lng
+    PJ_COORD c;
+    c.enu.e = viewerPosition[0];
+    c.enu.n = viewerPosition[1];
+    c.enu.u = viewerPosition[2];
+    PJ_COORD c_out = proj_trans(coordTransformation, PJ_INV, c);
+    IC->SetLongitudeDegIC(c_out.lp.phi);
+    IC->SetLatitudeDegIC(c_out.lp.lam);
+
+    float altitude = viewerPosition[2] + dz;
+    float altitudeFt = altitude / METERS_PER_FOOT - Aircraft->GetXYZep(3) * FEET_PER_INCH;
+
+    std::cout << "Initialize aircraft at latitude " << c_out.lp.lam << "°, longitude " << c_out.lp.phi << "°, altitude " << altitude << "m (" << altitudeFt << " ft)" << std::endl;
+    IC->SetAltitudeASLFtIC(altitudeFt);
+    // there is also IC->SetAltitudeAGLFtIC(...), maybe we want that?
+
+    // Align heading to viewer, reset roll (wings level), keep pitch according to aircraft reset file
+    osg::Vec3 dir(viewer(1, 0), viewer(1, 1), viewer(1, 2));
+    dir.normalize();
+    IC->SetPsiRadIC(atan2(dir[1], dir[0])); // heading
+    IC->SetPhiRadIC(0.0); // roll
+
     // IC->SetPsiRadIC(0.0); // heading
     // IC->SetThetaRadIC(-20.0*DEG_TO_RAD); // pitch from reset file beause the paraglider is sensitive to start pitch
-    IC->SetPhiRadIC(0.0); // roll
-    // IC->SetUBodyFpsIC(10); // U is Body X direction --> forwards
 
     Propagate->InitModel();
     Propagate->InitializeDerivatives();
@@ -237,7 +230,7 @@ void JSBSimPlugin::reset(double dz)
     Winds->SetWindNED(WY->number(), WX->number(), -WZ->number());
     targetVelocity.set(WX->number(), WY->number(), WZ->number());
     currentVelocity.set(WX->number(), WY->number(), WZ->number());
-    JSBSim::FGPropagate::VehicleState location = Propagate->GetVState();
+    JSBSim::FGPropagate::VehicleState vehicleState = Propagate->GetVState();
 
     lastPos = VRSceneGraph::instance()->getTransform()->getMatrix();
 }
@@ -374,6 +367,16 @@ bool JSBSimPlugin::initJSB()
     return true;
 }
 
+osg::Vec3f JSBSimPlugin::getOriginOffset() const
+{
+    auto geoDataPlugin = coVRPluginList::instance()->getPlugin("GeoData");
+    if (geoDataPlugin)
+    {
+        return (static_cast<GeoDataLoader *>(geoDataPlugin))->rootOffset;
+    }
+    return osg::Vec3f();
+}
+
 bool JSBSimPlugin::init()
 {
     delete udp;
@@ -406,27 +409,7 @@ bool JSBSimPlugin::init()
 #endif
     coviseSharedDir = std::string(pValue) + "/share/covise/";
 
-    // std::string proj_from = configString("Projection", "from", "+proj=latlong +datum=WGS84")->value();
-    // if (!(pj_from = pj_init_plus(proj_from.c_str())))
-    //{
-    //     fprintf(stderr, "ERROR: pj_init_plus failed with pj_from = %s\n", proj_from.c_str());
-    // }
-
-    // std::string proj_to = configString("Projection", "to", "+proj=tmerc +lat_0=0 +lon_0=9 +k=1.000000 +x_0=9703.397 +y_0=-5384244.453 +ellps=bessel +datum=potsdam")->value();// +nadgrids=" + dir + std::string("BETA2007.gsb");
-
-    // if (!(pj_to = pj_init_plus(proj_to.c_str())))
-    //{
-    //     fprintf(stderr, "ERROR: pj_init_plus failed with pj_to = %s\n", proj_to.c_str());
-    // }
-
-    coordTransformation = proj_create_crs_to_crs(PJ_DEFAULT_CTX,
-        "+proj=latlong +datum=WGS84",
-        "+proj=tmerc +lat_0=0 +lon_0=9 +k=1.000000 +x_0=9703.397 +y_0=-5384244.453 +ellps=bessel +datum=potsdam",
-        NULL);
-
-    projectOffset[0] = configFloat("Projection", "offsetX", 0)->value();
-    projectOffset[1] = configFloat("Projection", "offsetY", 0)->value();
-    projectOffset[2] = configFloat("Projection", "offsetZ", 0)->value();
+    coordTransformation = proj_create_crs_to_crs(PJ_DEFAULT_CTX, "EPSG:4326", "EPSG:25832", NULL);
 
     JSBMenu = new ui::Menu("JSBSim", this);
 
@@ -613,23 +596,19 @@ void JSBSimPlugin::key(int type, int keySym, int mod)
         case (osgGA::GUIEventAdapter::KEYDOWN):
             if (keySym == 'l' || keySym == 65363)
             {
-                if (fgcontrol.aileron < 0.99)
-                    fgcontrol.aileron += 0.1;
+                fgcontrol.aileron += 0.1;
             }
             else if (keySym == 'j' || keySym == 65361)
             {
-                if (fgcontrol.aileron > -0.99)
-                    fgcontrol.aileron -= 0.1;
+                fgcontrol.aileron -= 0.1;
             }
             else if (keySym == 'm' || keySym == 65364)
             {
-                if (fgcontrol.elevator < 0.99)
-                    fgcontrol.elevator += 0.1;
+                fgcontrol.elevator -= 0.1;
             }
             else if (keySym == 'i' || keySym == 65362)
             {
-                if (fgcontrol.elevator > -0.99)
-                    fgcontrol.elevator -= 0.1;
+                fgcontrol.elevator += 0.1;
             }
             else if (keySym == 'u')
             {
@@ -644,6 +623,10 @@ void JSBSimPlugin::key(int type, int keySym, int mod)
                 initJSB();
                 reset();
             }
+
+            fgcontrol.aileron = std::clamp(fgcontrol.aileron, -1.0, 1.0);
+            fgcontrol.elevator = std::clamp(fgcontrol.elevator, -1.0, 1.0);
+
             break;
         }
         fprintf(stderr, "Keysym: %d\n", keySym);
@@ -755,9 +738,8 @@ bool JSBSimPlugin::update()
             else
             {
                 FCS->SetDaCmd(fgcontrol.aileron);
-                std::cout << "\nfgcontrol.aileron:" << fgcontrol.aileron << std::endl;
+                std::cout << "  Aileron: " << fgcontrol.aileron << "   Elevator: " << fgcontrol.elevator << '\r';
                 FCS->SetDeCmd(fgcontrol.elevator);
-                std::cout << "fgcontrol.elevator:" << fgcontrol.elevator << std::endl;
                 if (joystickDev)
                 {
                     if (Ruddernumber >= 0)
@@ -855,41 +837,39 @@ bool JSBSimPlugin::update()
                         FDMExec->GetPropagate()->DumpState();
                     }
 
-                    osg::Matrix rot;
-                    rot.makeRotate(Propagate->GetEuler(JSBSim::FGJSBBase::eTht), osg::Vec3(0, -1, 0), Propagate->GetEuler(JSBSim::FGJSBBase::ePhi), osg::Vec3(1, 0, 0), Propagate->GetEuler(JSBSim::FGJSBBase::ePsi), osg::Vec3(0, 0, -1));
-                    osg::Matrix trans;
+                    auto vehicleState = Propagate->GetVState();
+                    auto location = vehicleState.vLocation;
 
-                    JSBSim::FGPropagate::VehicleState location = Propagate->GetVState();
+                    PJ_COORD c;
+                    c.lpz.lam = location.GetLatitudeDeg();
+                    c.lpz.phi = location.GetLongitudeDeg();
+                    c.lpz.z = location.GetGeodAltitude() * METERS_PER_FOOT;
+                    PJ_COORD c_out = proj_trans(coordTransformation, PJ_FWD, c);
+
                     float scale = cover->getScale();
+                    osg::Vec3 position(c_out.enu.e, c_out.enu.n, c_out.enu.u);
+                    position += getOriginOffset();
+                    auto trans = osg::Matrix::translate(position * scale);
 
-                    /*
-                    double v[3];
+                    float heading = Propagate->GetEuler(JSBSim::FGJSBBase::ePsi);
+                    float roll = Propagate->GetEuler(JSBSim::FGJSBBase::ePhi);
+                    float pitch = Propagate->GetEuler(JSBSim::FGJSBBase::eTht);
 
-                    v[0] = location.vLocation.GetLongitude();
-                    v[1] = location.vLocation.GetLatitude();
-                    v[2] = location.vLocation.GetGeodAltitude() * 0.3048;
-                    int error = pj_transform(pj_from, pj_to, 1, 0, v, v + 1, v + 2);
-                    if (error != 0)
+                    // std::cout << " Heading " << heading << " Roll " << roll << " Pitch " << pitch << std::endl;
+                    // auto rot = osg::Matrix::rotate(
+                    //     -pitch, osg::Vec3(1, 0, 0),
+                    //     roll, osg::Vec3(0, 1, 0),
+                    //     heading, osg::Vec3(0, 0, 1));
+
+                    auto rot = osg::Matrix::rotate(roll, osg::Vec3(0, 1, 0)) * osg::Matrix::rotate(pitch, osg::Vec3(1, 0, 0)) * osg::Matrix::rotate(-heading, osg::Vec3(0, 0, 1));
+
+                    osg::Matrix newPos = osg::Matrix::inverse(/*osg::Matrix::rotate(-M_PI_2, 0, 0, 1.0) * eyePoint */ rot * trans);
+
+                    if (newPos.isNaN())
                     {
-                        fprintf(stderr, "%s \n ------ \n", pj_strerrno(error));
+                        stopNav = true;
                     }
-
-                    trans.makeTranslate(v[1]*scale, v[0] * scale, v[2] * scale);
-
-                    */
-
-                    trans.makeTranslate(location.vLocation(3) * 0.3048 * scale, -location.vLocation(2) * 0.3048 * scale, (location.vLocation(1) - location.vLocation.GetSeaLevelRadius()) * 0.3048 * scale);
-                    osg::Matrix preRot;
-                    preRot.makeRotate(-M_PI_2, 0, 0, 1.0);
-                    osg::Matrix newPos = osg::Matrix::inverse(preRot * eyePoint * rot * trans);
-                    /*JSBSim::FGMatrix33 tb2lMat = Propagate->GetTb2l();
-                    Plane.makeIdentity();
-                    for (int i = 0; i < 3; i++)
-                        for (int j = 0; j < 3; j++)
-                            Plane(i, j) = tb2lMat.Entry(i+1, j+1);
-                     Plane.invert(Plane); */
-
-                    if (FDMExec && !FDMExec->Holding() && !newPos.isNaN())
+                    else if (FDMExec && !FDMExec->Holding())
                     {
                         lastPos = newPos;
                         if (targetVelocity != currentVelocity)
@@ -904,9 +884,9 @@ bool JSBSimPlugin::update()
                                 currentVelocity += diff * 0.1;
                             }
                         }
-                        float vSpeed = location.vUVW(3);
+                        float vSpeed = vehicleState.vUVW(3);
                         VzLabel->setText("Vz: " + std::to_string(vSpeed));
-                        VLabel->setText("V: " + std::to_string(location.vUVW.Entry(1)) + " ; " + std::to_string(location.vUVW.Entry(2)) + " ; " + std::to_string(location.vUVW.Entry(3)));
+                        VLabel->setText("V: " + std::to_string(vehicleState.vUVW.Entry(1)) + " ; " + std::to_string(vehicleState.vUVW.Entry(2)) + " ; " + std::to_string(vehicleState.vUVW.Entry(3)));
                         float pitch = -vSpeed / 10.0;
                         if (pitch < -1)
                             pitch = -1;
