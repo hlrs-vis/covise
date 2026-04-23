@@ -887,25 +887,34 @@ bool JSBSimPlugin::update()
                         float vSpeed = vehicleState.vUVW(3);
                         VzLabel->setText("Vz: " + std::to_string(vSpeed));
                         VLabel->setText("V: " + std::to_string(vehicleState.vUVW.Entry(1)) + " ; " + std::to_string(vehicleState.vUVW.Entry(2)) + " ; " + std::to_string(vehicleState.vUVW.Entry(3)));
-                        float pitch = -vSpeed / 10.0;
-                        if (pitch < -1)
-                            pitch = -1;
-                        if (pitch > 1)
-                            pitch = 1;
-                        pitch = 0.8 + (pitch + 1.0) * 0.3;
-                        varioSource->setPitch(pitch);
-                        windSource->setIntensity(1.0);
-                        engineSource->setIntensity(1.0);
-                        engineSource->setPitch(1.0);
 
-                        float vol = (fabs((pitch - 1.0)) * 5.0) - 0.2;
-                        if (vol > 1.0)
-                            vol = 1.0;
-                        if (vol < 0.0)
-                            vol = 0.0;
-                        varioSource->setIntensity(vol);
-                        if (vol > 1.0)
-                            vol = 1.0;
+                        if (varioSource)
+                        {
+                            float pitch = -vSpeed / 10.0;
+                            if (pitch < -1)
+                                pitch = -1;
+                            if (pitch > 1)
+                                pitch = 1;
+                            pitch = 0.8 + (pitch + 1.0) * 0.3;
+
+                            varioSource->setPitch(pitch);
+
+                            float vol = (fabs((pitch - 1.0)) * 5.0) - 0.2;
+                            if (vol > 1.0)
+                                vol = 1.0;
+                            if (vol < 0.0)
+                                vol = 0.0;
+                            varioSource->setIntensity(vol);
+                        }
+                        if (windSource)
+                        {
+                            windSource->setIntensity(1.0);
+                        }
+                        if (engineSource)
+                        {
+                            engineSource->setIntensity(1.0);
+                            engineSource->setPitch(1.0);
+                        }
 
                         Winds->SetWindNED(currentVelocity.y(), currentVelocity.x(), -currentVelocity.z());
                         Winds->SetTurbGain(currentTurbulence);
@@ -959,15 +968,21 @@ void JSBSimPlugin::setEnabled(bool flag)
         if (flag)
         {
             reset();
-            varioSource->play();
-            windSource->play();
-            engineSource->play();
+            if (varioSource)
+                varioSource->play();
+            if (windSource)
+                windSource->play();
+            if (engineSource)
+                engineSource->play();
         }
         else
         {
-            varioSource->stop();
-            windSource->stop();
-            engineSource->stop();
+            if (varioSource)
+                varioSource->stop();
+            if (windSource)
+                windSource->stop();
+            if (engineSource)
+                engineSource->stop();
         }
         if (udp)
         {
