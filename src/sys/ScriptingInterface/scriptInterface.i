@@ -20,13 +20,12 @@
 
 %}
 
-
-#if PY_VERSION_HEX >= 0x03000000
-#define PyString_Check(name) PyBytes_Check(name)
-#define PyString_FromString(x) PyUnicode_FromString(x)
-#define PyString_Format(fmt, args)  PyUnicode_Format(fmt, args)
-#define PyString_AsString(str) PyBytes_AsString(str)
+#ifndef PYMAJ
+#error "Python major version not defined"
+#elif PYMAJ < 3
+#error "Python 3 or later required"
 #endif
+
 
 // This tells SWIG to treat char ** as a special case
 #if defined(SWIGPYTHON) 
@@ -34,31 +33,18 @@
     /* Check if is a list */
     if (PyList_Check($input)) {
 	int size = PyList_Size($input);
-	int i = 0;
 	$1 = (char **) malloc((size+1)*sizeof(char *));
 		//DebugBreak();
-	for (i = 0; i < size; i++) {
+	for (int i = 0; i < size; i++) {
 	    PyObject *str = PyList_GetItem($input,i);
 
 #if SWIG_VERSION >= 0x040100
-    #if PY_VERSION_HEX >= 0x03000000
-        $1[i] = PyUnicode_AsUTF8(str);
-    #else
-        $1[i] = PyString_AsString(str);
-    #endif
+        $1[i] = strdup(PyUnicode_AsUTF8(str));
 #else
 		$1[i] = SWIG_Python_str_AsChar(str);
 #endif
-
-	    //if (PyString_Check(o))
-		//$1[i] = PyString_AsString(PyList_GetItem($input,i));
-	    //else {
-		//PyErr_SetString(PyExc_TypeError,"list must contain strings or bytes");
-		//free($1);
-		//return NULL;
-	    //}
 	}
-	$1[i] = 0;
+	$1[size] = 0;
     } else {
 	PyErr_SetString(PyExc_TypeError,"not a list");
 	return NULL;
@@ -90,7 +76,7 @@
   }
   $result = PyList_New(len);
   for (i = 0; i < len; i++) {
-    PyList_SetItem($result,i,PyString_FromString($1[i]));
+    PyList_SetItem($result,i,PyUnicode_FromString($1[i]));
   }
 }
 #endif
