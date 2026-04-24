@@ -22,7 +22,8 @@ SimulationSystem::SimulationSystem(opencover::coVRPlugin *plugin,
     , m_gridUIManager(parentMenu)
     , m_gridRenderer(
           parent,
-          { { plugin->configFloatArray("General", "offset", std::vector<double> { 0, 0, 0 })->value() },
+          { 
+            { plugin->configFloatArray("General", "offset", std::vector<double> { 0, 0, 0 })->value() },
               { plugin->configString("Billboard", "font", "default")->value() },
               { m_plugin->configString("General", "projFrom", "default")->value() },
               { m_plugin->configString("General", "projTo", "default")->value() } },
