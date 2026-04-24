@@ -21,6 +21,20 @@ void detachNodeFromParents(osg::Node *node)
     while (node->getNumParents() > 0)
         node->getParent(0)->removeChild(node);
 }
+
+bool hasParent(const osg::Node *node, const osg::Group *parent)
+{
+    if (!node || !parent)
+        return false;
+
+    for (unsigned int i = 0; i < node->getNumParents(); ++i)
+    {
+        if (node->getParent(i) == parent)
+            return true;
+    }
+
+    return false;
+}
 }
 
 GhostAvatarControls::GhostAvatarControls(const std::string &pathToFbx, const std::string &armNodeName, const std::string &headNodeName)
@@ -66,6 +80,20 @@ void GhostAvatarControls::loadAvatar()
     m_avatarTrans->accept(m_parser);
     loadArmBone();
     loadHeadBone();
+}
+
+void GhostAvatarControls::setAvatarVisibleInScene(bool visible)
+{
+    if (!m_avatarTrans || !cover || !cover->getObjectsRoot())
+        return;
+
+    auto objectsRoot = cover->getObjectsRoot();
+    const bool isAttachedToScene = hasParent(m_avatarTrans, objectsRoot);
+
+    if (visible && !isAttachedToScene)
+        objectsRoot->addChild(m_avatarTrans);
+    else if (!visible && isAttachedToScene)
+        objectsRoot->removeChild(m_avatarTrans);
 }
 
 osg::ref_ptr<osg::Node> GhostAvatarControls::getAvatarNode() const

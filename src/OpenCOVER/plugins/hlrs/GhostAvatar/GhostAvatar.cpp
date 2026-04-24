@@ -31,7 +31,18 @@ bool GhostAvatar::update()
     {
         m_initialized = true;
         m_avatarControls->loadAvatar();
-        m_mirror.setReflectedNode(m_avatarControls->getAvatarNode());
+
+        if (m_useInteractors)
+        {
+            m_avatarControls->setAvatarVisibleInScene(true);
+            m_mirror.setReflectedNode(nullptr);
+        }
+        else
+        {
+            m_avatarControls->setAvatarVisibleInScene(false);
+            m_mirror.setReflectedNode(m_avatarControls->getAvatarNode());
+        }
+
         m_avatarTexture->applyTexture(m_avatarControls->getAvatarNode());
         m_avatarControlsUI.initialize();
 
@@ -74,19 +85,19 @@ void GhostAvatar::createInteractors()
 {
     osg::Matrix m;
     auto interSize = 10;
-    m.setTrans(-500, 0, 0);
+    m.setTrans(0, 0, 0);
     m_interactorFloor.reset(new coVR3DTransformInteractor(interSize, vrui::coInteraction::InteractionType::ButtonA, "floor", "targetInteractor", vrui::coInteraction::InteractionPriority::Medium));
     m_interactorFloor->updateTransform(m);
     m_interactorFloor->enableIntersection();
     m_interactorFloor->show();
 
-    m.setTrans(-380, 0, 80);
+    m.setTrans(120, 0, 80);
     m_interactorHand.reset(new coVR3DTransformInteractor(interSize, vrui::coInteraction::InteractionType::ButtonA, "hand", "targetInteractor", vrui::coInteraction::InteractionPriority::Medium));
     m_interactorHand->updateTransform(m);
     m_interactorHand->enableIntersection();
     m_interactorHand->show();
 
-    m.setTrans(-500, 0, 160);
+    m.setTrans(0, 0, 160);
     m_interactorHead.reset(new coVR3DTransformInteractor(interSize, vrui::coInteraction::InteractionType::ButtonA, "head", "targetInteractor", vrui::coInteraction::InteractionPriority::Medium));
     m_interactorHead->updateTransform(m);
     m_interactorHead->enableIntersection();
@@ -114,7 +125,7 @@ void GhostAvatar::updateMatrices()
     m_trackedFloor *= invbase;
 
     // offset for testing in the CAVE
-    double offset = 2.0f;
+/*     double offset = 2.0f;
 
     auto headTrans = m_trackedHead.getTrans();
     m_trackedHead.setTrans(headTrans.x(), headTrans.y() + offset, headTrans.z());
@@ -123,7 +134,7 @@ void GhostAvatar::updateMatrices()
     m_trackedHand.setTrans(handTrans.x(), handTrans.y() + offset, handTrans.z());
 
     auto floorTrans = m_trackedFloor.getTrans();
-    m_trackedFloor.setTrans(floorTrans.x(), floorTrans.y() + offset, floorTrans.z());
+    m_trackedFloor.setTrans(floorTrans.x(), floorTrans.y() + offset, floorTrans.z()); */
     // offset for testing in the CAVE
 
     // match interactor behavior: keep translation, strip scale/shear from rotation basis
