@@ -178,7 +178,6 @@
      <StateFixLevel value="100" />
      <TextureCounter value="ON" />
      <Texture mode="MODULATE" quality="High" />
-     <TransparencyMode value="sorted_blended_alphatest" />
      <Headlight value="ON" />
      <Lights value="ON" />
     </Vrml97>
