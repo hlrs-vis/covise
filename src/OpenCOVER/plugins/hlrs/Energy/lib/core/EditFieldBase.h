@@ -8,10 +8,7 @@ namespace core
 class EditFieldBase : public ComponentBase, public interface::ui::IEditDoubleField
 {
 public:
-    EditFieldBase(interface::ui::IComponent *parent, const std::string &name)
-        : ComponentBase(parent, name)
-    {
-    }
+    using ComponentBase::ComponentBase;
     virtual ~EditFieldBase() = default;
 };
 }

@@ -8,10 +8,7 @@ namespace core
 class MenuBase : public ComponentBase, public interface::ui::IMenu
 {
 public:
-    MenuBase(core::interface::ui::IComponent *parent, const std::string &name)
-        : ComponentBase(parent, name)
-    {
-    }
+    using ComponentBase::ComponentBase;
     virtual ~MenuBase() = default;
 };
 }
