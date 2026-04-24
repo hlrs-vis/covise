@@ -16,7 +16,7 @@ Mirror::Mirror(const osg::Vec3 &position, float sizeX, float sizeZ)
     , m_sizeY(0.01)
     , m_sizeZ(sizeZ)
     , m_mirrorTransform(new osg::MatrixTransform())
-    , m_rttCamera(new RenderToTextureCamera({ 0, -1, 0 }, { 0, 0, 1 }, 1024, 45.0, 1.0, 1.0, 1000.0, true, false))
+    , m_rttCamera(new RenderToTextureCamera({ 0, -1, 0 }, { 0, 0, 1 }, 1024, 60.0, 1.0, 1.0, 1000.0, true, false))
 {
     m_rttCamera->initialize();
     updateView();
@@ -50,12 +50,12 @@ void Mirror::addMirrorToTransform() const
     geode->setName("GhostAvatarMirrorGeode");
     geode->addDrawable(createMirror());
 
-    // Create texture from RTT camera's live image
+    // create texture from RTT camera's live image
     osg::ref_ptr<osg::Texture2D> mirrorTexture = new osg::Texture2D(m_rttCamera->getImage());
     mirrorTexture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::CLAMP_TO_EDGE);
     mirrorTexture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::CLAMP_TO_EDGE);
 
-    // Apply texture to the drawable
+    // apply texture to the drawable
     osg::ref_ptr<osg::StateSet> stateSet = geode->getOrCreateStateSet();
     stateSet->setTextureAttributeAndModes(0, mirrorTexture, osg::StateAttribute::ON);
     stateSet->setMode(GL_CULL_FACE, osg::StateAttribute::OFF);
