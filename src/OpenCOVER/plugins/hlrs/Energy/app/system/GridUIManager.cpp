@@ -1,6 +1,6 @@
 #include "GridUIManager.h"
 
-GridUIManager::GridUIManager(opencover::ui::Group *parentMenu)
+GridUIManager::GridUIManager(core::interface::ui::IComponent *parentMenu)
 {
 }
 

@@ -23,7 +23,7 @@ EnergyPlugin::EnergyPlugin()
 
     // need to save the config on exit => will only be saved when COVER is closed
     // correctly via q or closing the window
-    
+
     config()->setSaveOnExit(true);
 
     m_Energy->setName("Energy");
@@ -102,18 +102,28 @@ bool EnergyPlugin::init()
 
 void EnergyPlugin::initSystems()
 {
-    auto tabMenu = dynamic_cast<IComponent*>(m_ui.getTabMenu());
-    if (!tabMenu) {
+    auto tabMenu = dynamic_cast<IComponent *>(m_ui.getTabMenu());
+    if (!tabMenu)
+    {
         m_logger.error("Something went wrong in initializing EnergyUI");
         return;
     }
 
     m_systems[System::CityGML] = std::make_unique<CityGMLSystem>(
-        this, tabMenu, *m_factory, cover->getObjectsRoot(), m_switch, m_logger);
-    // TODO: not yet ported => do later
-    auto cMenu = dynamic_cast<CoverMenu*>(tabMenu);
-    if (cMenu)
-        m_systems[System::Simulation] = std::make_unique<SimulationSystem>(this, cMenu->getMenu(), getCityGMLSystem(), m_grid, m_logger, this->configString("Simulation", "scenarioDir", "default")->value());
+        this,
+        tabMenu,
+        *m_factory,
+        cover->getObjectsRoot(),
+        m_switch,
+        m_logger);
+
+    m_systems[System::Simulation] = std::make_unique<SimulationSystem>(this,
+        tabMenu,
+        *m_factory,
+        getCityGMLSystem(),
+        m_grid,
+        m_logger,
+        this->configString("Simulation", "scenarioDir", "default")->value());
 
     for (auto &[type, system] : m_systems)
     {

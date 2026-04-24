@@ -6,12 +6,17 @@
 #include <initializer_list>
 #include <memory>
 
-SimulationSystem::SimulationSystem(opencover::coVRPlugin *plugin, opencover::ui::Group *parentMenu,
-    CityGMLSystem *cityGMLSystem, osg::ref_ptr<osg::Switch> parent, core::interface::ILogger &logger, const std::string &scenarioDir)
+SimulationSystem::SimulationSystem(opencover::coVRPlugin *plugin, 
+    core::interface::ui::IComponent *parentMenu,
+    const core::interface::ui::IGUIFactory &factory,
+    CityGMLSystem *cityGMLSystem, 
+    osg::ref_ptr<osg::Switch> parent, 
+    core::interface::ILogger &logger,
+    const std::string &scenarioDir)
     : core::ClassLogger(logger, "SimulationSystem")
     , m_plugin(plugin)
     , m_dataLoadManager()
-    , m_scenarioManager(parentMenu, scenarioDir)
+    , m_scenarioManager(factory, "ScenarioManager", parentMenu, scenarioDir)
     , m_dataManager(logger)
     , m_gridUIManager(parentMenu)
     , m_gridRenderer(
@@ -73,12 +78,15 @@ void SimulationSystem::onScenarioSelectionChanged(int scenarioId)
         if (result)
         {
             // TODO: use scalar selector from later UI implementation for species
+            std::string species("mass_flow");
             if (type == EnergyType::POWER)
             {
                 // m_gridRenderer.updateColorMapInShader(colorMapMenu.selector->colorMap(),
                 //     type);
-                m_gridRenderer.setData(type, result, "loading_percent");
+                // m_gridRenderer.setData(type, result, "loading_percent");
+                species = "loading_percent";
             }
+            m_gridRenderer.setData(type, result, species);
             m_gridUIManager.updateUIState(type, result);
         }
     }

@@ -14,8 +14,13 @@
 class SimulationSystem final : public core::interface::ISystem, core::ClassLogger
 {
 public:
-    SimulationSystem(opencover::coVRPlugin *plugin, opencover::ui::Group *parentMenu,
-        CityGMLSystem *cityGMLSystem, osg::ref_ptr<osg::Switch> parent, core::interface::ILogger &logger, const std::string &scenarioDir);
+    SimulationSystem(opencover::coVRPlugin *plugin, 
+        core::interface::ui::IComponent *parentMenu, 
+        const core::interface::ui::IGUIFactory &factory,
+        CityGMLSystem *cityGMLSystem, 
+        osg::ref_ptr<osg::Switch> parent, 
+        core::interface::ILogger &logger, 
+        const std::string &scenarioDir);
     void init() override;
     void enable(bool on) override;
     void update() override;

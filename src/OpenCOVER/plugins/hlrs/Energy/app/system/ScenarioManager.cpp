@@ -2,6 +2,7 @@
 #include <initializer_list>
 #include <filesystem>
 #include <algorithm>
+#include <memory>
 
 namespace
 {
@@ -17,9 +18,9 @@ auto getScenarioDirs(std::string_view scenarioDir)
 }
 }
 
-ScenarioManager::ScenarioManager(opencover::ui::Group *parentMenu, std::string_view scenarioDir)
-    : m_selectionList(new opencover::ui::SelectionList("Scenarios", parentMenu))
+ScenarioManager::ScenarioManager(const core::interface::ui::IGUIFactory &factory, const std::string &name, core::interface::ui::IComponent *parent, std::string_view scenarioDir)
 {
+    m_selectionList = factory.createSelectionList(parent, name);
     setScenarios(getScenarioDirs(scenarioDir));
 }
 
