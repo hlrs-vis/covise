@@ -2,6 +2,7 @@
 #include <osg/MatrixTransform>
 #include <osg/Node>
 #include <osg/ShapeDrawable>
+#include <osg/Texture2D>
 
 #include <cover/coVRPluginSupport.h> // includes cover
 
@@ -15,18 +16,17 @@ Mirror::Mirror(const osg::Vec3 &position, float sizeX, float sizeZ)
     , m_sizeY(0.01)
     , m_sizeZ(sizeZ)
     , m_mirrorTransform(new osg::MatrixTransform())
-    , m_rttCamera(new RenderToTextureCamera({ 0, -1, 0 }, { 0, 0, 1 }, 1024, 45.0, 1.0, 1.0, 1000.0, true, true))
+    , m_rttCamera(new RenderToTextureCamera({ 0, -1, 0 }, { 0, 0, 1 }, 1024, 45.0, 1.0, 1.0, 1000.0, true, false))
 {
+    m_rttCamera->initialize();
+    updateView();
+
     m_mirrorTransform->setMatrix(osg::Matrix::translate(m_position));
     m_mirrorTransform->setName("GhostAvatarMirror");
     addMirrorToTransform();
 
     if (cover && cover->getObjectsRoot())
         cover->getObjectsRoot()->addChild(m_mirrorTransform);
-
-    m_rttCamera->initialize();
-
-    updateView();
 }
 
 Mirror::~Mirror()
@@ -49,6 +49,15 @@ void Mirror::addMirrorToTransform() const
     osg::ref_ptr<osg::Geode> geode = new osg::Geode();
     geode->setName("GhostAvatarMirrorGeode");
     geode->addDrawable(new osg::ShapeDrawable(createMirror()));
+
+    // Create texture from RTT camera's live image
+    osg::ref_ptr<osg::Texture2D> mirrorTexture = new osg::Texture2D(m_rttCamera->getImage());
+    mirrorTexture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::CLAMP_TO_EDGE);
+    mirrorTexture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::CLAMP_TO_EDGE);
+
+    // Apply texture to the drawable
+    osg::ref_ptr<osg::StateSet> stateSet = geode->getOrCreateStateSet();
+    stateSet->setTextureAttributeAndModes(0, mirrorTexture, osg::StateAttribute::ON);
 
     m_mirrorTransform->addChild(geode);
 }
