@@ -33,6 +33,7 @@ public:
     void updateColorMapInShader(const opencover::ColorMap &map, EnergyType type);
     void setVisible(bool visible);
     void translate(const osg::Vec3f& translate);
+    void switchTo(EnergyType type);
 
 private:
     GridRenderConfig m_config;
