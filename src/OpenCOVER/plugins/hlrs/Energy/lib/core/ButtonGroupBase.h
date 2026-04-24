@@ -8,10 +8,7 @@ namespace core
 class ButtonGroupBase : public ComponentBase, public interface::ui::IButtonGroup
 {
 public:
-    ButtonGroupBase(core::interface::ui::IComponent *parent, const std::string &name)
-        : ComponentBase(parent, name)
-    {
-    }
+    using ComponentBase::ComponentBase;
     virtual ~ButtonGroupBase() = default;
 };
 }

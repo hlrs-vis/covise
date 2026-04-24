@@ -8,10 +8,7 @@ namespace core
 class ButtonBase : public ComponentBase, public interface::ui::IButton
 {
 public:
-    ButtonBase(interface::ui::IComponent *parent, const std::string &name)
-        : ComponentBase(parent, name)
-    {
-    }
+    using ComponentBase::ComponentBase;
     virtual ~ButtonBase() = default;
 };
 }
