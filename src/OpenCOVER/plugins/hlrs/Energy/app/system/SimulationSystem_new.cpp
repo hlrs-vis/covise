@@ -6,7 +6,7 @@
 #include <initializer_list>
 #include <memory>
 
-SimulationSystem::SimulationSystem(opencover::coVRPlugin *plugin, 
+SimulationSystem::SimulationSystem(opencover::coVRPlugin *plugin,
     core::interface::ui::IComponent *parentMenu,
     const core::interface::ui::IGUIFactory &factory,
     CityGMLSystem *cityGMLSystem, 
