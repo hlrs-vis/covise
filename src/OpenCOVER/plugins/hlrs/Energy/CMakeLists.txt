@@ -43,6 +43,7 @@ SET(HEADERS
     app/EnergyLogger.h
     app/ui/BaseUI.h
     app/ui/CityGMLUI.h
+    app/ui/SimulationUI.h
     app/ui/EnergyUI.h
     app/ui/cover/CoverUIFactory.h
     app/ui/cover/CoverButton.h
@@ -83,6 +84,7 @@ SET(SOURCES
     app/system/GridUIManager.cpp
     app/EnergyLogger.cpp
     app/ui/CityGMLUI.cpp
+    app/ui/SimulationUI.cpp
     app/ui/EnergyUI.cpp
     app/ui/cover/CoverUIFactory.cpp
     app/ui/cover/CoverButton.cpp
