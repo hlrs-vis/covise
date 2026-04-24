@@ -32,6 +32,7 @@ public:
     void updateStep(int timestep);
     void updateColorMapInShader(const opencover::ColorMap &map, EnergyType type);
     void setVisible(bool visible);
+    void translate(const osg::Vec3f& translate);
 
 private:
     GridRenderConfig m_config;

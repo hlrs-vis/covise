@@ -101,3 +101,9 @@ void GridRenderer::setVisible(bool visible)
         }
     }
 }
+
+void GridRenderer::translate(const osg::Vec3f &translate)
+{
+    for (auto &[_, mat] : m_gridNodes)
+        mat->setMatrix(osg::Matrix::translate(translate));
+}
