@@ -7,6 +7,9 @@
 if(NOT COVISE_USE_QT)
     return()
 endif()
+if(NOT TARGET Qt5::Quick AND NOT TARGET Qt6::Quick)
+    return()
+endif()
 
 USING(Virvo:transfunc optional) # for transfer function editor
 USING(WiringPi optional)

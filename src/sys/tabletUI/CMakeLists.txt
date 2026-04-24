@@ -6,6 +6,9 @@
 if(NOT COVISE_USE_QT)
     return()
 endif()
+if(NOT TARGET coTUI)
+    return()
+endif()
 
 qt_add_resources(RCC_FILES
   icons.qrc
