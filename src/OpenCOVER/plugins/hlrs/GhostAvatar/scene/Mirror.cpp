@@ -15,7 +15,7 @@ Mirror::Mirror(const osg::Vec3 &position, float sizeX, float sizeZ)
     , m_sizeY(0.01)
     , m_sizeZ(sizeZ)
     , m_mirrorTransform(new osg::MatrixTransform())
-    , m_rttCamera(new RenderToTextureCamera({ 0, -1, 0 }, { 0, 0, 1 }, 1024, 45.0, 1.0, 0.1, 100.0, true, false))
+    , m_rttCamera(new RenderToTextureCamera({ 0, -1, 0 }, { 0, 0, 1 }, 1024, 45.0, 1.0, 1.0, 1000.0, true, true))
 {
     m_mirrorTransform->setMatrix(osg::Matrix::translate(m_position));
     m_mirrorTransform->setName("GhostAvatarMirror");
