@@ -9,8 +9,8 @@
 SimulationSystem::SimulationSystem(opencover::coVRPlugin *plugin,
     core::interface::ui::IComponent *parentMenu,
     const core::interface::ui::IGUIFactory &factory,
-    CityGMLSystem *cityGMLSystem, 
-    osg::ref_ptr<osg::Switch> parent, 
+    CityGMLSystem *cityGMLSystem,
+    osg::ref_ptr<osg::Switch> parent,
     core::interface::ILogger &logger,
     const std::string &scenarioDir)
     : core::ClassLogger(logger, "SimulationSystem")
@@ -40,6 +40,14 @@ void SimulationSystem::init()
 
     for (auto type : ENERGYTYPE_RANGE)
         m_gridRenderer.buildGrid(type, m_dataLoadManager);
+
+    constexpr float uplift(30.0f);
+    m_ui.setLiftCallback([this, &uplift](bool on)
+        {
+            auto active = on ? 1 : 0;
+            m_gridRenderer.translate(osg::Vec3f(0,0,uplift * active));
+        }
+    );
 
     m_scenarioManager.setOnScenarioChanged([this](int id)
         { this->onScenarioSelectionChanged(id); });
