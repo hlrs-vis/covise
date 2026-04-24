@@ -19,7 +19,7 @@ GhostAvatar::GhostAvatar()
     //, m_avatarTexture(std::make_unique<SplotchTerroirTexture>(100))
     , m_avatarTexture(std::make_unique<StripesTerroirTexture>(100))
     , m_avatarControlsUI(GhostAvatarControlsUI(COVER_PLUGIN_NAME, *m_avatarControls))
-    , m_mirror(Mirror(osg::Vec3(-700, 200, -150), 380, 380))
+    , m_mirror(Mirror(osg::Vec3(-600, 200, -150), 200, 380))
 {
     m_avatarTexture->setCameraForwardDir(m_avatarControls->getForwardDirection());
     m_avatarTexture->setCameraUpDir(m_avatarControls->getUpDirection());
@@ -73,19 +73,19 @@ void GhostAvatar::createInteractors()
 {
     osg::Matrix m;
     auto interSize = 10;
-    m.setTrans(0, 0, 0);
+    m.setTrans(-500, 0, 0);
     m_interactorFloor.reset(new coVR3DTransformInteractor(interSize, vrui::coInteraction::InteractionType::ButtonA, "floor", "targetInteractor", vrui::coInteraction::InteractionPriority::Medium));
     m_interactorFloor->updateTransform(m);
     m_interactorFloor->enableIntersection();
     m_interactorFloor->show();
 
-    m.setTrans(120, 0, 80);
+    m.setTrans(-380, 0, 80);
     m_interactorHand.reset(new coVR3DTransformInteractor(interSize, vrui::coInteraction::InteractionType::ButtonA, "hand", "targetInteractor", vrui::coInteraction::InteractionPriority::Medium));
     m_interactorHand->updateTransform(m);
     m_interactorHand->enableIntersection();
     m_interactorHand->show();
 
-    m.setTrans(0, 0, 160);
+    m.setTrans(-500, 0, 160);
     m_interactorHead.reset(new coVR3DTransformInteractor(interSize, vrui::coInteraction::InteractionType::ButtonA, "head", "targetInteractor", vrui::coInteraction::InteractionPriority::Medium));
     m_interactorHead->updateTransform(m);
     m_interactorHead->enableIntersection();
