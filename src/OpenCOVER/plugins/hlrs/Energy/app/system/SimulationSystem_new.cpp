@@ -49,6 +49,16 @@ void SimulationSystem::init()
             m_gridRenderer.translate(osg::Vec3f(0,0,uplift * active));
         }
     );
+    
+    m_ui.setEnergyGridSelectionCallback([this](int value)
+        {
+            if (value > ENERGYTYPE_RANGE.size() || value < 0) {
+                error("Invalid index used for EnergyGridSelection");
+                return;
+            }
+            m_gridRenderer.switchTo(ENERGYTYPE_RANGE[value]);
+        }
+    );
 
     m_scenarioManager.setOnScenarioChanged([this](int id)
         { this->onScenarioSelectionChanged(id); });
