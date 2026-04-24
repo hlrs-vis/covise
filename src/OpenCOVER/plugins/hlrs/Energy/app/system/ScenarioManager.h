@@ -1,5 +1,7 @@
 #pragma once
 #include "Scenario.h"
+#include "lib/core/interfaces/ui/ISelectionList.h"
+#include "lib/core/interfaces/ui/IGUIFactory.h"
 #include <cover/ui/Group.h>
 #include <cover/ui/SelectionList.h>
 
@@ -9,7 +11,7 @@
 class ScenarioManager
 {
 public:
-    ScenarioManager(opencover::ui::Group *parentMenu, std::string_view scenarioDir);
+    ScenarioManager(const core::interface::ui::IGUIFactory &factory, const std::string &name, core::interface::ui::IComponent *parent, std::string_view scenarioDir);
 
     void setOnScenarioChanged(std::function<void(int)> cb)
     {
@@ -31,5 +33,7 @@ public:
 private:
     void setScenarios(const std::vector<std::string> &names);
 
-    opencover::ui::SelectionList *m_selectionList;
+    // opencover::ui::SelectionList *m_selectionList;
+    std::unique_ptr<core::interface::ui::ISelectionList> m_selectionList;
+    // opencover::ui::SelectionList *m_selectionList;
 };
