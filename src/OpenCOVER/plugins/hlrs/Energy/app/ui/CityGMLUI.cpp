@@ -32,6 +32,7 @@ void CityGMLUI::setColorMapCallback(ColorMapCallback cmc)
 void CityGMLUI::initUI(const IGUIFactory &factory, const std::string &name, IComponent *parent, const Pos &origin)
 {
     m_tab = factory.createMenu("CityGML", parent);
+    //TODO: remove this later when scenariomanager is working
     std::vector<std::unique_ptr<IButton>> buttons(4);
     for (auto &[name, e] : {
              std::pair { "InfluxCSV", Button::InfluxCSV },
