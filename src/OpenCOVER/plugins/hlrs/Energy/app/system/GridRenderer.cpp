@@ -19,7 +19,7 @@ GridRenderer::GridRenderer(osg::ref_ptr<osg::Switch> rootNode, const GridRenderC
         m_gridNodes[type]->setName(EnergyTypeToString(type));
         m_root->addChild(m_gridNodes[type]);
     }
-    core::utils::osgUtils::switchTo(m_gridNodes[EnergyType::POWER], m_root);
+    core::utils::osgUtils::switchTo(m_gridNodes[EnergyType::HEATING], m_root);
     opencover::coVRAnimationManager::instance()->setNumTimesteps(100, m_root);
 }
 
@@ -105,4 +105,9 @@ void GridRenderer::translate(const osg::Vec3f &translate)
 {
     for (auto &[_, mat] : m_gridNodes)
         mat->setMatrix(osg::Matrix::translate(translate));
+}
+
+void GridRenderer::switchTo(EnergyType type)
+{
+    core::utils::osgUtils::switchTo(m_gridNodes[type], m_root);
 }
