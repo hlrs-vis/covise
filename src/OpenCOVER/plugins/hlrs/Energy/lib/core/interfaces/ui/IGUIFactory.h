@@ -4,6 +4,7 @@
 #include "IEditField.h"
 #include "IMenu.h"
 #include "IComponent.h"
+#include "ISelectionList.h"
 #include <memory>
 
 namespace core::interface::ui
@@ -16,5 +17,6 @@ public:
     virtual std::unique_ptr<IButtonGroup> createButtonGroup(IComponent *parent, const std::string &name, std::vector<std::unique_ptr<IButton>> &&buttons) const = 0;
     virtual std::unique_ptr<IMenu> createMenu(const std::string &name, IComponent *parent = nullptr) const = 0;
     virtual std::unique_ptr<IEditDoubleField> createEditField(IComponent *parent, const std::string &name) const = 0;
+    virtual std::unique_ptr<ISelectionList> createSelectionList(IComponent *parent, const std::string &name) const = 0;
 };
 }
