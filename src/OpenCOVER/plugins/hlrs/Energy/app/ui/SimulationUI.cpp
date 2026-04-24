@@ -9,10 +9,10 @@ using namespace core::interface::ui;
 SimulationUI::SimulationUI(const core::interface::ui::IGUIFactory &factory, const std::string &name, core::interface::ui::IComponent *parent)
     : BaseUI(name, parent)
 {
-    initSimMenu(factory, name, parent);
+    init(factory, name, parent);
 }
 
-void SimulationUI::initSimMenu(const core::interface::ui::IGUIFactory &factory, const std::string &name, core::interface::ui::IComponent *parent)
+void SimulationUI::init(const core::interface::ui::IGUIFactory &factory, const std::string &name, core::interface::ui::IComponent *parent)
 {
     if (!parent)
         throw std::runtime_error("SimulationUI cannot be initialized properly because the parent is NULL.");
@@ -26,7 +26,4 @@ void SimulationUI::initSimMenu(const core::interface::ui::IGUIFactory &factory, 
     std::transform(ENERGYTYPE_RANGE.begin(), ENERGYTYPE_RANGE.end(), typeNames.data(), [&](EnergyType type)
         { return EnergyTypeToString(type); });
     m_energyGrids->setList(typeNames);
-    m_energyGrids->setCallback([](int i) {
-
-    });
 }

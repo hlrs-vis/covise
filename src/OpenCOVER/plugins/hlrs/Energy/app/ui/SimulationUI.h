@@ -15,7 +15,7 @@ public:
     void setEnergyGridSelectionCallback(const std::function<void(int)> &func) { m_energyGrids->setCallback(func); }
 
 private:
-    void initSimMenu(const core::interface::ui::IGUIFactory &factory, const std::string &name, core::interface::ui::IComponent *parent);
+    void init(const core::interface::ui::IGUIFactory &factory, const std::string &name, core::interface::ui::IComponent *parent);
 
     std::unique_ptr<core::interface::ui::IMenu> m_menu;
     std::unique_ptr<core::interface::ui::ISelectionList> m_energyGrids;
