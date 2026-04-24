@@ -35,7 +35,25 @@ Mirror::~Mirror()
         cover->getObjectsRoot()->removeChild(m_mirrorTransform);
 
     if (m_rttCamera)
+    {
+        if (m_reflectedNode)
+            m_rttCamera->removeSceneNode(m_reflectedNode);
         m_rttCamera->deinitialize();
+    }
+}
+
+void Mirror::setReflectedNode(osg::Node *node)
+{
+    if (m_reflectedNode == node)
+        return;
+
+    if (m_rttCamera && m_reflectedNode)
+        m_rttCamera->removeSceneNode(m_reflectedNode);
+
+    m_reflectedNode = node;
+
+    if (m_rttCamera && m_reflectedNode)
+        m_rttCamera->addSceneNode(m_reflectedNode);
 }
 
 void Mirror::updateView()

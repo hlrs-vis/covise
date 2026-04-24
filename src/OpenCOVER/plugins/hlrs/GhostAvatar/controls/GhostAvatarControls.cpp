@@ -11,6 +11,18 @@
 
 using namespace opencover;
 
+namespace
+{
+void detachNodeFromParents(osg::Node *node)
+{
+    if (!node)
+        return;
+
+    while (node->getNumParents() > 0)
+        node->getParent(0)->removeChild(node);
+}
+}
+
 GhostAvatarControls::GhostAvatarControls(const std::string &pathToFbx, const std::string &armNodeName, const std::string &headNodeName)
     : GhostAvatarControls(pathToFbx, armNodeName, headNodeName, { 0, 1, 0 }, { 0, 1, 0 }, osg::Matrix::identity(), osg::Matrix::identity())
 {
@@ -30,8 +42,7 @@ GhostAvatarControls::GhostAvatarControls(const std::string &pathToFbx, const std
 
 GhostAvatarControls::~GhostAvatarControls()
 {
-    if (m_avatarTrans && cover && cover->getObjectsRoot())
-        cover->getObjectsRoot()->removeChild(m_avatarTrans);
+    detachNodeFromParents(m_avatarTrans);
 }
 
 void GhostAvatarControls::loadAvatar()
@@ -44,12 +55,11 @@ void GhostAvatarControls::loadAvatar()
     }
 
     if (m_avatarTrans)
-        cover->getObjectsRoot()->removeChild(m_avatarTrans);
+        detachNodeFromParents(m_avatarTrans);
 
     m_avatarTrans = new osg::MatrixTransform();
     m_avatarTrans->setName(m_nodeName);
     m_avatarTrans->addChild(model);
-    cover->getObjectsRoot()->addChild(m_avatarTrans);
 
     m_initialBounds = getBounds();
 

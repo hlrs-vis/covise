@@ -2,6 +2,8 @@
 #include <cover/coVRPluginSupport.h> // includes cover
 #include <cover/VRSceneGraph.h>
 
+#include <algorithm>
+
 #include "RenderToTextureCamera.h"
 
 RenderToTextureCamera::RenderToTextureCamera(bool renderAvatar, bool enableDefaultCamera)
@@ -43,6 +45,11 @@ void RenderToTextureCamera::initialize()
         return;
 
     addChild(opencover::cover->getObjectsRoot());
+    for (const auto &node : m_extraNodes)
+    {
+        if (node)
+            addChild(node);
+    }
     opencover::cover->getScene()->addChild(this);
     if (!m_renderAvatar)
         setCullMask(opencover::Isect::NoMirror);
@@ -50,6 +57,11 @@ void RenderToTextureCamera::initialize()
     if (m_debugCamera)
     {
         m_debugCamera->addChild(opencover::cover->getObjectsRoot());
+        for (const auto &node : m_extraNodes)
+        {
+            if (node)
+                m_debugCamera->addChild(node);
+        }
         opencover::cover->getScene()->addChild(m_debugCamera);
         if (!m_renderAvatar)
             m_debugCamera->setCullMask(opencover::Isect::NoMirror);
@@ -65,12 +77,22 @@ void RenderToTextureCamera::deinitialize()
 
     opencover::cover->getScene()->removeChild(this);
     removeChild(opencover::cover->getObjectsRoot());
+    for (const auto &node : m_extraNodes)
+    {
+        if (node)
+            removeChild(node);
+    }
     removeChildren(0, getNumChildren());
 
     if (m_debugCamera)
     {
         opencover::cover->getScene()->removeChild(m_debugCamera);
         m_debugCamera->removeChild(opencover::cover->getObjectsRoot());
+        for (const auto &node : m_extraNodes)
+        {
+            if (node)
+                m_debugCamera->removeChild(node);
+        }
         m_debugCamera->removeChildren(0, m_debugCamera->getNumChildren());
     }
 
@@ -139,6 +161,50 @@ void RenderToTextureCamera::setForwardDirection(osg::Vec3 direction)
 void RenderToTextureCamera::setUpDirection(osg::Vec3 direction)
 {
     m_upDirection = direction;
+}
+
+void RenderToTextureCamera::addSceneNode(osg::Node *node)
+{
+    if (!node)
+        return;
+
+    const auto matchesNode = [node](const osg::ref_ptr<osg::Node> &existingNode) {
+        return existingNode == node;
+    };
+
+    if (std::find_if(m_extraNodes.begin(), m_extraNodes.end(), matchesNode) != m_extraNodes.end())
+        return;
+
+    m_extraNodes.emplace_back(node);
+
+    if (m_isInitialized)
+    {
+        addChild(node);
+        if (m_debugCamera)
+            m_debugCamera->addChild(node);
+    }
+}
+
+void RenderToTextureCamera::removeSceneNode(osg::Node *node)
+{
+    if (!node)
+        return;
+
+    const auto newEnd = std::remove_if(m_extraNodes.begin(), m_extraNodes.end(), [node](const osg::ref_ptr<osg::Node> &existingNode) {
+        return existingNode == node;
+    });
+
+    if (newEnd == m_extraNodes.end())
+        return;
+
+    if (m_isInitialized)
+    {
+        removeChild(node);
+        if (m_debugCamera)
+            m_debugCamera->removeChild(node);
+    }
+
+    m_extraNodes.erase(newEnd, m_extraNodes.end());
 }
 
 void RenderToTextureCamera::configureCamera()

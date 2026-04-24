@@ -31,6 +31,7 @@ bool GhostAvatar::update()
     {
         m_initialized = true;
         m_avatarControls->loadAvatar();
+        m_mirror.setReflectedNode(m_avatarControls->getAvatarNode());
         m_avatarTexture->applyTexture(m_avatarControls->getAvatarNode());
         m_avatarControlsUI.initialize();
 

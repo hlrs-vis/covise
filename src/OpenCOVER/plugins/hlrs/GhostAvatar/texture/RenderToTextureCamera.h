@@ -9,6 +9,8 @@
 #include <osg/Texture2D>
 #include <osg/Vec3>
 
+#include <vector>
+
 class DebugCamera : public osg::Camera
 {
 public:
@@ -69,6 +71,9 @@ public:
     void setForwardDirection(osg::Vec3 direction);
     void setUpDirection(osg::Vec3 direction);
 
+    void addSceneNode(osg::Node *node);
+    void removeSceneNode(osg::Node *node);
+
 private:
     osg::ref_ptr<osg::Image> m_image;
     bool m_addedSkyNode = false;
@@ -87,6 +92,7 @@ private:
     bool m_enableDebugCamera;
     osg::ref_ptr<DebugCamera> m_debugCamera;
     bool m_isInitialized = false;
+    std::vector<osg::ref_ptr<osg::Node>> m_extraNodes;
 
     void configureCamera();
     void configureDebugCamera();

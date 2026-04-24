@@ -15,6 +15,7 @@ public:
     Mirror(const osg::Vec3 &position, float sizeX, float sizeZ);
     ~Mirror();
 
+    void setReflectedNode(osg::Node *node);
     void updateView();
 
 private:
@@ -24,6 +25,7 @@ private:
 
     osg::ref_ptr<osg::MatrixTransform> m_mirrorTransform;
     osg::ref_ptr<RenderToTextureCamera> m_rttCamera;
+    osg::ref_ptr<osg::Node> m_reflectedNode;
 
     osg::ref_ptr<osg::Geometry> createMirror() const;
     void addMirrorToTransform() const;
