@@ -16,6 +16,7 @@ set(HEADERS
     ui/IEditField.h
     ui/IGUIFactory.h
     ui/IMenu.h
+    ui/ISelectionList.h
 )
 
 set(Name "interface")

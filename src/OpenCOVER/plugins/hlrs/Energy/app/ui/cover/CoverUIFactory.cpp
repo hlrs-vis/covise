@@ -3,6 +3,7 @@
 #include "CoverButtonGroup.h"
 #include "CoverMenu.h"
 #include "CoverEditField.h"
+#include "CoverSelectionList.h"
 
 std::unique_ptr<IButton> CoverUIFactory::createButton(IComponent *parent, const std::string &name) const
 {
@@ -22,4 +23,9 @@ std::unique_ptr<IMenu> CoverUIFactory::createMenu(const std::string &name, IComp
 std::unique_ptr<IEditDoubleField> CoverUIFactory::createEditField(IComponent *parent, const std::string &name) const
 {
     return std::make_unique<CoverEditField>(parent, name);
+}
+
+std::unique_ptr<ISelectionList> CoverUIFactory::createSelectionList(IComponent *parent, const std::string &name) const
+{
+    return std::make_unique<CoverSelectionList>(parent, name);
 }
