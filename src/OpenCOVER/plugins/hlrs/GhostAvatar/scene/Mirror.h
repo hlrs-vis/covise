@@ -23,7 +23,7 @@ private:
     osg::ref_ptr<RenderToTextureCamera> m_rttCamera;
 
     osg::ref_ptr<osg::Box> createMirror() const;
-    void addMirrorToGeode(osg::Geode *geode) const;
+    void addMirrorToTransform() const;
     osg::Vec3 getMirrorCenter() const;
 };
 

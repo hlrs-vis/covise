@@ -17,12 +17,9 @@ Mirror::Mirror(const osg::Vec3 &position, float sizeX, float sizeZ)
     , m_mirrorTransform(new osg::MatrixTransform())
     , m_rttCamera(new RenderToTextureCamera(true))
 {
-    osg::ref_ptr<osg::Geode> geode = new osg::Geode();
-    geode->setName("GhostAvatarMirror");
-    addMirrorToGeode(geode);
-
     m_mirrorTransform->setMatrix(osg::Matrix::translate(m_position));
-    m_mirrorTransform->addChild(geode);
+    m_mirrorTransform->setName("GhostAvatarMirror");
+    addMirrorToTransform();
 
     if (cover && cover->getObjectsRoot())
         cover->getObjectsRoot()->addChild(m_mirrorTransform);
@@ -42,10 +39,13 @@ Mirror::~Mirror()
         m_rttCamera->deinitialize();
 }
 
-void Mirror::addMirrorToGeode(osg::Geode *geode) const
+void Mirror::addMirrorToTransform() const
 {
-    auto boxDrawable = new osg::ShapeDrawable(createMirror());
-    geode->addDrawable(boxDrawable);
+    osg::ref_ptr<osg::Geode> geode = new osg::Geode();
+    geode->setName("GhostAvatarMirrorGeode");
+    geode->addDrawable(new osg::ShapeDrawable(createMirror()));
+
+    m_mirrorTransform->addChild(geode);
 }
 
 osg::ref_ptr<osg::Box> Mirror::createMirror() const
