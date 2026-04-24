@@ -19,6 +19,7 @@ GhostAvatar::GhostAvatar()
     //, m_avatarTexture(std::make_unique<SplotchTerroirTexture>(100))
     , m_avatarTexture(std::make_unique<StripesTerroirTexture>(100))
     , m_avatarControlsUI(GhostAvatarControlsUI(COVER_PLUGIN_NAME, *m_avatarControls))
+    , m_mirror(Mirror(osg::Vec3(-700, 200, -150), 380, 380)) 
 {
     m_avatarTexture->setCameraForwardDir(m_avatarControls->getForwardDirection());
     m_avatarTexture->setCameraUpDir(m_avatarControls->getUpDirection());

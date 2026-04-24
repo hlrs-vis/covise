@@ -11,6 +11,8 @@ set(HEADERS
     controls/TestAvatarControls.h
     controls/GhostAvatarControls.h
 
+    scene/Mirror.h
+
     texture/SplotchTerroirTexture.h
     texture/StripesTerroirTexture.h
     texture/TerroirTexture.h
@@ -30,6 +32,8 @@ set(SOURCES
     controls/PlanarAvatarControls.cpp
     controls/TestAvatarControls.cpp
     controls/GhostAvatarControls.cpp
+
+    scene/Mirror.cpp
 
     texture/SplotchTerroirTexture.cpp
     texture/StripesTerroirTexture.cpp

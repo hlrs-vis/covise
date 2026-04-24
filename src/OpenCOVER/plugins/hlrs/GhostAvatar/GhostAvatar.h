@@ -9,6 +9,7 @@
 #include <PluginUtil/coVR3DTransformInteractor.h>
 
 #include "controls/GhostAvatarControls.h"
+#include "scene/Mirror.h"
 #include "texture/TerroirTexture.h"
 #include "ui/GhostAvatarControlsUI.h"
 
@@ -21,12 +22,14 @@ public:
     void preFrame() override;
 
 private:
-    const bool m_useInteractors = false;
+    const bool m_useInteractors = true;
     bool m_initialized = false;
 
     std::unique_ptr<GhostAvatarControls> m_avatarControls;
     std::unique_ptr<TerroirTexture> m_avatarTexture;
     GhostAvatarControlsUI m_avatarControlsUI;
+
+    Mirror m_mirror;
 
     // interactors
     std::unique_ptr<opencover::coVR3DTransformInteractor> m_interactorFloor, m_interactorHand, m_interactorHead;
