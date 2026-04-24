@@ -50,6 +50,7 @@ SET(HEADERS
     app/ui/cover/CoverEditField.h
     app/ui/cover/CoverMenu.h
     app/ui/cover/CoverOwner.h
+    app/ui/cover/CoverSelectionList.h
     app/osg/OsgImpl.h
     app/osg/CityGMLSceneObject.h
     app/osg/SolarPanelSceneObject.h
@@ -88,6 +89,7 @@ SET(SOURCES
     app/ui/cover/CoverButtonGroup.cpp
     app/ui/cover/CoverEditField.cpp
     app/ui/cover/CoverMenu.cpp
+    app/ui/cover/CoverSelectionList.cpp
     app/osg/CityGMLSceneObject.cpp
     app/osg/SolarPanelSceneObject.cpp
     app/osg/ui/citygml/CityGMLDeviceSensor.cpp
