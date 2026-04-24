@@ -33,9 +33,9 @@ public:
 class RenderToTextureCamera : public osg::Camera
 {
 public:
-    RenderToTextureCamera(bool enableDefaultCamera = false);
-    RenderToTextureCamera(osg::Vec3 forwardDirection, osg::Vec3 upDirection, bool enableDefaultCamera = false);
-    RenderToTextureCamera(osg::Vec3 forwardDirection, osg::Vec3 upDirection, int viewPortSize, double fovy, double aspectRatio, double zNear, double zFar, bool enableDebugCamera = false);
+    RenderToTextureCamera(bool renderAvatar = false, bool enableDefaultCamera = false);
+    RenderToTextureCamera(osg::Vec3 forwardDirection, osg::Vec3 upDirection, bool renderAvatar = false, bool enableDefaultCamera = false);
+    RenderToTextureCamera(osg::Vec3 forwardDirection, osg::Vec3 upDirection, int viewPortSize, double fovy, double aspectRatio, double zNear, double zFar, bool renderAvatar = false, bool enableDebugCamera = false);
     virtual ~RenderToTextureCamera() override;
 
     /*
@@ -81,6 +81,8 @@ private:
 
     osg::Vec3 m_forwardDirection;
     osg::Vec3 m_upDirection;
+
+    bool m_renderAvatar;
 
     bool m_enableDebugCamera;
     osg::ref_ptr<DebugCamera> m_debugCamera;

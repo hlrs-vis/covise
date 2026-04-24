@@ -29,7 +29,7 @@ void clearNodeMaskBitRecursively(osg::Node *node, unsigned int bit)
 }
 
 TerroirTexture::TerroirTexture(const std::string &shaderName, float distanceThreshold)
-    : TerroirTexture(shaderName, new RenderToTextureCamera(false), distanceThreshold)
+    : TerroirTexture(shaderName, new RenderToTextureCamera(), distanceThreshold)
 {
 }
 

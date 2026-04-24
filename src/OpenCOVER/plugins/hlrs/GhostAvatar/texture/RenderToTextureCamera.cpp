@@ -4,19 +4,19 @@
 
 #include "RenderToTextureCamera.h"
 
-RenderToTextureCamera::RenderToTextureCamera(bool enableDefaultCamera)
-    : RenderToTextureCamera({ 1.0, 0.0, 0.0 }, { 0.0, 0.0, 1.0 }, enableDefaultCamera)
+RenderToTextureCamera::RenderToTextureCamera(bool renderAvatar, bool enableDefaultCamera)
+    : RenderToTextureCamera({ 1.0, 0.0, 0.0 }, { 0.0, 0.0, 1.0 }, renderAvatar, enableDefaultCamera)
 {
 }
 
-RenderToTextureCamera::RenderToTextureCamera(osg::Vec3 forwardDirection, osg::Vec3 upDirection, bool enableDefaultCamera)
-    : RenderToTextureCamera(forwardDirection, upDirection, 512, 90.0, 1.0, 1.0, 1000.0, enableDefaultCamera)
+RenderToTextureCamera::RenderToTextureCamera(osg::Vec3 forwardDirection, osg::Vec3 upDirection, bool renderAvatar, bool enableDefaultCamera)
+    : RenderToTextureCamera(forwardDirection, upDirection, 512, 90.0, 1.0, 1.0, 1000.0, renderAvatar, enableDefaultCamera)
 
 {
 }
 
 RenderToTextureCamera::RenderToTextureCamera(osg::Vec3 forwardDirection, osg::Vec3 upDirection, int viewPortSize, double fovy, double aspectRatio, double zNear,
-    double zFar, bool enableDebugCamera)
+    double zFar, bool renderAvatar, bool enableDebugCamera)
     : m_forwardDirection { forwardDirection }
     , m_upDirection { upDirection }
     , m_viewPortSize { viewPortSize }
@@ -24,6 +24,7 @@ RenderToTextureCamera::RenderToTextureCamera(osg::Vec3 forwardDirection, osg::Ve
     , m_aspectRatio { aspectRatio }
     , m_zNear { zNear }
     , m_zFar { zFar }
+    , m_renderAvatar { renderAvatar }
     , m_enableDebugCamera { enableDebugCamera }
 {
     configureCamera();
@@ -43,13 +44,15 @@ void RenderToTextureCamera::initialize()
 
     addChild(opencover::cover->getObjectsRoot());
     opencover::cover->getScene()->addChild(this);
-    setCullMask(opencover::Isect::NoMirror);
+    if (!m_renderAvatar)
+        setCullMask(opencover::Isect::NoMirror);
 
     if (m_debugCamera)
     {
         m_debugCamera->addChild(opencover::cover->getObjectsRoot());
         opencover::cover->getScene()->addChild(m_debugCamera);
-        m_debugCamera->setCullMask(opencover::Isect::NoMirror);
+        if (!m_renderAvatar)
+            m_debugCamera->setCullMask(opencover::Isect::NoMirror);
     }
 
     m_isInitialized = true;

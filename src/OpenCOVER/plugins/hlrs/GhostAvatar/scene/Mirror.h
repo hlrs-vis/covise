@@ -14,6 +14,8 @@ public:
     Mirror(const osg::Vec3 &position, float sizeX, float sizeZ);
     ~Mirror();
 
+    void updateView();
+
 private:
 
     osg::Vec3 m_position;
