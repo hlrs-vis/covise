@@ -2,6 +2,7 @@
 #define COVER_PLUGIN_GHOSTAVATAR_Scene_Mirror_H
 
 #include <osg/Geode>
+#include <osg/Geometry>
 #include <osg/MatrixTransform>
 #include <osg/ref_ptr>
 #include <osg/Vec3>
@@ -24,7 +25,7 @@ private:
     osg::ref_ptr<osg::MatrixTransform> m_mirrorTransform;
     osg::ref_ptr<RenderToTextureCamera> m_rttCamera;
 
-    osg::ref_ptr<osg::Box> createMirror() const;
+    osg::ref_ptr<osg::Geometry> createMirror() const;
     void addMirrorToTransform() const;
     osg::Vec3 getMirrorCenter() const;
 };

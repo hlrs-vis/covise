@@ -1,8 +1,8 @@
 #include <osg/Matrix>
 #include <osg/MatrixTransform>
 #include <osg/Node>
-#include <osg/ShapeDrawable>
 #include <osg/Texture2D>
+#include <osg/Geometry>
 
 #include <cover/coVRPluginSupport.h> // includes cover
 
@@ -48,7 +48,7 @@ void Mirror::addMirrorToTransform() const
 {
     osg::ref_ptr<osg::Geode> geode = new osg::Geode();
     geode->setName("GhostAvatarMirrorGeode");
-    geode->addDrawable(new osg::ShapeDrawable(createMirror()));
+    geode->addDrawable(createMirror());
 
     // Create texture from RTT camera's live image
     osg::ref_ptr<osg::Texture2D> mirrorTexture = new osg::Texture2D(m_rttCamera->getImage());
@@ -58,13 +58,35 @@ void Mirror::addMirrorToTransform() const
     // Apply texture to the drawable
     osg::ref_ptr<osg::StateSet> stateSet = geode->getOrCreateStateSet();
     stateSet->setTextureAttributeAndModes(0, mirrorTexture, osg::StateAttribute::ON);
+    stateSet->setMode(GL_CULL_FACE, osg::StateAttribute::OFF);
 
     m_mirrorTransform->addChild(geode);
 }
 
-osg::ref_ptr<osg::Box> Mirror::createMirror() const
+osg::ref_ptr<osg::Geometry> Mirror::createMirror() const
 {
-    return new osg::Box(getMirrorCenter(), m_sizeX, m_sizeY, m_sizeZ);
+    osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry();
+
+    osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array();
+    vertices->push_back(osg::Vec3(0.0f, 0.0f, 0.0f));
+    vertices->push_back(osg::Vec3(m_sizeX, 0.0f, 0.0f));
+    vertices->push_back(osg::Vec3(m_sizeX, 0.0f, m_sizeZ));
+    vertices->push_back(osg::Vec3(0.0f, 0.0f, m_sizeZ));
+    geometry->setVertexArray(vertices);
+
+    osg::ref_ptr<osg::Vec3Array> normals = new osg::Vec3Array();
+    normals->push_back(osg::Vec3(0.0f, -1.0f, 0.0f));
+    geometry->setNormalArray(normals, osg::Array::BIND_OVERALL);
+
+    osg::ref_ptr<osg::Vec2Array> texCoords = new osg::Vec2Array();
+    texCoords->push_back(osg::Vec2(1.0f, 0.0f));
+    texCoords->push_back(osg::Vec2(0.0f, 0.0f));
+    texCoords->push_back(osg::Vec2(0.0f, 1.0f));
+    texCoords->push_back(osg::Vec2(1.0f, 1.0f));
+    geometry->setTexCoordArray(0, texCoords);
+
+    geometry->addPrimitiveSet(new osg::DrawArrays(GL_QUADS, 0, 4));
+    return geometry;
 }
 
 osg::Vec3 Mirror::getMirrorCenter() const
