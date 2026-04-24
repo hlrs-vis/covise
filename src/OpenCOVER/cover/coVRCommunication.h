@@ -28,7 +28,6 @@ class UdpMessage;
 
 }
 
-#include "ui/Owner.h"
 #include "coVRMessageSender.h"
 
 #include <net/message_types.h>
@@ -51,14 +50,7 @@ class VRBData;
 class IData;
 class coVRPartner;
 class VrbMenu;
-namespace ui
-{
-class Owner;
-class Group;
-class FileBrowser;
-class Action;
-class SelectionList;
-}
+
 class COVEREXPORT coVRCommunication: public vrb::regClassObserver, public opencover::coVRMessageSender
 {
 public:

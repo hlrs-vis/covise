@@ -46,14 +46,6 @@
 #include "coVRTui.h"
 #include "coVrbMenu.h"
 
-#include "ui/Action.h"
-#include "ui/Button.h"
-#include "ui/FileBrowser.h"
-#include "ui/Group.h"
-#include "ui/Menu.h"
-#include "ui/Owner.h"
-#include "ui/SelectionList.h"
-
 #include <OpenVRUI/coNavInteraction.h>
 #include <PluginUtil/PluginMessageTypes.h>
 #include <config/CoviseConfig.h>
@@ -79,7 +71,6 @@
 
 #include <stdio.h>
 #include <fcntl.h>
-#include <errno.h>
 #include <thread>
 
 #ifdef _WIN32
@@ -430,7 +421,7 @@ void coVRCommunication::handleVRB(const Message &msg)
     case COVISE_MESSAGE_VRB_SET_USERINFO:
     {
         UserInfoMessage uim(&msg);
-        if (uim.hasMyInfo)      
+        if (uim.hasMyInfo)
         {
             me()->setID(uim.myClientID);
             OpenCOVER::instance()->vrbc()->setID(uim.myClientID);
@@ -788,7 +779,7 @@ void coVRCommunication::saveSessionFile(covise::TokenBuffer &tb)
         TokenBuffer data;
         tb >> fileName;
         tb >> data;
-        
+
         auto size = data.getData().length();
         cerr << "saving session " << fileName << " with data size " << size << endl;
         std::fstream out(fileName, std::ios_base::out | std::ios_base::binary);
@@ -811,7 +802,7 @@ void coVRCommunication::loadSessionFile(const std::string &fileName)
     }
     TokenBuffer tb;
     tb << coVRCommunication::instance()->getID();
-    tb << coVRCommunication::instance()->getUsedSessionID();    
+    tb << coVRCommunication::instance()->getUsedSessionID();
     std::fstream in(fileName.substr(start), std::ios_base::in | std::ios_base::binary);
     int l = 0;
     in.read((char*)&l, sizeof(l));
@@ -856,7 +847,7 @@ Message *coVRCommunication::waitForMessage(int messageType)
 void coVRCommunication::subscribeNotification(Notification type, const std::function<void(void)> &function)
 {
     notificationSubscriptions[type].push_back(function);
-}   
+}
 
 void opencover::coVRCommunication::setWaitMessagesCallback(std::function<std::vector<Message*> (void)> cb)
 {
