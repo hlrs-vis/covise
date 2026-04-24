@@ -7,6 +7,7 @@
 #include "DataManager.h"
 #include "Storage.h"
 #include "ScenarioManager.h"
+#include "app/ui/SimulationUI.h"
 #include <lib/core/interfaces/ISystem.h>
 #include <lib/core/ClassLogger.h>
 #include <cover/coVRPluginSupport.h>
@@ -33,6 +34,7 @@ private:
     // TODO: remove this shit
     opencover::coVRPlugin *m_plugin;
 
+    SimulationUI m_ui;
     DataLoadManager m_dataLoadManager;
     ScenarioManager m_scenarioManager;
     DataManager m_dataManager;

@@ -15,6 +15,7 @@ SimulationSystem::SimulationSystem(opencover::coVRPlugin *plugin,
     const std::string &scenarioDir)
     : core::ClassLogger(logger, "SimulationSystem")
     , m_plugin(plugin)
+    , m_ui(factory, "Simulation", parentMenu)
     , m_dataLoadManager()
     , m_scenarioManager(factory, "ScenarioManager", parentMenu, scenarioDir)
     , m_dataManager(logger)
