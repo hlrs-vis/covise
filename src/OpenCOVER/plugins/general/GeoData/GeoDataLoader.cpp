@@ -22,7 +22,6 @@
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
-#include <cover/coVRShader.h>
 #include <cover/coVRFileManager.h>
 #include <cover/coVRTui.h>
 #include <cover/coVRMSController.h>
@@ -809,8 +808,11 @@ void GeoDataLoader::setSky(int selection)
             osg::StateSet *stateset = TexturedSphere->getOrCreateStateSet();
             stateset->setTextureAttributeAndModes(0, sky.skyTexture, osg::StateAttribute::ON);
 
-            coVRShader *shader = coVRShaderList::instance()->get("skySphere");
+            shader = coVRShaderList::instance()->get("skySphere");
             shader->apply(stateset);
+            topUniform = shader->getcoVRUniform("top");
+            bottomUniform = shader->getcoVRUniform("bottom");
+            floorColorUniform = shader->getcoVRUniform("floorColor");
 
             osg::Matrixd tMat;
             tMat.makeIdentity();
@@ -845,6 +847,31 @@ void GeoDataLoader::setSky(std::string fileName)
     skyEntry se(fn.substr(0, fn.length() - 4), fileName, 0.0, 0.0);
     skyEntries.push_back(se);
     skys->append(se.name);
+}
+
+void GeoDataLoader::setTop(float t)
+{
+    if (topUniform != nullptr)
+    {
+        topUniform->setValue(t);
+    }
+}
+
+void GeoDataLoader::setBottom(float b)
+{
+    if (bottomUniform != nullptr)
+    {
+        bottomUniform->setValue(b);
+    }
+}
+
+
+void GeoDataLoader::setFloorColor(osg::Vec4 fc)
+{
+    if (floorColorUniform != nullptr)
+    {
+        floorColorUniform->setValue(fc);
+    }
 }
 
 void GeoDataLoader::setRootTransform(const osg::Vec3 &off, float trueNorthDeg)
