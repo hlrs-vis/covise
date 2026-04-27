@@ -21,7 +21,6 @@ public:
     }
 
 private:
-    // Memory Storage: [ScenarioID][EnergyType] -> Data
+    // Memory Storage: [Storage][ScenarioID][EnergyType] -> Data
     std::map<Storage, std::map<decltype(Scenario().id), std::map<EnergyType, std::shared_ptr<core::simulation::SimulationResult>>>> m_cache;
-    // std::map<decltype(Scenario().id), std::map<EnergyType, std::shared_ptr<core::simulation::SimulationResult>>> m_cache;
 };
