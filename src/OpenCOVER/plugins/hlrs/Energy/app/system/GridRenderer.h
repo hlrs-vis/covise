@@ -40,6 +40,7 @@ public:
     void switchTo(EnergyType type);
 
 private:
+    void initGridParents();
     GridRenderConfig m_config;
     osg::ref_ptr<osg::Switch> m_root;
     std::map<EnergyType, osg::ref_ptr<osg::MatrixTransform>> m_gridNodes;
