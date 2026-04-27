@@ -150,12 +150,10 @@
     <PointCloud pointSprites="on"/>
     <GLTF value="on"/>
    
-  </Plugin>
-  
    <LamurePointCloud>
     <!-- Budgets -->
     <upload value="64" />
-    <vram value="2000" />
+    <vram value="4000" />
     <ram value="10000" />
     <!-- Shader -->
     <point value="on"/>
@@ -194,6 +192,8 @@
     <show_sync value="on"/>
     <show_notify value="off"/>
    </LamurePointCloud>
+  </Plugin>
+  
   
     <AnimationSpeed max="60" />
             <Plugin>

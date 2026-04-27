@@ -303,8 +303,8 @@
 				<TextureCounter value="ON" />
 				<Texture mode="MODULATE" quality="High" />
 				<!--TransparencyMode value="alphatest" /-->
-				<TransparencyMode value="sorted_blended_alphatest" />
 				<!--TransparencyMode value="sorted_blended" /-->
+				<!--TransparencyMode value="sorted_blended_alphatest" /-->
 				<Headlight value="ON" />
 				<Lights value="ON" />
 				<MaybeGC value="ON" />

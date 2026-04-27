@@ -82,6 +82,12 @@ void VrmlNodeGeoData::initFields(VrmlNodeGeoData *node, VrmlNodeType *t)
                 loader->setRootTransform(-origin, dataset->trueNorth); }),
         field("skyName", node->d_skyName, [node](auto f)
             { GeoDataLoader::instance()->setSky(node->d_skyName.get()); }),
+        field("top", node->d_top, [node](auto f)
+            { GeoDataLoader::instance()->setTop(node->d_top.get()); }),
+        field("bottom", node->d_bottom, [node](auto f)
+            { GeoDataLoader::instance()->setBottom(node->d_bottom.get()); }),
+        field("floorColor", node->d_floorColor, [node](auto f)
+            { GeoDataLoader::instance()->setFloorColor(osg::Vec4(node->d_floorColor.get()[0], node->d_floorColor.get()[1], node->d_floorColor.get()[2], node->d_floorColor.get()[3])); }),
         field("enabled", node->d_enabled, [node](auto f) { }));
 }
 

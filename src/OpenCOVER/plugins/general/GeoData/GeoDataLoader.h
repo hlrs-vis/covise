@@ -25,6 +25,7 @@
 #include <osgTerrain/Terrain>
 #include <osg/TexMat>
 #include <cover/coVRPlugin.h>
+#include <cover/coVRShader.h>
 #include "CutGeometry.h"
 #include <proj.h>
 #include <cover/ui/Menu.h>
@@ -89,6 +90,10 @@ public:
     float NorthAngle;
     osg::ref_ptr<osg::Geode> TexturedSphere;
     osg::TexMat *texMat;
+    opencover::coVRShader *shader = nullptr;
+    opencover::coVRUniform *topUniform = nullptr;
+    opencover::coVRUniform *bottomUniform = nullptr;
+    opencover::coVRUniform *floorColorUniform = nullptr;
 
     struct geoLocation
     {
@@ -104,6 +109,9 @@ public:
     virtual void message(int toWhom, int type, int length, const void *data);
     void setSky(int num);
     void setSky(std::string fileName);
+    void setTop(float t);
+    void setBottom(float b);
+    void setFloorColor(osg::Vec4 fc);
     void setRootTransform(const osg::Vec3 &offset, float trueNorthDeg);
     std::optional<geoLocation> parseCoordinates(const std::string &jsonData);
     void jumpToLocation(const osg::Vec3d &worldPos);

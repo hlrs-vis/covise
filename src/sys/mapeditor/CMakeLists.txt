@@ -11,8 +11,21 @@ else()
 endif()
 
 USING(OpenGL)
+if(COVISE_USE_QT5)
+    set(Q Qt5)
+else()
+    set(Q Qt6)
+endif()
+foreach(l Widgets Xml Network OpenGL Svg SvgWidgets PrintSupport Quick)
+    if(NOT TARGET ${Q}::${l})
+        return()
+    endif()
+endforeach()
 
 set(EMBED_TABLETUI TRUE)
+if(NOT TARGET coTUI)
+    set(EMBED_TABLETUI FALSE)
+endif()
 SET(MAPEDITOR_SOURCES
   widgets/MEUserInterface.cpp
   widgets/MEGraphicsView.cpp

@@ -58,5 +58,8 @@ private:
     VrmlSFString d_offsetName;
     VrmlSFBool d_enabled;
     VrmlSFString d_skyName;
+    VrmlSFFloat d_top=0.5;
+    VrmlSFFloat d_bottom=0.48;
+    VrmlSFColor d_floorColor={0.0, 0.0, 0.0};
 };
 #endif //_VRMLNODEGeoData_
