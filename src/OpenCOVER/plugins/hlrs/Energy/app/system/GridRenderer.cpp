@@ -55,8 +55,13 @@ void GridRenderer::setData(EnergyType type, std::shared_ptr<core::simulation::Si
     m_activeData[type] = data;
     // TODO: rework this to initialize it without species
     auto energyGrid = std::dynamic_pointer_cast<EnergyGrid>(m_gridMap[type]);
-    if (energyGrid)
+    if (energyGrid) {
         energyGrid->setData(*data, species);
+        auto scalars = data->getScalarProperties();
+        const auto &it = scalars.begin();
+        const auto &timesteps = it->second.timesteps;
+        m_anim.updateTime(timesteps, m_gridNodes[type]);
+    }
 }
 
 void GridRenderer::updateColorMapInShader(const opencover::ColorMap &map, EnergyType type)
