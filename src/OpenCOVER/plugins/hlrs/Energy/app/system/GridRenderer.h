@@ -47,6 +47,7 @@ public:
     void setVisible(bool visible);
     void translate(const osg::Vec3f& translate);
     void switchTo(EnergyType type);
+    auto &getAnimationHandler() { return m_anim; }
 
 private:
     void initGridParents();
