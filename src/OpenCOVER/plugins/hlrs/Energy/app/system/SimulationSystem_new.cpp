@@ -6,7 +6,8 @@
 #include <initializer_list>
 #include <memory>
 
-SimulationSystem::SimulationSystem(opencover::coVRPlugin *plugin,
+SimulationSystem::SimulationSystem(
+    const GridRenderConfig &renderConfig,
     core::interface::ui::IComponent *parentMenu,
     const core::interface::ui::IGUIFactory &factory,
     CityGMLSystem *cityGMLSystem,
@@ -14,7 +15,6 @@ SimulationSystem::SimulationSystem(opencover::coVRPlugin *plugin,
     core::interface::ILogger &logger,
     const std::string &scenarioDir)
     : core::ClassLogger(logger, "SimulationSystem")
-    , m_plugin(plugin)
     , m_ui(factory, "Simulation", parentMenu)
     , m_dataLoadManager()
     , m_scenarioManager(factory, "ScenarioManager", parentMenu, scenarioDir)
@@ -22,11 +22,7 @@ SimulationSystem::SimulationSystem(opencover::coVRPlugin *plugin,
     , m_gridUIManager(parentMenu)
     , m_gridRenderer(
           parent,
-          { 
-            { plugin->configFloatArray("General", "offset", std::vector<double> { 0, 0, 0 })->value() },
-              { plugin->configString("Billboard", "font", "default")->value() },
-              { m_plugin->configString("General", "projFrom", "default")->value() },
-              { m_plugin->configString("General", "projTo", "default")->value() } },
+          renderConfig,
           logger)
     , m_currentStorageSelection(Storage::ARROW)
     , m_enabled(false)
