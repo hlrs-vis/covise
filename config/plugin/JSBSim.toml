@@ -1,42 +1,24 @@
 [JSBSim]
 aircrafts = ["paraglider", "J3Cub", "c172p", "Hansajet"]
 
-[Sound]
-xserver="192.168.0.240"
+[aircraft.J3Cub]
+geometry = "share/covise/jsbsim/geometry/A50.wrl"
+geometryTransform = {y = -1200, z = -700, h = 180, scale = 1000}
+systemsDir = "systems"
 
-[J3Cub]
-geometry="share/covise/jsbsim/geometry/A50.wrl"
-y = -1200
-z = -700
-h = 180
-aircraftDir = "aircraft"
-enginesDir = "engine"
+[aircraft.paraglider]
+geometry = "share/covise/jsbsim/geometry/paraglider.osgb"
+systemsDir = "paraglider/Systems"
+geometryTransform = {scale = 1000}
+
+[aircraft.c172p]
+geometry = "share/covise/jsbsim/geometry/c172r/c172-dpm.ac"
 systemsDir = "systems"
-scale = 1000
-[paraglider]
-geometry="share/covise/jsbsim/geometry/paraglider.osgb"
-scale = 1000
-[c172p]
-geometry="share/covise/jsbsim/geometry/c172r/c172-dpm.ac"
-systemsDir = "systems"
-x = 0
-y = -700
-z = -100
-h = 90
-p = 180
-r = 90
-scale = 1000
-[Hansajet]
-geometry="share/covise/jsbsim/geometry/Hansajet/Hansajet.ac"
+geometryTransform = {x = 0, y = -700, z = -100, h = 90, p = 180, r = 90, scale = 1000}
+
+[aircraft.Hansajet]
+geometry = "share/covise/jsbsim/geometry/Hansajet/Hansajet.ac"
 systemsDir = "Hansajet/Systems"
-aircraftDir = "aircraft"
 enginesDir = "Hansajet/Engines"
-resetFile = "reset00.xml"
-x = 0
-y = -7800
-z = -2800
-h = 90
-p = 180
-r = 90
-scale = 1000
+geometryTransform = {x = 0, y = -7800, z = -2800, h = 90, p = 180, r = 90, scale = 1000}
 
