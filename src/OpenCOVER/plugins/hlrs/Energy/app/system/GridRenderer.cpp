@@ -13,14 +13,18 @@ GridRenderer::GridRenderer(osg::ref_ptr<osg::Switch> rootNode, const GridRenderC
     , m_config(config)
     , m_root(rootNode)
 {
+    initGridParents();
+    switchTo(EnergyType::HEATING);
+    opencover::coVRAnimationManager::instance()->setNumTimesteps(100, m_root);
+}
+
+void GridRenderer::initGridParents() {    
     for (auto type : ENERGYTYPE_RANGE)
     {
         m_gridNodes[type] = new osg::MatrixTransform;
         m_gridNodes[type]->setName(EnergyTypeToString(type));
         m_root->addChild(m_gridNodes[type]);
     }
-    core::utils::osgUtils::switchTo(m_gridNodes[EnergyType::HEATING], m_root);
-    opencover::coVRAnimationManager::instance()->setNumTimesteps(100, m_root);
 }
 
 void GridRenderer::buildGrid(EnergyType type, DataLoadManager &loader)
