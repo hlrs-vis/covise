@@ -11,6 +11,7 @@
 #include <cover/coVRPlugin.h>
 #include <cover/input/dev/Joystick/Joystick.h>
 
+#include <string>
 #include <util/common.h>
 
 #include <math.h>
@@ -18,6 +19,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <cfenv>
+#include <map>
 
 #include <cover/VRViewer.h>
 #include <cover/coVRPluginSupport.h>
@@ -51,61 +53,70 @@ using JSBSim::FGXMLFileRead;
 using namespace opencover;
 using namespace covise;
 
+struct AircraftInfo
+{
+    std::string name;
+    std::string displayName;
+    std::string geometryFile;
+    std::string systemsDir;
+    std::string enginesDir;
+    osg::Matrix geometryTransform;
+};
+
 class JSBSimPlugin : public coVRPlugin, public ui::Owner, public opencover::coVRNavigationProvider
 {
 public:
     JSBSimPlugin();
     ~JSBSimPlugin();
-    bool init();
 
-    bool update();
-    virtual void setEnabled(bool);
     static JSBSimPlugin *instance() { return plugin; };
+
+    bool init();
+    bool update();
+
+    // from coVRNavigationProvider
+    virtual void setEnabled(bool) override;
+
     void addThermal(const osg::Vec3 &velocity, float turbulence);
 
 private:
     osg::Vec3f getOriginOffset() const;
 
+    void loadAvailableAircraft();
+    void loadAircraft(const std::string &aircraftName);
+
+    void windChangedCallback();
+
     static JSBSimPlugin *plugin;
     ui::Menu *JSBMenu;
     ui::Action *printCatalog;
     ui::Button *pauseButton;
-    ui::Button *DebugButton;
+    ui::Button *debugButton;
     ui::Action *resetButton;
     ui::Action *upButton;
-    ui::Group *Weather;
-    ui::Group *Geometry;
-    ui::Label *WindLabel;
-    ui::Label *VLabel;
-    ui::Label *VzLabel;
+    ui::Group *weatherGroup;
+    ui::Label *windLabel;
+    ui::Label *labelVelocityX;
+    ui::Label *labelVelocityY;
+    ui::Label *labelVelocityZ;
     ui::EditField *WX;
     ui::EditField *WY;
     ui::EditField *WZ;
-    ui::EditField *tX;
-    ui::EditField *tY;
-    ui::EditField *tZ;
-    ui::EditField *tH;
-    ui::EditField *tP;
-    ui::EditField *tR;
-    ui::EditField *tS;
     ui::SelectionList *planeType;
-    std::unique_ptr<config::Array<std::string>> aircrafts;
-    void initAircraft();
+    std::map<std::string, AircraftInfo> m_availableAircraft;
 
     Joystick *joystickDev = nullptr;
     // bool state0 = false;
     // bool state1 = false;
     // bool state2 = false;
 
+    std::string m_defaultAircraft;
+
     SGPath RootDir;
     SGPath ScriptName;
-    std::string AircraftDir;
-    std::string EnginesDir;
-    std::string SystemsDir;
     std::string AircraftName;
     std::string resetFile;
-    std::string geometryFile;
-    std::string currentAircraft;
+    AircraftInfo *currentAircraft = nullptr;
     osg::ref_ptr<osg::MatrixTransform> geometryTrans;
     vector<string> LogOutputName;
     vector<SGPath> LogDirectiveName;
@@ -173,7 +184,6 @@ private:
     bool initJSB();
     bool updateUdp();
     void reset(double dz = 0.0);
-    void updateTrans();
 
     //! this functions is called when a key is pressed or released
     virtual void key(int type, int keySym, int mod);
@@ -189,13 +199,15 @@ private:
     double cycle_duration = 0;
     OpenThreads::Mutex mutex;
     PJ *coordTransformation;
-    std::string coviseSharedDir;
     osg::Vec3d projectOffset;
     osg::Matrix lastPos;
-    osg::Vec3 currentVelocity;
-    float currentTurbulence;
-    osg::Vec3 targetVelocity;
-    float targetTurbulence;
+
+    // For wind/turbulence
+    osg::Vec3 m_windVelocitySetting;
+    osg::Vec3 m_windVelocityCurrent;
+    osg::Vec3 m_windVelocityTarget;
+    float m_windTurbulenceCurrent;
+    float m_windTurbulenceTarget;
 
     audio::Audio engineAudio;
     audio::Audio varioAudio;
