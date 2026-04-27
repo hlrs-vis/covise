@@ -10,7 +10,6 @@
 #include "app/ui/SimulationUI.h"
 #include <lib/core/interfaces/ISystem.h>
 #include <lib/core/ClassLogger.h>
-#include <cover/coVRPluginSupport.h>
 
 class SimulationSystem final : public core::interface::ISystem, core::ClassLogger
 {
