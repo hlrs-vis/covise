@@ -97,12 +97,11 @@ void SimulationSystem::onScenarioSelectionChanged(int scenarioId)
             std::string species("mass_flow");
             if (type == EnergyType::POWER)
             {
-                // m_gridRenderer.updateColorMapInShader(colorMapMenu.selector->colorMap(),
-                //     type);
-                // m_gridRenderer.setData(type, result, "loading_percent");
                 species = "loading_percent";
             }
             m_gridRenderer.setData(type, result, species);
+            // m_gridRenderer.updateColorMapInShader(colorMapMenu.selector->colorMap(),
+            //     type);
             m_gridUIManager.updateUIState(type, result);
         }
     }
