@@ -4,18 +4,18 @@
 #include "DataFactory.h"
 #include "EnergyType.h"
 #include "app/osg/presentation/EnergyGrid.h"
-#include "cover/coVRAnimationManager.h"
 #include <memory>
 #include <lib/core/utils/osgUtils.h>
 
 GridRenderer::GridRenderer(osg::ref_ptr<osg::Switch> rootNode, const GridRenderConfig &config, core::interface::ILogger &logger)
     : core::ClassLogger(logger, "GridRenderer")
     , m_config(config)
+    , m_anim()
     , m_root(rootNode)
 {
     initGridParents();
     switchTo(EnergyType::HEATING);
-    opencover::coVRAnimationManager::instance()->setNumTimesteps(100, m_root);
+    m_anim.updateTime(100, m_root);
 }
 
 void GridRenderer::initGridParents() {    
