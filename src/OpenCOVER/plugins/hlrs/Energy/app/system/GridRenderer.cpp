@@ -2,8 +2,8 @@
 #include "Storage.h"
 #include "Scenario.h"
 #include "DataFactory.h"
+#include "EnergyType.h"
 #include "app/osg/presentation/EnergyGrid.h"
-#include "app/system/EnergyType.h"
 #include "cover/coVRAnimationManager.h"
 #include <memory>
 #include <lib/core/utils/osgUtils.h>
