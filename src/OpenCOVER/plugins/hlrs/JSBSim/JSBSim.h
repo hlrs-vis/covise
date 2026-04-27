@@ -44,17 +44,12 @@
 
 #include <proj.h>
 
-#include <vrml97/vrml/VrmlNodeChild.h>
-#include <vrml97/vrml/VrmlSFFloat.h>
-#include <vrml97/vrml/VrmlSFVec3f.h>
-
 class UDPComm;
 
 using JSBSim::Element;
 using JSBSim::FGXMLFileRead;
 using namespace opencover;
 using namespace covise;
-using namespace vrml;
 
 class JSBSimPlugin : public coVRPlugin, public ui::Owner, public opencover::coVRNavigationProvider
 {
@@ -62,7 +57,6 @@ public:
     JSBSimPlugin();
     ~JSBSimPlugin();
     bool init();
-    bool destroy();
 
     bool update();
     virtual void setEnabled(bool);
@@ -218,32 +212,4 @@ private:
     int Ruddernumber = -1;
 };
 
-class PLUGINEXPORT VrmlNodeThermal : public VrmlNodeChild
-{
-public:
-    static void initFields(VrmlNodeThermal *node, VrmlNodeType *t);
-    static const char *typeName();
-
-    VrmlNodeThermal(VrmlScene *scene = 0);
-    VrmlNodeThermal(const VrmlNodeThermal &n);
-    virtual ~VrmlNodeThermal();
-
-    void eventIn(double timeStamp, const char *eventName,
-        const VrmlField *fieldValue);
-
-    virtual void render(Viewer *);
-
-    VrmlSFVec3f d_direction;
-    VrmlSFVec3f d_location;
-    VrmlSFFloat d_maxBack;
-    VrmlSFFloat d_maxFront;
-    VrmlSFFloat d_minBack;
-    VrmlSFFloat d_minFront;
-    VrmlSFFloat d_height;
-    VrmlSFVec3f d_velocity;
-    VrmlSFFloat d_turbulence;
-    static int numThermalNodes;
-
-private:
-};
 #endif
