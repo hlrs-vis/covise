@@ -117,7 +117,16 @@ void EnergyPlugin::initSystems()
         m_switch,
         m_logger);
 
-    m_systems[System::Simulation] = std::make_unique<SimulationSystem>(this,
+    GridRenderConfig config;
+    config.offset = this->configFloatArray("General", "offset", std::vector<double> { 0, 0, 0})->value(); 
+    config.font = this->configString("Billboard", "font", "default")->value();
+    config.proj = {
+        { this->configString("General", "projFrom", "default")->value() },
+        { this->configString("General", "projTo", "default")->value() } 
+    };
+
+    m_systems[System::Simulation] = std::make_unique<SimulationSystem>(
+        config, 
         tabMenu,
         *m_factory,
         getCityGMLSystem(),

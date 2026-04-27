@@ -53,8 +53,8 @@ std::pair<grid::Points, grid::Data> HeatingGridParser::createHeatingGridPointsAn
         return value == INVALID_CELL_VALUE;
     };
 
-    std::string projFrom = m_config.projFrom;
-    std::string projTo = m_config.projTo;
+    std::string projFrom = m_config.proj.projFrom;
+    std::string projTo = m_config.proj.projTo;
     auto P = proj_create_crs_to_crs(PJ_DEFAULT_CTX, projFrom.c_str(), projTo.c_str(), NULL);
     PJ_COORD coord;
     coord.lpzt.z = 0.0;

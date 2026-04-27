@@ -15,7 +15,8 @@
 class SimulationSystem final : public core::interface::ISystem, core::ClassLogger
 {
 public:
-    SimulationSystem(opencover::coVRPlugin *plugin, 
+    SimulationSystem(
+        const GridRenderConfig &config,
         core::interface::ui::IComponent *parentMenu, 
         const core::interface::ui::IGUIFactory &factory,
         CityGMLSystem *cityGMLSystem, 
@@ -30,9 +31,6 @@ public:
 
 private:
     void onScenarioSelectionChanged(int scenarioId);
-
-    // TODO: remove this shit
-    opencover::coVRPlugin *m_plugin;
 
     SimulationUI m_ui;
     DataLoadManager m_dataLoadManager;
