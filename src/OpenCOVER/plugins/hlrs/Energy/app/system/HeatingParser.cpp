@@ -47,9 +47,7 @@ result_ptr HeatingParser::operator()(CSVDataMap &map)
         }
     }
 
-    // auto timesteps = heatingGrid.sim->getScalarProperties().getTimesteps("mass_flow");
-    // std::cout << "Number of timesteps: " << timesteps << std::endl;
-    // setAnimationTimesteps(timesteps, heatingGrid.group);
+    result->init();
     return std::move(result);
 }
 
