@@ -30,11 +30,13 @@
 #include <cover/coVRPluginList.h>
 #include <cover/input/input.h>
 #include "cover/input/deviceDiscovery.h"
+#include <osg/Math>
 #include <osg/Matrix>
 #include <osg/MatrixTransform>
 #include <osg/Vec3f>
 #include <plugins/general/GeoData/GeoDataLoader.h>
 #include <proj.h>
+#include <string>
 #include <util/UDPComm.h>
 #include <util/byteswap.h>
 #include <util/unixcompat.h>
@@ -60,10 +62,14 @@ JSBSimPlugin *JSBSimPlugin::plugin = NULL;
 JSBSimPlugin::JSBSimPlugin()
     : coVRPlugin(COVER_PLUGIN_NAME)
     , ui::Owner("JSBSimPlugin", cover->ui)
-    , coVRNavigationProvider("JSBsim", this)
+    , coVRNavigationProvider("JSBSim", this)
 {
     fprintf(stderr, "JSBSimPlugin::JSBSimPlugin\n");
+    plugin = this;
+
     geometryTrans = new osg::MatrixTransform();
+
+    loadAvailableAircraft();
 
     audio::Player *player = cover->getPlayer();
     if (coVRMSController::instance()->isMaster() && player)
@@ -84,52 +90,35 @@ JSBSimPlugin::JSBSimPlugin()
         engineSource->play();
         windSource->play();
     }
-    plugin = this;
+
     udp = 0;
 }
 
-void JSBSimPlugin::updateTrans()
+void JSBSimPlugin::windChangedCallback()
 {
-    float tx = cX->value();
-    float ty = cY->value();
-    float tz = cZ->value();
-    float th = cH->value() / 180 * M_PI;
-    float tp = cP->value() / 180 * M_PI;
-    float tr = cR->value() / 180 * M_PI;
-    float ts = cS->value();
-    osg::Matrix gt = osg::Matrix::scale(ts, ts, ts) * osg::Matrix::rotate(th, osg::Vec3(0, 0, 1), tp, osg::Vec3(1, 0, 0), tr, osg::Vec3(0, 1, 0)) * osg::Matrix::translate(tx, ty, tz);
-    geometryTrans->setMatrix(gt);
+    m_windVelocitySetting.set(WX->number(), WY->number(), WZ->number());
 }
 
-void JSBSimPlugin::initAircraft()
+void JSBSimPlugin::loadAircraft(const std::string &aircraftName)
 {
-    std::string AircraftGeometry = configString(currentAircraft, "geometry", "share/covise/jsbsim/geometry/paraglider.osgb")->value();
+    if (m_availableAircraft.find(aircraftName) == m_availableAircraft.end())
+    {
+        std::cerr << "Cannot load unknown aircraft: " << aircraftName << std::endl;
+        return;
+    }
 
-    const char *GF = coVRFileManager::instance()->getName(AircraftGeometry.c_str());
-    if (GF == nullptr)
-        GF = "";
-    geometryFile = GF;
-    cX = configFloat(currentAircraft, "x", 0.0);
-    cY = configFloat(currentAircraft, "y", 0.0);
-    cZ = configFloat(currentAircraft, "z", 0.0);
-    cH = configFloat(currentAircraft, "h", 0.0);
-    cP = configFloat(currentAircraft, "p", 0.0);
-    cR = configFloat(currentAircraft, "r", 0.0);
-    cS = configFloat(currentAircraft, "scale", 1000.0);
+    // This sets the
+    currentAircraft = &m_availableAircraft[aircraftName];
 
-    tX->setValue(cX->value());
-    tY->setValue(cY->value());
-    tZ->setValue(cZ->value());
-    tH->setValue(cH->value() / 180 * M_PI);
-    tP->setValue(cP->value() / 180 * M_PI);
-    tR->setValue(cR->value() / 180 * M_PI);
-    tS->setValue(cS->value());
+    // Apply transformation
+    geometryTrans->setMatrix(currentAircraft->geometryTransform);
 
-    updateTrans();
+    const auto &geometryFile = currentAircraft->geometryFile;
 
+    // remove old geometries
     while (geometryTrans->getNumChildren())
     {
-        geometryTrans->removeChild(0, 1); // remove old geometries
+        geometryTrans->removeChild(0, 1);
     }
 
     osg::Node *n = osgDB::readNodeFile(geometryFile.c_str());
@@ -143,6 +132,7 @@ void JSBSimPlugin::initAircraft()
     {
         coVRFileManager::instance()->loadFile(geometryFile.c_str(), nullptr, geometryTrans);
     }
+
     initJSB();
 }
 
@@ -156,7 +146,7 @@ JSBSimPlugin::~JSBSimPlugin()
     {
         delete FDMExec;
         delete printCatalog;
-        delete DebugButton;
+        delete debugButton;
         delete resetButton;
         delete upButton;
         delete JSBMenu;
@@ -188,7 +178,7 @@ void JSBSimPlugin::reset(double dz)
     eyePoint = osg::Matrix::translate(aircraftEyePoint / 0.00254);
 
     std::shared_ptr<JSBSim::FGInitialCondition> IC = FDMExec->GetIC();
-    if (!IC->Load(SGPath(resetFile)))
+    if (!IC->Load(SGPath("reset00.xml")))
     {
         cerr << "Initialization unsuccessful" << endl;
     }
@@ -222,9 +212,13 @@ void JSBSimPlugin::reset(double dz)
     Propagate->InitializeDerivatives();
     FDMExec->RunIC();
 
-    Winds->SetWindNED(WY->number(), WX->number(), -WZ->number());
-    targetVelocity.set(WX->number(), WY->number(), WZ->number());
-    currentVelocity.set(WX->number(), WY->number(), WZ->number());
+    // Reset wind settings
+    m_windVelocitySetting.set(WX->number(), WY->number(), WZ->number());
+    m_windVelocityCurrent = m_windVelocitySetting;
+    m_windVelocityTarget = m_windVelocitySetting;
+    m_windTurbulenceCurrent = 0.f;
+    m_windTurbulenceTarget = 0.f;
+
     JSBSim::FGPropagate::VehicleState vehicleState = Propagate->GetVState();
 
     lastPos = VRSceneGraph::instance()->getTransform()->getMatrix();
@@ -260,59 +254,28 @@ bool JSBSimPlugin::initJSB()
     GroundReactions = FDMExec->GetGroundReactions();
     Accelerations = FDMExec->GetAccelerations();
 
-    Winds->SetWindNED(WY->number(), WX->number(), -WZ->number());
-
     if (nohighlight)
         FDMExec->disableHighLighting();
 
     bool result = false;
 
-    std::string line = configString(currentAircraft, "scriptName", "")->value();
-    ScriptName.set(line);
-
-    AircraftDir = configString(currentAircraft, "aircraftDir", "aircraft")->value();
-    EnginesDir = configString(currentAircraft, "enginesDir", "engine")->value();
-    SystemsDir = configString(currentAircraft, "systemsDir", "paraglider/Systems")->value();
-    resetFile = configString(currentAircraft, "resetFile", "reset00.xml")->value();
-
-    // *** OPTION A: LOAD A SCRIPT, WHICH LOADS EVERYTHING ELSE *** //
-    if (!ScriptName.isNull())
+    if (catalog)
     {
-
-        result = FDMExec->LoadScript(ScriptName, 0.008333, SGPath(resetFile));
-
-        if (!result)
-        {
-            cerr << "Script file " << ScriptName << " was not successfully loaded" << endl;
-            return false;
-        }
-
-        // *** OPTION B: LOAD AN AIRCRAFT AND A SET OF INITIAL CONDITIONS *** //
+        FDMExec->SetDebugLevel(0);
     }
-    else if (!currentAircraft.empty() || !resetFile.length() == 0)
-    {
 
-        if (catalog)
-            FDMExec->SetDebugLevel(0);
-
-        if (!FDMExec->LoadModel(SGPath(AircraftDir),
-                SGPath(EnginesDir),
-                SGPath(SystemsDir),
-                currentAircraft))
-        {
-            cerr << "  JSBSim could not be started" << endl
-                 << endl;
-            return false;
-        }
-    }
-    else
+    if (!FDMExec->LoadModel(SGPath("aircraft"),
+            SGPath(currentAircraft->enginesDir),
+            SGPath(currentAircraft->systemsDir),
+            currentAircraft->name))
     {
-        cout << "  No Aircraft, Script, or Reset information given" << endl
+        cerr << "  JSBSim could not be started" << endl
              << endl;
         return false;
     }
+
     std::shared_ptr<JSBSim::FGInitialCondition> IC = FDMExec->GetIC();
-    if (!IC->Load(SGPath(resetFile)))
+    if (!IC->Load(SGPath("reset00.xml")))
     {
         cerr << "Initialization unsuccessful" << endl;
         return false;
@@ -372,6 +335,57 @@ osg::Vec3f JSBSimPlugin::getOriginOffset() const
     return osg::Vec3f();
 }
 
+void JSBSimPlugin::loadAvailableAircraft()
+{
+    auto configFile = config();
+
+    auto aircraft = configFile->value<opencover::config::Section>("", "aircraft")->value();
+    auto aircraftNames = aircraft.sections();
+
+    for (auto sectionName : aircraftNames)
+    {
+        std::string aircraftName = sectionName;
+        aircraftName.replace(0, 9, "");
+
+        opencover::config::Section entry = configFile->value<opencover::config::Section>("aircraft", aircraftName)->value();
+
+        // Check if the file exists and where exactly it is
+        std::string geometryFile = entry.value<std::string>("", "geometry")->value();
+        const char *geometryFileFound = coVRFileManager::instance()->getName(geometryFile.c_str());
+        if (geometryFileFound == nullptr)
+            geometryFileFound = "";
+
+        // Read and apply the transform according to the aircraft config
+        std::string transform = sectionName + ".geometryTransform";
+        float x = configFloat(transform, "x", 0.0)->value();
+        float y = configFloat(transform, "y", 0.0)->value();
+        float z = configFloat(transform, "z", 0.0)->value();
+        float h = configFloat(transform, "h", 0.0)->value();
+        float p = configFloat(transform, "p", 0.0)->value();
+        float r = configFloat(transform, "r", 0.0)->value();
+        float s = configFloat(transform, "scale", 1000.0)->value();
+
+        m_availableAircraft[aircraftName] = AircraftInfo {
+            .name = aircraftName,
+            .displayName = entry.value<std::string>("", "displayName", aircraftName)->value(),
+            .geometryFile = geometryFileFound,
+            .systemsDir = entry.value<std::string>("", "systemsDir", "systems")->value(),
+            .enginesDir = entry.value<std::string>("", "enginesDir", "engine")->value(),
+            .geometryTransform = osg::Matrix::scale(s, s, s)
+                * osg::Matrix::rotate(
+                    osg::DegreesToRadians(h), osg::Vec3(0, 0, 1),
+                    osg::DegreesToRadians(p), osg::Vec3(1, 0, 0),
+                    osg::DegreesToRadians(r), osg::Vec3(0, 1, 0))
+                * osg::Matrix::translate(x, y, z),
+        };
+
+        if (m_defaultAircraft.empty())
+        {
+            m_defaultAircraft = aircraftName;
+        }
+    }
+}
+
 bool JSBSimPlugin::init()
 {
     delete udp;
@@ -389,39 +403,30 @@ bool JSBSimPlugin::init()
         rd = "";
     RootDir = configString("JSBSim", "rootDir", rd)->value().c_str();
 
-    // mapping of coordinates
-#ifdef WIN32
-    const char *pValue = "";
-    size_t len;
-    char *ncpValue = (char *)pValue;
-    errno_t err = _dupenv_s(&ncpValue, &len, "COVISEDIR");
-    if (err)
-        pValue = "";
-#else
-    const char *pValue = getenv("COVISEDIR");
-    if (!pValue)
-        pValue = "";
-#endif
-    coviseSharedDir = std::string(pValue) + "/share/covise/";
-
+    // Initialize the coordinate system
+    // TODO: move to a central geodata library
     coordTransformation = proj_create_crs_to_crs(PJ_DEFAULT_CTX, "EPSG:4326", "EPSG:25832", NULL);
 
+    // Initialize menu
     JSBMenu = new ui::Menu("JSBSim", this);
 
-    aircrafts = configStringArray("JSBSim", "aircrafts", { "Paraglider", "c172b", "J3Cub" });
-    currentAircraft = aircrafts->value()[0];
+    std::vector<std::string> aircraftNames;
+    for (const auto &[key, _] : m_availableAircraft)
+    {
+        aircraftNames.push_back(key);
+    }
+
     planeType = new ui::SelectionList(JSBMenu, "planeType");
-    planeType->setList(aircrafts->value());
-    planeType->setCallback([this](int val)
-        {
-        currentAircraft = aircrafts->value()[val];
-        initAircraft(); });
+    planeType->setList(aircraftNames);
+    planeType->setCallback([this, aircraftNames](int val)
+        { loadAircraft(aircraftNames[val]); });
 
     printCatalog = new ui::Action(JSBMenu, "printCatalog");
     printCatalog->setCallback([this]()
         {
         if (FDMExec)
             FDMExec->PrintPropertyCatalog(); });
+
     pauseButton = new ui::Button(JSBMenu, "pause");
     pauseButton->setState(false);
     pauseButton->setCallback([this](bool state)
@@ -434,8 +439,8 @@ bool JSBSimPlugin::init()
                 FDMExec->Resume();
         } });
 
-    DebugButton = new ui::Button(JSBMenu, "debug");
-    DebugButton->setState(false);
+    debugButton = new ui::Button(JSBMenu, "debug");
+    debugButton->setState(false);
 
     resetButton = new ui::Action(JSBMenu, "reset");
     resetButton->setCallback([this]()
@@ -449,92 +454,22 @@ bool JSBSimPlugin::init()
         if (FDMExec)
             reset(100); });
 
-    Weather = new ui::Group(JSBMenu, "Weather");
-    Geometry = new ui::Group(JSBMenu, "Geometry");
-    WindLabel = new ui::Label(Weather, "Wind");
-    WX = new ui::EditField(Weather, "X");
-    WY = new ui::EditField(Weather, "Y");
-    WZ = new ui::EditField(Weather, "Z");
+    weatherGroup = new ui::Group(JSBMenu, "Weather");
+    windLabel = new ui::Label(weatherGroup, "Wind");
+    windLabel->setText("Wind");
+    WX = new ui::EditField(weatherGroup, "X");
+    WY = new ui::EditField(weatherGroup, "Y");
+    WZ = new ui::EditField(weatherGroup, "Z");
     WX->setValue(0.0);
     WY->setValue(0.0);
     WZ->setValue(0.0);
-    WX->setCallback([this](std::string v)
-        {
-        if(Winds) Winds->SetWindNED(WY->number(), WX->number(), -WZ->number()); });
-    WY->setCallback([this](std::string v)
-        {
-        if(Winds) Winds->SetWindNED(WY->number(), WX->number(), -WZ->number()); });
-    WZ->setCallback([this](std::string v)
-        {
-        if(Winds) Winds->SetWindNED(WY->number(), WX->number(), -WZ->number()); });
-    tX = new ui::EditField(Geometry, "X");
-    tY = new ui::EditField(Geometry, "Y");
-    tZ = new ui::EditField(Geometry, "Z");
-    tX->setValue(0.0);
-    tY->setValue(0.0);
-    tZ->setValue(0.0);
-    tX->setCallback([this](std::string v)
-        {
-        if (cX)
-        {
-            *cX = double(tX->number());
-            updateTrans();
-        } });
-    tY->setCallback([this](std::string v)
-        {
-        if (cY)
-        {
-            *cY = double(tY->number());
-        updateTrans();
-        } });
-    tZ->setCallback([this](std::string v)
-        {
-        if (cZ)
-        {
-            *cZ = double(tZ->number());
-        updateTrans();
-        } });
-    tH = new ui::EditField(Geometry, "H");
-    tP = new ui::EditField(Geometry, "P");
-    tR = new ui::EditField(Geometry, "R");
-    tH->setValue(0.0);
-    tP->setValue(0.0);
-    tR->setValue(0.0);
-    tH->setCallback([this](std::string v)
-        {
-        if (cH)
-        {
-            *cH = double(tH->number() / M_PI * 180);
-        updateTrans();
-        } });
-    tP->setCallback([this](std::string v)
-        {
-        if (cP)
-        {
-            *cP = double(tP->number() / M_PI * 180);
-        updateTrans();
-        } });
-    tR->setCallback([this](std::string v)
-        {
-        if (cR)
-        {
-            *cR = double(tR->number() / M_PI * 180);
-        updateTrans();
-        } });
-    tS = new ui::EditField(Geometry, "S");
-    tS->setValue(1000.0);
-    tS->setCallback([this](std::string v)
-        {
-        if (cS)
-        {
-            *cS = double(tS->number());
-            updateTrans();
-        } });
-    VLabel = new ui::Label(JSBMenu, "V");
-    VzLabel = new ui::Label(JSBMenu, "Vz");
+    WX->setCallback(std::bind(&JSBSimPlugin::windChangedCallback, this));
+    WY->setCallback(std::bind(&JSBSimPlugin::windChangedCallback, this));
+    WZ->setCallback(std::bind(&JSBSimPlugin::windChangedCallback, this));
 
-    currentVelocity.set(WX->number(), WY->number(), WZ->number());
-    currentTurbulence = 0;
+    labelVelocityX = new ui::Label(JSBMenu, "V_x");
+    labelVelocityY = new ui::Label(JSBMenu, "V_y");
+    labelVelocityZ = new ui::Label(JSBMenu, "V_z");
 
     bool ret = false;
     if (coVRMSController::instance()->isMaster())
@@ -577,7 +512,7 @@ bool JSBSimPlugin::init()
 
     VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeThermal>());
 
-    initAircraft();
+    loadAircraft(m_defaultAircraft);
     return true;
 }
 
@@ -733,8 +668,8 @@ bool JSBSimPlugin::update()
             else
             {
                 FCS->SetDaCmd(fgcontrol.aileron);
-                std::cout << "  Aileron: " << fgcontrol.aileron << "   Elevator: " << fgcontrol.elevator << '\r';
                 FCS->SetDeCmd(fgcontrol.elevator);
+
                 if (joystickDev)
                 {
                     if (Ruddernumber >= 0)
@@ -762,12 +697,14 @@ bool JSBSimPlugin::update()
                         if (ThrottleNumber >= 0)
                         {
                             std::cout << "Throttle " << i << " : " << 1.0 - ((1 + joystickDev->axes[ThrottleNumber][i]) / 2.0) << std::endl;
+
                             FCS->SetThrottleCmd(i, 1.0 - ((1 + joystickDev->axes[ThrottleNumber][i]) / 2.0));
                             FCS->SetMixtureCmd(i, 1.0);
                         }
                         else
                         {
                             FCS->SetThrottleCmd(i, 1.0 - ((1 + joystickDev->axes[Joysticknumber][2]) / 2.0));
+
                             std::cout << "Throttle " << i << " : " << 1.0 - ((1 + joystickDev->axes[Joysticknumber][2]) / 2.0) << std::endl;
                             if (joystickDev->number_sliders[Joysticknumber] == 1) // is this windows and we have a slider?
                             {
@@ -785,20 +722,12 @@ bool JSBSimPlugin::update()
                         FCS->SetMixtureCmd(i, 1.0);
                     }
 
-                    switch (Propulsion->GetEngine(i)->GetType())
-                    {
-                    case JSBSim::FGEngine::etPiston:
-                    { // FGPiston code block
-                        auto piston_engine = std::static_pointer_cast<JSBSim::FGPiston>(Propulsion->GetEngine(i));
-                        piston_engine->SetMagnetos(3);
-                        break;
-                    } // end FGPiston code block
-                    }
-                    { // FGEngine code block
-                        auto eng = Propulsion->GetEngine(i);
-                        eng->SetStarter(1);
-                        eng->SetRunning(1);
-                    } // end FGEngine code block
+                    // Activate starter and/or magnetos, set engine running
+                    auto engine = Propulsion->GetEngine(i);
+                    engine->SetStarter(1);
+                    engine->SetRunning(1);
+                    if (engine->GetType() == JSBSim::FGEngine::etPiston)
+                        std::static_pointer_cast<JSBSim::FGPiston>(engine)->SetMagnetos(3); // mode 3 = both left and right running
                 }
 
                 while (FDMExec->GetSimTime() + SimStartTime < cover->frameTime())
@@ -827,7 +756,7 @@ bool JSBSimPlugin::update()
                 }
                 if (result)
                 {
-                    if (DebugButton->state())
+                    if (debugButton->state())
                     {
                         FDMExec->GetPropagate()->DumpState();
                     }
@@ -867,25 +796,21 @@ bool JSBSimPlugin::update()
                     else if (FDMExec && !FDMExec->Holding())
                     {
                         lastPos = newPos;
-                        if (targetVelocity != currentVelocity)
-                        {
-                            osg::Vec3 diff = targetVelocity - currentVelocity;
-                            if (diff.length2() < 0.0001)
-                            {
-                                currentVelocity = targetVelocity;
-                            }
-                            else
-                            {
-                                currentVelocity += diff * 0.1;
-                            }
-                        }
-                        float vSpeed = vehicleState.vUVW(3);
-                        VzLabel->setText("Vz: " + std::to_string(vSpeed));
-                        VLabel->setText("V: " + std::to_string(vehicleState.vUVW.Entry(1)) + " ; " + std::to_string(vehicleState.vUVW.Entry(2)) + " ; " + std::to_string(vehicleState.vUVW.Entry(3)));
+
+                        // Update wind speed gradually
+                        m_windVelocityCurrent += (m_windVelocityTarget - m_windVelocityCurrent) * 0.1f * cover->frameDuration();
+
+                        float speedX = vehicleState.vUVW(1);
+                        float speedY = vehicleState.vUVW(2);
+                        float speedZ = vehicleState.vUVW(3);
+
+                        labelVelocityX->setText("V_x: " + std::to_string(speedX));
+                        labelVelocityY->setText("V_y: " + std::to_string(speedY));
+                        labelVelocityZ->setText("V_z: " + std::to_string(speedZ));
 
                         if (varioSource)
                         {
-                            float varioPitch = (std::clamp(-vSpeed / 10.f, -1.f, 1.f) + 1.f) * 0.3f + 0.8f;
+                            float varioPitch = (std::clamp(-speedZ / 10.f, -1.f, 1.f) + 1.f) * 0.3f + 0.8f;
                             varioSource->setPitch(varioPitch);
 
                             float varioVolume = std::clamp((fabs((varioPitch - 1.f)) * 5.f) - 0.2f, 0.f, 1.f);
@@ -903,11 +828,13 @@ bool JSBSimPlugin::update()
                             engineSource->setPitch(1.0);
                         }
 
-                        Winds->SetWindNED(currentVelocity.y(), currentVelocity.x(), -currentVelocity.z());
-                        Winds->SetTurbGain(currentTurbulence);
-                        // fprintf(stderr, "cv: %f\n", currentVelocity.z());
-                        targetVelocity.set(WX->number(), WY->number(), WZ->number());
-                        targetTurbulence = 0;
+                        // Update winds
+                        Winds->SetWindNED(m_windVelocityCurrent.y(), m_windVelocityCurrent.x(), -m_windVelocityCurrent.z());
+                        Winds->SetTurbGain(m_windTurbulenceCurrent);
+
+                        // Reset target velocity and turbulence so addThermal() can add to it each frame
+                        m_windVelocityTarget = m_windVelocitySetting;
+                        m_windTurbulenceTarget = 0;
                     }
                 }
             }
@@ -942,6 +869,7 @@ bool JSBSimPlugin::update()
 void JSBSimPlugin::setEnabled(bool flag)
 {
     coVRNavigationProvider::setEnabled(flag);
+
     if (flag)
     {
         cover->getScene()->addChild(geometryTrans.get());
@@ -1084,8 +1012,8 @@ void JSBSimPlugin::initUDP()
 
 void JSBSimPlugin::addThermal(const osg::Vec3 &velocity, float turbulence)
 {
-    targetVelocity += velocity;
-    targetTurbulence += turbulence;
+    m_windVelocityTarget += velocity;
+    m_windTurbulenceTarget += turbulence;
 }
 
 COVERPLUGIN(JSBSimPlugin)
