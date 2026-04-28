@@ -1,31 +1,62 @@
 #include "ScenarioManager.h"
-#include <initializer_list>
 #include <filesystem>
 #include <algorithm>
-#include <memory>
+#include <vector>
+#include <string>
+#include <string_view>
 
 namespace
 {
 constexpr auto IGNORE_SCENARIO_DIRS = { "static" };
-auto getScenarioDirs(std::string_view scenarioDir)
+}
+
+ScenarioManager::ScenarioManager(std::string_view scenarioDir)
 {
-    std::vector<std::string> scenarios;
+    loadScenarios(scenarioDir);
+}
+
+void ScenarioManager::loadScenarios(std::string_view scenarioDir)
+{
+    if (!std::filesystem::exists(scenarioDir))
+        return;
+
     for (const auto &entry : std::filesystem::directory_iterator(scenarioDir))
+    {
         if (entry.is_directory() && !std::any_of(IGNORE_SCENARIO_DIRS.begin(), IGNORE_SCENARIO_DIRS.end(), [&](const auto &ignore)
                 { return ignore == entry.path().filename().string(); }))
-            scenarios.emplace_back(entry.path().filename().string());
-    return scenarios;
-}
+        {
+            m_scenarios.emplace_back(entry.path().filename().string());
+        }
+    }
+
+    if (!m_scenarios.empty())
+    {
+        m_currentIndex = 0;
+    }
 }
 
-ScenarioManager::ScenarioManager(const core::interface::ui::IGUIFactory &factory, const std::string &name, core::interface::ui::IComponent *parent, std::string_view scenarioDir)
+void ScenarioManager::selectScenario(int index)
 {
-    m_selectionList = factory.createSelectionList(parent, name);
-    setScenarios(getScenarioDirs(scenarioDir));
+    if (index >= 0 && index < static_cast<int>(m_scenarios.size()))
+    {
+        m_currentIndex = index;
+        if (m_onChanged)
+        {
+            m_onChanged(m_currentIndex);
+        }
+    }
 }
 
-void ScenarioManager::setScenarios(const std::vector<std::string> &names)
+std::string ScenarioManager::getCurrentScenarioString() const
 {
-    m_selectionList->setList(names);
-    m_selectionList->select(0);
+    if (m_currentIndex >= 0 && m_currentIndex < static_cast<int>(m_scenarios.size()))
+    {
+        return m_scenarios[m_currentIndex];
+    }
+    return "";
+}
+
+Scenario ScenarioManager::getSelectedScenario() const
+{
+    return { getCurrentScenarioIndex(), getCurrentScenarioString() };
 }

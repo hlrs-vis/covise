@@ -14,15 +14,12 @@ SimulationSystem::SimulationSystem(
     core::interface::ILogger &logger,
     const std::string &scenarioDir)
     : core::ClassLogger(logger, "SimulationSystem")
-    , m_ui(factory, "Simulation", parentMenu)
+    , m_ui({ factory, parentMenu, "Simulation" })
     , m_dataLoadManager()
-    , m_scenarioManager(factory, "ScenarioManager", parentMenu, scenarioDir)
+    , m_scenarioManager(scenarioDir)
     , m_dataManager(logger)
-    , m_gridUIManager(parentMenu)
-    , m_gridRenderer(
-          parent,
-          renderConfig,
-          logger)
+    , m_gridRenderer(parent, renderConfig, logger)
+    , m_gridUIManager(m_gridRenderer, parentMenu)
     , m_enabled(true)
     , m_scenarioDir(scenarioDir)
 {
@@ -36,30 +33,37 @@ void SimulationSystem::init()
     for (auto type : ENERGYTYPE_RANGE)
         m_gridRenderer.buildGrid(type, m_dataLoadManager);
 
-    // TODO: make this adjustable
-    constexpr float uplift(30.0f);
-    m_ui.setLiftCallback([this, &uplift](bool on)
-        {
-            auto active = on ? 1 : 0;
-            m_gridRenderer.translate(osg::Vec3f(0,0,uplift * active));
-        }
-    );
-    
-    m_ui.setEnergyGridSelectionCallback([this](int value)
-        {
-            if (value > ENERGYTYPE_RANGE.size() || value < 0) {
-                error("Invalid index used for EnergyGridSelection");
-                return;
-            }
-            m_gridRenderer.switchTo(ENERGYTYPE_RANGE[value]);
-        }
-    );
-    
-    m_ui.setStorageSelectionDefault(EnergyType::HEATING, Storage::CSV);
-    m_ui.setStorageSelectionDefault(EnergyType::POWER, Storage::ARROW);
+    initUI();
+    m_scenarioManager.setOnScenarioChanged(([this](int id)
+    { 
+        this->onScenarioSelectionChanged(id); 
+    }));
+}
 
-    m_scenarioManager.setOnScenarioChanged([this](int id)
-        { this->onScenarioSelectionChanged(id); });
+void SimulationSystem::initUI()
+{
+    // Delegate UI interactions to the GridUIManager
+    m_ui.setLiftCallback([this](bool on)
+        { m_gridUIManager.handleLift(on); });
+
+    m_ui.setOnGridTypeChanged([this](int value)
+        {
+        if (value >= 0 && value < static_cast<int>(ENERGYTYPE_RANGE.size())) {
+            m_gridRenderer.switchTo(ENERGYTYPE_RANGE[value]);
+        } else {
+            error("Invalid index used for EnergyGridSelection");
+        } });
+
+    m_ui.setStorageDefault(EnergyType::HEATING, Storage::CSV);
+    m_ui.setStorageDefault(EnergyType::POWER, Storage::ARROW);
+
+    m_ui.setScenarioList(m_scenarioManager.getScenarioNames());
+
+    m_ui.setOnScenarioChanged([this](int id)
+    { 
+        m_scenarioManager.selectScenario(id);
+    });
+
 }
 
 void SimulationSystem::enable(bool on)
@@ -87,7 +91,7 @@ void SimulationSystem::onScenarioSelectionChanged(int scenarioId)
     if (!m_enabled)
         return;
 
-    auto currentScenario = m_scenarioManager.getScenario();
+    auto currentScenario = m_scenarioManager.getSelectedScenario();
     info("Switching to scenario ID: " + std::to_string(scenarioId));
 
     for (auto type : ENERGYTYPE_RANGE)
@@ -104,10 +108,14 @@ void SimulationSystem::onScenarioSelectionChanged(int scenarioId)
         if (type == EnergyType::POWER)
         {
             species = "loading_percent";
+            m_gridRenderer.setData(type, result, species);
+            // m_gridRenderer.updateColorMapInShader(colorMapMenu.selector->colorMap(),
+            //     type);
+            m_gridUIManager.updateUIState(type, result);
         }
-        m_gridRenderer.setData(type, result, species);
-        // m_gridRenderer.updateColorMapInShader(colorMapMenu.selector->colorMap(),
-        //     type);
-        m_gridUIManager.updateUIState(type, result);
+        // m_gridRenderer.setData(type, result, species);
+        // // m_gridRenderer.updateColorMapInShader(colorMapMenu.selector->colorMap(),
+        // //     type);
+        // m_gridUIManager.updateUIState(type, result);
     }
 }

@@ -15,11 +15,11 @@ class SimulationSystem final : public core::interface::ISystem, core::ClassLogge
 public:
     SimulationSystem(
         const GridRenderConfig &config,
-        core::interface::ui::IComponent *parentMenu, 
+        core::interface::ui::IComponent *parentMenu,
         const core::interface::ui::IGUIFactory &factory,
-        CityGMLSystem *cityGMLSystem, 
-        osg::ref_ptr<osg::Switch> parent, 
-        core::interface::ILogger &logger, 
+        CityGMLSystem *cityGMLSystem,
+        osg::ref_ptr<osg::Switch> parent,
+        core::interface::ILogger &logger,
         const std::string &scenarioDir);
     void init() override;
     void enable(bool on) override;
@@ -28,14 +28,15 @@ public:
     bool isEnabled() const override { return m_enabled; }
 
 private:
+    void initUI();
     void onScenarioSelectionChanged(int scenarioId);
 
     SimulationUI m_ui;
     DataLoadManager m_dataLoadManager;
     ScenarioManager m_scenarioManager;
     DataManager m_dataManager;
-    GridUIManager m_gridUIManager;
     GridRenderer m_gridRenderer;
+    GridUIManager m_gridUIManager;
 
     bool m_enabled;
     std::string m_scenarioDir;
