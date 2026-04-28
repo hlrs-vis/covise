@@ -33,7 +33,5 @@ public:
 private:
     void setScenarios(const std::vector<std::string> &names);
 
-    // opencover::ui::SelectionList *m_selectionList;
     std::unique_ptr<core::interface::ui::ISelectionList> m_selectionList;
-    // opencover::ui::SelectionList *m_selectionList;
 };
