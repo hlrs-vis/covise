@@ -38,6 +38,7 @@ void SimulationSystem::init()
     for (auto type : ENERGYTYPE_RANGE)
         m_gridRenderer.buildGrid(type, m_dataLoadManager);
 
+    // TODO: make this adjustable
     constexpr float uplift(30.0f);
     m_ui.setLiftCallback([this, &uplift](bool on)
         {
