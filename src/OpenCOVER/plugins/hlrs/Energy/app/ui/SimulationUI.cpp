@@ -18,7 +18,7 @@ void SimulationUI::init(const core::interface::ui::IGUIFactory &factory, const s
     if (!parent)
         throw std::runtime_error("SimulationUI cannot be initialized properly because the parent is NULL.");
 
-    m_menu = factory.createMenu("Simulation", parent);
+    m_menu = factory.createMenu(name, parent);
 
     m_lift = factory.createButton(m_menu.get(), "Up");
 
