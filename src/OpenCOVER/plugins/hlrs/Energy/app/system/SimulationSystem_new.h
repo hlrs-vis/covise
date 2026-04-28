@@ -5,7 +5,6 @@
 #include "GridUIManager.h"
 #include "DataLoadManager.h"
 #include "DataManager.h"
-#include "Storage.h"
 #include "ScenarioManager.h"
 #include "app/ui/SimulationUI.h"
 #include <lib/core/interfaces/ISystem.h>
@@ -38,8 +37,6 @@ private:
     GridUIManager m_gridUIManager;
     GridRenderer m_gridRenderer;
 
-    // TODO: put this into GUIManager
-    Storage m_currentStorageSelection;
     bool m_enabled;
     std::string m_scenarioDir;
 };

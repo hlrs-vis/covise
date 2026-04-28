@@ -3,7 +3,6 @@
 #include "CSVLoader.h"
 #include "ArrowLoader.h"
 #include "Storage.h"
-#include <initializer_list>
 #include <memory>
 
 SimulationSystem::SimulationSystem(
@@ -24,7 +23,6 @@ SimulationSystem::SimulationSystem(
           parent,
           renderConfig,
           logger)
-    , m_currentStorageSelection(Storage::ARROW)
     , m_enabled(true)
     , m_scenarioDir(scenarioDir)
 {
@@ -56,6 +54,9 @@ void SimulationSystem::init()
             m_gridRenderer.switchTo(ENERGYTYPE_RANGE[value]);
         }
     );
+    
+    m_ui.setStorageSelectionDefault(EnergyType::HEATING, Storage::CSV);
+    m_ui.setStorageSelectionDefault(EnergyType::POWER, Storage::ARROW);
 
     m_scenarioManager.setOnScenarioChanged([this](int id)
         { this->onScenarioSelectionChanged(id); });
@@ -89,29 +90,24 @@ void SimulationSystem::onScenarioSelectionChanged(int scenarioId)
     auto currentScenario = m_scenarioManager.getScenario();
     info("Switching to scenario ID: " + std::to_string(scenarioId));
 
-    // POWER
-    m_dataManager.loadScenario(Storage::ARROW, currentScenario, m_dataLoadManager);
-
-    // HEATING
-    m_dataManager.loadScenario(Storage::CSV, currentScenario, m_dataLoadManager);
-
-    std::vector<std::pair<Storage, EnergyType>> StorageEnergyTypeList = { { Storage::ARROW, EnergyType::POWER }, { Storage::CSV, EnergyType::HEATING } };
-
-    for (auto &[storage, type] : StorageEnergyTypeList)
+    for (auto type : ENERGYTYPE_RANGE)
     {
+        auto storage = m_ui.getSelectedStorage(type);
+        m_dataManager.loadScenario(storage, currentScenario, m_dataLoadManager);
+
         auto result = m_dataManager.getResult(storage, currentScenario, type);
-        if (result)
+        if (!result)
+            continue;
+
+        // TODO: use scalar selector from later UI implementation for species
+        std::string species("mass_flow");
+        if (type == EnergyType::POWER)
         {
-            // TODO: use scalar selector from later UI implementation for species
-            std::string species("mass_flow");
-            if (type == EnergyType::POWER)
-            {
-                species = "loading_percent";
-            }
-            m_gridRenderer.setData(type, result, species);
-            // m_gridRenderer.updateColorMapInShader(colorMapMenu.selector->colorMap(),
-            //     type);
-            m_gridUIManager.updateUIState(type, result);
+            species = "loading_percent";
         }
+        m_gridRenderer.setData(type, result, species);
+        // m_gridRenderer.updateColorMapInShader(colorMapMenu.selector->colorMap(),
+        //     type);
+        m_gridUIManager.updateUIState(type, result);
     }
 }
