@@ -30,7 +30,7 @@ struct AnimationHandler
 {
     void updateTime(int timestep, void *who)
     {
-        opencover::coVRAnimationManager::instance()->setNumTimesteps(100, who);
+        opencover::coVRAnimationManager::instance()->setNumTimesteps(timestep, who);
     }
 };
 
