@@ -63,6 +63,53 @@ struct AircraftInfo
     osg::Matrix geometryTransform;
 };
 
+enum JoystickActionType
+{
+    AILERON,
+    ELEVATOR,
+    RUDDER,
+    THROTTLE,
+    MIXTURE
+};
+class JoystickAction
+{
+public:
+    int joystickNumber;
+    JoystickActionType type;
+
+    int axisNumber = -1;
+    int sliderNumber = -1;
+    int engine = -1;
+    bool invert = false;
+
+    void update(Joystick *device)
+    {
+        m_oldValue = m_value;
+
+        if (axisNumber >= 0)
+        {
+            m_value = device->axes[joystickNumber][axisNumber];
+        }
+        if (sliderNumber >= 0)
+        {
+            m_value = device->sliders[joystickNumber][sliderNumber];
+        }
+    }
+    bool getChangedValue(double &value) const
+    {
+        if (m_oldValue != m_value)
+        {
+            value = invert ? -m_value : m_value;
+            return true;
+        }
+        return false;
+    }
+
+private:
+    double m_value = 0.0;
+    double m_oldValue = 0.0;
+};
+
 class JSBSimPlugin : public coVRPlugin, public ui::Owner, public opencover::coVRNavigationProvider
 {
 public:
@@ -82,8 +129,11 @@ public:
 private:
     osg::Vec3f getOriginOffset() const;
 
+    void readJoystickConfiguration();
     void loadAvailableAircraft();
     void loadAircraft(const std::string &aircraftName);
+
+    void updateInputs();
 
     void windChangedCallback();
 
@@ -104,6 +154,8 @@ private:
     ui::EditField *WZ;
     ui::SelectionList *planeType;
     std::map<std::string, AircraftInfo> m_availableAircraft;
+
+    std::vector<JoystickAction> m_joystickActions;
 
     Joystick *joystickDev = nullptr;
     // bool state0 = false;
@@ -162,12 +214,15 @@ private:
     JSBSim::FGLocation il;
 
 #pragma pack(push, 1)
-    struct FGControl
+    struct Controls
     {
         double elevator;
         double aileron;
+        double rudder;
         double throttle;
-    } fgcontrol;
+        double mixture;
+    } m_controls;
+
     struct GliderValues
     {
         int32_t left;
@@ -176,30 +231,20 @@ private:
         int32_t speed;
         uint32_t state;
     };
-    GliderValues gliderValues;
 #pragma pack(pop)
+
     UDPComm *udp;
     int deviceVersion = 1;
-    void initUDP();
     bool initJSB();
-    bool updateUdp();
+    void updateUdp();
     void reset(double dz = 0.0);
 
     //! this functions is called when a key is pressed or released
     virtual void key(int type, int keySym, int mod);
 
-    bool realtime;
-    bool play_nice;
-    bool suspend;
-    bool catalog;
-    bool nohighlight;
-
-    double end_time = 1e99;
-    double actual_elapsed_time = 0;
-    double cycle_duration = 0;
     OpenThreads::Mutex mutex;
     PJ *coordTransformation;
-    osg::Vec3d projectOffset;
+
     osg::Matrix lastPos;
 
     // For wind/turbulence
@@ -209,6 +254,7 @@ private:
     float m_windTurbulenceCurrent;
     float m_windTurbulenceTarget;
 
+    // Audio related
     audio::Audio engineAudio;
     audio::Audio varioAudio;
     audio::Audio windAudio;
@@ -219,9 +265,6 @@ private:
     std::string host;
     unsigned short serverPort;
     unsigned short localPort;
-    int ThrottleNumber = -1;
-    int Joysticknumber = -1;
-    int Ruddernumber = -1;
 };
 
 #endif

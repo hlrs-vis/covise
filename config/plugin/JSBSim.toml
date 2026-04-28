@@ -22,3 +22,48 @@ systemsDir = "Hansajet/Systems"
 enginesDir = "Hansajet/Engines"
 geometryTransform = {x = 0, y = -7800, z = -2800, h = 90, p = 180, r = 90, scale = 1000}
 
+
+[[joysticks]]
+name = "Thrustmaster T-Pendular-Rudder"
+actions = [
+    {type = "rudder", axis = 2}
+]
+
+[[joysticks]]
+name = "Logitech X52 Professional H.O.T.A.S."
+actions = [
+    {type = "aileron", axis = 0},
+    {type = "elevator", axis = 1, invert = true},
+    {type = "throttle", axis = 2, invert = true},
+    {type = "rudder", axis = 5},
+]
+
+[[joysticks]]
+name = "SAITEK X-56 Throttle"
+actions = [
+    {type = "throttle", axis = 0, engine = 0, invert = true},
+    {type = "throttle", axis = 1, engine = 1, invert = true},
+    {type = "throttle", axis = 2, engine = 2, invert = true},
+    {type = "throttle", axis = 3, engine = 3, invert = true},
+    {type = "mixture", axis = 10},
+    {type = "mixture", slider = 0},
+]
+
+[[joysticks]]
+name = "Generic X-Box pad"
+actions = [
+    {type = "rudder", axis = 0},
+    {type = "throttle", axis = 1, invert = true},
+    {type = "aileron", axis = 3},
+    {type = "elevator", axis = 4, invert = true},
+]
+
+
+# generic entry, no name = every joystick matches
+[[joysticks]]
+actions = [
+    {type = "aileron", axis = 0},
+    {type = "elevator", axis = 1, invert = true},
+    {type = "throttle", axis = 2},
+    {type = "rudder", axis = 5},
+]

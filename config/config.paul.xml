@@ -107,12 +107,17 @@
             <Input>
                 <MouseNav value="ON" />
                 <!-- <Keyboard terminal="on" evdev="/dev/input/coverkeys" /> -->
+
+                <Device>
+                    <joystick driver="joystick" device="/dev/input/js"/>
+                </Device>
             </Input>
 
             <!--Console value="on" file="/tmp/coverlog"/-->
             <Plugin>
                 <PBufferSnapShot menu="true" />
                 <Video menu="true" />
+                <JSBSim menu="true" />
                 <CompositorIceT menu="false" />
                 <ViewPoint value="true" />
                 <Measure menu="true" />

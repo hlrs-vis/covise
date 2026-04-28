@@ -30,6 +30,7 @@
 #include <cover/coVRPluginList.h>
 #include <cover/input/input.h>
 #include "cover/input/deviceDiscovery.h"
+#include <cstring>
 #include <osg/Math>
 #include <osg/Matrix>
 #include <osg/MatrixTransform>
@@ -70,6 +71,7 @@ JSBSimPlugin::JSBSimPlugin()
     geometryTrans = new osg::MatrixTransform();
 
     loadAvailableAircraft();
+    readJoystickConfiguration();
 
     audio::Player *player = cover->getPlayer();
     if (coVRMSController::instance()->isMaster() && player)
@@ -232,8 +234,6 @@ bool JSBSimPlugin::initJSB()
     FDMExec->SetAircraftPath(SGPath("aircraft"));
     FDMExec->SetEnginePath(SGPath("engine"));
     FDMExec->SetSystemsPath(SGPath("systems"));
-    FDMExec->GetPropertyManager()->Tie("simulation/frame_start_time", &actual_elapsed_time);
-    FDMExec->GetPropertyManager()->Tie("simulation/cycle_duration", &cycle_duration);
 
     FDMExec->SetPropertyValue("simulation/gravitational-torque", false);
     FDMExec->SetPropertyValue("environment/config/enabled", false);
@@ -254,15 +254,7 @@ bool JSBSimPlugin::initJSB()
     GroundReactions = FDMExec->GetGroundReactions();
     Accelerations = FDMExec->GetAccelerations();
 
-    if (nohighlight)
-        FDMExec->disableHighLighting();
-
     bool result = false;
-
-    if (catalog)
-    {
-        FDMExec->SetDebugLevel(0);
-    }
 
     if (!FDMExec->LoadModel(SGPath("aircraft"),
             SGPath(currentAircraft->enginesDir),
@@ -284,13 +276,8 @@ bool JSBSimPlugin::initJSB()
     il.SetLatitude(0.0);
     il.SetLongitude(0.0);
 
-    fgcontrol.aileron = 0.0;
-    fgcontrol.elevator = 0.0;
-    gliderValues.left = 0.0;
-    gliderValues.right = 0.0;
-    gliderValues.angle = 0.0;
-    gliderValues.speed = 0.0;
-    gliderValues.state = 0;
+    m_controls.aileron = 0.0;
+    m_controls.elevator = 0.0;
 
     reset(0.0);
 
@@ -382,6 +369,95 @@ void JSBSimPlugin::loadAvailableAircraft()
         if (m_defaultAircraft.empty())
         {
             m_defaultAircraft = aircraftName;
+        }
+    }
+}
+
+void JSBSimPlugin::readJoystickConfiguration()
+{
+    if (!coVRMSController::instance()->isMaster())
+    {
+        return;
+    }
+
+    joystickDev = (Joystick *)(Input::instance()->getDevice("joystick"));
+
+    if (!joystickDev || joystickDev->numLocalJoysticks <= 0)
+    {
+        joystickDev = nullptr;
+        return;
+    }
+
+    auto configFile = config();
+    auto joystickSections = configFile->array<opencover::config::Section>("", "joysticks")->value();
+
+    std::set<int> used_indexes;
+
+    for (auto joystickSection : joystickSections)
+    {
+        std::string name = joystickSection.value<std::string>("", "name", "")->value();
+
+        for (int i = 0; i < joystickDev->numLocalJoysticks; i++)
+        {
+            if (name.empty())
+            {
+                // Empty name means "catchall"; ignore joysticks already used
+                // by some previous config.
+                if (used_indexes.find(i) != used_indexes.end())
+                {
+                    continue;
+                }
+                else
+                {
+                    std::cout << "Found generic joystick '" << joystickDev->names[i] << "'" << std::endl
+                              << "  with " << (int)joystickDev->number_axes[i] << " axes and " << (int)joystickDev->number_sliders[i] << " sliders." << std::endl;
+                }
+            }
+            else if (joystickDev->names[i] != name)
+            {
+                continue;
+            }
+
+            for (auto section : joystickSection.array<opencover::config::Section>("", "actions")->value())
+            {
+                int axisNumber = section.value<int64_t>("", "axis", -1)->value();
+                int sliderNumber = section.value<int64_t>("", "slider", -1)->value();
+                std::string type = section.value<std::string>("", "type", "")->value();
+
+                if (axisNumber >= 0 && joystickDev->number_axes[i] <= axisNumber)
+                    continue;
+
+                if (sliderNumber >= 0 && joystickDev->number_sliders[i] <= sliderNumber)
+                    continue;
+
+                if ((axisNumber >= 0) == (sliderNumber >= 0))
+                    continue; // invalid config
+
+                JoystickActionType actionType;
+                if (type == "aileron")
+                    actionType = AILERON;
+                else if (type == "rudder")
+                    actionType = RUDDER;
+                else if (type == "elevator")
+                    actionType = ELEVATOR;
+                else if (type == "throttle")
+                    actionType = THROTTLE;
+                else if (type == "mixture")
+                    actionType = MIXTURE;
+                else
+                    continue; // invalid config
+
+                JoystickAction a;
+                a.joystickNumber = i;
+                a.type = actionType;
+                a.axisNumber = axisNumber;
+                a.sliderNumber = sliderNumber;
+                a.invert = section.value<bool>("", "invert", false)->value();
+                a.engine = (int)section.value<int64_t>("", "engine", -1)->value();
+                m_joystickActions.push_back(a);
+
+                used_indexes.emplace(i);
+            }
         }
     }
 }
@@ -513,6 +589,7 @@ bool JSBSimPlugin::init()
     VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeThermal>());
 
     loadAircraft(m_defaultAircraft);
+
     return true;
 }
 
@@ -520,142 +597,117 @@ void JSBSimPlugin::key(int type, int keySym, int mod)
 {
     if (coVRMSController::instance()->isMaster())
     {
-        (void)mod;
-        switch (type)
+        if (type == osgGA::GUIEventAdapter::KEYDOWN)
         {
-        case (osgGA::GUIEventAdapter::KEYDOWN):
-            if (keySym == 'l' || keySym == 65363)
+            switch (keySym)
             {
-                fgcontrol.aileron += 0.1;
-            }
-            else if (keySym == 'j' || keySym == 65361)
-            {
-                fgcontrol.aileron -= 0.1;
-            }
-            else if (keySym == 'm' || keySym == 65364)
-            {
-                fgcontrol.elevator -= 0.1;
-            }
-            else if (keySym == 'i' || keySym == 65362)
-            {
-                fgcontrol.elevator += 0.1;
-            }
-            else if (keySym == 'u')
-            {
+            case 'l':
+            case 65363:
+                m_controls.aileron += 0.1;
+                break;
+
+            case 'j':
+            case 65361:
+                m_controls.aileron -= 0.1;
+                break;
+
+            case 'm':
+            case 65364:
+                m_controls.elevator -= 0.1;
+                break;
+
+            case 'i':
+            case 65362:
+                m_controls.elevator += 0.1;
+                break;
+
+            case 'u':
                 reset(100);
-            }
-            else if (keySym == 'r')
-            {
+                break;
+
+            case 'r':
                 reset();
-            }
-            else if (keySym == 'R')
-            {
+                break;
+
+            case 'R':
                 initJSB();
                 reset();
+                break;
             }
 
-            fgcontrol.aileron = std::clamp(fgcontrol.aileron, -1.0, 1.0);
-            fgcontrol.elevator = std::clamp(fgcontrol.elevator, -1.0, 1.0);
-
-            break;
+            m_controls.aileron = std::clamp(m_controls.aileron, -1.0, 1.0);
+            m_controls.elevator = std::clamp(m_controls.elevator, -1.0, 1.0);
         }
-        fprintf(stderr, "Keysym: %d\n", keySym);
-        fprintf(stderr, "Aileron: %lf Elevator %lf\n", fgcontrol.aileron, fgcontrol.elevator);
+    }
+}
+
+void JSBSimPlugin::updateInputs()
+{
+    // Read new values for all joystick actions
+    for (auto &a : m_joystickActions)
+    {
+        a.update(joystickDev);
+    }
+
+    // Update aileron from the first changed joystick
+    for (auto &a : m_joystickActions)
+        if (a.type == AILERON && a.getChangedValue(m_controls.aileron))
+            break;
+    FCS->SetDaCmd(m_controls.aileron);
+
+    // Update elevator from the first changed joystick
+    for (auto &a : m_joystickActions)
+        if (a.type == ELEVATOR && a.getChangedValue(m_controls.elevator))
+            break;
+    FCS->SetDeCmd(m_controls.elevator);
+
+    // Update rudder from the first changed joystick
+    for (auto &a : m_joystickActions)
+        if (a.type == RUDDER && a.getChangedValue(m_controls.rudder))
+            break;
+    FCS->SetDrCmd(m_controls.rudder);
+
+    // Update throttle and mixture, per engine
+    for (unsigned int i = 0; i < Propulsion->GetNumEngines(); i++)
+    {
+        double value;
+        for (auto &a : m_joystickActions)
+        {
+            if (a.type == THROTTLE && (a.engine == -1 || a.engine == i) && a.getChangedValue(value))
+            {
+                FCS->SetThrottleCmd(i, value * 0.5 + 0.5);
+                break;
+            }
+        }
+
+        for (auto &a : m_joystickActions)
+        {
+            if (a.type == MIXTURE && (a.engine == -1 || a.engine == i) && a.getChangedValue(value))
+            {
+                FCS->SetMixtureCmd(i, value * 0.5 + 0.5);
+                break;
+            }
+        }
+    }
+
+    // Make sure all engines are running (incl. starter/magnetos)
+    for (unsigned int i = 0; i < Propulsion->GetNumEngines(); i++)
+    {
+        auto engine = Propulsion->GetEngine(i);
+        engine->SetStarter(1);
+        engine->SetRunning(1);
+        if (engine->GetType() == JSBSim::FGEngine::etPiston)
+            std::static_pointer_cast<JSBSim::FGPiston>(engine)->SetMagnetos(3); // mode 3 = both left and right running
     }
 }
 
 bool JSBSimPlugin::update()
 {
-    joystickDev = nullptr;
-
-    if (false && coVRMSController::instance()->isMaster())
-    {
-        joystickDev = (Joystick *)(Input::instance()->getDevice("joystick"));
-        if (joystickDev->numLocalJoysticks > 0)
-        {
-            if (Joysticknumber < 0) // did not find a joystick yet
-            {
-                // fprintf(stderr, "looking for joystick %s %s\n", jsName.c_str(), rudderName.c_str());
-                for (int i = 0; i < joystickDev->numLocalJoysticks; i++)
-                {
-                    // fprintf(stderr, "joysticks: %d %d %d %s \n",i, joystickDev->number_axes[i], joystickDev->number_sliders[i],joystickDev->names[i].c_str());
-                    if (joystickDev->names[i] == jsName)
-                    {
-                        Joysticknumber = i;
-                    }
-                    else if (joystickDev->names[i] == rudderName)
-                    {
-                        Ruddernumber = i;
-                    }
-                    else if (joystickDev->names[i] == jsThrottleName)
-                    {
-                        ThrottleNumber = i;
-                    }
-                    else if (joystickDev->number_axes[i] == 11 && joystickDev->number_sliders[i] == 0) // linux
-                    {
-                        Joysticknumber = i;
-                    }
-                    else if (joystickDev->number_axes[i] == 6 && joystickDev->number_sliders[i] == 1) // windows
-                    {
-                        Joysticknumber = i;
-                    }
-                    else if (joystickDev->number_axes[i] == 3 && joystickDev->number_sliders[i] == 0)
-                    {
-                        Ruddernumber = i;
-                        fprintf(stderr, "FoundRudder\n");
-                    }
-                }
-            }
-        }
-        else
-        {
-            joystickDev = nullptr;
-        }
-
-        if (joystickDev != nullptr)
-        { /*
-             std::cout << */
-            //"\n[0][0]:" << joystickDev->buttons[0][0] <<
-            //", [0][1]:" << joystickDev->buttons[0][1] <<
-            //", [0][2]:" << joystickDev->buttons[0][2] <<
-            //", [0][3]:" << joystickDev->buttons[0][3] <<
-            //", [0][4]:" << joystickDev->buttons[0][4] <<
-            //", [0][5]:" << joystickDev->buttons[0][5] <<
-            //", [0][6]:" << joystickDev->buttons[0][6] <<
-            //", [0][7]:" << joystickDev->buttons[0][7] <<
-
-            //"\nsliders[0]:" << joystickDev->sliders[0][0] <<
-            //"axes[0]:" << joystickDev->axes[0][0] <<
-            //", axes[1]:" << joystickDev->axes[0][1] << std::endl;
-        }
-
-        if (joystickDev && Joysticknumber >= 0)
-        {
-
-            // Read joystick axis values
-            float joystickX = joystickDev->axes[Joysticknumber][0];
-            float joystickY = joystickDev->axes[Joysticknumber][1];
-            // float throttle = joystickDev->sliders[0][0];
-            // std::cout << "joystickX = " << joystickX << ", joystickY = " << joystickY << ", throttle = " << throttle;
-
-            // Map joystick input to control surfaces
-            fgcontrol.aileron = joystickX; // joystickDev->axes[0][0];
-            fgcontrol.elevator = -joystickY; // joystickDev->axes[0][1];
-            // gliderValues.speed = throttle;
-            // gliderValues.state = joystickDev->buttons[0][0];
-        }
-
-        // gliderValues.left = joystickX;
-        // gliderValues.right = joystickY;
-        // gliderValues.speed = throttle;
-
-        updateUdp();
-        // std::cout << "Entered coVRMSController::instance()_>isMAster()" << std::endl;
-    }
+    // Receive input data even when disabled or paused, so we don't fill buffers
+    updateUdp();
 
     if (isEnabled())
     {
-
         bool stopNav = false;
         if (coVRMSController::instance()->isMaster())
         {
@@ -667,68 +719,7 @@ bool JSBSimPlugin::update()
             }
             else
             {
-                FCS->SetDaCmd(fgcontrol.aileron);
-                FCS->SetDeCmd(fgcontrol.elevator);
-
-                if (joystickDev)
-                {
-                    if (Ruddernumber >= 0)
-                    {
-                        std::cout << "Rudder" << joystickDev->axes[Ruddernumber][2] << std::endl;
-                        FCS->SetDrCmd(joystickDev->axes[Ruddernumber][2]);
-                    }
-                    else if (Joysticknumber >= 0)
-                    {
-                        FCS->SetDrCmd(-joystickDev->axes[Joysticknumber][5]);
-                    }
-
-                    if (ThrottleNumber >= 0)
-                    {
-                        FCS->SetDaCmd(joystickDev->axes[Joysticknumber][0]);
-                        FCS->SetDeCmd(-joystickDev->axes[Joysticknumber][1]);
-                        FCS->SetDrCmd(-joystickDev->axes[Joysticknumber][5]);
-                    }
-                }
-
-                for (unsigned int i = 0; i < Propulsion->GetNumEngines(); i++)
-                {
-                    if (joystickDev && Joysticknumber >= 0)
-                    {
-                        if (ThrottleNumber >= 0)
-                        {
-                            std::cout << "Throttle " << i << " : " << 1.0 - ((1 + joystickDev->axes[ThrottleNumber][i]) / 2.0) << std::endl;
-
-                            FCS->SetThrottleCmd(i, 1.0 - ((1 + joystickDev->axes[ThrottleNumber][i]) / 2.0));
-                            FCS->SetMixtureCmd(i, 1.0);
-                        }
-                        else
-                        {
-                            FCS->SetThrottleCmd(i, 1.0 - ((1 + joystickDev->axes[Joysticknumber][2]) / 2.0));
-
-                            std::cout << "Throttle " << i << " : " << 1.0 - ((1 + joystickDev->axes[Joysticknumber][2]) / 2.0) << std::endl;
-                            if (joystickDev->number_sliders[Joysticknumber] == 1) // is this windows and we have a slider?
-                            {
-                                FCS->SetMixtureCmd(i, joystickDev->sliders[Joysticknumber][0]);
-                            }
-                            else if (joystickDev->number_axes[Joysticknumber] == 11)
-                            {
-                                FCS->SetMixtureCmd(i, joystickDev->axes[Joysticknumber][10]);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        FCS->SetThrottleCmd(i, 1.0);
-                        FCS->SetMixtureCmd(i, 1.0);
-                    }
-
-                    // Activate starter and/or magnetos, set engine running
-                    auto engine = Propulsion->GetEngine(i);
-                    engine->SetStarter(1);
-                    engine->SetRunning(1);
-                    if (engine->GetType() == JSBSim::FGEngine::etPiston)
-                        std::static_pointer_cast<JSBSim::FGPiston>(engine)->SetMagnetos(3); // mode 3 = both left and right running
-                }
+                updateInputs();
 
                 while (FDMExec->GetSimTime() + SimStartTime < cover->frameTime())
                 {
@@ -838,6 +829,7 @@ bool JSBSimPlugin::update()
                     }
                 }
             }
+
             coVRMSController::instance()->sendSlaves((char *)&stopNav, sizeof(stopNav));
             if (!stopNav)
             {
@@ -856,6 +848,7 @@ bool JSBSimPlugin::update()
                 coVRCollaboration::instance()->SyncXform();
             }
         }
+
         if (stopNav)
         {
             coVRNavigationManager::instance()->setNavMode(coVRNavigationManager::Walk);
@@ -913,101 +906,66 @@ void JSBSimPlugin::setEnabled(bool flag)
     }
 }
 
-bool JSBSimPlugin::updateUdp()
+void JSBSimPlugin::updateUdp()
 {
     OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-    if (udp)
+
+    if (!udp)
+        return;
+
+    char buffer[24];
+    int received_bytes = udp->receive(buffer, 24, 0.0);
+
+    // Error response
+    if (received_bytes < 0)
     {
-        // std::cout << "udp = true" << endl;
         static bool firstTime = true;
-
-        int status = 0;
-
-        if (deviceVersion == 2)
+        if (firstTime)
         {
-            status = udp->receive(&gliderValues, sizeof(gliderValues), 0.0);
-            // fprintf(stderr,"sizeof(gliderValues):%d status %d\n",(int)sizeof(gliderValues),status);
-            if (status == 16)
-            {
-                memcpy(&fgcontrol, &gliderValues, 16);
-            }
+            std::cerr << "JSBSimPlugin::updateUdp: error while reading data" << std::endl;
+            firstTime = false;
         }
-        else
-        {
-            status = udp->receive(&fgcontrol, sizeof(FGControl), 0.0);
-        }
-
-        if (status == 16)
-        {
-            // std::cout << "status == sizeof(FGControl)" << endl;
-            byteSwap(fgcontrol.aileron);
-            byteSwap(fgcontrol.elevator);
-            fgcontrol.throttle = 0.0;
-            // std::cerr << "JSBSimPlugin::updateUdp:"<<  fgcontrol.aileron << "     " << fgcontrol.elevator<< std::endl;
-        }
-        else if (status == sizeof(FGControl))
-        {
-            std::cout << "status == sizeof(FGControl)" << endl;
-            byteSwap(fgcontrol.aileron);
-            byteSwap(fgcontrol.elevator);
-            byteSwap(fgcontrol.throttle);
-            std::cerr << "JSBSimPlugin::updateUdp:" << fgcontrol.aileron << "     " << fgcontrol.elevator << std::endl;
-        }
-        else if (status == sizeof(gliderValues))
-        {
-
-            /*byteSwap(gliderValues.left);
-            byteSwap(gliderValues.right);
-            byteSwap(gliderValues.angle);
-            byteSwap(gliderValues.speed);
-            byteSwap(gliderValues.state);*/
-
-            float leftLine = (gliderValues.left / 1280.0);
-            float rightLine = (gliderValues.right / 1280.0);
-            float angleValue = -(gliderValues.angle / 180.0);
-            if (leftLine > 1.0)
-                leftLine = 1.0;
-            if (leftLine < 0.0)
-                leftLine = 0.0;
-            if (rightLine > 1.0)
-                rightLine = 1.0;
-            if (rightLine < 0.0)
-                rightLine = 0.0;
-
-            double elevatorMin = -1, elevatorMax = 1, aileronMax = 1;
-            fgcontrol.elevator = -((leftLine + rightLine) / 2 * (elevatorMax - elevatorMin) + elevatorMin);
-            fgcontrol.aileron = (-leftLine + rightLine + angleValue) * aileronMax;
-
-            std::cerr << "JSBSimPlugin::left:" << gliderValues.left << "     " << leftLine << "     " << gliderValues.angle << std::endl;
-            std::cerr << "JSBSimPlugin::right:" << gliderValues.right << "     " << rightLine << "     " << angleValue << std::endl;
-        }
-        else if (status == -1)
-        {
-            if (firstTime)
-            {
-                std::cerr << "JSBSimPlugin::updateUdp: error while reading data" << std::endl;
-                firstTime = false;
-            }
-            // initUDP();
-            return false;
-        }
-        else
-        {
-            std::cerr << "JSBSimPlugin::updateUdp: received invalid no. of bytes: recv=" << status << ", got=" << status << std::endl;
-            initUDP();
-            return false;
-        }
+        return;
     }
-    return true;
-}
 
-void JSBSimPlugin::initUDP()
-{
-    /*  delete udp;
+    // Special case, if the message is exactly  the size
+    if (received_bytes == sizeof(GliderValues))
+    {
+        GliderValues gliderValues;
+        memcpy(&gliderValues, buffer, sizeof(GliderValues));
 
-      std::cerr << "JSBSim config: UDP: serverHost: " << host << ", localPort: " << localPort << ", serverPort: " << serverPort << std::endl;
-      udp = new UDPComm(host.c_str(), serverPort, localPort);*/
-    return;
+        float leftLine = std::clamp(gliderValues.left / 1280.0, 0.0, 1.0);
+        float rightLine = std::clamp(gliderValues.right / 1280.0, 0.0, 1.0);
+        float angleValue = -(gliderValues.angle / 180.0);
+
+        double elevatorMin = -1, elevatorMax = 1, aileronMax = 1;
+        m_controls.elevator = -((leftLine + rightLine) / 2 * (elevatorMax - elevatorMin) + elevatorMin);
+        m_controls.aileron = (rightLine - leftLine + angleValue) * aileronMax;
+        m_controls.throttle = 0.0;
+        m_controls.mixture = 0.0;
+
+        std::cerr << "JSBSimPlugin::left:" << gliderValues.left << "     " << leftLine << "     " << gliderValues.angle << std::endl;
+        std::cerr << "JSBSimPlugin::right:" << gliderValues.right << "     " << rightLine << "     " << angleValue << std::endl;
+        return;
+    }
+
+    // Special case for old format without throttle
+    if (received_bytes == 16)
+    {
+        memcpy(&m_controls, buffer, 16);
+        byteSwap(m_controls.aileron);
+        byteSwap(m_controls.elevator);
+        m_controls.throttle = 0.0;
+        m_controls.mixture = 0.0;
+    }
+    else if (received_bytes == 24)
+    {
+        memcpy(&m_controls, buffer, 24);
+        byteSwap(m_controls.aileron);
+        byteSwap(m_controls.elevator);
+        byteSwap(m_controls.throttle);
+        m_controls.mixture = 0.0;
+    }
 }
 
 void JSBSimPlugin::addThermal(const osg::Vec3 &velocity, float turbulence)
