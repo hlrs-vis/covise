@@ -27,6 +27,14 @@
         </System>
 
         <COVER>
+            <PointerAppearance>
+                <IconName value="line"/>
+                <Width value="10"/>
+                <Length value="1500"/>
+                <!-- interscetion length is used also for mouse, it needs to be long enough to intersect far objects -->
+                <Intersection value="15000" />
+            </PointerAppearance>
+
             <UI>
                 <VRUI toolbar="false" />
                 <NavigationManager>

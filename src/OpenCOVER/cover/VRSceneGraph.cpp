@@ -1340,43 +1340,66 @@ VRSceneGraph::loadHandIcon(const char *name)
     return (n);
 }
 
-osg::Node *
+osg::ref_ptr<osg::Node>
 VRSceneGraph::loadHandLine()
 {
+
     if (!coCoviseConfig::isOn("visible", "COVER.PointerAppearance.IconName", true))
         return nullptr;
 
-    osg::Node *result = nullptr;
+    osg::ref_ptr<Node> result;
 
-    osg::Node *n = nullptr;
     string iconName = coCoviseConfig::getEntry("COVER.PointerAppearance.IconName");
-    if (!iconName.empty())
+
+    if (iconName == "line") {
+        osg::ref_ptr<osg::Geode> geode = new osg::Geode();
+        osg::ref_ptr<osg::Vec3Array> verts = new osg::Vec3Array();
+        osg::ref_ptr<osg::Vec4Array> colors = new osg::Vec4Array();
+
+        verts->push_back(osg::Vec3(0, 0, 0));
+        verts->push_back(osg::Vec3(0, 100000000.f, 0));
+        colors->push_back(osg::Vec4(0.5, 0.7, 1.0, 0.7));
+        colors->push_back(osg::Vec4(0.5, 0.7, 1.0, 0.7));
+
+        osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry();
+        geometry->setVertexArray(verts.get());
+        geometry->setColorArray(colors.get(), osg::Array::BIND_PER_VERTEX);
+        geometry->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+        geometry->addPrimitiveSet(new osg::DrawArrays(GL_LINES, 0, verts->size()));
+
+        osg::ref_ptr<osg::StateSet> ss = geometry->getOrCreateStateSet();
+        ss->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+        ss->setMode(GL_ALPHA_TEST, osg::StateAttribute::ON);
+
+        geode->addDrawable(geometry.get());
+
+        result = geode;
+    }
+    else if (!iconName.empty())
     {
-        n = coVRFileManager::instance()->loadIcon(iconName.c_str());
-        if (n)
+        auto icon = coVRFileManager::instance()->loadIcon(iconName.c_str());
+        if (icon)
         {
-            n->dirtyBound();
+            icon->dirtyBound();
             osg::ComputeBoundsVisitor cbv;
             osg::BoundingBox &bb(cbv.getBoundingBox());
-            n->accept(cbv);
+            icon->accept(cbv);
             float sx = bb._max.x() - bb._min.x();
             float sy = bb._max.y() - bb._min.y();
             // move icon in front of pointer (laser sword)
             float width = coCoviseConfig::getFloat("COVER.PointerAppearance.Width", sx);
             float length = coCoviseConfig::getFloat("COVER.PointerAppearance.Length", sy);
 
-            osg::MatrixTransform *m = new osg::MatrixTransform;
-			m->setName("HandLineMatrixTransform");
-            m->setMatrix(osg::Matrix::scale(width / sx, length / sy, width / sx));
-            m->addChild(n);
-            result = m;
-        }
-        else
-        {
-            result = loadHandIcon("HandLine");
+            osg::MatrixTransform *scaledIcon = new osg::MatrixTransform;
+			scaledIcon->setName("HandLineMatrixTransform");
+            scaledIcon->setMatrix(osg::Matrix::scale(width / sx, length / sy, width / sx));
+            scaledIcon->addChild(icon);
+
+            result = scaledIcon;
         }
     }
-    else
+    
+    if (!result)
     {
         result = loadHandIcon("HandLine");
     }
