@@ -3,32 +3,47 @@
 #include "BaseUI.h"
 #include "app/system/EnergyType.h"
 #include "app/system/Storage.h"
+#include <lib/core/interfaces/ui/IComponent.h>
 #include <lib/core/interfaces/ui/IButton.h>
 #include <lib/core/interfaces/ui/ISelectionList.h>
 #include <lib/core/interfaces/ui/IGUIFactory.h>
 
 #include <memory>
 #include <map>
+#include <vector>
+#include <string>
+
+struct SimulationUIConfig
+{
+    const core::interface::ui::IGUIFactory &factory;
+    core::interface::ui::IComponent *parent;
+    std::string name;
+};
 
 class SimulationUI : BaseUI
 {
 public:
-    SimulationUI(const core::interface::ui::IGUIFactory &factory, const std::string &name, core::interface::ui::IComponent *parent);
+    SimulationUI(SimulationUIConfig config);
     void setLiftCallback(const std::function<void(bool)> &func) { m_lift->setCallback(func); }
-    void setEnergyGridSelectionCallback(const std::function<void(int)> &func) { m_energyGrids->setCallback(func); }
-    void setStorageSelectionCallback(EnergyType type, const std::function<void(int)> &func);
-    void setStorageSelectionDefault(EnergyType type, Storage storage);
+    void setOnGridTypeChanged(const std::function<void(int)> &func) { m_energyGrids->setCallback(func); }
+    void setOnScenarioChanged(std::function<void(int)> cb) { m_scenarios->setCallback(cb); }
+    void setOnStorageChanged(EnergyType type, const std::function<void(int)> &func);
+    void setStorageDefault(EnergyType type, Storage storage);
+
+    void setScenarioList(const std::vector<std::string> &names);
+    // void setStorageList(const std::map<std::string> &names);
+    // void setGridList(const std::vector<std::string> &names);
     Storage getSelectedStorage(EnergyType type);
 
 private:
-    void init(const core::interface::ui::IGUIFactory &factory, const std::string &name, core::interface::ui::IComponent *parent);
+    void init(SimulationUIConfig &config);
+    void initGrids(const core::interface::ui::IGUIFactory &factory);
+    void initStorage(const core::interface::ui::IGUIFactory &factory);
+    void initSelectionList(core::interface::ui::ISelectionList* selList, const std::vector<std::string> &names);
 
     std::unique_ptr<core::interface::ui::IMenu> m_menu;
     std::unique_ptr<core::interface::ui::ISelectionList> m_energyGrids;
+    std::unique_ptr<core::interface::ui::ISelectionList> m_scenarios;
     std::unique_ptr<core::interface::ui::IButton> m_lift;
-    std::map<EnergyType ,std::unique_ptr<core::interface::ui::ISelectionList>> m_storage;
-
-    // Powergrid UI => use own class
-    // opencover::ui::Menu *m_powerGridMenu;
-    // opencover::ui::Button *m_updatePowerGridSelection;
+    std::map<EnergyType, std::unique_ptr<core::interface::ui::ISelectionList>> m_storage;
 };
