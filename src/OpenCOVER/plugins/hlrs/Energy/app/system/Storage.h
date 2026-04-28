@@ -5,7 +5,8 @@ enum class Storage
 {
     CSV,
     ARROW,
-    PSQL
+    PSQL,
+    UNKNOWN
 };
 
 inline constexpr std::array<Storage, 2> FILE_STORAGE_RANGE = { Storage::ARROW, Storage::CSV };
