@@ -22,22 +22,24 @@ public:
     void preFrame() override;
 
 private:
-    const bool m_useInteractors = false;
-
     std::unique_ptr<GhostAvatarControls> m_avatarControls;
     std::unique_ptr<TerroirTexture> m_avatarTexture;
     GhostAvatarControlsUI m_avatarControlsUI;
 
-    Mirror m_mirror;
+    float m_floorHeight = 0.f;
+    osg::Matrix m_trackedFloor, m_trackedHand, m_trackedHead;
+    void updateTrackedPoses();
+    void addTranslationalOffset(osg::Matrix &matrix, const osg::Vec3 &offset);
+    void offsetTrackedPoses(const osg::Vec3 &offset);
 
-    // interactors
+    // debugging mode (uses interactors instead of tracked information from the CAVE)
+    const bool m_useInteractors = false;
     std::unique_ptr<opencover::coVR3DTransformInteractor> m_interactorFloor, m_interactorHand, m_interactorHead;
     void createInteractors();
     void updateInteractors();
 
-    float m_floorHeight = 0.f;
-    osg::Matrix m_trackedFloor, m_trackedHand, m_trackedHead;
-    void updateMatrices();
+    // scene
+    Mirror m_mirror;
 };
 
 COVERPLUGIN(GhostAvatar)

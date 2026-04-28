@@ -19,7 +19,6 @@ public:
     void updateView();
 
 private:
-
     osg::Vec3 m_position;
     float m_sizeX, m_sizeY, m_sizeZ;
 

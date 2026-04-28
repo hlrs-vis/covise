@@ -36,7 +36,7 @@ bool GhostAvatar::init()
     }
     else
     {
-        m_avatarControls->setAvatarVisibleInScene(false);
+        m_avatarControls->setAvatarVisibleInScene(true);
         m_mirror.setReflectedNode(m_avatarControls->getAvatarNode());
         m_floorHeight = VRSceneGraph::instance()->floorHeight();
     }
@@ -58,7 +58,7 @@ void GhostAvatar::preFrame()
     }
     else
     {
-        updateMatrices();
+        updateTrackedPoses();
 
         m_avatarControls->updateBones(m_trackedFloor, m_trackedHand, m_trackedHead);
         m_avatarControlsUI.update(m_trackedFloor, m_trackedHand, m_trackedHead);
@@ -66,6 +66,41 @@ void GhostAvatar::preFrame()
 
     m_avatarTexture->updateTexture(m_avatarControls->getEyeOffset());
     m_mirror.updateView();
+}
+
+// TODO: use CAVE transform for feet and viewerMat for moving head
+void GhostAvatar::updateTrackedPoses()
+{
+    m_trackedHand = cover->getPointerMat();
+    m_trackedHead = cover->getViewerMat();
+    m_trackedFloor.makeTranslate(m_trackedHead.getTrans().x(), m_trackedHead.getTrans().y(), m_floorHeight);
+
+    // transform from world to object coordinates
+    auto invbase = cover->getInvBaseMat();
+    m_trackedHand *= invbase;
+    m_trackedHead *= invbase;
+    m_trackedFloor *= invbase;
+
+    // offset for testing in the CAVE
+    //offsetTrackedPoses({0, 2, 0});
+
+    // match interactor behavior: keep translation, strip scale/shear from rotation basis
+    // otherwise rotation does not match rotation of the glasses/3D controller
+    m_trackedHand = sanitizeRigidTransform(m_trackedHand);
+    m_trackedHead = sanitizeRigidTransform(m_trackedHead);
+}
+
+void GhostAvatar::addTranslationalOffset(osg::Matrix &matrix, const osg::Vec3 &offset)
+{
+    auto translation = matrix.getTrans();
+    matrix.setTrans(translation.x() + offset.x(), translation.y() + offset.y(), translation.z() + offset.z());
+}
+
+void GhostAvatar::offsetTrackedPoses(const osg::Vec3 &offset)
+{
+    addTranslationalOffset(m_trackedFloor, offset);
+    addTranslationalOffset(m_trackedHand, offset);
+    addTranslationalOffset(m_trackedHead, offset);
 }
 
 void GhostAvatar::createInteractors()
@@ -96,36 +131,4 @@ void GhostAvatar::updateInteractors()
     m_interactorFloor->preFrame();
     m_interactorHand->preFrame();
     m_interactorHead->preFrame();
-}
-
-// TODO: use CAVE transform for feet and viewerMat for moving head
-void GhostAvatar::updateMatrices()
-{
-    m_trackedHand = cover->getPointerMat();
-    m_trackedHead = cover->getViewerMat();
-    m_trackedFloor.makeTranslate(m_trackedHead.getTrans().x(), m_trackedHead.getTrans().y(), m_floorHeight);
-
-    // transform from world to object coordinates
-    auto invbase = cover->getInvBaseMat();
-    m_trackedHand *= invbase;
-    m_trackedHead *= invbase;
-    m_trackedFloor *= invbase;
-
-    // offset for testing in the CAVE
-    /*     double offset = 2.0f;
-
-        auto headTrans = m_trackedHead.getTrans();
-        m_trackedHead.setTrans(headTrans.x(), headTrans.y() + offset, headTrans.z());
-
-        auto handTrans = m_trackedHand.getTrans();
-        m_trackedHand.setTrans(handTrans.x(), handTrans.y() + offset, handTrans.z());
-
-        auto floorTrans = m_trackedFloor.getTrans();
-        m_trackedFloor.setTrans(floorTrans.x(), floorTrans.y() + offset, floorTrans.z()); */
-    // offset for testing in the CAVE
-
-    // match interactor behavior: keep translation, strip scale/shear from rotation basis
-    // otherwise rotation does not match rotation of the glasses/3D controller
-    m_trackedHand = sanitizeRigidTransform(m_trackedHand);
-    m_trackedHead = sanitizeRigidTransform(m_trackedHead);
 }
