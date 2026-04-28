@@ -18,12 +18,11 @@ class GhostAvatar : public opencover::coVRPlugin
 public:
     GhostAvatar();
 
-    bool update() override;
+    bool init() override;
     void preFrame() override;
 
 private:
     const bool m_useInteractors = false;
-    bool m_initialized = false;
 
     std::unique_ptr<GhostAvatarControls> m_avatarControls;
     std::unique_ptr<TerroirTexture> m_avatarTexture;

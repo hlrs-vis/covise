@@ -25,43 +25,30 @@ GhostAvatar::GhostAvatar()
     m_avatarTexture->setCameraUpDir(m_avatarControls->getUpDirection());
 }
 
-bool GhostAvatar::update()
+bool GhostAvatar::init()
 {
-    if (!m_initialized)
+    m_avatarControls->loadAvatar();
+
+    if (m_useInteractors)
     {
-        m_initialized = true;
-        m_avatarControls->loadAvatar();
-
-        if (m_useInteractors)
-        {
-            m_avatarControls->setAvatarVisibleInScene(true);
-            m_mirror.setReflectedNode(nullptr);
-        }
-        else
-        {
-            m_avatarControls->setAvatarVisibleInScene(false);
-            m_mirror.setReflectedNode(m_avatarControls->getAvatarNode());
-        }
-
-        m_avatarTexture->applyTexture(m_avatarControls->getAvatarNode());
-        m_avatarControlsUI.initialize();
-
-        if (m_useInteractors)
-            createInteractors();
-        else
-            m_floorHeight = VRSceneGraph::instance()->floorHeight();
-
-        return true;
+        m_avatarControls->setAvatarVisibleInScene(true);
+        createInteractors();
+    }
+    else
+    {
+        m_avatarControls->setAvatarVisibleInScene(false);
+        m_mirror.setReflectedNode(m_avatarControls->getAvatarNode());
+        m_floorHeight = VRSceneGraph::instance()->floorHeight();
     }
 
-    return false;
+    m_avatarTexture->applyTexture(m_avatarControls->getAvatarNode());
+    m_avatarControlsUI.initialize();
+
+    return true;
 }
 
 void GhostAvatar::preFrame()
 {
-    if (!m_initialized)
-        return;
-
     if (m_useInteractors)
     {
         updateInteractors();
@@ -77,8 +64,8 @@ void GhostAvatar::preFrame()
         m_avatarControlsUI.update(m_trackedFloor, m_trackedHand, m_trackedHead);
     }
 
-    m_mirror.updateView();
     m_avatarTexture->updateTexture(m_avatarControls->getEyeOffset());
+    m_mirror.updateView();
 }
 
 void GhostAvatar::createInteractors()
@@ -125,16 +112,16 @@ void GhostAvatar::updateMatrices()
     m_trackedFloor *= invbase;
 
     // offset for testing in the CAVE
-/*     double offset = 2.0f;
+    /*     double offset = 2.0f;
 
-    auto headTrans = m_trackedHead.getTrans();
-    m_trackedHead.setTrans(headTrans.x(), headTrans.y() + offset, headTrans.z());
+        auto headTrans = m_trackedHead.getTrans();
+        m_trackedHead.setTrans(headTrans.x(), headTrans.y() + offset, headTrans.z());
 
-    auto handTrans = m_trackedHand.getTrans();
-    m_trackedHand.setTrans(handTrans.x(), handTrans.y() + offset, handTrans.z());
+        auto handTrans = m_trackedHand.getTrans();
+        m_trackedHand.setTrans(handTrans.x(), handTrans.y() + offset, handTrans.z());
 
-    auto floorTrans = m_trackedFloor.getTrans();
-    m_trackedFloor.setTrans(floorTrans.x(), floorTrans.y() + offset, floorTrans.z()); */
+        auto floorTrans = m_trackedFloor.getTrans();
+        m_trackedFloor.setTrans(floorTrans.x(), floorTrans.y() + offset, floorTrans.z()); */
     // offset for testing in the CAVE
 
     // match interactor behavior: keep translation, strip scale/shear from rotation basis
