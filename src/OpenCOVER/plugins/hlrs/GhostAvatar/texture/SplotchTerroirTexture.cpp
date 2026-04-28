@@ -25,7 +25,11 @@ void SplotchTerroirTexture::updateShader()
 
 float generateRandomFloat(float start, float end)
 {
-    static thread_local std::mt19937 engine { std::random_device { }() };
+    /*
+        Since in the CAVE multiple OpenCovers seem to be running (which would each generate their own
+        random numbers, resulting in mismatching splotches) we have to set a seed.
+    */
+    static thread_local std::mt19937 engine { 3847u };
     return std::uniform_real_distribution<float> { start, end }(engine);
 }
 
