@@ -48,6 +48,7 @@ SET(COVER_HEADERS
   coVRMessageSender.h
   coVRMSController.h
   coVRNavigationManager.h
+  coVRNavigationProvider.h
   coVRPartner.h
   coVRPlugin.h
   coVRPluginList.h
@@ -82,6 +83,7 @@ SET(COVER_HEADERS
   VRVruiButtons.h
   VRVruiRenderInterface.h
   VRWindow.h
+  TeleportNavigationProvider.h
 )
 
 SET(COVER_SOURCES
@@ -119,6 +121,7 @@ SET(COVER_SOURCES
   coVRMessageSender.cpp
   coVRMSController.cpp
   coVRNavigationManager.cpp
+  coVRNavigationProvider.cpp
   coVRPartner.cpp
   coVRPlugin.cpp
   coVRPluginList.cpp
@@ -153,6 +156,7 @@ SET(COVER_SOURCES
   VRVruiButtons.cpp
   VRVruiRenderInterface.cpp
   VRWindow.cpp
+  TeleportNavigationProvider.cpp
   #coVRDePee.cpp
   #coVRDePeePass.cpp
 )
