@@ -25,7 +25,7 @@ SimulationSystem::SimulationSystem(
           renderConfig,
           logger)
     , m_currentStorageSelection(Storage::ARROW)
-    , m_enabled(false)
+    , m_enabled(true)
     , m_scenarioDir(scenarioDir)
 {
 }
@@ -62,21 +62,29 @@ void SimulationSystem::init()
 
 void SimulationSystem::enable(bool on)
 {
+    m_enabled = on;
     m_gridRenderer.setVisible(on);
 }
 
 void SimulationSystem::update()
 {
+    if (!m_enabled)
+        return;
     m_gridRenderer.update();
 }
 
 void SimulationSystem::updateTime(int timestep)
 {
+    if (!m_enabled)
+        return;
     m_gridRenderer.updateStep(timestep);
 }
 
 void SimulationSystem::onScenarioSelectionChanged(int scenarioId)
 {
+    if (!m_enabled)
+        return;
+
     auto currentScenario = m_scenarioManager.getScenario();
     info("Switching to scenario ID: " + std::to_string(scenarioId));
 
