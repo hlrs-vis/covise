@@ -26,46 +26,52 @@ GhostAvatar::GhostAvatar()
 
 bool GhostAvatar::init()
 {
+    m_floorHeight = VRSceneGraph::instance()->floorHeight();
+
     m_avatarControls->loadAvatar();
+    m_avatarTexture->applyTexture(m_avatarControls->getAvatarNode());
+    m_avatarControlsUI.initialize();
+
+    addMirrorsToScene();
 
     if (m_useInteractors)
     {
         m_avatarControls->addAvatarToScene();
         createInteractors();
     }
-    else
-    {
-        m_floorHeight = VRSceneGraph::instance()->floorHeight();
-    }
-
-    m_avatarTexture->applyTexture(m_avatarControls->getAvatarNode());
-    m_avatarControlsUI.initialize();
-
-    addMirrorsToScene();
 
     return true;
 }
 
 void GhostAvatar::preFrame()
 {
-    if (m_useInteractors)
-    {
-        updateInteractors();
-
-        m_avatarControls->updateBones(m_interactorFloor->getMatrix(), m_interactorHand->getMatrix(), m_interactorHead->getMatrix());
-        m_avatarControlsUI.update(m_interactorFloor->getMatrix(), m_interactorHand->getMatrix(), m_interactorHead->getMatrix());
-    }
-    else
-    {
-        updateTrackedPoses();
-
-        m_avatarControls->updateBones(m_trackedFloor, m_trackedHand, m_trackedHead);
-        m_avatarControlsUI.update(m_trackedFloor, m_trackedHand, m_trackedHead);
-    }
-
+    moveAvatar();
     m_avatarTexture->updateTexture(m_avatarControls->getEyeOffset());
-
     updateMirrorViews();
+}
+
+void GhostAvatar::moveAvatar()
+{
+    if (m_useInteractors)
+        moveAvatarWithInteractors();
+    else
+        moveAvatarWithTrackedPoses();
+}
+
+void GhostAvatar::moveAvatarWithInteractors()
+{
+    updateInteractors();
+
+    m_avatarControls->updateBones(m_interactorFloor->getMatrix(), m_interactorHand->getMatrix(), m_interactorHead->getMatrix());
+    m_avatarControlsUI.update(m_interactorFloor->getMatrix(), m_interactorHand->getMatrix(), m_interactorHead->getMatrix());
+}
+
+void GhostAvatar::moveAvatarWithTrackedPoses()
+{
+    updateTrackedPoses();
+
+    m_avatarControls->updateBones(m_trackedFloor, m_trackedHand, m_trackedHead);
+    m_avatarControlsUI.update(m_trackedFloor, m_trackedHand, m_trackedHead);
 }
 
 // TODO: use CAVE transform for feet and viewerMat for moving head

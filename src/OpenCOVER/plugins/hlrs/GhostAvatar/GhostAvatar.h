@@ -14,6 +14,7 @@
 #include "texture/TerroirTexture.h"
 #include "ui/GhostAvatarControlsUI.h"
 
+//TODO: get info from config file instead of changing constructors
 class GhostAvatar : public opencover::coVRPlugin
 {
 public:
@@ -27,19 +28,21 @@ private:
     std::unique_ptr<TerroirTexture> m_avatarTexture;
     GhostAvatarControlsUI m_avatarControlsUI;
 
+    const bool m_useInteractors = true;
+    void moveAvatar();
+    void moveAvatarWithInteractors();
+    void moveAvatarWithTrackedPoses();
+
     float m_floorHeight = 0.f;
     osg::Matrix m_trackedFloor, m_trackedHand, m_trackedHead;
     void updateTrackedPoses();
     void addTranslationalOffset(osg::Matrix &matrix, const osg::Vec3 &offset);
     void offsetTrackedPoses(const osg::Vec3 &offset);
 
-    // debugging mode (uses interactors instead of tracked information from the CAVE)
-    const bool m_useInteractors = false;
     std::unique_ptr<opencover::coVR3DTransformInteractor> m_interactorFloor, m_interactorHand, m_interactorHead;
     void createInteractors();
     void updateInteractors();
 
-    // scene
     std::vector<Mirror> m_mirrors;
     void addMirrorsToScene();
     void updateMirrorViews();
