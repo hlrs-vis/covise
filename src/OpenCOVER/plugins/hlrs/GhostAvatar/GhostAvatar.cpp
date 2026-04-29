@@ -16,10 +16,9 @@ GhostAvatar::GhostAvatar()
     : coVRPlugin(COVER_PLUGIN_NAME)
     //, m_avatarControls(std::make_unique<TestAvatarControls>("/data/STARTS-ECHO/Avatars/shaderTests/ghost_cave_minimal_fix.fbx", "RightArm", ""))
     , m_avatarControls(std::make_unique<PlanarAvatarControls>("/data/STARTS-ECHO/Avatars/planarAvatar/PLANEE6_fix.fbx", "Arm", "Head"))
-    //, m_avatarTexture(std::make_unique<SplotchTerroirTexture>(100))
-    , m_avatarTexture(std::make_unique<StripesTerroirTexture>(100))
+    , m_avatarTexture(std::make_unique<SplotchTerroirTexture>(100))
+    //, m_avatarTexture(std::make_unique<StripesTerroirTexture>(100))
     , m_avatarControlsUI(GhostAvatarControlsUI(COVER_PLUGIN_NAME, *m_avatarControls))
-    , m_mirror(Mirror(osg::Vec3(-600, 200, -150), 200, 380))
 {
     m_avatarTexture->setCameraForwardDir(m_avatarControls->getForwardDirection());
     m_avatarTexture->setCameraUpDir(m_avatarControls->getUpDirection());
@@ -37,12 +36,13 @@ bool GhostAvatar::init()
     else
     {
         m_avatarControls->setAvatarVisibleInScene(true);
-        m_mirror.setReflectedNode(m_avatarControls->getAvatarNode());
         m_floorHeight = VRSceneGraph::instance()->floorHeight();
     }
 
     m_avatarTexture->applyTexture(m_avatarControls->getAvatarNode());
     m_avatarControlsUI.initialize();
+
+    addMirrorsToScene();
 
     return true;
 }
@@ -65,7 +65,8 @@ void GhostAvatar::preFrame()
     }
 
     m_avatarTexture->updateTexture(m_avatarControls->getEyeOffset());
-    m_mirror.updateView();
+
+    updateMirrorViews();
 }
 
 // TODO: use CAVE transform for feet and viewerMat for moving head
@@ -82,7 +83,7 @@ void GhostAvatar::updateTrackedPoses()
     m_trackedFloor *= invbase;
 
     // offset for testing in the CAVE
-    //offsetTrackedPoses({0, 2, 0});
+    // offsetTrackedPoses({0, 2, 0});
 
     // match interactor behavior: keep translation, strip scale/shear from rotation basis
     // otherwise rotation does not match rotation of the glasses/3D controller
@@ -131,4 +132,21 @@ void GhostAvatar::updateInteractors()
     m_interactorFloor->preFrame();
     m_interactorHand->preFrame();
     m_interactorHead->preFrame();
+}
+
+void GhostAvatar::addMirrorsToScene()
+{
+    m_mirrors.reserve(2);
+    m_mirrors.emplace_back(osg::Vec3(-600, 200, -150), 200, 380);
+    m_mirrors.emplace_back(osg::Vec3(-850, 200, -150), 200, 380);
+
+    if (!m_useInteractors)
+        for (auto &mirror : m_mirrors)
+            mirror.setReflectedNode(m_avatarControls->getAvatarNode());
+}
+
+void GhostAvatar::updateMirrorViews()
+{
+    for (auto &mirror : m_mirrors)
+        mirror.updateView();
 }

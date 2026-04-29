@@ -2,6 +2,7 @@
 #define COVER_PLUGIN_GHOSTAVATAR_GhostAvatar_H
 
 #include <memory>
+#include <vector>
 
 #include <osg/Matrix>
 
@@ -33,13 +34,15 @@ private:
     void offsetTrackedPoses(const osg::Vec3 &offset);
 
     // debugging mode (uses interactors instead of tracked information from the CAVE)
-    const bool m_useInteractors = false;
+    const bool m_useInteractors = true;
     std::unique_ptr<opencover::coVR3DTransformInteractor> m_interactorFloor, m_interactorHand, m_interactorHead;
     void createInteractors();
     void updateInteractors();
 
     // scene
-    Mirror m_mirror;
+    std::vector<Mirror> m_mirrors;
+    void addMirrorsToScene();
+    void updateMirrorViews();
 };
 
 COVERPLUGIN(GhostAvatar)

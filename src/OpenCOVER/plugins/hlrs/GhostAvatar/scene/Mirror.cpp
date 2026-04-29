@@ -29,6 +29,58 @@ Mirror::Mirror(const osg::Vec3 &position, float sizeX, float sizeZ)
         cover->getObjectsRoot()->addChild(m_mirrorTransform);
 }
 
+Mirror::Mirror(Mirror &&other) noexcept
+    : m_position(other.m_position)
+    , m_sizeX(other.m_sizeX)
+    , m_sizeY(other.m_sizeY)
+    , m_sizeZ(other.m_sizeZ)
+    , m_mirrorTransform(std::move(other.m_mirrorTransform))
+    , m_rttCamera(std::move(other.m_rttCamera))
+    , m_reflectedNode(std::move(other.m_reflectedNode))
+{
+    other.m_position = osg::Vec3();
+    other.m_sizeX = 0.f;
+    other.m_sizeY = 0.f;
+    other.m_sizeZ = 0.f;
+    other.m_mirrorTransform = nullptr;
+    other.m_rttCamera = nullptr;
+    other.m_reflectedNode = nullptr;
+}
+
+Mirror &Mirror::operator=(Mirror &&other) noexcept
+{
+    if (this == &other)
+        return *this;
+
+    if (m_mirrorTransform && cover && cover->getObjectsRoot())
+        cover->getObjectsRoot()->removeChild(m_mirrorTransform);
+
+    if (m_rttCamera)
+    {
+        if (m_reflectedNode)
+            m_rttCamera->removeSceneNode(m_reflectedNode);
+        m_rttCamera->deinitialize();
+    }
+
+    m_position = other.m_position;
+    m_sizeX = other.m_sizeX;
+    m_sizeY = other.m_sizeY;
+    m_sizeZ = other.m_sizeZ;
+    m_mirrorTransform = std::move(other.m_mirrorTransform);
+    m_rttCamera = std::move(other.m_rttCamera);
+    m_reflectedNode = std::move(other.m_reflectedNode);
+
+    other.m_position = osg::Vec3();
+    other.m_sizeX = 0.f;
+    other.m_sizeY = 0.f;
+    other.m_sizeZ = 0.f;
+    other.m_mirrorTransform = nullptr;
+    other.m_rttCamera = nullptr;
+    other.m_reflectedNode = nullptr;
+
+    return *this;
+}
+
 Mirror::~Mirror()
 {
     if (m_mirrorTransform && cover && cover->getObjectsRoot())
@@ -58,27 +110,12 @@ void Mirror::setReflectedNode(osg::Node *node)
 
 void Mirror::updateView()
 {
+    /*
+        While the mirror does not change position, we need to check if the sky node is available and render it
+        every frame (since the user can also choose to load the GeoData plugin while COVER is up and running).
+    */
     auto translation = m_mirrorTransform->getMatrix().getTrans() + getMirrorCenter();
     m_rttCamera->update(osg::Matrix::translate(translation));
-}
-
-void Mirror::addMirrorToTransform() const
-{
-    osg::ref_ptr<osg::Geode> geode = new osg::Geode();
-    geode->setName("GhostAvatarMirrorGeode");
-    geode->addDrawable(createMirror());
-
-    // create texture from RTT camera's live image
-    osg::ref_ptr<osg::Texture2D> mirrorTexture = new osg::Texture2D(m_rttCamera->getImage());
-    mirrorTexture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::CLAMP_TO_EDGE);
-    mirrorTexture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::CLAMP_TO_EDGE);
-
-    // apply texture to the drawable
-    osg::ref_ptr<osg::StateSet> stateSet = geode->getOrCreateStateSet();
-    stateSet->setTextureAttributeAndModes(0, mirrorTexture, osg::StateAttribute::ON);
-    stateSet->setMode(GL_CULL_FACE, osg::StateAttribute::OFF);
-
-    m_mirrorTransform->addChild(geode);
 }
 
 osg::ref_ptr<osg::Geometry> Mirror::createMirror() const
@@ -105,6 +142,25 @@ osg::ref_ptr<osg::Geometry> Mirror::createMirror() const
 
     geometry->addPrimitiveSet(new osg::DrawArrays(GL_QUADS, 0, 4));
     return geometry;
+}
+
+void Mirror::addMirrorToTransform() const
+{
+    osg::ref_ptr<osg::Geode> geode = new osg::Geode();
+    geode->setName("GhostAvatarMirrorGeode");
+    geode->addDrawable(createMirror());
+
+    // create texture from RTT camera's live image
+    osg::ref_ptr<osg::Texture2D> mirrorTexture = new osg::Texture2D(m_rttCamera->getImage());
+    mirrorTexture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::CLAMP_TO_EDGE);
+    mirrorTexture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::CLAMP_TO_EDGE);
+
+    // apply texture to the drawable
+    osg::ref_ptr<osg::StateSet> stateSet = geode->getOrCreateStateSet();
+    stateSet->setTextureAttributeAndModes(0, mirrorTexture, osg::StateAttribute::ON);
+    stateSet->setMode(GL_CULL_FACE, osg::StateAttribute::OFF);
+
+    m_mirrorTransform->addChild(geode);
 }
 
 osg::Vec3 Mirror::getMirrorCenter() const

@@ -13,6 +13,10 @@ class Mirror
 {
 public:
     Mirror(const osg::Vec3 &position, float sizeX, float sizeZ);
+    Mirror(const Mirror &) = delete;
+    Mirror &operator=(const Mirror &) = delete;
+    Mirror(Mirror &&other) noexcept;
+    Mirror &operator=(Mirror &&other) noexcept;
     ~Mirror();
 
     void setReflectedNode(osg::Node *node);
@@ -31,4 +35,4 @@ private:
     osg::Vec3 getMirrorCenter() const;
 };
 
-#endif // #ifndef COVER_PLUGIN_GHOSTAVATAR_Scene_Mirror_H
+#endif // COVER_PLUGIN_GHOSTAVATAR_Scene_Mirror_H
