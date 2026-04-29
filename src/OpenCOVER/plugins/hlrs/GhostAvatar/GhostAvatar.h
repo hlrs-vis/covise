@@ -34,7 +34,7 @@ private:
     void offsetTrackedPoses(const osg::Vec3 &offset);
 
     // debugging mode (uses interactors instead of tracked information from the CAVE)
-    const bool m_useInteractors = true;
+    const bool m_useInteractors = false;
     std::unique_ptr<opencover::coVR3DTransformInteractor> m_interactorFloor, m_interactorHand, m_interactorHead;
     void createInteractors();
     void updateInteractors();

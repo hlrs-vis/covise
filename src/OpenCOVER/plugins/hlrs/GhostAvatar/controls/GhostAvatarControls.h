@@ -20,7 +20,7 @@ public:
     virtual ~GhostAvatarControls();
 
     void loadAvatar();
-    void setAvatarVisibleInScene(bool visible);
+    void addAvatarToScene();
 
     osg::ref_ptr<osg::Node> getAvatarNode() const;
 

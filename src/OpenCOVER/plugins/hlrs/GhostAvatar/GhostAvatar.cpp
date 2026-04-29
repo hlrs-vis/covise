@@ -30,12 +30,11 @@ bool GhostAvatar::init()
 
     if (m_useInteractors)
     {
-        m_avatarControls->setAvatarVisibleInScene(true);
+        m_avatarControls->addAvatarToScene();
         createInteractors();
     }
     else
     {
-        m_avatarControls->setAvatarVisibleInScene(true);
         m_floorHeight = VRSceneGraph::instance()->floorHeight();
     }
 
@@ -136,9 +135,12 @@ void GhostAvatar::updateInteractors()
 
 void GhostAvatar::addMirrorsToScene()
 {
-    m_mirrors.reserve(2);
+    m_mirrors.reserve(1);
     m_mirrors.emplace_back(osg::Vec3(-600, 200, -150), 200, 380);
-    m_mirrors.emplace_back(osg::Vec3(-850, 200, -150), 200, 380);
+    /*m_mirrors.emplace_back(osg::Vec3(-850, 200, -150), 200, 380);
+    m_mirrors.emplace_back(osg::Vec3(-600, 200, 300), 200, 380);
+    m_mirrors.emplace_back(osg::Vec3(-1200, 200, -150), 200, 380);
+    m_mirrors.emplace_back(osg::Vec3(-850, 200, 300), 200, 380); */
 
     if (!m_useInteractors)
         for (auto &mirror : m_mirrors)

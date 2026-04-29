@@ -22,14 +22,14 @@ void detachNodeFromParents(osg::Node *node)
         node->getParent(0)->removeChild(node);
 }
 
-bool hasParent(const osg::Node *node, const osg::Group *parent)
+bool isAttachedToScene(const osg::Node *node)
 {
-    if (!node || !parent)
+    if (!node)
         return false;
 
     for (unsigned int i = 0; i < node->getNumParents(); ++i)
     {
-        if (node->getParent(i) == parent)
+        if (node->getParent(i) == cover->getObjectsRoot())
             return true;
     }
 
@@ -82,18 +82,10 @@ void GhostAvatarControls::loadAvatar()
     loadHeadBone();
 }
 
-void GhostAvatarControls::setAvatarVisibleInScene(bool visible)
+void GhostAvatarControls::addAvatarToScene()
 {
-    if (!m_avatarTrans || !cover || !cover->getObjectsRoot())
-        return;
-
-    auto objectsRoot = cover->getObjectsRoot();
-    const bool isAttachedToScene = hasParent(m_avatarTrans, objectsRoot);
-
-    if (visible && !isAttachedToScene)
-        objectsRoot->addChild(m_avatarTrans);
-    else if (!visible && isAttachedToScene)
-        objectsRoot->removeChild(m_avatarTrans);
+    if (m_avatarTrans && !isAttachedToScene(m_avatarTrans))
+        cover->getObjectsRoot()->addChild(m_avatarTrans);
 }
 
 osg::ref_ptr<osg::Node> GhostAvatarControls::getAvatarNode() const
@@ -277,7 +269,7 @@ void GhostAvatarControls::loadHeadBone()
     }
 }
 
-void GhostAvatarControls::rotateBone(const BoneParser::Bone& bone, const osg::Quat &rotation, const osg::Matrix& adjustMatrix)
+void GhostAvatarControls::rotateBone(const BoneParser::Bone &bone, const osg::Quat &rotation, const osg::Matrix &adjustMatrix)
 {
     auto adjustedMatrix = osg::Matrix::inverse(adjustMatrix) * osg::Matrix::rotate(rotation) * adjustMatrix;
     bone.rot->setQuaternion(adjustedMatrix.getRotate());
