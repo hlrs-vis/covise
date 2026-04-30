@@ -7,6 +7,7 @@ set(HEADERS
 
     controls/BoneParser.h
     controls/RigGeometryBoundsFixer.h
+    controls/GhostAvatarControlsFactory.h
     controls/PlanarAvatarControls.h
     controls/TestAvatarControls.h
     controls/GhostAvatarControls.h
@@ -15,6 +16,7 @@ set(HEADERS
 
     texture/SplotchTerroirTexture.h
     texture/StripesTerroirTexture.h
+    texture/TerroirTextureFactory.h
     texture/TerroirTexture.h
     texture/RenderToTextureCamera.h
 
@@ -29,6 +31,7 @@ set(SOURCES
 
     controls/BoneParser.cpp
     controls/RigGeometryBoundsFixer.cpp
+    controls/GhostAvatarControlsFactory.cpp
     controls/PlanarAvatarControls.cpp
     controls/TestAvatarControls.cpp
     controls/GhostAvatarControls.cpp
@@ -37,6 +40,7 @@ set(SOURCES
 
     texture/SplotchTerroirTexture.cpp
     texture/StripesTerroirTexture.cpp
+    texture/TerroirTextureFactory.cpp
     texture/TerroirTexture.cpp
     texture/RenderToTextureCamera.cpp
 

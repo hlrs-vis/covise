@@ -2,6 +2,7 @@
 #define COVER_PLUGIN_GHOSTAVATAR_GhostAvatar_H
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include <osg/Matrix>
@@ -14,7 +15,6 @@
 #include "texture/TerroirTexture.h"
 #include "ui/GhostAvatarControlsUI.h"
 
-//TODO: get info from config file instead of changing constructors
 class GhostAvatar : public opencover::coVRPlugin
 {
 public:
@@ -26,9 +26,9 @@ public:
 private:
     std::unique_ptr<GhostAvatarControls> m_avatarControls;
     std::unique_ptr<TerroirTexture> m_avatarTexture;
-    GhostAvatarControlsUI m_avatarControlsUI;
+    std::unique_ptr<GhostAvatarControlsUI> m_avatarControlsUI;
 
-    const bool m_useInteractors = true;
+    bool m_useInteractors;
     void moveAvatar();
     void moveAvatarWithInteractors();
     void moveAvatarWithTrackedPoses();

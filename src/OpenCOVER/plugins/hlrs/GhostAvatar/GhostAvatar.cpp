@@ -1,10 +1,11 @@
+#include <iostream>
+
+#include <config/CoviseConfig.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/VRSceneGraph.h>
 
-#include "controls/PlanarAvatarControls.h"
-#include "controls/TestAvatarControls.h"
-#include "texture/StripesTerroirTexture.h"
-#include "texture/SplotchTerroirTexture.h"
+#include "controls/GhostAvatarControlsFactory.h"
+#include "texture/TerroirTextureFactory.h"
 
 #include "util/SanitizeRigidTransform.h"
 
@@ -14,14 +15,15 @@ using namespace opencover;
 
 GhostAvatar::GhostAvatar()
     : coVRPlugin(COVER_PLUGIN_NAME)
-    //, m_avatarControls(std::make_unique<TestAvatarControls>("/data/STARTS-ECHO/Avatars/shaderTests/ghost_cave_minimal_fix.fbx", "RightArm", ""))
-    , m_avatarControls(std::make_unique<PlanarAvatarControls>("/data/STARTS-ECHO/Avatars/planarAvatar/PLANEE6_fix.fbx", "Arm", "Head"))
-    , m_avatarTexture(std::make_unique<SplotchTerroirTexture>(100))
-    //, m_avatarTexture(std::make_unique<StripesTerroirTexture>(100))
-    , m_avatarControlsUI(GhostAvatarControlsUI(COVER_PLUGIN_NAME, *m_avatarControls))
 {
+    m_avatarControls = GhostAvatarControlsFactory::getAvatarByName(covise::coCoviseConfig::getEntry("avatarType", "COVER.Plugin.GhostAvatar", "planar"));
+    m_avatarControlsUI = std::make_unique<GhostAvatarControlsUI>(COVER_PLUGIN_NAME, *m_avatarControls);
+
+    m_avatarTexture = TerroirTextureFactory::getTextureByName(covise::coCoviseConfig::getEntry("textureType", "COVER.Plugin.GhostAvatar", "splotches"), covise::coCoviseConfig::getFloat("distanceThreshold", "COVER.Plugin.GhostAvatar", 100.f));
     m_avatarTexture->setCameraForwardDir(m_avatarControls->getForwardDirection());
     m_avatarTexture->setCameraUpDir(m_avatarControls->getUpDirection());
+
+    m_useInteractors = covise::coCoviseConfig::getEntry("useInteractors", "COVER.Plugin.GhostAvatar", "false") == "true";
 }
 
 bool GhostAvatar::init()
@@ -30,7 +32,7 @@ bool GhostAvatar::init()
 
     m_avatarControls->loadAvatar();
     m_avatarTexture->applyTexture(m_avatarControls->getAvatarNode());
-    m_avatarControlsUI.initialize();
+    m_avatarControlsUI->initialize();
 
     addMirrorsToScene();
 
@@ -63,7 +65,7 @@ void GhostAvatar::moveAvatarWithInteractors()
     updateInteractors();
 
     m_avatarControls->updateBones(m_interactorFloor->getMatrix(), m_interactorHand->getMatrix(), m_interactorHead->getMatrix());
-    m_avatarControlsUI.update(m_interactorFloor->getMatrix(), m_interactorHand->getMatrix(), m_interactorHead->getMatrix());
+    m_avatarControlsUI->update(m_interactorFloor->getMatrix(), m_interactorHand->getMatrix(), m_interactorHead->getMatrix());
 }
 
 void GhostAvatar::moveAvatarWithTrackedPoses()
@@ -71,7 +73,7 @@ void GhostAvatar::moveAvatarWithTrackedPoses()
     updateTrackedPoses();
 
     m_avatarControls->updateBones(m_trackedFloor, m_trackedHand, m_trackedHead);
-    m_avatarControlsUI.update(m_trackedFloor, m_trackedHand, m_trackedHead);
+    m_avatarControlsUI->update(m_trackedFloor, m_trackedHand, m_trackedHead);
 }
 
 // TODO: use CAVE transform for feet and viewerMat for moving head
