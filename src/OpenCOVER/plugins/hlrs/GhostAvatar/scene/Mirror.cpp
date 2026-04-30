@@ -10,11 +10,12 @@
 
 using namespace opencover;
 
-Mirror::Mirror(const osg::Vec3 &position, float sizeX, float sizeZ)
+Mirror::Mirror(const osg::Vec3 &position, float sizeX, float sizeZ, const osg::Quat& rotation)
     : m_position(position)
     , m_sizeX(sizeX)
     , m_sizeY(0.01)
     , m_sizeZ(sizeZ)
+    , m_rotation(rotation)
     , m_mirrorTransform(new osg::MatrixTransform())
     , m_rttCamera(new RenderToTextureCamera({ 0, -1, 0 }, { 0, 0, 1 }, 1024, 60.0, 1.0, 1.0, 1000.0, true, false))
 {
@@ -34,6 +35,7 @@ Mirror::Mirror(Mirror &&other) noexcept
     , m_sizeX(other.m_sizeX)
     , m_sizeY(other.m_sizeY)
     , m_sizeZ(other.m_sizeZ)
+    , m_rotation(other.m_rotation)
     , m_mirrorTransform(std::move(other.m_mirrorTransform))
     , m_rttCamera(std::move(other.m_rttCamera))
     , m_reflectedNode(std::move(other.m_reflectedNode))
@@ -42,6 +44,7 @@ Mirror::Mirror(Mirror &&other) noexcept
     other.m_sizeX = 0.f;
     other.m_sizeY = 0.f;
     other.m_sizeZ = 0.f;
+    other.m_rotation = osg::Quat();
     other.m_mirrorTransform = nullptr;
     other.m_rttCamera = nullptr;
     other.m_reflectedNode = nullptr;
@@ -66,6 +69,7 @@ Mirror &Mirror::operator=(Mirror &&other) noexcept
     m_sizeX = other.m_sizeX;
     m_sizeY = other.m_sizeY;
     m_sizeZ = other.m_sizeZ;
+    m_rotation = other.m_rotation;
     m_mirrorTransform = std::move(other.m_mirrorTransform);
     m_rttCamera = std::move(other.m_rttCamera);
     m_reflectedNode = std::move(other.m_reflectedNode);
@@ -74,6 +78,7 @@ Mirror &Mirror::operator=(Mirror &&other) noexcept
     other.m_sizeX = 0.f;
     other.m_sizeY = 0.f;
     other.m_sizeZ = 0.f;
+    other.m_rotation = osg::Quat();
     other.m_mirrorTransform = nullptr;
     other.m_rttCamera = nullptr;
     other.m_reflectedNode = nullptr;

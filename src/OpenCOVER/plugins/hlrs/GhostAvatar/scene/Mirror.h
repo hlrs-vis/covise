@@ -4,6 +4,7 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 #include <osg/MatrixTransform>
+#include <osg/Quat>
 #include <osg/ref_ptr>
 #include <osg/Vec3>
 
@@ -12,7 +13,7 @@
 class Mirror
 {
 public:
-    Mirror(const osg::Vec3 &position, float sizeX, float sizeZ);
+    Mirror(const osg::Vec3 &position, float sizeX, float sizeZ, const osg::Quat& rotation = {0, 0, 0, 1});
     Mirror(const Mirror &) = delete;
     Mirror &operator=(const Mirror &) = delete;
     Mirror(Mirror &&other) noexcept;
@@ -24,6 +25,7 @@ public:
 
 private:
     osg::Vec3 m_position;
+    osg::Quat m_rotation;
     float m_sizeX, m_sizeY, m_sizeZ;
 
     osg::ref_ptr<osg::MatrixTransform> m_mirrorTransform;
