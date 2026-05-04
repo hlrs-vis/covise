@@ -523,7 +523,7 @@ bool GeoDataLoader::init()
             }
 
             saveOffsetToConfig->setState(false); });
-    
+
     visibilityGroup = new ui::Group(geoDataMenu, "visibility");
     visibilityGroup->setText("Toggle Visibility");
     visibilityGroup->allowRelayout(true);
@@ -712,7 +712,6 @@ bool GeoDataLoader::init()
                             Exiv2::URational lonSec = exif["Exif.GPSInfo.GPSLongitude"].toRational(2);
                             se.skyLongitude = lonDeg.first + lonMin.first / (60.0 * lonMin.second) + lonSec.first / (3600.0 * lonSec.second);
                         }
-
                     }
 
                     Exiv2::XmpData &xmpData = image->xmpData();
@@ -815,7 +814,6 @@ bool GeoDataLoader::init()
             if (!geo->displayName.empty())
                 location->setText(geo->displayName); });
 
-    
     editGroup = new ui::Group(geoDataMenu, "edit");
     editGroup->setText("Edit");
     editGroup->allowRelayout(true);
@@ -964,7 +962,6 @@ void GeoDataLoader::setBottom(float b)
     }
 }
 
-
 void GeoDataLoader::setFloorColor(osg::Vec4 fc)
 {
     if (floorColorUniform != nullptr)
@@ -1015,39 +1012,39 @@ bool GeoDataLoader::update()
                 {
                     if (currentNode == cover->getObjectsRoot())
                     {
-                       /* if (showGeodeName_)
-                        {
-                            // first look for a node description beginning with _SCGR_
-                            std::vector<std::string> dl = cover->getIntersectedNode()->getDescriptions();
-                            for (size_t i = 0; i < dl.size(); i++)
-                            {
-                                std::string descr = dl[i];
-                                if (descr.find("_SCGR_") != string::npos)
-                                {
-                                    nodeName = dl[i];
-                                    // fprintf(stderr,"found description %s\n", nodeName.c_str());
-                                    break;
-                                }
-                            }
-                            if (nodeName.empty())
-                            { // if there is no description we take the node name
-                                nodeName = cover->getIntersectedNode()->getName();
-                                // fprintf(stderr,"taking the node name %s\n", nodeName.c_str());
-                            }
-                        }
-                        else // show name of the dcs above
-                        {
-                            osg::Node *parentDcs = cover->getIntersectedNode()->getParent(0);
-                            nodeName = parentDcs->getName();
-                            if (nodeName.empty())
-                            {
-                                // if the dcs has no name it could be a helper node
-                                if ((parentDcs->getNumDescriptions() > 0) && (parentDcs->getDescription(1) == "SELECTIONHELPER"))
-                                {
-                                    nodeName = parentDcs->getParent(0)->getName();
-                                }
-                            }
-                        }*/
+                        /* if (showGeodeName_)
+                         {
+                             // first look for a node description beginning with _SCGR_
+                             std::vector<std::string> dl = cover->getIntersectedNode()->getDescriptions();
+                             for (size_t i = 0; i < dl.size(); i++)
+                             {
+                                 std::string descr = dl[i];
+                                 if (descr.find("_SCGR_") != string::npos)
+                                 {
+                                     nodeName = dl[i];
+                                     // fprintf(stderr,"found description %s\n", nodeName.c_str());
+                                     break;
+                                 }
+                             }
+                             if (nodeName.empty())
+                             { // if there is no description we take the node name
+                                 nodeName = cover->getIntersectedNode()->getName();
+                                 // fprintf(stderr,"taking the node name %s\n", nodeName.c_str());
+                             }
+                         }
+                         else // show name of the dcs above
+                         {
+                             osg::Node *parentDcs = cover->getIntersectedNode()->getParent(0);
+                             nodeName = parentDcs->getName();
+                             if (nodeName.empty())
+                             {
+                                 // if the dcs has no name it could be a helper node
+                                 if ((parentDcs->getNumDescriptions() > 0) && (parentDcs->getDescription(1) == "SELECTIONHELPER"))
+                                 {
+                                     nodeName = parentDcs->getParent(0)->getName();
+                                 }
+                             }
+                         }*/
                         break;
                     }
                     if (currentNode->getNumParents() > 0)
@@ -1256,7 +1253,6 @@ void editTerrain::createGeometry()
     geometryNode->setNodeMask(geometryNode->getNodeMask() | (Isect::Pick) | (Isect::Intersection));
 }
 
-
 editTerrain::editTerrain(GeoDataLoader *g)
     : vrui::coCombinedButtonInteraction(vrui::coInteraction::ButtonA, "editTerrain", vrui::coInteraction::InteractionPriority::Medium)
 {
@@ -1282,9 +1278,9 @@ editTerrain::editTerrain(GeoDataLoader *g)
         _selectedHl->setAttribute(selMaterial, osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED);
         _intersectedHl->setAttribute(isectMaterial, osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED);
     }
-/*
-    _selectedHl->setAttributeAndModes(polymode, osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED | osg::StateAttribute::ON);
-    _selectedHl->setAttributeAndModes(polymode, osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED | osg::StateAttribute::ON);*/
+    /*
+        _selectedHl->setAttributeAndModes(polymode, osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED | osg::StateAttribute::ON);
+        _selectedHl->setAttributeAndModes(polymode, osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED | osg::StateAttribute::ON);*/
 }
 
 void editTerrain::enableIntersection()
@@ -1314,4 +1310,3 @@ void GeoDataLoader::doReplace()
 void GeoDataLoader::doUndo()
 {
 }
-
