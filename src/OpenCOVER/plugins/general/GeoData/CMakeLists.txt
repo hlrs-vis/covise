@@ -29,5 +29,5 @@ set(SOURCES
 )
 
 
-cover_add_plugin(GeoData coCurlHTTPClient exiv2lib)
+cover_add_plugin(GeoData coCurlHTTPClient exiv2lib coVRGeoData)
 target_include_directories(GeoData PRIVATE ${PROJECT_SOURCE_DIR}/../../src/3rdparty/visionaray/src/3rdparty/rapidjson/include)

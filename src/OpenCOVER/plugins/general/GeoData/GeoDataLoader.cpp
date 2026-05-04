@@ -32,6 +32,7 @@
 #include <VrmlNodeGeoData.h>
 
 #include <config/CoviseConfig.h>
+#include <geodata/GeoData.h>
 
 #include <osgDB/ReadFile>
 #include <osgDB/WriteFile>
@@ -62,22 +63,10 @@
 #include <PluginUtil/PluginMessageTypes.h>
 #include <stdio.h>
 
-using namespace vrui;
-using namespace opencover;
 #include <exiv2/exiv2.hpp>
-namespace opencover
-{
-namespace ui
-{
-    class Menu;
-    class Label;
-    class Group;
-    class Button;
-    class EditField;
-}
-}
+#include <filesystem>
 
-using namespace covise;
+using namespace vrui;
 using namespace opencover;
 
 skyEntry::skyEntry(const std::string &n, const std::string &fn, double lon, double lat)
@@ -153,20 +142,14 @@ std::optional<GeoDataLoader::geoLocation> GeoDataLoader::parseCoordinates(const 
     if (!location.HasMember("lat") || !location.HasMember("lon"))
         return std::nullopt;
 
+    double latitude = std::stod(location["lat"].GetString());
+    double longitude = std::stod(location["lon"].GetString());
+
+    auto enu = GeoData::instance()->toLocal(osg::Vec3(longitude, latitude, 0.0), false);
+
     GeoDataLoader::geoLocation result;
-    result.latitude = std::stod(location["lat"].GetString());
-    result.longitude = std::stod(location["lon"].GetString());
-
-    PJ_COORD input;
-    input.lp.phi = result.longitude;
-    input.lp.lam = result.latitude;
-
-    // Perform the transformation
-    PJ_COORD output;
-    output = proj_trans(ProjInstance, PJ_FWD, input); // Forward transformation (WGS84 -> UTM)
-
-    result.easting = output.enu.e;
-    result.northing = output.enu.n;
+    result.easting = enu.x();
+    result.northing = enu.y();
     result.altitude = 500; // Default altitude value
 
     if (location.HasMember("display_name"))
@@ -187,8 +170,10 @@ void GeoDataLoader::jumpToLocation(const osg::Vec3d &worldPos)
         osg::Vec3d(easting, northing, 10000.0),
         osg::Vec3d(easting, northing, -10000.0));
     osgUtil::IntersectionVisitor iv(intersector);
-    if (terrainNode)
-        terrainNode->accept(iv);
+
+    auto terrainRoot = GeoData::instance()->terrainRoot();
+    if (terrainRoot)
+        terrainRoot->accept(iv);
 
     if (intersector->containsIntersections())
     {
@@ -221,18 +206,10 @@ void GeoDataLoader::jumpToLocation(const osg::Vec3d &worldPos)
     for (size_t i = 0; i < skyEntries.size(); ++i)
     {
         const skyEntry &se = skyEntries[i];
-        PJ_COORD input;
-        input.lp.phi = se.skyLongitude;
-        input.lp.lam = se.skyLatitude;
 
-        // Perform the transformation
-        PJ_COORD output;
-        output = proj_trans(ProjInstance, PJ_FWD, input); // Forward transformation (WGS84 -> UTM)
-
-        double skyEasting = output.enu.e;
-        double skyNorthing = output.enu.n;
-        double dx = skyEasting - easting;
-        double dy = skyNorthing - northing;
+        auto enu = GeoData::instance()->toLocal(osg::Vec3(se.skyLongitude, se.skyLatitude, 0.0), false);
+        double dx = enu.x() - easting;
+        double dy = enu.y() - northing;
         double distance = sqrt(dx * dx + dy * dy);
         if (distance < minDistance)
         {
@@ -259,19 +236,13 @@ GeoDataLoader::GeoDataLoader()
 bool GeoDataLoader::init()
 {
     vrml::VrmlNamespace::addBuiltIn(vrml::VrmlNode::defineType<VrmlNodeGeoData>());
-    ProjContext = proj_context_create();
-    // Define the transformation from WGS84 to UTM Zone 32N (EPSG:32632)
-    ProjInstance = proj_create_crs_to_crs(ProjContext, "EPSG:4326", "EPSG:32632", NULL); // EPSG:4326 is WGS84, EPSG:32632 is UTM Zone 32N
 
     geoDataMenu = new ui::Menu("GeoData", this);
     geoDataMenu->setText("GeoData");
     geoDataMenu->allowRelayout(true);
 
-    rootNode = new osg::MatrixTransform();
-    rootNode->setName("geodata");
     skyRootNode = new osg::MatrixTransform();
     skyRootNode->setName("sky");
-    cover->getObjectsRoot()->addChild(rootNode);
     cover->getScene()->addChild(skyRootNode);
 
     auto configFile = config();
@@ -321,27 +292,24 @@ bool GeoDataLoader::init()
 
         DatasetInfo dataset;
         dataset.name = entry.value<std::string>("", "name")->value();
-        dataset.altitude = entry.value<double>("", "altitude")->value();
-        dataset.trueNorth = entry.value<double>("", "trueNorth")->value();
 
+        double altitude = entry.value<double>("", "altitude")->value();
+        double trueNorth = entry.value<double>("", "trueNorth")->value();
         double latitude = entry.value<double>("", "latitude")->value();
         double longitude = entry.value<double>("", "longitude")->value();
 
         if (latitude || longitude)
         {
-            PJ_COORD input;
-            input.lp.phi = longitude;
-            input.lp.lam = latitude;
-
-            // transform
-            PJ_COORD output = proj_trans(ProjInstance, PJ_FWD, input);
-            dataset.easting = output.enu.e;
-            dataset.northing = output.enu.n;
+            auto enu = GeoData::instance()->toLocal(osg::Vec3(longitude, latitude, altitude), false);
+            dataset.easting = enu.x();
+            dataset.northing = enu.y();
+            dataset.altitude = enu.z();
         }
         else
         {
             dataset.easting = entry.value<double>("", "easting")->value();
             dataset.northing = entry.value<double>("", "northing")->value();
+            dataset.altitude = altitude;
         }
 
         datasets.push_back(dataset);
@@ -388,6 +356,7 @@ bool GeoDataLoader::init()
                 tempEastingText = std::to_string(dataset.easting);
                 tempNorthingText = std::to_string(dataset.northing);
                 tempAltitudeText = std::to_string(dataset.altitude);
+
                 tempTrueNorthText = std::to_string(dataset.trueNorth);
             }
         } });
@@ -577,6 +546,7 @@ bool GeoDataLoader::init()
             regionButton->setState(false);
             regionButton->setCallback([this, region_name, terrain_path, lod_path](bool state)
                 {
+                auto terrainRoot = GeoData::instance()->terrainRoot();
                 if (state)
                 {
                     if (loadedTerrains.find(region_name) == loadedTerrains.end())
@@ -585,7 +555,7 @@ bool GeoDataLoader::init()
                         if (terrainNode)
                         {
                             loadedTerrains[region_name] = terrainNode;
-                            rootNode->addChild(terrainNode);
+                            terrainRoot->addChild(terrainNode);
                             terrainNode->setName(region_name);
                             terrainNode->setNodeMask(showTerrain ? 0xffffffff : 0x0);
                         }
@@ -597,7 +567,7 @@ bool GeoDataLoader::init()
                         if (buildingNode)
                         {
                             loadedBuildings[region_name] = buildingNode;
-                            rootNode->addChild(buildingNode);
+                            terrainRoot->addChild(buildingNode);
                             buildingNode->setName(region_name);
                             buildingNode->setNodeMask(showBuildings ? 0xffffffff : 0x0);
                         }
@@ -607,13 +577,13 @@ bool GeoDataLoader::init()
                 {
                     if (loadedTerrains.find(region_name) != loadedTerrains.end())
                     {
-                        rootNode->removeChild(loadedTerrains[region_name]);
+                        terrainRoot->removeChild(loadedTerrains[region_name]);
                         loadedTerrains.erase(region_name);
                     }
 
                     if (loadedBuildings.find(region_name) != loadedBuildings.end())
                     {
-                        rootNode->removeChild(loadedBuildings[region_name]);
+                        terrainRoot->removeChild(loadedBuildings[region_name]);
                         loadedBuildings.erase(region_name);
                     }
                 } });
@@ -632,7 +602,7 @@ bool GeoDataLoader::init()
     int skyNumber = 1;
     try
     {
-        for (const auto &entry : fs::directory_iterator(skyPath))
+        for (const auto &entry : std::filesystem::directory_iterator(skyPath))
         {
             if (entry.is_regular_file() && ((entry.path().extension() == ".wrl") || (entry.path().extension() == ".WRL")))
             {
@@ -767,7 +737,7 @@ bool GeoDataLoader::init()
             }
         }
     }
-    catch (const fs::filesystem_error &err)
+    catch (const std::filesystem::filesystem_error &err)
     {
         std::cerr << "Filesystem error: " << err.what() << std::endl;
     }
@@ -858,8 +828,6 @@ bool GeoDataLoader::init()
 GeoDataLoader::~GeoDataLoader()
 {
     s_instance = nullptr;
-    proj_destroy(ProjInstance);
-    proj_context_destroy(ProjContext);
 }
 
 void GeoDataLoader::message(int toWhom, int type, int length, const void *data)
@@ -972,13 +940,15 @@ void GeoDataLoader::setFloorColor(osg::Vec4 fc)
 
 void GeoDataLoader::setRootTransform(const osg::Vec3 &off, float trueNorthDeg)
 {
-    rootOffset = off;
-    trueNorthDegree = trueNorthDeg;
+    // rootOffset = off;
+    // trueNorthDegree = trueNorthDeg;
 
-    float trueNorthRad = osg::DegreesToRadians(trueNorthDegree);
-    osg::Matrix trans = osg::Matrix::translate(rootOffset);
-    osg::Matrix rot = osg::Matrix::rotate(-trueNorthRad, osg::Vec3(0, 0, 1));
-    rootNode->setMatrix(trans * rot);
+    // float trueNorthRad = osg::DegreesToRadians(trueNorthDegree);
+    // osg::Matrix trans = osg::Matrix::translate(rootOffset);
+    // osg::Matrix rot = osg::Matrix::rotate(-trueNorthRad, osg::Vec3(0, 0, 1));
+    // rootNode->setMatrix(trans * rot);
+    //
+    GeoData::instance()->setProjectOffset(-off);
 }
 
 bool GeoDataLoader::update()

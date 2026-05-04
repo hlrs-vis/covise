@@ -11,9 +11,9 @@
 #include <string>
 #include <string_view>
 
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
+#include <osg/Vec3>
 #include <osg/Matrix>
+#include <osg/PositionAttitudeTransform>
 
 #include <util/coExport.h>
 
@@ -31,29 +31,42 @@ class COVRGEODATAEXPORT GeoData
 {
 public:
     GeoData();
+    ~GeoData();
+
+    static GeoData *instance();
 
     void setProjection(std::string_view projection);
-    void setProjectOffset(const glm::vec3 &projectOffset);
+    void setProjectOffset(const osg::Vec3 &projectOffset);
 
     const std::string &projection() const;
-    const glm::vec3 &projectOffset() const;
+    const osg::Vec3 &projectOffset() const;
+
+    osg::PositionAttitudeTransform *offsetRoot();
+    osg::Group *terrainRoot();
 
     /// Transform a global position (easting-northing-altitude) into local
     /// (x-y-z) coordinates, applying transform and project offset.
-    glm::vec3 toLocal(const glm::vec3 &global_position) const;
+    osg::Vec3 toLocal(const osg::Vec3 &globalPosition, bool withOffset = true) const;
 
     /// Transform a local (x-y-z) coordinate into a global position
     /// (easting-northing-altitude), applying the reverse project offset and
     /// transformation.
-    glm::vec3 toGlobal(const glm::vec3 &local_position) const;
+    osg::Vec3 toGlobal(const osg::Vec3 &localPosition, bool withOffset = true) const;
 
 protected:
 #ifdef HAVE_PROJ
-    PJ *m_coordTransformation;
+    PJ_CONTEXT *m_context = nullptr;
+    PJ *m_transformation = nullptr;
 #endif
 
     std::string m_projection;
-    glm::vec3 m_projectOffset;
+    osg::Vec3 m_projectOffset;
+
+    osg::PositionAttitudeTransform *m_offsetRoot;
+    osg::Group *m_terrainRoot;
+
+private:
+    static GeoData *singleton;
 };
 
 }

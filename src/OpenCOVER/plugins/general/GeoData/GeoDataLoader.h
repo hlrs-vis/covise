@@ -36,13 +36,13 @@
 #include <cover/ui/Button.h>
 #include <cover/ui/Label.h>
 #include <cover/ui/SelectionList.h>
-#include <filesystem>
 #include <optional>
 
 #include <OpenVRUI/coCombinedButtonInteraction.h>
 #include <cover/coIntersection.h>
 #include <OpenVRUI/coCombinedButtonInteraction.h>
 #include <OpenVRUI/sginterface/vruiIntersection.h>
+
 class GeoDataLoader;
 
 class editTerrain : public vrui::coCombinedButtonInteraction
@@ -57,10 +57,8 @@ public:
 private:
     virtual void createGeometry();
 
-
     // check whether interactor is enabled
     bool isEnabled();
-
 
     osg::ref_ptr<osg::Node> geometryNode; ///< Geometry node
     osg::ref_ptr<osg::MatrixTransform> moveTransform;
@@ -73,12 +71,6 @@ private:
     GeoDataLoader *gdl = nullptr;
 };
 
-namespace fs = std::filesystem;
-
-#ifndef RAD_TO_DEG
-#define RAD_TO_DEG 57.295779513082321
-#define DEG_TO_RAD .017453292519943296
-#endif
 class skyEntry
 {
 public:
@@ -165,7 +157,6 @@ private:
     PJ_CONTEXT *ProjContext;
     PJ *ProjInstance;
 
-    osg::ref_ptr<osg::MatrixTransform> rootNode;
     osg::ref_ptr<osg::MatrixTransform> skyRootNode;
     osg::ref_ptr<osg::Node> currentSkyNode;
     osg::ref_ptr<osg::Node> skyNode;
@@ -195,7 +186,6 @@ private:
     opencover::ui::Action *undo;
     opencover::ui::EditField *selectionRadius;
     opencover::ui::Label *selectionName;
-
 
     opencover::ui::Button *terrainVisibilityButton;
     opencover::ui::Button *buildingVisibilityButton;

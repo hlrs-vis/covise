@@ -7,11 +7,45 @@
 
 #include "GeoData.h"
 
+#include <cover/coVRPluginSupport.h>
+
 using namespace opencover;
 
 GeoData::GeoData()
 {
+#ifdef HAVE_PROJ
+    m_context = proj_context_create();
+#endif
+
+    m_offsetRoot = new osg::PositionAttitudeTransform;
+    m_offsetRoot->setPosition(-m_projectOffset);
+    cover->getObjectsRoot()->addChild(m_offsetRoot);
+
+    m_terrainRoot = new osg::Group;
+    m_offsetRoot->addChild(m_terrainRoot);
+
     setProjection(GEODATA_DEFAULT_PROJECTION_LOCAL);
+}
+
+GeoData::~GeoData()
+{
+#ifdef HAVE_PROJ
+    proj_context_destroy(m_context);
+
+    if (m_transformation)
+    {
+        proj_destroy(m_transformation);
+        m_transformation = nullptr;
+    }
+#endif
+}
+
+GeoData *GeoData::singleton = nullptr;
+GeoData *GeoData::instance()
+{
+    if (!singleton)
+        singleton = new GeoData();
+    return singleton;
 }
 
 void GeoData::setProjection(std::string_view projection)
@@ -19,61 +53,95 @@ void GeoData::setProjection(std::string_view projection)
     m_projection = projection;
 
 #ifdef HAVE_PROJ
-    m_coordTransformation = proj_create_crs_to_crs(PJ_DEFAULT_CTX,
+    if (m_transformation)
+    {
+        proj_destroy(m_transformation);
+    }
+
+    m_transformation = proj_create_crs_to_crs(m_context,
         GEODATA_DEFAULT_PROJECTION_GLOBAL,
         m_projection.c_str(),
         NULL);
+
+    if (m_transformation)
+    {
+        // Try to normalize the transformation, so that we always use
+        // easting-northing = longitude-latitude order, not the order specified
+        // in the projection definition (e. g. latitude-longitude for
+        // EPSG:4326).
+        PJ *tmp = proj_normalize_for_visualization(m_context, m_transformation);
+        if (tmp)
+        {
+            proj_destroy(m_transformation);
+            m_transformation = tmp;
+        }
+    }
+
 #else
     std::cerr << "coVRGeoData: no projection support, geo referencing will not work" << std::endl;
 #endif
 }
 
-void GeoData::setProjectOffset(const glm::vec3 &projectOffset)
+void GeoData::setProjectOffset(const osg::Vec3 &projectOffset)
 {
     m_projectOffset = projectOffset;
+    m_offsetRoot->setPosition(-m_projectOffset);
 }
 
 const std::string &GeoData::projection() const
 {
     return m_projection;
 }
-const glm::vec3 &GeoData::projectOffset() const
+const osg::Vec3 &GeoData::projectOffset() const
 {
     return m_projectOffset;
 }
 
-glm::vec3 GeoData::toLocal(const glm::vec3 &global_position) const
+osg::PositionAttitudeTransform *GeoData::offsetRoot()
+{
+    return m_offsetRoot;
+}
+
+osg::Group *GeoData::terrainRoot()
+{
+    return m_terrainRoot;
+}
+
+osg::Vec3 GeoData::toLocal(const osg::Vec3 &globalPosition, bool withOffset) const
 {
 #ifndef HAVE_PROJ
-    return global_position;
+    return globalPosition;
 #else
     PJ_COORD c;
-    c.lpz.lam = global_position.x;
-    c.lpz.phi = global_position.y;
-    c.lpz.z = global_position.z;
+    c.lpz.lam = globalPosition.x();
+    c.lpz.phi = globalPosition.y();
+    c.lpz.z = globalPosition.z();
 
-    PJ_COORD c_out = proj_trans(m_coordTransformation, PJ_FWD, c);
+    PJ_COORD c_out = proj_trans(m_transformation, PJ_FWD, c);
 
-    glm::vec3 position_transformed(c_out.enu.e, c_out.enu.n, c_out.enu.u);
+    osg::Vec3 position_transformed(c_out.enu.e, c_out.enu.n, c_out.enu.u);
 
-    return position_transformed - m_projectOffset;
+    if (withOffset)
+        return position_transformed - m_projectOffset;
+    else
+        return position_transformed;
 #endif
 }
 
-glm::vec3 GeoData::toGlobal(const glm::vec3 &local_position) const
+osg::Vec3 GeoData::toGlobal(const osg::Vec3 &localPosition, bool withOffset) const
 {
 #ifndef HAVE_PROJ
-    return local_position;
+    return localPosition;
 #else
-    auto p = local_position + m_projectOffset;
+    auto p = withOffset ? localPosition + m_projectOffset : localPosition;
 
     PJ_COORD c;
-    c.enu.e = p.x;
-    c.enu.n = p.y;
-    c.enu.u = p.z;
+    c.enu.e = p.x();
+    c.enu.n = p.y();
+    c.enu.u = p.z();
 
-    PJ_COORD c_out = proj_trans(m_coordTransformation, PJ_INV, c);
+    PJ_COORD c_out = proj_trans(m_transformation, PJ_INV, c);
 
-    return glm::vec3(c_out.lpz.phi, c_out.lpz.lam, c_out.lpz.z);
+    return osg::Vec3(c_out.lpz.phi, c_out.lpz.lam, c_out.lpz.z);
 #endif
 }
