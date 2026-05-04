@@ -27,7 +27,6 @@
 #include <osg/StateSet>
 #include <cover/coVRPlugin.h>
 #include <cover/coVRShader.h>
-#include "CutGeometry.h"
 #include <proj.h>
 #include <cover/ui/Menu.h>
 #include <cover/ui/Action.h>

@@ -1169,45 +1169,16 @@ osg::ref_ptr<osg::Node> GeoDataLoader::loadTerrain(std::string filename, osg::Ve
 
     if (terrain)
     {
-        /*osgTerrain::Terrain* terrainNode = dynamic_cast<osgTerrain::Terrain*>(terrain);
-      if(terrainNode) {
-         std::cout << "Casted to terrainNode!" << std::endl;
-         std::cout << "Num children: " << terrainNode->getNumChildren() << std::endl;
-         if(terrainNode->getNumChildren()>0) {
-            terrain = terrainNode->getChild(0);
-         }
-      }*/
         terrain->setDataVariance(osg::Object::DYNAMIC);
 
         osg::StateSet *terrainStateSet = terrain->getOrCreateStateSet();
-
         terrainStateSet->setMode(GL_LIGHTING, osg::StateAttribute::ON);
         terrainStateSet->setMode(GL_LIGHT0, osg::StateAttribute::ON);
-        // terrainStateSet->setMode ( GL_LIGHT1, osg::StateAttribute::ON);
-
-        // osgUtil::Optimizer optimizer;
-        // optimizer.optimize(terrain);
 
         terrain->setNodeMask(terrain->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
-
-        // std::vector<BoundingArea> voidBoundingAreaVector;
-        // voidBoundingAreaVector.push_back(BoundingArea(osg::Vec2(506426.839,5398055.357),osg::Vec2(508461.865,5399852.0)));
-        osgTerrain::TerrainTile::setTileLoadedCallback(new CutGeometry(this));
-
-        osg::PositionAttitudeTransform *terrainTransform = new osg::PositionAttitudeTransform();
-        terrainTransform->setName("Terrain");
-        terrainTransform->addChild(terrain);
-        terrainTransform->setPosition(localOffset);
-
-        const osg::BoundingSphere &terrainBS = terrain->getBound();
-        std::cout << "Terrain BB: center: (" << terrainBS.center()[0] << ", " << terrainBS.center()[1] << ", " << terrainBS.center()[2] << "), radius: " << terrainBS.radius() << std::endl;
-
-        return terrainTransform;
     }
-    else
-    {
-        return nullptr;
-    }
+
+    return terrain;
 }
 
 COVERPLUGIN(GeoDataLoader)

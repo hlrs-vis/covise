@@ -17,14 +17,12 @@ ENDIF()
 
 
 set(HEADERS
-    CutGeometry.h
     GeoDataLoader.h
 	VrmlNodeGeoData.h
 	../../../../3rdparty/easyexif/exif.h
 )
 
 set(SOURCES
-    CutGeometry.cpp
     GeoDataLoader.cpp
 	VrmlNodeGeoData.cpp
 	../../../../3rdparty/easyexif/exif.cpp
