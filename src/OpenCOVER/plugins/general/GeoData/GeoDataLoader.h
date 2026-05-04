@@ -123,7 +123,6 @@ public:
     ~GeoDataLoader();
 
     osg::ref_ptr<osg::Node> loadTerrain(std::string filename, osg::Vec3d localOffset);
-    bool addLayer(std::string filename);
 
     static GeoDataLoader *instance();
     osg::Vec3 rootOffset { 0.0, 0.0, 0.0 };

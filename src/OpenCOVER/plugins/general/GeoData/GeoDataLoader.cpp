@@ -1210,31 +1210,6 @@ osg::ref_ptr<osg::Node> GeoDataLoader::loadTerrain(std::string filename, osg::Ve
     }
 }
 
-bool GeoDataLoader::addLayer(std::string filename)
-{
-#if GDAL_VERSION_MAJOR < 2
-
-#else
-    if (GDALGetDriverCount() == 0)
-        GDALAllRegister();
-
-    // Try to open data source
-    GDALDataset *poDS = (GDALDataset *)GDALOpenEx(filename.c_str(), GDAL_OF_VECTOR, NULL, NULL, NULL);
-#endif
-    /*
-if (poDS == NULL)
-{
-    std::cout << "GeoDataLoader: Could not open layer " << filename << "!" << std::endl;
-    return false;
-}
-
-for (int layerIt = 0; layerIt < poDS->GetLayerCount(); ++layerIt)
-{
-}*/
-
-    return true;
-}
-
 COVERPLUGIN(GeoDataLoader)
 
 void editTerrain::createGeometry()
