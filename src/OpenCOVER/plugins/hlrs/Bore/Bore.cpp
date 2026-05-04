@@ -777,7 +777,7 @@ int BorePlugin::loadBore(std::string fileName, osg::Group *p)
 		}
 		else
 		{
-			projectOffset = osg::Vec3(3449864.546988, 5392358.883212, 0);
+			projectOffset = osg::Vec3(3450000, 5392000, 0);
 			projectOrientation = 0.0;
 		}
 		while (fgets(buf, 1000, fp) != NULL)
