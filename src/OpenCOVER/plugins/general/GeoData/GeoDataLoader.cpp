@@ -308,14 +308,6 @@ bool GeoDataLoader::init()
     spheremtl->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
     spheremtl->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
     stateset->setAttributeAndModes(spheremtl, osg::StateAttribute::ON);
-    texMat = new osg::TexMat();
-    osg::Matrixd tMat;
-    tMat.makeIdentity();
-    tMat(0, 0) = -1;
-    tMat(1, 1) = 1;
-    tMat(2, 2) = 1;
-    texMat->setMatrix(tMat);
-    stateset->setTextureAttributeAndModes(0, texMat, osg::StateAttribute::ON);
     osg::CullFace *cF = new osg::CullFace();
     cF->setMode(osg::CullFace::BACK);
     stateset->setAttributeAndModes(cF, osg::StateAttribute::OFF);
@@ -928,13 +920,6 @@ void GeoDataLoader::setSky(int selection)
             bottomUniform = shader->getcoVRUniform("bottom");
             floorColorUniform = shader->getcoVRUniform("floorColor");
 
-            osg::Matrixd tMat;
-            tMat.makeIdentity();
-            tMat(0, 0) = -1.0;
-            tMat(1, 1) = 1.0;
-            tMat(2, 2) = 1.0;
-            texMat->setMatrix(tMat);
-            stateset->setTextureAttributeAndModes(0, texMat, osg::StateAttribute::ON);
             skyRootNode->addChild(sky.skyNode);
         }
         currentSkyNode = sky.skyNode;
