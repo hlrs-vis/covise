@@ -27,6 +27,7 @@
 #include <cover/coVRMSController.h>
 #include <cover/coVRConfig.h>
 #include <cover/VRViewer.h>
+#include <cover/VRSceneGraph.h>
 #include <vrml97/vrml/VrmlNamespace.h>
 #include <VrmlNodeGeoData.h>
 
@@ -61,6 +62,10 @@
 #include <PluginUtil/PluginMessageTypes.h>
 #include <../../../../3rdparty/easyexif/exif.h>
 #include <stdio.h>
+
+using namespace vrui;
+using namespace opencover;
+
 namespace opencover
 {
 namespace ui
@@ -747,6 +752,45 @@ bool GeoDataLoader::init()
 
             if (!geo->displayName.empty())
                 location->setText(geo->displayName); });
+
+    
+    editGroup = new ui::Group(geoDataMenu, "edit");
+    editGroup->setText("Edit");
+    editGroup->allowRelayout(true);
+    editInteraction = new editTerrain(this);
+
+    editButton = new ui::Button(editGroup, "editTerrain");
+    editButton->setText("editTerrain");
+    editButton->setState(false);
+    editButton->setCallback([this](bool state)
+        {
+        if (state)
+        {
+            editInteraction->enableIntersection();
+        }
+        else
+        {
+            editInteraction->disableIntersection();
+            } });
+
+    deleteSelected = new ui::Action(editGroup, "deleteSelected");
+    deleteSelected->setText("delete");
+    deleteSelected->setCallback([this]()
+        { doDelete(); });
+
+    replace = new ui::Action(editGroup, "replace");
+    replace->setText("replace");
+    replace->setCallback([this]()
+        { doReplace(); });
+
+    undo = new ui::Action(editGroup, "undo");
+    undo->setText("undo");
+    undo->setCallback([this]()
+        { doUndo(); });
+
+    selectionName = new ui::Label(editGroup, "name");
+    selectionName->setText("nothing is selected");
+
     return true;
 }
 
@@ -895,6 +939,131 @@ bool GeoDataLoader::update()
     float farValue = coVRConfig::instance()->farClip();
     float scale = ((farValue) / 20000) + 500; // scale the sphere so that it stays a bit closer than the far clipping plane.
     skyRootNode->setMatrix(osg::Matrix::scale(scale, scale, scale) * osg::Matrix::rotate(northAngle, osg::Vec3(0, 0, 1)) * osg::Matrix::rotate(cover->getObjectsXform()->getMatrix().getRotate()));
+    if (editInteraction->isRunning())
+    {
+
+        // get the intersected node
+        if (cover->getIntersectedNode())
+        {
+            // position label with name
+            //nameLabel_->setPosition(cover->getIntersectionHitPointWorld());
+            if (cover->getIntersectedNode() != oldIntersectedNode)
+            {
+                // get the node name
+                string nodeName;
+                // char *labelName = NULL;
+
+                // show only node names under objects root
+                // so check if node is under objects root
+                osg::Node *currentNode = cover->getIntersectedNode();
+                while (currentNode != NULL)
+                {
+                    if (currentNode == cover->getObjectsRoot())
+                    {
+                        if (showGeodeName_)
+                        {
+                            // first look for a node description beginning with _SCGR_
+                            std::vector<std::string> dl = cover->getIntersectedNode()->getDescriptions();
+                            for (size_t i = 0; i < dl.size(); i++)
+                            {
+                                std::string descr = dl[i];
+                                if (descr.find("_SCGR_") != string::npos)
+                                {
+                                    nodeName = dl[i];
+                                    // fprintf(stderr,"found description %s\n", nodeName.c_str());
+                                    break;
+                                }
+                            }
+                            if (nodeName.empty())
+                            { // if there is no description we take the node name
+                                nodeName = cover->getIntersectedNode()->getName();
+                                // fprintf(stderr,"taking the node name %s\n", nodeName.c_str());
+                            }
+                        }
+                        else // show name of the dcs above
+                        {
+                            osg::Node *parentDcs = cover->getIntersectedNode()->getParent(0);
+                            nodeName = parentDcs->getName();
+                            if (nodeName.empty())
+                            {
+                                // if the dcs has no name it could be a helper node
+                                if ((parentDcs->getNumDescriptions() > 0) && (parentDcs->getDescription(1) == "SELECTIONHELPER"))
+                                {
+                                    nodeName = parentDcs->getParent(0)->getName();
+                                }
+                            }
+                        }
+                        break;
+                    }
+                    if (currentNode->getNumParents() > 0)
+                        currentNode = currentNode->getParent(0);
+                    else
+                        currentNode = NULL;
+                }
+
+                // show label
+                if (!nodeName.empty())
+                {
+                    std::string onam = nodeName;
+                    // eliminate _SCGR_
+                    if (nodeName.find("_SCGR_") != string::npos)
+                    {
+                        nodeName = nodeName.substr(0, nodeName.rfind("_SCGR_"));
+                    }
+                    // eliminate 3D studio max name -faces
+                    if (nodeName.find("-FACES") != string::npos)
+                    {
+                        nodeName = nodeName.substr(0, nodeName.rfind("-FACES"));
+                    }
+                    // eliminate 3D studio max name _faces
+                    if (nodeName.find("_FACES") != string::npos)
+                    {
+                        nodeName = nodeName.substr(0, nodeName.rfind("_FACES"));
+                    }
+                    // eliminate numbers at the end
+                    while ((nodeName.length() > 0) && (nodeName[nodeName.length() - 1] >= '0') && (nodeName[nodeName.length() - 1] <= '9'))
+                    {
+                        nodeName.erase(nodeName.length() - 1, 1);
+                    }
+
+                    // replace underlines with blanks
+                    if (nodeName.length() > 0 && nodeName[nodeName.length() - 1] == '_')
+                    {
+                        nodeName.erase(nodeName.length() - 1);
+                    }
+
+                    // check if we now have an empty string (containing spaces only)
+                    if (nodeName.length() > 0)
+                    {
+                        selectionName->setText(nodeName);
+
+                        // delete []labelName;
+                        oldIntersectedNode = cover->getIntersectedNode();
+                    }
+                    else
+                    {
+                        selectionName->setText("-");
+                        oldIntersectedNode = NULL;
+                    }
+                }
+                else
+                {
+                    selectionName->setText("-");
+                    oldIntersectedNode = NULL;
+                }
+            }
+            else
+            {
+                selectionName->setText("-");
+                oldIntersectedNode = NULL;
+            }
+        }
+        else
+        {
+            selectionName->setText("-");
+            oldIntersectedNode = NULL;
+        }
+    }
     return false; // don't request that scene be re-rendered
 }
 GeoDataLoader *GeoDataLoader::instance()
@@ -1015,3 +1184,85 @@ for (int layerIt = 0; layerIt < poDS->GetLayerCount(); ++layerIt)
 }
 
 COVERPLUGIN(GeoDataLoader)
+
+void editTerrain::createGeometry()
+{
+
+    osg::Sphere *mySphere = new osg::Sphere(osg::Vec3(0, 0, 0), 1.0);
+    osg::TessellationHints *hint = new osg::TessellationHints();
+    hint->setDetailRatio(0.5);
+    osg::ShapeDrawable *mySphereDrawable = new osg::ShapeDrawable(mySphere, hint);
+    mySphereDrawable->setColor(osg::Vec4(0.6f, 0.6f, 0.6f, 1.0f));
+    geometryNode = new osg::Geode();
+    scaleTransform->addChild(geometryNode.get());
+    moveTransform->addChild(scaleTransform.get());
+    ((osg::Geode *)geometryNode.get())->addDrawable(mySphereDrawable);
+    geometryNode->setStateSet(VRSceneGraph::instance()->loadDefaultGeostate());
+    geometryNode->setNodeMask(geometryNode->getNodeMask() | (Isect::Pick) | (Isect::Intersection));
+}
+
+
+editTerrain::editTerrain(GeoDataLoader *g)
+    : vrui::coCombinedButtonInteraction(vrui::coInteraction::ButtonA, "editTerrain", vrui::coInteraction::InteractionPriority::Medium)
+{
+    gdl = g;
+    _selectedHl = new osg::StateSet();
+    _intersectedHl = new osg::StateSet();
+
+    if (_standardHL)
+    {
+        // set default materials
+        osg::Material *selMaterial = new osg::Material();
+        selMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4f(1.0, 0.3, 0.0, 1.0f));
+        selMaterial->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4f(1.0, 0.3, 0.0, 1.0f));
+        selMaterial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.1f, 0.1f, 0.1f, 1.0f));
+        selMaterial->setShininess(osg::Material::FRONT_AND_BACK, 10.f);
+        selMaterial->setColorMode(osg::Material::OFF);
+        osg::Material *isectMaterial = new osg::Material();
+        isectMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.6, 0.6, 0.0, 1.0f));
+        isectMaterial->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.6, 0.6, 0.0, 1.0f));
+        isectMaterial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.1f, 0.1f, 0.1f, 1.0f));
+        isectMaterial->setShininess(osg::Material::FRONT_AND_BACK, 10.f);
+        isectMaterial->setColorMode(osg::Material::OFF);
+        _selectedHl->setAttribute(selMaterial, osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED);
+        _intersectedHl->setAttribute(isectMaterial, osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED);
+    }
+
+    _selectedHl->setAttributeAndModes(polymode, osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED | osg::StateAttribute::ON);
+    _selectedHl->setAttributeAndModes(polymode, osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED | osg::StateAttribute::ON);
+}
+
+void editTerrain::enableIntersection()
+{
+    if (cover->debugLevel(4))
+        fprintf(stderr, "coVRIntersectionInteractor(%s)::enableIntersection\n", _interactorName);
+
+    coInteractionManager::the()->registerInteraction(this);
+}
+
+void editTerrain::disableIntersection()
+{
+    if (cover->debugLevel(2))
+        fprintf(stderr, "coVRIntersectionInteractor(%s)::disableIntersection\n", _interactorName);
+
+    // interactor is normally unregistered in miss
+    // if we disable intersection miss is not called anymore
+    // therefore we make sure that the interactor is unregistered
+    if (registered)
+    {
+        coInteractionManager::the()->unregisterInteraction(this);
+    }
+
+    resetState();
+}
+
+void GeoDataLoader::doDelete()
+{
+}
+void GeoDataLoader::doReplace()
+{
+}
+void GeoDataLoader::doUndo()
+{
+}
+

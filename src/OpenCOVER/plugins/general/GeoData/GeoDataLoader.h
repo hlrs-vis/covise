@@ -24,6 +24,7 @@
 #include <osg/PositionAttitudeTransform>
 #include <osgTerrain/Terrain>
 #include <osg/TexMat>
+#include <osg/StateSet>
 #include <cover/coVRPlugin.h>
 #include <cover/coVRShader.h>
 #include "CutGeometry.h"
@@ -34,9 +35,45 @@
 #include <cover/ui/Slider.h>
 #include <cover/ui/EditField.h>
 #include <cover/ui/Button.h>
+#include <cover/ui/Label.h>
 #include <cover/ui/SelectionList.h>
 #include <filesystem>
 #include <optional>
+
+#include <OpenVRUI/coCombinedButtonInteraction.h>
+#include <cover/coIntersection.h>
+#include <OpenVRUI/coCombinedButtonInteraction.h>
+#include <OpenVRUI/sginterface/vruiIntersection.h>
+class GeoDataLoader;
+
+class editTerrain : public vrui::coCombinedButtonInteraction
+{
+public:
+    editTerrain(GeoDataLoader *g);
+
+private:
+    virtual void createGeometry();
+    virtual void doInteraction();
+
+    // make the interactor intersection sensitive
+    void enableIntersection();
+
+    // check whether interactor is enabled
+    bool isEnabled();
+
+    // make the interactor intersection insensitive
+    void disableIntersection();
+
+    osg::ref_ptr<osg::Node> geometryNode; ///< Geometry node
+    osg::ref_ptr<osg::MatrixTransform> moveTransform;
+    osg::ref_ptr<osg::MatrixTransform> scaleTransform;
+
+    osg::ref_ptr<osg::StateSet> _selectedHl, _intersectedHl, _oldHl;
+    bool _standardHL = true;
+    bool _intersectionEnabled = false;
+
+    GeoDataLoader *gdl = nullptr;
+};
 
 namespace fs = std::filesystem;
 
@@ -63,6 +100,11 @@ public:
     double skyLongitude;
     double skyLatitude;
     double skyTrueNorth;
+};
+
+class EditInfo
+{
+    std::string fileName;
 };
 
 class GeoDataLoader : public opencover::coVRPlugin, public opencover::ui::Owner
@@ -94,6 +136,7 @@ public:
     opencover::coVRUniform *topUniform = nullptr;
     opencover::coVRUniform *bottomUniform = nullptr;
     opencover::coVRUniform *floorColorUniform = nullptr;
+    editTerrain *editInteraction;
 
     struct geoLocation
     {
@@ -118,6 +161,8 @@ public:
 
     const std::vector<DatasetInfo> &getDatasets() const { return datasets; }
 
+    void doInteraction();
+
 private:
     static GeoDataLoader *s_instance;
     PJ_CONTEXT *ProjContext;
@@ -133,6 +178,11 @@ private:
     std::map<std::string, osg::ref_ptr<osg::Node>> loadedBuildings;
     bool showTerrain = true;
     bool showBuildings = true;
+    osg::Node *oldIntersectedNode;
+    std::list<EditInfo> editInfos;
+    void doDelete();
+    void doReplace();
+    void doUndo();
 
     opencover::ui::Menu *geoDataMenu;
     opencover::ui::Group *geoObjectGroup;
@@ -140,6 +190,15 @@ private:
     opencover::ui::Group *originGroup;
     opencover::ui::Group *locationGroup;
     opencover::ui::Group *visibilityGroup;
+    opencover::ui::Group *editGroup;
+
+    opencover::ui::Button *editButton;
+    opencover::ui::Action *deleteSelected;
+    opencover::ui::Action *replace;
+    opencover::ui::Action *undo;
+    opencover::ui::EditField *selectionRadius;
+    opencover::ui::Label *selectionName;
+
 
     opencover::ui::Button *terrainVisibilityButton;
     opencover::ui::Button *buildingVisibilityButton;

@@ -148,7 +148,6 @@ void ParticleRenderer::_drawPoints(bool color, int numActiveParticles)
     }
     else
     {
-        glEnableClientState(GL_VERTEX_ARRAY);
 
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_pbo);
 
@@ -156,6 +155,7 @@ void ParticleRenderer::_drawPoints(bool color, int numActiveParticles)
             glVertexPointer(4, GL_DOUBLE, 0, 0);
         else
             glVertexPointer(4, GL_FLOAT, 0, 0);
+        glEnableClientState(GL_VERTEX_ARRAY);
 
         if (color)
         {

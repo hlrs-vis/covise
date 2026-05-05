@@ -12,6 +12,7 @@
 #include <OpenVRUI/coNavInteraction.h>
 #include <osg/MatrixTransform>
 #include <osg/ref_ptr>
+#include <osg/Switch>
 
 #include "coVRNavigationProvider.h"
 

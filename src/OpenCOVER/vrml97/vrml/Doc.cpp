@@ -58,7 +58,13 @@ void Doc::seturl(const std::string &url, const Doc *relative)
 {
     d_url = "";
     if (relative && !isAbsolute(url))
-        d_url = relative->urlPath();
+    {
+        // Boost isAbsolute is not working on windows for some reason, so we do it ourselves
+        if (url.length() > 0 && url[0] != '/')
+        {
+            d_url = relative->urlPath();
+        }
+    }
     d_url += url;
 }
 
@@ -76,7 +82,10 @@ std::string Doc::urlExt() const
 
 std::string Doc::urlPath() const
 {
-    return boost::filesystem::path(d_url).parent_path().string() + "/";
+    std::string path = boost::filesystem::path(d_url).parent_path().string();
+    if (!path.empty() && path.back() == '/') // avoid duplicate /
+        return path;
+    return path + "/";
 }
 
 std::string Doc::urlProtocol() const
