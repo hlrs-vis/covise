@@ -199,13 +199,14 @@ bool GeoDataLoader::init()
 {
     vrml::VrmlNamespace::addBuiltIn(vrml::VrmlNode::defineType<VrmlNodeGeoData>());
 
-    geoDataMenu = dynamic_cast<ui::Menu *>(cover->ui->getByPath("GeoData"));
+    geoDataMenu = dynamic_cast<ui::Menu *>(cover->ui->getByPath("Manager.GeoData"));
     if (!geoDataMenu)
     {
-        geoDataMenu = new ui::Menu("GeoData", this);
+        geoDataMenu = new ui::Menu("GeoData", cover->ui);
         geoDataMenu->setText("GeoData");
         geoDataMenu->allowRelayout(true);
     }
+    geoDataMenu->setVisible(true);
 
     auto configFile = config();
 
@@ -580,6 +581,12 @@ bool GeoDataLoader::init()
 GeoDataLoader::~GeoDataLoader()
 {
     s_instance = nullptr;
+
+    delete geoObjectGroup;
+    delete originGroup;
+    delete locationGroup;
+    delete visibilityGroup;
+    geoDataMenu->setVisible(geoDataMenu->numChildren() > 0);
 }
 
 void GeoDataLoader::message(int toWhom, int type, int length, const void *data)

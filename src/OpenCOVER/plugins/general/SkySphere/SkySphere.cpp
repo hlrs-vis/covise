@@ -85,13 +85,14 @@ bool SkySphere::init()
 {
     // vrml::VrmlNamespace::addBuiltIn(vrml::VrmlNode::defineType<VrmlNodeSkySphere>());
 
-    geoDataMenu = dynamic_cast<ui::Menu *>(cover->ui->getByPath("GeoData"));
+    geoDataMenu = dynamic_cast<ui::Menu *>(cover->ui->getByPath("Manager.GeoData"));
     if (!geoDataMenu)
     {
-        geoDataMenu = new ui::Menu("GeoData", this);
+        geoDataMenu = new ui::Menu("GeoData", cover->ui);
         geoDataMenu->setText("GeoData");
         geoDataMenu->allowRelayout(true);
     }
+    geoDataMenu->setVisible(true);
 
     skyRootNode = new osg::MatrixTransform();
     skyRootNode->setName("sky");
@@ -162,6 +163,8 @@ bool SkySphere::init()
 SkySphere::~SkySphere()
 {
     s_instance = nullptr;
+    delete skyGroup;
+    geoDataMenu->setVisible(geoDataMenu->numChildren() > 0);
 }
 
 void SkySphere::loadSkies()
