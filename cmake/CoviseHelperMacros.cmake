@@ -1165,8 +1165,6 @@ MACRO(COVISE_FIND_CUDA)
           endif()
       endif()
       covise_find_package(CCCL CONFIG)
-   MESSAGE("COVISE_USE_CUDA")
-   MESSAGE(${COVISE_USE_CUDA})
   ENDIF()
 
   if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
