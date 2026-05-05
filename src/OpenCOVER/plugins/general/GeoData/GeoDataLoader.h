@@ -26,7 +26,6 @@
 #include <osg/TexMat>
 #include <osg/StateSet>
 #include <cover/coVRPlugin.h>
-#include <cover/coVRShader.h>
 #include <proj.h>
 #include <cover/ui/Menu.h>
 #include <cover/ui/Action.h>
@@ -71,27 +70,6 @@ private:
     GeoDataLoader *gdl = nullptr;
 };
 
-class skyEntry
-{
-public:
-    enum skyType
-    {
-        texture = 0,
-        geometry
-    };
-    skyEntry(const std::string &n, const std::string &fn, double lon, double lat);
-    ~skyEntry();
-    skyEntry(const skyEntry &se);
-    std::string name;
-    std::string fileName;
-    osg::ref_ptr<osg::Node> skyNode;
-    osg::ref_ptr<osg::Texture2D> skyTexture;
-    skyType type = geometry;
-    double skyLongitude;
-    double skyLatitude;
-    double skyTrueNorth;
-};
-
 class EditInfo
 {
     std::string fileName;
@@ -114,52 +92,28 @@ public:
     ~GeoDataLoader();
 
     osg::ref_ptr<osg::Node> loadTerrain(std::string filename, osg::Vec3d localOffset);
+    void setRootTransform(const osg::Vec3 &origin, float trueNorthDeg = 0.f);
 
     static GeoDataLoader *instance();
     osg::Vec3 rootOffset { 0.0, 0.0, 0.0 };
     float trueNorthDegree = 0.0f;
-    float NorthAngle;
-    osg::ref_ptr<osg::Geode> TexturedSphere;
-    osg::TexMat *texMat;
-    opencover::coVRShader *shader = nullptr;
-    opencover::coVRUniform *topUniform = nullptr;
-    opencover::coVRUniform *bottomUniform = nullptr;
-    opencover::coVRUniform *floorColorUniform = nullptr;
     editTerrain *editInteraction;
 
-    struct geoLocation
-    {
-        double latitude;
-        double longitude;
-        double easting;
-        double northing;
-        double altitude;
-        std::string displayName;
-    };
-
-    virtual bool update();
     virtual void message(int toWhom, int type, int length, const void *data);
-    void setSky(int num);
-    void setSky(std::string fileName);
-    void setTop(float t);
-    void setBottom(float b);
-    void setFloorColor(osg::Vec4 fc);
-    void setRootTransform(const osg::Vec3 &offset, float trueNorthDeg);
-    std::optional<geoLocation> parseCoordinates(const std::string &jsonData);
+
+    void jumpToLocation(std::string_view searchQuery);
     void jumpToLocation(const osg::Vec3d &worldPos);
 
     const std::vector<DatasetInfo> &getDatasets() const { return datasets; }
 
     void doInteraction();
+    bool update();
 
 private:
     static GeoDataLoader *s_instance;
     PJ_CONTEXT *ProjContext;
     PJ *ProjInstance;
 
-    osg::ref_ptr<osg::MatrixTransform> skyRootNode;
-    osg::ref_ptr<osg::Node> currentSkyNode;
-    osg::ref_ptr<osg::Node> skyNode;
     osg::ref_ptr<osg::Node> terrainNode = nullptr;
     osg::ref_ptr<osg::Node> buildingNode = nullptr;
     std::map<std::string, osg::ref_ptr<osg::Node>> loadedTerrains;
@@ -174,7 +128,6 @@ private:
 
     opencover::ui::Menu *geoDataMenu;
     opencover::ui::Group *geoObjectGroup;
-    opencover::ui::Group *skyGroup;
     opencover::ui::Group *originGroup;
     opencover::ui::Group *locationGroup;
     opencover::ui::Group *visibilityGroup;
@@ -189,7 +142,6 @@ private:
 
     opencover::ui::Button *terrainVisibilityButton;
     opencover::ui::Button *buildingVisibilityButton;
-    opencover::ui::Button *skyButton;
     opencover::ui::Button *applyOffset;
     opencover::ui::Button *saveOffsetToConfig;
     opencover::ui::EditField *location;
@@ -198,16 +150,11 @@ private:
     opencover::ui::EditField *altitude;
     opencover::ui::EditField *trueNorth;
     opencover::ui::SelectionList *datasetList;
-    opencover::ui::SelectionList *skys;
-    opencover::ui::Slider *skyNorthSlider = nullptr;
-    std::vector<skyEntry> skyEntries;
 
     std::vector<DatasetInfo> datasets;
 
     float northAngle;
     std::string terrainFile;
-    std::string skyPath;
-    int defaultSky;
 
     std::string tempEastingText;
     std::string tempNorthingText;

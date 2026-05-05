@@ -111,7 +111,8 @@
 
             <!--Console value="on" file="/tmp/coverlog"/-->
             <Plugin>
-                <PBufferSnapShot menu="true" />
+                <GeoData menu="true" />
+                <SkySphere menu="true" />
                 <Video menu="true" />
                 <CompositorIceT menu="false" />
                 <ViewPoint value="true" />

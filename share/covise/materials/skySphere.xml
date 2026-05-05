@@ -20,20 +20,15 @@ float rand(vec2 co){
 void main (void)
 { 
     vec2 texcoord = gl_TexCoord[0].xy;
-	texcoord.x *= -1;
+    texcoord.x *= -1.0;
     vec4 texColor  = texture2D(tex1, texcoord);
-    /*vec4 floorColor = 
-        texture2D(tex1, vec2(0.0, 0.0)) +
-        texture2D(tex1, vec2(0.2, 0.0)) +
-        texture2D(tex1, vec2(0.4, 0.0)) +
-        texture2D(tex1, vec2(0.6, 0.0)) +
-        texture2D(tex1, vec2(0.8, 0.0)) +
-        texture2D(tex1, vec2(1.0, 0.0));
-
-    floorColor /= 6.0;*/
     
     gl_FragColor = mix(
         mix(floorColor * 0.5, floorColor, smoothstep(0.0, 0.44, texcoord.y + rand(texcoord)*0.01)),
-            texColor, smoothstep(bottom, top, texcoord.y));
+        texColor, 
+        smoothstep(bottom, top, texcoord.y)
+    );
+
+    gl_FragDepth = 0.9999999;
 }
 </fragmentProgram></_skySphere>

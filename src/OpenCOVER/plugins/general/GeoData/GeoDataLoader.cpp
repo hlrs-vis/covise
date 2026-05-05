@@ -30,6 +30,7 @@
 #include <cover/VRSceneGraph.h>
 #include <vrml97/vrml/VrmlNamespace.h>
 #include <VrmlNodeGeoData.h>
+#include <cover/ui/Manager.h>
 
 #include <config/CoviseConfig.h>
 #include <geodata/GeoData.h>
@@ -64,39 +65,13 @@
 #include <stdio.h>
 
 #include <exiv2/exiv2.hpp>
-#include <filesystem>
+#include <optional>
+#include <utility>
 
 using namespace vrui;
 using namespace opencover;
 
-skyEntry::skyEntry(const std::string &n, const std::string &fn, double lon, double lat)
-{
-    name = n;
-    fileName = fn;
-    skyLongitude = lon;
-    skyLatitude = lat;
-}
-skyEntry::~skyEntry()
-{
-}
-skyEntry::skyEntry(const skyEntry &se)
-{
-    name = se.name;
-    fileName = se.fileName;
-    skyNode = se.skyNode;
-    skyTexture = se.skyTexture;
-    type = se.type;
-    skyLongitude = se.skyLongitude;
-    skyLatitude = se.skyLatitude;
-    skyTrueNorth = se.skyTrueNorth;
-}
-
-std::string name;
-std::string fileName;
-osg::ref_ptr<osg::Node> skyNode;
-osg::ref_ptr<osg::Texture2D> skyTexture;
-
-std::string getCoordinates(const std::string &address)
+std::string getCoordinates(std::string_view searchQuery)
 {
     using namespace opencover::httpclient::curl;
     std::string readBuffer;
@@ -107,6 +82,7 @@ std::string getCoordinates(const std::string &address)
         return "[ERROR] Failed to initialize CURL.";
     }
 
+    std::string address(searchQuery);
     char *encoded = curl_easy_escape(curl, address.c_str(), address.length());
     if (!encoded)
     {
@@ -128,7 +104,7 @@ std::string getCoordinates(const std::string &address)
     return readBuffer;
 }
 
-std::optional<GeoDataLoader::geoLocation> GeoDataLoader::parseCoordinates(const std::string &jsonData)
+std::optional<std::pair<osg::Vec3, std::string>> parseCoordinates(const std::string &jsonData)
 {
     rapidjson::Document document;
 
@@ -145,17 +121,26 @@ std::optional<GeoDataLoader::geoLocation> GeoDataLoader::parseCoordinates(const 
     double latitude = std::stod(location["lat"].GetString());
     double longitude = std::stod(location["lon"].GetString());
 
-    auto enu = GeoData::instance()->toLocal(osg::Vec3(longitude, latitude, 0.0), false);
+    std::string displayName = location.HasMember("display_name") ? location["display_name"].GetString() : "";
+    auto enu = GeoData::instance()->toLocal(osg::Vec3(longitude, latitude, 500.0), false);
 
-    GeoDataLoader::geoLocation result;
-    result.easting = enu.x();
-    result.northing = enu.y();
-    result.altitude = 500; // Default altitude value
+    return std::make_pair(enu, displayName);
+}
 
-    if (location.HasMember("display_name"))
-        result.displayName = location["display_name"].GetString();
+void GeoDataLoader::jumpToLocation(std::string_view searchQuery)
+{
+    auto json = getCoordinates(searchQuery);
+    auto geo = parseCoordinates(json);
 
-    return result;
+    if (geo)
+    {
+        jumpToLocation(geo->first);
+
+        if (!geo->second.empty())
+        {
+            location->setText(geo->second);
+        }
+    }
 }
 
 void GeoDataLoader::jumpToLocation(const osg::Vec3d &worldPos)
@@ -199,29 +184,6 @@ void GeoDataLoader::jumpToLocation(const osg::Vec3d &worldPos)
     targetPos = targetPos * scale;
     mat.setTrans(-targetPos);
     cover->setXformMat(mat);
-
-    // set the closest sky //TODO set sky based on viewer pos not only after location jump
-    double minDistance = 1e30;
-    int closestSky = -1;
-    for (size_t i = 0; i < skyEntries.size(); ++i)
-    {
-        const skyEntry &se = skyEntries[i];
-
-        auto enu = GeoData::instance()->toLocal(osg::Vec3(se.skyLongitude, se.skyLatitude, 0.0), false);
-        double dx = enu.x() - easting;
-        double dy = enu.y() - northing;
-        double distance = sqrt(dx * dx + dy * dy);
-        if (distance < minDistance)
-        {
-            minDistance = distance;
-            closestSky = static_cast<int>(i) + 1; // +1 because sky selection list has "None" at index 0
-        }
-    }
-    if (closestSky >= 0)
-    {
-        setSky(closestSky);
-        skys->select(closestSky);
-    }
 }
 
 GeoDataLoader *GeoDataLoader::s_instance = nullptr;
@@ -237,13 +199,13 @@ bool GeoDataLoader::init()
 {
     vrml::VrmlNamespace::addBuiltIn(vrml::VrmlNode::defineType<VrmlNodeGeoData>());
 
-    geoDataMenu = new ui::Menu("GeoData", this);
-    geoDataMenu->setText("GeoData");
-    geoDataMenu->allowRelayout(true);
-
-    skyRootNode = new osg::MatrixTransform();
-    skyRootNode->setName("sky");
-    cover->getScene()->addChild(skyRootNode);
+    geoDataMenu = dynamic_cast<ui::Menu *>(cover->ui->getByPath("GeoData"));
+    if (!geoDataMenu)
+    {
+        geoDataMenu = new ui::Menu("GeoData", this);
+        geoDataMenu->setText("GeoData");
+        geoDataMenu->allowRelayout(true);
+    }
 
     auto configFile = config();
 
@@ -256,33 +218,6 @@ bool GeoDataLoader::init()
     datasetList->setText("Choose Datasets");
     datasetList->append("None");
     datasets.clear();
-    TexturedSphere = new osg::Geode;
-    osg::Sphere *_Sphere = new osg::Sphere();
-    _Sphere->setRadius(8000);
-    osg::TessellationHints *hint = new osg::TessellationHints();
-    hint->setDetailRatio(1.0);
-    hint->setCreateBackFace(true);
-    hint->setCreateFrontFace(false);
-    hint->setCreateTextureCoords(true);
-    // hint->setCreateNormals(true);
-    osg::ShapeDrawable *_sphereDrawable = new osg::ShapeDrawable(_Sphere, hint);
-    _sphereDrawable->setColor(osg::Vec4(1, 1, 1, 1));
-    _sphereDrawable->setUseDisplayList(false); // turn off display list so that we can change the pointer length
-    TexturedSphere->addDrawable(_sphereDrawable);
-    osg::StateSet *stateset = TexturedSphere->getOrCreateStateSet();
-    stateset->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
-    osg::Material *spheremtl = new osg::Material;
-    spheremtl->setColorMode(osg::Material::OFF);
-    spheremtl->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(1, 1, 1, 1));
-    spheremtl->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(1, 1, 1, 1));
-    spheremtl->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
-    spheremtl->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
-    spheremtl->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
-    stateset->setAttributeAndModes(spheremtl, osg::StateAttribute::ON);
-    osg::CullFace *cF = new osg::CullFace();
-    cF->setMode(osg::CullFace::BACK);
-    stateset->setAttributeAndModes(cF, osg::StateAttribute::OFF);
-    TexturedSphere->setStateSet(stateset);
 
     auto datasetEntries = configFile->array<opencover::config::Section>("", "datasets");
 
@@ -411,7 +346,8 @@ bool GeoDataLoader::init()
             }
 
             osg::Vec3 origin = osg::Vec3(originEasting, originNorthing, originAltitude);
-            setRootTransform(-origin, trueNorth);
+            setRootTransform(origin, trueNorth);
+
             applyOffset->setState(false); });
     // TODO add option to rename dataset either with edit field or with editable selection list
     saveOffsetToConfig = new ui::Button(originGroup, "saveOffsetToConfig");
@@ -591,179 +527,6 @@ bool GeoDataLoader::init()
         }
     }
 
-    skyGroup = new ui::Group(geoDataMenu, "sky");
-    skyGroup->setText("Sky");
-    skyGroup->allowRelayout(true);
-
-    skys = new ui::SelectionList(skyGroup, "Skys");
-    skys->append("None");
-    skyPath = configString("sky", "skyDir", "/data/Geodata/sky")->value();
-    defaultSky = configInt("sky", "defaultSky", 6)->value();
-    int skyNumber = 1;
-    try
-    {
-        for (const auto &entry : std::filesystem::directory_iterator(skyPath))
-        {
-            if (entry.is_regular_file() && ((entry.path().extension() == ".wrl") || (entry.path().extension() == ".WRL")))
-            {
-                std::string name = entry.path().filename().string();
-                skyEntry se(name.substr(0, name.length() - 4), entry.path().string(), 0.0, 0.0);
-                se.fileName = name;
-                skyEntries.push_back(se);
-                skys->append(se.name);
-                if (skyNumber == defaultSky)
-                {
-                    setSky(skyNumber);
-                    skys->select(skyNumber, false);
-                }
-                skyNumber++;
-            }
-            if (entry.is_regular_file() && ((entry.path().extension() == ".jpg") || (entry.path().extension() == ".JPG")))
-            {
-                std::string name = entry.path().filename().string();
-                skyEntry se(name.substr(0, name.length() - 4), entry.path().string(), 0.0, 0.0);
-                se.fileName = name;
-                se.type = skyEntry::texture;
-                FILE *fp = fopen(entry.path().string().c_str(), "rb");
-                if (fp == nullptr)
-                {
-                    printf("Can't open file %s.\n", entry.path().string().c_str());
-                    return -1;
-                }
-                else
-                {
-
-                    int toread = 400000;
-                    // fseek(fp, -toread, SEEK_END);
-                    // unsigned long fsize = ftell(fp);
-                    int bsize;
-                    unsigned char *buf = new unsigned char[toread];
-                    bsize = fread(buf, 1, toread, fp);
-                    fclose(fp);
-
-                    // Parse EXIF
-                    float gimbalYaw = 0.0f;
-                    float flightYaw = 0.0f;
-
-                    auto image = Exiv2::ImageFactory::open(entry.path().string());
-                    image->readMetadata();
-                    auto &exif = image->exifData();
-                    if (exif.empty())
-                    {
-                        std::cerr << "No EXIF data found in " << entry.path().string() << std::endl;
-                        se.skyLongitude = 0.0;
-                        se.skyLatitude = 0.0;
-                    }
-                    else
-                    {
-                        auto latIt = exif.findKey(Exiv2::ExifKey("Exif.GPSInfo.GPSLatitude"));
-                        if (latIt == exif.end())
-                        {
-                            std::cerr << "No GPS Latitude found in EXIF data of " << entry.path().string() << std::endl;
-                            se.skyLatitude = 0.0;
-                        }
-                        else
-                        {
-                            Exiv2::URational latDeg = exif["Exif.GPSInfo.GPSLatitude"].toRational(0);
-                            Exiv2::URational latMin = exif["Exif.GPSInfo.GPSLatitude"].toRational(1);
-                            Exiv2::URational latSec = exif["Exif.GPSInfo.GPSLatitude"].toRational(2);
-                            se.skyLatitude = latDeg.first + latMin.first / (60.0 * latMin.second) + latSec.first / (3600.0 * latSec.second);
-                        }
-                        auto lonIt = exif.findKey(Exiv2::ExifKey("Exif.GPSInfo.GPSLongitude"));
-                        if (lonIt == exif.end())
-                        {
-                            std::cerr << "No GPS Longitude found in EXIF data of " << entry.path().string() << std::endl;
-                            se.skyLongitude = 0.0;
-                        }
-                        else
-                        {
-                            Exiv2::URational lonDeg = exif["Exif.GPSInfo.GPSLongitude"].toRational(0);
-                            Exiv2::URational lonMin = exif["Exif.GPSInfo.GPSLongitude"].toRational(1);
-                            Exiv2::URational lonSec = exif["Exif.GPSInfo.GPSLongitude"].toRational(2);
-                            se.skyLongitude = lonDeg.first + lonMin.first / (60.0 * lonMin.second) + lonSec.first / (3600.0 * lonSec.second);
-                        }
-                    }
-
-                    Exiv2::XmpData &xmpData = image->xmpData();
-                    if (xmpData.empty())
-                    {
-                        std::cerr << "No XMP data found in " << entry.path().string() << std::endl;
-                        se.skyTrueNorth = 0.0;
-                    }
-                    else
-                    {
-                        auto gimbalYawIt = xmpData.findKey(Exiv2::XmpKey("Xmp.drone-dji.GimbalYawDegree"));
-                        if (gimbalYawIt == xmpData.end())
-                        {
-                            std::cerr << "No Gimbal Yaw found in XMP data of " << entry.path().string() << std::endl;
-                            se.skyTrueNorth = 0.0;
-                        }
-                        else
-                        {
-                            gimbalYaw = xmpData["Xmp.drone-dji.GimbalYawDegree"].toFloat();
-                            se.skyTrueNorth = gimbalYaw;
-                            if (se.skyTrueNorth < -180.0)
-                                se.skyTrueNorth += 360.0;
-                            else if (se.skyTrueNorth > 180.0)
-                                se.skyTrueNorth -= 360.0;
-                        }
-                        auto FlightYawIt = xmpData.findKey(Exiv2::XmpKey("Xmp.drone-dji.FlightYawDegree"));
-                        if (FlightYawIt == xmpData.end())
-                        {
-                            std::cerr << "No Flight Yaw found in XMP data of " << entry.path().string() << std::endl;
-                        }
-                        else
-                        {
-                            flightYaw = xmpData["Xmp.drone-dji.FlightYawDegree"].toFloat();
-                            se.skyTrueNorth = flightYaw;
-                            if (se.skyTrueNorth < -180.0)
-                                se.skyTrueNorth += 360.0;
-                            else if (se.skyTrueNorth > 180.0)
-                                se.skyTrueNorth -= 360.0;
-                        }
-                    }
-                    cout << "Exiv2: Parsed EXIF for " << entry.path().string() << ": Longitude=" << se.skyLongitude << ", Latitude=" << se.skyLatitude << endl;
-                    cout << "XMP: Parsed Gimbal Yaw for " << entry.path().string() << ": GimbalYawDegree=" << gimbalYaw << endl;
-                    cout << "XMP: Parsed Flight Yaw for " << entry.path().string() << ": FlightYawDegree=" << flightYaw << endl;
-                }
-                skyEntries.push_back(se);
-                skys->append(se.name);
-                if (skyNumber == defaultSky)
-                {
-                    setSky(skyNumber);
-                    skys->select(skyNumber, false);
-                }
-                skyNumber++;
-            }
-        }
-    }
-    catch (const std::filesystem::filesystem_error &err)
-    {
-        std::cerr << "Filesystem error: " << err.what() << std::endl;
-    }
-    catch (const std::exception &ex)
-    {
-        std::cerr << "General error: " << ex.what() << std::endl;
-    }
-    skys->setCallback([this](int selection)
-        { setSky(selection); });
-    northAngle = 0;
-
-    float farValue = coVRConfig::instance()->farClip();
-    float scale = (farValue * 2) / 20000;
-    skyRootNode->setMatrix(osg::Matrix::scale(scale, scale, scale) * osg::Matrix::rotate(northAngle + osg::DegreesToRadians(90.0), osg::Vec3(0, 0, -1)));
-
-    skyNorthSlider = new ui::Slider(skyGroup, "skyNorth");
-    skyNorthSlider->setText("Sky True North (°)");
-    skyNorthSlider->setBounds(-180.0, 180.0);
-    skyNorthSlider->setValue(osg::RadiansToDegrees(northAngle));
-    skyNorthSlider->setCallback([this](double value, bool released)
-        {
-            northAngle = osg::DegreesToRadians(value);
-            float farValue = coVRConfig::instance()->farClip();
-            float scale = (farValue * 2) / 20000;
-            skyRootNode->setMatrix(osg::Matrix::scale(scale, scale, scale)*osg::Matrix::rotate(northAngle + osg::DegreesToRadians(90.0), osg::Vec3(0,0,-1))); });
-
     locationGroup = new ui::Group(geoDataMenu, "locationGroup");
     locationGroup->setText("Location");
     locationGroup->allowRelayout(true);
@@ -771,18 +534,7 @@ bool GeoDataLoader::init()
     location = new ui::EditField(locationGroup, "location");
     location->setText("");
     location->setCallback([this](const std::string &val)
-        {
-            std::string json = getCoordinates(val);
-
-            auto geo = parseCoordinates(json);
-            if (!geo)
-                return;
-
-            osg::Vec3d targetPos = osg::Vec3d(geo->easting, geo->northing, geo->altitude);
-            jumpToLocation(targetPos);
-
-            if (!geo->displayName.empty())
-                location->setText(geo->displayName); });
+        { jumpToLocation(val); });
 
     editGroup = new ui::Group(geoDataMenu, "edit");
     editGroup->setText("Edit");
@@ -835,110 +587,9 @@ void GeoDataLoader::message(int toWhom, int type, int length, const void *data)
     const char *messageData = (const char *)data;
     if (type == PluginMessageTypes::LoadTerrain)
         loadTerrain(messageData + 20, osg::Vec3d(0, 0, 0)); // 20= opencover://terrain/
-    else if (type == PluginMessageTypes::setSky)
-    {
-        int offset = 0;
-        if (messageData[0] == '/' || messageData[0] == '\\')
-            offset = 1;
-        int num = atoi(messageData + offset);
-        setSky(num);
-    }
-}
-void GeoDataLoader::setSky(int selection)
-{
-    while (skyRootNode->getNumChildren())
-        skyRootNode->removeChild(skyRootNode->getChild(0));
-
-    currentSkyNode = nullptr;
-    if (selection > 0 && selection <= static_cast<int>(skyEntries.size()))
-    {
-        skyEntry &sky = skyEntries[selection - 1];
-        if (sky.type == skyEntry::geometry)
-        {
-            if (sky.skyNode != nullptr)
-            {
-                skyRootNode->addChild(sky.skyNode);
-            }
-            else
-            {
-                sky.skyNode = coVRFileManager::instance()->loadFile((skyPath + "/" + sky.fileName).c_str(), nullptr, skyRootNode);
-                skyRootNode->addChild(sky.skyNode);
-            }
-        }
-        else
-        {
-
-            sky.skyNode = TexturedSphere;
-            if (sky.skyTexture == nullptr)
-            {
-                sky.skyTexture = coVRFileManager::instance()->loadTexture((skyPath + "/" + sky.fileName).c_str());
-                sky.skyTexture->setWrap(osg::Texture::WRAP_R, osg::Texture::REPEAT);
-                sky.skyTexture->setWrap(osg::Texture::WRAP_S, osg::Texture::REPEAT);
-                sky.skyTexture->setWrap(osg::Texture::WRAP_T, osg::Texture::REPEAT);
-                sky.skyTexture->setResizeNonPowerOfTwoHint(false);
-            }
-            osg::StateSet *stateset = TexturedSphere->getOrCreateStateSet();
-            stateset->setTextureAttributeAndModes(0, sky.skyTexture, osg::StateAttribute::ON);
-
-            shader = coVRShaderList::instance()->get("skySphere");
-            shader->apply(stateset);
-            topUniform = shader->getcoVRUniform("top");
-            bottomUniform = shader->getcoVRUniform("bottom");
-            floorColorUniform = shader->getcoVRUniform("floorColor");
-
-            skyRootNode->addChild(sky.skyNode);
-        }
-        currentSkyNode = sky.skyNode;
-        northAngle = osg::DegreesToRadians(sky.skyTrueNorth);
-        if (skyNorthSlider != nullptr)
-            skyNorthSlider->setValue(sky.skyTrueNorth);
-    }
 }
 
-void GeoDataLoader::setSky(std::string fileName)
-{
-    int n = 0;
-    for (const auto &sky : skyEntries)
-    {
-        if (sky.fileName == fileName) // already have this file in the list
-        {
-            setSky(n + 1);
-            return;
-        }
-        n++;
-    }
-    std::filesystem::path path(fileName);
-    std::string fn = path.filename().string();
-    skyEntry se(fn.substr(0, fn.length() - 4), fileName, 0.0, 0.0);
-    skyEntries.push_back(se);
-    skys->append(se.name);
-}
-
-void GeoDataLoader::setTop(float t)
-{
-    if (topUniform != nullptr)
-    {
-        topUniform->setValue(t);
-    }
-}
-
-void GeoDataLoader::setBottom(float b)
-{
-    if (bottomUniform != nullptr)
-    {
-        bottomUniform->setValue(b);
-    }
-}
-
-void GeoDataLoader::setFloorColor(osg::Vec4 fc)
-{
-    if (floorColorUniform != nullptr)
-    {
-        floorColorUniform->setValue(fc);
-    }
-}
-
-void GeoDataLoader::setRootTransform(const osg::Vec3 &off, float trueNorthDeg)
+void GeoDataLoader::setRootTransform(const osg::Vec3 &origin, float trueNorthDeg)
 {
     // rootOffset = off;
     // trueNorthDegree = trueNorthDeg;
@@ -948,22 +599,13 @@ void GeoDataLoader::setRootTransform(const osg::Vec3 &off, float trueNorthDeg)
     // osg::Matrix rot = osg::Matrix::rotate(-trueNorthRad, osg::Vec3(0, 0, 1));
     // rootNode->setMatrix(trans * rot);
     //
-    GeoData::instance()->setProjectOffset(-off);
+    GeoData::instance()->setProjectOffset(origin);
 }
 
 bool GeoDataLoader::update()
 {
-    const osg::Matrix &m = cover->getObjectsXform()->getMatrix();
-    // double x = m(0, 0);
-    // double y = m(1, 0);
-    // northAngle = -atan2(y, x);
-    // skyRootNode->setMatrix(osg::Matrix::scale(1000, 1000, 1000) * osg::Matrix::rotate(northAngle, osg::Vec3(0, 0, 1)));
-    float farValue = coVRConfig::instance()->farClip();
-    float scale = ((farValue) / 20000) + 500; // scale the sphere so that it stays a bit closer than the far clipping plane.
-    skyRootNode->setMatrix(osg::Matrix::scale(scale, scale, scale) * osg::Matrix::rotate(northAngle + osg::DegreesToRadians(90.0), osg::Vec3(0, 0, -1)) * osg::Matrix::rotate(cover->getObjectsXform()->getMatrix().getRotate()));
     if (editInteraction->isRunning())
     {
-
         // get the intersected node
         if (cover->getIntersectedNode())
         {
@@ -1088,6 +730,7 @@ bool GeoDataLoader::update()
     }
     return false; // don't request that scene be re-rendered
 }
+
 GeoDataLoader *GeoDataLoader::instance()
 {
     if (!s_instance)
