@@ -140,7 +140,9 @@ covise_find_boost()
 macro(covise_find_library module library)
    #message("covise_find_library(${module} ${library}: searching ${COVISEDIR}/${COVISE_ARCHSUFFIX}")
    if (COVISE_EXPORTS_FILEPATH)
-      set(${module}_LIBRARY ${library})
+      if(TARGET ${library})
+        set(${module}_LIBRARY ${library})
+      endif()
    else()
       find_library(${module}_LIBRARY
          NAMES ${library}
