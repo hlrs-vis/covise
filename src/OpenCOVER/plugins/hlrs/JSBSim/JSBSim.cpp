@@ -655,10 +655,10 @@ bool JSBSimPlugin::update()
 {
     joystickDev = nullptr;
 
-    if (false && coVRMSController::instance()->isMaster())
+    if (coVRMSController::instance()->isMaster())
     {
         joystickDev = (Joystick *)(Input::instance()->getDevice("joystick"));
-        if (joystickDev->numLocalJoysticks > 0)
+        if (joystickDev && joystickDev->numLocalJoysticks > 0)
         {
             if (Joysticknumber < 0) // did not find a joystick yet
             {
