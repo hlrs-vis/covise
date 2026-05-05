@@ -960,7 +960,7 @@ bool GeoDataLoader::update()
                 {
                     if (currentNode == cover->getObjectsRoot())
                     {
-                        if (showGeodeName_)
+                       /* if (showGeodeName_)
                         {
                             // first look for a node description beginning with _SCGR_
                             std::vector<std::string> dl = cover->getIntersectedNode()->getDescriptions();
@@ -992,7 +992,7 @@ bool GeoDataLoader::update()
                                     nodeName = parentDcs->getParent(0)->getName();
                                 }
                             }
-                        }
+                        }*/
                         break;
                     }
                     if (currentNode->getNumParents() > 0)
@@ -1227,24 +1227,18 @@ editTerrain::editTerrain(GeoDataLoader *g)
         _selectedHl->setAttribute(selMaterial, osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED);
         _intersectedHl->setAttribute(isectMaterial, osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED);
     }
-
+/*
     _selectedHl->setAttributeAndModes(polymode, osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED | osg::StateAttribute::ON);
-    _selectedHl->setAttributeAndModes(polymode, osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED | osg::StateAttribute::ON);
+    _selectedHl->setAttributeAndModes(polymode, osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED | osg::StateAttribute::ON);*/
 }
 
 void editTerrain::enableIntersection()
 {
-    if (cover->debugLevel(4))
-        fprintf(stderr, "coVRIntersectionInteractor(%s)::enableIntersection\n", _interactorName);
-
     coInteractionManager::the()->registerInteraction(this);
 }
 
 void editTerrain::disableIntersection()
 {
-    if (cover->debugLevel(2))
-        fprintf(stderr, "coVRIntersectionInteractor(%s)::disableIntersection\n", _interactorName);
-
     // interactor is normally unregistered in miss
     // if we disable intersection miss is not called anymore
     // therefore we make sure that the interactor is unregistered

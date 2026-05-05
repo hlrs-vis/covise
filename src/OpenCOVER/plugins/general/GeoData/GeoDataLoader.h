@@ -50,19 +50,18 @@ class editTerrain : public vrui::coCombinedButtonInteraction
 {
 public:
     editTerrain(GeoDataLoader *g);
+    // enable interaction
+    void enableIntersection();
+    // disable interaction
+    void disableIntersection();
 
 private:
     virtual void createGeometry();
-    virtual void doInteraction();
 
-    // make the interactor intersection sensitive
-    void enableIntersection();
 
     // check whether interactor is enabled
     bool isEnabled();
 
-    // make the interactor intersection insensitive
-    void disableIntersection();
 
     osg::ref_ptr<osg::Node> geometryNode; ///< Geometry node
     osg::ref_ptr<osg::MatrixTransform> moveTransform;
