@@ -53,138 +53,13 @@
 #include <osgViewer/Renderer>
 #include <iostream>
 #include <string>
-#include "HTTPClient/CURL/methods.h"
-#include "HTTPClient/CURL/request.h"
-#include <rapidjson/document.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/writer.h>
-#include <rapidjson/prettywriter.h>
-#include <rapidjson/rapidjson.h>
 #include "cover/coVRConfig.h"
 #include <PluginUtil/PluginMessageTypes.h>
 #include <stdio.h>
-
-#include <exiv2/exiv2.hpp>
-#include <optional>
 #include <utility>
 
 using namespace vrui;
 using namespace opencover;
-
-std::string getCoordinates(std::string_view searchQuery)
-{
-    using namespace opencover::httpclient::curl;
-    std::string readBuffer;
-
-    CURL *curl = curl_easy_init();
-    if (!curl)
-    {
-        return "[ERROR] Failed to initialize CURL.";
-    }
-
-    std::string address(searchQuery);
-    char *encoded = curl_easy_escape(curl, address.c_str(), address.length());
-    if (!encoded)
-    {
-        curl_easy_cleanup(curl);
-        return "[ERROR] Failed to encode address.";
-    }
-
-    // Nominatim request URL
-    std::string url = "https://nominatim.openstreetmap.org/search?q=" + std::string(encoded) + "&format=json&limit=1";
-    curl_free(encoded);
-
-    GET getRequest(url);
-    Request::Options options = {
-        { CURLOPT_USERAGENT, "Covise Plugin GeoDataLoader (https://github.com/hlrs-vis/covise)" },
-    };
-    if (!Request().httpRequest(getRequest, readBuffer, options))
-        readBuffer = "[ERROR] Failed to fetch data from Nominatim. With request: " + url;
-    curl_easy_cleanup(curl);
-    return readBuffer;
-}
-
-std::optional<std::pair<osg::Vec3, std::string>> parseCoordinates(const std::string &jsonData)
-{
-    rapidjson::Document document;
-
-    if (document.Parse(jsonData.c_str()).HasParseError())
-        return std::nullopt;
-
-    if (!document.IsArray() || document.Empty())
-        return std::nullopt;
-
-    const rapidjson::Value &location = document[0];
-    if (!location.HasMember("lat") || !location.HasMember("lon"))
-        return std::nullopt;
-
-    double latitude = std::stod(location["lat"].GetString());
-    double longitude = std::stod(location["lon"].GetString());
-
-    std::string displayName = location.HasMember("display_name") ? location["display_name"].GetString() : "";
-    auto enu = GeoData::instance()->toLocal(osg::Vec3(longitude, latitude, 500.0), false);
-
-    return std::make_pair(enu, displayName);
-}
-
-void GeoDataLoader::jumpToLocation(std::string_view searchQuery)
-{
-    auto json = getCoordinates(searchQuery);
-    auto geo = parseCoordinates(json);
-
-    if (geo)
-    {
-        jumpToLocation(geo->first);
-
-        if (!geo->second.empty())
-        {
-            location->setText(geo->second);
-        }
-    }
-}
-
-void GeoDataLoader::jumpToLocation(const osg::Vec3d &worldPos)
-{
-    double easting = worldPos.x();
-    double northing = worldPos.y();
-    double altitude = worldPos.z();
-    double scale = cover->getScale();
-
-    // --- Intersection-Test for zVal ---
-    osg::ref_ptr<osgUtil::LineSegmentIntersector> intersector = new osgUtil::LineSegmentIntersector(
-        osg::Vec3d(easting, northing, 10000.0),
-        osg::Vec3d(easting, northing, -10000.0));
-    osgUtil::IntersectionVisitor iv(intersector);
-
-    auto terrainRoot = GeoData::instance()->terrainRoot();
-    if (terrainRoot)
-        terrainRoot->accept(iv);
-
-    if (intersector->containsIntersections())
-    {
-        altitude = intersector->getFirstIntersection().getLocalIntersectPoint().z();
-        altitude += 100;
-        std::cout << "Intersection found, Z = " << (altitude - 100) << std::endl;
-    }
-    else
-    {
-        std::cout << "No intersection found, using default Z = " << altitude << std::endl;
-    }
-
-    // set the viewer position
-    osg::Matrix mat;
-    osg::Vec3 targetPos(easting, northing, altitude);
-    std::cout << "Target Position in Meters (UTM): " << targetPos.x() << ", " << targetPos.y() << ", " << targetPos.z() << std::endl;
-    targetPos += rootOffset;
-
-    float trueNorthRadian = osg::DegreesToRadians(trueNorthDegree);
-    osg::Matrix rot = osg::Matrix::rotate(-trueNorthRadian, osg::Vec3(0, 0, 1));
-
-    targetPos = targetPos * rot;
-    targetPos = targetPos * scale;
-    mat.setTrans(-targetPos);
-    cover->setXformMat(mat);
-}
 
 GeoDataLoader *GeoDataLoader::s_instance = nullptr;
 
@@ -528,15 +403,6 @@ bool GeoDataLoader::init()
         }
     }
 
-    locationGroup = new ui::Group(geoDataMenu, "locationGroup");
-    locationGroup->setText("Location");
-    locationGroup->allowRelayout(true);
-
-    location = new ui::EditField(locationGroup, "location");
-    location->setText("");
-    location->setCallback([this](const std::string &val)
-        { jumpToLocation(val); });
-
     editGroup = new ui::Group(geoDataMenu, "edit");
     editGroup->setText("Edit");
     editGroup->allowRelayout(true);
@@ -584,7 +450,6 @@ GeoDataLoader::~GeoDataLoader()
 
     delete geoObjectGroup;
     delete originGroup;
-    delete locationGroup;
     delete visibilityGroup;
     geoDataMenu->setVisible(geoDataMenu->numChildren() > 0);
 }

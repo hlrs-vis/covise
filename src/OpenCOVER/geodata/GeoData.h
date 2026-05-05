@@ -53,6 +53,9 @@ public:
     /// transformation.
     osg::Vec3 toGlobal(const osg::Vec3 &localPosition, bool withOffset = true) const;
 
+    void jumpToLocation(const osg::Vec3 &localPosition);
+    void jumpToLocation(const osg::Vec3 &localPosition, double aboveTerrain);
+
 protected:
 #ifdef HAVE_PROJ
     PJ_CONTEXT *m_context = nullptr;

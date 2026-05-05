@@ -142,6 +142,38 @@ osg::Vec3 GeoData::toGlobal(const osg::Vec3 &localPosition, bool withOffset) con
 
     PJ_COORD c_out = proj_trans(m_transformation, PJ_INV, c);
 
-    return osg::Vec3(c_out.lpz.phi, c_out.lpz.lam, c_out.lpz.z);
+    return osg::Vec3(c_out.lpz.lam, c_out.lpz.phi, c_out.lpz.z);
 #endif
+}
+
+void GeoData::jumpToLocation(const osg::Vec3 &localPosition)
+{
+    osg::Vec3 target = localPosition;
+    double scale = cover->getScale();
+
+    cover->setXformMat(osg::Matrix::translate(-(localPosition - m_projectOffset) * scale)); // * osg::Matrix::rotate(cover->getXformMat().getRotate()));
+}
+
+void GeoData::jumpToLocation(const osg::Vec3 &localPosition, double aboveTerrain)
+{
+    osg::ref_ptr<osgUtil::LineSegmentIntersector> intersector = new osgUtil::LineSegmentIntersector(
+        osg::Vec3(localPosition.x(), localPosition.y(), 10000.0),
+        osg::Vec3(localPosition.x(), localPosition.y(), -10000.0));
+    osgUtil::IntersectionVisitor iv(intersector);
+
+    auto terrainRoot = GeoData::instance()->terrainRoot();
+    if (terrainRoot)
+        terrainRoot->accept(iv);
+
+    if (intersector->containsIntersections())
+    {
+        jumpToLocation(osg::Vec3(
+            localPosition.x(),
+            localPosition.y(),
+            intersector->getFirstIntersection().getLocalIntersectPoint().z() + aboveTerrain));
+    }
+    else
+    {
+        jumpToLocation(localPosition);
+    }
 }

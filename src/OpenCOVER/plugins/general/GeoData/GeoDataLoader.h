@@ -101,9 +101,6 @@ public:
 
     virtual void message(int toWhom, int type, int length, const void *data);
 
-    void jumpToLocation(std::string_view searchQuery);
-    void jumpToLocation(const osg::Vec3d &worldPos);
-
     const std::vector<DatasetInfo> &getDatasets() const { return datasets; }
 
     void doInteraction();
@@ -129,7 +126,6 @@ private:
     opencover::ui::Menu *geoDataMenu;
     opencover::ui::Group *geoObjectGroup;
     opencover::ui::Group *originGroup;
-    opencover::ui::Group *locationGroup;
     opencover::ui::Group *visibilityGroup;
     opencover::ui::Group *editGroup;
 
@@ -144,7 +140,6 @@ private:
     opencover::ui::Button *buildingVisibilityButton;
     opencover::ui::Button *applyOffset;
     opencover::ui::Button *saveOffsetToConfig;
-    opencover::ui::EditField *location;
     opencover::ui::EditField *easting;
     opencover::ui::EditField *northing;
     opencover::ui::EditField *altitude;
