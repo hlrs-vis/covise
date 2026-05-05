@@ -60,12 +60,11 @@
 #include <rapidjson/rapidjson.h>
 #include "cover/coVRConfig.h"
 #include <PluginUtil/PluginMessageTypes.h>
-#include <../../../../3rdparty/easyexif/exif.h>
 #include <stdio.h>
 
 using namespace vrui;
 using namespace opencover;
-
+#include <exiv2/exiv2.hpp>
 namespace opencover
 {
 namespace ui
@@ -531,8 +530,7 @@ bool GeoDataLoader::init()
                 std::cerr << "GeoData Error: Invalid input" << std::endl;
             }
 
-            saveOffsetToConfig->setState(false);
-        });
+            saveOffsetToConfig->setState(false); });
     
     visibilityGroup = new ui::Group(geoDataMenu, "visibility");
     visibilityGroup->setText("Toggle Visibility");
@@ -682,18 +680,90 @@ bool GeoDataLoader::init()
                     fclose(fp);
 
                     // Parse EXIF
-                    easyexif::EXIFInfo result;
-                    int code = result.parseFrom(buf, bsize);
-                    double skyLon = result.GeoLocation.Longitude;
-                    double skyLat = result.GeoLocation.Latitude;
-                    se.skyLongitude = skyLon;
-                    se.skyLatitude = skyLat;
-                    se.skyTrueNorth = 0.0; // TODO: read true north from config if available
-                    delete[] buf;
-                    if (code)
+                    float gimbalYaw = 0.0f;
+                    float flightYaw = 0.0f;
+
+                    auto image = Exiv2::ImageFactory::open(entry.path().string());
+                    image->readMetadata();
+                    auto &exif = image->exifData();
+                    if (exif.empty())
                     {
-                        printf("Error parsing EXIF: code %d\n", code);
+                        std::cerr << "No EXIF data found in " << entry.path().string() << std::endl;
+                        se.skyLongitude = 0.0;
+                        se.skyLatitude = 0.0;
                     }
+                    else
+                    {
+                        auto latIt = exif.findKey(Exiv2::ExifKey("Exif.GPSInfo.GPSLatitude"));
+                        if (latIt == exif.end())
+                        {
+                            std::cerr << "No GPS Latitude found in EXIF data of " << entry.path().string() << std::endl;
+                            se.skyLatitude = 0.0;
+                        }
+                        else
+                        {
+                            Exiv2::URational latDeg = exif["Exif.GPSInfo.GPSLatitude"].toRational(0);
+                            Exiv2::URational latMin = exif["Exif.GPSInfo.GPSLatitude"].toRational(1);
+                            Exiv2::URational latSec = exif["Exif.GPSInfo.GPSLatitude"].toRational(2);
+                            se.skyLatitude = latDeg.first + latMin.first / (60.0 * latMin.second) + latSec.first / (3600.0 * latSec.second);
+                        }
+                        auto lonIt = exif.findKey(Exiv2::ExifKey("Exif.GPSInfo.GPSLongitude"));
+                        if (lonIt == exif.end())
+                        {
+                            std::cerr << "No GPS Longitude found in EXIF data of " << entry.path().string() << std::endl;
+                            se.skyLongitude = 0.0;
+                        }
+                        else
+                        {
+                            Exiv2::URational lonDeg = exif["Exif.GPSInfo.GPSLongitude"].toRational(0);
+                            Exiv2::URational lonMin = exif["Exif.GPSInfo.GPSLongitude"].toRational(1);
+                            Exiv2::URational lonSec = exif["Exif.GPSInfo.GPSLongitude"].toRational(2);
+                            se.skyLongitude = lonDeg.first + lonMin.first / (60.0 * lonMin.second) + lonSec.first / (3600.0 * lonSec.second);
+                        }
+
+                    }
+
+                    Exiv2::XmpData &xmpData = image->xmpData();
+                    if (xmpData.empty())
+                    {
+                        std::cerr << "No XMP data found in " << entry.path().string() << std::endl;
+                        se.skyTrueNorth = 0.0;
+                    }
+                    else
+                    {
+                        auto gimbalYawIt = xmpData.findKey(Exiv2::XmpKey("Xmp.drone-dji.GimbalYawDegree"));
+                        if (gimbalYawIt == xmpData.end())
+                        {
+                            std::cerr << "No Gimbal Yaw found in XMP data of " << entry.path().string() << std::endl;
+                            se.skyTrueNorth = 0.0;
+                        }
+                        else
+                        {
+                            gimbalYaw = xmpData["Xmp.drone-dji.GimbalYawDegree"].toFloat();
+                            se.skyTrueNorth = gimbalYaw;
+                            if (se.skyTrueNorth < -180.0)
+                                se.skyTrueNorth += 360.0;
+                            else if (se.skyTrueNorth > 180.0)
+                                se.skyTrueNorth -= 360.0;
+                        }
+                        auto FlightYawIt = xmpData.findKey(Exiv2::XmpKey("Xmp.drone-dji.FlightYawDegree"));
+                        if (FlightYawIt == xmpData.end())
+                        {
+                            std::cerr << "No Flight Yaw found in XMP data of " << entry.path().string() << std::endl;
+                        }
+                        else
+                        {
+                            flightYaw = xmpData["Xmp.drone-dji.FlightYawDegree"].toFloat();
+                            se.skyTrueNorth = flightYaw;
+                            if (se.skyTrueNorth < -180.0)
+                                se.skyTrueNorth += 360.0;
+                            else if (se.skyTrueNorth > 180.0)
+                                se.skyTrueNorth -= 360.0;
+                        }
+                    }
+                    cout << "Exiv2: Parsed EXIF for " << entry.path().string() << ": Longitude=" << se.skyLongitude << ", Latitude=" << se.skyLatitude << endl;
+                    cout << "XMP: Parsed Gimbal Yaw for " << entry.path().string() << ": GimbalYawDegree=" << gimbalYaw << endl;
+                    cout << "XMP: Parsed Flight Yaw for " << entry.path().string() << ": FlightYawDegree=" << flightYaw << endl;
                 }
                 skyEntries.push_back(se);
                 skys->append(se.name);
@@ -720,7 +790,7 @@ bool GeoDataLoader::init()
 
     float farValue = coVRConfig::instance()->farClip();
     float scale = (farValue * 2) / 20000;
-    skyRootNode->setMatrix(osg::Matrix::scale(scale, scale, scale) * osg::Matrix::rotate(northAngle, osg::Vec3(0, 0, 1)));
+    skyRootNode->setMatrix(osg::Matrix::scale(scale, scale, scale) * osg::Matrix::rotate(northAngle + osg::DegreesToRadians(90.0), osg::Vec3(0, 0, -1)));
 
     skyNorthSlider = new ui::Slider(skyGroup, "skyNorth");
     skyNorthSlider->setText("Sky True North (°)");
@@ -731,7 +801,7 @@ bool GeoDataLoader::init()
             northAngle = osg::DegreesToRadians(value);
             float farValue = coVRConfig::instance()->farClip();
             float scale = (farValue * 2) / 20000;
-            skyRootNode->setMatrix(osg::Matrix::scale(scale, scale, scale)*osg::Matrix::rotate(northAngle,osg::Vec3(0,0,1))); });
+            skyRootNode->setMatrix(osg::Matrix::scale(scale, scale, scale)*osg::Matrix::rotate(northAngle + osg::DegreesToRadians(90.0), osg::Vec3(0,0,-1))); });
 
     locationGroup = new ui::Group(geoDataMenu, "locationGroup");
     locationGroup->setText("Location");
@@ -868,9 +938,9 @@ void GeoDataLoader::setSky(int selection)
             skyRootNode->addChild(sky.skyNode);
         }
         currentSkyNode = sky.skyNode;
-        northAngle = sky.skyTrueNorth;
+        northAngle = osg::DegreesToRadians(sky.skyTrueNorth);
         if (skyNorthSlider != nullptr)
-            skyNorthSlider->setValue(osg::RadiansToDegrees(northAngle));
+            skyNorthSlider->setValue(sky.skyTrueNorth);
     }
 }
 
@@ -938,7 +1008,7 @@ bool GeoDataLoader::update()
     // skyRootNode->setMatrix(osg::Matrix::scale(1000, 1000, 1000) * osg::Matrix::rotate(northAngle, osg::Vec3(0, 0, 1)));
     float farValue = coVRConfig::instance()->farClip();
     float scale = ((farValue) / 20000) + 500; // scale the sphere so that it stays a bit closer than the far clipping plane.
-    skyRootNode->setMatrix(osg::Matrix::scale(scale, scale, scale) * osg::Matrix::rotate(northAngle, osg::Vec3(0, 0, 1)) * osg::Matrix::rotate(cover->getObjectsXform()->getMatrix().getRotate()));
+    skyRootNode->setMatrix(osg::Matrix::scale(scale, scale, scale) * osg::Matrix::rotate(northAngle + osg::DegreesToRadians(90.0), osg::Vec3(0, 0, -1)) * osg::Matrix::rotate(cover->getObjectsXform()->getMatrix().getRotate()));
     if (editInteraction->isRunning())
     {
 
@@ -946,7 +1016,7 @@ bool GeoDataLoader::update()
         if (cover->getIntersectedNode())
         {
             // position label with name
-            //nameLabel_->setPosition(cover->getIntersectionHitPointWorld());
+            // nameLabel_->setPosition(cover->getIntersectionHitPointWorld());
             if (cover->getIntersectedNode() != oldIntersectedNode)
             {
                 // get the node name

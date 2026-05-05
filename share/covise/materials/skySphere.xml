@@ -1,4 +1,8 @@
-<_skySphere><uniform name="tex1" type="sampler2D" value="0"/><uniform max="1.0" min="0.5" name="top" type="float" value="0.5"/><uniform max="0.0" min="0.5" name="bottom" type="float" value="0"/><uniform name="floorColor" type="vec4" value="0.0 0.0 0.0 1.0"/><vertexProgram>void main(void)
+<_skySphere>
+	<uniform name="tex1" type="sampler2D" value="0"/>
+	<uniform max="1.0" min="0.5" name="top" type="float" value="0.5"/>
+	<uniform max="0.5" min="0.0" name="bottom" type="float" value="0.5"/>
+	<uniform name="floorColor" type="vec4" value="0.0 0.0 0.0 1.0"/><vertexProgram>void main(void)
 {
     gl_TexCoord[0] = gl_MultiTexCoord0;
     gl_Position     = ftransform();
