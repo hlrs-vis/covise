@@ -64,6 +64,8 @@
 #include <osgUtil/Optimizer>
 #include "GLTFPlugin.h"
 
+#define TINYGLTF_NO_INCLUDE_STB_IMAGE
+#include <stb_image.h>
 #define TINYGLTF_IMPLEMENTATION
 #include <tiny_gltf.h>
 
