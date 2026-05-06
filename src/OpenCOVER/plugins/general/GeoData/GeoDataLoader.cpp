@@ -32,7 +32,6 @@
 #include <osg/ref_ptr>
 
 #include <gdal.h>
-#include <gdal_dataset.h>
 #include <ogrsf_frmts.h>
 
 #include <vrml97/vrml/VrmlNamespace.h>
