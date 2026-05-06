@@ -195,7 +195,7 @@ void SkySphere::loadSkies()
 
 void parseExifData(const std::filesystem::path &path, double &longitude, double &latitude, double &trueNorth)
 {
-    auto image = Exiv2::ImageFactory::open(path.string().c_str());
+    std::unique_ptr<Exiv2::Image> image = Exiv2::ImageFactory::open(path.string().c_str());
     if (!image)
         return;
 
