@@ -30,7 +30,6 @@
 #include <cover/VRSceneGraph.h>
 #include <memory>
 #include <osg/ref_ptr>
-#include <osgEarth/TerrainOptions>
 
 #include <gdal.h>
 #include <gdal_dataset.h>
