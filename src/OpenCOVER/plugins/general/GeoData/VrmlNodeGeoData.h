@@ -18,48 +18,29 @@
 #include <util/coTypes.h>
 
 #include <vrml97/vrml/VrmlNode.h>
-#include <vrml97/vrml/VrmlSFBool.h>
-#include <vrml97/vrml/VrmlSFInt.h>
 #include <vrml97/vrml/VrmlSFFloat.h>
 #include <vrml97/vrml/VrmlSFVec3f.h>
-#include <vrml97/vrml/VrmlSFString.h>
-#include <vrml97/vrml/VrmlSFRotation.h>
 #include <vrml97/vrml/VrmlNodeChild.h>
 #include <vrml97/vrml/VrmlScene.h>
 
-using namespace opencover;
 using namespace vrml;
+
+#define ALL_REGIONS_STRING "all"
 
 class VrmlNodeGeoData : public VrmlNodeChild
 {
-
 public:
-    // Define the fields of GeoData nodes
+    VrmlNodeGeoData(VrmlScene *scene = 0);
+    VrmlNodeGeoData(const VrmlNodeGeoData &n);
+
     static void initFields(VrmlNodeGeoData *node, vrml::VrmlNodeType *t);
     static const char *typeName();
 
-    VrmlNodeGeoData(VrmlScene *scene = 0);
-    VrmlNodeGeoData(const VrmlNodeGeoData &n);
-    virtual ~VrmlNodeGeoData();
-    virtual void addToScene(VrmlScene *s, const char *);
-
-    virtual VrmlNodeGeoData *toGeoData() const;
-    virtual void render(Viewer *);
-
-    bool isEnabled()
-    {
-        return d_enabled.get();
-    }
-    static void update();
-
 private:
-    // Fields
     VrmlSFVec3f d_offset;
     VrmlSFString d_offsetName;
-    VrmlSFBool d_enabled;
-    VrmlSFString d_skyName;
-    VrmlSFFloat d_top=0.5;
-    VrmlSFFloat d_bottom=0.48;
-    VrmlSFColor d_floorColor={0.0, 0.0, 0.0};
+    VrmlMFString d_regions; // list of region names (see config/plugin/GeoData.toml), include ALL_REGIONS_STRING in the list to enable all regions
+    VrmlSFBool d_showTerrain;
+    VrmlSFBool d_showBuildings;
 };
 #endif //_VRMLNODEGeoData_
