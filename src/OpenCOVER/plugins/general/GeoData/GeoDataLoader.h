@@ -19,7 +19,10 @@
  **                                                                          **
  **                                                                          **
 \****************************************************************************/
+#include <cover/coVRLabel.h>
 #include <osg/Texture2D>
+#include <string>
+#include <optional>
 #include <vector>
 #include <osg/PositionAttitudeTransform>
 #include <osgTerrain/Terrain>
@@ -75,14 +78,24 @@ class EditInfo
     std::string fileName;
 };
 
+#include "PlaceLabel.h"
+
 struct regionEntry
 {
     std::string region_name;
     std::string terrain_path;
     std::string lod_path;
+    std::string labels_path;
 };
 
-class GeoDataLoader : public opencover::coVRPlugin, public opencover::ui::Owner
+struct PlaceLabelGroup
+{
+    osg::ref_ptr<osg::Node> node;
+    std::vector<std::shared_ptr<PlaceLabel>> labels;
+};
+
+class GeoDataLoader : public opencover::coVRPlugin,
+                      public opencover::ui::Owner
 {
 public:
     struct DatasetInfo
@@ -111,13 +124,16 @@ public:
     const std::vector<DatasetInfo> &getDatasets() const { return datasets; }
 
     void doInteraction();
-    bool update();
+    virtual bool update();
 
     void setRegionEnabled(const std::string &region_name, bool enabled);
     void setAllRegionsEnabled(bool enabled);
 
     void setShowBuildings(bool state);
     void setShowTerrain(bool state);
+    void setShowLabels(bool state);
+
+    std::optional<PlaceLabelGroup> loadLabels(const std::string &file);
 
 private:
     void applyOffset();
@@ -126,24 +142,23 @@ private:
     PJ_CONTEXT *ProjContext;
     PJ *ProjInstance;
 
-    osg::ref_ptr<osg::Node> terrainNode = nullptr;
-    osg::ref_ptr<osg::Node> buildingNode = nullptr;
     std::map<std::string, osg::ref_ptr<osg::Node>> loadedTerrains;
     std::map<std::string, osg::ref_ptr<osg::Node>> loadedBuildings;
+    std::map<std::string, PlaceLabelGroup> loadedLabels;
+
     std::map<std::string, regionEntry> regions;
     std::map<std::string, opencover::ui::Button *> regionButtons;
+
     bool showTerrain = true;
     bool showBuildings = true;
+    bool showLabels = false;
+
     osg::Node *oldIntersectedNode;
     std::list<EditInfo> editInfos;
     void doDelete();
     void doReplace();
     void doUndo();
 
-    opencover::ui::Menu *geoDataMenu;
-    opencover::ui::Group *geoObjectGroup;
-    opencover::ui::Group *originGroup;
-    opencover::ui::Group *visibilityGroup;
     opencover::ui::Group *editGroup;
 
     opencover::ui::Button *editButton;
@@ -153,15 +168,23 @@ private:
     opencover::ui::EditField *selectionRadius;
     opencover::ui::Label *selectionName;
 
+    opencover::ui::Menu *geoDataMenu;
+
+    opencover::ui::Group *visibilityGroup;
     opencover::ui::Button *terrainVisibilityButton;
-    opencover::ui::Button *buildingVisibilityButton;
+    opencover::ui::Button *buildingsVisibilityButton;
+    opencover::ui::Button *labelsVisibilityButton;
+
+    opencover::ui::Group *originGroup;
+    opencover::ui::SelectionList *datasetList;
     opencover::ui::Button *applyOffsetButton;
     opencover::ui::Button *saveOffsetToConfig;
     opencover::ui::EditField *easting;
     opencover::ui::EditField *northing;
     opencover::ui::EditField *altitude;
     opencover::ui::EditField *trueNorth;
-    opencover::ui::SelectionList *datasetList;
+
+    opencover::ui::Group *geoObjectGroup;
 
     std::vector<DatasetInfo> datasets;
 

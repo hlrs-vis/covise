@@ -14,11 +14,13 @@ ENDIF()
 
 set(HEADERS
     GeoDataLoader.h
+    PlaceLabel.h
 	VrmlNodeGeoData.h
 )
 
 set(SOURCES
     GeoDataLoader.cpp
+    PlaceLabel.cpp
 	VrmlNodeGeoData.cpp
 )
 

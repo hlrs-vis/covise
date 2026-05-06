@@ -28,7 +28,14 @@
 #include <cover/coVRConfig.h>
 #include <cover/VRViewer.h>
 #include <cover/VRSceneGraph.h>
+#include <memory>
+#include <osg/ref_ptr>
 #include <osgEarth/TerrainOptions>
+
+#include <gdal.h>
+#include <gdal_dataset.h>
+#include <ogrsf_frmts.h>
+
 #include <vrml97/vrml/VrmlNamespace.h>
 #include <VrmlNodeGeoData.h>
 #include <cover/ui/Manager.h>
@@ -53,7 +60,9 @@
 #include <osgTerrain/Terrain>
 #include <osgViewer/Renderer>
 #include <iostream>
+#include <cover/coVRLabel.h>
 #include <string>
+#include "PlaceLabel.h"
 #include "cover/coVRConfig.h"
 #include <PluginUtil/PluginMessageTypes.h>
 #include <stdio.h>
@@ -292,21 +301,21 @@ bool GeoDataLoader::init()
 
     terrainVisibilityButton = new ui::Button(visibilityGroup, "terrainVisibility");
     terrainVisibilityButton->setText("Terrain");
-    terrainVisibilityButton->setState(true);
+    terrainVisibilityButton->setState(showTerrain);
     terrainVisibilityButton->setCallback([this](bool state)
-        {
-        for (const auto& pair : loadedTerrains)
-        {
-            if (pair.second)
-                pair.second->setNodeMask(state ? 0xffffffff : 0x0);
-        }
-        showTerrain = state; });
+        { setShowTerrain(state); });
 
-    buildingVisibilityButton = new ui::Button(visibilityGroup, "buildingVisibility");
-    buildingVisibilityButton->setText("Buildings");
-    buildingVisibilityButton->setState(true);
-    buildingVisibilityButton->setCallback([this](bool state)
+    buildingsVisibilityButton = new ui::Button(visibilityGroup, "buildingVisibility");
+    buildingsVisibilityButton->setText("Buildings");
+    buildingsVisibilityButton->setState(showBuildings);
+    buildingsVisibilityButton->setCallback([this](bool state)
         { setShowBuildings(state); });
+
+    labelsVisibilityButton = new ui::Button(visibilityGroup, "labelsVisibility");
+    labelsVisibilityButton->setText("Labels");
+    labelsVisibilityButton->setState(showLabels);
+    labelsVisibilityButton->setCallback([this](bool state)
+        { setShowLabels(state); });
 
     // create Button for each region in config
     geoObjectGroup = new ui::Group(geoDataMenu, "GeoObjects");
@@ -323,10 +332,11 @@ bool GeoDataLoader::init()
         std::string region_name = terrainEntry.value<std::string>("", "name")->value();
         std::string terrain_path = terrainEntry.value<std::string>("", "terrainPath")->value();
         std::string lod_path = terrainEntry.value<std::string>("", "lodPath")->value();
+        std::string labels_path = terrainEntry.value<std::string>("", "labelsPath")->value();
 
-        regions.emplace(region_name, regionEntry { region_name, terrain_path, lod_path });
+        regions.emplace(region_name, regionEntry { region_name, terrain_path, lod_path, labels_path });
 
-        if (terrain_path != "" || lod_path != "")
+        if (terrain_path != "" || lod_path != "" || labels_path != "")
         {
             ui::Button *regionButton = new ui::Button(geoObjectGroup, region_name);
             regionButton->setText(region_name);
@@ -390,20 +400,21 @@ GeoDataLoader::~GeoDataLoader()
 
 void GeoDataLoader::setRegionEnabled(const std::string &region_name, bool enabled)
 {
-    const auto &region = regions.find(region_name);
-    if (region == regions.end())
+    const auto &it = regions.find(region_name);
+    if (it == regions.end())
     {
         // No region found with this name
         return;
     }
+    const auto &region = it->second;
 
     auto terrainRoot = GeoData::instance()->terrainRoot();
 
     if (enabled)
     {
-        if (loadedTerrains.find(region_name) == loadedTerrains.end())
+        if (loadedTerrains.find(region_name) == loadedTerrains.end() && !region.terrain_path.empty())
         {
-            terrainNode = loadTerrain(region->second.terrain_path, osg::Vec3d(0, 0, 0));
+            auto terrainNode = loadTerrain(region.terrain_path, osg::Vec3d(0, 0, 0));
             if (terrainNode)
             {
                 loadedTerrains[region_name] = terrainNode;
@@ -413,15 +424,27 @@ void GeoDataLoader::setRegionEnabled(const std::string &region_name, bool enable
             }
         }
 
-        if (loadedBuildings.find(region_name) == loadedBuildings.end())
+        if (loadedBuildings.find(region_name) == loadedBuildings.end() && !region.lod_path.empty())
         {
-            buildingNode = loadTerrain(region->second.lod_path, osg::Vec3d(0, 0, 0));
+            auto buildingNode = loadTerrain(region.lod_path, osg::Vec3d(0, 0, 0));
             if (buildingNode)
             {
                 loadedBuildings[region_name] = buildingNode;
                 terrainRoot->addChild(buildingNode);
                 buildingNode->setName(region_name);
                 buildingNode->setNodeMask(showBuildings ? 0xffffffff : 0x0);
+            }
+        }
+
+        if (loadedLabels.find(region_name) == loadedLabels.end() && !region.labels_path.empty())
+        {
+            auto labelGroup = loadLabels(region.labels_path);
+            if (labelGroup)
+            {
+                loadedLabels[region_name] = labelGroup.value();
+                terrainRoot->addChild(labelGroup->node);
+                labelGroup->node->setName(region_name);
+                labelGroup->node->setNodeMask(showLabels ? 0xffffffff : 0x0);
             }
         }
     }
@@ -437,6 +460,12 @@ void GeoDataLoader::setRegionEnabled(const std::string &region_name, bool enable
         {
             terrainRoot->removeChild(loadedBuildings[region_name]);
             loadedBuildings.erase(region_name);
+        }
+
+        if (loadedLabels.find(region_name) != loadedLabels.end())
+        {
+            terrainRoot->removeChild(loadedLabels[region_name].node);
+            loadedLabels.erase(region_name);
         }
     }
 
@@ -455,7 +484,7 @@ void GeoDataLoader::setAllRegionsEnabled(bool enabled)
 void GeoDataLoader::setShowBuildings(bool state)
 {
     showBuildings = state;
-    buildingVisibilityButton->setState(state);
+    buildingsVisibilityButton->setState(state);
     for (const auto &[_, buildings] : loadedBuildings)
     {
         buildings->setNodeMask(state ? 0xffffffff : 0x0);
@@ -469,6 +498,16 @@ void GeoDataLoader::setShowTerrain(bool state)
     for (const auto &[_, terrain] : loadedTerrains)
     {
         terrain->setNodeMask(state ? 0xffffffff : 0x0);
+    }
+}
+
+void GeoDataLoader::setShowLabels(bool state)
+{
+    showLabels = state;
+    labelsVisibilityButton->setState(state);
+    for (const auto &[_, labelGroup] : loadedLabels)
+    {
+        labelGroup.node->setNodeMask(state ? 0xffffffff : 0x0);
     }
 }
 
@@ -709,6 +748,49 @@ void GeoDataLoader::applyOffset()
 
     osg::Vec3 origin = osg::Vec3(originEasting, originNorthing, originAltitude);
     setRootTransform(origin, trueNorth);
+}
+
+std::optional<PlaceLabelGroup> GeoDataLoader::loadLabels(const std::string &file)
+{
+    GDALAllRegister();
+
+    GDALDatasetUniquePtr dataset(GDALDataset::Open(file.c_str(), GDAL_OF_VECTOR));
+    if (dataset == nullptr)
+    {
+        return std::nullopt;
+    }
+
+    std::vector<std::shared_ptr<PlaceLabel>> labels;
+    osg::ref_ptr<osg::Group> node = new osg::Group;
+
+    for (OGRLayer *layer : dataset->GetLayers())
+    {
+        for (auto &feature : *layer)
+        {
+            std::string name = feature->GetFieldAsString("name");
+            if (name.empty())
+                continue;
+
+            const OGRGeometry *geometry = feature->GetGeometryRef();
+            if (!geometry)
+                continue;
+
+            if (wkbFlatten(geometry->getGeometryType()) != wkbPoint)
+                continue;
+
+            const OGRPoint *poPoint = geometry->toPoint();
+
+            double altitude = feature->GetFieldAsDouble("altitude");
+            int size = feature->GetFieldAsInteger("size");
+
+            osg::Vec3f global(poPoint->getX(), poPoint->getY(), altitude);
+            auto local = GeoData::instance()->toLocal(global, false);
+
+            labels.emplace_back(std::make_shared<PlaceLabel>(name, local, node, size));
+        }
+    }
+
+    return PlaceLabelGroup { node, labels };
 }
 
 COVERPLUGIN(GeoDataLoader)
