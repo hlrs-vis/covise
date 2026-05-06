@@ -22,7 +22,7 @@
 #endif
 
 #define GEODATA_DEFAULT_PROJECTION_GLOBAL "EPSG:4326"
-#define GEODATA_DEFAULT_PROJECTION_LOCAL "EPSG:25832"
+#define GEODATA_DEFAULT_PROJECTION_PROJECT "EPSG:25832"
 
 namespace opencover
 {
@@ -44,17 +44,28 @@ public:
     osg::PositionAttitudeTransform *offsetRoot();
     osg::Group *terrainRoot();
 
-    /// Transform a global position (easting-northing-altitude) into local
-    /// (x-y-z) coordinates, applying transform and project offset.
-    osg::Vec3 toLocal(const osg::Vec3 &globalPosition, bool withOffset = true) const;
+    /**
+     * Transform a global position (easting-northing-altitude) into project
+     * (x-y-z) coordinates, applying transform and project offset.
+     */
+    osg::Vec3 globalToProject(const osg::Vec3 &globalPosition) const;
 
-    /// Transform a local (x-y-z) coordinate into a global position
-    /// (easting-northing-altitude), applying the reverse project offset and
-    /// transformation.
-    osg::Vec3 toGlobal(const osg::Vec3 &localPosition, bool withOffset = true) const;
+    /**
+     * Transform a global position (easting-northing-altitude) into the
+     * reference (x-y-z) coordinates, applying the projection transform, but
+     * not the project offset.
+     */
+    osg::Vec3 globalToReference(const osg::Vec3 &globalPosition) const;
 
-    void jumpToLocation(const osg::Vec3 &localPosition);
-    void jumpToLocation(const osg::Vec3 &localPosition, double aboveTerrain);
+    /**
+     * Transform a project (x-y-z) coordinate into a global position
+     * (easting-northing-altitude), applying the reverse project offset and
+     * transformation.
+     */
+    osg::Vec3 projectToGlobal(const osg::Vec3 &projectPosition) const;
+
+    void jumpToLocation(const osg::Vec3 &projectPosition);
+    void jumpToLocation(const osg::Vec3 &projectPosition, double aboveTerrain);
 
 protected:
 #ifdef HAVE_PROJ

@@ -24,7 +24,7 @@ GeoData::GeoData()
     m_terrainRoot = new osg::Group;
     m_offsetRoot->addChild(m_terrainRoot);
 
-    setProjection(GEODATA_DEFAULT_PROJECTION_LOCAL);
+    setProjection(GEODATA_DEFAULT_PROJECTION_PROJECT);
 }
 
 GeoData::~GeoData()
@@ -107,7 +107,12 @@ osg::Group *GeoData::terrainRoot()
     return m_terrainRoot;
 }
 
-osg::Vec3 GeoData::toLocal(const osg::Vec3 &globalPosition, bool withOffset) const
+osg::Vec3 GeoData::globalToProject(const osg::Vec3 &globalPosition) const
+{
+    return globalToReference(globalPosition) - m_projectOffset;
+}
+
+osg::Vec3 GeoData::globalToReference(const osg::Vec3 &globalPosition) const
 {
 #ifndef HAVE_PROJ
     return globalPosition;
@@ -121,19 +126,16 @@ osg::Vec3 GeoData::toLocal(const osg::Vec3 &globalPosition, bool withOffset) con
 
     osg::Vec3 position_transformed(c_out.enu.e, c_out.enu.n, c_out.enu.u);
 
-    if (withOffset)
-        return position_transformed - m_projectOffset;
-    else
-        return position_transformed;
+    return position_transformed;
 #endif
 }
 
-osg::Vec3 GeoData::toGlobal(const osg::Vec3 &localPosition, bool withOffset) const
+osg::Vec3 GeoData::projectToGlobal(const osg::Vec3 &projectPosition) const
 {
 #ifndef HAVE_PROJ
-    return localPosition;
+    return projectPosition;
 #else
-    auto p = withOffset ? localPosition + m_projectOffset : localPosition;
+    auto p = projectPosition + m_projectOffset;
 
     PJ_COORD c;
     c.enu.e = p.x();
@@ -146,19 +148,19 @@ osg::Vec3 GeoData::toGlobal(const osg::Vec3 &localPosition, bool withOffset) con
 #endif
 }
 
-void GeoData::jumpToLocation(const osg::Vec3 &localPosition)
+void GeoData::jumpToLocation(const osg::Vec3 &projectPosition)
 {
-    osg::Vec3 target = localPosition;
+    osg::Vec3 target = projectPosition;
     double scale = cover->getScale();
 
-    cover->setXformMat(osg::Matrix::translate(-(localPosition - m_projectOffset) * scale)); // * osg::Matrix::rotate(cover->getXformMat().getRotate()));
+    cover->setXformMat(osg::Matrix::translate(-projectPosition * scale)); // * osg::Matrix::rotate(cover->getXformMat().getRotate()));
 }
 
-void GeoData::jumpToLocation(const osg::Vec3 &localPosition, double aboveTerrain)
+void GeoData::jumpToLocation(const osg::Vec3 &projectPosition, double aboveTerrain)
 {
     osg::ref_ptr<osgUtil::LineSegmentIntersector> intersector = new osgUtil::LineSegmentIntersector(
-        osg::Vec3(localPosition.x(), localPosition.y(), 10000.0),
-        osg::Vec3(localPosition.x(), localPosition.y(), -10000.0));
+        osg::Vec3(projectPosition.x(), projectPosition.y(), 10000.0),
+        osg::Vec3(projectPosition.x(), projectPosition.y(), -10000.0));
     osgUtil::IntersectionVisitor iv(intersector);
 
     auto terrainRoot = GeoData::instance()->terrainRoot();
@@ -168,12 +170,12 @@ void GeoData::jumpToLocation(const osg::Vec3 &localPosition, double aboveTerrain
     if (intersector->containsIntersections())
     {
         jumpToLocation(osg::Vec3(
-            localPosition.x(),
-            localPosition.y(),
+            projectPosition.x(),
+            projectPosition.y(),
             intersector->getFirstIntersection().getLocalIntersectPoint().z() + aboveTerrain));
     }
     else
     {
-        jumpToLocation(localPosition);
+        jumpToLocation(projectPosition);
     }
 }

@@ -143,8 +143,8 @@ void GeoCoding::jumpToAddress(std::string_view searchQuery)
         return;
     }
 
-    auto local = GeoData::instance()->toLocal(osg::Vec3(longitude, latitude, 500.0), false);
-    GeoData::instance()->jumpToLocation(local);
+    auto projectLocation = GeoData::instance()->globalToProject(osg::Vec3(longitude, latitude, 500.0));
+    GeoData::instance()->jumpToLocation(projectLocation, 100.0);
 
     if (location.HasMember("display_name"))
         m_currentLocationLabel->setText(location["display_name"].GetString());
@@ -155,9 +155,9 @@ void GeoCoding::jumpToAddress(std::string_view searchQuery)
 #include <osg/io_utils>
 void GeoCoding::geocode()
 {
-    auto local = osg::Matrix::inverse(cover->getXformMat()).getTrans() / cover->getScale();
-    std::cout << "Local coords (relative to project origin): " << local << std::endl;
-    auto global = GeoData::instance()->toGlobal(local);
+    auto projectLocation = osg::Matrix::inverse(cover->getXformMat()).getTrans() / cover->getScale();
+    std::cout << "Local coords (relative to project origin): " << projectLocation << std::endl;
+    auto global = GeoData::instance()->projectToGlobal(projectLocation);
     std::cout << "Global coords (WGS84): " << global << std::endl;
 
     using namespace opencover::httpclient::curl;
