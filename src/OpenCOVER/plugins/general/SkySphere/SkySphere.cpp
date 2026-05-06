@@ -52,7 +52,6 @@
 #include <string>
 #include "cover/coVRConfig.h"
 #include <PluginUtil/PluginMessageTypes.h>
-#include <../../../../3rdparty/easyexif/exif.h>
 #include <filesystem>
 
 #include "VrmlNodeSkySphere.h"
@@ -229,14 +228,10 @@ void parseExifData(const std::filesystem::path &path, double &longitude, double 
         auto gimbalYawIt = xmpData.findKey(Exiv2::XmpKey("Xmp.drone-dji.GimbalYawDegree"));
         auto flightYawIt = xmpData.findKey(Exiv2::XmpKey("Xmp.drone-dji.FlightYawDegree"));
 
-        double yaw = 0.0;
-
         if (gimbalYawIt != xmpData.end())
-            yaw += xmpData["Xmp.drone-dji.GimbalYawDegree"].toFloat();
+            trueNorth = xmpData["Xmp.drone-dji.GimbalYawDegree"].toFloat() + 90;
         if (flightYawIt != xmpData.end())
-            yaw += xmpData["Xmp.drone-dji.FlightYawDegree"].toFloat();
-
-        trueNorth = yaw + 180.0;
+            trueNorth = xmpData["Xmp.drone-dji.FlightYawDegree"].toFloat() + 90;
     }
 }
 
@@ -427,7 +422,7 @@ bool SkySphere::update()
     const osg::Matrix &m = cover->getObjectsXform()->getMatrix();
 
     skyRootNode->setMatrix(
-        osg::Matrix::scale(scale, scale, scale) * osg::Matrix::rotate(osg::DegreesToRadians(northAngle), osg::Vec3(0, 0, 1)) * osg::Matrix::rotate(m.getRotate())
+        osg::Matrix::scale(scale, scale, scale) * osg::Matrix::rotate(osg::DegreesToRadians(-northAngle), osg::Vec3(0, 0, 1)) * osg::Matrix::rotate(m.getRotate())
         * osg::Matrix::translate(cover->getViewerMat().getTrans()));
     return false; // don't request that scene be re-rendered
 }
