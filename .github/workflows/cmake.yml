@@ -108,6 +108,7 @@ jobs:
         libfreetype-dev
         libomp-dev
         libglm-dev
+        libexiv2-dev
         protobuf-compiler
         nlohmann-json3-dev
         qt6-base-dev
