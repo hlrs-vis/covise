@@ -32,6 +32,7 @@
 struct SkyEntry
 {
     std::string name;
+    std::string displayName;
     std::string fileName;
 
     // All in degrees
@@ -77,6 +78,7 @@ private:
 
     void setSkyDisabled();
     void setSkyTexture(std::string_view nameOrFile);
+    void setSkyEntry(SkyEntry &sky);
     void setSkyEphemeris();
     void setSkyAuto();
     void removeExistingSky();
@@ -99,6 +101,7 @@ private:
     opencover::ui::Menu *geoDataMenu;
     opencover::ui::Group *skyGroup;
     opencover::ui::SelectionList *skyList;
+    int skyListNameStart = 0;
     opencover::ui::Slider *skyNorthSlider = nullptr;
 
     float northAngle;

@@ -140,7 +140,23 @@ bool Sky::init()
 
     skyList = new ui::SelectionList(skyGroup, "Sky");
     skyList->setCallback([this](int selection)
-        { setSky(skyList->items()[selection]); });
+        {
+            if (selection >= skyListNameStart)
+            {
+                setSkyEntry(m_skies[selection - skyListNameStart]);
+            }
+            else if (selection == 0)
+            {
+                setSkyDisabled();
+            }
+            else if (selection == 1)
+            {
+                setSkyAuto();
+            }
+            else if (selection == 2)
+            {
+                setSkyEphemeris();
+            } });
 
     skyPath = configString("sky", "skyDir", "/data/Geodata/sky")->value();
     loadSkies();
@@ -259,7 +275,6 @@ std::optional<std::reference_wrapper<SkyEntry>> Sky::addSkyFile(std::filesystem:
 
     auto relative = std::filesystem::relative(path, std::filesystem::path(skyPath)).string();
     std::string name = relative.substr(0, relative.length() - extension.length());
-    name = std::regex_replace(name, std::regex("/"), " → ");
 
     // Transform extension to lower case
     std::transform(extension.begin(), extension.end(), extension.begin(),
@@ -283,6 +298,7 @@ std::optional<std::reference_wrapper<SkyEntry>> Sky::addSkyFile(std::filesystem:
 
     return m_skies.emplace_back(SkyEntry {
         .name = name,
+        .displayName = std::regex_replace(name, std::regex("/"), " → "),
         .fileName = path.string(),
         .longitude = longitude,
         .latitude = latitude,
@@ -308,9 +324,10 @@ void Sky::updateSkyMenu()
         "Ephemeris",
 #endif
     };
+    skyListNameStart = skyNames.size();
     for (const auto &sky : m_skies)
     {
-        skyNames.push_back(sky.name);
+        skyNames.push_back(sky.displayName);
     }
     skyList->setList(skyNames);
 }
@@ -383,37 +400,32 @@ void Sky::setSkyTexture(std::string_view nameOrFile)
 {
     removeExistingSky();
 
-    SkyEntry *sky_ptr = nullptr;
-
     for (auto &it : m_skies)
     {
-        if (it.fileName == nameOrFile || it.name == nameOrFile) // already have this file in the list
+        if (it.fileName == nameOrFile || it.name == nameOrFile || it.displayName == nameOrFile) // already have this file in the list
         {
-            sky_ptr = &it;
+            setSkyEntry(it);
+            return;
         }
     }
 
     // If we did not find a sky with this name (or filename), try to add it
-    if (!sky_ptr)
+    auto addedSky = addSkyFile(nameOrFile);
+    if (addedSky)
     {
-        auto addedSky = addSkyFile(nameOrFile);
-        if (addedSky)
-        {
-            updateSkyMenu();
-            sky_ptr = &(addedSky->get());
-        }
+        updateSkyMenu();
+        setSkyEntry(addedSky->get());
     }
+}
 
-    // Still no sky (adding was unsuccessful) -- do nothing.
-    if (!sky_ptr)
-        return;
-
-    SkyEntry &sky = *sky_ptr;
+void Sky::setSkyEntry(SkyEntry &sky)
+{
+    removeExistingSky();
 
     // Choose the corresponding item in the menu
-    auto l = skyList->items();
+    const auto &l = skyList->items();
     skyList->select(std::find_if(l.begin(), l.end(), [sky](const auto &it)
-                        { return it == sky.name; })
+                        { return it == sky.name || it == sky.displayName; })
         - l.begin());
 
     if (sky.texture == nullptr)
