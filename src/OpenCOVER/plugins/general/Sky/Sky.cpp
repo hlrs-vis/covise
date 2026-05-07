@@ -49,6 +49,7 @@
 #include <osg/ShapeDrawable>
 #include <osgViewer/Renderer>
 #include <iostream>
+#include <regex>
 #include <string>
 #include "cover/coVRConfig.h"
 #include <PluginUtil/PluginMessageTypes.h>
