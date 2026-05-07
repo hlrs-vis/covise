@@ -285,7 +285,13 @@ void SkySphere::updateSkyMenu()
             return a.name < b.name;
         });
 
-    std::vector<std::string> skyNames = { "None" };
+    std::vector<std::string> skyNames = {
+        "None",
+        "Auto",
+#ifdef HAVE_EPHEMERIS
+        "Ephemeris",
+#endif
+    };
     for (const auto &sky : m_skies)
     {
         skyNames.push_back(sky.name);
@@ -301,8 +307,66 @@ void SkySphere::message(int toWhom, int type, int length, const void *data)
     }
 }
 
+void SkySphere::removeExistingSky()
+{
+    // Remove all existing sky nodes
+    while (skyRootNode->getNumChildren())
+        skyRootNode->removeChild(skyRootNode->getChild(0));
+
+#ifdef HAVE_EPHEMERIS
+    if (m_ephemeralSky)
+        m_ephemeralSky = nullptr;
+#endif
+}
+
 void SkySphere::setSky(std::string_view nameOrFile)
 {
+    if (nameOrFile == "None")
+    {
+        setSkyDisabled();
+    }
+    else if (nameOrFile == "Ephemeris")
+    {
+        setSkyEphemeris();
+    }
+    else if (nameOrFile == "Auto")
+    {
+        setSkyAuto();
+    }
+    else
+    {
+        setSkyTexture(nameOrFile);
+    }
+}
+
+void SkySphere::setSkyDisabled()
+{
+    m_mode = DISABLED;
+    removeExistingSky();
+}
+
+void SkySphere::setSkyEphemeris()
+{
+#ifdef HAVE_EPHEMERIS
+    removeExistingSky();
+    m_mode = EPHEMERIS;
+    m_ephemeralSky = std::make_unique<EphemeralSky>(skyGroup, skyRootNode);
+#else
+    std::cerr << "Cannot switch to Ephemeris sky, compiled without osgEphemeris. Disabling sky." << std::endl;
+    setSkyDisabled();
+#endif
+}
+
+void SkySphere::setSkyAuto()
+{
+    m_mode = AUTO;
+    // TODO
+}
+
+void SkySphere::setSkyTexture(std::string_view nameOrFile)
+{
+    removeExistingSky();
+
     SkyEntry *sky_ptr = nullptr;
 
     for (auto &it : m_skies)
@@ -330,10 +394,6 @@ void SkySphere::setSky(std::string_view nameOrFile)
 
     SkyEntry &sky = *sky_ptr;
 
-    // Remove all existing sky nodes
-    while (skyRootNode->getNumChildren())
-        skyRootNode->removeChild(skyRootNode->getChild(0));
-
     // Choose the corresponding item in the menu
     auto l = skyList->items();
     skyList->select(std::find_if(l.begin(), l.end(), [sky](const auto &it)
@@ -359,11 +419,7 @@ void SkySphere::setSky(std::string_view nameOrFile)
 
     skyRootNode->addChild(texturedSphere);
 
-    northAngle = sky.trueNorth;
-    if (skyNorthSlider != nullptr)
-    {
-        skyNorthSlider->setValue(northAngle);
-    }
+    setTrueNorth(sky.trueNorth);
 }
 
 void SkySphere::setTop(float t)
@@ -390,6 +446,12 @@ void SkySphere::setFloorColor(osg::Vec4 fc)
     }
 }
 
+void SkySphere::setTrueNorth(float trueNorth)
+{
+    northAngle = trueNorth;
+    if (skyNorthSlider)
+        skyNorthSlider->setValue(northAngle);
+}
 bool SkySphere::update()
 {
     float nearValue = coVRConfig::instance()->nearClip();
@@ -401,6 +463,21 @@ bool SkySphere::update()
     skyRootNode->setMatrix(
         osg::Matrix::scale(scale, scale, scale) * osg::Matrix::rotate(osg::DegreesToRadians(-northAngle), osg::Vec3(0, 0, 1)) * osg::Matrix::rotate(m.getRotate())
         * osg::Matrix::translate(cover->getViewerMat().getTrans()));
+
+    if (m_mode == AUTO)
+    {
+        // TODO: automatically select appropriate sky
+    }
+    else if (m_mode == EPHEMERIS)
+    {
+#ifdef HAVE_EPHEMERIS
+        if (m_ephemeralSky)
+        {
+            m_ephemeralSky->update();
+        }
+#endif
+    }
+
     return false; // don't request that scene be re-rendered
 }
 

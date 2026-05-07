@@ -25,6 +25,10 @@
 #include <cover/ui/SelectionList.h>
 #include <filesystem>
 
+#ifdef HAVE_EPHEMERIS
+#include "EphemeralSky.h"
+#endif
+
 struct SkyEntry
 {
     std::string name;
@@ -49,22 +53,43 @@ public:
 
     virtual bool update();
     virtual void message(int toWhom, int type, int length, const void *data);
+
     void setSky(std::string_view nameOrFile);
+
     void setTop(float t);
     void setBottom(float b);
     void setFloorColor(osg::Vec4 fc);
 
+    void setTrueNorth(float trueNorth);
+
 private:
+    enum SkyMode
+    {
+        DISABLED,
+        TEXTURE,
+        EPHEMERIS,
+        AUTO,
+    } m_mode;
+
     void loadSkies();
     std::optional<std::reference_wrapper<SkyEntry>> addSkyFile(std::filesystem::path path);
     void updateSkyMenu();
 
-    static SkySphere *s_instance;
+    void setSkyDisabled();
+    void setSkyTexture(std::string_view nameOrFile);
+    void setSkyEphemeris();
+    void setSkyAuto();
+    void removeExistingSky();
 
+    static SkySphere *s_instance;
     std::vector<SkyEntry> m_skies;
 
     osg::ref_ptr<osg::MatrixTransform> skyRootNode;
     osg::ref_ptr<osg::Geode> texturedSphere;
+
+#ifdef HAVE_EPHEMERIS
+    std::unique_ptr<EphemeralSky> m_ephemeralSky;
+#endif
 
     opencover::coVRShader *shader = nullptr;
     opencover::coVRUniform *topUniform = nullptr;
