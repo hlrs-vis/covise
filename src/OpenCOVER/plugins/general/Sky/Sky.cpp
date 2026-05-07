@@ -178,28 +178,35 @@ Sky::~Sky()
 
 void Sky::loadSkies()
 {
-    try
+    std::function<void(const std::filesystem::path &)> read_dir;
+    read_dir = [&read_dir, this](const std::filesystem::path &path) -> void
     {
-        for (const auto &entry : std::filesystem::directory_iterator(skyPath))
+        try
         {
-            if (!entry.is_regular_file())
+            for (const auto &entry : std::filesystem::directory_iterator(path))
             {
-                continue;
+                if (entry.is_directory())
+                {
+                    read_dir(entry.path());
+                }
+                else if (entry.is_regular_file())
+                {
+                    const auto &path = entry.path();
+                    addSkyFile(path);
+                }
             }
-
-            const auto &path = entry.path();
-            addSkyFile(path);
         }
-    }
-    catch (const std::filesystem::filesystem_error &err)
-    {
-        std::cerr << "Filesystem error: " << err.what() << std::endl;
-    }
-    catch (const std::exception &ex)
-    {
-        std::cerr << "General error: " << ex.what() << std::endl;
-    }
+        catch (const std::filesystem::filesystem_error &err)
+        {
+            std::cerr << "Filesystem error: " << err.what() << std::endl;
+        }
+        catch (const std::exception &ex)
+        {
+            std::cerr << "General error: " << ex.what() << std::endl;
+        }
+    };
 
+    read_dir(skyPath);
     updateSkyMenu();
 }
 
@@ -248,8 +255,11 @@ void parseExifData(const std::filesystem::path &path, double &longitude, double 
 std::optional<std::reference_wrapper<SkyEntry>> Sky::addSkyFile(std::filesystem::path path)
 {
     std::string fileName = path.filename().string();
-    std::string name = path.stem().string();
     std::string extension = path.extension();
+
+    auto relative = std::filesystem::relative(path, std::filesystem::path(skyPath)).string();
+    std::string name = relative.substr(0, relative.length() - extension.length());
+    name = std::regex_replace(name, std::regex("/"), " → ");
 
     // Transform extension to lower case
     std::transform(extension.begin(), extension.end(), extension.begin(),
