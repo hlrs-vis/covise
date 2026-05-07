@@ -44,8 +44,6 @@
 #include <cover/ui/Label.h>
 #include <cover/ui/SelectionList.h>
 
-#include <proj.h>
-
 class UDPComm;
 
 using JSBSim::Element;
@@ -118,8 +116,8 @@ public:
 
     static JSBSimPlugin *instance() { return plugin; };
 
-    bool init();
-    bool update();
+    bool init() override;
+    bool update() override;
 
     // from coVRNavigationProvider
     virtual void setEnabled(bool) override;
@@ -240,10 +238,9 @@ private:
     void reset(double dz = 0.0);
 
     //! this functions is called when a key is pressed or released
-    virtual void key(int type, int keySym, int mod);
+    virtual void key(int type, int keySym, int mod) override;
 
     OpenThreads::Mutex mutex;
-    PJ *coordTransformation;
 
     osg::Matrix lastPos;
 
