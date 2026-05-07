@@ -189,29 +189,30 @@ bool GeoDataLoader::init()
     easting = new ui::EditField(originGroup, "easting");
     easting->setText("Easting (m):");
     easting->setCallback([this](std::string val)
-        { this->tempEastingText = val; });
+        {
+        this->tempEastingText = val;
+        applyOffset(); });
 
     northing = new ui::EditField(originGroup, "northing");
     northing->setText("Northing (m):");
     northing->setCallback([this](std::string val)
-        { this->tempNorthingText = val; });
+        {
+        this->tempNorthingText = val;
+        applyOffset(); });
 
     altitude = new ui::EditField(originGroup, "altitude");
     altitude->setText("Altitude (m):");
     altitude->setCallback([this](std::string val)
-        { this->tempAltitudeText = val; });
+        {
+        this->tempAltitudeText = val;
+        applyOffset(); });
 
     trueNorth = new ui::EditField(originGroup, "trueNorth");
     trueNorth->setText("True North (°):");
     trueNorth->setCallback([this](std::string val)
-        { this->tempTrueNorthText = val; });
-
-    applyOffsetButton = new ui::Button(originGroup, "applyOffset");
-    applyOffsetButton->setText("apply");
-    applyOffsetButton->setCallback([this](bool state)
         {
-        applyOffset();
-        applyOffsetButton->setState(false); });
+        this->tempTrueNorthText = val;
+        applyOffset(); });
 
     // TODO add option to rename dataset either with edit field or with editable selection list
     saveOffsetToConfig = new ui::Button(originGroup, "saveOffsetToConfig");

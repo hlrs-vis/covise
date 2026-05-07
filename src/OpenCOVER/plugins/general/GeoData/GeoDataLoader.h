@@ -177,7 +177,6 @@ private:
 
     opencover::ui::Group *originGroup;
     opencover::ui::SelectionList *datasetList;
-    opencover::ui::Button *applyOffsetButton;
     opencover::ui::Button *saveOffsetToConfig;
     opencover::ui::EditField *easting;
     opencover::ui::EditField *northing;
