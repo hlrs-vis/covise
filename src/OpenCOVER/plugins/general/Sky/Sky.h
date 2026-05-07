@@ -42,14 +42,14 @@ struct SkyEntry
     osg::ref_ptr<osg::Texture2D> texture;
 };
 
-class SkySphere : public opencover::coVRPlugin, public opencover::ui::Owner
+class Sky : public opencover::coVRPlugin, public opencover::ui::Owner
 {
 public:
-    SkySphere();
+    Sky();
     bool init();
-    ~SkySphere();
+    ~Sky();
 
-    static SkySphere *instance();
+    static Sky *instance();
 
     virtual bool update();
     virtual void message(int toWhom, int type, int length, const void *data);
@@ -81,7 +81,7 @@ private:
     void setSkyAuto();
     void removeExistingSky();
 
-    static SkySphere *s_instance;
+    static Sky *s_instance;
     std::vector<SkyEntry> m_skies;
 
     osg::ref_ptr<osg::MatrixTransform> skyRootNode;

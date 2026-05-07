@@ -18,13 +18,13 @@
 
 using namespace vrml;
 
-class VrmlNodeSkySphere : public VrmlNodeChild
+class VrmlNodeSky : public VrmlNodeChild
 {
 public:
-    VrmlNodeSkySphere(VrmlScene *scene = 0);
-    VrmlNodeSkySphere(const VrmlNodeSkySphere &n);
+    VrmlNodeSky(VrmlScene *scene = 0);
+    VrmlNodeSky(const VrmlNodeSky &n);
 
-    static void initFields(VrmlNodeSkySphere *node, vrml::VrmlNodeType *t);
+    static void initFields(VrmlNodeSky *node, vrml::VrmlNodeType *t);
     static const char *typeName();
 
 private:

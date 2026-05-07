@@ -113,7 +113,7 @@
             <Plugin>
                 <GeoData menu="true" />
                 <GeoCoding menu="true" />
-                <SkySphere menu="true" />
+                <Sky menu="true" />
                 <Video menu="true" />
                 <CompositorIceT menu="false" />
                 <ViewPoint value="true" />

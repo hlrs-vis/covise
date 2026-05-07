@@ -6,7 +6,6 @@
  * License: LGPL 2+ */
 
 #include "EphemeralSky.h"
-#include "SkySphere.h"
 
 #include <osg/Vec3>
 

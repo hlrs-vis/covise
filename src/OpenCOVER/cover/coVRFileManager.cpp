@@ -981,7 +981,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         }
         else if (url.authority() == "sky")
         {
-            coVRPlugin *plugin = coVRPluginList::instance()->addPlugin("SkySphere");
+            coVRPlugin *plugin = coVRPluginList::instance()->addPlugin("Sky");
             if (plugin)
             {
                 std::string skyName = std::regex_replace(url.path(), std::regex("^[/\\\\]+"), "");

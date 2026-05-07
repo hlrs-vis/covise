@@ -8,7 +8,7 @@
 /****************************************************************************\
  **                                                            (C)2024 HLRS  **
  **                                                                          **
- ** Description: SkySphere Plugin                                        **
+ ** Description: Sky Plugin                                        **
  **                                                                          **
  **                                                                          **
  ** Author: Uwe Woessner 		                                              **
@@ -18,7 +18,7 @@
  **                                                                          **
 \****************************************************************************/
 
-#include "SkySphere.h"
+#include "Sky.h"
 
 #include <exiv2/exiv2.hpp>
 
@@ -54,7 +54,7 @@
 #include <PluginUtil/PluginMessageTypes.h>
 #include <filesystem>
 
-#include "VrmlNodeSkySphere.h"
+#include "VrmlNodeSky.h"
 
 namespace opencover
 {
@@ -71,18 +71,18 @@ namespace ui
 using namespace covise;
 using namespace opencover;
 
-SkySphere *SkySphere::s_instance = nullptr;
+Sky *Sky::s_instance = nullptr;
 
-SkySphere::SkySphere()
+Sky::Sky()
     : coVRPlugin(COVER_PLUGIN_NAME)
-    , ui::Owner("SkySphere", cover->ui)
+    , ui::Owner("Sky", cover->ui)
 {
     assert(s_instance == nullptr);
     s_instance = this;
 }
-bool SkySphere::init()
+bool Sky::init()
 {
-    // vrml::VrmlNamespace::addBuiltIn(vrml::VrmlNode::defineType<VrmlNodeSkySphere>());
+    // vrml::VrmlNamespace::addBuiltIn(vrml::VrmlNode::defineType<VrmlNodeSky>());
 
     geoDataMenu = dynamic_cast<ui::Menu *>(cover->ui->getByPath("Manager.GeoData"));
     if (!geoDataMenu)
@@ -159,7 +159,7 @@ bool SkySphere::init()
 }
 
 // this is called if the plugin is removed at runtime
-SkySphere::~SkySphere()
+Sky::~Sky()
 {
     s_instance = nullptr;
     delete skyGroup;
@@ -170,7 +170,7 @@ SkySphere::~SkySphere()
     geoDataMenu->setVisible(geoDataMenu->numChildren() > 0);
 }
 
-void SkySphere::loadSkies()
+void Sky::loadSkies()
 {
     try
     {
@@ -239,7 +239,7 @@ void parseExifData(const std::filesystem::path &path, double &longitude, double 
     }
 }
 
-std::optional<std::reference_wrapper<SkyEntry>> SkySphere::addSkyFile(std::filesystem::path path)
+std::optional<std::reference_wrapper<SkyEntry>> Sky::addSkyFile(std::filesystem::path path)
 {
     std::string fileName = path.filename().string();
     std::string name = path.stem().string();
@@ -276,7 +276,7 @@ std::optional<std::reference_wrapper<SkyEntry>> SkySphere::addSkyFile(std::files
     return std::nullopt;
 }
 
-void SkySphere::updateSkyMenu()
+void Sky::updateSkyMenu()
 {
     // Sort m_skies by name
     std::sort(m_skies.begin(), m_skies.end(),
@@ -299,7 +299,7 @@ void SkySphere::updateSkyMenu()
     skyList->setList(skyNames);
 }
 
-void SkySphere::message(int toWhom, int type, int length, const void *data)
+void Sky::message(int toWhom, int type, int length, const void *data)
 {
     if (type == PluginMessageTypes::setSky)
     {
@@ -307,7 +307,7 @@ void SkySphere::message(int toWhom, int type, int length, const void *data)
     }
 }
 
-void SkySphere::removeExistingSky()
+void Sky::removeExistingSky()
 {
     // Remove all existing sky nodes
     while (skyRootNode->getNumChildren())
@@ -319,7 +319,7 @@ void SkySphere::removeExistingSky()
 #endif
 }
 
-void SkySphere::setSky(std::string_view nameOrFile)
+void Sky::setSky(std::string_view nameOrFile)
 {
     if (nameOrFile == "None")
     {
@@ -339,13 +339,13 @@ void SkySphere::setSky(std::string_view nameOrFile)
     }
 }
 
-void SkySphere::setSkyDisabled()
+void Sky::setSkyDisabled()
 {
     m_mode = DISABLED;
     removeExistingSky();
 }
 
-void SkySphere::setSkyEphemeris()
+void Sky::setSkyEphemeris()
 {
 #ifdef HAVE_EPHEMERIS
     removeExistingSky();
@@ -357,13 +357,13 @@ void SkySphere::setSkyEphemeris()
 #endif
 }
 
-void SkySphere::setSkyAuto()
+void Sky::setSkyAuto()
 {
     m_mode = AUTO;
     // TODO
 }
 
-void SkySphere::setSkyTexture(std::string_view nameOrFile)
+void Sky::setSkyTexture(std::string_view nameOrFile)
 {
     removeExistingSky();
 
@@ -422,7 +422,7 @@ void SkySphere::setSkyTexture(std::string_view nameOrFile)
     setTrueNorth(sky.trueNorth);
 }
 
-void SkySphere::setTop(float t)
+void Sky::setTop(float t)
 {
     if (topUniform != nullptr)
     {
@@ -430,7 +430,7 @@ void SkySphere::setTop(float t)
     }
 }
 
-void SkySphere::setBottom(float b)
+void Sky::setBottom(float b)
 {
     if (bottomUniform != nullptr)
     {
@@ -438,7 +438,7 @@ void SkySphere::setBottom(float b)
     }
 }
 
-void SkySphere::setFloorColor(osg::Vec4 fc)
+void Sky::setFloorColor(osg::Vec4 fc)
 {
     if (floorColorUniform != nullptr)
     {
@@ -446,13 +446,13 @@ void SkySphere::setFloorColor(osg::Vec4 fc)
     }
 }
 
-void SkySphere::setTrueNorth(float trueNorth)
+void Sky::setTrueNorth(float trueNorth)
 {
     northAngle = trueNorth;
     if (skyNorthSlider)
         skyNorthSlider->setValue(northAngle);
 }
-bool SkySphere::update()
+bool Sky::update()
 {
     float nearValue = coVRConfig::instance()->nearClip();
     float farValue = coVRConfig::instance()->farClip();
@@ -481,11 +481,11 @@ bool SkySphere::update()
     return false; // don't request that scene be re-rendered
 }
 
-SkySphere *SkySphere::instance()
+Sky *Sky::instance()
 {
     if (!s_instance)
-        s_instance = new SkySphere;
+        s_instance = new Sky;
     return s_instance;
 }
 
-COVERPLUGIN(SkySphere)
+COVERPLUGIN(Sky)
