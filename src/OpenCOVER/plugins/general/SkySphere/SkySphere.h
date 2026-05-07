@@ -13,7 +13,6 @@
 #include <vector>
 #include <osg/PositionAttitudeTransform>
 #include <osgTerrain/Terrain>
-#include <osg/TexMat>
 #include <cover/coVRPlugin.h>
 #include <cover/coVRShader.h>
 #include <proj.h>
@@ -28,23 +27,15 @@
 
 struct SkyEntry
 {
-    enum SkyEntryType
-    {
-        TEXTURE = 0,
-        GEOMETRY
-    };
-
     std::string name;
     std::string fileName;
-    SkyEntryType type = GEOMETRY;
 
     // All in degrees
     double longitude = 0.0;
     double latitude = 0.0;
     double trueNorth = 0.0;
 
-    osg::ref_ptr<osg::Node> skyNode;
-    osg::ref_ptr<osg::Texture2D> skyTexture;
+    osg::ref_ptr<osg::Texture2D> texture;
 };
 
 class SkySphere : public opencover::coVRPlugin, public opencover::ui::Owner
@@ -55,13 +46,6 @@ public:
     ~SkySphere();
 
     static SkySphere *instance();
-
-    osg::ref_ptr<osg::Geode> TexturedSphere;
-    osg::TexMat *texMat;
-    opencover::coVRShader *shader = nullptr;
-    opencover::coVRUniform *topUniform = nullptr;
-    opencover::coVRUniform *bottomUniform = nullptr;
-    opencover::coVRUniform *floorColorUniform = nullptr;
 
     virtual bool update();
     virtual void message(int toWhom, int type, int length, const void *data);
@@ -80,14 +64,16 @@ private:
     std::vector<SkyEntry> m_skies;
 
     osg::ref_ptr<osg::MatrixTransform> skyRootNode;
-    osg::ref_ptr<osg::Node> currentSkyNode;
-    osg::ref_ptr<osg::Node> skyNode;
+    osg::ref_ptr<osg::Geode> texturedSphere;
+
+    opencover::coVRShader *shader = nullptr;
+    opencover::coVRUniform *topUniform = nullptr;
+    opencover::coVRUniform *bottomUniform = nullptr;
+    opencover::coVRUniform *floorColorUniform = nullptr;
 
     opencover::ui::Menu *geoDataMenu;
     opencover::ui::Group *skyGroup;
-
-    opencover::ui::Button *skyButton;
-    opencover::ui::SelectionList *skys;
+    opencover::ui::SelectionList *skyList;
     opencover::ui::Slider *skyNorthSlider = nullptr;
 
     float northAngle;

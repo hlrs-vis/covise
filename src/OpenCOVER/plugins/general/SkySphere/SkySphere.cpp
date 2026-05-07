@@ -99,7 +99,7 @@ bool SkySphere::init()
 
     auto configFile = config();
 
-    TexturedSphere = new osg::Geode;
+    texturedSphere = new osg::Geode;
     osg::Sphere *_Sphere = new osg::Sphere();
     _Sphere->setRadius(1.0);
     osg::TessellationHints *hint = new osg::TessellationHints();
@@ -111,8 +111,8 @@ bool SkySphere::init()
     osg::ShapeDrawable *_sphereDrawable = new osg::ShapeDrawable(_Sphere, hint);
     _sphereDrawable->setColor(osg::Vec4(1, 1, 1, 1));
     _sphereDrawable->setUseDisplayList(false); // turn off display list so that we can change the pointer length
-    TexturedSphere->addDrawable(_sphereDrawable);
-    osg::StateSet *stateset = TexturedSphere->getOrCreateStateSet();
+    texturedSphere->addDrawable(_sphereDrawable);
+    osg::StateSet *stateset = texturedSphere->getOrCreateStateSet();
     stateset->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
     osg::Material *spheremtl = new osg::Material;
     spheremtl->setColorMode(osg::Material::OFF);
@@ -126,15 +126,15 @@ bool SkySphere::init()
     osg::CullFace *cF = new osg::CullFace();
     cF->setMode(osg::CullFace::BACK);
     stateset->setAttributeAndModes(cF, osg::StateAttribute::OFF);
-    TexturedSphere->setStateSet(stateset);
+    texturedSphere->setStateSet(stateset);
 
     skyGroup = new ui::Group(geoDataMenu, "sky");
     skyGroup->setText("Sky");
     skyGroup->allowRelayout(true);
 
-    skys = new ui::SelectionList(skyGroup, "Skys");
-    skys->setCallback([this](int selection)
-        { setSky(skys->items()[selection]); });
+    skyList = new ui::SelectionList(skyGroup, "Sky");
+    skyList->setCallback([this](int selection)
+        { setSky(skyList->items()[selection]); });
 
     skyPath = configString("sky", "skyDir", "/data/Geodata/sky")->value();
     loadSkies();
@@ -163,6 +163,10 @@ SkySphere::~SkySphere()
 {
     s_instance = nullptr;
     delete skyGroup;
+    while (texturedSphere->getNumParents())
+        texturedSphere->getParent(0)->removeChild(texturedSphere);
+    while (skyRootNode->getNumParents())
+        skyRootNode->getParent(0)->removeChild(skyRootNode);
     geoDataMenu->setVisible(geoDataMenu->numChildren() > 0);
 }
 
@@ -246,35 +250,28 @@ std::optional<std::reference_wrapper<SkyEntry>> SkySphere::addSkyFile(std::files
         [](unsigned char c)
         { return std::tolower(c); });
 
-    if (extension == ".wrl")
+    if (extension != ".jpg")
     {
-        return m_skies.emplace_back(SkyEntry {
-            .name = name,
-            .fileName = path.string(),
-            .type = SkyEntry::GEOMETRY,
-        });
+        std::cerr << "Cannot load sky file at " << path << "; only JPG is supported now." << std::endl;
+        return std::nullopt;
     }
 
-    else if (extension == ".jpg")
-    {
-        double latitude = 0, longitude = 0, trueNorth = 0;
-        parseExifData(path, longitude, latitude, trueNorth);
+    double latitude = 0, longitude = 0, trueNorth = 0;
+    parseExifData(path, longitude, latitude, trueNorth);
 
-        trueNorth = std::fmod(trueNorth + 360.0 + 180.0, 360.0) - 180.0;
-        longitude = std::fmod(longitude + 360.0 + 180.0, 360.0) - 180.0;
-        latitude = std::clamp(latitude, -90.0, 90.0);
+    trueNorth = std::fmod(trueNorth + 360.0 + 180.0, 360.0) - 180.0;
+    longitude = std::fmod(longitude + 360.0 + 180.0, 360.0) - 180.0;
+    latitude = std::clamp(latitude, -90.0, 90.0);
 
-        std::cout << "Parsed from EXIF: latitude=" << latitude << " longitude=" << longitude << " trueNorth=" << trueNorth << std::endl;
+    std::cout << "Parsed from EXIF: latitude=" << latitude << " longitude=" << longitude << " trueNorth=" << trueNorth << std::endl;
 
-        return m_skies.emplace_back(SkyEntry {
-            .name = name,
-            .fileName = path.string(),
-            .type = SkyEntry::TEXTURE,
-            .longitude = longitude,
-            .latitude = latitude,
-            .trueNorth = trueNorth,
-        });
-    }
+    return m_skies.emplace_back(SkyEntry {
+        .name = name,
+        .fileName = path.string(),
+        .longitude = longitude,
+        .latitude = latitude,
+        .trueNorth = trueNorth,
+    });
 
     return std::nullopt;
 }
@@ -293,7 +290,7 @@ void SkySphere::updateSkyMenu()
     {
         skyNames.push_back(sky.name);
     }
-    skys->setList(skyNames);
+    skyList->setList(skyNames);
 }
 
 void SkySphere::message(int toWhom, int type, int length, const void *data)
@@ -337,51 +334,31 @@ void SkySphere::setSky(std::string_view nameOrFile)
     while (skyRootNode->getNumChildren())
         skyRootNode->removeChild(skyRootNode->getChild(0));
 
-    currentSkyNode = nullptr;
-
     // Choose the corresponding item in the menu
-    auto l = skys->items();
-    skys->select(std::find_if(l.begin(), l.end(), [sky](const auto &it)
-                     { return it == sky.name; })
+    auto l = skyList->items();
+    skyList->select(std::find_if(l.begin(), l.end(), [sky](const auto &it)
+                        { return it == sky.name; })
         - l.begin());
 
-    if (sky.type == SkyEntry::GEOMETRY)
+    if (sky.texture == nullptr)
     {
-        if (sky.skyNode != nullptr)
-        {
-            skyRootNode->addChild(sky.skyNode);
-        }
-        else
-        {
-            sky.skyNode = coVRFileManager::instance()->loadFile(sky.fileName.c_str(), nullptr, skyRootNode);
-            skyRootNode->addChild(sky.skyNode);
-        }
+        sky.texture = coVRFileManager::instance()->loadTexture(sky.fileName.c_str());
+        sky.texture->setWrap(osg::Texture::WRAP_R, osg::Texture::REPEAT);
+        sky.texture->setWrap(osg::Texture::WRAP_S, osg::Texture::REPEAT);
+        sky.texture->setWrap(osg::Texture::WRAP_T, osg::Texture::REPEAT);
+        sky.texture->setResizeNonPowerOfTwoHint(false);
     }
-    else
-    {
+    osg::StateSet *stateset = texturedSphere->getOrCreateStateSet();
+    stateset->setTextureAttributeAndModes(0, sky.texture, osg::StateAttribute::ON);
 
-        sky.skyNode = TexturedSphere;
-        if (sky.skyTexture == nullptr)
-        {
-            sky.skyTexture = coVRFileManager::instance()->loadTexture(sky.fileName.c_str());
-            sky.skyTexture->setWrap(osg::Texture::WRAP_R, osg::Texture::REPEAT);
-            sky.skyTexture->setWrap(osg::Texture::WRAP_S, osg::Texture::REPEAT);
-            sky.skyTexture->setWrap(osg::Texture::WRAP_T, osg::Texture::REPEAT);
-            sky.skyTexture->setResizeNonPowerOfTwoHint(false);
-        }
-        osg::StateSet *stateset = TexturedSphere->getOrCreateStateSet();
-        stateset->setTextureAttributeAndModes(0, sky.skyTexture, osg::StateAttribute::ON);
+    shader = coVRShaderList::instance()->get("skySphere");
+    shader->apply(stateset);
+    topUniform = shader->getcoVRUniform("top");
+    bottomUniform = shader->getcoVRUniform("bottom");
+    floorColorUniform = shader->getcoVRUniform("floorColor");
 
-        shader = coVRShaderList::instance()->get("skySphere");
-        shader->apply(stateset);
-        topUniform = shader->getcoVRUniform("top");
-        bottomUniform = shader->getcoVRUniform("bottom");
-        floorColorUniform = shader->getcoVRUniform("floorColor");
+    skyRootNode->addChild(texturedSphere);
 
-        skyRootNode->addChild(sky.skyNode);
-    }
-
-    currentSkyNode = sky.skyNode;
     northAngle = sky.trueNorth;
     if (skyNorthSlider != nullptr)
     {
