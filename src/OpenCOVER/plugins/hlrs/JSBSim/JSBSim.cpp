@@ -666,7 +666,8 @@ void JSBSimPlugin::updateInputs()
         {
             if (a.type == THROTTLE && (a.engine == -1 || a.engine == i) && a.getChangedValue(value))
             {
-                FCS->SetThrottleCmd(i, value * 0.5 + 0.5);
+                m_controls.throttle = value * 0.5 + 0.5;
+                FCS->SetThrottleCmd(i, m_controls.throttle);
                 break;
             }
         }
@@ -799,8 +800,8 @@ bool JSBSimPlugin::update()
 
                         if (engineSource)
                         {
-                            engineSource->setIntensity(1.0);
-                            engineSource->setPitch(1.0);
+                            engineSource->setIntensity(m_controls.throttle);
+                            engineSource->setPitch(0.8 + 0.4 * m_controls.throttle);
                         }
 
                         // Update winds
