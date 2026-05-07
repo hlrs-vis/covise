@@ -777,17 +777,15 @@ bool JSBSimPlugin::update()
                         // Update wind speed gradually
                         m_windVelocityCurrent += (m_windVelocityTarget - m_windVelocityCurrent) * 0.1f * cover->frameDuration();
 
-                        float speedX = vehicleState.vUVW(1);
-                        float speedY = vehicleState.vUVW(2);
-                        float speedZ = vehicleState.vUVW(3);
-
-                        labelVelocityX->setText("V_x: " + std::to_string(speedX));
-                        labelVelocityY->setText("V_y: " + std::to_string(speedY));
-                        labelVelocityZ->setText("V_z: " + std::to_string(speedZ));
+                        labelVelocityX->setText("V_x: " + std::to_string(vehicleState.vUVW(1) * METERS_PER_FOOT) + " m/s");
+                        labelVelocityY->setText("V_y: " + std::to_string(vehicleState.vUVW(2) * METERS_PER_FOOT) + " m/s");
+                        labelVelocityZ->setText("V_z: " + std::to_string(vehicleState.vUVW(3) * METERS_PER_FOOT) + " m/s");
 
                         if (varioSource)
                         {
-                            float varioPitch = (std::clamp(-speedZ / 10.f, -1.f, 1.f) + 1.f) * 0.3f + 0.8f;
+                            float vDown = Propagate->GetVel(3);
+
+                            float varioPitch = (std::clamp(-vDown / 10.f, -1.f, 1.f) + 1.f) * 0.3f + 0.8f;
                             varioSource->setPitch(varioPitch);
 
                             float varioVolume = std::clamp((fabs((varioPitch - 1.f)) * 5.f) - 0.2f, 0.f, 1.f);
