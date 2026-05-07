@@ -54,6 +54,11 @@
 #include <PluginUtil/PluginMessageTypes.h>
 #include <filesystem>
 
+#include <vrml97/vrml/vrmlexport.h>
+#include <vrml97/vrml/VrmlNamespace.h>
+#include <vrml97/vrml/VrmlNode.h>
+#include <vrml97/vrml/VrmlNodeChild.h>
+
 #include "VrmlNodeSky.h"
 
 namespace opencover
@@ -70,6 +75,7 @@ namespace ui
 
 using namespace covise;
 using namespace opencover;
+using namespace vrml;
 
 Sky *Sky::s_instance = nullptr;
 
@@ -82,7 +88,7 @@ Sky::Sky()
 }
 bool Sky::init()
 {
-    // vrml::VrmlNamespace::addBuiltIn(vrml::VrmlNode::defineType<VrmlNodeSky>());
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeSky>());
 
     geoDataMenu = dynamic_cast<ui::Menu *>(cover->ui->getByPath("Manager.GeoData"));
     if (!geoDataMenu)

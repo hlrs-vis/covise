@@ -41,6 +41,7 @@ private:
     VrmlSFString d_offsetName;
     VrmlMFString d_regions; // list of region names (see config/plugin/GeoData.toml), include ALL_REGIONS_STRING in the list to enable all regions
     VrmlSFBool d_showTerrain;
+    VrmlSFBool d_showLabels;
     VrmlSFBool d_showBuildings;
 };
 #endif //_VRMLNODEGeoData_
