@@ -31,6 +31,9 @@
 
 struct SkyEntry
 {
+public:
+    SkyEntry(const std::string &name, const std::string &displayName, const std::string &fileName, double longitude, double latitude, double trueNorth)
+        : name(name), displayName(displayName), fileName(fileName), longitude(longitude), latitude(latitude), trueNorth(trueNorth) {}
     std::string name;
     std::string displayName;
     std::string fileName;

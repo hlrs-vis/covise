@@ -272,7 +272,7 @@ void parseExifData(const std::filesystem::path &path, double &longitude, double 
 std::optional<std::reference_wrapper<SkyEntry>> Sky::addSkyFile(std::filesystem::path path)
 {
     std::string fileName = path.filename().string();
-    std::string extension = path.extension();
+    std::string extension = path.extension().string();
 
     auto relative = std::filesystem::relative(path, std::filesystem::path(skyPath)).string();
     std::string name = relative.substr(0, relative.length() - extension.length());
@@ -297,14 +297,7 @@ std::optional<std::reference_wrapper<SkyEntry>> Sky::addSkyFile(std::filesystem:
 
     std::cout << "Parsed from EXIF: latitude=" << latitude << " longitude=" << longitude << " trueNorth=" << trueNorth << std::endl;
 
-    return m_skies.emplace_back(SkyEntry {
-        .name = name,
-        .displayName = std::regex_replace(name, std::regex("/"), " → "),
-        .fileName = path.string(),
-        .longitude = longitude,
-        .latitude = latitude,
-        .trueNorth = trueNorth,
-    });
+    return m_skies.emplace_back(SkyEntry(name, std::regex_replace(name, std::regex("/"), " → "), path.string(), longitude, latitude, trueNorth));
 
     return std::nullopt;
 }
