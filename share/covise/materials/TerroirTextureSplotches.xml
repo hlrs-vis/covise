@@ -1,4 +1,4 @@
-<_TerroirAvatar><uniform name="bumpsPerSplotch" type="int" value="10"/><uniform name="splotchRadius" type="float" value="0.1"/><uniform name="originalTexture" type="sampler2D" value="0"/><vertexProgram>
+<_TerroirAvatar><uniform name="bumpsPerSplotch" type="int" value="10"/><uniform name="splotchRadius" type="float" value="0.2"/><uniform name="originalTexture" type="sampler2D" value="0"/><vertexProgram>
 
     varying vec2 Texcoord;    
 

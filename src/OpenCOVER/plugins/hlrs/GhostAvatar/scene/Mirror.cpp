@@ -10,21 +10,21 @@
 
 using namespace opencover;
 
-Mirror::Mirror(const osg::Vec3 &position, float sizeX, float sizeZ, const osg::Quat& rotation)
+Mirror::Mirror(const osg::Vec3 &position, float sizeX, float sizeZ, const osg::Quat &rotation)
     : m_position(position)
     , m_sizeX(sizeX)
     , m_sizeY(0.01)
     , m_sizeZ(sizeZ)
     , m_rotation(rotation)
     , m_mirrorTransform(new osg::MatrixTransform())
-    , m_rttCamera(new RenderToTextureCamera({ 0, -1, 0 }, { 0, 0, 1 }, 1024, 60.0, 1.0, 1.0, 1000.0, true, false))
+    ,  m_rttCamera(new RenderToTextureCamera(m_rotation * osg::Vec3{ 0, -1, 0 }, m_rotation * osg::Vec3{ 0, 0, 1 }, 1024, 60.0, 1.0, 1.0, 1000.0, true, false))
 {
-    m_rttCamera->initialize();
-    updateView();
-
-    m_mirrorTransform->setMatrix(osg::Matrix::translate(m_position));
+    m_mirrorTransform->setMatrix(osg::Matrix::rotate(m_rotation) * osg::Matrix::translate(m_position));
     m_mirrorTransform->setName("GhostAvatarMirror");
     addMirrorToTransform();
+
+    m_rttCamera->initialize();
+    updateView();
 
     if (cover && cover->getObjectsRoot())
         cover->getObjectsRoot()->addChild(m_mirrorTransform);
@@ -119,7 +119,7 @@ void Mirror::updateView()
         While the mirror does not change position, we need to check if the sky node is available and render it
         every frame (since the user can also choose to load the GeoData plugin while COVER is up and running).
     */
-    auto translation = m_mirrorTransform->getMatrix().getTrans() + getMirrorCenter();
+    auto translation = m_mirrorTransform->getMatrix().getTrans() + m_rotation * getMirrorCenter();
     m_rttCamera->update(osg::Matrix::translate(translation));
 }
 
