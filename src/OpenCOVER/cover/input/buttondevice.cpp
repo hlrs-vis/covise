@@ -177,9 +177,15 @@ void ButtonDevice::update()
         }
     }
 
-    if (Input::debug(Input::Buttons) && Input::debug(Input::Raw) && m_oldRaw!=m_raw)
+    if (Input::debug(Input::Buttons) && Input::debug(Input::Raw) && m_oldRaw != m_raw)
     {
-        std::cerr << "Input: " << name() << " buttons: raw=0x" << std::hex << m_raw << std::dec << std::endl;
+        std::cerr << "Input: " << name() << " buttons: raw=0x" << std::hex << m_raw << std::dec << "bits: ";
+        for (int i = 0; i < 32; i++)
+        {
+            if (m_raw & (1U << i))
+                std::cerr << i << " ";
+        }
+        std::cerr << std::endl;
     }
     m_oldRaw = m_raw;
 

@@ -9,6 +9,9 @@
 #include <stdio.h>
 #include <util/unixcompat.h>
 
+#pragma comment(lib, "hid.lib")
+#pragma comment(lib, "setupapi.lib")
+
 using namespace opencover;
 coRawDevice::coRawDevice(int n)
 {
@@ -20,25 +23,33 @@ coRawDevice::coRawDevice(const char *deviceName)
     buttonNumber = 0;
     if (deviceName == NULL)
         return;
-    /*char *devName = new char[strlen(deviceName) + 1];
-    strcpy(devName, deviceName);
-    for (i = 0; i < strlen(devName); i++)
-    {
-        if (devName[i] == '\\')
-            devName[i] = '#';
-    }*/
     fprintf(stderr, "looking for:%s\n", deviceName);
     for (int i = 0; i < coRawDeviceManager::instance()->numDevices(); i++)
     {
         if(strlen(coRawDeviceManager::instance()->rawDevices[i].deviceName)>4)
         {
-            fprintf(stderr, "try        :%s\n", coRawDeviceManager::instance()->rawDevices[i].deviceName + 4);
-            if ((coRawDeviceManager::instance()->rawDevices[i].type != RIM_TYPEHID) && strncasecmp(deviceName, coRawDeviceManager::instance()->rawDevices[i].deviceName + 4, strlen(deviceName)) == 0)
+            RAW_MOUSE &dev = coRawDeviceManager::instance()->rawDevices[i];
+            fprintf(stderr, "try        :%s\n", dev.deviceName + 4);
+            if ( strncasecmp(deviceName, dev.deviceName + 4, strlen(deviceName)) == 0)
             {
-                // currently only one button device works TODO fix itbuttonNumber = i;
-
-                fprintf(stderr, "found:%d\n", i);
+                fprintf(stderr, "found ID:%d ", i);
                 buttonNumber = i;
+
+                dev.HIDdevice_handle= CreateFile(
+                    dev.deviceName,
+                    GENERIC_READ,
+                    FILE_SHARE_READ | FILE_SHARE_WRITE,
+                    nullptr,
+                    OPEN_EXISTING,
+                    0,
+                    nullptr);
+
+                if (dev.HIDdevice_handle == INVALID_HANDLE_VALUE)
+                {
+                    printf("CreateFile failed: %lu\n", GetLastError());
+                }
+                std::wcout << "ProductName: " << coRawDeviceManager::instance()->GetDeviceProductName(dev.HIDdevice_handle) << "\t\t";
+
                 break;
             }
         }
@@ -46,13 +57,7 @@ coRawDevice::coRawDevice(const char *deviceName)
         {
             fprintf(stderr, "ignoring        :%s\n", coRawDeviceManager::instance()->rawDevices[i].deviceName);
         }
-        /*if (strncasecmp(devName, coRawDeviceManager::instance()->rawDevices[i].deviceName + 4, strlen(devName)) == 0)
-        {
-            buttonNumber = i;
-            break;
-        }*/
     }
-    //delete[] devName;
 }
 
 coRawDevice::~coRawDevice()
@@ -74,6 +79,15 @@ int coRawDevice::getWheelCount()
 bool coRawDevice::getButton(int i)
 {
     return coRawDeviceManager::instance()->is_raw_device_button_pressed(buttonNumber, i) != 0;
+}
+int coRawDevice::getNumValues()
+{
+    return coRawDeviceManager::instance()->rawDevices[buttonNumber].numValues;
+}
+
+float coRawDevice::getValue(int i)
+{
+    return coRawDeviceManager::instance()->rawDevices[buttonNumber].values[i];
 }
 
 unsigned int coRawDevice::getButtonBits()
@@ -183,66 +197,67 @@ BOOL coRawDeviceManager::read_raw_input(PRAWINPUT raw)
 {
     for (int i=0; i < nInputDevices; i++)
     {
-        if (rawDevices[i].device_handle == raw->header.hDevice)
+        auto &dev = rawDevices[i];
+        if (dev.device_handle == raw->header.hDevice)
         {
-            if(rawDevices[i].type == RIM_TYPEMOUSE)
+            if(dev.type == RIM_TYPEMOUSE)
             {
                 //fprintf(stderr,"MOUSEMessage %d\n",i);
                 // Update the values for the specified device
-                if (rawDevices[i].is_absolute)
+                if (dev.is_absolute)
                 {
-                    rawDevices[i].x = raw->data.mouse.lLastX;
-                    rawDevices[i].y = raw->data.mouse.lLastY;
+                    dev.x = raw->data.mouse.lLastX;
+                    dev.y = raw->data.mouse.lLastY;
                 }
                 else
                 { // relative
-                    rawDevices[i].x += raw->data.mouse.lLastX;
-                    rawDevices[i].y += raw->data.mouse.lLastY;
+                    dev.x += raw->data.mouse.lLastX;
+                    dev.y += raw->data.mouse.lLastY;
                 }
                 //fprintf(stderr,"Raw Device Event: num: %d Flags: %d\n",i,raw->data.mouse.usButtonFlags);
                 if (raw->data.mouse.usButtonFlags & RI_MOUSE_BUTTON_1_DOWN)
-                    rawDevices[i].buttonpressed[0] = 1;
+                    dev.buttonpressed[0] = 1;
                 if (raw->data.mouse.usButtonFlags & RI_MOUSE_BUTTON_1_UP)
-                    rawDevices[i].buttonpressed[0] = 0;
+                    dev.buttonpressed[0] = 0;
                 if (raw->data.mouse.usButtonFlags & RI_MOUSE_BUTTON_2_DOWN)
-                    rawDevices[i].buttonpressed[1] = 1;
+                    dev.buttonpressed[1] = 1;
                 if (raw->data.mouse.usButtonFlags & RI_MOUSE_BUTTON_2_UP)
-                    rawDevices[i].buttonpressed[1] = 0;
+                    dev.buttonpressed[1] = 0;
                 if (raw->data.mouse.usButtonFlags & RI_MOUSE_BUTTON_3_DOWN)
-                    rawDevices[i].buttonpressed[2] = 1;
+                    dev.buttonpressed[2] = 1;
                 if (raw->data.mouse.usButtonFlags & RI_MOUSE_BUTTON_3_UP)
-                    rawDevices[i].buttonpressed[2] = 0;
+                    dev.buttonpressed[2] = 0;
                 if (raw->data.mouse.usButtonFlags & RI_MOUSE_BUTTON_4_DOWN)
-                    rawDevices[i].buttonpressed[3] = 1;
+                    dev.buttonpressed[3] = 1;
                 if (raw->data.mouse.usButtonFlags & RI_MOUSE_BUTTON_4_UP)
-                    rawDevices[i].buttonpressed[3] = 0;
+                    dev.buttonpressed[3] = 0;
                 if (raw->data.mouse.usButtonFlags & RI_MOUSE_BUTTON_5_DOWN)
-                    rawDevices[i].buttonpressed[4] = 1;
+                    dev.buttonpressed[4] = 1;
                 if (raw->data.mouse.usButtonFlags & RI_MOUSE_BUTTON_5_UP)
-                    rawDevices[i].buttonpressed[4] = 0;
+                    dev.buttonpressed[4] = 0;
 
                 if (raw->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE)
-                    rawDevices[i].is_absolute = 1;
+                    dev.is_absolute = 1;
                 else if (raw->data.mouse.usFlags & MOUSE_MOVE_RELATIVE)
-                    rawDevices[i].is_absolute = 0;
+                    dev.is_absolute = 0;
                 if (raw->data.mouse.usFlags & MOUSE_VIRTUAL_DESKTOP)
-                    rawDevices[i].is_virtual_desktop = 1;
+                    dev.is_virtual_desktop = 1;
                 else
-                    rawDevices[i].is_virtual_desktop = 0;
+                    dev.is_virtual_desktop = 0;
 
                 if (raw->data.mouse.usButtonFlags & RI_MOUSE_WHEEL)
                 { // If the current message has a device_wheel message
                     if ((SHORT)raw->data.mouse.usButtonData > 0)
                     {
-                        rawDevices[i].z++;
+                        dev.z++;
                     }
                     if ((SHORT)raw->data.mouse.usButtonData < 0)
                     {
-                        rawDevices[i].z--;
+                        dev.z--;
                     }
                 }
             }
-            else if(rawDevices[i].type == RIM_TYPEKEYBOARD)
+            else if(dev.type == RIM_TYPEKEYBOARD)
             {
 #if 0
                 fprintf(stderr,"KeyboardMessage %d \n",i);
@@ -268,32 +283,113 @@ BOOL coRawDeviceManager::read_raw_input(PRAWINPUT raw)
                 
                     if(raw->data.keyboard.MakeCode == 0x49) // Page up
                     {
-                        rawDevices[i].buttonpressed[0] = value;
+                        dev.buttonpressed[0] = value;
                     }
                     if(raw->data.keyboard.MakeCode == 0x51)// Page down
                     {
-                        rawDevices[i].buttonpressed[1] = value;
+                        dev.buttonpressed[1] = value;
                     }
                     if(raw->data.keyboard.MakeCode == 0x34)// .
                     {
-                        rawDevices[i].buttonpressed[3] = value;
+                        dev.buttonpressed[3] = value;
                     }
                     if(raw->data.keyboard.MakeCode == 0x3f)// F5
                     {
-                        rawDevices[i].buttonpressed[2] = value;
+                        dev.buttonpressed[2] = value;
                     }
                     if(raw->data.keyboard.MakeCode == 0x3f)// Escape
                     {
-                        rawDevices[i].buttonpressed[2] = value;
+                        dev.buttonpressed[2] = value;
                     }
             }
-            else if(rawDevices[i].type == RIM_TYPEHID)
+            else if(dev.type == RIM_TYPEHID)
             {
-                fprintf(stderr,"HIDMessage %d \n",i);
+                if (dev.preparsed == nullptr)
+                {
+                    HidD_GetPreparsedData(dev.HIDdevice_handle, &dev.preparsed);
+                    HidP_GetCaps(dev.preparsed, &dev.caps);
+                    dev.numValues = dev.caps.NumberInputValueCaps;
+                    dev.numIndices = dev.caps.NumberInputDataIndices;
+                    for (int i = 0; i < dev.numValues; i++)
+                    {
+                        dev.values[i] = 0;
+                    }
+                }
+                ULONG dataCount = dev.caps.NumberInputDataIndices;
+
+                std::vector<HIDP_DATA> data(dataCount);
+
+                for (int i = 0; i < MAX_RAW_MOUSE_BUTTONS; i++)
+                    dev.buttonpressed[i] = 0;
+
+                NTSTATUS status = HidP_GetData(
+                    HidP_Input,
+                    data.data(),
+                    &dataCount,
+                    dev.preparsed,
+                    (PCHAR)raw->data.hid.bRawData,
+                    raw->data.hid.dwSizeHid);
+                for (ULONG i = 0; i < dataCount; ++i)
+                {
+                    const HIDP_DATA &d = data[i];
+
+                    //printf("DataIndex: %u\n", d.DataIndex);
+
+                    if (d.On == 1 || (d.On > 0 && d.On == d.RawValue && d.On <9))
+                    {
+                        if (d.DataIndex < MAX_RAW_MOUSE_BUTTONS)
+                            dev.buttonpressed[d.DataIndex+(int)(d.On)] = 1;
+                    }
+                    else
+                    {
+                        if (d.DataIndex < MAX_RAW_MOUSE_VALUES)
+                            dev.values[d.DataIndex] = (d.RawValue / 32767.0f) - 1.0f;
+                    }
+                }
+                /* cerr << "values: " << endl;
+                for (int i = 0; i < dev.numIndices; i++)
+                {
+                    cerr << " " << dev.values[i]; 
+                }
+                cerr << endl;*/
+                /*
+                //fprintf(stderr,"HIDMessage %d \n",i);
+                USAGE buttons[128];
+                ULONG buttonCount = 128;
+
+                HidP_GetUsages(
+                    HidP_Input,
+                    0x09, // Button page
+                    0,
+                    buttons,
+                    &buttonCount,
+                    dev.preparsed,
+                    (PCHAR)raw->data.hid.bRawData,
+                    raw->data.hid.dwSizeHid);
+                for (ULONG i = 0; i < buttonCount; i++)
+                {
+                    if (buttons[i] < MAX_RAW_MOUSE_BUTTONS)
+                    {
+                        dev.buttonpressed[buttons[i]] = 1;
+                    }
+                }
+                for (int i = 0; i < MAX_RAW_MOUSE_VALUES; i++)
+                {
+                    //dev.values[i] = 0;
+                    HidP_GetScaledUsageValue(
+                        HidP_Input,
+                        0x01, // Generic Desktop page
+                        0,
+                        0x30 + i, // X axis
+                        &dev.values[i],
+                        dev.preparsed,
+                        (PCHAR)raw->data.hid.bRawData,
+                        raw->data.hid.dwSizeHid);
+                }*/
             }
             else
             {
-                fprintf(stderr,"unknown HID type %d, %d \n",rawDevices[i].type,i);
+                fprintf(stderr,"unknown HID type %d, %d \n",dev.type,i);
             }
 
         }
@@ -584,13 +680,12 @@ void coRawDeviceManager::escape(std::string &data)
 }
 void coRawDeviceManager::setupDevices()
 {
-    fprintf(stderr, "setup Devices for raw input\n");
     char buffer[80];
     int  i, j;
     PRAWINPUTDEVICELIST pRawInputDeviceList;
     int nSize;
     char *psName;
-    fprintf(stderr,"testit1 %d\n",nInputDevices);
+    fprintf(stderr,"List of available Raw Input Devices:\n");
     for (i = 0; i < nInputDevices; i++)
     {
         for (j = 0; j < MAX_RAW_MOUSE_BUTTONS; j++)
@@ -600,7 +695,7 @@ void coRawDeviceManager::setupDevices()
         delete[] rawDevices[i].deviceName;
     }
     delete[] rawDevices;
-    fprintf(stderr,"testit1\n");
+    //fprintf(stderr,"testit1\n");
     // 1st call to GetRawInputDeviceList: Pass NULL to get the number of devices.
     if (/* GetRawInputDeviceList */ (*_GRIDL)(NULL, &nInputDevices, sizeof(RAWINPUTDEVICELIST)) != 0)
     {
@@ -608,7 +703,7 @@ void coRawDeviceManager::setupDevices()
         return;
     }
     
-    fprintf(stderr,"testit2\n");
+    //fprintf(stderr,"testit2\n");
     // Allocate the array to hold the DeviceList
     if ((pRawInputDeviceList = new RAWINPUTDEVICELIST[nInputDevices]) == NULL)
     {
@@ -652,12 +747,25 @@ void coRawDeviceManager::setupDevices()
         }
         std::string xmlString = psName+4; // skip backslashes and questionmarks
         escape(xmlString);
+        HANDLE h = CreateFile(
+            psName,
+            GENERIC_READ,
+            FILE_SHARE_READ | FILE_SHARE_WRITE,
+            nullptr,
+            OPEN_EXISTING,
+            0,
+            nullptr);
+        std::wcout << "ProductName: " << GetDeviceProductName(h) << "\t\t";
+        CloseHandle(h);
+        
         if(pRawInputDeviceList[i].dwType == RIM_TYPEMOUSE)
-            fprintf(stderr, "Device%d: %s\n", i, xmlString.c_str());
-        if(pRawInputDeviceList[i].dwType == RIM_TYPEKEYBOARD)
+            fprintf(stderr, "Mouse%d: %s\n", i, xmlString.c_str());
+        else if(pRawInputDeviceList[i].dwType == RIM_TYPEKEYBOARD)
             fprintf(stderr, "Keyboard%d: %s\n", i, xmlString.c_str());
-        if(pRawInputDeviceList[i].dwType == RIM_TYPEHID)
+        else if(pRawInputDeviceList[i].dwType == RIM_TYPEHID)
             fprintf(stderr, "HID%d: %s\n", i, xmlString.c_str());
+        else
+            fprintf(stderr, "Unknown type %d %d: %s\n", pRawInputDeviceList[i].dwType, i, xmlString.c_str());
         delete[] psName;
     }
 
@@ -721,6 +829,19 @@ void coRawDeviceManager::setupDevices()
     }
 
 }
+
+std::wstring coRawDeviceManager::GetDeviceProductName(HANDLE deviceHandle)
+{
+    wchar_t buffer[256];
+
+    if (HidD_GetProductString(deviceHandle, buffer, sizeof(buffer)))
+    {
+        return buffer;
+    }
+
+    return L"Unknown Device";
+}
+
 void coRawDeviceManager::update() // read all pending messages if any and process them
 {
 

@@ -41,7 +41,7 @@
               <Orientation h="0" p="0" r="0" />
            </DTrackCave>
 
-           <CaveButtons driver="windowsHID" device="HID#{00001124-0000-1000-8000-00805f9b34fb}_VID&amp;0002057e_PID&amp;2006#8&amp;3367d7b5&amp;0&amp;0000#{4d1e55b2-f16f-11cf-88cb-001111000030}"/>
+           <CaveButtons driver="windowsHID" device="HID#VID_046D&amp;PID_C21F&amp;IG_01#8&amp;10d792b6&amp;0&amp;0000#{4d1e55b2-f16f-11cf-88cb-001111000030}"/>
            <CyberstickButtons driver="mousebuttons" device="/dev/input/cyberstick"/>
 
         </Device>
