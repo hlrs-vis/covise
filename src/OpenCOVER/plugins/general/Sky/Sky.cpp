@@ -485,11 +485,33 @@ void Sky::updateAutoSky()
     if (!closestSky)
         return;
 
-    if (closestSky == m_currentAutoSky)
+    if (!m_currentAutoSky)
+    {
+        m_currentAutoSky = closestSky;
+        setSkyEntry(*closestSky);
         return;
+    }
 
-    m_currentAutoSky = closestSky;
-    setSkyEntry(*closestSky);
+    double lon = globalPosition.x();
+    double lat = globalPosition.y();
+
+    const auto dist2 = [](const SkyEntry* s, double lon, double lat)
+    {
+        const double dx = s->longitude - lon;
+        const double dy = s->latitude - lat;
+        return dx*dx + dy*dy;
+    };
+
+    const double currentDistSq = dist2(m_currentAutoSky, lon, lat);
+    const double closestDistSq    = dist2(closestSky, lon, lat);
+
+    constexpr double SKY_THRESHOLD = 1e-4 ; // roughly 1 km
+
+    if (closestSky != m_currentAutoSky && ((currentDistSq - closestDistSq) > SKY_THRESHOLD))
+    {
+        m_currentAutoSky = closestSky;
+        setSkyEntry(*closestSky);
+    }
 }
 
 SkyEntry *Sky::findClosestSky(const osg::Vec3 &globalPosition)
