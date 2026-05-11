@@ -109,6 +109,7 @@ private:
     opencover::ui::Group *skyGroup;
     opencover::ui::SelectionList *skyList;
     int skyListNameStart = 0;
+    opencover::ui::Button *autoSkyButton;
     opencover::ui::Slider *skyNorthSlider = nullptr;
 
     float northAngle;

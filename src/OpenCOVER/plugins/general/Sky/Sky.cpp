@@ -145,7 +145,6 @@ bool Sky::init()
         {
             if (selection >= skyListNameStart)
             {
-                m_mode = TEXTURE;
                 setSkyEntry(m_skies[selection - skyListNameStart]);
             }
             else if (selection == 0)
@@ -154,15 +153,21 @@ bool Sky::init()
             }
             else if (selection == 1)
             {
-                setSkyAuto();
-            }
-            else if (selection == 2)
-            {
                 setSkyEphemeris();
             } });
 
     skyPath = configString("sky", "skyDir", "/data/Geodata/sky")->value();
     loadSkies();
+
+    autoSkyButton = new ui::Button(skyGroup, "autoSky");
+    autoSkyButton->setText("Auto Sky");
+    autoSkyButton->setState(false);
+    autoSkyButton->setCallback([this](bool state)
+        {
+            if (state)
+                setSkyAuto();
+            else
+                m_mode = TEXTURE; });
 
     northAngle = 0;
     update();
@@ -315,7 +320,6 @@ void Sky::updateSkyMenu()
 
     std::vector<std::string> skyNames = {
         "None",
-        "Auto",
 #ifdef HAVE_EPHEMERIS
         "Ephemeris",
 #endif
@@ -371,6 +375,7 @@ void Sky::setSky(std::string_view nameOrFile)
 void Sky::setSkyDisabled()
 {
     m_mode = DISABLED;
+    autoSkyButton->setState(false);
     removeExistingSky();
 }
 
@@ -379,6 +384,7 @@ void Sky::setSkyEphemeris()
 #ifdef HAVE_EPHEMERIS
     removeExistingSky();
     m_mode = EPHEMERIS;
+    autoSkyButton->setState(false);
     m_ephemeralSky = std::make_unique<EphemeralSky>(skyGroup, skyRootNode);
 #else
     std::cerr << "Cannot switch to Ephemeris sky, compiled without osgEphemeris. Disabling sky." << std::endl;
@@ -389,6 +395,7 @@ void Sky::setSkyEphemeris()
 void Sky::setSkyAuto()
 {
     m_mode = AUTO;
+    autoSkyButton->setState(true);
     m_currentAutoSky = nullptr;
     updateAutoSky();
 }
@@ -495,17 +502,17 @@ void Sky::updateAutoSky()
     double lon = globalPosition.x();
     double lat = globalPosition.y();
 
-    const auto dist2 = [](const SkyEntry* s, double lon, double lat)
+    const auto dist2 = [](const SkyEntry *s, double lon, double lat)
     {
         const double dx = s->longitude - lon;
         const double dy = s->latitude - lat;
-        return dx*dx + dy*dy;
+        return dx * dx + dy * dy;
     };
 
     const double currentDistSq = dist2(m_currentAutoSky, lon, lat);
-    const double closestDistSq    = dist2(closestSky, lon, lat);
+    const double closestDistSq = dist2(closestSky, lon, lat);
 
-    constexpr double SKY_THRESHOLD = 1e-4 ; // roughly 1 km
+    constexpr double SKY_THRESHOLD = 1e-4; // roughly 1 km
 
     if (closestSky != m_currentAutoSky && ((currentDistSq - closestDistSq) > SKY_THRESHOLD))
     {
