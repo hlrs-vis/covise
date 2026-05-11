@@ -19,20 +19,16 @@
 #include <osgEarth/Color>
 
 #include <osgEarth/AnnotationData>
-#include <osgEarth/Controls>
-//#include <osgEarthAnnotation/Decluttering>
+// #include <osgEarth/Controls>
+// #include <osgEarthAnnotation/Decluttering>
 
 #include <osgEarth/ExampleResources>
 
 #include <osgEarth/EarthManipulator>
 #include <osgEarth/AutoClipPlaneHandler>
-#if OSGEARTH_VERSION_LESS_THAN(2,6,0)
-#include <osgEarthUtil/SkyNode>
-#else
 #include <osgEarth/Sky>
-#endif
 #include <osgEarth/Formatter>
-#include <osgEarth/MouseCoordsTool>
+// #include <osgEarth/MouseCoordsTool>
 #include "EarthLayerManager.h"
 #include "EarthViewpointManager.h"
 #include <cover/coTabletUI.h>
@@ -40,7 +36,7 @@
 using namespace opencover;
 
 using namespace osgEarth::Util;
-using namespace osgEarth::Util::Controls;
+// using namespace osgEarth::Util::Controls;
 
 class EarthPlugin : public coVRPlugin, public coTUIListener
 {

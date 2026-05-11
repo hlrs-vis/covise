@@ -28,20 +28,20 @@ using namespace osgEarth;
 #include <osgDB/ReadFile>
 #include <osgEarthDrivers/kml/KML>
 #include <osgEarthDrivers/kml/KMLOptions>
-//viewpoints are in a plugin now have to access theem through the plugin interface #include <osgEarthDrivers/viewpoints/ViewpointsExtension>
+// viewpoints are in a plugin now have to access theem through the plugin interface #include <osgEarthDrivers/viewpoints/ViewpointsExtension>
 #include <osgEarth/GLUtils>
 
 EarthPlugin *EarthPlugin::plugin = NULL;
 
 FileHandler fileHandler[] = {
     { NULL,
-      EarthPlugin::sLoadFile,
-      EarthPlugin::sUnloadFile,
-      "earth" },
+        EarthPlugin::sLoadFile,
+        EarthPlugin::sUnloadFile,
+        "earth" },
     { NULL,
-      EarthPlugin::sLoadKmlFile,
-      EarthPlugin::sUnloadKmlFile,
-      "kml" }
+        EarthPlugin::sLoadKmlFile,
+        EarthPlugin::sUnloadKmlFile,
+        "kml" }
 };
 
 int EarthPlugin::sLoadFile(const char *fn, osg::Group *parent, const char *)
@@ -67,7 +67,7 @@ int EarthPlugin::sLoadKmlFile(const char *fn, osg::Group *parent, const char *)
 {
     if (plugin)
         return plugin->loadKmlFile(fn, parent);
-        
+
     return -1;
 }
 
@@ -75,92 +75,92 @@ int EarthPlugin::sUnloadKmlFile(const char *fn, const char *)
 {
     if (plugin)
     {
-       // plugin->unloadKmlFile(fn);
+        // plugin->unloadKmlFile(fn);
         return 0;
     }
 
     return -1;
 }
 
-struct ToggleNodeHandler : public ControlEventHandler
-{
-    ToggleNodeHandler(osg::Node *node)
-        : _node(node)
-    {
-    }
-
-    virtual void onValueChanged(class Control *control, bool value)
-    {
-        osg::ref_ptr<osg::Node> safeNode = _node.get();
-        if (safeNode.valid())
-            safeNode->setNodeMask(value ? ~0 : 0);
-    }
-
-    osg::observer_ptr<osg::Node> _node;
-};
-
-struct ClickViewpointHandler : public ControlEventHandler
-{
-    ClickViewpointHandler(const Viewpoint &vp)
-        : _vp(vp)
-    {
-    }
-    Viewpoint _vp;
-
-    virtual void onClick(class Control *control)
-    {
-        //s_manip->setViewpoint( _vp, 4.5 );
-    }
-};
+// struct ToggleNodeHandler : public ControlEventHandler
+// {
+//     ToggleNodeHandler(osg::Node *node)
+//         : _node(node)
+//     {
+//     }
+//
+//     virtual void onValueChanged(class Control *control, bool value)
+//     {
+//         osg::ref_ptr<osg::Node> safeNode = _node.get();
+//         if (safeNode.valid())
+//             safeNode->setNodeMask(value ? ~0 : 0);
+//     }
+//
+//     osg::observer_ptr<osg::Node> _node;
+// };
+//
+// struct ClickViewpointHandler : public ControlEventHandler
+// {
+//     ClickViewpointHandler(const Viewpoint &vp)
+//         : _vp(vp)
+//     {
+//     }
+//     Viewpoint _vp;
+//
+//     virtual void onClick(class Control *control)
+//     {
+//         // s_manip->setViewpoint( _vp, 4.5 );
+//     }
+// };
 
 /**
  * Visitor that builds a UI control for a loaded KML file.
  */
- /*
+/*
 struct KMLUIBuilder : public osg::NodeVisitor
 {
-    KMLUIBuilder(ControlCanvas *canvas)
-        : osg::NodeVisitor(osg::NodeVisitor::TRAVERSE_ALL_CHILDREN)
-        , _canvas(canvas)
-    {
-        _grid = new Grid();
-        _grid->setAbsorbEvents(true);
-        _grid->setPadding(5);
-        _grid->setVertAlign(Control::ALIGN_TOP);
-        _grid->setHorizAlign(Control::ALIGN_LEFT);
-        _grid->setBackColor(Color(Color::Black, 0.5));
-        _canvas->addControl(_grid);
-    }
+   KMLUIBuilder(ControlCanvas *canvas)
+       : osg::NodeVisitor(osg::NodeVisitor::TRAVERSE_ALL_CHILDREN)
+       , _canvas(canvas)
+   {
+       _grid = new Grid();
+       _grid->setAbsorbEvents(true);
+       _grid->setPadding(5);
+       _grid->setVertAlign(Control::ALIGN_TOP);
+       _grid->setHorizAlign(Control::ALIGN_LEFT);
+       _grid->setBackColor(Color(Color::Black, 0.5));
+       _canvas->addControl(_grid);
+   }
 
-    void apply(osg::Node &node)
-    {
-        AnnotationData *data = dynamic_cast<AnnotationData *>(node.getUserData());
-        if (data)
-        {
-            ControlVector row;
-            CheckBoxControl *cb = new CheckBoxControl(node.getNodeMask() != 0, new ToggleNodeHandler(&node));
-            cb->setSize(12, 12);
-            row.push_back(cb);
-            std::string name = data->getName().empty() ? "<unnamed>" : data->getName();
-            LabelControl *label = new LabelControl(name, 14.0f);
-            label->setMargin(Gutter(0, 0, 0, (this->getNodePath().size() - 3) * 20));
-            if (data->getViewpoint())
-            {
-                label->addEventHandler(new ClickViewpointHandler(*data->getViewpoint()));
-                label->setActiveColor(Color::Blue);
-            }
-            row.push_back(label);
-            _grid->addControls(row);
-        }
-        traverse(node);
-    }
+   void apply(osg::Node &node)
+   {
+       AnnotationData *data = dynamic_cast<AnnotationData *>(node.getUserData());
+       if (data)
+       {
+           ControlVector row;
+           CheckBoxControl *cb = new CheckBoxControl(node.getNodeMask() != 0, new ToggleNodeHandler(&node));
+           cb->setSize(12, 12);
+           row.push_back(cb);
+           std::string name = data->getName().empty() ? "<unnamed>" : data->getName();
+           LabelControl *label = new LabelControl(name, 14.0f);
+           label->setMargin(Gutter(0, 0, 0, (this->getNodePath().size() - 3) * 20));
+           if (data->getViewpoint())
+           {
+               label->addEventHandler(new ClickViewpointHandler(*data->getViewpoint()));
+               label->setActiveColor(Color::Blue);
+           }
+           row.push_back(label);
+           _grid->addControls(row);
+       }
+       traverse(node);
+   }
 
-    ControlCanvas *_canvas;
-    Grid *_grid;
+   ControlCanvas *_canvas;
+   Grid *_grid;
 };*/
 
 EarthPlugin::EarthPlugin()
-: coVRPlugin(COVER_PLUGIN_NAME)
+    : coVRPlugin(COVER_PLUGIN_NAME)
 {
     assert(!plugin);
     plugin = this;
@@ -211,8 +211,9 @@ void EarthPlugin::tabletEvent(coTUIElement *e)
 {
     if (e == requestDump && mapNode)
     {
-        OverlayDecorator* od = osgEarth::Util::findTopMostNodeOfType<OverlayDecorator>(mapNode);
-        if (od) od->requestDump();
+        OverlayDecorator *od = osgEarth::Util::findTopMostNodeOfType<OverlayDecorator>(mapNode);
+        if (od)
+            od->requestDump();
     }
     if (e == cameraCheckBox && oldDump)
     {
@@ -231,10 +232,10 @@ void EarthPlugin::tabletEvent(coTUIElement *e)
         if (DebugCheckBox->getState())
         {
 
-            OverlayDecorator* od = osgEarth::Util::findTopMostNodeOfType<OverlayDecorator>(mapNode);
+            OverlayDecorator *od = osgEarth::Util::findTopMostNodeOfType<OverlayDecorator>(mapNode);
             if (od)
             {
-                osg::Node* dump = od->getDump();
+                osg::Node *dump = od->getDump();
                 if (!dump)
                 {
                     od->requestDump();
@@ -242,7 +243,7 @@ void EarthPlugin::tabletEvent(coTUIElement *e)
                 else
                 {
                     dump->getOrCreateStateSet()->setAttributeAndModes(new osg::Depth(
-                        osg::Depth::LEQUAL, 0, 1, false),
+                                                                          osg::Depth::LEQUAL, 0, 1, false),
                         1 | osg::StateAttribute::OVERRIDE);
                     dump->getOrCreateStateSet()->setMode(GL_BLEND, 1);
                     dump->getOrCreateStateSet()->setAttributeAndModes(new osg::LineWidth(1.5f), 1);
@@ -251,10 +252,10 @@ void EarthPlugin::tabletEvent(coTUIElement *e)
                     cover->getObjectsRoot()->addChild(dump);
                     oldDump = dump;
 
-                    toggle(static_cast<osg::Group*>(oldDump), "camera", cameraCheckBox->getState());
-                    //toggle(_parent, "overlay", s_overlayCheck->getValue());
-                    toggle(static_cast<osg::Group*>(oldDump), "intersection", intersectionsCheckBox->getState());
-                    toggle(static_cast<osg::Group*>(oldDump), "rtt", rttCheckBox->getState());
+                    toggle(static_cast<osg::Group *>(oldDump), "camera", cameraCheckBox->getState());
+                    // toggle(_parent, "overlay", s_overlayCheck->getValue());
+                    toggle(static_cast<osg::Group *>(oldDump), "intersection", intersectionsCheckBox->getState());
+                    toggle(static_cast<osg::Group *>(oldDump), "rtt", rttCheckBox->getState());
                 }
             }
         }
@@ -278,13 +279,13 @@ const osgEarth::SpatialReference *EarthPlugin::getSRS() const
 int EarthPlugin::loadFile(const char *fn, osg::Group *parent)
 {
 
-    //Tell the database pager to not modify the unref settings
+    // Tell the database pager to not modify the unref settings
     VRViewer::instance()->getDatabasePager()->setUnrefImageDataAfterApplyPolicy(false, false);
 
-    //Load the map
+    // Load the map
     loadedModel = osgDB::readNodeFile(fn);
 
-    //Find the MapNode
+    // Find the MapNode
     mapNode = MapNode::findMapNode(loadedModel);
     if (mapNode)
     {
@@ -300,16 +301,16 @@ int EarthPlugin::loadFile(const char *fn, osg::Group *parent)
                 viewpointManager->addViewpoint(new Viewpoint(*i));
         }
         auto extensions = mapNode->getExtensions();
-        for (const auto& extension : extensions)
+        for (const auto &extension : extensions)
         {
-            Extension* e = extension;
-          /*  osgEarth::Viewpoints::ViewpointsExtension* ve = dynamic_cast<osgEarth::Viewpoints::ViewpointsExtension*>(e);
-            const ConfigSet children = ve->getConfig().children("viewpoint");
-            if (children.size() > 0)
-            {
-                for (ConfigSet::const_iterator i = children.begin(); i != children.end(); ++i)
-                    viewpointManager->addViewpoint(new Viewpoint(*i));
-            }*/
+            Extension *e = extension;
+            /*  osgEarth::Viewpoints::ViewpointsExtension* ve = dynamic_cast<osgEarth::Viewpoints::ViewpointsExtension*>(e);
+              const ConfigSet children = ve->getConfig().children("viewpoint");
+              if (children.size() > 0)
+              {
+                  for (ConfigSet::const_iterator i = children.begin(); i != children.end(); ++i)
+                      viewpointManager->addViewpoint(new Viewpoint(*i));
+              }*/
         }
         mapNode->open(); // necessary to resolve the SRS on the next line
         std::string ext = mapNode->getMapSRS()->isGeographic() ? "sky_simple" : "sky_gl";
@@ -325,13 +326,8 @@ int EarthPlugin::loadFile(const char *fn, osg::Group *parent)
             if (useSky)
             {
                 double hours = skyConf.value("hours", 12.0);
-#if OSGEARTH_VERSION_LESS_THAN(2,6,0)
-                s_sky = new SkyNode(mapNode->getMap());
-                s_sky->setDateTime(2011, 3, 6, hours);
-#else
                 s_sky = SkyNode::create(mapNode);
                 s_sky->setDateTime(DateTime(2011, 3, 6, hours));
-#endif
                 s_sky->attach(VRViewer::instance());
                 parent->addChild(s_sky);
             }
@@ -341,11 +337,11 @@ int EarthPlugin::loadFile(const char *fn, osg::Group *parent)
                 useOcean = true;
 
             // if ( useOcean )
-		   //{
-			//   s_ocean = new OceanSurfaceNode( mapNode, externals.child("ocean") );
-			//   if ( s_ocean )
-			//	   parent->addChild( s_ocean );
-		   //}
+                   //{
+                        //   s_ocean = new OceanSurfaceNode( mapNode, externals.child("ocean") );
+                        //   if ( s_ocean )
+                        //	   parent->addChild( s_ocean );
+                   //}
 
             // The automatic clip plane generator will adjust the near/far clipping
             // planes based on your view of the horizon. This prevents near clipping issues
@@ -353,11 +349,7 @@ int EarthPlugin::loadFile(const char *fn, osg::Group *parent)
             // close to the ground, you may not need this.
             if (externals.hasChild("autoclip"))
             {
-#if OSGEARTH_VERSION_GREATER_THAN(2,10,0)
                 useAutoClip = externals.child("autoclip").valueAs(useAutoClip);
-#else
-                useAutoClip = externals.child("autoclip").boolValue(useAutoClip);
-#endif
             }
 
             if (useSky || useAutoClip || useOcean)
@@ -367,8 +359,8 @@ int EarthPlugin::loadFile(const char *fn, osg::Group *parent)
         }
         */
         // Configure the de-cluttering engine for labels and annotations:
-        //const Config &declutterConf = externals.child("decluttering");
-        //if (!declutterConf.empty())
+        // const Config &declutterConf = externals.child("decluttering");
+        // if (!declutterConf.empty())
         //{
         //    osgEarth::Decluttering::setOptions(osgEarth::DeclutteringOptions(declutterConf));
         //}
@@ -394,22 +386,22 @@ int EarthPlugin::unloadFile(const char *fn)
 
 int EarthPlugin::loadKmlFile(const char *fn, osg::Group *parent)
 {
-    //Load the map
+    // Load the map
     loadedModel = osgDB::readNodeFile(fn);
     // Install a new Canvas for our UI controls, or use one that already exists.
-    ControlCanvas* canvas = ControlCanvas::getOrCreate(VRViewer::instance());
+    // ControlCanvas *canvas = ControlCanvas::getOrCreate(VRViewer::instance());
 
-    Container* mainContainer;
-    
-    {
-        mainContainer = new VBox();
-        mainContainer->setAbsorbEvents(false);
-        mainContainer->setBackColor(Color(Color::Black, 0.8));
-        mainContainer->setHorizAlign(Control::ALIGN_LEFT);
-        mainContainer->setVertAlign(Control::ALIGN_BOTTOM);
-    }
-    canvas->addControl(mainContainer);
-    //Find the MapNode
+    // Container *mainContainer;
+
+    // {
+    //     mainContainer = new VBox();
+    //     mainContainer->setAbsorbEvents(false);
+    //     mainContainer->setBackColor(Color(Color::Black, 0.8));
+    //     mainContainer->setHorizAlign(Control::ALIGN_LEFT);
+    //     mainContainer->setVertAlign(Control::ALIGN_BOTTOM);
+    // }
+    // canvas->addControl(mainContainer);
+    // Find the MapNode
     mapNode = MapNode::findMapNode(loadedModel);
     if (mapNode)
     {
@@ -417,17 +409,17 @@ int EarthPlugin::loadKmlFile(const char *fn, osg::Group *parent)
         kmlo.declutter() = true;
         bool kmlUI = true;
         osg::Node *kml = KML::load(URI(fn), mapNode, kmlo);
-        if(kml)
+        if (kml)
         {
-            if (kmlUI)
-            {
-                Control* c = AnnotationGraphControlFactory().create(kml, VRViewer::instance());
-                if (c)
-                {
-                    c->setVertAlign(Control::ALIGN_TOP);
-                    mainContainer->addControl(c);
-                }
-            }
+            // if (kmlUI)
+            // {
+            // Control* c = AnnotationGraphControlFactory().create(kml, VRViewer::instance());
+            // if (c)
+            // {
+            //     c->setVertAlign(Control::ALIGN_TOP);
+            //     mainContainer->addControl(c);
+            // }
+            // }
             mapNode->addChild(kml);
         }
     }
@@ -455,8 +447,7 @@ EarthPlugin::~EarthPlugin()
     plugin = NULL;
 }
 
-bool
-EarthPlugin::init()
+bool EarthPlugin::init()
 {
     fprintf(stderr, "EarthPlugin::EarthPlugin\n");
 
@@ -503,8 +494,7 @@ EarthPlugin::init()
 
     return true;
 }
-void
-EarthPlugin::preFrame()
+void EarthPlugin::preFrame()
 {
 }
 
