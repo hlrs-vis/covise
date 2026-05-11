@@ -44,6 +44,9 @@ public:
     osg::PositionAttitudeTransform *offsetRoot();
     osg::Group *terrainRoot();
 
+    osg::Vec3 getProjectPosition();
+    osg::Vec3 getGlobalPosition();
+
     /**
      * Transform a global position (easting-northing-altitude) into project
      * (x-y-z) coordinates, applying transform and project offset.

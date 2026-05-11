@@ -155,9 +155,9 @@ void GeoCoding::jumpToAddress(std::string_view searchQuery)
 #include <osg/io_utils>
 void GeoCoding::geocode()
 {
-    auto projectLocation = osg::Matrix::inverse(cover->getXformMat()).getTrans() / cover->getScale();
+    auto projectLocation = GeoData::instance()->getProjectPosition();
     std::cout << "Local coords (relative to project origin): " << projectLocation << std::endl;
-    auto global = GeoData::instance()->projectToGlobal(projectLocation);
+    auto global = GeoData::instance()->getGlobalPosition();
     std::cout << "Global coords (WGS84): " << global << std::endl;
 
     using namespace opencover::httpclient::curl;

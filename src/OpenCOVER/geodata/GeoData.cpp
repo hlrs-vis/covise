@@ -107,6 +107,17 @@ osg::Group *GeoData::terrainRoot()
     return m_terrainRoot;
 }
 
+osg::Vec3 GeoData::getProjectPosition()
+{
+    return osg::Matrix::inverse(cover->getXformMat()).getTrans() / cover->getScale();
+}
+
+osg::Vec3 GeoData::getGlobalPosition()
+{
+    auto projectLocation = getProjectPosition();
+    return projectToGlobal(projectLocation);
+}
+
 osg::Vec3 GeoData::globalToProject(const osg::Vec3 &globalPosition) const
 {
     return globalToReference(globalPosition) - m_projectOffset;
