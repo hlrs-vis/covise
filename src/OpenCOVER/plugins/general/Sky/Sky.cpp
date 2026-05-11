@@ -83,6 +83,7 @@ Sky *Sky::s_instance = nullptr;
 Sky::Sky()
     : coVRPlugin(COVER_PLUGIN_NAME)
     , ui::Owner("Sky", cover->ui)
+    , m_mode(DISABLED)
 {
     assert(s_instance == nullptr);
     s_instance = this;
@@ -144,6 +145,7 @@ bool Sky::init()
         {
             if (selection >= skyListNameStart)
             {
+                m_mode = TEXTURE;
                 setSkyEntry(m_skies[selection - skyListNameStart]);
             }
             else if (selection == 0)
@@ -387,7 +389,8 @@ void Sky::setSkyEphemeris()
 void Sky::setSkyAuto()
 {
     m_mode = AUTO;
-    // TODO
+    m_currentAutoSky = nullptr;
+    updateAutoSky();
 }
 
 void Sky::setSkyTexture(std::string_view nameOrFile)
@@ -474,6 +477,43 @@ void Sky::setTrueNorth(float trueNorth)
     if (skyNorthSlider)
         skyNorthSlider->setValue(northAngle);
 }
+
+void Sky::updateAutoSky()
+{
+    auto globalPosition = GeoData::instance()->getGlobalPosition();
+    SkyEntry *closestSky = findClosestSky(globalPosition);
+    if (!closestSky)
+        return;
+
+    if (closestSky == m_currentAutoSky)
+        return;
+
+    m_currentAutoSky = closestSky;
+    setSkyEntry(*closestSky);
+}
+
+SkyEntry *Sky::findClosestSky(const osg::Vec3 &globalPosition)
+{
+    SkyEntry *closestSky = nullptr;
+    double closestDistance = std::numeric_limits<double>::max();
+
+    double longitude = globalPosition.x();
+    double latitude = globalPosition.y();
+
+    for (auto &sky : m_skies)
+    {
+        double dlon = sky.longitude - longitude;
+        double dlat = sky.latitude - latitude;
+        double distance = std::sqrt(dlon * dlon + dlat * dlat);
+        if (distance < closestDistance)
+        {
+            closestDistance = distance;
+            closestSky = &sky;
+        }
+    }
+    return closestSky;
+}
+
 bool Sky::update()
 {
     float nearValue = coVRConfig::instance()->nearClip();
@@ -488,7 +528,7 @@ bool Sky::update()
 
     if (m_mode == AUTO)
     {
-        // TODO: automatically select appropriate sky
+        updateAutoSky();
     }
     else if (m_mode == EPHEMERIS)
     {

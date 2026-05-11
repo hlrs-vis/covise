@@ -84,10 +84,14 @@ private:
     void setSkyEntry(SkyEntry &sky);
     void setSkyEphemeris();
     void setSkyAuto();
+    void updateAutoSky();
+    SkyEntry *findClosestSky(const osg::Vec3 &globalPosition);
     void removeExistingSky();
 
     static Sky *s_instance;
     std::vector<SkyEntry> m_skies;
+
+    SkyEntry *m_currentAutoSky = nullptr;
 
     osg::ref_ptr<osg::MatrixTransform> skyRootNode;
     osg::ref_ptr<osg::Geode> texturedSphere;
