@@ -260,6 +260,12 @@ void EarthPlugin::tabletEvent(coTUIElement *e)
 
 const osgEarth::SpatialReference *EarthPlugin::getSRS() const
 {
+    if (!mapNode)
+        return nullptr;
+    if (!mapNode->getMap())
+        return nullptr;
+    if (!mapNode->getMap()->getProfile())
+        return nullptr;
     return mapNode->getMap()->getProfile()->getSRS();
 }
 
