@@ -20,7 +20,7 @@ public:
 
     void setInitialData(T *pos, T *velo);
     void copyInitialData(T *pos, T *velo);
-    void setInitialPlanetData(T *pos, T *velo);
+    void setInitialPlanetData(T *pos, T *velo, int numPlanets);
     void copyPlanetData(T *pos, T *velo);
     void integrate(double deltaT, int iterations, int numActivePlanets);
     int getNumActiveParticles()

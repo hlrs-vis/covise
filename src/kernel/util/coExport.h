@@ -75,7 +75,6 @@
 #define VSGVRUIEXPORT COIMPORT
 #endif
 
-
 #if defined(SG_VRUI)
 #define SGVRUIEXPORT COEXPORT
 #else
@@ -87,7 +86,6 @@
 #else
 #define COMSGEXPORT COIMPORT
 #endif
-
 
 #if defined(coVRAudio_EXPORTS)
 #define COVRAUDIOEXPORT COEXPORT
@@ -422,4 +420,10 @@
 #define FFMPEGEXPORT COEXPORT
 #else
 #define FFMPEGEXPORT COIMPORT
+#endif
+
+#if defined(coVRGeoData_EXPORTS)
+#define COVRGEODATAEXPORT COEXPORT
+#else
+#define COVRGEODATAEXPORT COIMPORT
 #endif

@@ -14,6 +14,7 @@ find_path(GEOTIFF_INCLUDE_DIR geotiff.h
    /sw/include
    /usr/include/libgeotiff
    /opt/local/include
+   PATH_SUFFIXES geotiff
    DOC "The directory where geotiff.h resides")
 
 find_library(GEOTIFF_LIBRARY NAMES geotiff geotiff_i

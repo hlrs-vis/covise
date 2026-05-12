@@ -38,7 +38,7 @@ windowsHID::windowsHID(const std::string &configBase)
     cout << devstring << endl;
     rawMouse = new coRawDevice(devstring.c_str());
 
-    m_buttonStates.resize(8);
+    m_buttonStates.resize(MAX_RAW_MOUSE_BUTTONS);
 }
 
 windowsHID::~windowsHID()
@@ -51,9 +51,19 @@ void windowsHID::update() //< called by Input::update()
     rawMouseManager->update();
     if(rawMouse)
     {
-        for (int i = 0; i < 8; ++i)
+        for (int i = 0; i < MAX_RAW_MOUSE_BUTTONS; ++i)
         {
             m_buttonStates[i] = rawMouse->getButton(i);
+        }
+
+        for (int n = 0; n < rawMouse->getNumValues(); n++)
+        {
+            while (n >= m_valuatorValues.size())
+            {
+                m_valuatorValues.push_back(0);
+                m_valuatorRanges.push_back(std::pair<double, double>(-1.0, 1.0));
+            }
+            m_valuatorValues[n] = rawMouse->getValue(n);
         }
     }
     InputDevice::update();

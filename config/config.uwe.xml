@@ -33,7 +33,7 @@
     <UseVertexBufferObjects value="false" />
    <Input>
         <MouseNav value="true" />
-        <!--Device>
+        <Device>
 
 
            <DTrackCave driver="dtrack" port="5000" serverHost="192.168.1.2">
@@ -41,12 +41,34 @@
               <Orientation h="0" p="0" r="0" />
            </DTrackCave>
 
-           <CaveButtons driver="mousebuttons" device="/dev/input/presenter"/>
+           <CaveButtons driver="windowsHID" device="HID#VID_046D&amp;PID_C21F&amp;IG_01#8&amp;10d792b6&amp;0&amp;0000#{4d1e55b2-f16f-11cf-88cb-001111000030}"/>
            <CyberstickButtons driver="mousebuttons" device="/dev/input/cyberstick"/>
 
         </Device>
+		
+        <Buttons>
+           <CaveMouse device="CaveButtons" >
+              <Map name="0" value="ACTION_BUTTON" />
+              <Map name="1" value="XFORM_BUTTON" />
+              <Map name="2" value="MENU_BUTTON" />
+              <Map name="3" value="DRIVE_BUTTON" />
+           </CaveMouse>
+           <CyberstickMouse device="CyberstickButtons" >
+              <Map name="0" value="ACTION_BUTTON" />
+              <Map name="1" value="XFORM_BUTTON" />
+              <Map name="2" value="MENU_BUTTON" />
+              <Map name="3" value="DRIVE_BUTTON" />
+           </CyberstickMouse>
+        </Buttons>
+        <Persons>
+           <Person name="Tracked" default="true" head="CaveHead" hand="CaveHand" buttons="CaveMouse" />
+           <Person name="Tracked2" head="CaveHead2" hand="CaveHand2" buttons="CaveMouse" />
+           <Person name="Tripod" eyeDistance="0.0" head="TripodHead" hand="CaveHand" buttons="CaveMouse" />
+           <Person name="Camera" eyeDistance="0.0" head="CaveCamera" hand="CaveHand" buttons="CaveMouse" />
+           <Person name="Gloves" eyeDistance="0.0" head="CaveGloves" hand="CaveHand" buttons="CaveMouse" />
+        </Persons>
 
-        <Body>
+       <!-- <Body>
            <ConstHead>
               <Offset x="0" y="-2000" z="0" />
               <Orientation h="0" p="0" r="0" />

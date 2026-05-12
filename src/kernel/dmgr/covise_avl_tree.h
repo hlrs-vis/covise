@@ -864,11 +864,11 @@ T *AVLTree<T>::remove_node_compare(T *data)
 #ifdef debug
         fprintf(stdout, " case 1");
 #endif
-        /*   F              *\ 
-       *   |          F   *
-       *   N    ==>   |   *
-       *    \         R   *
-      \*     R            */
+      //   F              
+      //   |          F   
+      //   N    ==>   |   
+      //    \         R   
+      //     R            
         father = node->up;
         if (father)
         {
@@ -908,11 +908,11 @@ T *AVLTree<T>::remove_node_compare(T *data)
 #ifdef debug
         fprintf(stdout, " case 2");
 #endif
-        /*    F             *\ 
-       *    |         F   *
-       *    N   ==>   |   *
-       *   /          L   *
-       \*  L               */
+       //    F
+       //   |         F
+       //    N   ==>   |
+       //   /          L
+       //  L
         father = node->up;
         if (father)
         {
@@ -939,15 +939,15 @@ T *AVLTree<T>::remove_node_compare(T *data)
     }
     else /* must search downward for a node to remove */
     {
-        /*      F             F    *\ 
-       *      |             |    *
-       *      N             Y    *
-       *     / \    ==>    / \   *
-       *    V   W         V   W  *
-       *   / \           / \     *
-       *  X   Y         X   Z    *
-       *     /                   *
-       \*    Z                    */
+       //      F             F
+       //      |             |
+       //      N             Y
+       //     / \_   ==>    / \
+       //    V   W         V   W
+       //   / \_          / \
+       //  X   Y         X   Z
+       //     /
+       //    Z
         if (node->balance < 1) /* left subtree of node is higher than right */
         {
 #ifdef debug
@@ -1095,11 +1095,11 @@ T *AVLTree<T>::remove_node(T *data)
     if (node->left == NULL) /* replace node by the right subtree */
     {
 
-        /*   F              *\ 
-       *   |          F   *
-       *   N    ==>   |   *
-       *    \         R   *
-      \*     R            */
+       //   F
+       //   |          F
+       //   N    ==>   |
+       //    \_        R
+       //     R
         father = node->up;
         if (father)
         {
@@ -1137,11 +1137,11 @@ T *AVLTree<T>::remove_node(T *data)
 #ifdef debug
         fprintf(stdout, " case 2");
 #endif
-        /*    F             *\ 
-       *    |         F   *
-       *    N   ==>   |   *
-       *   /          L   *
-       \*  L               */
+       //    F             
+       //    |         F  
+       //    N   ==>   |  
+       //   /          L  
+       //  L               
         father = node->up;
         if (father)
         {
@@ -1167,15 +1167,15 @@ T *AVLTree<T>::remove_node(T *data)
     }
     else /* must search downward for a node to remove */
     {
-        /*      F             F    *\ 
-       *      |             |    *
-       *      N             Y    *
-       *     / \    ==>    / \   *
-       *    V   W         V   W  *
-       *   / \           / \     *
-       *  X   Y         X   Z    *
-       *     /                   *
-       \*    Z                    */
+       //      F             F    
+       //      |             |    
+       //      N             Y    
+       //     / \_   ==>    / \_
+       //    V   W         V   W  
+       //   / \_          / \_
+       //  X   Y         X   Z    
+       //     /     
+       //    Z                    
         if (node->balance < 1) /* left subtree of node is higher than right */
         {
 #ifdef debug

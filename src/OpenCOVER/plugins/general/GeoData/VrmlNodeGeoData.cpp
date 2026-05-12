@@ -4,60 +4,27 @@
    version 2.1 or later, see lgpl-2.1.txt.
 
  * License: LGPL 2+ */
+#include "VrmlNodeGeoData.h"
 
-//
-//  Vrml 97 library
-//  Copyright (C) 2001 Uwe Woessner
-//
-//  %W% %G%
-//  VrmlNodeGeoData.cpp
-#ifdef _WIN32
-#if (_MSC_VER >= 1300) && !(defined(MIDL_PASS) || defined(RC_INVOKED))
-#define POINTER_64 __ptr64
-#else
-#define POINTER_64
-#endif
-#include <winsock2.h>
-#include <windows.h>
-#endif
-#include <util/common.h>
-#include <vrml97/vrml/config.h>
-#include <vrml97/vrml/VrmlNodeType.h>
-#include <vrml97/vrml/coEventQueue.h>
-
-#include <vrml97/vrml/MathUtils.h>
-#include <vrml97/vrml/System.h>
-#include <vrml97/vrml/Viewer.h>
-#include <vrml97/vrml/VrmlScene.h>
-#include <cover/VRViewer.h>
-#include <cover/VRSceneGraph.h>
-#include <cover/coVRAnimationManager.h>
-#include <cover/coVRPluginSupport.h>
-#include <OpenVRUI/osg/mathUtils.h>
-#include <math.h>
-#include <iostream>
-
-#include <util/byteswap.h>
+#include <geodata/GeoData.h>
 
 #include "GeoDataLoader.h"
-#include "VrmlNodeGeoData.h"
-#include <osg/Quat>
-
-static list<VrmlNodeGeoData *> allGeoData;
-
-// GeoData factory.
 
 static VrmlNode *creator(VrmlScene *scene)
 {
     return new VrmlNodeGeoData(scene);
 }
 
-void VrmlNodeGeoData::update()
+VrmlNodeGeoData::VrmlNodeGeoData(VrmlScene *scene)
+    : VrmlNodeChild(scene, typeName())
+    , d_offset(0, 0, 0)
 {
-    list<VrmlNodeGeoData *>::iterator ts;
-    for (ts = allGeoData.begin(); ts != allGeoData.end(); ++ts)
-    {
-    }
+}
+
+VrmlNodeGeoData::VrmlNodeGeoData(const VrmlNodeGeoData &n)
+    : VrmlNodeChild(n)
+    , d_offset(0, 0, 0)
+{
 }
 
 void VrmlNodeGeoData::initFields(VrmlNodeGeoData *node, VrmlNodeType *t)
@@ -65,84 +32,41 @@ void VrmlNodeGeoData::initFields(VrmlNodeGeoData *node, VrmlNodeType *t)
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
         field("offset", node->d_offset, [node](auto f)
-            { GeoDataLoader::instance()->setRootTransform(osg::Vec3(node->d_offset.get()[0], node->d_offset.get()[1], node->d_offset.get()[2]), 0); }),
+            { opencover::GeoData::instance()->setProjectOffset(osg::Vec3(node->d_offset.get()[0], node->d_offset.get()[1], node->d_offset.get()[2])); }),
         field("offsetName", node->d_offsetName, [node](auto f)
             {
-                auto loader = GeoDataLoader::instance();
-                auto datasets = loader->getDatasets();
-                auto dataset = std::find_if(datasets.begin(), datasets.end(), [node](const GeoDataLoader::DatasetInfo &d)
-                    { return d.name == node->d_offsetName.get(); });
-
+        auto loader = GeoDataLoader::instance();
+        auto datasets = loader->getDatasets();
+        auto dataset = std::find_if(datasets.begin(), datasets.end(), [node](const GeoDataLoader::DatasetInfo &d)
+            { return d.name == node->d_offsetName.get(); });
                 if (dataset == datasets.end())
                 {
                     std::cerr << "[VrmlNodeGeoData::initFields] GeoData: invalid offsetName '" << node->d_offsetName.get() << "'." << std::endl;
                     return;
                 }
                 osg::Vec3 origin = osg::Vec3(dataset->easting, dataset->northing, dataset->altitude);
-                loader->setRootTransform(-origin, dataset->trueNorth); }),
-        field("skyName", node->d_skyName, [node](auto f)
-            { GeoDataLoader::instance()->setSky(node->d_skyName.get()); }),
-        field("top", node->d_top, [node](auto f)
-            { GeoDataLoader::instance()->setTop(node->d_top.get()); }),
-        field("bottom", node->d_bottom, [node](auto f)
-            { GeoDataLoader::instance()->setBottom(node->d_bottom.get()); }),
-        field("floorColor", node->d_floorColor, [node](auto f)
-            { GeoDataLoader::instance()->setFloorColor(osg::Vec4(node->d_floorColor.get()[0], node->d_floorColor.get()[1], node->d_floorColor.get()[2], node->d_floorColor.get()[3])); }),
-        field("enabled", node->d_enabled, [node](auto f) { }));
+                opencover::GeoData::instance()->setProjectOffset(origin); }),
+        field("regions", node->d_regions, [node](auto f)
+            {
+        auto geoData = GeoDataLoader::instance();
+        for (int i = 0; i < node->d_regions.size(); i++)
+        {
+            auto s = node->d_regions.get(i);
+            if (strcmp(s, ALL_REGIONS_STRING) == 0)
+            {
+                geoData->setAllRegionsEnabled(true);
+            }
+            geoData->setRegionEnabled(s, true);
+        } }),
+        field("showTerrain", node->d_showTerrain, [node](auto f)
+            { GeoDataLoader::instance()->setShowBuildings(node->d_showTerrain.get()); }),
+        field("showLabels", node->d_showLabels, [node](auto f)
+            { GeoDataLoader::instance()->setShowLabels(node->d_showLabels.get()); }),
+        field("showBuildings", node->d_showBuildings, [node](auto f)
+            { GeoDataLoader::instance()->setShowBuildings(node->d_showBuildings.get()); }));
 }
 
 const char *VrmlNodeGeoData::typeName()
 {
     return "GeoData";
-}
-
-VrmlNodeGeoData::VrmlNodeGeoData(VrmlScene *scene)
-    : VrmlNodeChild(scene, typeName())
-    , d_offset(0, 0, 0)
-    , d_enabled(true)
-    , d_skyName("")
-{
-    coVRAnimationManager::instance()->showAnimMenu(true);
-    setModified();
-}
-
-void VrmlNodeGeoData::addToScene(VrmlScene *s, const char *relUrl)
-{
-    (void)relUrl;
-    d_scene = s;
-    if (s)
-    {
-        allGeoData.push_front(this);
-    }
-    else
-    {
-        cerr << "no Scene" << endl;
-    }
-}
-
-// need copy constructor for new markerName (each instance definitely needs a new marker Name) ...
-
-VrmlNodeGeoData::VrmlNodeGeoData(const VrmlNodeGeoData &n)
-    : VrmlNodeChild(n)
-    , d_offset(0, 0, 0)
-    , d_enabled(true)
-    , d_skyName("")
-{
-    setModified();
-}
-
-VrmlNodeGeoData::~VrmlNodeGeoData()
-{
-    allGeoData.remove(this);
-}
-
-VrmlNodeGeoData *VrmlNodeGeoData::toGeoData() const
-{
-    return (VrmlNodeGeoData *)this;
-}
-
-void VrmlNodeGeoData::render(Viewer *viewer)
-{
-    (void)viewer;
-    double timeNow = System::the->time();
 }

@@ -608,25 +608,25 @@ template <class T> void CudaParticles<T>::copyInitialData(T *pos,T*velo)
 }
 
 
-template <class T> void CudaParticles<T>::setInitialPlanetData(T *pos,T*velo)
+template <class T> void CudaParticles<T>::setInitialPlanetData(T *pos,T*velo, int numPlanets)
 {
 
 	cudaError_t err = cudaSuccess;
-	err = cudaMalloc((void **)&cudaPlanetPos, numParticles*4*sizeof(T));
-	if (err != cudaSuccess)
-	{
-		fprintf(stderr, "Cuda Malloc of %ld bytes failed (error code: %s)!\n",
-            (long)(numParticles*4*sizeof(T)), cudaGetErrorString(err));
-	}
-	cudaMemcpy((char *) cudaPlanetPos, pos, numParticles*4*sizeof(T), cudaMemcpyHostToDevice);
+    err = cudaMalloc((void **)&cudaPlanetPos, numPlanets * 4 * sizeof(T));
+    if (err != cudaSuccess)
+    {
+        fprintf(stderr, "Cuda Malloc of %ld bytes failed (error code: %s)!\n",
+            (long)(numPlanets * 4 * sizeof(T)), cudaGetErrorString(err));
+    }
+    cudaMemcpy((char *)cudaPlanetPos, pos, numPlanets * 4 * sizeof(T), cudaMemcpyHostToDevice);
 
-	err = cudaMalloc((void **)&cudaPlanetVelo, numParticles*3*sizeof(T));
-	if (err != cudaSuccess)
-	{
-		fprintf(stderr, "Cuda Malloc of %ld bytes failed (error code: %s)!\n",
-            (long)(numParticles*3*sizeof(T)), cudaGetErrorString(err));
-	}
-	cudaMemcpy((char *) cudaPlanetVelo, velo, numParticles*3*sizeof(T), cudaMemcpyHostToDevice);
+    err = cudaMalloc((void **)&cudaPlanetVelo, numPlanets * 3 * sizeof(T));
+    if (err != cudaSuccess)
+    {
+        fprintf(stderr, "Cuda Malloc of %ld bytes failed (error code: %s)!\n",
+            (long)(numPlanets * 3 * sizeof(T)), cudaGetErrorString(err));
+    }
+    cudaMemcpy((char *)cudaPlanetVelo, velo, numPlanets * 3 * sizeof(T), cudaMemcpyHostToDevice);
 
 }
 
@@ -639,7 +639,13 @@ template <class T> void CudaParticles<T>::copyPlanetData(T *pos,T*velo)
 template <class T> void CudaParticles<T>::integrate(double deltaT,int iterations,int numActivePlanets)
 {
 
-	T *dPos = (T *) mapGLBufferObject(&cuda_posvbo_resource);
+	T *dPos; //= (T *) mapGLBufferObject(&cuda_posvbo_resource);
+
+    cudaGraphicsMapResources(1, &cuda_posvbo_resource, 0);
+    size_t num_bytes;
+    cudaGraphicsResourceGetMappedPointer((void**)&dPos,
+                                         &num_bytes,
+                                         cuda_posvbo_resource);
 	// Launch the integrateParticle CUDA Kernel
 	int threadsPerBlock = 256;
 	int blocksPerGrid =(numParticles + threadsPerBlock - 1) / threadsPerBlock;
@@ -647,7 +653,9 @@ template <class T> void CudaParticles<T>::integrate(double deltaT,int iterations
 	integrateParticlesEuler<T><<<blocksPerGrid, threadsPerBlock>>>(dPos, cudaVelo, numActiveParticles,deltaT,iterations,cudaPlanetPos,cudaPlanetVelo,numActivePlanets);
 	//integrateParticlesTest<T><<<blocksPerGrid, threadsPerBlock>>>(dPos, cudaVelo, numActiveParticles,deltaT,iterations,cudaPlanetPos,cudaPlanetVelo,numActivePlanets);
 
-	unmapGLBufferObject(cuda_posvbo_resource);
+        // Unmap buffer object
+        cudaGraphicsUnmapResources(1, &cuda_posvbo_resource, 0);
+	//unmapGLBufferObject(cuda_posvbo_resource);
 }
 
 template class CudaParticles<float>;

@@ -193,9 +193,9 @@ void anim_ini_plotter(void)
     plo.face[5][4] = -94041;
 
     /* initializing axis */
-    a1 = plo.b / 160.0;
-    a4 = plo.h / 20.0;
-    a3 = plo.b / 27.0;
+    a1 = plo.b / 160.0f;
+    a4 = plo.h / 20.0f;
+    a3 = plo.b / 27.0f;
 
     /* axis for face 0 */
     a2 = plo.h - a4;
@@ -245,29 +245,29 @@ void anim_ini_plotter(void)
     plo.drax[3] = 1;
     plo.drax[4] = 2;
     plo.drax[5] = 2;
-    plo.drv[0][0] = -plo.b * 0.5; /* positional values */
-    plo.drv[0][1] = -plo.h * 0.5;
-    plo.drv[0][2] = plo.t * 0.56;
+    plo.drv[0][0] = -plo.b * 0.5f; /* positional values */
+    plo.drv[0][1] = -plo.h * 0.5f;
+    plo.drv[0][2] = plo.t * 0.56f;
 
-    plo.drv[1][0] = -plo.b * 0.5;
-    plo.drv[1][1] = -plo.h * 0.56;
-    plo.drv[1][2] = -plo.t * 0.5;
+    plo.drv[1][0] = -plo.b * 0.5f;
+    plo.drv[1][1] = -plo.h * 0.56f;
+    plo.drv[1][2] = -plo.t * 0.5f;
 
-    plo.drv[2][0] = -plo.b * 0.5;
-    plo.drv[2][1] = plo.h * 0.5;
-    plo.drv[2][2] = -plo.t * 0.56;
+    plo.drv[2][0] = -plo.b * 0.5f;
+    plo.drv[2][1] = plo.h * 0.5f;
+    plo.drv[2][2] = -plo.t * 0.56f;
 
-    plo.drv[3][0] = -plo.b * 0.5;
-    plo.drv[3][1] = plo.h * 0.56;
-    plo.drv[3][2] = plo.t * 0.5;
+    plo.drv[3][0] = -plo.b * 0.5f;
+    plo.drv[3][1] = plo.h * 0.56f;
+    plo.drv[3][2] = plo.t * 0.5f;
 
-    plo.drv[4][0] = plo.b * 0.56;
-    plo.drv[4][1] = -plo.h * 0.5;
-    plo.drv[4][2] = plo.t * 0.5;
+    plo.drv[4][0] = plo.b * 0.56f;
+    plo.drv[4][1] = -plo.h * 0.5f;
+    plo.drv[4][2] = plo.t * 0.5f;
 
-    plo.drv[5][0] = -plo.b * 0.56;
-    plo.drv[5][1] = -plo.h * 0.5;
-    plo.drv[5][2] = -plo.t * 0.5;
+    plo.drv[5][0] = -plo.b * 0.56f;
+    plo.drv[5][1] = -plo.h * 0.5f;
+    plo.drv[5][2] = -plo.t * 0.5f;
 
     for (j = 0; j < dat.ndata; j++)
     {
@@ -305,26 +305,26 @@ void anim_ini_plotter(void)
 /* ------------------------------------------------------------------- */
 static void anim_ini_axis(anim_vector *axis, float a1, float a2, float a3, float a4)
 {
-    axis[0][0] = -a1 * 0.5; /* points for bar of axis */
+    axis[0][0] = -a1 * 0.5f; /* points for bar of axis */
     axis[0][1] = 0;
     axis[0][2] = 0;
-    axis[1][0] = a1 * 0.5;
+    axis[1][0] = a1 * 0.5f;
     axis[1][1] = 0;
     axis[1][2] = 0;
-    axis[2][0] = a1 * 0.5;
+    axis[2][0] = a1 * 0.5f;
     axis[2][1] = a2;
     axis[2][2] = 0;
-    axis[3][0] = -a1 * 0.5;
+    axis[3][0] = -a1 * 0.5f;
     axis[3][1] = a2;
     axis[3][2] = 0;
 
-    axis[4][0] = a3 * 0.5; /* points for arrow of axis */
+    axis[4][0] = a3 * 0.5f; /* points for arrow of axis */
     axis[4][1] = a2;
     axis[4][2] = 0;
     axis[5][0] = 0;
     axis[5][1] = a2 + a4;
     axis[5][2] = 0;
-    axis[6][0] = -a3 * 0.5;
+    axis[6][0] = -a3 * 0.5f;
     axis[6][1] = a2;
     axis[6][2] = 0;
 }

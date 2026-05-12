@@ -19,7 +19,6 @@
 #include <pcl/console/print.h>
 #include <osg/Point>
 #include <osg/LineWidth>
-#include <pcl/point_traits.h>
 #include <pcl/common/concatenate.h>
 #include <pcl/conversions.h>
 #include <pcl/common/common.h>
@@ -59,7 +58,7 @@ inline typename pcl::PointCloud<PointT>::ConstPtr osgpcl::PointCloudFactory::get
 
 template <typename PointT>
 inline void osgpcl::PointCloudFactory::addXYZToVertexBuffer(osg::Geometry &geom,
-                                                            const pcl::PointCloud<pcl::PointXYZ> &cloud) const
+    const pcl::PointCloud<pcl::PointXYZ> &cloud) const
 {
     osg::Vec3Array *pts = new osg::Vec3Array;
     pts->reserve(cloud.points.size());
@@ -141,8 +140,7 @@ osgpcl::PointCloudColoredFactory<PointT>::buildGeometry(bool unique_stateset)
 }
 
 template <typename PointT>
-void
-osgpcl::PointCloudColoredFactory<PointT>::setInputCloud(
+void osgpcl::PointCloudColoredFactory<PointT>::setInputCloud(
     const pcl::PCLPointCloud2::ConstPtr &cloud)
 {
     typename pcl::PointCloud<PointT>::Ptr xyz(new pcl::PointCloud<PointT>);
@@ -151,9 +149,8 @@ osgpcl::PointCloudColoredFactory<PointT>::setInputCloud(
 }
 
 template <typename PointT>
-void
-osgpcl::PointCloudColoredFactory<PointT>::setColor(float r, float g, float b,
-                                                   float alpha)
+void osgpcl::PointCloudColoredFactory<PointT>::setColor(float r, float g, float b,
+    float alpha)
 {
     osg::Vec4 color;
     color[0] = r;
@@ -184,8 +181,8 @@ osgpcl::PointCloudRGBFactory<PointTXYZ, RGBT>::buildGeometry(
         return NULL;
     }
 
-    //TODO Make the color table a texture and then just
-    // reference the texture inside the shader
+    // TODO Make the color table a texture and then just
+    //  reference the texture inside the shader
 
     osg::Vec4Array *colors = new osg::Vec4Array;
     colors->reserve(rgb->points.size());
@@ -252,8 +249,7 @@ inline osgpcl::PointCloudCRangeFactory<PointTXYZ, PointTF>::PointCloudCRangeFact
 }
 
 template <typename PointTXYZ, typename PointTF>
-void
-osgpcl::PointCloudCRangeFactory<PointTXYZ, PointTF>::setField(
+void osgpcl::PointCloudCRangeFactory<PointTXYZ, PointTF>::setField(
     std::string field)
 {
     field_name_ = field;
@@ -376,8 +372,7 @@ osgpcl::PointCloudCRangeFactory<PointTXYZ, PointTF>::buildGeometry(
 }
 
 template <typename PointTXYZ, typename PointTF>
-void
-osgpcl::PointCloudCRangeFactory<PointTXYZ, PointTF>::setPointSize(
+void osgpcl::PointCloudCRangeFactory<PointTXYZ, PointTF>::setPointSize(
     int size)
 {
     osg::Point *p = new osg::Point();
@@ -420,7 +415,7 @@ osgpcl::PointCloudIFactory<PointTXYZ, IntensityT>::buildGeometry(bool unique_sta
         return NULL;
     }
 
-    //TODO just make this a single grayscale value and make a custom shader program
+    // TODO just make this a single grayscale value and make a custom shader program
     osg::Vec4Array *colors = new osg::Vec4Array;
     colors->reserve(icloud->points.size());
     int psize = icloud->points.size();
@@ -463,7 +458,7 @@ void osgpcl::PointCloudIFactory<PointTXYZ, IntensityT>::setInputCloud(
 template <typename PointTXYZ, typename LabelT>
 inline osgpcl::PointCloudLabelFactory<PointTXYZ, LabelT>::PointCloudLabelFactory()
 {
-    //set up a basic color map for consistency on the typical labels used
+    // set up a basic color map for consistency on the typical labels used
     color_map_[0] = osg::Vec4f(0.2, 0.2, 0.2, 1);
     color_map_[1] = osg::Vec4f(1, 0, 0, 1);
     color_map_[2] = osg::Vec4f(0, 1, 0, 1);
@@ -510,8 +505,8 @@ inline osgpcl::PointCloudGeometry *osgpcl::PointCloudLabelFactory<PointTXYZ, Lab
         return NULL;
     }
 
-    //TODO Make the color table a texture and then just
-    // reference the texture inside the shader
+    // TODO Make the color table a texture and then just
+    //  reference the texture inside the shader
 
     osg::Vec4Array *colors = new osg::Vec4Array;
     colors->reserve(lcloud->points.size());

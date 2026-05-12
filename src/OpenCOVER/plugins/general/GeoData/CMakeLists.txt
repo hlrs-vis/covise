@@ -13,19 +13,17 @@ ENDIF()
 
 
 set(HEADERS
-    CutGeometry.h
     GeoDataLoader.h
+    PlaceLabel.h
 	VrmlNodeGeoData.h
-	../../../../3rdparty/easyexif/exif.h
 )
 
 set(SOURCES
-    CutGeometry.cpp
     GeoDataLoader.cpp
+    PlaceLabel.cpp
 	VrmlNodeGeoData.cpp
-	../../../../3rdparty/easyexif/exif.cpp
 )
 
 
-cover_add_plugin(GeoData coCurlHTTPClient)
+cover_add_plugin(GeoData coCurlHTTPClient coVRGeoData)
 target_include_directories(GeoData PRIVATE ${PROJECT_SOURCE_DIR}/../../src/3rdparty/visionaray/src/3rdparty/rapidjson/include)

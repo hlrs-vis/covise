@@ -141,6 +141,7 @@ ADD_SUBDIRECTORY(plugins)
 ADD_SUBDIRECTORY(ManagedOpenCOVER)
 ADD_SUBDIRECTORY(Sur40COVER)
 ADD_SUBDIRECTORY(utils)
+ADD_SUBDIRECTORY(geodata)
 
 INSTALL(FILES "../../cmake/FindCOVER.cmake" DESTINATION
     "${CMAKE_INSTALL_PREFIX}/share/cover/cmake/" RENAME "cover-config.cmake")

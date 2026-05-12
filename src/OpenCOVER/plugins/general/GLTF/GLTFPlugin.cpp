@@ -62,6 +62,10 @@
 #include <osgUtil/SmoothingVisitor>
 
 #include <osgUtil/Optimizer>
+
+#define TINYGLTF_NO_INCLUDE_STB_IMAGE
+#include <stb_image.h>
+
 #include "GLTFPlugin.h"
 
 #define TINYGLTF_IMPLEMENTATION

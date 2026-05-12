@@ -424,10 +424,6 @@ bool JSBSimPlugin::init()
         "+proj=tmerc +lat_0=0 +lon_0=9 +k=1.000000 +x_0=9703.397 +y_0=-5384244.453 +ellps=bessel +datum=potsdam",
         NULL);
 
-    projectOffset[0] = configFloat("Projection", "offsetX", 0)->value();
-    projectOffset[1] = configFloat("Projection", "offsetY", 0)->value();
-    projectOffset[2] = configFloat("Projection", "offsetZ", 0)->value();
-
     JSBMenu = new ui::Menu("JSBSim", this);
 
     aircrafts = configStringArray("JSBSim", "aircrafts", { "Paraglider", "c172b", "J3Cub" });
@@ -655,10 +651,10 @@ bool JSBSimPlugin::update()
 {
     joystickDev = nullptr;
 
-    if (false && coVRMSController::instance()->isMaster())
+    if (coVRMSController::instance()->isMaster())
     {
         joystickDev = (Joystick *)(Input::instance()->getDevice("joystick"));
-        if (joystickDev->numLocalJoysticks > 0)
+        if (joystickDev && joystickDev->numLocalJoysticks > 0)
         {
             if (Joysticknumber < 0) // did not find a joystick yet
             {

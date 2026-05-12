@@ -39,6 +39,7 @@
 
            <CaveButtons driver="mousebuttons" device="/dev/input/presenter"/>
            <CyberstickButtons driver="mousebuttons" device="/dev/input/cyberstick"/>
+           <joystick driver="joystick" device="/dev/input/js"/>
 
         </Device>
 
@@ -111,9 +112,6 @@
            <CaveJoyY device="DTrackCave" valuatorIndex="1" />
         </Valuator>
 	
-	<Device>
-           <joystick driver="joystick" device="/dev/input/js"/>
-	</Device>
 
         <Persons>
            <Person name="Tracked" default="true" head="CaveHead" hand="CaveHand" buttons="CaveMouse" />

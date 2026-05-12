@@ -1,5 +1,5 @@
 using(VRML)
-USING(CUDA GLEW)
+USING(GLEW)
 IF(COVISE_BUILD_ONLY_COVER OR NOT CUDA_FOUND OR NOT COVISE_USE_CUDA)
   MESSAGE("Skipping OpenCOVER - starDust plugin since CUDA was not found")
   RETURN()
@@ -29,5 +29,12 @@ SET(SOURCES
 )
 
 cover_add_plugin(starDust ${SOURCES})
+
+if(COVISE_USE_CUDA)
+  if(CUDA_FOUND)
+    target_include_directories(starDust SYSTEM PUBLIC ${CUDA_INCLUDE_DIRS})
+    target_link_libraries( starDust PUBLIC ${CUDA_LIBRARIES})
+  endif()
+endif()
 REMOVE_COVISE_COMPILE_FLAGS(starDust "-wd4251")
 REMOVE_COVISE_COMPILE_FLAGS(starDust "-wd4335")

@@ -88,7 +88,7 @@ public:
 
     osg::MatrixTransform *loadAxisGeode(float scale);
     osg::Node *loadHandIcon(const char *name);
-    osg::Node *loadHandLine();
+    osg::ref_ptr<osg::Node> loadHandLine();
 
     void addMenuItem(osg::Group *itemGroup);
     osg::Group *getMenuGroup()

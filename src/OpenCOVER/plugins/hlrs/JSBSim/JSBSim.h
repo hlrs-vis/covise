@@ -194,7 +194,6 @@ private:
     OpenThreads::Mutex mutex;
     PJ *coordTransformation;
     std::string coviseSharedDir;
-    osg::Vec3d projectOffset;
     osg::Matrix lastPos;
     osg::Vec3 currentVelocity;
     float currentTurbulence;

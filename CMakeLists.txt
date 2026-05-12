@@ -339,7 +339,12 @@ if (NOT COVISE_BUILD_ONLY_FILE)
 	covise_find_package(Freetype)
 	covise_find_package(CURL)
     if (NOT COVISE_BUILD_ONLY_ODDLOT AND NOT COVISE_BUILD_ONLY_COVER)
-        covise_find_package(glslang 15 CONFIG)
+        foreach(v 20 19 18 17 16 15)
+          covise_find_package(glslang ${v} CONFIG QUIET)
+          if (TARGET glslang::glslang)
+            break()
+          endif()
+        endforeach()
         covise_find_package(Vulkan 1.1.70)
         covise_find_package(vsg 1.1.4 CONFIG)
         covise_find_package(vsgXchange 1.0.5 CONFIG)
@@ -449,6 +454,19 @@ install(FILES
 INSTALL(FILES ${cmake_files} DESTINATION "${CMAKE_INSTALL_PREFIX}/share/covise/cmake")
 
 ADD_CUSTOM_TARGET(uninstall "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
+        if(CMAKE_CXX_COMPILER_VERSION MATCHES "^11"
+           OR CMAKE_CXX_COMPILER_VERSION MATCHES "^12"
+           OR CMAKE_CXX_COMPILER_VERSION MATCHES "^13"
+           OR CMAKE_CXX_COMPILER_VERSION MATCHES "^14"
+           OR CMAKE_CXX_COMPILER_VERSION MATCHES "^15")
+            # silence "note: parameter passing for argument of type ‘viskores::Vec<double, 2>’ when C++17 is enabled changed to match C++14 in GCC 10.1"
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-psabi")
+        endif()
+    endif()
+endif()
 
 # descend to sources
 ADD_SUBDIRECTORY(src)

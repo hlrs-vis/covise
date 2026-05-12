@@ -48,6 +48,7 @@ SET(COVER_HEADERS
   coVRMessageSender.h
   coVRMSController.h
   coVRNavigationManager.h
+  coVRNavigationProvider.h
   coVRPartner.h
   coVRPlugin.h
   coVRPluginList.h
@@ -82,6 +83,7 @@ SET(COVER_HEADERS
   VRVruiButtons.h
   VRVruiRenderInterface.h
   VRWindow.h
+  TeleportNavigationProvider.h
 )
 
 SET(COVER_SOURCES
@@ -119,6 +121,7 @@ SET(COVER_SOURCES
   coVRMessageSender.cpp
   coVRMSController.cpp
   coVRNavigationManager.cpp
+  coVRNavigationProvider.cpp
   coVRPartner.cpp
   coVRPlugin.cpp
   coVRPluginList.cpp
@@ -153,6 +156,7 @@ SET(COVER_SOURCES
   VRVruiButtons.cpp
   VRVruiRenderInterface.cpp
   VRWindow.cpp
+  TeleportNavigationProvider.cpp
   #coVRDePee.cpp
   #coVRDePeePass.cpp
 )
@@ -284,7 +288,7 @@ if(COVISE_USE_QT)
     SET(ALL_SOURCES ${ALL_SOURCES} ${FB_SOURCES})
 endif()
 
-ADD_COVISE_LIBRARY(${COVERKERNEL_TARGET} SHARED ${ALL_SOURCES} ${MOCS})
+ADD_COVISE_LIBRARY(${COVERKERNEL_TARGET} SHARED ${ALL_HEADERS} ${ALL_SOURCES} ${MOCS})
 target_include_directories(${COVERKERNEL_TARGET} PUBLIC ${PTHREAD_INCLUDE_DIR} ${XERCESC_INCLUDE_DIR} ${OPENSCENEGRAPH_INCLUDE_DIRS})
 
 COVISE_USE_OPENMP(${COVERKERNEL_TARGET})
@@ -304,13 +308,9 @@ ENDIF(WIN32)
 
 COVISE_WNOERROR(${COVERKERNEL_TARGET} BASEARCH zebu)
 
-TARGET_LINK_LIBRARIES(${COVERKERNEL_TARGET} coOpenVRUI coOSGVRUI coMessages coOpenConfig
+TARGET_LINK_LIBRARIES(${COVERKERNEL_TARGET} coOpenVRUI coOSGVRUI coMessages coOpenConfig coVRAudio
    ${COVISE_VRBCLIENT_LIBRARY} ${COVISE_GRMSG_LIBRARY} ${COVISE_UTIL_LIBRARY} ${COVISE_GPU_LIBRARIES} ${COVISE_NET_LIBRARY}
    ${XERCESC_LIBRARIES} ${OPENSCENEGRAPH_LIBRARIES} ${TIFF_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${EXTRA_LIBS})
-
-if(TARGET coVRAudio)
-  target_link_libraries(${COVERKERNEL_TARGET} coVRAudio)
-endif()
 
 TARGET_LINK_LIBRARIES(${COVERKERNEL_TARGET} Pal::Sigslot)
 

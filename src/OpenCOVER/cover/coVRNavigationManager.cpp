@@ -1,4 +1,4 @@
-﻿/* This file is part of COVISE.
+/* This file is part of COVISE.
 
    You can use it under the terms of the GNU Lesser General Public License
    version 2.1 or later, see lgpl-2.1.txt.
@@ -116,21 +116,6 @@ static float mouseScreenHeight()
     return Input::instance()->mouse()->screenHeight();
 }
 
-coVRNavigationProvider::coVRNavigationProvider(const std::string n, coVRPlugin* p)
-{
-    name = n;
-    plugin = p;
-    ID = -1;
-}
-coVRNavigationProvider::~coVRNavigationProvider()
-{
-}
-
-void coVRNavigationProvider::setEnabled(bool state)
-{
-    enabled = state;
-}
-
 coVRNavigationManager *coVRNavigationManager::instance()
 {
     if (!s_instance)
@@ -206,12 +191,16 @@ void coVRNavigationManager::init()
     setRotationPointVisible(rotationPointVisible);
 
     setNavMode(XForm);
+
+    registerNavigationProvider(&teleportNavigationProvider);
 }
 
 coVRNavigationManager::~coVRNavigationManager()
 {
     if (cover->debugLevel(2))
         fprintf(stderr, "\ndelete coVRNavigationManager\n");
+
+    unregisterNavigationProvider(&teleportNavigationProvider);
 
     if (interactionA->isRegistered())
     {
@@ -1603,6 +1592,8 @@ void coVRNavigationManager::update()
     {
         (*it)->preFrame();
     }
+
+    teleportNavigationProvider.update();
 }
 
 void coVRNavigationManager::setNavMode(std::string modeName)

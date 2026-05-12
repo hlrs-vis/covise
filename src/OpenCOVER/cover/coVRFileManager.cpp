@@ -52,6 +52,7 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/locale.hpp>
 #include <fcntl.h>
+#include <regex>
 #include <osg/Identifier>
 #include <osg/Texture2D>
 #include <osgDB/FileNameUtils>
@@ -980,11 +981,11 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         }
         else if (url.authority() == "sky")
         {
-            coVRPlugin* plugin = coVRPluginList::instance()->addPlugin("GeoData");
+            coVRPlugin *plugin = coVRPluginList::instance()->addPlugin("Sky");
             if (plugin)
             {
-                std::string skyNumber = url.str();
-                plugin->message(coVRPluginSupport::TO_ALL, PluginMessageTypes::setSky, skyNumber.size() + 1, skyNumber.c_str());
+                std::string skyName = std::regex_replace(url.path(), std::regex("^[/\\\\]+"), "");
+                plugin->message(coVRPluginSupport::TO_ALL, PluginMessageTypes::setSky, skyName.size() + 1, skyName.c_str());
             }
         }
         return nullptr;

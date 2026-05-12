@@ -1,4 +1,5 @@
 using(VRML)
+using(CURL)
 
 set(HEADERS
     FlexCell.h

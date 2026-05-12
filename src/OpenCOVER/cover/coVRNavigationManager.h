@@ -40,6 +40,9 @@ class Slider;
 #include <osg/MatrixTransform>
 #include <osg/Geometry>
 
+#include "coVRNavigationProvider.h"
+#include "TeleportNavigationProvider.h"
+
 namespace vrui
 {
 class coNavInteraction;
@@ -53,22 +56,6 @@ namespace opencover
 class coMeasurement;
 class coVRLabel;
 class coVRPlugin;
-
-class COVEREXPORT coVRNavigationProvider
-{
-public:
-    coVRNavigationProvider(const std::string name, coVRPlugin* plugin);
-    virtual ~coVRNavigationProvider();
-    coVRPlugin *plugin;
-    ui::Button* navMenuButton = nullptr;
-    std::string getName() { return name; };
-    virtual void setEnabled(bool enabled);
-    bool isEnabled() { return enabled; };
-    int ID;
-private:
-    std::string name;
-    bool enabled=false;
-};
 
 class COVEREXPORT coVRNavigationManager: public ui::Owner
 {
@@ -388,6 +375,8 @@ private:
     osg::Vec3 getCenter() const;
     void centerView();
     osg::Vec3 mouseNavCenter;
+
+    TeleportNavigationProvider teleportNavigationProvider;
 };
 }
 #endif

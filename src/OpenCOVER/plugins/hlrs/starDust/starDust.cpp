@@ -617,7 +617,7 @@ void dustDrawable::preDraw()
             planetVelos[n * 3 + 1] = starDust::instance()->planets[n].vx;
             planetVelos[n * 3 + 2] = starDust::instance()->planets[n].vz;
         }
-        cudaParticles->setInitialPlanetData(planetCoords, planetVelos);
+        cudaParticles->setInitialPlanetData(planetCoords, planetVelos, starDust::instance()->planets.size());
 
         //renderer->setPositions(particleCoords, particles.size());
         renderer->setPBO(cudaParticles->getPosVBO(), particles.size(), CUDA_USE_DOUBLE);
@@ -695,7 +695,8 @@ void dustDrawable::drawImplementation(osg::RenderInfo &renderInfo) const
         if (starDust::instance()->tuiRender->getState())
         {
             renderer->setSpriteSize(starDust::instance()->particleSize);
-            renderer->display(ParticleRenderer::PARTICLE_SPRITES, cudaParticles->getNumActiveParticles());
+            //renderer->display(ParticleRenderer::PARTICLE_SPRITES, cudaParticles->getNumActiveParticles());
+            renderer->display(ParticleRenderer::PARTICLE_POINTS, cudaParticles->getNumActiveParticles());
             //renderer->display(ParticleRenderer::PARTICLE_POINTS);
         }
 
