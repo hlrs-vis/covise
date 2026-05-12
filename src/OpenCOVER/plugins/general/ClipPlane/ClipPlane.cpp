@@ -309,7 +309,7 @@ bool ClipPlanePlugin::init()
         plane[i].directInteractor = new vrui::coTrackerButtonInteraction(coInteraction::ButtonA, "sphere");
         plane[i].relativeInteractor = new vrui::coRelativeInputInteraction("spacemouse");
 
-        sprintf(name, "Edit values for plane %d", i);        
+        sprintf(name, "Edit values for plane %d", i);
         plane[i].ClipEditField = new ui::EditField(group, "Edit"+std::to_string(i));
         plane[i].ClipEditField->setText(name);
         plane[i].ClipEditField->setShared(true);
@@ -452,7 +452,7 @@ void ClipPlanePlugin::preFrame()
             std::vector<double> eqV;
             for (int j = 0; j < 4; j++)
                 eqV.push_back(eq[j]);
-            
+
             *sharedPlanes[i] = eqV;
             //std::cerr << "ClipPlane: updating equation for " << i << " from PickInteractor" << std::endl;
             plane[i].set(eq);
@@ -813,7 +813,8 @@ void ClipPlanePlugin::updateRootChoices()
 
     for (int i = 0; i < cover->getNumClipPlanes(); i++)
     {
-        plane[i].RootChoice->setList(list);
+        if(plane[i].RootChoice)
+            plane[i].RootChoice->setList(list);
     }
 }
 
