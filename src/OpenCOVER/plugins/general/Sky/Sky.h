@@ -32,8 +32,8 @@
 struct SkyEntry
 {
 public:
-    SkyEntry(const std::string &name, const std::string &displayName, const std::string &fileName, double longitude, double latitude, double trueNorth)
-        : name(name), displayName(displayName), fileName(fileName), longitude(longitude), latitude(latitude), trueNorth(trueNorth) {}
+    SkyEntry(const std::string &name, const std::string &displayName, const std::string &fileName, double longitude, double latitude, double altitude, double trueNorth)
+        : name(name), displayName(displayName), fileName(fileName), longitude(longitude), latitude(latitude), altitude(altitude), trueNorth(trueNorth) {}
     std::string name;
     std::string displayName;
     std::string fileName;
@@ -42,6 +42,9 @@ public:
     double longitude = 0.0;
     double latitude = 0.0;
     double trueNorth = 0.0;
+
+    // in meters
+    double altitude = 0.0;
 
     osg::ref_ptr<osg::Texture2D> texture;
 };
@@ -110,6 +113,7 @@ private:
     opencover::ui::SelectionList *skyList;
     int skyListNameStart = 0;
     opencover::ui::Button *autoSkyButton;
+    opencover::ui::Button *jumpToSkyButton;
     opencover::ui::Slider *skyNorthSlider = nullptr;
 
     float northAngle;
