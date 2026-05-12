@@ -34,6 +34,10 @@
 #include <gdal.h>
 #include <ogrsf_frmts.h>
 
+#include <osgEarth/GDAL>
+#include <osgEarth/Map>
+#include <osgEarth/MapNode>
+#include <osgEarth/TMS>
 #include <vrml97/vrml/VrmlNamespace.h>
 #include <VrmlNodeGeoData.h>
 #include <cover/ui/Manager.h>
@@ -56,6 +60,10 @@
 #include <osg/ShapeDrawable>
 #include <osgUtil/Optimizer>
 #include <osgTerrain/Terrain>
+#include <osgEarth/ElevationLayer>
+#include <osgTerrain/Locator>
+#include <osgTerrain/GeometryTechnique>
+#include <osgViewer/Viewer>
 #include <osgViewer/Renderer>
 #include <iostream>
 #include <cover/coVRLabel.h>
@@ -666,9 +674,88 @@ GeoDataLoader *GeoDataLoader::instance()
     return s_instance;
 }
 
+#define DGM025 "/mnt/data/hlrs/medium/data/Weinberge-Bentley/LGL/DGM025/dgm025_merged.tif"
+#define DOP20 "/mnt/data/hlrs/medium/data/Weinberge-Bentley/LGL/DOP20/dop20_tiled.tif"
+using namespace osgEarth;
+
+#include <osg/io_utils>
 osg::ref_ptr<osg::Node> GeoDataLoader::loadTerrain(std::string filename, osg::Vec3d localOffset)
 {
     VRViewer *viewer = VRViewer::instance();
+
+    auto po = GeoData::instance()->projectOffset();
+    double m = 1000000;
+
+    auto srs = SpatialReference::create(GEODATA_DEFAULT_PROJECTION_PROJECT);
+    auto profile = Profile::create(srs, po.x() - m, po.y() - m, po.x() + m, po.y() + m);
+
+    osg::ref_ptr<osgEarth::Map> map = new Map();
+    map->setProfile(profile);
+
+    // Elevation layer
+    auto elevation = new GDALElevationLayer();
+    elevation->setURL(DGM025);
+    elevation->setVerticalDatum("EPSG:7837");
+    map->addLayer(elevation);
+
+    auto img = new TMSImageLayer();
+    img->setURL("http://readymap.org/readymap/tiles/1.0.0/7/");
+    map->addLayer(img);
+
+    auto ortho = new GDALImageLayer();
+    ortho->setURL(DOP20);
+    map->addLayer(ortho);
+
+    osg::ref_ptr<osgEarth::MapNode> mapNode = new MapNode(map.get());
+
+    // C++: create shaders
+    const char *vertSrc = R"glsl(
+#version 330 core
+uniform float verticalExaggeration;
+uniform mat4 osg_ModelViewProjectionMatrix;
+in vec3 osg_Vertex;
+in vec3 osg_Normal;
+out vec3 v_normal;
+void main()
+{
+    vec3 pos = osg_Vertex;
+    pos.z *= verticalExaggeration;           // scale elevation
+    gl_Position = osg_ModelViewProjectionMatrix * vec4(pos, 1.0);
+    v_normal = osg_Normal;                   // recompute in fragment if needed
+}
+)glsl";
+
+    const char *fragSrc = R"glsl(
+#version 330 core
+in vec3 v_normal;
+out vec4 fragColor;
+void main()
+{
+    vec3 n = normalize(v_normal);
+    float lambert = max(dot(n, vec3(0.0,0.0,1.0)), 0.0);
+    fragColor = vec4(vec3(0.6,0.7,0.8) * lambert, 1.0);
+}
+)glsl";
+
+    // create osg objects
+    osg::ref_ptr<osg::Shader> vert = new osg::Shader(osg::Shader::VERTEX, vertSrc);
+    osg::ref_ptr<osg::Shader> frag = new osg::Shader(osg::Shader::FRAGMENT, fragSrc);
+    osg::ref_ptr<osg::Program> program = new osg::Program();
+    program->addShader(vert.get());
+    program->addShader(frag.get());
+
+    // attach to a StateSet
+    osg::ref_ptr<osg::StateSet> ss = mapNode->getOrCreateStateSet();
+    ss->setAttributeAndModes(program.get(), osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);
+
+    // set the uniform
+    osg::ref_ptr<osg::Uniform> u = new osg::Uniform("verticalExaggeration", 1000.f);
+    ss->addUniform(u.get());
+
+    return mapNode;
+
+    // cover->getObjectsRoot()->addChild(mapNode);
+
     osgDB::DatabasePager *pager = viewer->getDatabasePager();
     std::cout << "DatabasePager:" << std::endl;
     std::cout << "\t num threads: " << pager->getNumDatabaseThreads() << std::endl;

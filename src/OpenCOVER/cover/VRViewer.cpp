@@ -112,7 +112,8 @@
 #define GL_GPU_MEMORY_INFO_EVICTED_MEMORY_NVX            0x904B
 #endif
 
-//#define USE_NVX_INFO
+// #define USE_NVX_INFO
+#include <osgEarth/GLUtils>
 
 using namespace covise;
 
@@ -358,7 +359,10 @@ VRViewer::VRViewer()
 #endif
 
     m_initGlOp = new InitGLOperation();
-    setRealizeOperation(m_initGlOp);
+
+    osgEarth::initialize();
+    auto x = new osgEarth::GL3RealizeOperation();
+    setRealizeOperation(x);
 
     unsyncedFrames = 0;
     lastFrameTime = 0.0;
