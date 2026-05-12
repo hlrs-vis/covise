@@ -85,3 +85,9 @@ name = "Campus"
 easting = 507047.64631626336
 northing = 5398555.900845651
 altitude = 450.0
+
+[[datasets]]
+name = "Neckar"
+easting = 514052.332454
+northing = 5427495.448842 
+altitude = 0
