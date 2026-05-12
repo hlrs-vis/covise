@@ -30,6 +30,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 
 #include <GL/glew.h>
 #ifdef USE_X11
@@ -102,6 +103,18 @@ namespace opencover {
 InitGLOperation::InitGLOperation()
 : osg::GraphicsOperation("InitGLOperation", false)
 {
+}
+
+bool InitGLOperation::addOperation(osg::Operation *op)
+{
+    m_extraOperations.push_back(op);
+    return true;
+}
+
+void InitGLOperation::removeOperation(osg::Operation *op)
+{
+    auto end = std::remove(m_extraOperations.begin(), m_extraOperations.end(), op);
+    m_extraOperations.resize(std::distance(m_extraOperations.begin(), end));
 }
 
 void InitGLOperation::operator()(osg::GraphicsContext* gc)
@@ -289,6 +302,10 @@ void InitGLOperation::operator()(osg::GraphicsContext* gc)
         m_extensions.resize(contextId + 1);
     }
     m_extensions[contextId] = glext;
+
+    for (auto &op: m_extraOperations) {
+        (*op)(gc);
+    }
 }
 
 bool InitGLOperation::boundSwapBarrier() const
