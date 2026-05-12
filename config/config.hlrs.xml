@@ -39,7 +39,7 @@
          <WorldScale value="1" />
       </KitePlugin>
 
-      <Kite value="on" />
+      <Kite value="off" menu="true" />
 
        <Revit value="on" ignoreDepthOnly="true" textures="/data/revit/Textures" localTextures="/data/revit/Textures">
     </Revit>
