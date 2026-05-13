@@ -121,7 +121,6 @@ void GhostAvatar::createInteractors()
     m_interactorFloor->enableIntersection();
     m_interactorFloor->show();
 
-    // m.setTrans(120, 0, 80);
     m.setTrans(0.8, 0.8, 0.8);
     m_interactorHand.reset(new coVR3DTransformInteractor(interSize, vrui::coInteraction::InteractionType::ButtonA, "hand", "targetInteractor", vrui::coInteraction::InteractionPriority::Medium));
     m_interactorHand->updateTransform(m);
@@ -144,11 +143,6 @@ void GhostAvatar::updateInteractors()
 
 void GhostAvatar::addMirrorsToScene()
 {
-    // m_mirrors.reserve(2);
-    // m_mirrors.emplace_back(osg::Vec3(-600, 200, -150), 200, 380);
-    // m_mirrors.emplace_back(osg::Vec3(1000, 70, -170), 200, 380);
-    //  m_mirrors.emplace_back(osg::Vec3(-600, 200, -150), 200, 380, osg::Quat(0.7071068, 0, 0, 0.7071068 ));
-
     m_mirrors.reserve(3);
     m_mirrors.emplace_back(osg::Vec3(-1.14, -2.97, 0), 1, 2, osg::Quat(0, 0, 0.4226183, 0.9063078));
     m_mirrors.emplace_back(osg::Vec3(3.93, 6.57, 0), 1, 3, osg::Quat(0, 0, -0.3007058, 0.953717));
