@@ -5,6 +5,8 @@
 
  * License: LGPL 2+ */
 #include "VrmlNodeViewPoint.h"
+#include <cover/ui/Slider.h>
+#include <vrml97/vrml/VrmlSFFloat.h>
 
 #include "ViewPoint.h"
 
@@ -28,9 +30,9 @@ void VrmlNodeViewPoint::initFields(VrmlNodeViewPoint *node, VrmlNodeType *t)
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
         field("transitionDuration", node->d_transitionDuration, [node](auto f)
-            { opencover::ViewPoint::instance()->speedSlider.setValue(f);  opencover::ViewPoint::instance()->flightTime = f; }),
+            { ViewPoints::instance()->speedSlider->setValue(node->d_transitionDuration.get());  ViewPoints::instance()->flightTime = node->d_transitionDuration.get(); }),
         field("viewPointName", node->d_viewPointName, [node](auto n)
-            { ViewPoint::instance()->setName(n); }));
+            { ViewPoints::instance()->setName(node->d_viewPointName.get()); }));
 }
 
 const char *VrmlNodeViewPoint::typeName()
