@@ -1,0 +1,52 @@
+<_TerroirAvatar><uniform name="stripeLength" type="float" value="0.5"/><uniform name="originalTexture" type="sampler2D" value="0"/><vertexProgram>
+
+    varying vec2 Texcoord;
+
+    void main( void )
+    {
+        Texcoord.x = gl_MultiTexCoord0.x;
+        Texcoord.y = gl_MultiTexCoord0.y;
+     	
+        gl_Position = ftransform();	
+        gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+    }
+  </vertexProgram><fragmentProgram>
+  
+    varying vec2 Texcoord;
+   
+    uniform float stripeLength;
+    uniform sampler2D originalTexture;
+
+    // the variables from the TerroirTexture plugin
+    uniform sampler2D texture1;
+    uniform sampler2D texture2;
+    uniform sampler2D texture3;
+    uniform sampler2D texture4;
+     
+    void main( void )
+    {
+        vec4 originalColor = texture2D(originalTexture, Texcoord);
+        vec4 color = originalColor;
+
+        float toCut = (1 - stripeLength) * 0.125;
+
+        for (int i = 0; i &lt; 4; ++i)
+        {
+            if (Texcoord.x &gt; (i * 0.25 + toCut))
+            {
+                if (Texcoord.x &lt; ((i+1)*0.25 - toCut))
+                {
+                    if (i == 0)
+                        color = texture2D(texture1, Texcoord);
+                    else if (i == 1)
+                        color = texture2D(texture2, Texcoord);
+                    else if (i == 2)
+                        color = texture2D(texture3, Texcoord);
+                    else if (i == 3)
+                        color = texture2D(texture4, Texcoord);
+                }
+            }
+        }
+        gl_FragColor = vec4(color.rgb, originalColor.a);
+    }
+  </fragmentProgram></_TerroirAvatar>
