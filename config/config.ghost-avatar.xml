@@ -154,7 +154,7 @@
    <ViewPoint value="true" />
    <GeoData value="false" />
    <OsgAnimation value="false" />
-   <GhostAvatar value="true" avatarType="planar" textureType="splotches" distanceThreshold="5" useInteractors="true"/>
+   <GhostAvatar value="true" avatarType="planar" textureType="splotches" distanceThreshold="5" useInteractors="false" addMirrors="true" />
    <Measure menu="true" />
    <PointCloud shared="true">
    <PointSize value="4" />
