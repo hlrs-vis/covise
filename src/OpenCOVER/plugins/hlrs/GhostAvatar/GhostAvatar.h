@@ -43,6 +43,7 @@ private:
     void createInteractors();
     void updateInteractors();
 
+    bool m_addMirrors = false;
     std::vector<Mirror> m_mirrors;
     void addMirrorsToScene();
     void updateMirrorViews();

@@ -24,6 +24,7 @@ GhostAvatar::GhostAvatar()
     m_avatarTexture->setCameraUpDir(m_avatarControls->getUpDirection());
 
     m_useInteractors = covise::coCoviseConfig::getEntry("useInteractors", "COVER.Plugin.GhostAvatar", "false") == "true";
+    m_addMirrors = covise::coCoviseConfig::getEntry("addMirrors", "COVER.Plugin.GhostAvatar", "true") == "true";
 }
 
 bool GhostAvatar::init()
@@ -34,7 +35,8 @@ bool GhostAvatar::init()
     m_avatarTexture->applyTexture(m_avatarControls->getAvatarNode());
     m_avatarControlsUI->initialize();
 
-    addMirrorsToScene();
+    if (m_addMirrors)
+        addMirrorsToScene();
 
     if (m_useInteractors)
     {
@@ -49,7 +51,8 @@ void GhostAvatar::preFrame()
 {
     moveAvatar();
     m_avatarTexture->updateTexture(m_avatarControls->getEyeOffset());
-    updateMirrorViews();
+    if (m_addMirrors)
+        updateMirrorViews();
 }
 
 void GhostAvatar::moveAvatar()
@@ -146,7 +149,7 @@ void GhostAvatar::addMirrorsToScene()
     m_mirrors.reserve(3);
     m_mirrors.emplace_back(osg::Vec3(-1.14, -2.97, 0), 1, 2, osg::Quat(0, 0, 0.4226183, 0.9063078));
     m_mirrors.emplace_back(osg::Vec3(3.93, 6.57, 0), 1, 3, osg::Quat(0, 0, -0.3007058, 0.953717));
-    m_mirrors.emplace_back(osg::Vec3(-6.92, 7.02, 0), 1, 1.9, osg::Quat(0, 0, 0.7071068, 0.7071068));    
+    m_mirrors.emplace_back(osg::Vec3(-6.92, 7.02, 0), 1, 1.9, osg::Quat(0, 0, 0.7071068, 0.7071068));
 
     if (!m_useInteractors)
         for (auto &mirror : m_mirrors)
