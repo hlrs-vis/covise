@@ -19,7 +19,7 @@ GhostAvatar::GhostAvatar()
     m_avatarControls = GhostAvatarControlsFactory::getAvatarByName(covise::coCoviseConfig::getEntry("avatarType", "COVER.Plugin.GhostAvatar", "planar"));
     m_avatarControlsUI = std::make_unique<GhostAvatarControlsUI>(COVER_PLUGIN_NAME, *m_avatarControls);
 
-    m_avatarTexture = TerroirTextureFactory::getTextureByName(covise::coCoviseConfig::getEntry("textureType", "COVER.Plugin.GhostAvatar", "splotches"), covise::coCoviseConfig::getFloat("distanceThreshold", "COVER.Plugin.GhostAvatar", 100.f));
+    m_avatarTexture = TerroirTextureFactory::getTextureByName(covise::coCoviseConfig::getEntry("textureType", "COVER.Plugin.GhostAvatar", "splotches"), covise::coCoviseConfig::getFloat("distanceThreshold", "COVER.Plugin.GhostAvatar", 5.f));
     m_avatarTexture->setCameraForwardDir(m_avatarControls->getForwardDirection());
     m_avatarTexture->setCameraUpDir(m_avatarControls->getUpDirection());
 
