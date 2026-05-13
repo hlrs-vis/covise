@@ -13,11 +13,16 @@
 #include <vector>
 #include <string>
 
+typedef std::vector<EnergyType> TypeRange;
+typedef std::vector<Storage> StorageRange;
+
 struct SimulationUIConfig
 {
     const core::interface::ui::IGUIFactory &factory;
     core::interface::ui::IComponent *parent;
     std::string name;
+    TypeRange type_range;
+    StorageRange storage_range;
 };
 
 class SimulationUI : BaseUI
@@ -31,16 +36,17 @@ public:
     void setStorageDefault(EnergyType type, Storage storage);
 
     void setScenarioList(const std::vector<std::string> &names);
-    // void setStorageList(const std::map<std::string> &names);
-    // void setGridList(const std::vector<std::string> &names);
+    void setStorageList(const std::map<EnergyType, std::vector<std::string>> &names);
+    void setGridList(const std::vector<std::string> &names);
     Storage getSelectedStorage(EnergyType type);
 
 private:
     void init(SimulationUIConfig &config);
-    void initGrids(const core::interface::ui::IGUIFactory &factory);
-    void initStorage(const core::interface::ui::IGUIFactory &factory);
+    void initGrids(const core::interface::ui::IGUIFactory &factory, const TypeRange& range);
+    void initStorage(const core::interface::ui::IGUIFactory &factory, const TypeRange& typeRange, const StorageRange &storageRange);
     void initSelectionList(core::interface::ui::ISelectionList* selList, const std::vector<std::string> &names);
 
+    SimulationUIConfig m_config;
     std::unique_ptr<core::interface::ui::IMenu> m_menu;
     std::unique_ptr<core::interface::ui::ISelectionList> m_energyGrids;
     std::unique_ptr<core::interface::ui::ISelectionList> m_scenarios;
