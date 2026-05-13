@@ -14,7 +14,13 @@ SimulationSystem::SimulationSystem(
     core::interface::ILogger &logger,
     const std::string &scenarioDir)
     : core::ClassLogger(logger, "SimulationSystem")
-    , m_ui({ factory, parentMenu, "Simulation" })
+    , m_ui({ 
+        factory, 
+        parentMenu, 
+        "Simulation", 
+        {ENERGYTYPE_RANGE.begin(), ENERGYTYPE_RANGE.end()},
+        {FULL_STORAGE_RANGE.begin(), FULL_STORAGE_RANGE.end()}})
+    // instead of copying use std::span (view) in c++ 20
     , m_dataLoadManager()
     , m_scenarioManager(scenarioDir)
     , m_dataManager(logger)
