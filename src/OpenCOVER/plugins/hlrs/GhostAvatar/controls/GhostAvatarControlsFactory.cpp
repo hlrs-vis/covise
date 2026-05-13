@@ -15,11 +15,11 @@ const std::map<std::string, AvatarFactory> &createGhostAvatarControlsFactory()
     static const std::map<std::string, AvatarFactory> factory = {
         { "ghost", []
             {
-                return std::make_unique<TestAvatarControls>("/data/STARTS-ECHO/Avatars/shaderTests/ghost_cave_minimal_fix.fbx", "RightArm", "");
+                return std::make_unique<TestAvatarControls>("models/ghost_avatar.fbx", "RightArm", "");
             } },
         { "planar", []
             {
-                return std::make_unique<PlanarAvatarControls>("/data/STARTS-ECHO/Avatars/planarAvatar/PLANEE6_fix.fbx", "Arm", "Head");
+                return std::make_unique<PlanarAvatarControls>("models/PLANEE3.fbx", "Arm", "Head");
             } },
     };
 
