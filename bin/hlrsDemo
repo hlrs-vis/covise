@@ -305,6 +305,13 @@ demo 131 "Theater" cover /data/Staatstheater_Stuttgart_local/out/praesentation.w
 demo 132 "Ludwigsburg Punktwolke" cover /data/Ludwigsburg/TheaterNeu.ptsb
 demo 133 "Ludwigsburg Modell" cover /data/Ludwigsburg/out/allPloy.wrl
 demo 134 "Mantis_Uwe" cover /data/Spar3d/Mantis-vision/PLY/uwe.wrl
+
+run_vr_terroir()
+{
+    COCONFIG=config.ghost-avatar-cave.xml opencover /data/STARTS-ECHO/Avatars/CAVE_TheGATE/cavescene_lin.wrl
+}
+demo 135 "VR Terroir" run_vr_terroir
+
 # Mobilitaetswoche
 category="MOBILITAETSWOCHE"
 run_marienplatz_mobilitaetswoche() {
