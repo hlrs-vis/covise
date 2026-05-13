@@ -15,6 +15,29 @@
 #include "texture/TerroirTexture.h"
 #include "ui/GhostAvatarControlsUI.h"
 
+
+/*
+    This plugin creates a ghost avatar that was developed for the STARTS project with 
+    the artist Bernat Cuni (VR Terroir). The avatar is controlled by the VR glasses and
+    controller in the CAVE. As the avatar roams through the virtual world screenshots
+    of the environment from the user's point of view are added to the avatar's texture.
+
+    For the test scene during the GATE festival, mirrors can also be loaded into the scene
+    s.t. the user can inspect the avatar (which represents themselves). In the future the 
+    avatar will be embedded into COVER's collaborative mode.
+
+    The user can change the following settings in the config file (first option is default):
+    - `avatarType="planar"` or `"ghost"` - chooses the model of the avatar
+    - `textureType="splotches"` or `"stripes"` - chooses the shape of the screenshots
+                                                 that are added to the avatar's texture
+    - `distanceThreshold="5"` - the distance the user must travel (in world units) 
+                                until the texture is updated
+    - `useInteractors="false"` - (for debugging) if true, the avatar is visible in the scene
+                                  and can be controlled with three pick interactors which mimick
+                                  the output from the MoCap system (floor, glasses, 3D controller)
+    - `addMirrors="true"` - mirrors are placed into the scene at pre-defined positions
+
+*/
 class GhostAvatar : public opencover::coVRPlugin
 {
 public:
@@ -24,10 +47,21 @@ public:
     void preFrame() override;
 
 private:
+    // Loads the avatar model (FBX + rig) and prepares it so the plugin can move it based on the MoCap input.
     std::unique_ptr<GhostAvatarControls> m_avatarControls;
+
+    // Places an invisible camera at the avatar's eye position and takes screenshots every time the user has
+    // travelled `m_distanceThreshold` units in the virtual world.
     std::unique_ptr<TerroirTexture> m_avatarTexture;
+    
+    // Sets up some control and debbuging settings in the TabletUI.
     std::unique_ptr<GhostAvatarControlsUI> m_avatarControlsUI;
 
+    /*
+        If true, the avatar is placed into the scene and controlled by three pick interactors simulating
+        the MoCap input (useful for debugging the controls). If false, the avatar is not visible in the scene
+        (except in mirrors) and controlled by the MoCap output.
+    */
     bool m_useInteractors;
     void moveAvatar();
     void moveAvatarWithInteractors();
@@ -43,6 +77,10 @@ private:
     void createInteractors();
     void updateInteractors();
 
+    /*
+        For the GATE festival scene: Places mirrors into the scene so the user's can see the avatar
+        and especially its texture that changes over time.
+    */
     bool m_addMirrors = false;
     std::vector<Mirror> m_mirrors;
     void addMirrorsToScene();
