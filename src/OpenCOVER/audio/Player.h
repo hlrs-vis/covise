@@ -70,14 +70,15 @@ class COVRAUDIOEXPORT Player
     friend class Source;
 
 public:
-    Player(const Listener *listener);
+    Player(const Listener *listener, bool isMaster);
     virtual void update();
     virtual std::unique_ptr<Source> makeSource(const Audio *);
 
-    static Player *createPlayer(Listener *listener, const std::string &type);
+    static Player *createPlayer(Listener *listener, const std::string &type, bool isMaster);
 
 protected:
     const Listener *listener;
+    bool isMaster;
 
     std::set<Source *> sources;
     void registerSource(Source *source);

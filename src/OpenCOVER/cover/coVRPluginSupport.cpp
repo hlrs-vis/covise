@@ -905,7 +905,7 @@ coVRPluginSupport::coVRPluginSupport()
 
     // Setup audio subsystem
     std::string audioPlayerType = coCoviseConfig::getEntry("value", "COVER.Plugin.Vrml97.Audio", "none");
-    player = audio::Player::createPlayer(&listener, audioPlayerType);
+    player = audio::Player::createPlayer(&listener, audioPlayerType, coVRMSController::instance()->isMaster());
 
     pointerButton = NULL;
     mouseButton = NULL;

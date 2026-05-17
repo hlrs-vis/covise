@@ -41,8 +41,8 @@ inline int errno_sys()
 #endif
 }
 
-PlayerAServer::PlayerAServer(const Listener *listener, const std::string &host, int port)
-    : Player(listener)
+PlayerAServer::PlayerAServer(const Listener *listener, const std::string &host, int port, bool isMaster)
+    : Player(listener,isMaster)
     , asFd(-1)
     , asHost(host)
     , asPort(port)
@@ -57,6 +57,14 @@ PlayerAServer::PlayerAServer(const Listener *listener, const std::string &host, 
 
 void PlayerAServer::connect()
 {
+    cerr << "AServer::connect()" << endl;
+    if (!isMaster)
+    {
+        asFd = -1;
+    cerr << "AServer::connect() not Master" << endl;
+        return;
+    }
+    cerr << "AServer::connect()2" << endl;
     if (asHost.empty() || asPort <= 0)
     {
         CERR << "audio server not configured" << endl;
