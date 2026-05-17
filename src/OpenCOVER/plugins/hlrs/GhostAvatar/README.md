@@ -19,7 +19,7 @@ The user can change the following settings in the config file (first option is d
 - `useInteractors="false"` - (for debugging) if true, the avatar is visible in the scene
                                   and can be controlled with three pick interactors which mimick
                                   the output from the MoCap system (floor, glasses, 3D controller)
-- `addMirrors="true"` - mirrors are placed into the scene at pre-defined positions
+- `mirrorsForScene=0` - Depending on the scene number, mirrors will be placed into the scene at pre-defined positions (this is used for the tech demo during the GATE festival). 0 = no mirrors, 1 = mirrors for "cavescene_lin.wrl", 2 = mirrors for "cavescene_lin_xl_modifiers_sd8.glb" (more scenes can be added in the class's `addMirrorsToScene` method)
 
 ## Adding your own avatar
 
