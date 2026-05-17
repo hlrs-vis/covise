@@ -215,6 +215,9 @@
    <!--FSAAMode value="0" /-->
     <Multisample value="OFF" numSamples="4" numBuffers="2" mode="FASTEST" />
    <AnisotropicFiltering value="0" />
+     <Audio value="AServer" >
+        <Host value="192.168.0.241"/> 
+     </Audio>
    <Plugin>
     <Skateboard>
         <Position x="0" y="0" />
