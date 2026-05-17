@@ -146,10 +146,16 @@ void GhostAvatar::updateInteractors()
 
 void GhostAvatar::addMirrorsToScene()
 {
-    m_mirrors.reserve(3);
-    m_mirrors.emplace_back(osg::Vec3(-1.14, -2.97, 0), 1, 2, osg::Quat(0, 0, 0.4226183, 0.9063078));
-    m_mirrors.emplace_back(osg::Vec3(3.93, 6.57, 0), 1, 3, osg::Quat(0, 0, -0.3007058, 0.953717));
-    m_mirrors.emplace_back(osg::Vec3(-6.92, 7.02, 0), 1, 1.9, osg::Quat(0, 0, 0.7071068, 0.7071068));
+    // m_mirrors.reserve(3);
+    // m_mirrors.emplace_back(osg::Vec3(-1.14, -2.97, 0), 1, 2, osg::Quat(0, 0, 0.4226183, 0.9063078));
+    // m_mirrors.emplace_back(osg::Vec3(3.93, 6.57, 0), 1, 3, osg::Quat(0, 0, -0.3007058, 0.953717));
+    // m_mirrors.emplace_back(osg::Vec3(-6.92, 7.02, 0), 1, 1.9, osg::Quat(0, 0, 0.7071068, 0.7071068));
+
+    m_mirrors.reserve(4);
+    m_mirrors.emplace_back(osg::Vec3(-6.4326, -5.45797, 0.0431504), 1.925, 1.925, osg::Quat(0, 0, -0.4617486, 0.8870108));
+    m_mirrors.emplace_back(osg::Vec3(-4.33584, 3.18557, 0.03881), 1.925, 1.925, osg::Quat(0, 0, 0.3173047, 0.9483237));
+    m_mirrors.emplace_back(osg::Vec3(7.32158, 0.284769, 0.0310617), 1.925, 1.925, osg::Quat(0, 0, 0.9483237, -0.3173047));
+    m_mirrors.emplace_back(osg::Vec3(11.9669, 12.6238, 0.0433261), 1.925, 1.925, osg::Quat(0, 0, 0.4617486, -0.8870108));
 
     if (!m_useInteractors)
         for (auto &mirror : m_mirrors)
