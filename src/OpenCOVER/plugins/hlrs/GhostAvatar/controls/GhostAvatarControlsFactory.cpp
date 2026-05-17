@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <functional>
 #include <iostream>
 #include <map>
@@ -10,16 +11,20 @@ namespace
 {
 using AvatarFactory = std::function<std::unique_ptr<GhostAvatarControls>()>;
 
+
 const std::map<std::string, AvatarFactory> &createGhostAvatarControlsFactory()
 {
+    static const auto modelsDir = std::filesystem::path(__FILE__).parent_path() / "models";
     static const std::map<std::string, AvatarFactory> factory = {
         { "ghost", []
             {
-                return std::make_unique<TestAvatarControls>("models/ghost_avatar.fbx", "RightArm", "");
+                auto fbxPath = (modelsDir / "ghost_avatar.fbx").string();
+                return std::make_unique<TestAvatarControls>(fbxPath, "RightArm", "");
             } },
         { "planar", []
             {
-                return std::make_unique<PlanarAvatarControls>("models/PLANEE3.fbx", "Arm", "Head");
+                auto fbxPath = (modelsDir / "PLANEE3.fbx").string();
+                return std::make_unique<PlanarAvatarControls>(fbxPath, "Arm", "Head");
             } },
     };
 
