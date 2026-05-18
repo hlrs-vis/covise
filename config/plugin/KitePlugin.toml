@@ -1,0 +1,9 @@
+Model = "/data/MERIDIONAL/kitedata/kite.stl"
+CSV = "/data/MERIDIONAL/kitedata/flight.csv"
+
+ShowGround = true
+GroundPosX = 0.0
+GroundPosY = 0.0
+GroundPosZ = 0.0
+
+WorldScale = 0.5
