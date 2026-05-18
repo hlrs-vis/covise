@@ -320,21 +320,9 @@ demo 136 "VR Terroir (old)" run_old_vr_terroir
 
 run_tangible_interface()
 {
-    COCONFIG=config.hlrs.xml opencover /data/STARTS-ECHO/SalzburgerFestival/TangibleInterface/TangibleInterface-Stones.wrl
+    COCONFIG=config.hlrs.xml opencover /data/STARTS-ECHO/SalzburgerFestival/TangibleInterface/TangibleInterface-All.wrl
 }
-demo 137 "Stones (Tangible Interface)" run_tangible_interface
-
-run_tangible_interface_garden()
-{
-    COCONFIG=config.hlrs.xml opencover /data/STARTS-ECHO/SalzburgerFestival/TangibleInterface/TangibleInterface-ExpandedGarden.wrl
-}
-demo 138 "Garden (Tangible Interface)" run_tangible_interface_garden
-
-run_tangible_interface_sfs()
-{
-    COCONFIG=config.hlrs.xml opencover /data/STARTS-ECHO/SalzburgerFestival/TangibleInterface/TangibleInterface-FelsenreitschuleAnimated.wrl
-}
-demo 139 "Felsenreitschule (Tangible Interface)" run_tangible_interface_sfs
+demo 137 "Tangible Interface" run_tangible_interface
 
 # Mobilitaetswoche
 category="MOBILITAETSWOCHE"
