@@ -402,7 +402,9 @@ void Sky::setSkyDisabled()
     removeExistingSky();
 }
 
-void Sky::setSkyEphemeris()
+void Sky::setSkyEphemeris(bool enable)
+{
+if(enable)
 {
 #ifdef HAVE_EPHEMERIS
     removeExistingSky();
@@ -414,7 +416,21 @@ void Sky::setSkyEphemeris()
     setSkyDisabled();
 #endif
 }
+else
+{
+   removeExistingSky();
+   setSkyAuto();
+}
+}
 
+void Sky::setHour(int h)
+{
+    
+#ifdef HAVE_EPHEMERIS
+       long t = cover->frameTime();
+       m_ephemeralSky->setTime((t - t % 86400)+ (h * (60 * 60)));
+#endif
+}
 void Sky::setSkyAuto()
 {
     m_mode = AUTO;

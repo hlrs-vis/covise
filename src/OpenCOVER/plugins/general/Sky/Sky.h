@@ -68,6 +68,8 @@ public:
     void setFloorColor(osg::Vec4 fc);
 
     void setTrueNorth(float trueNorth);
+    void setSkyEphemeris(bool enable = true);
+    void setHour(int hourOfDay);
 
 private:
     enum SkyMode
@@ -85,7 +87,6 @@ private:
     void setSkyDisabled();
     void setSkyTexture(std::string_view nameOrFile);
     void setSkyEntry(SkyEntry &sky);
-    void setSkyEphemeris();
     void setSkyAuto();
     void updateAutoSky();
     SkyEntry *findClosestSky(const osg::Vec3 &globalPosition);
