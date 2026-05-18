@@ -155,7 +155,7 @@ void GhostAvatar::addMirrorsToScene()
     else if (m_mirrorsForScene == 2)
     {
         m_mirrors.reserve(4);
-        m_mirrors.emplace_back(osg::Vec3(-6.4326, -5.45797, 0.0431504), 1.925, 1.925, osg::Quat(0, 0, -0.4617486, 0.8870108));
+        m_mirrors.emplace_back(osg::Vec3(-5.22769, -6.96809, 0.0433261), 1.925, 1.925, osg::Quat(0, 0, 0.8870108, 0.4617486));
         m_mirrors.emplace_back(osg::Vec3(-4.33584, 3.18557, 0.03881), 1.925, 1.925, osg::Quat(0, 0, 0.3173047, 0.9483237));
         m_mirrors.emplace_back(osg::Vec3(7.32158, 0.284769, 0.0310617), 1.925, 1.925, osg::Quat(0, 0, 0.9483237, -0.3173047));
         m_mirrors.emplace_back(osg::Vec3(11.9669, 12.6238, 0.0433261), 1.925, 1.925, osg::Quat(0, 0, 0.4617486, -0.8870108));
