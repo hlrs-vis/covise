@@ -220,7 +220,7 @@
 
     </SteeringWheel-->
     
-    <!--Sky value="true" /-->
+    <Sky value="true" />
    <GhostAvatar value="true" avatarType="planar" textureType="splotches" distanceThreshold="5" mirrorsForScene="2" />
    </Plugin>
 
