@@ -41,8 +41,13 @@ void VrmlNodeSky::initFields(VrmlNodeSky *node, VrmlNodeType *t)
             { Sky::instance()->setTop(node->d_top.get()); }),
         field("bottom", node->d_bottom, [node](auto f)
             { Sky::instance()->setBottom(node->d_bottom.get()); }),
+        field("ephemeris", node->d_ephemeris, [node](auto f)
+            { Sky::instance()->setSkyEphemeris(node->d_ephemeris.get()); }),
+        field("hour", node->d_hour, [node](auto f)
+            { Sky::instance()->setHour(node->d_hour.get()); }),
         field("floorColor", node->d_floorColor, [node](auto f)
             { Sky::instance()->setFloorColor(osg::Vec4(node->d_floorColor.get()[0], node->d_floorColor.get()[1], node->d_floorColor.get()[2], node->d_floorColor.get()[3])); }));
+   
 }
 
 const char *VrmlNodeSky::typeName()

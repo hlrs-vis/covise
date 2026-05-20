@@ -1024,10 +1024,20 @@ ProxSensorObject::Clone(RemapDir &remap)
     ts->objects.SetCount(objects.Count());
     for (int i = 0; i < objects.Count(); i++)
     {
+
         if (remap.FindMapping(objects[i]->node))
             ts->ReplaceReference(i + 1, remap.FindMapping(objects[i]->node));
         else
             ts->ReplaceReference(i + 1, objects[i]->node);
+    }
+    ts->objectsExit.SetCount(objectsExit.Count());
+    for (int i = 0; i < objectsExit.Count(); i++)
+    {
+
+        if (remap.FindMapping(objectsExit[i]->node))
+            ts->ReplaceReference(i + 1 + objects.Count(), remap.FindMapping(objectsExit[i]->node));
+        else
+            ts->ReplaceReference(i + 1 + objects.Count(), objects[i]->node);
     }
 
     BaseClone(this, ts, remap);

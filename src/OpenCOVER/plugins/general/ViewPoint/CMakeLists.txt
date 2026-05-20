@@ -1,6 +1,7 @@
 if(NOT COVISE_USE_QT)
     return()
 endif()
+USING(VRML)
 
 SET(HEADERS
  BezierCurveVisualizer.h
@@ -10,6 +11,7 @@ SET(HEADERS
  coVRDOMDocument.h
  Interpolator.h
  ViewDesc.h
+ VrmlNodeViewPoint.h
 )
 SET(SOURCES
 BezierCurveVisualizer.cpp
@@ -19,6 +21,7 @@ ViewPoint.cpp
 coVRDOMDocument.cpp
 Interpolator.cpp
 ViewDesc.cpp
+ VrmlNodeViewPoint.cpp
 )
 cover_add_plugin(ViewPoint ${COVISE_GRMSG_LIBRARY})
 qt_use_modules(ViewPoint Xml)

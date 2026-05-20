@@ -294,7 +294,7 @@ bool ViewPoints::init()
         }
     });
 
-    auto speedSlider = new ui::Slider(viewPointMenu_, "animDuration");
+    speedSlider = new ui::Slider(viewPointMenu_, "animDuration");
     speedSlider->setBounds(MinFlightTime, MaxFlightTime);
     speedSlider->setValue(flightTime);
     speedSlider->setIntegral(false);
@@ -2529,6 +2529,19 @@ void ViewPoints::disableHUD()
 bool ViewPoints::isClipPlaneChecked()
 {
     return useClipPlanesCheck_->state();
+}
+
+void ViewPoints::setName(const std::string &name)
+{
+    for (vector<ViewDesc *>::iterator it = viewpoints.begin(); it < viewpoints.end(); it++)
+    {
+        if ((*it)->getName() == name)
+        {
+            loadViewpoint(*it);
+            (*it)->activate(useClipPlanesCheck_->state());
+            break;
+        }
+    }
 }
 
 bool ViewPoints::isOn(const char *vp)

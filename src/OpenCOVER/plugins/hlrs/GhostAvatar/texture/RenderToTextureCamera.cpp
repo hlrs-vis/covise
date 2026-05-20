@@ -1,0 +1,290 @@
+#include <cover/coVRConfig.h>
+#include <cover/coVRPluginSupport.h> // includes cover
+#include <cover/VRSceneGraph.h>
+
+#include <algorithm>
+
+#include "RenderToTextureCamera.h"
+
+RenderToTextureCamera::RenderToTextureCamera(bool renderAvatar, bool enableDefaultCamera)
+    : RenderToTextureCamera({ 1.0, 0.0, 0.0 }, { 0.0, 0.0, 1.0 }, renderAvatar, enableDefaultCamera)
+{
+}
+
+RenderToTextureCamera::RenderToTextureCamera(osg::Vec3 forwardDirection, osg::Vec3 upDirection, bool renderAvatar, bool enableDefaultCamera)
+    : RenderToTextureCamera(forwardDirection, upDirection, 512, 90.0, 1.0, 1.0, 1000.0, renderAvatar, enableDefaultCamera)
+
+{
+}
+
+RenderToTextureCamera::RenderToTextureCamera(osg::Vec3 forwardDirection, osg::Vec3 upDirection, int viewPortSize, double fovy, double aspectRatio, double zNear,
+    double zFar, bool renderAvatar, bool enableDebugCamera)
+    : m_forwardDirection { forwardDirection }
+    , m_upDirection { upDirection }
+    , m_viewPortSize { viewPortSize }
+    , m_fovy { fovy }
+    , m_aspectRatio { aspectRatio }
+    , m_zNear { zNear }
+    , m_zFar { zFar }
+    , m_renderAvatar { renderAvatar }
+    , m_enableDebugCamera { enableDebugCamera }
+{
+    configureCamera();
+    configureDebugCamera();
+    configureImage();
+}
+
+RenderToTextureCamera::~RenderToTextureCamera()
+{
+    deinitialize();
+}
+
+void RenderToTextureCamera::initialize()
+{
+    if (m_isInitialized)
+        return;
+
+    addChild(opencover::cover->getObjectsRoot());
+    for (const auto &node : m_extraNodes)
+    {
+        if (node)
+            addChild(node);
+    }
+    opencover::cover->getScene()->addChild(this);
+    if (!m_renderAvatar)
+        setCullMask(opencover::Isect::NoMirror);
+
+    if (m_debugCamera)
+    {
+        m_debugCamera->addChild(opencover::cover->getObjectsRoot());
+        for (const auto &node : m_extraNodes)
+        {
+            if (node)
+                m_debugCamera->addChild(node);
+        }
+        opencover::cover->getScene()->addChild(m_debugCamera);
+        if (!m_renderAvatar)
+            m_debugCamera->setCullMask(opencover::Isect::NoMirror);
+    }
+
+    m_isInitialized = true;
+}
+
+void RenderToTextureCamera::deinitialize()
+{
+    if (!m_isInitialized)
+        return;
+
+    opencover::cover->getScene()->removeChild(this);
+    removeChild(opencover::cover->getObjectsRoot());
+    for (const auto &node : m_extraNodes)
+    {
+        if (node)
+            removeChild(node);
+    }
+    removeChildren(0, getNumChildren());
+
+    if (m_debugCamera)
+    {
+        opencover::cover->getScene()->removeChild(m_debugCamera);
+        m_debugCamera->removeChild(opencover::cover->getObjectsRoot());
+        for (const auto &node : m_extraNodes)
+        {
+            if (node)
+                m_debugCamera->removeChild(node);
+        }
+        m_debugCamera->removeChildren(0, m_debugCamera->getNumChildren());
+    }
+
+    m_addedSkyNode = false;
+    m_isInitialized = false;
+}
+
+osg::ref_ptr<osg::Image> RenderToTextureCamera::getImage() const
+{
+    return m_image.get();
+}
+
+osg::ref_ptr<osg::Image> RenderToTextureCamera::getScreenshot() const
+{
+    if (auto image = getImage())
+        return new osg::Image(*image, osg::CopyOp::DEEP_COPY_ALL);
+    return nullptr;
+}
+
+osg::ref_ptr<osg::Texture2D> RenderToTextureCamera::getScreenshotAsTexture() const
+{
+    if (auto screenshot = getScreenshot())
+    {
+        osg::ref_ptr<osg::Texture2D> texture = new osg::Texture2D(screenshot);
+
+        // make sure there is no undefined content at the texture's edges
+        texture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::CLAMP_TO_EDGE);
+        texture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::CLAMP_TO_EDGE);
+
+        return texture;
+    }
+
+    return nullptr;
+}
+
+void RenderToTextureCamera::update(const osg::Matrix &transform)
+{
+    updateCamera(transform);
+
+    // Since the user can choose to change the far clipping plane value at any time
+    // we have to check for changes every update.
+    // TODO: find a more efficient way to do this
+    setZFarToClippingPlane(10.);
+
+    // Since the GeoData plugin (which adds the sky node to the scene) can also be loaded after OpenCover
+    // has finished loading, we have to add it to the camera here as soon as it becomes available.
+    if (!m_addedSkyNode)
+        addSkyNode("sky");
+}
+
+osg::Vec3 RenderToTextureCamera::getForwardDirection()
+{
+    return m_forwardDirection;
+}
+
+osg::Vec3 RenderToTextureCamera::getUpDirection()
+{
+    return m_upDirection;
+}
+
+void RenderToTextureCamera::setForwardDirection(osg::Vec3 direction)
+{
+    m_forwardDirection = direction;
+}
+
+void RenderToTextureCamera::setUpDirection(osg::Vec3 direction)
+{
+    m_upDirection = direction;
+}
+
+void RenderToTextureCamera::addSceneNode(osg::Node *node)
+{
+    if (!node)
+        return;
+
+    const auto matchesNode = [node](const osg::ref_ptr<osg::Node> &existingNode) {
+        return existingNode == node;
+    };
+
+    if (std::find_if(m_extraNodes.begin(), m_extraNodes.end(), matchesNode) != m_extraNodes.end())
+        return;
+
+    m_extraNodes.emplace_back(node);
+
+    if (m_isInitialized)
+    {
+        addChild(node);
+        if (m_debugCamera)
+            m_debugCamera->addChild(node);
+    }
+}
+
+void RenderToTextureCamera::removeSceneNode(osg::Node *node)
+{
+    if (!node)
+        return;
+
+    const auto newEnd = std::remove_if(m_extraNodes.begin(), m_extraNodes.end(), [node](const osg::ref_ptr<osg::Node> &existingNode) {
+        return existingNode == node;
+    });
+
+    if (newEnd == m_extraNodes.end())
+        return;
+
+    if (m_isInitialized)
+    {
+        removeChild(node);
+        if (m_debugCamera)
+            m_debugCamera->removeChild(node);
+    }
+
+    m_extraNodes.erase(newEnd, m_extraNodes.end());
+}
+
+void RenderToTextureCamera::configureCamera()
+{
+    setClearMask(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    setReferenceFrame(osg::Transform::ABSOLUTE_RF);
+    setRenderTargetImplementation(osg::Camera::FRAME_BUFFER_OBJECT);
+    setRenderOrder(osg::Camera::PRE_RENDER);
+    setName("RenderToTextureCamera");
+    setViewport(0, 0, m_viewPortSize, m_viewPortSize);
+    setProjectionMatrixAsPerspective(m_fovy, m_aspectRatio, m_zNear, m_zFar);
+}
+
+void RenderToTextureCamera::configureDebugCamera()
+{
+    if (m_enableDebugCamera)
+    {
+        m_debugCamera = new DebugCamera();
+        m_debugCamera->setViewport(0, 0, m_viewPortSize, m_viewPortSize);
+        m_debugCamera->setProjectionMatrixAsPerspective(m_fovy, m_aspectRatio, m_zNear, m_zFar);
+    }
+}
+
+void RenderToTextureCamera::configureImage()
+{
+    m_image = new osg::Image();
+    m_image->allocateImage(m_viewPortSize, m_viewPortSize, 1, GL_RGBA, GL_FLOAT);
+    attach(osg::Camera::COLOR_BUFFER, m_image.get());
+}
+
+void RenderToTextureCamera::setZFarToClippingPlane(float scale)
+{
+    auto newZFar = opencover::coVRConfig::instance()->farClip() * scale;
+    if (newZFar != m_zFar)
+    {
+        m_zFar = newZFar;
+        setProjectionMatrixAsPerspective(m_fovy, m_aspectRatio, m_zNear, m_zFar);
+
+        if (m_enableDebugCamera)
+            m_debugCamera->setProjectionMatrixAsPerspective(m_fovy, m_aspectRatio, m_zNear, m_zFar);
+    }
+}
+
+void RenderToTextureCamera::updateCamera(const osg::Matrix &transform)
+{
+    osg::Vec3 eye = transform.getTrans();
+    osg::Vec3 forward = osg::Matrix::transform3x3(m_forwardDirection, transform);
+    osg::Vec3 up = osg::Matrix::transform3x3(m_upDirection, transform);
+
+    forward.normalize();
+    up.normalize();
+
+    osg::Vec3 centerWorld = eye + forward;
+
+    setViewMatrixAsLookAt(eye, centerWorld, up);
+
+    if (m_enableDebugCamera)
+        m_debugCamera->setViewMatrixAsLookAt(eye, centerWorld, up);
+}
+
+void RenderToTextureCamera::addChildNode(osg::Node *node)
+{
+    if (!node)
+        return;
+
+    addChild(node);
+
+    if (m_enableDebugCamera)
+        m_debugCamera->addChild(node);
+}
+
+void RenderToTextureCamera::addSkyNode(const char *skyNodeName)
+{
+    // The node containing the skyspheres from the GeoData plugin is not part of OBJECTS_ROOT, but a child
+    // node of the main scene. This is why we have to pass the scene explictly to the findFirstNode method
+    // here (otherwise the node is not found and thus also not rendered by the camera).
+    if (auto skyNode = opencover::VRSceneGraph::instance()->findFirstNode<osg::Node>(skyNodeName, false,
+            opencover::VRSceneGraph::instance()->getScene()))
+    {
+        addChildNode(skyNode);
+        m_addedSkyNode = true;
+    }
+}

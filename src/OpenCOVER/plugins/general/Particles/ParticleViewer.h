@@ -51,6 +51,7 @@ private:
     typedef float FlColor[5];
     int currentMap;
     int aCurrentMap;
+    static ParticleViewer *plugin;
 
 public:
     // Constructor
@@ -58,6 +59,10 @@ public:
 
     // Destructor
     ~ParticleViewer();
+    static ParticleViewer * instance()
+    {
+        return plugin;
+    };
     bool init();
 
     void setTimestep(int t);
@@ -67,6 +72,57 @@ public:
     float getAMinVal();
     float getAMaxVal();
     float getARadius();
+    void setParticlesColorMap(const std::string &name)
+    {
+        mapChoice->setSelectedText(name);
+        currentMap = mapNames.indexOf(QString(name.c_str()));
+    };
+    void setArrowsColorMap(const std::string &name)
+    {
+        aMapChoice->setSelectedText(name);
+        aCurrentMap = mapNames.indexOf(QString(name.c_str()));
+    };
+    void setParticlesValue(const std::string &name)
+    {
+        valChoice->setSelectedText(name);
+    };
+    void setArrowsValue(const std::string &name)
+    {
+        aValChoice->setSelectedText(name);
+    };
+    void setParticlesMin(float min)
+    {
+        mapMin->setValue(min);
+    };
+    void setParticlesMax(float max)
+    {
+        mapMax->setValue(max);
+    };
+    void setParticlesRadius(float radius)
+    {
+        radiusEdit->setValue(radius);
+    };
+    void setArrowsMin(float min)
+    {
+        aMapMin->setValue(min);
+    };
+    void setArrowsMax(float max)
+    {
+        aMapMax->setValue(max);
+    };
+    void setArrowsRadius(float radius)
+    {
+        aRadiusEdit->setValue(radius);
+    };
+    void setArrowsRadiusValue(const std::string &name)
+    {
+        aRadChoice->setSelectedText(name);
+    };
+    void setParticlesRadiusValue(const std::string &name)
+    {
+        radChoice->setSelectedText(name);
+    };
+    void updateColors();
 
     void preFrame(); // Update function , called each frame
 

@@ -162,7 +162,13 @@ struct KMLUIBuilder : public osg::NodeVisitor
 EarthPlugin::EarthPlugin()
 : coVRPlugin(COVER_PLUGIN_NAME)
 {
+    assert(!plugin);
     plugin = this;
+
+    osgEarth::initialize(); // has to be called before creating windows: load plugin from config
+    realizeOp = new osgEarth::GL3RealizeOperation();
+    VRViewer::instance()->addRealizeOperation(realizeOp);
+
     mapNode = NULL;
     oldDump = NULL;
 
@@ -260,6 +266,12 @@ void EarthPlugin::tabletEvent(coTUIElement *e)
 
 const osgEarth::SpatialReference *EarthPlugin::getSRS() const
 {
+    if (!mapNode)
+        return nullptr;
+    if (!mapNode->getMap())
+        return nullptr;
+    if (!mapNode->getMap()->getProfile())
+        return nullptr;
     return mapNode->getMap()->getProfile()->getSRS();
 }
 
@@ -439,6 +451,7 @@ int EarthPlugin::unloadKmlFile(const char *fn)
 // this is called if the plugin is removed at runtime
 EarthPlugin::~EarthPlugin()
 {
+    VRViewer::instance()->removeRealizeOperation(realizeOp);
     plugin = NULL;
 }
 

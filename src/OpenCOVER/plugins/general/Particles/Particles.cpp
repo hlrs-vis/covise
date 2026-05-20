@@ -188,7 +188,6 @@ TimeStepData::~TimeStepData()
     delete[] Ivalues;
 }
 
-extern ParticleViewer *plugin;
 
 int Particles::read64(uint64_t &val)
 {
@@ -801,7 +800,7 @@ int Particles::readBinaryTimestep(int timestep)
         //sphere->setColorBinding(colorbinding);
         float *radii = values[1];
         sphere->setCoords(numParticles, xc, yc, zc, radii);
-        float f = plugin->getRadius();
+        float f = ParticleViewer::instance()->getRadius();
         float *rn = new float[numParticles];
         for (int n = 0; n < numParticles; n++)
         {
@@ -926,7 +925,7 @@ int Particles::readFile(char *fn, int timestep)
         }
         else
         {
-            //float radius = plugin->getRadius();
+            //float radius = ParticleViewer::instance()->getRadius();
             while (!feof(fp))
             {
                 if (n > numParticles)
@@ -1144,7 +1143,7 @@ int Particles::readIMWFFile(char *fn, int timestep)
 
         int n = 0;
 
-        //float radius = plugin->getRadius();
+        //float radius = ParticleViewer::instance()->getRadius();
         if (version == 0)
         {
             while (!feof(fp))
@@ -1346,7 +1345,7 @@ int Particles::readIndentFile(char *fn, int timestep)
         float *xc = new float[numParticles];
         float *yc = new float[numParticles];
         float *zc = new float[numParticles];
-        //float radius = plugin->getRadius();
+        //float radius = ParticleViewer::instance()->getRadius();
         //
         int i = 0;
         int n = 0;
@@ -1421,7 +1420,7 @@ int Particles::readIndentFile(char *fn, int timestep)
 
 void Particles::updateRadii(unsigned int valueNumber)
 {
-    float f = plugin->getRadius();
+    float f = ParticleViewer::instance()->getRadius();
     for (int i = 0; i < numTimesteps; i++)
     {
         if (timesteps[i]->sphere)
@@ -1461,14 +1460,14 @@ void Particles::updateColors(unsigned int valueNumber, unsigned int aValueNumber
             float *rc = new float[numParticles];
             float *gc = new float[numParticles];
             float *bc = new float[numParticles];
-            float minVal = plugin->getMinVal();
-            float maxVal = plugin->getMaxVal();
+            float minVal = ParticleViewer::instance()->getMinVal();
+            float maxVal = ParticleViewer::instance()->getMaxVal();
             if (variableTypes[valueNumber + numHiddenVars] == T_FLOAT)
             {
                 float *temp = timesteps[i]->values[variableIndex[valueNumber]];
                 for (int n = 0; n < numParticles; n++)
                 {
-                    osg::Vec4 c = plugin->getColor((temp[n] - minVal) / (maxVal - minVal), getMode());
+                    osg::Vec4 c = ParticleViewer::instance()->getColor((temp[n] - minVal) / (maxVal - minVal), getMode());
                     rc[n] = c[0];
                     gc[n] = c[1];
                     bc[n] = c[2];
@@ -1479,7 +1478,7 @@ void Particles::updateColors(unsigned int valueNumber, unsigned int aValueNumber
                 int64_t *temp = timesteps[i]->Ivalues[variableIndex[valueNumber]];
                 for (int n = 0; n < numParticles; n++)
                 {
-                    osg::Vec4 c = plugin->getColor((temp[n] - minVal) / (maxVal - minVal), getMode());
+                    osg::Vec4 c = ParticleViewer::instance()->getColor((temp[n] - minVal) / (maxVal - minVal), getMode());
                     rc[n] = c[0];
                     gc[n] = c[1];
                     bc[n] = c[2];
@@ -1506,14 +1505,14 @@ void Particles::updateColors(unsigned int valueNumber, unsigned int aValueNumber
             {
                 int numParticles = timesteps[i]->numParticles;
                 colArr = new osg::Vec4Array(numParticles * 2);
-                float minVal = plugin->getAMinVal();
-                float maxVal = plugin->getAMaxVal();
+                float minVal = ParticleViewer::instance()->getAMinVal();
+                float maxVal = ParticleViewer::instance()->getAMaxVal();
                 if (variableTypes[aValueNumber + numHiddenVars - 1] == T_FLOAT)
                 {
                     float *temp = timesteps[i]->values[variableIndex[aValueNumber - 1]];
                     for (int n = 0; n < numParticles; n++)
                     {
-                        osg::Vec4 c = plugin->getColor((temp[n] - minVal) / (maxVal - minVal), getMode());
+                        osg::Vec4 c = ParticleViewer::instance()->getColor((temp[n] - minVal) / (maxVal - minVal), getMode());
                         colArr->at(n * 2).r() = c[0];
                         colArr->at(n * 2).g() = c[1];
                         colArr->at(n * 2).b() = c[2];
@@ -1529,7 +1528,7 @@ void Particles::updateColors(unsigned int valueNumber, unsigned int aValueNumber
                     int64_t *temp = timesteps[i]->Ivalues[variableIndex[aValueNumber - 1]];
                     for (int n = 0; n < numParticles; n++)
                     {
-                        osg::Vec4 c = plugin->getColor((temp[n] - minVal) / (maxVal - minVal), getMode());
+                        osg::Vec4 c = ParticleViewer::instance()->getColor((temp[n] - minVal) / (maxVal - minVal), getMode());
                         colArr->at(n * 2).r() = c[0];
                         colArr->at(n * 2).g() = c[1];
                         colArr->at(n * 2).b() = c[2];

@@ -134,6 +134,8 @@ public:
     static ViewPoints *instance(){return inst;}
     bool dataChanged = false;
     bool isClipPlaneChecked();
+    ui::Slider *speedSlider;
+    void setName(const std::string &name); // set viewpoint by name;
 
 private:
     Vec3 eyepoint;

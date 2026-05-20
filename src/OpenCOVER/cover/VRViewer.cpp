@@ -496,6 +496,20 @@ VRViewer::~VRViewer()
     s_singleton = NULL;
 }
 
+bool VRViewer::addRealizeOperation(osg::Operation *op)
+{
+    if(!m_initGlOp)
+        return false;
+    return m_initGlOp->addOperation(op);
+}
+
+void VRViewer::removeRealizeOperation(osg::Operation *op)
+{
+    if(!m_initGlOp)
+        return;
+    m_initGlOp->removeOperation(op);
+}
+
 
 
 void VRViewer::createViewportCameras(int i)

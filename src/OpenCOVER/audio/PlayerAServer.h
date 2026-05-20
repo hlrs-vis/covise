@@ -18,7 +18,7 @@ class Listener;
 class COVRAUDIOEXPORT PlayerAServer : public Player
 {
 public:
-    PlayerAServer(const Listener *listener, const std::string &host, int port);
+    PlayerAServer(const Listener *listener, const std::string &host, int port, bool isMaster);
     virtual ~PlayerAServer();
     virtual std::unique_ptr<opencover::audio::Source> makeSource(const Audio *audio) override;
 

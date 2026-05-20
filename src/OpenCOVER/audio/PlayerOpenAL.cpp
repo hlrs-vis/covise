@@ -20,8 +20,8 @@ using namespace opencover::audio;
 #include <iostream>
 #include <glm/gtx/string_cast.hpp>
 
-PlayerOpenAL::PlayerOpenAL(const Listener *listener)
-    : Player(listener)
+PlayerOpenAL::PlayerOpenAL(const Listener *listener, bool isMaster)
+    : Player(listener, isMaster)
 {
     alDistanceModel(AL_NONE);
     alDopplerVelocity(343000); // everything is in millimeters :(

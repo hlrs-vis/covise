@@ -50,7 +50,7 @@
 #include <osg/Geode>
 #include <cover/VRSceneGraph.h>
 
-ParticleViewer *plugin = NULL;
+ParticleViewer *ParticleViewer::plugin = NULL;
 
 FileHandler fileHandler[] = {
     { NULL,
@@ -358,7 +358,7 @@ void ParticleViewer::tabletEvent(coTUIElement *tUIItem)
         }
         for (std::list<Particles *>::iterator it = particles.begin(); it != particles.end(); it++)
         {
-            (*it)->updateRadii(currentRValue);
+            (*it)->updateRadii(currentRValue); // this also sets the radius to the editField value if currentRValue is 0 == NONE
         }
     }
 }
@@ -565,6 +565,19 @@ ParticleViewer::~ParticleViewer()
     coVRFileManager::instance()->unregisterFileHandler(&fileHandler[2]);
     coVRFileManager::instance()->unregisterFileHandler(&fileHandler[3]);
 } // DESTRUCTOR
+
+void ParticleViewer::updateColors()
+{
+    int currentValue = valChoice->getSelectedEntry();
+    int currentRValue = radChoice->getSelectedEntry();
+    int aCurrentValue = aValChoice->getSelectedEntry();
+    int aCurrentRValue = aRadChoice->getSelectedEntry();
+    for (std::list<Particles *>::iterator it = particles.begin(); it != particles.end(); it++)
+    {
+        (*it)->updateColors(currentValue, aCurrentValue);
+        (*it)->updateRadii(currentRValue);
+    }
+}
 
 // Called before each frame
 void ParticleViewer::preFrame()

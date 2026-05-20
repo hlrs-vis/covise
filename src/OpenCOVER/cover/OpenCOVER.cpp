@@ -668,6 +668,8 @@ bool OpenCOVER::init()
     coVRShaderList::instance()->update();
     VRViewer::instance()->setSceneData(cover->getScene());
 
+    coVRPluginList::instance()->loadDefault(); // vive and other tracking system plugins have to be loaded before Input is initialized
+
     Input::instance()->update(); // requires scenegraph
 
     bool haveWindows = VRWindow::instance()->config();
@@ -740,8 +742,6 @@ bool OpenCOVER::init()
             cover->ui->addView(new ui::TabletView("mapeditor", tab));
         }
     }
-
-    coVRPluginList::instance()->loadDefault(); // vive and other tracking system plugins have to be loaded before Input is initialized
 
     string welcomeMessage = coCoviseConfig::getEntry("value", "COVER.WelcomeMessage", "Welcome to OpenCOVER at HLRS");
     hud->setText1(welcomeMessage.c_str());

@@ -1,8 +1,4 @@
-<LeftRight>
-<uniform name="Stereo" type="int" value="0"/>
-<vertexProgram>
-  
-    varying vec2 Texcoord;
+<_LeftRight><uniform name="Stereo" type="int" value="0"/><vertexProgram>varying vec2 Texcoord;
   
      
     void main( void )
@@ -10,11 +6,7 @@
 Texcoord = gl_MultiTexCoord0;
 	    gl_Position = ftransform();	
     }
-  </vertexProgram>
-  <fragmentProgram>
-   
-   
-    varying vec2 Texcoord;
+  </vertexProgram><fragmentProgram>varying vec2 Texcoord;
    
     uniform int Stereo;
    
@@ -26,6 +18,4 @@ Texcoord = gl_MultiTexCoord0;
       gl_FragColor = vec4(0,1,0,1) ;	
     
     }
-	</fragmentProgram>
-    
-    </LeftRight>
+	</fragmentProgram></_LeftRight>

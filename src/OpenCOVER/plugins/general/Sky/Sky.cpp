@@ -169,6 +169,23 @@ bool Sky::init()
             else
                 m_mode = TEXTURE; });
 
+    jumpToSkyButton = new ui::Button(skyGroup, "jumpToSky");
+    jumpToSkyButton->setText("Jump to Sky");
+    jumpToSkyButton->setCallback([this](bool state)
+        {
+            if (state)
+            {
+                int selection = skyList->selectedIndex();
+                if (selection >= skyListNameStart)
+                {
+                    const auto &sky = m_skies[selection - skyListNameStart];
+                    osg::Vec3d globalSkyOrigin(sky.longitude, sky.latitude, sky.altitude);
+                    osg::Vec3 projectSkyOrigin = GeoData::instance()->globalToProject(globalSkyOrigin);
+                    GeoData::instance()->jumpToLocation(projectSkyOrigin);
+                }
+                jumpToSkyButton->setState(false);
+            } });
+
     northAngle = 0;
     update();
 
@@ -234,7 +251,7 @@ void Sky::loadSkies()
     updateSkyMenu();
 }
 
-void parseExifData(const std::filesystem::path &path, double &longitude, double &latitude, double &trueNorth)
+void parseExifData(const std::filesystem::path &path, double &longitude, double &latitude, double &altitude, double &trueNorth)
 {
     std::unique_ptr<Exiv2::Image> image = Exiv2::ImageFactory::open(path.string().c_str());
     if (!image)
@@ -261,6 +278,12 @@ void parseExifData(const std::filesystem::path &path, double &longitude, double 
         auto min = exif["Exif.GPSInfo.GPSLongitude"].toRational(1);
         auto sec = exif["Exif.GPSInfo.GPSLongitude"].toRational(2);
         longitude = deg.first / (1.0 * deg.second) + min.first / (60.0 * min.second) + sec.first / (3600.0 * sec.second);
+    }
+
+    auto altIt = exif.findKey(Exiv2::ExifKey("Exif.GPSInfo.GPSAltitude"));
+    if (altIt != exif.end())
+    {
+        altitude = exif["Exif.GPSInfo.GPSAltitude"].toFloat();
     }
 
     Exiv2::XmpData &xmpData = image->xmpData();
@@ -295,16 +318,16 @@ std::optional<std::reference_wrapper<SkyEntry>> Sky::addSkyFile(std::filesystem:
         return std::nullopt;
     }
 
-    double latitude = 0, longitude = 0, trueNorth = 0;
-    parseExifData(path, longitude, latitude, trueNorth);
+    double latitude = 0, longitude = 0, altitude = 0, trueNorth = 0;
+    parseExifData(path, longitude, latitude, altitude, trueNorth);
 
     trueNorth = std::fmod(trueNorth + 360.0 + 180.0, 360.0) - 180.0;
     longitude = std::fmod(longitude + 360.0 + 180.0, 360.0) - 180.0;
     latitude = std::clamp(latitude, -90.0, 90.0);
 
-    std::cout << "Parsed from EXIF: latitude=" << latitude << " longitude=" << longitude << " trueNorth=" << trueNorth << std::endl;
+    std::cout << "EXIF: Parsed " << path.parent_path().filename().string() << "/" << fileName << " latitude=" << latitude << " longitude=" << longitude << " altitude=" << altitude << " trueNorth=" << trueNorth << std::endl;
 
-    return m_skies.emplace_back(SkyEntry(name, std::regex_replace(name, std::regex("/"), " → "), path.string(), longitude, latitude, trueNorth));
+    return m_skies.emplace_back(SkyEntry(name, std::regex_replace(name, std::regex("/"), " → "), path.string(), longitude, latitude, altitude, trueNorth));
 
     return std::nullopt;
 }
@@ -379,7 +402,9 @@ void Sky::setSkyDisabled()
     removeExistingSky();
 }
 
-void Sky::setSkyEphemeris()
+void Sky::setSkyEphemeris(bool enable)
+{
+if(enable)
 {
 #ifdef HAVE_EPHEMERIS
     removeExistingSky();
@@ -391,7 +416,21 @@ void Sky::setSkyEphemeris()
     setSkyDisabled();
 #endif
 }
+else
+{
+   removeExistingSky();
+   setSkyAuto();
+}
+}
 
+void Sky::setHour(int h)
+{
+    
+#ifdef HAVE_EPHEMERIS
+       long t = cover->frameTime();
+       m_ephemeralSky->setTime((t - t % 86400)+ (h * (60 * 60)));
+#endif
+}
 void Sky::setSkyAuto()
 {
     m_mode = AUTO;

@@ -43,6 +43,8 @@ public:
 
     bool boundSwapBarrier() const;
     osg::GLExtensions *getExtensions(int contextId = 0) const;
+    bool addOperation(osg::Operation *op);
+    void removeOperation(osg::Operation *op);
 
 private:
     mutable OpenThreads::Mutex m_mutex;
@@ -62,6 +64,7 @@ private:
     bool m_boundSwapBarrier = false;
 
     std::vector<osg::ref_ptr<osg::GLExtensions>> m_extensions;
+    std::vector<osg::ref_ptr<Operation>> m_extraOperations;
 };
 
 }

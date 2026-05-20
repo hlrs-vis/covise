@@ -21,7 +21,7 @@ namespace opencover::audio
 class COVRAUDIOEXPORT PlayerOpenAL : public Player
 {
 public:
-    PlayerOpenAL(const Listener *listener);
+    PlayerOpenAL(const Listener *listener, bool isMaster);
     virtual void update();
 
     virtual std::unique_ptr<opencover::audio::Source> makeSource(const Audio *audio);
