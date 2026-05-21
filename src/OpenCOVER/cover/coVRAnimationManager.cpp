@@ -459,7 +459,7 @@ void opencover::coVRAnimationManager::setAnimationSkipMax(int maxFrames)
 }
 
 bool
-coVRAnimationManager::animationRunning()
+coVRAnimationManager::animationRunning() const
 {
     return m_animRunning;
 }
