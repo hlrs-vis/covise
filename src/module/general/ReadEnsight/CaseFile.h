@@ -75,12 +75,12 @@ public:
     bool empty() const { return empty_; };
 
     void addTimeSet(TimeSet *ts);
-    TimeSets getAllTimeSets() const;
+    TimeSet *getLastTimeSet();
     const TimeSet *getLastTimeSet() const;
-    const TimeSet *getTimeSet(int idx) const;
+    TimeSets getAllTimeSets() const;
+    TimeSet *getTimeSet(int idx) const;
     const TimeSet *getTimeSet(const std::string &field) const;
     const TimeSet *getGeoTimeSet() const;
-    TimeSet *getLastTimeSet();
     std::vector<float> getAllRealTimes() const;
 
     std::vector<std::string> makeFileNames(const std::string &baseName, const TimeSet *ts) const;
@@ -94,12 +94,13 @@ private:
     std::string fullFilename_;
     std::string dir_;
     std::string projectNm_;
-    TimeSets timeSets_;
+    std::map<int, TimeSet *> timeSets_;
     std::map<std::string, int> fieldMap_;
     int geoTsIdx_; // time set index of geometry
     BinType binType_ = UNKNOWN;
     int connectivityFileIndex_ = -1; // index of the connectivity file, -1: all time steps
     std::set<int> usedTimeSets_;
+    TimeSet *lastTimeSet_ = nullptr;
 };
 
 // simple data class to store time step information

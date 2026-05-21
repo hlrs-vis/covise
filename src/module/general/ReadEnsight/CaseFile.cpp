@@ -19,6 +19,8 @@
 #include <iostream>
 #include <boost/algorithm/string.hpp>
 
+static const int DefaultTimeSet = 1;
+
 //
 // Constructor
 //
@@ -172,22 +174,21 @@ int CaseFile::getGeoTsIdx() const
 
 void CaseFile::addTimeSet(TimeSet *ts)
 {
-    timeSets_.push_back(ts);
     int idx = ts->getIdx();
     if (idx < 0) {
         std::cerr << "CaseFile::addTimeSet: invalid time set index " << idx << std::endl;
-        idx = 0;
         return;
     }
-    if (idx >= 0 && idx >= timeSets_.size()) {
-        timeSets_.resize(idx + 1);
-    }
+    lastTimeSet_ = ts;
     timeSets_[idx] = ts;
 }
 
-const TimeSet *CaseFile::getTimeSet(int idx) const
+TimeSet *CaseFile::getTimeSet(int idx) const
 {
-    return timeSets_[idx];
+    auto it = timeSets_.find(idx);
+    if (it == timeSets_.end())
+        return nullptr;
+    return it->second;
 }
 
 const TimeSet *CaseFile::getTimeSet(const std::string &field) const
@@ -198,45 +199,30 @@ const TimeSet *CaseFile::getTimeSet(const std::string &field) const
                   << std::endl;
         return nullptr;
     }
-    std::cerr << "CaseFile::getTimeSet: field " << field << ": mapping to idx " << it->second << std::endl;
-    if (it->second < 0) {
-        return nullptr;
+    auto ts = it->second;
+    std::cerr << "CaseFile::getTimeSet: field " << field << ": mapping to idx " << ts << std::endl;
+    if (ts < 0) {
+        ts = DefaultTimeSet;
     }
-    if (it->second >= timeSets_.size()) {
-        return nullptr;
-    }
-    return timeSets_[it->second];
+    return getTimeSet(ts);
 }
 
 const TimeSet *CaseFile::getGeoTimeSet() const
 {
-    if (geoTsIdx_ < 0)
-        return nullptr;
-    if (geoTsIdx_ >= timeSets_.size())
-        return nullptr;
-    return timeSets_[geoTsIdx_];
+    auto ts = geoTsIdx_;
+    if (ts < 0)
+        ts = DefaultTimeSet;
+    return getTimeSet(ts);
 }
 
 const TimeSet *CaseFile::getLastTimeSet() const
 {
-    return timeSets_.back();
+    return lastTimeSet_;
 }
 
 TimeSet *CaseFile::getLastTimeSet()
 {
-    return timeSets_.back();
-}
-
-std::vector<float> CaseFile::getAllRealTimes() const
-{
-    std::set<float> times;
-    for (auto ts = timeSets_.begin(); ts != timeSets_.end(); ts++) {
-        std::vector<float> rts = (*ts)->getRealTimes();
-        times.insert(rts.begin(), rts.end());
-    }
-    std::vector<float> ret;
-    std::copy(times.begin(), times.end(), std::back_inserter(ret));
-    return ret;
+    return lastTimeSet_;
 }
 
 std::vector<std::string> CaseFile::makeFileNames(const std::string &baseName, const TimeSet *refts) const
@@ -267,12 +253,30 @@ std::vector<std::string> CaseFile::makeFileNames(const std::string &baseName, co
 
 TimeSets CaseFile::getAllTimeSets() const
 {
+    auto used = usedTimeSets_;
+    used.insert(DefaultTimeSet);
     TimeSets ts;
-    for (int idx: usedTimeSets_) {
-        ts.push_back(timeSets_[idx]);
+    for (int idx: used) {
+        auto t = getTimeSet(idx);
+        if (t)
+            ts.push_back(getTimeSet(idx));
     }
     return ts;
 }
+
+std::vector<float> CaseFile::getAllRealTimes() const
+{
+    std::set<float> times;
+    auto timesets = getAllTimeSets();
+    for (auto ts = timesets.begin(); ts != timesets.end(); ts++) {
+        std::vector<float> rts = (*ts)->getRealTimes();
+        times.insert(rts.begin(), rts.end());
+    }
+    std::vector<float> ret;
+    std::copy(times.begin(), times.end(), std::back_inserter(ret));
+    return ret;
+}
+
 
 //
 // Destructor
