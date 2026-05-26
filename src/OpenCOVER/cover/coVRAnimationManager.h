@@ -92,7 +92,7 @@ public:
     void setAnimationSpeedMax(float maxSpeed);
     void setAnimationSkip(int frames, bool ignoreMax = false);
     void setAnimationSkipMax(int maxFrames);
-    bool animationRunning();
+    bool animationRunning() const;
     void enableAnimation(bool state);
     void setRemoteAnimationFrame(int currentFrame);
     void setRemoteAnimate(bool state);
