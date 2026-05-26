@@ -17,6 +17,7 @@
 #include <cover/ui/EditField.h>
 #include <cover/ui/Label.h>
 #include <cover/ui/Button.h>
+#include <rapidjson/document.h>
 
 class GeoCoding : public opencover::coVRPlugin, public opencover::ui::Owner
 {
@@ -38,5 +39,6 @@ private:
     opencover::ui::EditField *m_searchQueryField;
     opencover::ui::Label *m_currentLocationLabel;
     opencover::ui::Button *m_actionGeocode;
+    std::string formatAddressLabel(const rapidjson::Value &locationProperties);
 };
 #endif

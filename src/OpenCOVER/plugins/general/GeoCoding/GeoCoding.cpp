@@ -102,7 +102,7 @@ void GeoCoding::jumpToAddress(std::string_view searchQuery)
     }
 
     // Nominatim request URL
-    std::string url = "https://nominatim.openstreetmap.org/search?q=" + std::string(encoded) + "&format=json&limit=1";
+    std::string url = "https://nominatim.openstreetmap.org/search?q=" + std::string(encoded) + "&format=geocodejson&limit=1&addressdetails=1&accept-language=en";
     curl_free(encoded);
 
     GET getRequest(url);
@@ -123,33 +123,41 @@ void GeoCoding::jumpToAddress(std::string_view searchQuery)
     if (document.Parse(jsonData.c_str()).HasParseError())
         return;
 
-    if (!document.IsArray() || document.Empty())
+    if (!document.IsObject() || !document.HasMember("features") || !document["features"].IsArray() || document["features"].Empty())
         return;
 
-    const rapidjson::Value &location = document[0];
-    if (!location.HasMember("lat") || !location.HasMember("lon"))
+    const rapidjson::Value &coords = document["features"][0]["geometry"]["coordinates"];
+    if (!coords.IsArray() || coords.Size() < 2)
         return;
 
-    double latitude, longitude;
-
-    try
+    double latitude = 0.0, longitude = 0.0;
+    if (coords[0].IsNumber() && coords[1].IsNumber())
     {
-        latitude = std::stod(location["lat"].GetString());
-        longitude = std::stod(location["lon"].GetString());
+        longitude = coords[0].GetDouble();
+        latitude = coords[1].GetDouble();
     }
-    catch (std::invalid_argument &e)
+    else
     {
-        std::cerr << "Failed to parse geo coordinates from geocoding result." << std::endl;
-        return;
+        try
+        {
+            if (coords[0].IsString())
+                longitude = std::stod(coords[0].GetString());
+            if (coords[1].IsString())
+                latitude = std::stod(coords[1].GetString());
+        }
+        catch (const std::exception &)
+        {
+            std::cerr << "Failed to parse geo coordinates from geocoding result." << std::endl;
+            return;
+        }
     }
 
     auto projectLocation = GeoData::instance()->globalToProject(osg::Vec3(longitude, latitude, 500.0));
     GeoData::instance()->jumpToLocation(projectLocation, 100.0);
 
-    if (location.HasMember("display_name"))
-        m_currentLocationLabel->setText(location["display_name"].GetString());
-    else
-        m_currentLocationLabel->setText("");
+    const rapidjson::Value &locationProperties = document["features"][0]["properties"]["geocoding"];
+    std::string text = formatAddressLabel(locationProperties);
+    m_currentLocationLabel->setText(text);
 }
 
 #include <osg/io_utils>
@@ -177,7 +185,7 @@ void GeoCoding::geocode()
     m_currentLocationLabel->setText(text);
 
     // Nominatim request URL
-    std::string url = "https://nominatim.openstreetmap.org/reverse?lon=" + longitude + "&lat=" + latitude + "&format=json";
+    std::string url = "https://nominatim.openstreetmap.org/reverse?lon=" + longitude + "&lat=" + latitude + "&format=geocodejson&limit=1&addressdetails=1&accept-language=en";
 
     GET getRequest(url);
     Request::Options options = {
@@ -197,14 +205,86 @@ void GeoCoding::geocode()
     if (document.Parse(jsonData.c_str()).HasParseError())
         return;
 
-    if (document.IsArray() || document.Empty())
+    if (!document.IsObject() || !document.HasMember("features") || !document["features"].IsArray() || document["features"].Empty())
         return;
 
-    if (document.HasMember("display_name"))
+    const rapidjson::Value &locationProperties = document["features"][0]["properties"]["geocoding"];
+    std::string addressText = formatAddressLabel(locationProperties);
+    m_currentLocationLabel->setText(text + "\n" + addressText);
+    std::cout << "Geocoded: " << addressText << std::endl;
+}
+
+std::string GeoCoding::formatAddressLabel(const rapidjson::Value &locationProperties)
+{
+    std::string line1;
+    std::string line2;
+    std::string line3;
+    std::string line4;
+
+    if (locationProperties.HasMember("name"))
+        line1 += locationProperties["name"].GetString();
+
+    if (locationProperties.HasMember("street"))
+        line2 += std::string(locationProperties["street"].GetString()) + " ";
+
+    if (locationProperties.HasMember("housenumber"))
+        line2 += locationProperties["housenumber"].GetString();
+
+    if (locationProperties.HasMember("postcode"))
+        line3 += std::string(locationProperties["postcode"].GetString()) + " ";
+
+    if (locationProperties.HasMember("city"))
+        line3 += locationProperties["city"].GetString();
+
+    if (locationProperties.HasMember("county"))
     {
-        m_currentLocationLabel->setText(text + "; " + document["display_name"].GetString());
-        std::cout << "Geocoded: " << document["display_name"].GetString() << std::endl;
+        if (!line3.empty())
+            line3 += ", ";
+
+        line3 += locationProperties["county"].GetString();
     }
+
+    if (locationProperties.HasMember("state"))
+    {
+        if (!line4.empty())
+            line4 += ", ";
+
+        line4 += locationProperties["state"].GetString();
+    }
+
+    if (locationProperties.HasMember("country"))
+    {
+        if (!line4.empty())
+            line4 += ", ";
+
+        line4 += locationProperties["country"].GetString();
+    }
+
+    std::vector<std::string> lines;
+
+    if (!line1.empty())
+        lines.push_back(line1);
+
+    if (!line2.empty())
+        lines.push_back(line2);
+
+    if (!line3.empty())
+        lines.push_back(line3);
+
+    if (!line4.empty())
+        lines.push_back(line4);
+
+    std::string text;
+
+    for (size_t i = 0; i < lines.size(); ++i)
+    {
+        if (i > 0)
+            text += "\n";
+
+        text += lines[i];
+    }
+
+    return text;
 }
 
 COVERPLUGIN(GeoCoding)
