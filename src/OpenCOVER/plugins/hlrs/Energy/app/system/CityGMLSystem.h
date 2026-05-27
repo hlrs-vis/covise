@@ -3,7 +3,7 @@
 #include <OpenConfig/file.h>
 #include <cover/coVRPlugin.h>
 
-#include <lib/core/interfaces/ISystem.h>
+// #include <lib/core/interfaces/ISystem.h>
 #include <lib/core/interfaces/ui/IComponent.h>
 #include <lib/core/simulation/simulationresult.h>
 #include <lib/core/ClassLogger.h>
@@ -30,35 +30,16 @@ struct CityGMLConfig {
   std::string modelDir;
 };
 
-/**
- * @class CityGMLSystem
- * @brief Manages the CityGML system integration, visualization, and simulation within OpenCOVER.
- *
- * This class provides functionality to initialize, enable, update, and manage CityGML objects,
- * solar panels, and related UI components. It handles loading and processing of PV (photovoltaic)
- * data, influx data from CSV files, and static power data for campus and city objects.
- * The class also manages color maps for visualization, transformation of objects, and state sets
- * for CityGML devices and sensors.
- *
- * @note Instances of this class are non-copyable and non-movable.
- *
- * @see core::interface::ISystem
- */
-class CityGMLSystem final : public core::interface::ISystem, core::ClassLogger {
+class CityGMLSystem final : core::ClassLogger {
  public:
-  CityGMLSystem(opencover::coVRPlugin *plugin, core::interface::ui::IComponent *parentMenu, const core::interface::ui::IGUIFactory &factory,
+  explicit CityGMLSystem(opencover::coVRPlugin *plugin, core::interface::ui::IComponent *parentMenu, const core::interface::ui::IGUIFactory &factory,
                 osg::ref_ptr<osg::ClipNode> rootGroup, osg::ref_ptr<osg::Switch> parent, core::interface::ILogger& logger);
-  virtual ~CityGMLSystem() = default;
-  CityGMLSystem(const CityGMLSystem &) = delete;
-  CityGMLSystem &operator=(const CityGMLSystem &) = delete;
-  CityGMLSystem &operator=(CityGMLSystem &&) = delete;
-  CityGMLSystem(CityGMLSystem &&) = delete;
 
-  virtual void init() override;
-  virtual void enable(bool on) override;
-  virtual bool isEnabled() const override;
-  virtual void update() override;
-  virtual void updateTime(int timestep) override;
+  void init();
+  void enable(bool on);
+  bool isEnabled() const ;
+  void update();
+  void updateTime(int timestep);
 
   void updateInfluxColorMaps(
       float min, float max,

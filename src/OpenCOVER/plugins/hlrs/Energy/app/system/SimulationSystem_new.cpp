@@ -6,7 +6,7 @@
 #include <memory>
 
 SimulationSystem::SimulationSystem(
-    const GridRenderConfig &renderConfig,
+    GridRenderConfig renderConfig,
     core::interface::ui::IComponent *parentMenu,
     const core::interface::ui::IGUIFactory &factory,
     CityGMLSystem *cityGMLSystem,
@@ -24,7 +24,7 @@ SimulationSystem::SimulationSystem(
     , m_dataLoadManager()
     , m_scenarioManager(scenarioDir)
     , m_dataManager(logger)
-    , m_gridRenderer(parent, renderConfig, logger)
+    , m_gridRenderer(parent, std::move(renderConfig), logger)
     , m_gridUIManager(m_gridRenderer, parentMenu)
     , m_enabled(true)
     , m_scenarioDir(scenarioDir)

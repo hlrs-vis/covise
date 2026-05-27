@@ -7,25 +7,24 @@
 #include "DataManager.h"
 #include "ScenarioManager.h"
 #include "app/ui/SimulationUI.h"
-#include <lib/core/interfaces/ISystem.h>
 #include <lib/core/ClassLogger.h>
 
-class SimulationSystem final : public core::interface::ISystem, core::ClassLogger
+class SimulationSystem final : core::ClassLogger
 {
 public:
-    SimulationSystem(
-        const GridRenderConfig &config,
+    explicit SimulationSystem(
+        GridRenderConfig config,
         core::interface::ui::IComponent *parentMenu,
         const core::interface::ui::IGUIFactory &factory,
         CityGMLSystem *cityGMLSystem,
         osg::ref_ptr<osg::Switch> parent,
         core::interface::ILogger &logger,
         const std::string &scenarioDir);
-    void init() override;
-    void enable(bool on) override;
-    void update() override;
-    void updateTime(int timestep) override;
-    bool isEnabled() const override { return m_enabled; }
+    void init();
+    void enable(bool on);
+    void update();
+    void updateTime(int timestep);
+    bool isEnabled() const { return m_enabled; }
 
 private:
     void initUI();
