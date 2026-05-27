@@ -3,7 +3,6 @@
 #include <OpenConfig/file.h>
 #include <cover/coVRPlugin.h>
 
-// #include <lib/core/interfaces/ISystem.h>
 #include <lib/core/interfaces/ui/IComponent.h>
 #include <lib/core/simulation/simulationresult.h>
 #include <lib/core/ClassLogger.h>
@@ -16,11 +15,11 @@
 #include <string>
 #include <vector>
 
-// #include "app/cover/ui/CityGMLUI.h"
 #include "app/ui/CityGMLUI.h"
 #include "app/osg/CityGMLSceneObject.h"
 #include "app/osg/SolarPanelSceneObject.h"
 #include "lib/core/interfaces/ui/IGUIFactory.h"
+
 
 struct CityGMLConfig {
   std::string pvDir;
