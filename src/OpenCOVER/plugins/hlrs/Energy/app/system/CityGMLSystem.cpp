@@ -1,8 +1,4 @@
 #include "CityGMLSystem.h"
-#include "app/ui/CityGMLUI.h"
-#include "app/osg/CityGMLSceneObject.h"
-#include "app/osg/SolarPanelSceneObject.h"
-#include "lib/core/interfaces/ui/IGUIFactory.h"
 
 #include <cover/coVRAnimationManager.h>
 #include <lib/core/simulation/type.h>
