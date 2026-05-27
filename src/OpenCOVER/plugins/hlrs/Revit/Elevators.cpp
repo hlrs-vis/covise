@@ -30,19 +30,22 @@ Elevator::Elevator(int id, const char *Name, const std::string &evn)
     ID = id;
     name = Name;
     elevatorName = evn;
+    cabin = nullptr;
 }
 bool Elevator::update(osg::Vec3 &viewerPosition)
 {
-
-    if ((cabin->isIdle()))
+    if (cabin)
     {
+        if ((cabin->isIdle()))
         {
-            // tell it to move to next stop
-            cabin->moveToNext();
+            {
+                // tell it to move to next stop
+                cabin->moveToNext();
+            }
+            return false;
         }
-        return false;
+        cabin->update(viewerPosition);
     }
-    cabin->update(viewerPosition);
     for (auto &landing : landings)
     {
         if (landing != NULL)
