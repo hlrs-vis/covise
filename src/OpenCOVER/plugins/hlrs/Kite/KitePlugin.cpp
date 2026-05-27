@@ -7,7 +7,6 @@
 
 #include "KitePlugin.h"
 
-#include <config/CoviseConfig.h>
 #include <cover/coVRAnimationManager.h>
 #include <cover/coVRFileManager.h>
 #include <cover/coVRPluginSupport.h>
@@ -83,8 +82,12 @@ static osg::Matrix geoTransformMatrix(const osg::Vec3 &pos, float scale, float y
 
 bool KitePlugin::init()
 {
-    auto modelEntry = coCoviseConfig::getEntry("value", "COVER.Plugin.KitePlugin.Model", "");
-    m_csvPath = coCoviseConfig::getEntry("value", "COVER.Plugin.KitePlugin.CSV", "");
+    const auto frameConfigEntries = config()->entries("Frame");
+    const auto groundConfigEntries = config()->entries("Ground");
+
+    // Files
+    auto modelEntry = config()->value<std::string>("Files", "Model", "")->value();
+    m_csvPath = config()->value<std::string>("Files", "CSV", "")->value();
 
     auto toLowerCopy = [](std::string s) {
         std::transform(s.begin(), s.end(), s.begin(),
@@ -113,95 +116,96 @@ bool KitePlugin::init()
         return false;
     };
 
-    const std::string nedEntry = coCoviseConfig::getEntry("value", "COVER.Plugin.KitePlugin.NED", "");
-    if (!nedEntry.empty())
+    // Frame and pose
+    if (std::find(frameConfigEntries.begin(), frameConfigEntries.end(), "NED") != frameConfigEntries.end())
     {
-        m_useNedFrame = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.NED", m_useNedFrame);
+        m_useNedFrame = config()->value<bool>("Frame", "NED", m_useNedFrame)->value();
         m_frameAuto = false;
     }
-    const std::string frameEntry = coCoviseConfig::getEntry("value", "COVER.Plugin.KitePlugin.Frame", "");
+    const std::string frameEntry = config()->value<std::string>("Frame", "Frame", "")->value();
     if (!frameEntry.empty())
         applyFrameMode(frameEntry);
-    m_rollSign = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.RollSign", m_rollSign);
-    m_pitchSign = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.PitchSign", m_pitchSign);
-    m_yawSign = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.YawSign", m_yawSign);
-    m_rollOffsetDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.RollOffset", m_rollOffsetDeg);
-    m_pitchOffsetDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.PitchOffset", m_pitchOffsetDeg);
-    m_yawOffsetDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.YawOffset", m_yawOffsetDeg);
-    m_rollScale = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.RollScale", (float)m_rollScale);
-    m_pitchScale = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.PitchScale", (float)m_pitchScale);
-    m_limitAttitude = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.LimitAttitude", m_limitAttitude);
-    m_maxAbsRollDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.MaxAbsRollDeg", (float)m_maxAbsRollDeg);
-    m_maxAbsPitchDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.MaxAbsPitchDeg", (float)m_maxAbsPitchDeg);
-    m_smoothPose = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.SmoothPose", m_smoothPose);
-    m_posSmoothAlpha = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.PositionSmoothing", (float)m_posSmoothAlpha);
-    m_rotSmoothAlpha = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.RotationSmoothing", (float)m_rotSmoothAlpha);
-    m_despikeOrientation = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.DespikeOrientation", m_despikeOrientation);
-    m_despikeYawOnly = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.DespikeYawOnly", m_despikeYawOnly);
-    m_despikeJumpDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.DespikeJumpDeg", (float)m_despikeJumpDeg);
-    m_despikeSettleDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.DespikeSettleDeg", (float)m_despikeSettleDeg);
-    m_knotFollowTether = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.KnotFollowTether", m_knotFollowTether);
+    m_rollSign = config()->value<double>("Frame", "RollSign", m_rollSign)->value();
+    m_pitchSign = config()->value<double>("Frame", "PitchSign", m_pitchSign)->value();
+    m_yawSign = config()->value<double>("Frame", "YawSign", m_yawSign)->value();
+    m_rollOffsetDeg = config()->value<double>("Frame", "RollOffset", m_rollOffsetDeg)->value();
+    m_pitchOffsetDeg = config()->value<double>("Frame", "PitchOffset", m_pitchOffsetDeg)->value();
+    m_yawOffsetDeg = config()->value<double>("Frame", "YawOffset", m_yawOffsetDeg)->value();
+    m_rollScale = config()->value<double>("Frame", "RollScale", m_rollScale)->value();
+    m_pitchScale = config()->value<double>("Frame", "PitchScale", m_pitchScale)->value();
+    m_limitAttitude = config()->value<bool>("Frame", "LimitAttitude", m_limitAttitude)->value();
+    m_maxAbsRollDeg = config()->value<double>("Frame", "MaxAbsRollDeg", m_maxAbsRollDeg)->value();
+    m_maxAbsPitchDeg = config()->value<double>("Frame", "MaxAbsPitchDeg", m_maxAbsPitchDeg)->value();
+    m_smoothPose = config()->value<bool>("Frame", "SmoothPose", m_smoothPose)->value();
+    m_posSmoothAlpha = config()->value<double>("Frame", "PositionSmoothing", m_posSmoothAlpha)->value();
+    m_rotSmoothAlpha = config()->value<double>("Frame", "RotationSmoothing", m_rotSmoothAlpha)->value();
+    m_despikeOrientation = config()->value<bool>("Frame", "DespikeOrientation", m_despikeOrientation)->value();
+    m_despikeYawOnly = config()->value<bool>("Frame", "DespikeYawOnly", m_despikeYawOnly)->value();
+    m_despikeJumpDeg = config()->value<double>("Frame", "DespikeJumpDeg", m_despikeJumpDeg)->value();
+    m_despikeSettleDeg = config()->value<double>("Frame", "DespikeSettleDeg", m_despikeSettleDeg)->value();
+    m_knotFollowTether = config()->value<bool>("Rope", "KnotFollowTether", m_knotFollowTether)->value();
 
-    // Rope config (optional)
-    m_ropeEnabled = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.RopeEnabled", m_ropeEnabled);
-    // m_ropeRadius = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.RopeRadius", m_ropeRadius);
-    m_ropeRadius = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.RopeRadius", m_ropeRadius);
+    // Rope and tether
+    m_ropeEnabled = config()->value<bool>("Rope", "RopeEnabled", m_ropeEnabled)->value();
+    m_ropeRadius = config()->value<double>("Rope", "RopeRadius", m_ropeRadius)->value();
     if (m_ropeRadius <= 0.f)
         m_ropeRadius = 0.05f; // force visible default
 
-    m_ropeSagFactor = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.RopeSagFactor", m_ropeSagFactor);
-    m_ropeSagMax = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.RopeSagMax", m_ropeSagMax);
-    m_ropeSamplesMain = (int)coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.RopeSamplesMain", (float)m_ropeSamplesMain);
-    m_ropeSamplesBridle = (int)coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.RopeSamplesBridle", (float)m_ropeSamplesBridle);
+    m_ropeSagFactor = config()->value<double>("Rope", "RopeSagFactor", m_ropeSagFactor)->value();
+    m_ropeSagMax = config()->value<double>("Rope", "RopeSagMax", m_ropeSagMax)->value();
+    m_ropeSamplesMain = (int)config()->value<double>("Rope", "RopeSamplesMain", m_ropeSamplesMain)->value();
+    m_ropeSamplesBridle = (int)config()->value<double>("Rope", "RopeSamplesBridle", m_ropeSamplesBridle)->value();
 
-    m_drawFullTether = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.DrawFullTether", m_drawFullTether);
-    m_fullTetherAlpha = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.FullTetherAlpha", m_fullTetherAlpha);
-    m_focusTetherAlpha = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.FocusTetherAlpha", m_focusTetherAlpha);
+    m_drawFullTether = config()->value<bool>("Rope", "DrawFullTether", m_drawFullTether)->value();
+    m_fullTetherAlpha = config()->value<double>("Rope", "FullTetherAlpha", m_fullTetherAlpha)->value();
+    m_focusTetherAlpha = config()->value<double>("Rope", "FocusTetherAlpha", m_focusTetherAlpha)->value();
 
-    m_tetherFade = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.TetherFade", m_tetherFade);
-    m_tetherNearLen_m = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.TetherNearLen_m", m_tetherNearLen_m);
+    m_tetherFade = config()->value<bool>("Rope", "TetherFade", m_tetherFade)->value();
+    m_tetherNearLen_m = config()->value<double>("Rope", "TetherNearLen_m", m_tetherNearLen_m)->value();
 
-    m_tetherSagBoost = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.TetherSagBoost", m_tetherSagBoost);
-    m_tetherSagMaxLong_m = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.TetherSagMaxLong_m", m_tetherSagMaxLong_m);
+    m_tetherSagBoost = config()->value<double>("Rope", "TetherSagBoost", m_tetherSagBoost)->value();
+    m_tetherSagMaxLong_m = config()->value<double>("Rope", "TetherSagMaxLong_m", m_tetherSagMaxLong_m)->value();
 
-    m_tetherLineWidthNear = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.TetherLineWidthNear", m_tetherLineWidthNear);
-    m_tetherLineWidthFar = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.TetherLineWidthFar", m_tetherLineWidthFar);
+    m_tetherLineWidthNear = config()->value<double>("Rope", "TetherLineWidthNear", m_tetherLineWidthNear)->value();
+    m_tetherLineWidthFar = config()->value<double>("Rope", "TetherLineWidthFar", m_tetherLineWidthFar)->value();
 
-    m_tetherAlphaNear = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.TetherAlphaNear", m_tetherAlphaNear);
-    m_tetherAlphaFar = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.TetherAlphaFar", m_tetherAlphaFar);
+    m_tetherAlphaNear = config()->value<double>("Rope", "TetherAlphaNear", m_tetherAlphaNear)->value();
+    m_tetherAlphaFar = config()->value<double>("Rope", "TetherAlphaFar", m_tetherAlphaFar)->value();
 
-    m_snapAnchorsToSurface = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.SnapAnchorsToSurface", m_snapAnchorsToSurface);
-    m_anchorLift_m = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.AnchorLift_m", m_anchorLift_m);
-    m_snapRayUp_m = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.SnapRayUp_m", m_snapRayUp_m);
-    m_snapRayDown_m = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.SnapRayDown_m", m_snapRayDown_m);
+    // Ground station
+    m_snapAnchorsToSurface = config()->value<bool>("Ground", "SnapAnchorsToSurface", m_snapAnchorsToSurface)->value();
+    m_anchorLift_m = config()->value<double>("Ground", "AnchorLift_m", m_anchorLift_m)->value();
+    m_snapRayUp_m = config()->value<double>("Ground", "SnapRayUp_m", m_snapRayUp_m)->value();
+    m_snapRayDown_m = config()->value<double>("Ground", "SnapRayDown_m", m_snapRayDown_m)->value();
 
-    m_groundPos.x() = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.GroundPosX", m_groundPos.x());
-    m_groundPos.y() = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.GroundPosY", m_groundPos.y());
-    m_groundPos.z() = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.GroundPosZ", m_groundPos.z());
-    m_showGround = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.ShowGround", m_showGround);
-    m_worldScale = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.WorldScale", m_worldScale);
-    m_targetTether_m = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.TargetTether_m", m_targetTether_m);
-    const std::string groundSizeEntry = coCoviseConfig::getEntry("value", "COVER.Plugin.KitePlugin.GroundSize_m", "");
-    if (!groundSizeEntry.empty())
+    m_groundPos.x() = config()->value<double>("Ground", "GroundPosX", m_groundPos.x())->value();
+    m_groundPos.y() = config()->value<double>("Ground", "GroundPosY", m_groundPos.y())->value();
+    m_groundPos.z() = config()->value<double>("Ground", "GroundPosZ", m_groundPos.z())->value();
+    m_showGround = config()->value<bool>("Ground", "ShowGround", m_showGround)->value();
+    m_worldScale = config()->value<double>("World", "WorldScale", m_worldScale)->value();
+    m_targetTether_m = config()->value<double>("Rope", "TargetTether_m", m_targetTether_m)->value();
+    if (std::find(groundConfigEntries.begin(), groundConfigEntries.end(), "GroundSize_m") != groundConfigEntries.end())
     {
-        m_groundSize_m = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.GroundSize_m", m_groundSize_m);
+        m_groundSize_m = config()->value<double>("Ground", "GroundSize_m", m_groundSize_m)->value();
         m_groundSizeAuto = false;
     }
-    m_focusMode = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.FocusMode", m_focusMode);
-    m_focusTetherLen_m = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.FocusTetherLen_m", m_focusTetherLen_m);
+    m_focusMode = config()->value<bool>("Ground", "FocusMode", m_focusMode)->value();
+    m_focusTetherLen_m = config()->value<double>("Ground", "FocusTetherLen_m", m_focusTetherLen_m)->value();
 
-    m_geoModelPath = coCoviseConfig::getEntry("value", "COVER.Plugin.KitePlugin.GeoModel", "");
-    m_geoPos.x() = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.GeoPosX", m_geoPos.x());
-    m_geoPos.y() = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.GeoPosY", m_geoPos.y());
-    m_geoPos.z() = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.GeoPosZ", m_geoPos.z());
-    m_geoScale = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.GeoScale", m_geoScale);
-    m_geoYawDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.GeoYawDeg", m_geoYawDeg);
-    m_geoAutoCenter = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.GeoAutoCenter", m_geoAutoCenter);
-    m_geoAutoGround = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.GeoAutoGround", m_geoAutoGround);
+    // Geo model
+    m_geoModelPath = config()->value<std::string>("Geo", "GeoModel", "")->value();
+    m_geoPos.x() = config()->value<double>("Geo", "GeoPosX", m_geoPos.x())->value();
+    m_geoPos.y() = config()->value<double>("Geo", "GeoPosY", m_geoPos.y())->value();
+    m_geoPos.z() = config()->value<double>("Geo", "GeoPosZ", m_geoPos.z())->value();
+    m_geoScale = config()->value<double>("Geo", "GeoScale", m_geoScale)->value();
+    m_geoYawDeg = config()->value<double>("Geo", "GeoYawDeg", m_geoYawDeg)->value();
+    m_geoAutoCenter = config()->value<bool>("Geo", "GeoAutoCenter", m_geoAutoCenter)->value();
+    m_geoAutoGround = config()->value<bool>("Geo", "GeoAutoGround", m_geoAutoGround)->value();
 
-    m_junctionLocal.x() = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.JunctionLocalX", m_junctionLocal.x());
-    m_junctionLocal.y() = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.JunctionLocalY", m_junctionLocal.y());
-    m_junctionLocal.z() = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.JunctionLocalZ", m_junctionLocal.z());
+    // Model offsets
+    m_junctionLocal.x() = config()->value<double>("Model", "JunctionLocalX", m_junctionLocal.x())->value();
+    m_junctionLocal.y() = config()->value<double>("Model", "JunctionLocalY", m_junctionLocal.y())->value();
+    m_junctionLocal.z() = config()->value<double>("Model", "JunctionLocalZ", m_junctionLocal.z())->value();
 
     auto envToBool = [](const char *name, bool value) {
         if (const char *env = std::getenv(name))
@@ -236,19 +240,6 @@ bool KitePlugin::init()
         }
         return value;
     };
-
-    if (modelEntry.empty())
-    {
-        modelEntry = coCoviseConfig::getEntry("value", "COVER.Plugin.KitePlugin.Model", "");
-    }
-    if (m_csvPath.empty())
-    {
-        m_csvPath = coCoviseConfig::getEntry("value", "COVER.Plugin.KitePlugin.CSV", "");
-    }
-    if (m_geoModelPath.empty())
-    {
-        m_geoModelPath = coCoviseConfig::getEntry("value", "COVER.Plugin.KitePlugin.GeoModel", "");
-    }
 
     if (std::getenv("KITE_NED"))
     {
@@ -309,9 +300,9 @@ bool KitePlugin::init()
     m_geoAutoCenter = envToBool("KITE_GEO_AUTO_CENTER", m_geoAutoCenter);
     m_geoAutoGround = envToBool("KITE_GEO_AUTO_GROUND", m_geoAutoGround);
 
-    double modelRollDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.ModelOffsetRoll", 0.0);
-    double modelPitchDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.ModelOffsetPitch", 0.0);
-    double modelYawDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.ModelOffsetYaw", 0.0);
+    double modelRollDeg = config()->value<double>("Model", "ModelOffsetRoll", 0.0)->value();
+    double modelPitchDeg = config()->value<double>("Model", "ModelOffsetPitch", 0.0)->value();
+    double modelYawDeg = config()->value<double>("Model", "ModelOffsetYaw", 0.0)->value();
     modelRollDeg = envToDouble("KITE_MODEL_OFFSET_ROLL", modelRollDeg);
     modelPitchDeg = envToDouble("KITE_MODEL_OFFSET_PITCH", modelPitchDeg);
     modelYawDeg = envToDouble("KITE_MODEL_OFFSET_YAW", modelYawDeg);
@@ -323,7 +314,7 @@ bool KitePlugin::init()
 
     if (modelEntry.empty())
     {
-        fprintf(stderr, "KitePlugin: no model path configured (KitePlugin.Model)\n");
+        fprintf(stderr, "KitePlugin: no model path configured (KitePlugin.Files.Model)\n");
         return false;
     }
 
@@ -449,7 +440,7 @@ bool KitePlugin::init()
     }
     else
     {
-        fprintf(stderr, "KitePlugin: no CSV path configured (KitePlugin.CSV), showing static model\n");
+        fprintf(stderr, "KitePlugin: no CSV path configured (KitePlugin.Files.CSV), showing static model\n");
     }
 
     return true;
