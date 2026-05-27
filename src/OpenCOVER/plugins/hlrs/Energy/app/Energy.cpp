@@ -25,7 +25,7 @@ EnergyPlugin::EnergyPlugin()
         *m_factory,
         cover->getObjectsRoot(),
         m_switch,
-        m_logger
+        m_logger.getLogger()
     )
     , m_simulation(
         GridRenderConfig{
@@ -40,7 +40,7 @@ EnergyPlugin::EnergyPlugin()
         *m_factory,
         &m_citygml,
         m_grid,
-        m_logger,
+        m_logger.getLogger(),
         this->configString("Simulation", "scenarioDir", "default")->value()
     )
 {
@@ -73,7 +73,7 @@ void EnergyPlugin::setTimestep(int t)
 
 bool EnergyPlugin::init()
 {
-    m_logger.info("Starting Energy Plugin");
+    m_logger.getLogger().info("Starting Energy Plugin");
 
     // need to save the config on exit => will only be saved when COVER is closed
     // correctly via q or closing the window

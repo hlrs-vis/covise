@@ -6,7 +6,7 @@
 #include <cover/coVRAnimationManager.h>
 #include <lib/core/interfaces/IEnergyGrid.h>
 #include <lib/core/simulation/simulationresult.h>
-#include <lib/core/ClassLogger.h>
+#include <lib/core/Logger.h>
 #include <osg/Group>
 #include <osg/MatrixTransform>
 #include <osg/Switch>
@@ -34,10 +34,10 @@ struct AnimationHandler
     }
 };
 
-class GridRenderer : core::ClassLogger
+class GridRenderer
 {
 public:
-    GridRenderer(osg::ref_ptr<osg::Switch> rootNode, const GridRenderConfig& offset, core::interface::ILogger& logger);
+    GridRenderer(osg::ref_ptr<osg::Switch> rootNode, const GridRenderConfig& offset, Logger logger);
 
     void buildGrid(EnergyType type, DataLoadManager& loader);
     void setData(EnergyType type, std::shared_ptr<core::simulation::SimulationResult> data, const std::string &species);
@@ -57,4 +57,5 @@ private:
     std::map<EnergyType, osg::ref_ptr<osg::MatrixTransform>> m_gridNodes;
     std::map<EnergyType, grid_ptr> m_gridMap;
     std::map<EnergyType, result_ptr> m_activeData;
+    Logger m_logger;
 };

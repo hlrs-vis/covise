@@ -5,7 +5,7 @@
 
 #include <lib/core/interfaces/ui/IComponent.h>
 #include <lib/core/simulation/simulationresult.h>
-#include <lib/core/ClassLogger.h>
+#include <lib/core/Logger.h>
 #include <lib/core/simulation/unitmap.h>
 #include <lib/core/simulation/powerresult.h>
 #include <lib/core/utils/osgUtils.h>
@@ -29,10 +29,10 @@ struct CityGMLConfig {
   std::string modelDir;
 };
 
-class CityGMLSystem final : core::ClassLogger {
+class CityGMLSystem {
  public:
   explicit CityGMLSystem(opencover::coVRPlugin *plugin, core::interface::ui::IComponent *parentMenu, const core::interface::ui::IGUIFactory &factory,
-                osg::ref_ptr<osg::ClipNode> rootGroup, osg::ref_ptr<osg::Switch> parent, core::interface::ILogger& logger);
+                osg::ref_ptr<osg::ClipNode> rootGroup, osg::ref_ptr<osg::Switch> parent, Logger logger);
 
   void init();
   void enable(bool on);
@@ -84,5 +84,6 @@ class CityGMLSystem final : core::ClassLogger {
   CityGMLSceneObject m_gmlSceneObject;
   std::unique_ptr<SolarPanelSceneObject> m_pvSceneObject;
   CityGMLConfig m_config;
+  Logger m_logger;
   bool m_enabled;
 };

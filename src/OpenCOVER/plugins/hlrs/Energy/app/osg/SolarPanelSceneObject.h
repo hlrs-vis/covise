@@ -7,17 +7,17 @@
 #include <boost/filesystem.hpp>
 
 #include <lib/core/interfaces/ISolarPanel.h>
-#include <lib/core/ClassLogger.h>
 #include <lib/core/utils/osgUtils.h>
+#include <lib/core/Logger.h>
 #include <app/typedefs.h>
 
 typedef std::vector<std::unique_ptr<core::interface::ISolarPanel>> SolarPanelList;
 typedef std::map<std::string, PVData> PVDataMap;
 
-class SolarPanelSceneObject : core::ClassLogger
+class SolarPanelSceneObject
 {
 public:
-    SolarPanelSceneObject(CityGMLSceneObject *gmlObj, osg::ref_ptr<osg::Group> parent, const boost::filesystem::path &modelDir, const PVDataMap &PV, float maxPVIntensity, core::interface::ILogger &logger);
+    SolarPanelSceneObject(CityGMLSceneObject *gmlObj, osg::ref_ptr<osg::Group> parent, const boost::filesystem::path &modelDir, const PVDataMap &PV, float maxPVIntensity, Logger logger);
     ~SolarPanelSceneObject();
     SolarPanelSceneObject(const SolarPanelSceneObject&) = delete;
     SolarPanelSceneObject& operator=(const SolarPanelSceneObject&) = delete;
@@ -54,4 +54,5 @@ private:
     osg::ref_ptr<osg::Group> m_root;
     osg::ref_ptr<osg::Group> m_parent;
     bool m_enabled;
+    Logger m_logger;
 };

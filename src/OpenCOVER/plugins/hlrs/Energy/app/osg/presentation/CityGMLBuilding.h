@@ -1,8 +1,7 @@
 #pragma once
 #include <PluginUtil/coShaderUtil.h>
 #include <lib/core/utils/osgUtils.h>
-#include <lib/core/ClassLogger.h>
-#include <string_view>
+#include <lib/core/Logger.h>
 
 #include "app/typedefs.h"
 
@@ -39,9 +38,9 @@
  * @var std::vector<opencover::coVRShader *> m_shaders
  *   Stores pointers to shaders used for rendering and data mapping.
  */
-class CityGMLBuilding : public BuildingTimedependImpl, core::ClassLogger {
+class CityGMLBuilding : public BuildingTimedependImpl {
  public:
-  CityGMLBuilding(std::string_view name, const core::utils::osgUtils::Geodes &geodes, core::interface::ILogger &logger);
+  CityGMLBuilding(std::string_view name, const core::utils::osgUtils::Geodes &geodes, Logger logger);
   void initDrawable() override;
   void applyColor(const Color &color) override;
   void updateTime(int timestep) override;
@@ -53,4 +52,5 @@ class CityGMLBuilding : public BuildingTimedependImpl, core::ClassLogger {
  private:
   std::vector<opencover::coVRShader *> m_shaders;
   int m_timestep;
+  Logger m_logger;
 };

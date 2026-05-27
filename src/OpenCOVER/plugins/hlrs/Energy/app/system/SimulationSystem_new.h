@@ -7,9 +7,9 @@
 #include "DataManager.h"
 #include "ScenarioManager.h"
 #include "app/ui/SimulationUI.h"
-#include <lib/core/ClassLogger.h>
+#include <lib/core/Logger.h>
 
-class SimulationSystem final : core::ClassLogger
+class SimulationSystem
 {
 public:
     explicit SimulationSystem(
@@ -18,7 +18,7 @@ public:
         const core::interface::ui::IGUIFactory &factory,
         CityGMLSystem *cityGMLSystem,
         osg::ref_ptr<osg::Switch> parent,
-        core::interface::ILogger &logger,
+        Logger logger,
         const std::string &scenarioDir);
     void init();
     void enable(bool on);
@@ -38,5 +38,6 @@ private:
     GridUIManager m_gridUIManager;
 
     bool m_enabled;
+    Logger m_logger;
     std::string m_scenarioDir;
 };

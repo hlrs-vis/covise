@@ -7,12 +7,13 @@
 #include <memory>
 #include <lib/core/utils/osgUtils.h>
 
-GridRenderer::GridRenderer(osg::ref_ptr<osg::Switch> rootNode, const GridRenderConfig &config, core::interface::ILogger &logger)
-    : core::ClassLogger(logger, "GridRenderer")
+GridRenderer::GridRenderer(osg::ref_ptr<osg::Switch> rootNode, const GridRenderConfig &config, Logger logger)
+    : m_logger(std::move(logger))
     , m_config(config)
     , m_anim()
     , m_root(rootNode)
 {
+    m_logger.setPrefix("GridRenderer");
     initGridParents();
     switchTo(EnergyType::HEATING);
     m_anim.updateTime(100, m_root);
@@ -35,11 +36,11 @@ void GridRenderer::buildGrid(EnergyType type, DataLoadManager &loader)
     if (package)
     {
         m_config.parent = m_gridNodes[type];
-        m_gridMap[type] = DataFactory::create(*package, type, getLogger(), typeString, m_config);
+        m_gridMap[type] = DataFactory::create(*package, type, m_logger, typeString, m_config);
     }
     else
     {
-        error("Failed to build grid for " + typeString + "; Datapackage not read correctly.");
+        m_logger.error("Failed to build grid for " + typeString + "; Datapackage not read correctly.");
     }
 }
 
@@ -48,7 +49,7 @@ void GridRenderer::setData(EnergyType type, std::shared_ptr<core::simulation::Si
     if (m_gridMap.find(type) == m_gridMap.end())
     {
         std::string typeString(EnergyTypeToString(type));
-        warn("Need to build grid for type " + typeString + " before updating shader.");
+        m_logger.warn("Need to build grid for type " + typeString + " before updating shader.");
         return;
     }
 
@@ -99,7 +100,7 @@ void GridRenderer::setVisible(bool visible)
             }
             else
             {
-                warn("Grid for type " + typeString + " has not been initialized.");
+                m_logger.warn("Grid for type " + typeString + " has not been initialized.");
                 continue;
             }
         }

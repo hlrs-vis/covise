@@ -21,12 +21,15 @@
 
 using namespace core::utils::osgUtils;
 
-void SolarPanel::init() { initDrawable(); }
+void SolarPanel::init() { 
+    m_logger.setPrefix("SolarPanel: " + m_node->getName());
+    initDrawable(); 
+}
 
 void SolarPanel::initDrawable() {
   osg::ref_ptr<osg::Group> group = m_node->asGroup();
   if (!group) {
-    error("SolarPanel: m_node is not a group!");
+    m_logger.error("SolarPanel: m_node is not a group!");
     return;
   }
   auto geodes = getGeodes(group);

@@ -1,14 +1,13 @@
 #include "SolarPanelSceneObject.h"
 #include "app/osg/CityGMLSceneObject.h"
-#include <lib/core/ClassLogger.h>
 #include <lib/core/utils/color.h>
 #include <osg/MatrixTransform>
 
 namespace fs = boost::filesystem;
 using namespace core::utils::osgUtils;
 
-SolarPanelSceneObject::SolarPanelSceneObject(CityGMLSceneObject *gmlObj, osg::ref_ptr<osg::Group> parent, const boost::filesystem::path &modelDir, const PVDataMap &map, float maxPVIntensity, core::interface::ILogger &logger)
-    : core::ClassLogger(logger, "SolarPanelSceneObject")
+SolarPanelSceneObject::SolarPanelSceneObject(CityGMLSceneObject *gmlObj, osg::ref_ptr<osg::Group> parent, const boost::filesystem::path &modelDir, const PVDataMap &map, float maxPVIntensity, Logger logger)
+    : m_logger(std::move(logger))
     , m_parent(parent)
     , m_root(new osg::Group())
 {
@@ -47,7 +46,7 @@ osg::ref_ptr<osg::Node> SolarPanelSceneObject::readPVModel(
             masterPanel = core::utils::osgUtils::readFileViaOSGDB(path.string(), options);
             if (!masterPanel)
             {
-                error("Could not load solar panel model from " + path.string());
+                m_logger.error("Could not load solar panel model from " + path.string());
                 continue;
             }
             break;
@@ -61,12 +60,13 @@ void SolarPanelSceneObject::init(CityGMLSceneObject *gmlObj, const boost::filesy
     float maxPVIntensity)
 {
 
+    m_logger.setPrefix("SolarPanelSceneObject");
     m_root->setName("PVPanels");
     auto masterPanel = readPVModel(modelDir, "solarpanel_1k_resized");
 
     if (!masterPanel)
     {
-        error("Could not load solar panel model. Make sure to define the "
+        m_logger.error("Could not load solar panel model. Make sure to define the "
                      "correct 3DModelDir in EnergyCampus.toml.");
         return;
     }
@@ -75,7 +75,7 @@ void SolarPanelSceneObject::init(CityGMLSceneObject *gmlObj, const boost::filesy
     auto masterGeometryData = instancing::extractAllGeometryData(masterPanel);
     if (masterGeometryData.empty())
     {
-        error("No geometry data found in the solar panel model.");
+        m_logger.error("No geometry data found in the solar panel model.");
         return;
     }
 
@@ -91,7 +91,7 @@ void SolarPanelSceneObject::processPVDataMap(CityGMLSceneObject *gmlObj,
 
     if (!m_parent)
     {
-        error("No parent found to attach solarpanels to.");
+        m_logger.error("No parent found to attach solarpanels to.");
         return;
     }
 
@@ -122,7 +122,7 @@ void SolarPanelSceneObject::processPVDataMap(CityGMLSceneObject *gmlObj,
         }
         catch (const std::out_of_range &)
         {
-            warn("Could not find cityGML object with ID " + id
+            m_logger.warn("Could not find cityGML object with ID " + id
                       + " in m_cityGMLObjs to attach solarpanels.");
             continue;
         }
@@ -134,7 +134,7 @@ void SolarPanelSceneObject::processSolarPanelDrawable(SolarPanelList &solarPanel
 {
     if (!config.valid())
     {
-        error("Invalid SolarPanelConfig.");
+        m_logger.error("Invalid SolarPanelConfig.");
         return;
     }
     auto bb = config.geode->getBoundingBox();
@@ -200,7 +200,7 @@ std::unique_ptr<SolarPanel> SolarPanelSceneObject::createSolarPanel(
     auto solarPanelInstance = instancing::createInstance(masterGeometryData, matrix);
     solarPanelInstance->setName(name);
 
-    auto solarPanel = std::make_unique<SolarPanel>(solarPanelInstance, getLogger());
+    auto solarPanel = std::make_unique<SolarPanel>(solarPanelInstance, m_logger);
     solarPanel->applyColor(colorIntensity);
     parent->addChild(solarPanelInstance);
     return std::move(solarPanel);
@@ -224,7 +224,7 @@ void SolarPanelSceneObject::processSolarPanelDrawables(
         config.geode = drawable->asGeode();
         if (!config.geode)
         {
-            warn("Drawable is not a Geode. Solarpanels cannot be attached.");
+            m_logger.warn("Drawable is not a Geode. Solarpanels cannot be attached.");
             continue;
         }
         processSolarPanelDrawable(m_panels, config);

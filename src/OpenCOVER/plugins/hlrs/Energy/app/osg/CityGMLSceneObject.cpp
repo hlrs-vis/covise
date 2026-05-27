@@ -10,18 +10,19 @@
 using namespace core::utils::osgUtils;
 
 CityGMLSceneObject::CityGMLSceneObject(osg::ref_ptr<osg::ClipNode> rootGroup,
-    osg::ref_ptr<osg::Switch> parent, core::interface::ILogger &logger)
-    : core::ClassLogger(logger, "CityGMLSceneObject")
+    osg::ref_ptr<osg::Switch> parent, Logger logger)
+    : m_logger(std::move(logger))
     , m_coverRootGroup(rootGroup)
     , m_parent(parent)
     , m_root(new osg::Group())
 {
+    m_logger.setPrefix("CityGMLSceneObject");
     if (!parent) {
-        error("Parent must not be null");
+        m_logger.error("Parent must not be null");
         return;
     }
     init();
-    info("Create citygml sceneobject.");
+    m_logger.info("Create citygml sceneobject.");
 }
 
 CityGMLSceneObject::~CityGMLSceneObject()
@@ -78,7 +79,7 @@ void CityGMLSceneObject::addCityGMLObject(const std::string &name,
     infoboardPos.z += (boundingbox.zMax() - boundingbox.zMin()) / 2 + boundingbox.zMin();
     auto infoboard = std::make_unique<OsgTxtInfoboard>(
         infoboardPos, name, "DroidSans-Bold.ttf", 50, 50, 2.0f, 0.1, 2);
-    auto building = std::make_unique<CityGMLBuilding>(name, *geodes, getLogger());
+    auto building = std::make_unique<CityGMLBuilding>(name, *geodes, m_logger);
     auto sensor = std::make_unique<CityGMLDeviceSensor>(
         citygmlObjGroup, std::move(infoboard), std::move(building));
     m_sensorMap.insert({ name, std::move(sensor) });
@@ -144,7 +145,7 @@ void CityGMLSceneObject::transform(const osg::Vec3 &translation,
     assert(m_root && "CityGML group is not initialized.");
     if (m_root->getNumChildren() == 0)
     {
-        warn("No CityGML objects to transform.");
+        m_logger.warn("No CityGML objects to transform.");
         return;
     }
     for (unsigned int i = 0; i < m_root->getNumChildren(); ++i)
@@ -157,7 +158,7 @@ void CityGMLSceneObject::transform(const osg::Vec3 &translation,
         }
         else
         {
-            error("Child is not a MatrixTransform.");
+            m_logger.error("Child is not a MatrixTransform.");
         }
     }
 }

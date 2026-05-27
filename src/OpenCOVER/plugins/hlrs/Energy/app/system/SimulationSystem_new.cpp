@@ -11,9 +11,9 @@ SimulationSystem::SimulationSystem(
     const core::interface::ui::IGUIFactory &factory,
     CityGMLSystem *cityGMLSystem,
     osg::ref_ptr<osg::Switch> parent,
-    core::interface::ILogger &logger,
+    Logger logger,
     const std::string &scenarioDir)
-    : core::ClassLogger(logger, "SimulationSystem")
+    : m_logger(std::move(logger))
     , m_ui({ 
         factory, 
         parentMenu, 
@@ -33,6 +33,7 @@ SimulationSystem::SimulationSystem(
 
 void SimulationSystem::init()
 {
+    m_logger.setPrefix("SimulationSystem");
     m_dataLoadManager.registerProvider(Storage::ARROW, std::make_unique<ArrowLoader>(m_scenarioDir));
     m_dataLoadManager.registerProvider(Storage::CSV, std::make_unique<CSVLoader>(m_scenarioDir));
 
@@ -57,7 +58,7 @@ void SimulationSystem::initUI()
         if (value >= 0 && value < static_cast<int>(ENERGYTYPE_RANGE.size())) {
             m_gridRenderer.switchTo(ENERGYTYPE_RANGE[value]);
         } else {
-            error("Invalid index used for EnergyGridSelection");
+            m_logger.error("Invalid index used for EnergyGridSelection");
         } });
 
     m_ui.setStorageDefault(EnergyType::HEATING, Storage::CSV);
@@ -98,7 +99,7 @@ void SimulationSystem::onScenarioSelectionChanged(int scenarioId)
         return;
 
     auto currentScenario = m_scenarioManager.getSelectedScenario();
-    info("Switching to scenario ID: " + std::to_string(scenarioId));
+    m_logger.info("Switching to scenario ID: " + std::to_string(scenarioId));
 
     for (auto type : ENERGYTYPE_RANGE)
     {
