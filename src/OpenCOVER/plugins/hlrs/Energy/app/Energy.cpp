@@ -1,6 +1,7 @@
 #include "Energy.h"
+#include "app/system/CityGMLSystem.h"
+#include "app/system/SimulationSystem_new.h"
 #include "app/ui/cover/CoverUIFactory.h"
-#include "app/ui/cover/CoverMenu.h"
 #include <lib/core/constants.h>
 
 // COVER
@@ -18,6 +19,59 @@ EnergyPlugin::EnergyPlugin()
     , m_owner("Energy", cover->ui)
     , m_ui(*m_factory, "EnergyPlugin", &m_owner)
     , m_logger(CONSTANTS::NAMES::LOGGER_NAME)
+    , m_citygml(
+        this,
+        m_ui.getTabMenu(),
+        *m_factory,
+        cover->getObjectsRoot(),
+        m_switch,
+        m_logger
+    )
+    , m_simulation(
+        GridRenderConfig{
+            this->configFloatArray("General", "offset", std::vector<double> { 0, 0, 0})->value(),
+            this->configString("Billboard", "font", "default")->value(),
+            {
+                { this->configString("General", "projFrom", "default")->value() },
+                { this->configString("General", "projTo", "default")->value() } 
+            }
+        }, 
+        m_ui.getTabMenu(),
+        *m_factory,
+        &m_citygml,
+        m_grid,
+        m_logger,
+        this->configString("Simulation", "scenarioDir", "default")->value()
+    )
+{
+}
+
+EnergyPlugin::~EnergyPlugin()
+{
+    auto root = cover->getObjectsRoot();
+
+    if (m_Energy)
+    {
+        root->removeChild(m_Energy.get());
+    }
+
+    config()->save();
+}
+
+bool EnergyPlugin::update()
+{
+    m_simulation.update();
+    m_citygml.update();
+    return true;
+}
+
+void EnergyPlugin::setTimestep(int t)
+{
+    m_simulation.updateTime(t);
+    m_citygml.updateTime(t);
+}
+
+bool EnergyPlugin::init()
 {
     m_logger.info("Starting Energy Plugin");
 
@@ -55,89 +109,17 @@ EnergyPlugin::EnergyPlugin()
       m_Energy->addChild(m_grid);
     } else {
       m_Energy->removeChild(m_grid);
-        
     } });
-}
 
-EnergyPlugin::~EnergyPlugin()
-{
-    auto root = cover->getObjectsRoot();
-
-    if (m_Energy)
-    {
-        root->removeChild(m_Energy.get());
-    }
-
-    config()->save();
-}
-
-void EnergyPlugin::preFrame()
-{
-    // auto simSystem = getSimulationSystem();
-    // if (!simSystem)
-    //     simSystem->preFrame();
-}
-
-bool EnergyPlugin::update()
-{
-    for (auto &[type, system] : m_systems)
-        if (system)
-            system->update();
-
-    return false;
-}
-
-void EnergyPlugin::setTimestep(int t)
-{
-    for (auto &[type, system] : m_systems)
-        if (system)
-            system->updateTime(t);
-}
-
-bool EnergyPlugin::init()
-{
     initSystems();
     return true;
 }
 
 void EnergyPlugin::initSystems()
 {
-    auto tabMenu = dynamic_cast<IComponent *>(m_ui.getTabMenu());
-    if (!tabMenu)
-    {
-        m_logger.error("Something went wrong in initializing EnergyUI");
-        return;
-    }
-
-    m_systems[System::CityGML] = std::make_unique<CityGMLSystem>(
-        this,
-        tabMenu,
-        *m_factory,
-        cover->getObjectsRoot(),
-        m_switch,
-        m_logger);
-
-    GridRenderConfig config;
-    config.offset = this->configFloatArray("General", "offset", std::vector<double> { 0, 0, 0})->value(); 
-    config.font = this->configString("Billboard", "font", "default")->value();
-    config.proj = {
-        { this->configString("General", "projFrom", "default")->value() },
-        { this->configString("General", "projTo", "default")->value() } 
-    };
-
-    m_systems[System::Simulation] = std::make_unique<SimulationSystem>(
-        config, 
-        tabMenu,
-        *m_factory,
-        getCityGMLSystem(),
-        m_grid,
-        m_logger,
-        this->configString("Simulation", "scenarioDir", "default")->value());
-
-    for (auto &[type, system] : m_systems)
-    {
-        system->init();
-        system->enable(true);
-    }
+    m_simulation.init();
+    m_citygml.init();
+    m_simulation.enable(true);
+    m_citygml.enable(true);
 }
 COVERPLUGIN(EnergyPlugin)

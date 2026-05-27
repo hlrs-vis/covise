@@ -9,7 +9,6 @@ set(HEADERS
     IMovable.h
     ITimedependable.h
     ISolarPanel.h
-    ISystem.h
     IUpdateable.h
     ui/IButton.h
     ui/IButtonGroup.h
