@@ -10,7 +10,7 @@ grid_ptr HeatingGridParser::operator()(CSVDataMap &map)
     auto heatingIt = map.find("heating_network");
     if (heatingIt == map.end())
     {
-        error("Necessary heating network file heating_network cannot be found.");
+        m_logger.error("Necessary heating network file heating_network cannot be found.");
         return nullptr;
     }
     auto heatingStream = heatingIt->second;
@@ -34,7 +34,7 @@ grid_ptr HeatingGridParser::operator()(CSVDataMap &map)
     config.connectionType = EnergyGridConnectionType::Line;
     config.lines = lines;
 
-    auto grid = std::make_shared<EnergyGrid>(config, getLogger());
+    auto grid = std::make_shared<EnergyGrid>(config, m_logger);
     grid->initDrawable();
 
     return std::move(grid);
@@ -63,7 +63,7 @@ std::pair<grid::Points, grid::Data> HeatingGridParser::createHeatingGridPointsAn
 
     if (!P)
     {
-        warn("Ignore mapping. No valid projection was "
+        m_logger.warn("Ignore mapping. No valid projection was "
              "found between given proj string in "
              "config EnergyCampus.toml");
         mapdrape = false;
@@ -102,7 +102,7 @@ std::pair<grid::Points, grid::Data> HeatingGridParser::createHeatingGridPointsAn
         int strangeId = std::stoi(name);
 
         // create a point
-        osg::ref_ptr<grid::Point> point = new grid::Point(name, lon, lat, height, 1.0f, getLogger(), pointData);
+        osg::ref_ptr<grid::Point> point = new grid::Point(name, lon, lat, height, 1.0f, m_logger, pointData);
         points.push_back(point);
 
         // needs cleanup because dataset is not final and has empty cells => no need to
@@ -111,7 +111,7 @@ std::pair<grid::Points, grid::Data> HeatingGridParser::createHeatingGridPointsAn
         row.clear();
         if (connections.empty() || connections == INVALID_CELL_VALUE)
         {
-            warn("No connections for point: " + name);
+            m_logger.warn("No connections for point: " + name);
             continue;
         }
         connectionStrings[strangeId] = connections;
@@ -139,13 +139,13 @@ grid::Lines HeatingGridParser::createHeatingGridLines(
         {
             std::stringstream ss;
             ss << "Point with id " << id << " not found in points.";
-            warn(ss.str());
+            m_logger.warn(ss.str());
             continue;
         }
         auto line = createHeatingGridLine(points, from, connectionsStr, additionalData);
         if (line == nullptr)
         {
-            warn("Failed to create line for point: " + from->getName());
+            m_logger.warn("Failed to create line for point: " + from->getName());
             continue;
         }
         lines.push_back(line);
@@ -162,7 +162,7 @@ osg::ref_ptr<grid::Point> HeatingGridParser::searchHeatingGridPointById(
     {
         std::stringstream ss;
         ss << "Point with id " << id << " not found in points." << std::endl;
-        warn(ss.str());
+        m_logger.warn(ss.str());
     }
     return *pointIt; // returns nullptr if not found
 }
@@ -202,34 +202,34 @@ osg::ref_ptr<grid::Line> HeatingGridParser::createHeatingGridLine(
         {
             std::stringstream ss;
             ss << "Point with id " << toID << " not found in points." << std::endl;
-            warn(ss.str());
+            m_logger.warn(ss.str());
             continue;
         }
         grid::ConnectionData connData {
             pointName + "_" + connection, from, to, 0.5f, true, nullptr, connectionData
         };
-        grid::DirectedConnection directed(connData, getLogger(),
+        grid::DirectedConnection directed(connData, m_logger,
             grid::ConnectionType::LineWithShader);
         gridConnections.push_back(new grid::DirectedConnection(directed));
     }
 
-    return new grid::Line(lineName, gridConnections, getLogger());
+    return new grid::Line(lineName, gridConnections, m_logger);
 }
 
 grid_ptr HeatingGridParser::operator()(const ArrowDataMap &map)
 {
-    error("HeatingGridParser cannot parse ArrowDataMap at the moment.");
+    m_logger.error("HeatingGridParser cannot parse ArrowDataMap at the moment.");
     return nullptr;
 }
 
 grid_ptr HeatingGridParser::operator()(const ArrowData &data)
 {
-    error("HeatingGridParser cannot parse ArrowData at the moment.");
+    m_logger.error("HeatingGridParser cannot parse ArrowData at the moment.");
     return nullptr;
 }
 
 grid_ptr HeatingGridParser::operator()(CSVData &data)
 {
-    error("HeatingGridParser cannot parse CSVData at the moment.");
+    m_logger.error("HeatingGridParser cannot parse CSVData at the moment.");
     return nullptr;
 }

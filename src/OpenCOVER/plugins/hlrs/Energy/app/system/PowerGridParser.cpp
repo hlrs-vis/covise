@@ -72,7 +72,7 @@ grid_ptr PowerGridParser::operator()(CSVDataMap &map)
     econfig.connectionType = EnergyGridConnectionType::Line;
     econfig.lines = mergedLines;
 
-    auto powerGrid = std::make_shared<EnergyGrid>(econfig, getLogger(), false);
+    auto powerGrid = std::make_shared<EnergyGrid>(econfig, m_logger, false);
     powerGrid->initDrawable();
     return std::move(powerGrid);
 }
@@ -160,7 +160,7 @@ std::vector<grid::PointsMap> PowerGridParser::createPowerGridPoints(
             busData["base_point_data"] = "";
         }
 
-        osg::ref_ptr<grid::Point> p = new grid::Point(busName, lon, lat, height, sphereRadius, getLogger(), busData);
+        osg::ref_ptr<grid::Point> p = new grid::Point(busName, lon, lat, height, sphereRadius, m_logger, busData);
         if (type == "Sondernetz")
             pointsSonder.insert({ busID, p });
         else
@@ -329,7 +329,7 @@ osg::ref_ptr<grid::Line> PowerGridParser::createLine(
         {
             std::stringstream ss;
             ss << "Invalid bus ID: " << from_last << " or " << to_new << std::endl;
-            warn(ss.str());
+            m_logger.warn(ss.str());
             continue;
         }
 
@@ -339,26 +339,26 @@ osg::ref_ptr<grid::Line> PowerGridParser::createLine(
         grid::ConnectionData conData { name, fromPoint, toPoint, radius,
             false, nullptr, data };
         connections.push_back(
-            new grid::DirectedConnection(conData, getLogger(), grid::ConnectionType::LineWithShader));
+            new grid::DirectedConnection(conData, m_logger, grid::ConnectionType::LineWithShader));
         from_last = to_new;
     }
-    return new grid::Line(name, connections, getLogger());
+    return new grid::Line(name, connections, m_logger);
 }
 
 grid_ptr PowerGridParser::operator()(const ArrowDataMap &map)
 {
-    error("PowerGridParser cannot parse ArrowDataMap at the moment.");
+    m_logger.error("PowerGridParser cannot parse ArrowDataMap at the moment.");
     return nullptr;
 }
 
 grid_ptr PowerGridParser::operator()(const ArrowData &data)
 {
-    error("PowerGridParser cannot parse ArrowData at the moment.");
+    m_logger.error("PowerGridParser cannot parse ArrowData at the moment.");
     return nullptr;
 }
 
 grid_ptr PowerGridParser::operator()(CSVData &data)
 {
-    error("PowerGridParser cannot parse CSVData at the moment.");
+    m_logger.error("PowerGridParser cannot parse CSVData at the moment.");
     return nullptr;
 }

@@ -5,7 +5,6 @@ set(HEADERS
     IDrawable.h
     IInfoboard.h
     IInformable.h
-    ILogger.h
     IMovable.h
     ITimedependable.h
     ISolarPanel.h

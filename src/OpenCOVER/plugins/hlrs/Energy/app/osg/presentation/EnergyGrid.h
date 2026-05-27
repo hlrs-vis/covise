@@ -3,7 +3,7 @@
 #include <lib/core/interfaces/IEnergyGrid.h>
 #include <lib/core/interfaces/IInfoboard.h>
 #include <lib/core/simulation/simulationresult.h>
-#include <lib/core/ClassLogger.h>
+#include <lib/core/Logger.h>
 
 #include <memory>
 #include <osg/Geode>
@@ -72,11 +72,11 @@ struct EnergyGridConfig
  * @var m_enabled Indicates whether the sensor is enabled.
  * @var m_infoBoard Unique pointer to the managed infoboard instance.
  */
-class InfoboardSensor : public coPickSensor, ClassLogger {
+class InfoboardSensor : public coPickSensor {
 
  public:
   InfoboardSensor(osg::ref_ptr<osg::Group> parent,
-                  std::unique_ptr<InfoboardImpl> &&infoboard, interface::ILogger &logger,
+                  std::unique_ptr<InfoboardImpl> &&infoboard, Logger logger,
                   const std::string &content = "");
 
   void activate() override;
@@ -85,6 +85,7 @@ class InfoboardSensor : public coPickSensor, ClassLogger {
  private:
   bool m_enabled = false;
   std::unique_ptr<InfoboardImpl> m_infoBoard;
+  Logger m_logger;
 };
 
 /**
@@ -95,9 +96,9 @@ class InfoboardSensor : public coPickSensor, ClassLogger {
  * OpenSceneGraph.
  *
  */
-class EnergyGrid : public interface::IEnergyGrid, ClassLogger {
+class EnergyGrid : public interface::IEnergyGrid {
  public:
-  EnergyGrid(const EnergyGridConfig &data, interface::ILogger &logger, bool ignoreOverlap = true);
+  EnergyGrid(const EnergyGridConfig &data, Logger logger, bool ignoreOverlap = true);
   void initDrawable() override;
   void update() override {
     for (auto &infoboard : m_infoboards) infoboard->update();
@@ -136,7 +137,7 @@ class EnergyGrid : public interface::IEnergyGrid, ClassLogger {
     // OsgTxtInfoboard infoboard(m_config.infoboardAttributes);
     auto infoboard = std::make_unique<OsgTxtInfoboard>(m_config.infoboardAttributes);
     m_infoboards.push_back(std::make_unique<InfoboardSensor>(
-        gridObj, std::move(infoboard), getLogger(), toPrint));
+        gridObj, std::move(infoboard), m_logger, toPrint));
   }
 
   std::string createDataString(const grid::Data &data) const;
@@ -158,4 +159,5 @@ class EnergyGrid : public interface::IEnergyGrid, ClassLogger {
   Drawables m_drawables;
   std::vector<std::unique_ptr<InfoboardSensor>> m_infoboards;
   bool m_ignoreOverlap;
+  Logger m_logger;
 };

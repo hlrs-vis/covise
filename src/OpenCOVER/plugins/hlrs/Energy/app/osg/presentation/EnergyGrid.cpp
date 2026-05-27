@@ -37,9 +37,10 @@ auto get_string = [](const auto &data) {
 }  // namespace
 
 InfoboardSensor::InfoboardSensor(osg::ref_ptr<osg::Group> parent,
-                                 std::unique_ptr<InfoboardImpl> &&infoboard, core::interface::ILogger &logger,
+                                 std::unique_ptr<InfoboardImpl> &&infoboard, Logger logger,
                                  const std::string &content)
-    : ClassLogger(logger, "InfoboardSensor: " + parent->getName()), coPickSensor(parent), m_enabled(false), m_infoBoard(std::move(infoboard)) {
+    : m_logger(std::move(logger)), coPickSensor(parent), m_enabled(false), m_infoBoard(std::move(infoboard)) {
+  m_logger.setPrefix("InfoboardSensor " + parent->getName());
   m_infoBoard->initInfoboard();
   m_infoBoard->initDrawable();
   m_infoBoard->updateInfo(content);
@@ -52,12 +53,12 @@ void InfoboardSensor::activate() {
   selectionManager->clearSelection();
   auto selectedNode = getNode();
   if (!selectedNode) {
-    error("No node selected for activation.");
+    m_logger.error("No node selected for activation.");
     return;
   }
   auto parent = selectedNode->getParent(0);
   if (!parent) {
-    error("No parent node found for selected node.");
+    m_logger.error("No parent node found for selected node.");
     return;
   }
 
@@ -82,10 +83,11 @@ void InfoboardSensor::update() {
   coPickSensor::update();
 }
 
-EnergyGrid::EnergyGrid(const EnergyGridConfig &data, interface::ILogger& logger, bool ignoreOverlap)
-    : ClassLogger(logger, data.name)
+EnergyGrid::EnergyGrid(const EnergyGridConfig &data, Logger logger, bool ignoreOverlap)
+    : m_logger(std::move(logger))
     , m_config(data)
     , m_ignoreOverlap(ignoreOverlap) {
+  m_logger.setPrefix(data.name);
   if (!m_config.parent.valid()) {
     m_config.parent = new osg::MatrixTransform;
     m_config.parent->setName(m_config.name);
@@ -110,14 +112,14 @@ void EnergyGrid::initConnectionsByIndex(
     auto from = points[i];
     for (auto j = 0; j < indices[i].size(); ++j) {
       if (i < 0 || i >= points.size()) {
-        warn("Invalid Index for points: " + std::to_string(i));
+        m_logger.warn("Invalid Index for points: " + std::to_string(i));
         continue;
       }
 
       const auto indice = indices[i][j];
 
       if (indice >= points.size() || indice < 0) {
-        warn("Invalid Index for points: " + std::to_string(indice));
+        m_logger.warn("Invalid Index for points: " + std::to_string(indice));
         continue;
       }
       auto to = points[indice];
@@ -132,7 +134,7 @@ void EnergyGrid::initConnectionsByIndex(
             additionalData = additionalConnectionData[i][j];
       grid::ConnectionData data{name,    from,          to, radius, false,
                                 nullptr, additionalData};
-      m_connections.push_back(new grid::DirectedConnection(data, getLogger()));
+      m_connections.push_back(new grid::DirectedConnection(data, m_logger));
     }
   }
 }
@@ -245,7 +247,7 @@ void EnergyGrid::initDrawable() {
       initDrawableLines();
       break;
     default:
-      warn("Invalid connection type");
+      m_logger.warn("Invalid connection type");
   }
   initDrawablePoints();
 }
@@ -301,11 +303,11 @@ void EnergyGrid::setData(const core::simulation::SimulationResult &sim,
       if (data)
         point->updateDataInShader(*data, min, max);
       else {
-        warn("No data found for point: " + point->getName());
+        m_logger.warn("No data found for point: " + point->getName());
       }
     } else {
       std::string err(std::get<std::string>(result));
-      warn(err);
+      m_logger.warn(err);
     }
   }
   for (auto &[_, point] : m_config.pointsMap) {
@@ -318,11 +320,11 @@ void EnergyGrid::setData(const core::simulation::SimulationResult &sim,
       if (data)
         point->updateDataInShader(*data, min, max);
       else {
-        warn("No data found for point: " + point->getName());
+        m_logger.warn("No data found for point: " + point->getName());
       }
     } else {
       std::string err(std::get<std::string>(result));
-      warn(err);
+      m_logger.warn(err);
     }
   }
   for (auto &conn : m_connections) {
@@ -337,15 +339,15 @@ void EnergyGrid::setData(const core::simulation::SimulationResult &sim,
       if (fromData && toData)
         conn->setDataInShader(*fromData, *toData);
       else
-        warn("No data found for connection: " + conn->getName());
+        m_logger.warn("No data found for connection: " + conn->getName());
     } else {
       if (std::holds_alternative<std::string>(result_from)) {
         std::string err_msg(std::get<std::string>(result_from));
-        warn(err_msg);
+        m_logger.warn(err_msg);
       }
       if (std::holds_alternative<std::string>(result_to)) {
         std::string err_msg(std::get<std::string>(result_to));
-        warn(err_msg);
+        m_logger.warn(err_msg);
       }
     }
   }
@@ -363,15 +365,15 @@ void EnergyGrid::setData(const core::simulation::SimulationResult &sim,
         if (fromData && toData)
             conn->setDataInShader(*fromData, *toData);
         else 
-          warn("No data found for connection: " + conn->getName());
+          m_logger.warn("No data found for connection: " + conn->getName());
       } else {
           if (std::holds_alternative<std::string>(result_from)) {
               std::string err_msg(std::get<std::string>(result_from));
-              warn(err_msg);
+              m_logger.warn(err_msg);
           }
           if (std::holds_alternative<std::string>(result_to)) {
               std::string err_msg(std::get<std::string>(result_to));
-              warn(err_msg);
+              m_logger.warn(err_msg);
           }
       }
     }
@@ -389,15 +391,15 @@ void EnergyGrid::setData(const core::simulation::SimulationResult &sim,
           if (fromData && toData)
             conn->setDataInShader(*fromData, *toData);
           else
-            warn("No data found for connection: " + conn->getName());
+            m_logger.warn("No data found for connection: " + conn->getName());
         } else {
           if (std::holds_alternative<std::string>(result_from)) {
               std::string err_msg(std::get<std::string>(result_from));
-              warn(err_msg);
+              m_logger.warn(err_msg);
           }
           if (std::holds_alternative<std::string>(result_to)) {
               std::string err_msg(std::get<std::string>(result_to));
-              warn(err_msg);
+              m_logger.warn(err_msg);
           }
         }
       }
@@ -410,12 +412,12 @@ void EnergyGrid::setData(const core::simulation::SimulationResult &sim,
       const auto [min, max] = sim.getScalarProperties().getMinMax(species);
       if (std::holds_alternative<std::string>(result)) {
         std::string err(std::get<std::string>(result));
-        warn(err);
+        m_logger.warn(err);
         continue;
       }
       auto data(std::get<core::simulation::const_ScalarVecs>(result));
       if (!data) {
-        warn("No data found for line: " + lineName);
+        m_logger.warn("No data found for line: " + lineName);
         continue;
       }
       for (auto &[_, conn] : line->getConnections())

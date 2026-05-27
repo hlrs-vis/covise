@@ -18,7 +18,7 @@ void DataManager::loadScenario(Storage storageType, const Scenario &scenario,
         }
         else
         {
-            error("Failed to load data for scenario" + scenario.name);
+            m_logger.error("Failed to load data for scenario" + scenario.name);
         }
     }
 }

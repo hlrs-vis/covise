@@ -10,18 +10,18 @@
 
 #include <lib/core/utils/osgUtils.h>
 #include <lib/core/interfaces/ISolarPanel.h>
-#include <lib/core/ClassLogger.h>
+#include <lib/core/Logger.h>
 
 #include <boost/filesystem.hpp>
 
 typedef core::utils::osgUtils::Geodes Geodes;
 typedef std::vector<std::unique_ptr<core::interface::ISolarPanel>> SolarPanelList;
 
-class CityGMLSceneObject : core::ClassLogger
+class CityGMLSceneObject
 {
 public:
     CityGMLSceneObject(osg::ref_ptr<osg::ClipNode> rootGroup,
-        osg::ref_ptr<osg::Switch> parent, core::interface::ILogger& logger);
+        osg::ref_ptr<osg::Switch> parent, Logger logger);
     ~CityGMLSceneObject();
     void enable(const osg::Vec3 &translation = { 0.0f, 0.0f, 0.0f });
     bool enabled() const { return m_enabled && core::utils::osgUtils::isActive(m_parent, m_root); }
@@ -61,4 +61,5 @@ private:
     osg::ref_ptr<osg::Switch> m_parent;
     osg::ref_ptr<osg::Group> m_root;
     osg::ref_ptr<osg::ClipNode> m_coverRootGroup;
+    Logger m_logger;
 };
