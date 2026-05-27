@@ -308,21 +308,15 @@ demo 134 "Mantis_Uwe" cover /data/Spar3d/Mantis-vision/PLY/uwe.wrl
 
 run_vr_terroir()
 {
-    COCONFIG=config.ghost-avatar-cave-scene2.xml opencover /data/STARTS-ECHO/Avatars/CAVE_TheGATE/new/cavescene_lin_xl_modifiers_sd8.wrl
+    COCONFIG=config.ghost-avatar-cave-scene.xml opencover /data/STARTS-ECHO/Avatars/CAVE_TheGATE/new/cavescene_lin_xl_modifiers_sd8.wrl
 }
-demo 135 "VR Terroir" run_vr_terroir
-
-run_old_vr_terroir()
-{
-    COCONFIG=config.ghost-avatar-cave-scene1.xml opencover /data/STARTS-ECHO/Avatars/CAVE_TheGATE/cavescene_lin.wrl
-}
-demo 136 "VR Terroir (old)" run_old_vr_terroir
+demo 135 "VR Terroir (Avatar)" run_vr_terroir
 
 run_tangible_interface()
 {
     COCONFIG=config.hlrs.xml opencover /data/STARTS-ECHO/SalzburgerFestival/TangibleInterface/TangibleInterface-All.wrl
 }
-demo 137 "Tangible Interface" run_tangible_interface
+demo 136 "Tangible Interface" run_tangible_interface
 
 # Mobilitaetswoche
 category="MOBILITAETSWOCHE"
