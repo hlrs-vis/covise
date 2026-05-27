@@ -248,7 +248,7 @@ bool ElevatorPart::update(osg::Vec3& viewerPosition)
                 doorFraction = 1;
                 state = DoorOpen;
             }
-            float doorPos = doorFraction * openingDistance * (doorNumber+1);
+            float doorPos = direction * doorFraction * openingDistance * (doorNumber+1);
 
             osg::Matrix newTrans = transformNode->getMatrix();
             newTrans.setTrans(initialTranslation + osg::Vec3(doorPos, 0, 0));
@@ -277,7 +277,7 @@ bool ElevatorPart::update(osg::Vec3& viewerPosition)
                 doorFraction = 0;
                 state = DoorClosed;
             }
-            float doorPos = doorFraction * openingDistance * (doorNumber+1);
+            float doorPos = direction * doorFraction * openingDistance * (doorNumber + 1);
 
             osg::Matrix newTrans = transformNode->getMatrix();
             newTrans.setTrans(initialTranslation + osg::Vec3(doorPos, 0, 0));
@@ -388,17 +388,25 @@ void Elevator::addPart(const std::string &familyName, const std::string &subType
         if (familyName.substr(0, 5) == "Cabin")
         {
             cabin->doors.push_back(ep);
-            if (subType.substr(16, 4) == "ight")
+            if (subType.length() < 18 || subType.substr(16, 4) == "ight")
             {
-
+                ep->direction = 1;
             }
             else
             {
-                ep->doorNumber *= -1;
+                ep->direction = -1;
             }
         }
         else
         {
+            if (subType.length() < 18 || subType.substr(16, 4) == "ight")
+            {
+                ep->direction = 1;
+            }
+            else
+            {
+                ep->direction = -1;
+            }
             ElevatorPart *landing=nullptr;
             for (const auto &landingPart : landings)
             {
