@@ -33,9 +33,9 @@
     <UseVertexBufferObjects value="false" />
    <Input>
         <MouseNav value="true" />
-        <Device>
+ <!--       <Device>
 
-<!--
+
            <DTrackCave driver="dtrack" port="5000" serverHost="192.168.1.2">
               <Offset x="0" y="-0" z="-1327" />
               <Orientation h="0" p="0" r="0" />

@@ -1013,9 +1013,9 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
             std::string relPath(adjustedFileName);
             makeRelativeToSharedDataLink(relPath);
             button = new ui::Button(m_fileGroup, "File" + reduceToAlphanumeric(relPath) + std::to_string(uniqueNumber));
-            fe = new LoadedFile(url, button, isRoot);
             uniqueNumber++;
         }
+        fe = new LoadedFile(url, button, isRoot);
         if (isRoot)
         {
             // if file is not shared, add it to the shared filePaths list
