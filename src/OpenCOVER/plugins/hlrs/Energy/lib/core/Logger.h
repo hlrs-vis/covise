@@ -14,11 +14,14 @@ public:
         INFO
     };
 
-    using InfoStrategy = std::function<void(std::string_view)>;
-    using ErrorStrategy = std::function<void(std::string_view)>;
-    using WarnStrategy = std::function<void(std::string_view)>;
+    using Rank = int;
+    using Message = std::string_view;
+    using Prefix = std::string_view;
+    using InfoStrategy = std::function<void(Message)>;
+    using ErrorStrategy = std::function<void(Message)>;
+    using WarnStrategy = std::function<void(Message)>;
 
-    explicit Logger(InfoStrategy info, ErrorStrategy error, WarnStrategy warn, std::string_view prefix = {}, int rank = 0)
+    explicit Logger(InfoStrategy info, ErrorStrategy error, WarnStrategy warn, Prefix prefix = {}, Rank rank = 0)
         : info_(info)
         , error_(error)
         , warn_(warn)
@@ -27,33 +30,33 @@ public:
     {
     }
 
-    constexpr void info(std::string_view msg) const
+    constexpr void info(Message msg) const
     {
         log(LogLevel::INFO, prefixMsg(msg));
     }
 
-    constexpr void error(std::string_view msg) const
+    constexpr void error(Message msg) const
     {
         log(LogLevel::ERROR, prefixMsg(msg));
     }
 
-    constexpr void warn(std::string_view msg) const
+    constexpr void warn(Message msg) const
     {
         log(LogLevel::WARN, prefixMsg(msg));
     }
     
-    constexpr void setPrefix(std::string_view prefix) {
+    constexpr void setPrefix(Prefix prefix) {
         prefix_ = prefix;
     }
 
 private:
-    const std::string prefixMsg(std::string_view msg) const
+    const std::string prefixMsg(Message msg) const
     {
         auto prefix { "[" + prefix_ + "] " };
         return prefix += msg;
     }
 
-    constexpr void log(LogLevel level, std::string_view msg) const
+    constexpr void log(LogLevel level, Message msg) const
     {
         // display only for rank 0
         if (rank_ != 0)
@@ -76,5 +79,5 @@ private:
     ErrorStrategy error_;
     WarnStrategy warn_;
     std::string prefix_;
-    int rank_;
+    Rank rank_;
 };
