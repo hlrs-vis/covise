@@ -355,7 +355,7 @@ if (NOT COVISE_BUILD_ONLY_FILE)
     if (NOT COVISE_BUILD_ONLY_ODDLOT)
         COVISE_FIND_PACKAGE(GLUT)
         COVISE_FIND_PACKAGE(FFMPEG)
-        covise_find_package(OpenSceneGraph 3.2.0 COMPONENTS osgDB osgUtil osgViewer osgParticle osgText osgSim osgGA osgFX osgTerrain osgAnimation)
+        covise_find_package(OpenSceneGraph 3.6.0 COMPONENTS osgDB osgUtil osgViewer osgParticle osgText osgSim osgGA osgFX osgTerrain osgAnimation)
         covise_find_package(HDF5 COMPONENTS C HL CXX)
 
         COVISE_FIND_PACKAGE(Cg)
