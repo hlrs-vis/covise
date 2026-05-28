@@ -3,11 +3,19 @@
 
 #include <osg/Uniform>
 
+#include <cover/coVRMSController.h>
+
 #include "SplotchTerroirTexture.h"
 
 SplotchTerroirTexture::SplotchTerroirTexture(float distanceThreshold)
     : TerroirTexture("TerroirTextureSplotches", distanceThreshold)
 {
+    /*
+        Since in the CAVE multiple OpenCover instances are running (which would each
+        generate their own seeds, resulting in mismatching splotches) we need the master
+        to create a seed and send it to the slaves.
+    */
+    masterGeneratesAndSharesSeed();
 }
 
 void SplotchTerroirTexture::onEnoughDistanceCovered()
@@ -23,20 +31,30 @@ void SplotchTerroirTexture::updateShader()
     updateShaderUniforms();
 }
 
-float generateRandomFloat(float start, float end)
+void SplotchTerroirTexture::masterGeneratesAndSharesSeed()
 {
-    /*
-        Since in the CAVE multiple OpenCovers seem to be running (which would each generate their own
-        random numbers, resulting in mismatching splotches) we have to set a seed.
-    */
-    static thread_local std::mt19937 engine { 3847u };
+    if (opencover::coVRMSController::instance()->isMaster())
+    {
+        std::mt19937 engine { std::random_device { }() };
+        m_seed = std::uniform_int_distribution<unsigned int> { 0, 1000 }(engine);
+        opencover::coVRMSController::instance()->syncData(&m_seed, sizeof(m_seed));
+    }
+    else
+    {
+        opencover::coVRMSController::instance()->syncData(&m_seed, sizeof(m_seed));
+    }
+}
+
+float generateRandomFloat(unsigned int seed, float start, float end)
+{
+    static std::mt19937 engine { seed };
     return std::uniform_real_distribution<float> { start, end }(engine);
 }
 
 osg::Vec3 SplotchTerroirTexture::generateRandomSplotch(int textureSlot)
 {
-    float texCoordX = generateRandomFloat(0.1f, 0.9f);
-    float texCoordY = generateRandomFloat(0.1f, 0.9f);
+    float texCoordX = generateRandomFloat(m_seed, 0.1f, 0.9f);
+    float texCoordY = generateRandomFloat(m_seed, 0.1f, 0.9f);
 
     return { texCoordX, texCoordY, 1.0f * textureSlot };
 }
