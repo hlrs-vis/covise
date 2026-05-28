@@ -13,6 +13,13 @@ public:
         WARN,
         INFO
     };
+    
+    enum class DebugLevel
+    {
+        ALL, // info + warn + error
+        MINIMAL, // info
+        NONE 
+    };
 
     using Rank = int;
     using Message = std::string_view;
@@ -21,32 +28,45 @@ public:
     using ErrorStrategy = std::function<void(Message)>;
     using WarnStrategy = std::function<void(Message)>;
 
-    explicit Logger(InfoStrategy info, ErrorStrategy error, WarnStrategy warn, Prefix prefix = {}, Rank rank = 0)
+    explicit Logger(InfoStrategy info, ErrorStrategy error, WarnStrategy warn, Prefix prefix = {}, Rank rank = 0, DebugLevel debug = DebugLevel::MINIMAL)
         : info_(info)
         , error_(error)
         , warn_(warn)
         , prefix_(prefix)
         , rank_(rank)
+        , debug_(debug)
     {
     }
 
     constexpr void info(Message msg) const
     {
+        if (debug_ == DebugLevel::NONE)
+            return;
         log(LogLevel::INFO, prefixMsg(msg));
     }
 
     constexpr void error(Message msg) const
     {
+        if (debug_ != DebugLevel::ALL)
+            return;
+
         log(LogLevel::ERROR, prefixMsg(msg));
     }
 
     constexpr void warn(Message msg) const
     {
+        if (debug_ != DebugLevel::ALL)
+            return;
+
         log(LogLevel::WARN, prefixMsg(msg));
     }
     
     constexpr void setPrefix(Prefix prefix) {
         prefix_ = prefix;
+    }
+
+    constexpr void setDebugLeve(DebugLevel debug) {
+        debug_ = debug;
     }
 
 private:
@@ -80,4 +100,5 @@ private:
     WarnStrategy warn_;
     std::string prefix_;
     Rank rank_;
+    DebugLevel debug_;
 };
