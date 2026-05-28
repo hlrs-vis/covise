@@ -82,7 +82,6 @@ SET(SOURCES
     app/system/GridRenderer.cpp
     app/system/ScenarioManager.cpp
     app/system/GridUIManager.cpp
-    app/EnergyLogger.cpp
     app/ui/CityGMLUI.cpp
     app/ui/SimulationUI.cpp
     app/ui/EnergyUI.cpp
