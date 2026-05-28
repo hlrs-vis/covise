@@ -2051,7 +2051,10 @@ namespace OpenCOVERPlugin
                 }
                 else if (elem.Category.Id.Value == (int)BuiltInCategory.OST_Doors)
                 {
-                    GeometryObject geomObject = elementGeom.ElementAt(0);
+                    if (elementGeom != null && elementGeom.Any())
+                    {
+                        GeometryObject geomObject = elementGeom.First();
+                    }
                     
                 }
             }
@@ -2103,6 +2106,12 @@ namespace OpenCOVERPlugin
 
                     if (fi != null && fi.Symbol.Name.Substring(0, 5) == "Cabin")
                     {
+                        BasePoint projectBasePoint = BasePoint.GetProjectBasePoint(elem.Document);
+
+                        // BasePoint surveyPoint =
+                        //                      BasePoint.GetSurveyPoint(doc);
+
+                        XYZ pbp = projectBasePoint.Position;
                         //add another transform for the whole cabin
                         MessageBuffer mb = new();
                         mb.add(elem.Id.Value);
@@ -2124,6 +2133,7 @@ namespace OpenCOVERPlugin
                         addParameter(elem, "elevatorSpeed", mb);
                         addParameter(elem, "elevatorAcceleration", mb);
                         addParameter(elem, "elevatorOpening", mb);
+                        //mb.add(pbp);
                         mb.add("end");
                         sendMessage(mb.buf, MessageTypes.ElevatorPart);
                     }
