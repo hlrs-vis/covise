@@ -7,7 +7,7 @@
 class Logger
 {
 public:
-    enum class Level
+    enum class LogLevel
     {
         ERROR,
         WARN,
@@ -29,17 +29,17 @@ public:
 
     constexpr void info(std::string_view msg) const
     {
-        log(Level::INFO, prefixMsg(msg));
+        log(LogLevel::INFO, prefixMsg(msg));
     }
 
     constexpr void error(std::string_view msg) const
     {
-        log(Level::ERROR, prefixMsg(msg));
+        log(LogLevel::ERROR, prefixMsg(msg));
     }
 
     constexpr void warn(std::string_view msg) const
     {
-        log(Level::WARN, prefixMsg(msg));
+        log(LogLevel::WARN, prefixMsg(msg));
     }
     
     constexpr void setPrefix(std::string_view prefix) {
@@ -53,20 +53,20 @@ private:
         return prefix += msg;
     }
 
-    constexpr void log(Level level, std::string_view msg) const
+    constexpr void log(LogLevel level, std::string_view msg) const
     {
         // display only for rank 0
         if (rank_ != 0)
             return;
         switch (level)
         {
-        case Level::ERROR:
+        case LogLevel::ERROR:
             error_(msg);
             break;
-        case Level::WARN:
+        case LogLevel::WARN:
             warn_(msg);
             break;
-        case Level::INFO:
+        case LogLevel::INFO:
         default:
             info_(msg);
         }
