@@ -6,6 +6,8 @@
  * License: LGPL 2+ */
 
 #include "TeleportNavigationProvider.h"
+#include "input/input.h"
+#include "input/inputdevice.h"
 #include <OpenVRUI/coInteractionManager.h>
 #include <cmath>
 #include <cover/VRSceneGraph.h>
@@ -125,6 +127,13 @@ bool TeleportNavigationProvider::update()
 
     // Adjust turn angle based on the mouse wheel
     turn_angle += triggerWheel.getWheelCount() * M_PI / 8;
+
+    // Adjust turn angle using the joystick
+    auto valuator = Input::instance()->getValuator("CaveJoyX");
+    if (valuator)
+    {
+        turn_angle -= valuator->getValue() * cover->frameDuration() * 10.f;
+    }
 
     // Adjust turn angle based using pointer secondary action and swipe left/right
     if (interactionTurn.wasStarted())
