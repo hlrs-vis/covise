@@ -47,6 +47,9 @@ typedef opencover::coVRPlugin *(coVRPluginInitFunc)();
         for (PluginMap::const_iterator plugin_it = m_plugins.begin(); plugin_it != m_plugins.end(); ++plugin_it) \
         { \
             coVRPlugin *plugin = plugin_it->second; \
+            if (!plugin->m_initDone) { \
+                continue; \
+            } \
             { \
                 something; \
             } \
