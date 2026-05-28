@@ -33,7 +33,7 @@
     <UseVertexBufferObjects value="false" />
    <Input>
         <MouseNav value="true" />
-        <Device>
+ <!--       <Device>
 
 
            <DTrackCave driver="dtrack" port="5000" serverHost="192.168.1.2">
@@ -67,6 +67,7 @@
            <Person name="Camera" eyeDistance="0.0" head="CaveCamera" hand="CaveHand" buttons="CaveMouse" />
            <Person name="Gloves" eyeDistance="0.0" head="CaveGloves" hand="CaveHand" buttons="CaveMouse" />
         </Persons>
+		-->
 
        <!-- <Body>
            <ConstHead>

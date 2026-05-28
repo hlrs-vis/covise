@@ -58,6 +58,7 @@ public:
     int levelNumber;
     ElevatorPart *buttonLanding; // landing this button is for.
     int doorNumber;
+    int direction = 1;
     virtual int hit(vrui::vruiHit *hit);
     virtual void miss();
 

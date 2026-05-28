@@ -145,7 +145,7 @@ public:
     
     std::string findOrGetFile(const std::string &fileName, int where = 0);
     // load a OSG or VRML97 or other (via plugin) file
-    osg::Node *loadFile(const char *file, coTUIFileBrowserButton *fb = NULL, osg::Group *parent = NULL, const char *covise_key = "");
+    osg::Node *loadFile(const char *file, coTUIFileBrowserButton *fb = NULL, osg::Group *parent = NULL, const char *covise_key = "", bool isIcon = false);
 
     // replace the last loaded Performer or VRML97 file
     osg::Node *replaceFile(const char *file, coTUIFileBrowserButton *fb = NULL, osg::Group *parent = NULL, const char *covise_key = "");

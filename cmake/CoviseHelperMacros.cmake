@@ -1116,7 +1116,13 @@ MACRO(COVISE_FIND_PACKAGE package)
        #message("CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}")
    endif (NOT COVISE_ARCHSUFFIX MATCHES "^spack")
    FIND_PACKAGE(${ARGV})
-
+   if(pack STREQUAL glm AND NOT TARGET glm::glm AND GLM_INCLUDE_DIRS)
+      # Workaround for GLM 0.9.9 broken glmTargets.cmake
+      add_library(glm::glm INTERFACE IMPORTED)
+      set_target_properties(glm::glm PROPERTIES
+          INTERFACE_INCLUDE_DIRECTORIES "${GLM_INCLUDE_DIRS}"
+      )
+   endif()
    SET(CMAKE_PREFIX_PATH ${SAVED_CMAKE_PREFIX_PATH})
    if (APPLE)
        if (pack STREQUAL "OpenGL" OR pack STREQUAL "GLUT")

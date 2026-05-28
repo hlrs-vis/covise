@@ -256,6 +256,46 @@
       "tags": [
         "art"
       ]
+    },
+    {
+      "description": "This is a tech demo of the avatar created in the VR Terroir (https://www.cunicode.com/works/vr-terroir) project with digital artist Bernat Cuní (as part of the EU project S+T+ARTS E(c)ho). In the CAVE, you can move the avatar's head with the master glasses and move one of its arms with the 3D controller.\n\n After the user has walked a certain distance (defined in the config file), color splotches appear on the avatar's texture. They are created by taking screenshots from the POV of the avatar (i.e., the user) as soon as the distance threshold is reached and mapping that onto the avatar's texture. The idea is that the avatar's appearance is influenced by how the user interacts with and explores the virtual world. \n\n The scene itself was created by the artist and consists of a number of different panels as well as four mirrors (so you can look at your virtual self in the mirror). The panels were created by combining screenshots from different hlrsDemos and photos that the artist took during his stay in Stuttgart. The 'red berries', e.g., are the coal particles inside of the RECOM coal power plant. The 'blue lines' are stream lines of an air flow and the light blue structure in front of the buildings is the CT scan of an ant (all of these are shown in the screenshot above).",
+      "headline": "VR Terroir (Avatar)",
+      "id": 135,
+      "image": "VRTerroirAvatar.png",
+      "launch": [
+        {
+          "args": [
+            "COCONFIG=config.ghost-avatar-cave-scene.xml",
+            "opencover",
+            "/data/STARTS-ECHO/Avatars/CAVE_TheGATE/new/cavescene_lin_xl_modifiers_sd8.wrl"
+          ],
+          "program": "env"
+        }
+      ],
+      "tags": [
+        "art",
+        "avatar",
+        "collaboration"
+      ]
+    },
+    {
+      "description": "Preface: Please make sure that the tangible interface (see photo above) is connected to a power supply before starting the demo! Sometimes, the UDP communication between COVER and the interface does not work - in that case, you unfortunately have to restart the demo. You can tell it works, if you see 'Tangible Interface...' with the IP adress as well as prints of the angles the interface sends on the console after COVER finished loading (and of course by seeing the stones move when you pull the rope). \n\n On to the actual info: This prototype was created together with the artist Merve Sahin and the Salzburger Festival, the latter of which is an opera festival which takes place in Salzburg every summer. The default scene is a mock-up that the artist created to plan a mixed-reality room that visitors can enter at the Salzburg festival to learn more about the festival and its history.\n\n The idea is that the visitors interact with multiple tangible interfaces (like the one in the CAVE): By pulling the rope mechanism, the visitors control an animation (in this case stones flying up and down the room). \n\n Of course, in real life, the stones would be virtual, e.g., in an AR demo. The pedestal in the middle of the room is made of different 3D printed objects (that the artist has printed) which are inspired by the festival site. One of them is, e.g., the Felsenreitschule, a theater house in Salzburg that was built into a boulder (the stage is in front of an actual wall of stone). \n\n There are two more scenes which also work with the tangible interface (you can select them via the VRML tab in COVER/the TabletUI: 'ExpandedGarden' is an alternative to the first scene with the 'stones'. The 'Felsenreitschule' is a 3D scan of the aforementioned theater house given to us by the colleagues from the Salzburg festival.",
+      "headline": "Tangible Interface",
+      "id": 136,
+      "image": "TangibleInterfaceSalzburgerFestival.png",
+      "launch": [
+        {
+          "args": [
+            "/data/STARTS-ECHO/SalzburgerFestival/TangibleInterface/TangibleInterface-All.wrl"
+          ],
+          "program": "opencover"
+        }
+      ],
+      "tags": [
+        "art",
+        "avatar",
+        "collaboration"
+      ]
     }
   ],
   "CFD": [

@@ -2072,12 +2072,23 @@ namespace OpenCOVERPlugin
                     isGeometryInstance = true;
 
             }
+            bool isElevatorDoor = false;
+            if ((fi != null) && elem.Category.Id.Value == (int)BuiltInCategory.OST_Doors && !isGeometryInstance)
+            {
+                ParameterSet para = fi.Parameters;
+                foreach (Parameter p in para)
+                {
+                    if (p.Definition.Name == "elevatorName")
+                    {
+                        isElevatorDoor = true;
+                    }
+                }
 
-            if (elem.Category != null && elem.Category.Id.Value == (int)BuiltInCategory.OST_SpecialityEquipment)
+            }
+            if (elem.Category != null && elem.Category.Id.Value == (int)BuiltInCategory.OST_SpecialityEquipment || isElevatorDoor)
             {
 
-
-                    string elevatorName = "noname";
+                String elevatorName = "noname";
                 ParameterSet para = fi.Parameters;
                 foreach (Parameter p in para)
                 {
