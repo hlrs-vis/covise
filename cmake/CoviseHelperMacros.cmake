@@ -1153,6 +1153,8 @@ MACRO(COVISE_FIND_CUDA)
     include(CheckLanguage)
     check_language(CUDA)
 
+    # If the CUDA toolkit is available, but no CUDA compiler was
+    # found, use the compiler from the toolkit, instead.
     covise_find_package(CUDAToolkit)
     if(CUDAToolkit_FOUND)
      if(CUDAToolkit_NVCC_EXECUTABLE AND NOT CMAKE_CUDA_COMPILER)
@@ -1160,7 +1162,10 @@ MACRO(COVISE_FIND_CUDA)
             ${CUDAToolkit_NVCC_EXECUTABLE}
             CACHE FILEPATH "CUDA compiler" FORCE)
       endif()
-
+    endif()
+      
+    if(CMAKE_CUDA_COMPILER)
+      # make sure CUDA architecture is set
       if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
         if(CUDAToolkit_VERSION_MAJOR GREATER 12)
           set(CMAKE_CUDA_ARCHITECTURES 75)
@@ -1168,9 +1173,7 @@ MACRO(COVISE_FIND_CUDA)
           set(CMAKE_CUDA_ARCHITECTURES 60)
         endif()
       endif()
-    endif()
-      
-    if(CMAKE_CUDA_COMPILER)
+
       enable_language(CUDA)
       ADD_DEFINITIONS(-DHAVE_CUDA)
       set(CUDA_FOUND TRUE)
