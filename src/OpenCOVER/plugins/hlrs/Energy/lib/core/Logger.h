@@ -42,12 +42,12 @@ public:
         log(Level::WARN, prefixMsg(msg));
     }
     
-    void setPrefix(std::string_view prefix) {
+    constexpr void setPrefix(std::string_view prefix) {
         prefix_ = prefix;
     }
 
 private:
-    std::string prefixMsg(std::string_view msg) const
+    const std::string prefixMsg(std::string_view msg) const
     {
         auto prefix { "[" + prefix_ + "] " };
         return prefix += msg;
