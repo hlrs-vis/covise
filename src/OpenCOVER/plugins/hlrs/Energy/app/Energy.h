@@ -3,11 +3,9 @@
 #include "app/system/CityGMLSystem.h"
 #include "app/system/SimulationSystem_new.h"
 #include "app/ui/EnergyUI.h"
-// #include <utils/logging/log.h>
 #include "EnergyLogger.h"
 
 #include <lib/core/interfaces/ui/IGUIFactory.h>
-// #include <lib/core/Logger.h>
 #include <memory>
 
 class EnergyPlugin : public opencover::coVRPlugin
@@ -34,8 +32,6 @@ class EnergyPlugin : public opencover::coVRPlugin
   CoverOwner m_owner;
   EnergyUI m_ui;
   EnergyLogger m_logger;
-//   std::shared_ptr<spdlog::logger> m_speedLogger;
-//   Logger m_logger;
   CityGMLSystem m_citygml;
   SimulationSystem m_simulation;
 };
