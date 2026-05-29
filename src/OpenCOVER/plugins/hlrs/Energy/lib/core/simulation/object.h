@@ -12,7 +12,6 @@ class Object {
  public:
   Object(const ::std::string &name, const Data &data = {})
       : m_name(name), m_data(data) {};
-  virtual ~Object() = default;
 
   const auto &getName() const { return m_name; }
 
