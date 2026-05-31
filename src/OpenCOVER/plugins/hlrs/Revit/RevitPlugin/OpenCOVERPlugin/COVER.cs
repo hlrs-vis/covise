@@ -2155,13 +2155,18 @@ namespace OpenCOVERPlugin
                             {
                                 extendBB(ebb, solid.GetBoundingBox());
                             }
+                            doWalk = false;
+                            if (graphicsStyle.Name.Substring(0, 6) == "doWalk")
+                            {
+                                doWalk = true;
+                            }
                             if (graphicsStyle.Name.Substring(0, 8) == "elevator")
                             {
-                                sendElevatorGeomElement(elevatorName, graphicsStyle.Name, elem, num, geomObject, false, false);
+                                sendElevatorGeomElement(elevatorName, graphicsStyle.Name, elem, num, geomObject, false, doWalk);
                             }
                             else
                             {
-                                sendGeomElement(elem, num, geomObject, false, false);
+                                sendGeomElement(elem, num, geomObject, false, doWalk);
                             }
                         }
                         else // no style --> will be treated as static parts

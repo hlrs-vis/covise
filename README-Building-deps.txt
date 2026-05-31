@@ -185,9 +185,21 @@ serialize file processing to fix compression
   
 use admin developer cmd
 cd build
+set ICU_ROOT=c:\src\externlibs\zebu\icu
+set VERBOSE=TRUE
+set OPENSSL_ROOT_DIR=C:/src/externlibs/zebu/OpenSSL3
+set PATH=%PATH%;c:\src\externlibs\zebu\UnixUtils\bin
+set WEBVIEW2_SDK_ROOT=C:/src/gitbase/WebView2Samples/GettingStartedGuides/Win32_GettingStarted/packages/Microsoft.Web.WebView2.1.0.3967.48
 set PATH=c:\src\externlibs\zebu\Python2\bin;%PATH%
 ##..\configure.bat -prefix c:\src\externlibs\zebu\qt6 -skip qtspeech -debug-and-release -qt-zlib -openssl-linked -- -D OPENSSL_ROOT_DIR=C:/src/externlibs/zebu/OpenSSL
-..\configure -prefix c:/src/externlibs/zebu/qt6 -opensource -debug-and-release -make tools -nomake examples -nomake tests -confirm-license -openssl  -icu -openssl-linked -opengl dynamic -- -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/md4c;c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/flex;c:/src/externlibs/zebu/bison;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal
+##..\configure -prefix c:/src/externlibs/zebu/qt6 -opensource -debug-and-release -make tools -nomake examples -nomake tests -confirm-license -openssl  -icu -openssl-linked -opengl dynamic -- -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/md4c;c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/flex;c:/src/externlibs/zebu/bison;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal
+..\configure.bat -prefix c:/src/externlibs/zebu/qt6 -opensource -debug-and-release -nomake examples -nomake manual-tests -nomake minimal-static-tests -confirm-license -openssl-runtime  -icu -opengl dynamic -DOPENSSL_ROOT_DIR=c:/src/externlibs/zebu/OpenSSL3 -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/md4c;c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/flex;c:/src/externlibs/zebu/bison;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/flex;c:/src/externlibs/zebu/bison;c:/src/externlibs/zebu/protobuf;C:/src/gitbase/WebView2Samples/GettingStartedGuides/Win32_GettingStarted/packages/Microsoft.Web.WebView2.1.0.3967.48
+fixed bluetooth bugs:
+
+#define _SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS
+#include "../../../../qtbase/src/corelib/platform/windows/qfactorycacheregistration_p.h" //<QtCore/private/qfactorycacheregistration_p.h>
+in *winrt*
+
 cmake --build . --parallel
 ninja qtdeclarative
 ninja
@@ -384,7 +396,7 @@ disable performance tests and normal tests, build (be very patient) and install
 cmake .. -G "Visual Studio 18 2026" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/VTK  -DCMAKE_DEBUG_POSTFIX=d
 
 #hdf5
-cmake .. -G "Visual Studio 18 2026" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/hdf5
+cmake .. -G "Visual Studio 18 2026" -A x64  -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/hdf5 -DHDF5_BUILD_CPP_LIB=true -DBUILD_TESTING=false
 
 #alvar
 alvar needs openCV 2.4 (currently 2412)

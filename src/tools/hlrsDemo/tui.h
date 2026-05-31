@@ -1,5 +1,6 @@
 #ifndef HLRS_DEMO_TUI_H
 #define HLRS_DEMO_TUI_H
+#include <iterator>
 #include <nlohmann/json.hpp>
 #include "launch.h"
 class DemoTui
