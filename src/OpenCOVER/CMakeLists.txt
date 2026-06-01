@@ -77,7 +77,7 @@ IF(APPLE)
   MARK_AS_ADVANCED(APP_SERVICES_LIBRARY)
 ENDIF(APPLE)
 
-covise_find_package(OpenSceneGraph 3.2.0 COMPONENTS osgDB osgUtil osgViewer
+covise_find_package(OpenSceneGraph 3.6.0 COMPONENTS osgDB osgUtil osgViewer
    osgParticle osgText osgSim osgGA osgFX osgTerrain osgShadow REQUIRED)
 
 COVISE_FIND_PACKAGE(CURL)

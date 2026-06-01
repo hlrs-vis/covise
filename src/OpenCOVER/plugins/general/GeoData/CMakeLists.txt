@@ -5,7 +5,7 @@ USING(PROJ)
 USING(CURL)
 USING(VRML)
 
-covise_find_package(OpenSceneGraph 3.2.0 QUIET COMPONENTS osgTerrain)
+covise_find_package(OpenSceneGraph 3.6.0 QUIET COMPONENTS osgTerrain)
 COVISE_FIND_PACKAGE(osgTerrain)
 IF(NOT OSGTERRAIN_FOUND)
   RETURN()

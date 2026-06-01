@@ -7,7 +7,7 @@
 
 #include "TerroirTexture.h"
 
-class SplotchTerroirTexture: public TerroirTexture
+class SplotchTerroirTexture : public TerroirTexture
 {
 public:
     SplotchTerroirTexture(float distanceThreshold);
@@ -18,11 +18,12 @@ private:
     void onEnoughDistanceCovered() override;
     void updateShader() override;
 
+    unsigned int m_seed { };
+    void masterGeneratesAndSharesSeed();
     osg::Vec3 generateRandomSplotch(int textureSlot);
 
     void updateShaderUniforms();
     void updateSplotchPositions(const osg::Vec3 &splotch);
-
 };
 
 #endif // COVER_PLUGIN_GHOSTAVATAR_TEXTURE_SplotchTerroirTexture_H

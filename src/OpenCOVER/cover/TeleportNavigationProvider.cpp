@@ -39,7 +39,8 @@ TeleportNavigationProvider::TeleportNavigationProvider()
     transform = new osg::MatrixTransform;
     switch_->addChild(transform);
 
-    icon = coVRFileManager::instance()->loadFile("share/covise/icons/teleport_target.glb", nullptr, transform, "",true);
+    icon = coVRFileManager::instance()->loadIcon("teleport_target");
+    transform->addChild(icon);
 
     setVisible(false);
 }

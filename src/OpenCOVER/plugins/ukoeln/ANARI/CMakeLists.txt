@@ -84,4 +84,5 @@ if (TARGET umesh::umesh)
   target_link_libraries(ANARIPlugin umesh::umesh)
 endif()
 SET_TARGET_PROPERTIES(ANARIPlugin PROPERTIES OUTPUT_NAME ANARI)
-
+REMOVE_COVISE_COMPILE_FLAGS(ANARIPlugin "-wd4251")
+REMOVE_COVISE_COMPILE_FLAGS(ANARIPlugin "-wd4335")

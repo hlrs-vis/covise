@@ -1,6 +1,6 @@
 #ifndef HLRS_DEMO_WINDOW_H
 #define HLRS_DEMO_WINDOW_H
-
+#include <iterator>
 #include "flowlayout.h"
 #include "launch.h"
 #include <QWidget>

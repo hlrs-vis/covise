@@ -41,7 +41,9 @@
 #else
 #include <unistd.h>
 #endif
+#ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
+#endif
 
 //#include <sysdep/net.h>
 
@@ -143,11 +145,18 @@ using __gnu_cxx::hash_map;
 using __gnu_cxx::hash_set;
 #else
 #ifdef _WIN32
-#define _SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS
-#include <hash_map>
-using stdext::hash_map;
-#include <hash_set>
-using stdext::hash_set;
+//#define _SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS
+//#include <hash_map>
+// using stdext::hash_map; hash_map is deprecated in Visual Studio 2026
+#include <unordered_map>
+
+template<typename K, typename V>
+using hash_map = std::unordered_map<K, V>;
+#include <unordered_set>
+template<typename K, typename V>
+using hash_set = std::unordered_set<K, V>;
+//#include <hash_set>
+//using stdext::hash_set;
 #else
 #include <hash_map>
 using std::hash_map;

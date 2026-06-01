@@ -177,7 +177,7 @@ TUISGBrowserTab::TUISGBrowserTab(int id, int type, QWidget *w, int parent, QStri
     wireON = QIcon(QPixmap(wireon_xpm));
     wireOFF = QIcon(QPixmap(wireoff_xpm));
 
-    polyMode = 2;
+    polyMode = 0; // Filled - fastest
 
     selectionModeCB = new QComboBox(frame);
     selectionModeCB->setToolTip("Selection Mode");
@@ -228,7 +228,7 @@ TUISGBrowserTab::TUISGBrowserTab(int id, int type, QWidget *w, int parent, QStri
 
     QAction *newAct = new QAction("Update", this);
     connect(newAct, SIGNAL(triggered()), this, SLOT(updateItem()));
-    
+
     propAct = new QAction("Properties", this);
     propAct->setCheckable(true);
     propAct->setChecked(false);
@@ -243,7 +243,7 @@ TUISGBrowserTab::TUISGBrowserTab(int id, int type, QWidget *w, int parent, QStri
     connect(renameNode_action, SIGNAL(triggered()), this, SLOT(handleRenamingCurrentNode()));
 
     QAction* addNode_action = new QAction("Add Node", this);
-    
+
     QMenu* addNode_menu = new QMenu("Node type:", treeWidget);
     QAction* addNode_group_action = new QAction("Group", this);
     QAction* addNode_matrixTransform_action = new QAction("MatrixTransform", this);
@@ -368,7 +368,7 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
         tb >> nodePath;
         tb >> simPath;
 
-        //cout<<"-**Calling showhideSimItems="<<state<<" ||| "<<nodePath<<" ||| "<<simPath<<endl;  
+        //cout<<"-**Calling showhideSimItems="<<state<<" ||| "<<nodePath<<" ||| "<<simPath<<endl;
 
         showhideSimItems(state, simPath);
     }
@@ -474,9 +474,9 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
 
         treeWidget->clearSelection();
         selectCBox->setCheckState(Qt::Unchecked);
-        
+
         // nodeTreeItem* currentItem = treeWidget->search(treeWidget->topLevelItem(0), itemPath);
-        
+
         nodeTreeItem* currentItem = treeWidget->findParent(itemPath);
 
         treeWidget->scrollToItem(currentItem);
@@ -1663,7 +1663,7 @@ void TUISGBrowserTab::handleMoveNode(QTreeWidgetItem* item, QTreeWidgetItem* old
     // std::cout << "Updating scene..." << std::endl;
 
     updateScene();
-    
+
     // updateItem();
 
     // std::cout << "Update scene requested." << std::endl;
@@ -1678,12 +1678,12 @@ void TUISGBrowserTab::handleMoveNode(QTreeWidgetItem* item, QTreeWidgetItem* old
             // std::cout << "Check" << std::endl;
 
             if (oldParent_item->indexOfChild(item) < checkIndex)
-            {   
+            {
                 QString focusPath_str = "";
                 QString remainder_str = newParent_str;
                 remainder_str.remove(oldParent_str + ";");
                 int buffer_index = remainder_str.indexOf(';');
-                
+
                 // std::cout << remainder_str.toStdString() << std::endl;
 
                 if (buffer_index > -1)
@@ -1694,7 +1694,7 @@ void TUISGBrowserTab::handleMoveNode(QTreeWidgetItem* item, QTreeWidgetItem* old
                 {
                     remainder_str = QString::number(checkIndex - 1);
                 }
-                
+
                 focusPath_str = QString("%1;%2").arg(oldParent_str).arg(remainder_str);
 
                 // std::cout << "focusPath_str: " << focusPath_str.toStdString() << std::endl;
@@ -1726,14 +1726,14 @@ void TUISGBrowserTab::handleMoveNode(QTreeWidgetItem* item, QTreeWidgetItem* old
         setCurrentNode(newParent_item, newParent_item->childCount() - 1);
     }
     else if (dropIndex > -1)
-    {   
+    {
         std::cout << "dropIndex = " << dropIndex << std::endl;
         setCurrentNode(newParent_item, dropIndex);
     }
     else
     {
         std::cout << "dropIndex == -1" << std::endl;
-        
+
         if (newParent_item == oldParent_item)
         {
             setCurrentNode(newParent_item, newParent_item->childCount() - 1);
@@ -1784,7 +1784,7 @@ void TUISGBrowserTab::handleRenamedCurrentNode()
 void TUISGBrowserTab::handleRenamingCurrentNode()
 {
     QTreeWidgetItem* current_item = treeWidget->currentItem();
-    
+
     current_item->setFlags(current_item->flags() | Qt::ItemIsEditable);
 
     treeWidget->editItem(current_item);
@@ -3055,14 +3055,14 @@ bool nodeTree::eventFilter(QObject* object, QEvent* event)
             if (mouse_event->button() == Qt::LeftButton)
             {
                 QModelIndex clicked_index = this->indexAt(mouse_event->pos());
-                
+
                 this->setCurrentIndex(clicked_index);
 
                 if (!clicked_index.isValid())
                 {
                     this->clearSelection();
                 }
-            }   
+            }
         }
         else if (event->type() == QEvent::Drop)
         {

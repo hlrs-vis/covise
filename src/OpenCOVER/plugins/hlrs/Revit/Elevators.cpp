@@ -379,6 +379,22 @@ void Elevator::addPart(const std::string &familyName, const std::string &subType
         ep->type = ElevatorPart::Cabin;
         cabin = ep;
         cabin->destinationY = cabin->carPos = cabin->elevation; // car is on this elevation
+
+        int levelNumber = 0;
+        for (const auto &landingPart : landings)
+        {
+            if (landingPart->elevation == cabin->elevation)
+            {
+                cabin->buttonLanding = landingPart;
+                cabin->levelNumber = levelNumber;
+                cabin->currentLanding = levelNumber;
+                break;
+            }
+            else
+            {
+                levelNumber++;
+            }
+        }
     }
     else if (subType.substr(0,12) == "elevatorDoor")
     {
@@ -425,6 +441,25 @@ void Elevator::addPart(const std::string &familyName, const std::string &subType
                 std::sort(landings.begin(), landings.end(),
                     [](ElevatorPart *const &a, ElevatorPart *const &b)
                     { return a->elevation < b->elevation; });
+                // update cabin level numbers
+                if (cabin)
+                {
+                    int levelNumber = 0;
+                    for (const auto &landingPart : landings)
+                    {
+                        if (landingPart->elevation == cabin->elevation)
+                        {
+                            cabin->buttonLanding = landingPart;
+                            cabin->levelNumber = levelNumber;
+                            cabin->currentLanding = levelNumber;
+                            break;
+                        }
+                        else
+                        {
+                            levelNumber++;
+                        }
+                    }
+                }
             }
             landing->doors.push_back(ep);
         }
