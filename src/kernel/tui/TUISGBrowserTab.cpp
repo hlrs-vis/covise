@@ -694,10 +694,25 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
         if (dataLength > 0)
         {
             if (depth == 32)
+	    {
+	        if(dataLength < (width*height*3))
+		{
+		    std::cerr << " not enought image data" << dataLength << " should be " << (width*height*3) << std::endl;
+		}
+		else
                 image = QImage(reinterpret_cast<unsigned char *>(sendData), width, height, QImage::Format_RGB32);
+            image = image.mirrored();
+	    }
             else
+	    {
+	        if(dataLength < (width*height*4))
+		{
+		    std::cerr << " not enought image data" << dataLength << " should be " << (width*height*4) << std::endl;
+		}
+		else
                 image = QImage(reinterpret_cast<unsigned char *>(sendData), width, height, QImage::Format_ARGB32);
             image = image.mirrored();
+	    }
         }
         int num = numItems;
         auto t = std::chrono::steady_clock::now().time_since_epoch();
