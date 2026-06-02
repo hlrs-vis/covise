@@ -8,8 +8,6 @@
 #ifndef VIVE_H
 #define VIVE_H
 
-
-
 #include <cover/coVRPlugin.h>
 
 #include <openvr.h>
@@ -23,8 +21,7 @@
 #include <string>
 #include <cover/input/inputdevice.h>
 
-
-#if(OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0))
+#if (OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0))
 typedef osg::GLExtensions OSG_GLExtensions;
 typedef osg::GLExtensions OSG_Texture_Extensions;
 #else
@@ -50,7 +47,7 @@ public:
     void onPostRender(osg::RenderInfo &renderInfo);
 
 protected:
-    ~OpenVRTextureBuffer() {}
+    ~OpenVRTextureBuffer() { }
 
     friend class OpenVRMirrorTexture;
     GLuint m_Resolve_FBO; // MSAA FBO is copied to this FBO after render.
@@ -71,16 +68,13 @@ public:
     void blitTexture(osg::GraphicsContext *gc, OpenVRTextureBuffer *leftEye, OpenVRTextureBuffer *rightEye);
 
 protected:
-    ~OpenVRMirrorTexture() {}
+    ~OpenVRMirrorTexture() { }
 
     GLuint m_mirrorFBO;
     GLuint m_mirrorTex;
     GLint m_width;
     GLint m_height;
 };
-
-
-
 
 class Vive : public opencover::coVRPlugin, public opencover::InputDevice
 {
@@ -100,7 +94,7 @@ private:
     vr::IVRRenderModels *ivrRenderModels;
 
     std::string GetTrackedDeviceString(vr::IVRSystem *pHmd, vr::TrackedDeviceIndex_t unDevice,
-                                       vr::TrackedDeviceProperty prop, vr::TrackedPropertyError *peError = NULL);
+        vr::TrackedDeviceProperty prop, vr::TrackedPropertyError *peError = NULL);
 
     std::string m_strDriver;
     std::string m_strDisplay;
@@ -119,7 +113,7 @@ private:
     size_t numBaseStations;
     vr::TrackedDevicePose_t m_rTrackedDevicePose[vr::k_unMaxTrackedDeviceCount];
     bool haveTrackerOrigin;
-    bool m_transformOriginToLighthouse; //Config variable for origin transform
+    bool m_transformOriginToLighthouse; // Config variable for origin transform
     osg::Matrix LighthouseMatrix;
 
     unsigned int m_buttonsPerController = 4;
