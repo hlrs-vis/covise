@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include <lib/core/interfaces/IInfoboard.h>
 #include <lib/core/interfaces/IEnergyGrid.h>
 

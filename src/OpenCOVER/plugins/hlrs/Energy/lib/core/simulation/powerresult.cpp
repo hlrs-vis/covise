@@ -1,16 +1,17 @@
 #include "powerresult.h"
 #include "object.h"
+// #include <memory>
 
 namespace core::simulation::power {
 
 void PowerSimulationResult::init() {
   initScalarProperties(
     {
-      std::ref(m_buses),
-      std::ref(m_generators),
-      std::ref(m_transformators),
-      std::ref(m_buildings),
-      std::ref(m_cables)
+      &m_buses,
+      &m_generators,
+      &m_transformators,
+      &m_buildings,
+      &m_cables
     },
     0.0f
   );
@@ -20,11 +21,11 @@ ScalarByNameCollectorResult PowerSimulationResult::getTimedependentScalar(
     const std::string &species, const std::string &node) const {
     return ScalarByNameCollector(
       {
-          std::ref(m_buses),
-          std::ref(m_generators),
-          std::ref(m_transformators),
-          std::ref(m_buildings),
-          std::ref(m_cables)
+          &m_buses,
+          &m_generators,
+          &m_transformators,
+          &m_buildings,
+          &m_cables
       },
       node, species).collect();
 }

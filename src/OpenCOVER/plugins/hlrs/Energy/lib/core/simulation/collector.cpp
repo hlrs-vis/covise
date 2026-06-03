@@ -5,9 +5,9 @@ namespace core::simulation {
 ScalarMap ScalarMapCollector::collect() {
   ScalarMap scalarValues;
   for (const auto &map : m_view) {
-    const auto &objectMap = map.get();
+    const auto &objectMap = *map;
     for (const auto &[_, object] : objectMap) {
-      const auto &objectData = object->getData();
+      const auto &objectData = object.getData();
       for (const auto &[key, values] : objectData)
         scalarValues[key].insert(scalarValues[key].end(), values.begin(),
                                  values.end());
@@ -17,12 +17,12 @@ ScalarMap ScalarMapCollector::collect() {
 }
 
 ScalarByNameCollectorResult ScalarByNameCollector::collect() {
-  for (const auto &mapRef : m_view) {
-    const auto &objectMap = mapRef.get();
+  for (const auto &map_ptr : m_view) {
+    const auto &objectMap = *map_ptr;
 
     // Find the object
     if (auto it = objectMap.find(m_name); it != objectMap.end()) {
-      const auto &data = it->second->getData();
+      const auto &data = it->second.getData();
 
       // Find the specific species within that object
       if (auto dataIt = data.find(m_species); dataIt != data.end()) {

@@ -60,7 +60,7 @@ result_ptr PowerParser::operator()(const ArrowDataMap &map)
     return std::move(result);
 }
 
-void PowerParser::processArrowTableColumns(const std::shared_ptr<arrow::Table> &tbl, ObjectMap &map,
+void PowerParser::processArrowTableColumns(const std::shared_ptr<arrow::Table> &tbl, ObjectMap &objMap,
     const std::string &dataKey)
 {
     auto columnNames = tbl->schema()->fields();
@@ -80,14 +80,13 @@ void PowerParser::processArrowTableColumns(const std::shared_ptr<arrow::Table> &
             {
                 auto darr = std::static_pointer_cast<arrow::DoubleArray>(chunk);
                 auto rawValues = darr->raw_values();
-                // create entry if it doesn't exist
-                if (map.find(columnName) == map.end())
+                if (objMap.find(columnName) == objMap.end())
                 {
-                    Data data = { { dataKey, std::vector<double>(column->length()) } };
-                    auto object = std::make_unique<Object>(columnName, std::move(data));
-                    map.emplace(columnName, std::move(object));
+                    Data data{ { dataKey, std::vector<double>(column->length()) } };
+                    objMap.emplace(columnName, Object{columnName, std::move(data)});
                 }
-                auto &vec = map[columnName]->getData()[dataKey];
+
+                auto &vec = objMap.at(columnName).getData()[dataKey];
                 std::copy(rawValues, rawValues + darr->length(),
                     vec.begin() + chunk_offset);
                 chunk_offset += darr->length();

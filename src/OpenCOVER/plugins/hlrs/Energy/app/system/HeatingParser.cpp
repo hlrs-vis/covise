@@ -62,7 +62,7 @@ auto HeatingParser::getObjMapByType(heating_ptr result, core::simulation::Object
 
 void HeatingParser::createObjAndAddToMap(heating_ptr result, core::simulation::ObjectType type, const std::string &name)
 {
-    auto obj = core::simulation::createObject(type, name, { { std::string("value"), {} } });
+    Object obj{name, { { std::string("value"), {} } }};
     auto map = getObjMapByType(result, type);
     if (map == nullptr)
         return;
@@ -74,9 +74,9 @@ auto HeatingParser::getObjPtr(heating_ptr result, core::simulation::ObjectType t
     auto map = getObjMapByType(result, type);
     auto it = map->find(name);
     if (it != map->end())
-        return it->second.get();
+        return &it->second;
     createObjAndAddToMap(result, type, name);
-    return map->at(name).get();
+    return &map->at(name);
 }
 
 void HeatingParser::addDataToMap(heating_ptr result, ObjectType type, const std::string &name, const std::string &valName, double value)
