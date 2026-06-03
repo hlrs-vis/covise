@@ -10,7 +10,7 @@ using Data = std::map<std::string, ScalarVec, std::less<>>;
 
 class Object {
  public:
-//   Object() = default;
+  Object() = default;
   Object(const ::std::string &name, const Data &data = {})
       : m_name(name), m_data(data) {};
 
