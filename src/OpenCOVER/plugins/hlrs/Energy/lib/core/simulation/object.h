@@ -23,8 +23,8 @@ class Object {
     m_data.insert_or_assign(std::move(key), std::move(value));
   }
 
-  void addData(std::string_view key, const double &value) {
-    m_data[std::string(key)].push_back(value);
+  void addData(std::string_view key, double value) {
+    m_data[std::string(key)].push_back(std::move(value));
   }
 
   decltype(auto) operator[]( const std::string &param )       { return m_data[param]; }
