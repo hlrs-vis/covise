@@ -94,16 +94,16 @@ TEST(Simulation, HeatingSimulation) {
     auto &consumers = sim.Consumers();
     auto &producers = sim.Producers();
 
-    consumers.emplace("consumer1", std::make_unique<Object>("consumer1"));
-    producers.emplace("producer1", std::make_unique<Object>("producer1"));
+    consumers.emplace("consumer1", Object{"consumer1"});
+    producers.emplace("producer1", Object{"producer1"});
 
-    consumers.at("consumer1")->addData("heat_demand", 100.0);
-    producers.at("producer1")->addData("heat_output", 200.0);
+    consumers.at("consumer1").addData("heat_demand", 100.0);
+    producers.at("producer1").addData("heat_output", 200.0);
 
     EXPECT_EQ(consumers.size(), 1);
     EXPECT_EQ(producers.size(), 1);
-    EXPECT_EQ(consumers.at("consumer1")->getData().at("heat_demand")[0], 100.0);
-    EXPECT_EQ(producers.at("producer1")->getData().at("heat_output")[0], 200.0);
+    EXPECT_EQ(consumers.at("consumer1").getData().at("heat_demand")[0], 100.0);
+    EXPECT_EQ(producers.at("producer1").getData().at("heat_output")[0], 200.0);
 }
 
 TEST(Simulation, PowerSimulation) {
@@ -111,16 +111,16 @@ TEST(Simulation, PowerSimulation) {
     auto &buses = sim.Buses();
     auto &generators = sim.Generators();
 
-    buses.emplace("bus1", std::make_unique<Object>("bus1"));
-    generators.emplace("generator1", std::make_unique<Object>("generator1"));
+    buses.emplace("bus1", Object{"bus1"});
+    generators.emplace("generator1", Object{"generator1"});
 
-    buses.at("bus1")->addData("voltage", 230.0);
-    generators.at("generator1")->addData("power_output", 500.0);
+    buses.at("bus1").addData("voltage", 230.0);
+    generators.at("generator1").addData("power_output", 500.0);
 
     EXPECT_EQ(buses.size(), 1);
     EXPECT_EQ(generators.size(), 1);
-    EXPECT_EQ(buses.at("bus1")->getData().at("voltage")[0], 230.0);
-    EXPECT_EQ(generators.at("generator1")->getData().at("power_output")[0], 500.0);
+    EXPECT_EQ(buses.at("bus1").getData().at("voltage")[0], 230.0);
+    EXPECT_EQ(generators.at("generator1").getData().at("power_output")[0], 500.0);
 }
 
 }
