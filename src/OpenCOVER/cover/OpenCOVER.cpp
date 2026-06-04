@@ -115,6 +115,8 @@ static void usage()
     fprintf(stderr, "       -s : collaborative VR configuration file, used by web interface\n");
     fprintf(stderr, "       -C : vrb to connect to in form host:port\n");
     fprintf(stderr, "       -g : Collaborative Session to load\n");
+    fprintf(stderr, "       -S : save as .osg\n");
+    fprintf(stderr, "       -I : save as .ive\n");
 }
 
 //Signal handler
