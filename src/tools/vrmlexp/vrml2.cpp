@@ -6319,6 +6319,12 @@ void
 VRML2Export::VrmlOutObject(INode *node, INode *parent, Object *obj, int level,
 	BOOL mirrored)
 {
+
+    Class_ID id = obj->ClassID();
+    if (id == Class_ID(685327, 452283)) // if this is a Populate Idle Area, don't render it
+    {
+        return;
+    }
 	// need to get a valid obj ptr
 	obj = node->EvalWorldState(mStart).obj;
 	BOOL isTriMesh = obj->CanConvertToType(triObjectClassID);
