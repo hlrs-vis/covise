@@ -27,8 +27,8 @@
         vec4 DiffuseColor = texture2D( diffuseMap, Texcoord );
         DiffuseColor.a = DiffuseColor.a * Transparency;
 
-        gl_FragColor = DiffuseColor;	
-        gl_FragDepth += DepthBump;
+        gl_FragColor = DiffuseColor;
+        gl_FragDepth = gl_FragCoord[2] + DepthBump;
     }
 
 </fragmentProgram>
