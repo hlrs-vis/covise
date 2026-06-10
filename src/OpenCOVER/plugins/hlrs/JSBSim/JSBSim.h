@@ -44,8 +44,6 @@
 #include <cover/ui/Label.h>
 #include <cover/ui/SelectionList.h>
 
-#include <proj.h>
-
 class UDPComm;
 
 using JSBSim::Element;
@@ -127,8 +125,6 @@ public:
     void addThermal(const osg::Vec3 &velocity, float turbulence);
 
 private:
-    osg::Vec3f getOriginOffset() const;
-
     void readJoystickConfiguration();
     void loadAvailableAircraft();
     void loadAircraft(const std::string &aircraftName);
@@ -243,7 +239,6 @@ private:
     virtual void key(int type, int keySym, int mod);
 
     OpenThreads::Mutex mutex;
-    PJ *coordTransformation;
 
     osg::Matrix lastPos;
 

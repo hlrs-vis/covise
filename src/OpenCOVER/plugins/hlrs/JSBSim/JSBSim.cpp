@@ -31,12 +31,12 @@
 #include <cover/input/input.h>
 #include "cover/input/deviceDiscovery.h"
 #include <cstring>
+#include <geodata/GeoData.h>
 #include <osg/Math>
 #include <osg/Matrix>
 #include <osg/MatrixTransform>
 #include <osg/Vec3f>
 #include <plugins/general/GeoData/GeoDataLoader.h>
-#include <proj.h>
 #include <string>
 #include <util/UDPComm.h>
 #include <util/byteswap.h>
@@ -171,8 +171,6 @@ void JSBSimPlugin::reset(double dz)
 
     osg::Matrix viewer = cover->getInvBaseMat();
     std::cout << "Viewer position: " << viewer.getTrans() << std::endl;
-    osg::Vec3 viewerPosition = viewer.getTrans() - getOriginOffset();
-    std::cout << "Viewer position (offset): " << viewerPosition << std::endl;
 
     // Compute the eyepoint transformation from the aircraft. The GetXYZep method returns
     // a dimension in inches, so we divide by
@@ -186,18 +184,14 @@ void JSBSimPlugin::reset(double dz)
     }
 
     // Transform the viewer coordinates to lat/lng
-    PJ_COORD c;
-    c.enu.e = viewerPosition[0];
-    c.enu.n = viewerPosition[1];
-    c.enu.u = viewerPosition[2];
-    PJ_COORD c_out = proj_trans(coordTransformation, PJ_INV, c);
-    IC->SetLongitudeDegIC(c_out.lp.phi);
-    IC->SetLatitudeDegIC(c_out.lp.lam);
+    osg::Vec3 pos = GeoData::instance()->getGlobalPosition();
 
-    float altitude = viewerPosition[2] + dz;
+    float altitude = pos.z();
     float altitudeFt = altitude / METERS_PER_FOOT - Aircraft->GetXYZep(3) * FEET_PER_INCH;
 
-    std::cout << "Initialize aircraft at latitude " << c_out.lp.lam << "°, longitude " << c_out.lp.phi << "°, altitude " << altitude << "m (" << altitudeFt << " ft)" << std::endl;
+    std::cout << "Initialize aircraft at latitude " << pos.y() << "°, longitude " << pos.x() << "°, altitude " << altitude << "m (" << altitudeFt << " ft)" << std::endl;
+    IC->SetLatitudeDegIC(pos.y());
+    IC->SetLongitudeDegIC(pos.x());
     IC->SetAltitudeASLFtIC(altitudeFt);
     // there is also IC->SetAltitudeAGLFtIC(...), maybe we want that?
 
@@ -310,16 +304,6 @@ bool JSBSimPlugin::initJSB()
         }
     }
     return true;
-}
-
-osg::Vec3f JSBSimPlugin::getOriginOffset() const
-{
-    auto geoDataPlugin = coVRPluginList::instance()->getPlugin("GeoData");
-    if (geoDataPlugin)
-    {
-        return (static_cast<GeoDataLoader *>(geoDataPlugin))->rootOffset;
-    }
-    return osg::Vec3f();
 }
 
 void JSBSimPlugin::loadAvailableAircraft()
@@ -478,10 +462,6 @@ bool JSBSimPlugin::init()
     if (rd == nullptr)
         rd = "";
     RootDir = configString("JSBSim", "rootDir", rd)->value().c_str();
-
-    // Initialize the coordinate system
-    // TODO: move to a central geodata library
-    coordTransformation = proj_create_crs_to_crs(PJ_DEFAULT_CTX, "EPSG:4326", "EPSG:25832", NULL);
 
     // Initialize menu
     JSBMenu = new ui::Menu("JSBSim", this);
@@ -755,15 +735,10 @@ bool JSBSimPlugin::update()
                     auto vehicleState = Propagate->GetVState();
                     auto location = vehicleState.vLocation;
 
-                    PJ_COORD c;
-                    c.lpz.lam = location.GetLatitudeDeg();
-                    c.lpz.phi = location.GetLongitudeDeg();
-                    c.lpz.z = location.GetGeodAltitude() * METERS_PER_FOOT;
-                    PJ_COORD c_out = proj_trans(coordTransformation, PJ_FWD, c);
+                    osg::Vec3 pos(location.GetLongitudeDeg(), location.GetLatitudeDeg(), location.GetGeodAltitude() * METERS_PER_FOOT);
 
                     float scale = cover->getScale();
-                    osg::Vec3 position(c_out.enu.e, c_out.enu.n, c_out.enu.u);
-                    position += getOriginOffset();
+                    auto position = GeoData::instance()->globalToProject(pos);
                     auto trans = osg::Matrix::translate(position * scale);
 
                     float heading = Propagate->GetEuler(JSBSim::FGJSBBase::ePsi);
