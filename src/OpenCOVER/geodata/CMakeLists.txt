@@ -1,5 +1,5 @@
 using(OpenSceneGraph)
-covise_find_package(proj)
+covise_find_package(PROJ)
 
 set(GEODATA_HEADERS 
     GeoData.h
