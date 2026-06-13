@@ -106,6 +106,8 @@ Player::Player(const Listener *listener, bool isMaster)
 {
 }
 
+Player::~Player() = default;
+
 void Player::update()
 {
     for (auto &source : sources)
@@ -133,7 +135,7 @@ Player *Player::createPlayer(Listener *listener, const std::string &type, bool i
     else if (boost::iequals(type, "openal"))
     {
         return new PlayerOpenAL(listener,isMa);
-	
+
     }
     else if (boost::iequals(type, "none"))
     {

@@ -71,6 +71,7 @@ class COVRAUDIOEXPORT Player
 
 public:
     Player(const Listener *listener, bool isMaster);
+    virtual ~Player();
     virtual void update();
     virtual std::unique_ptr<Source> makeSource(const Audio *);
 
