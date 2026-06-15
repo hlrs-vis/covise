@@ -144,7 +144,7 @@ ADD_SUBDIRECTORY(utils)
 ADD_SUBDIRECTORY(geodata)
 
 INSTALL(FILES "../../cmake/FindCOVER.cmake" DESTINATION
-    "${CMAKE_INSTALL_PREFIX}/share/cover/cmake/" RENAME "cover-config.cmake")
+    "${CMAKE_INSTALL_LIBDIR}/cmake/cover/" RENAME "cover-config.cmake")
 
 # IF(MSVC)
   # ADD_SUBDIRECTORY(ManagedOpenCOVER)

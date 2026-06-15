@@ -112,11 +112,8 @@ public:
     ~GeoDataLoader();
 
     osg::ref_ptr<osg::Node> loadTerrain(std::string filename, osg::Vec3d localOffset);
-    void setRootTransform(const osg::Vec3 &origin, float trueNorthDeg = 0.f);
 
     static GeoDataLoader *instance();
-    osg::Vec3 rootOffset { 0.0, 0.0, 0.0 };
-    float trueNorthDegree = 0.0f;
     editTerrain *editInteraction;
 
     virtual void message(int toWhom, int type, int length, const void *data);

@@ -7,7 +7,7 @@ if(NOT COVISE_FOUND)
 endif()
 
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "$ENV{EXTERNLIBS}/OpenSceneGraph")
-covise_find_package(OpenSceneGraph 3.6.0 COMPONENTS osgViewer osgGA osgDB)
+covise_find_package(OpenSceneGraph 3.6.0 COMPONENTS osgViewer osgGA osgDB osgUtil osgText osgParticle osgSim osgFX)
 set(OpenGL_GL_PREFERENCE LEGACY)
 covise_find_package(OpenGL)
 covise_find_package(GLEW)

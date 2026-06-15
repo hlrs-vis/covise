@@ -456,8 +456,10 @@ bool WindowTypeQtPlugin::windowCreate(int i)
 
     // std::cerr << "window " << i << ": ctx=" << coVRConfig::instance()->windows[i].context << std::endl;
 
-    qApp->sendPostedEvents();
-    qApp->processEvents();
+    if(qApp)
+        qApp->sendPostedEvents();
+    if(qApp)
+        qApp->processEvents();
 
     return true;
 }
@@ -495,10 +497,9 @@ void WindowTypeQtPlugin::aboutCover() const
 void WindowTypeQtPlugin::windowCheckEvents(int num)
 {
     if (qApp)
-    {
         qApp->sendPostedEvents();
+    if (qApp)
         qApp->processEvents();
-    }
 }
 
 void WindowTypeQtPlugin::windowUpdateContents(int num)
@@ -534,15 +535,20 @@ void WindowTypeQtPlugin::windowDestroy(int num)
     }
     delete win.widget;
     delete win.window;
-    qApp->sendPostedEvents();
-    qApp->processEvents();
+    if (qApp)
+        qApp->sendPostedEvents();
+    if (qApp)
+        qApp->processEvents();
     m_windows.erase(it);
 
     if (m_deleteQApp && m_windows.empty())
     {
-        qApp->quit();
-        qApp->sendPostedEvents();
-        qApp->processEvents();
+        if (qApp)
+            qApp->quit();
+        if (qApp)
+            qApp->sendPostedEvents();
+        if (qApp)
+            qApp->processEvents();
         delete qApp;
     }
 }

@@ -395,7 +395,8 @@ IF(UNIX)
 ENDIF(UNIX)
 SET(install_files_exclude "${install_files_exclude}|bin/sasuctrl")
 if(COVISE_BUILD_ONLY_COVER)
-    SET(install_files_exclude "${install_files_exclude}|share/covise/example-data|share/covise/signals|share/covise/web")
+    #SET(install_files_exclude "${install_files_exclude}|share/covise/example-data")
+    SET(install_files_exclude "${install_files_exclude}|share/covise/signals|share/covise/web")
 endif()
 SET(install_files_exclude "${install_files_exclude})")
 
@@ -407,7 +408,7 @@ FILE(GLOB cmake_files "cmake/*.cmake")
 FILE(GLOB using_files "cmake/Using/*")
 INSTALL(FILES ${using_files} DESTINATION "${CMAKE_INSTALL_PREFIX}/share/covise/cmake/Using")
 INSTALL(FILES "cmake/FindCOVISE.cmake" DESTINATION
-    "${CMAKE_INSTALL_PREFIX}/share/covise/cmake/" RENAME "covise-config.cmake")
+    "${CMAKE_INSTALL_LIBDIR}/cmake/covise" RENAME "covise-config.cmake")
 
 INSTALL(FILES .covise .covise.sh
               DESTINATION .)

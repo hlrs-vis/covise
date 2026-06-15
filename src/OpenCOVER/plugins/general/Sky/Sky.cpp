@@ -8,12 +8,12 @@
 /****************************************************************************\
  **                                                            (C)2024 HLRS  **
  **                                                                          **
- ** Description: Sky Plugin                                        **
+ ** Description: Sky Plugin                                                  **
  **                                                                          **
  **                                                                          **
- ** Author: Uwe Woessner 		                                              **
+ ** Author: Uwe Woessner 		                                             **
  **                                                                          **
- ** History:  								                                  **
+ ** History:  								                                 **
  **                                                                          **
  **                                                                          **
 \****************************************************************************/
@@ -83,7 +83,6 @@ Sky *Sky::s_instance = nullptr;
 Sky::Sky()
     : coVRPlugin(COVER_PLUGIN_NAME)
     , ui::Owner("Sky", cover->ui)
-    , m_mode(DISABLED)
 {
     assert(s_instance == nullptr);
     s_instance = this;
@@ -143,17 +142,15 @@ bool Sky::init()
     skyList = new ui::SelectionList(skyGroup, "Sky");
     skyList->setCallback([this](int selection)
         {
-            if (selection >= skyListNameStart)
-            {
-                setSkyEntry(m_skies[selection - skyListNameStart]);
-            }
-            else if (selection == 0)
+            if (selection <= 0)
             {
                 setSkyDisabled();
+                return;
             }
-            else if (selection == 1)
+            int index = selection - 1;
+            if (index >= 0 && index < (int)m_skies.size())
             {
-                setSkyEphemeris();
+                setSkyEntry(m_skies[index], true);
             } });
 
     skyPath = configString("sky", "skyDir", "/data/Geodata/sky")->value();
@@ -164,27 +161,34 @@ bool Sky::init()
     autoSkyButton->setState(false);
     autoSkyButton->setCallback([this](bool state)
         {
+            m_autoSkyEnabled = state;
             if (state)
-                setSkyAuto();
-            else
-                m_mode = TEXTURE; });
+                updateAutoSky(); });
+
+    ephemeralSkyButton = new ui::Button(skyGroup, "ephemeralSky");
+    ephemeralSkyButton->setText("Ephemeral Sky");
+    ephemeralSkyButton->setState(false);
+    ephemeralSkyButton->setCallback([this](bool state)
+        { setSkyEphemeris(state); });
 
     jumpToSkyButton = new ui::Button(skyGroup, "jumpToSky");
     jumpToSkyButton->setText("Jump to Sky");
     jumpToSkyButton->setCallback([this](bool state)
         {
-            if (state)
+            if (!state)
+                return;
+            int selection = skyList->selectedIndex();
+            int index = selection - 1;
+
+            if (index >= 0 && index < (int)m_skies.size())
             {
-                int selection = skyList->selectedIndex();
-                if (selection >= skyListNameStart)
-                {
-                    const auto &sky = m_skies[selection - skyListNameStart];
-                    osg::Vec3d globalSkyOrigin(sky.longitude, sky.latitude, sky.altitude);
-                    osg::Vec3 projectSkyOrigin = GeoData::instance()->globalToProject(globalSkyOrigin);
-                    GeoData::instance()->jumpToLocation(projectSkyOrigin);
-                }
-                jumpToSkyButton->setState(false);
-            } });
+                const auto &sky = m_skies[index];
+                osg::Vec3d globalSkyOrigin(sky.longitude, sky.latitude, sky.altitude);
+                osg::Vec3 projectSkyOrigin = GeoData::instance()->globalToProject(globalSkyOrigin);
+                GeoData::instance()->jumpToLocation(projectSkyOrigin);
+            }
+
+            jumpToSkyButton->setState(false); });
 
     northAngle = 0;
     update();
@@ -342,12 +346,8 @@ void Sky::updateSkyMenu()
         });
 
     std::vector<std::string> skyNames = {
-        "None",
-#ifdef HAVE_EPHEMERIS
-        "Ephemeris",
-#endif
+        "None"
     };
-    skyListNameStart = skyNames.size();
     for (const auto &sky : m_skies)
     {
         skyNames.push_back(sky.displayName);
@@ -365,6 +365,7 @@ void Sky::message(int toWhom, int type, int length, const void *data)
 
 void Sky::removeExistingSky()
 {
+    m_currentSky = nullptr;
     // Remove all existing sky nodes
     while (skyRootNode->getNumChildren())
         skyRootNode->removeChild(skyRootNode->getChild(0));
@@ -397,45 +398,66 @@ void Sky::setSky(std::string_view nameOrFile)
 
 void Sky::setSkyDisabled()
 {
-    m_mode = DISABLED;
-    autoSkyButton->setState(false);
+    m_autoSkyEnabled = false;
+    m_ephemeralSkyEnabled = false;
+    m_currentSky = nullptr;
+
+    if (autoSkyButton)
+        autoSkyButton->setState(false);
+
+    if (ephemeralSkyButton)
+        ephemeralSkyButton->setState(false);
+
     removeExistingSky();
 }
 
 void Sky::setSkyEphemeris(bool enable)
 {
-if(enable)
-{
+    if (enable)
+    {
 #ifdef HAVE_EPHEMERIS
-    removeExistingSky();
-    m_mode = EPHEMERIS;
-    autoSkyButton->setState(false);
-    m_ephemeralSky = std::make_unique<EphemeralSky>(skyGroup, skyRootNode);
+        removeExistingSky();
+        m_ephemeralSkyEnabled = true;
+        m_autoSkyEnabled = false;
+
+        if (autoSkyButton)
+            autoSkyButton->setState(false);
+        if (ephemeralSkyButton)
+            ephemeralSkyButton->setState(enable);
+        if (!m_ephemeralSky)
+        {
+            m_ephemeralSky = std::make_unique<EphemeralSky>(skyGroup, skyRootNode);
+        }
 #else
-    std::cerr << "Cannot switch to Ephemeris sky, compiled without osgEphemeris. Disabling sky." << std::endl;
-    setSkyDisabled();
+        std::cerr << "Cannot switch to Ephemeris sky, compiled without osgEphemeris. Disabling sky." << std::endl;
+        setSkyDisabled();
 #endif
-}
-else
-{
-   removeExistingSky();
-   setSkyAuto();
-}
+    }
+    else
+    {
+        m_ephemeralSkyEnabled = false;
+        m_autoSkyEnabled = false;
+        if (ephemeralSkyButton)
+            ephemeralSkyButton->setState(false);
+        if (autoSkyButton)
+            autoSkyButton->setState(false);
+        removeExistingSky();
+    }
 }
 
 void Sky::setHour(int h)
 {
-    
+
 #ifdef HAVE_EPHEMERIS
-       long t = cover->frameTime();
-       m_ephemeralSky->setTime((t - t % 86400)+ (h * (60 * 60)));
+    long t = cover->frameTime();
+    m_ephemeralSky->setTime((t - t % 86400) + (h * (60 * 60)));
 #endif
 }
 void Sky::setSkyAuto()
 {
-    m_mode = AUTO;
-    autoSkyButton->setState(true);
-    m_currentAutoSky = nullptr;
+    m_autoSkyEnabled = true;
+    if (autoSkyButton)
+        autoSkyButton->setState(true);
     updateAutoSky();
 }
 
@@ -447,7 +469,7 @@ void Sky::setSkyTexture(std::string_view nameOrFile)
     {
         if (it.fileName == nameOrFile || it.name == nameOrFile || it.displayName == nameOrFile) // already have this file in the list
         {
-            setSkyEntry(it);
+            setSkyEntry(it, true);
             return;
         }
     }
@@ -457,13 +479,21 @@ void Sky::setSkyTexture(std::string_view nameOrFile)
     if (addedSky)
     {
         updateSkyMenu();
-        setSkyEntry(addedSky->get());
+        setSkyEntry(addedSky->get(), true);
     }
 }
 
-void Sky::setSkyEntry(SkyEntry &sky)
+void Sky::setSkyEntry(SkyEntry &sky, bool manualSelection)
 {
     removeExistingSky();
+    m_currentSky = &sky;
+
+    if (manualSelection)
+    {
+        m_autoSkyEnabled = false;
+        if (autoSkyButton)
+            autoSkyButton->setState(false);
+    }
 
     // Choose the corresponding item in the menu
     const auto &l = skyList->items();
@@ -526,15 +556,17 @@ void Sky::setTrueNorth(float trueNorth)
 
 void Sky::updateAutoSky()
 {
+    if (!m_autoSkyEnabled)
+        return;
+
     auto globalPosition = GeoData::instance()->getGlobalPosition();
     SkyEntry *closestSky = findClosestSky(globalPosition);
     if (!closestSky)
         return;
 
-    if (!m_currentAutoSky)
+    if (!m_currentSky)
     {
-        m_currentAutoSky = closestSky;
-        setSkyEntry(*closestSky);
+        setSkyEntry(*closestSky, false);
         return;
     }
 
@@ -548,15 +580,14 @@ void Sky::updateAutoSky()
         return dx * dx + dy * dy;
     };
 
-    const double currentDistSq = dist2(m_currentAutoSky, lon, lat);
+    const double currentDistSq = dist2(m_currentSky, lon, lat);
     const double closestDistSq = dist2(closestSky, lon, lat);
 
     constexpr double SKY_THRESHOLD = 1e-4; // roughly 1 km
 
-    if (closestSky != m_currentAutoSky && ((currentDistSq - closestDistSq) > SKY_THRESHOLD))
+    if (closestSky != m_currentSky && ((currentDistSq - closestDistSq) > SKY_THRESHOLD))
     {
-        m_currentAutoSky = closestSky;
-        setSkyEntry(*closestSky);
+        setSkyEntry(*closestSky, false);
     }
 }
 
@@ -590,21 +621,20 @@ bool Sky::update()
 
     const osg::Matrix &m = cover->getObjectsXform()->getMatrix();
 
+    double projectTrueNorth = GeoData::instance()->projectTrueNorthDegree();
     skyRootNode->setMatrix(
-        osg::Matrix::scale(scale, scale, scale) * osg::Matrix::rotate(osg::DegreesToRadians(-northAngle), osg::Vec3(0, 0, 1)) * osg::Matrix::rotate(m.getRotate())
+        osg::Matrix::scale(scale, scale, scale) * osg::Matrix::rotate(osg::DegreesToRadians(-northAngle - projectTrueNorth), osg::Vec3(0, 0, 1)) * osg::Matrix::rotate(m.getRotate())
         * osg::Matrix::translate(cover->getViewerMat().getTrans()));
 
-    if (m_mode == AUTO)
+    if (m_autoSkyEnabled)
     {
         updateAutoSky();
     }
-    else if (m_mode == EPHEMERIS)
+    if (m_ephemeralSkyEnabled)
     {
 #ifdef HAVE_EPHEMERIS
         if (m_ephemeralSky)
-        {
             m_ephemeralSky->update();
-        }
 #endif
     }
 

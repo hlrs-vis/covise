@@ -129,6 +129,7 @@ bool GeoDataLoader::init()
             dataset.easting = entry.value<double>("", "easting")->value();
             dataset.northing = entry.value<double>("", "northing")->value();
             dataset.altitude = altitude;
+            dataset.trueNorth = trueNorth;
         }
 
         datasets.push_back(dataset);
@@ -175,7 +176,6 @@ bool GeoDataLoader::init()
                 tempEastingText = std::to_string(dataset.easting);
                 tempNorthingText = std::to_string(dataset.northing);
                 tempAltitudeText = std::to_string(dataset.altitude);
-
                 tempTrueNorthText = std::to_string(dataset.trueNorth);
             }
         }
@@ -517,19 +517,6 @@ void GeoDataLoader::message(int toWhom, int type, int length, const void *data)
         loadTerrain(messageData + 20, osg::Vec3d(0, 0, 0)); // 20= opencover://terrain/
 }
 
-void GeoDataLoader::setRootTransform(const osg::Vec3 &origin, float trueNorthDeg)
-{
-    // rootOffset = off;
-    // trueNorthDegree = trueNorthDeg;
-
-    // float trueNorthRad = osg::DegreesToRadians(trueNorthDegree);
-    // osg::Matrix trans = osg::Matrix::translate(rootOffset);
-    // osg::Matrix rot = osg::Matrix::rotate(-trueNorthRad, osg::Vec3(0, 0, 1));
-    // rootNode->setMatrix(trans * rot);
-    //
-    GeoData::instance()->setProjectOffset(origin);
-}
-
 bool GeoDataLoader::update()
 {
     if (editInteraction->isRunning())
@@ -746,7 +733,7 @@ void GeoDataLoader::applyOffset()
     }
 
     osg::Vec3 origin = osg::Vec3(originEasting, originNorthing, originAltitude);
-    setRootTransform(origin, trueNorth);
+    GeoData::instance()->setProjectTransform(origin, trueNorth);
 }
 
 std::optional<PlaceLabelGroup> GeoDataLoader::loadLabels(const std::string &file)

@@ -71,7 +71,14 @@ int ElevatorPart::hit(vrui::vruiHit *hit)
     else if (buttons->wasReleased(vruiButtons::ACTION_BUTTON))
     {
         // left Button was released
-        elevator->cabin->goTo(levelNumber);
+        if (buttonLanding)
+        {
+            elevator->cabin->goTo(buttonLanding->levelNumber);
+        }
+        else
+        {
+            elevator->cabin->goTo(levelNumber);
+        }
     }
 
     return vrui::coAction::Result::ACTION_DONE;
@@ -216,7 +223,7 @@ bool ElevatorPart::update(osg::Vec3& viewerPosition)
                 v = 0;
             }
             osg::Matrix newTrans = transformNode->getMatrix();
-            newTrans.setTrans(initialTranslation + osg::Vec3(0, 0, carPos));
+            newTrans.setTrans(initialTranslation + osg::Vec3(0, 0, carPos - heightOffset));
             transformNode->setMatrix(newTrans);
         }
         else // we are there
@@ -251,7 +258,7 @@ bool ElevatorPart::update(osg::Vec3& viewerPosition)
             float doorPos = direction * doorFraction * openingDistance * (doorNumber+1);
 
             osg::Matrix newTrans = transformNode->getMatrix();
-            newTrans.setTrans(initialTranslation + osg::Vec3(doorPos, 0, 0));
+            newTrans.setTrans(initialTranslation + osg::Vec3(doorPos, 0, -heightOffset));
             transformNode->setMatrix(newTrans);
         }
         else // we are there
@@ -280,7 +287,7 @@ bool ElevatorPart::update(osg::Vec3& viewerPosition)
             float doorPos = direction * doorFraction * openingDistance * (doorNumber + 1);
 
             osg::Matrix newTrans = transformNode->getMatrix();
-            newTrans.setTrans(initialTranslation + osg::Vec3(doorPos, 0, 0));
+            newTrans.setTrans(initialTranslation + osg::Vec3(doorPos, 0, -heightOffset));
             transformNode->setMatrix(newTrans);
         }
         else // we are there
@@ -378,7 +385,7 @@ void Elevator::addPart(const std::string &familyName, const std::string &subType
     {
         ep->type = ElevatorPart::Cabin;
         cabin = ep;
-        cabin->destinationY = cabin->carPos = cabin->elevation; // car is on this elevation
+        cabin->destinationY = cabin->carPos = cabin->heightOffset = cabin->elevation; // car is on this elevation
 
         int levelNumber = 0;
         for (const auto &landingPart : landings)
@@ -441,6 +448,12 @@ void Elevator::addPart(const std::string &familyName, const std::string &subType
                 std::sort(landings.begin(), landings.end(),
                     [](ElevatorPart *const &a, ElevatorPart *const &b)
                     { return a->elevation < b->elevation; });
+                int levelNumber = 0;
+                for (const auto &landingPart : landings)
+                {
+                    landingPart->levelNumber = levelNumber;
+                    levelNumber++;
+                }
                 // update cabin level numbers
                 if (cabin)
                 {

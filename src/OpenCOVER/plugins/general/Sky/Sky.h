@@ -33,7 +33,16 @@ struct SkyEntry
 {
 public:
     SkyEntry(const std::string &name, const std::string &displayName, const std::string &fileName, double longitude, double latitude, double altitude, double trueNorth)
-        : name(name), displayName(displayName), fileName(fileName), longitude(longitude), latitude(latitude), altitude(altitude), trueNorth(trueNorth) {}
+        : name(name)
+        , displayName(displayName)
+        , fileName(fileName)
+        , longitude(longitude)
+        , latitude(latitude)
+        , altitude(altitude)
+        , trueNorth(trueNorth)
+    {
+    }
+
     std::string name;
     std::string displayName;
     std::string fileName;
@@ -72,13 +81,10 @@ public:
     void setHour(int hourOfDay);
 
 private:
-    enum SkyMode
-    {
-        DISABLED,
-        TEXTURE,
-        EPHEMERIS,
-        AUTO,
-    } m_mode;
+    bool m_autoSkyEnabled = false;
+    bool m_ephemeralSkyEnabled = false;
+
+    SkyEntry *m_currentSky = nullptr;
 
     void loadSkies();
     std::optional<std::reference_wrapper<SkyEntry>> addSkyFile(std::filesystem::path path);
@@ -86,7 +92,7 @@ private:
 
     void setSkyDisabled();
     void setSkyTexture(std::string_view nameOrFile);
-    void setSkyEntry(SkyEntry &sky);
+    void setSkyEntry(SkyEntry &sky, bool manualSelection);
     void setSkyAuto();
     void updateAutoSky();
     SkyEntry *findClosestSky(const osg::Vec3 &globalPosition);
@@ -94,8 +100,6 @@ private:
 
     static Sky *s_instance;
     std::vector<SkyEntry> m_skies;
-
-    SkyEntry *m_currentAutoSky = nullptr;
 
     osg::ref_ptr<osg::MatrixTransform> skyRootNode;
     osg::ref_ptr<osg::Geode> texturedSphere;
@@ -112,8 +116,8 @@ private:
     opencover::ui::Menu *geoDataMenu;
     opencover::ui::Group *skyGroup;
     opencover::ui::SelectionList *skyList;
-    int skyListNameStart = 0;
     opencover::ui::Button *autoSkyButton;
+    opencover::ui::Button *ephemeralSkyButton;
     opencover::ui::Button *jumpToSkyButton;
     opencover::ui::Slider *skyNorthSlider = nullptr;
 

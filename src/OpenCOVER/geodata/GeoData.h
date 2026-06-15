@@ -37,11 +37,15 @@ public:
 
     void setProjection(std::string_view projection);
     void setProjectOffset(const osg::Vec3 &projectOffset);
+    void setProjectTransform(const osg::Vec3 &projectOffset, const double trueNorthDeg);
 
     const std::string &projection() const;
     const osg::Vec3 &projectOffset() const;
+    const double projectTrueNorthDegree() const;
+    const osg::Matrix &projectTransform() const;
+    const osg::Matrix &inverseProjectTransform() const;
 
-    osg::PositionAttitudeTransform *offsetRoot();
+    osg::MatrixTransform *transformRoot();
     osg::Group *terrainRoot();
 
     osg::Vec3 getProjectPosition();
@@ -78,8 +82,11 @@ protected:
 
     std::string m_projection;
     osg::Vec3 m_projectOffset;
+    double m_projectTrueNorthDegree = 0.0;
+    osg::Matrix m_projectTransform;
+    osg::Matrix m_inverseProjectTransform;
 
-    osg::PositionAttitudeTransform *m_offsetRoot;
+    osg::MatrixTransform *m_transformRoot;
     osg::Group *m_terrainRoot;
 
 private:

@@ -17,12 +17,12 @@ GeoData::GeoData()
     m_context = proj_context_create();
 #endif
 
-    m_offsetRoot = new osg::PositionAttitudeTransform;
-    m_offsetRoot->setPosition(-m_projectOffset);
-    cover->getObjectsRoot()->addChild(m_offsetRoot);
+    m_transformRoot = new osg::MatrixTransform;
+    m_transformRoot->setMatrix(osg::Matrix::identity());
+    cover->getObjectsRoot()->addChild(m_transformRoot);
 
     m_terrainRoot = new osg::Group;
-    m_offsetRoot->addChild(m_terrainRoot);
+    m_transformRoot->addChild(m_terrainRoot);
 
     setProjection(GEODATA_DEFAULT_PROJECTION_PROJECT);
 }
@@ -84,8 +84,18 @@ void GeoData::setProjection(std::string_view projection)
 
 void GeoData::setProjectOffset(const osg::Vec3 &projectOffset)
 {
+    setProjectTransform(projectOffset, m_projectTrueNorthDegree);
+}
+
+void GeoData::setProjectTransform(const osg::Vec3 &projectOffset, const double trueNorthDeg)
+{
     m_projectOffset = projectOffset;
-    m_offsetRoot->setPosition(-m_projectOffset);
+    m_projectTrueNorthDegree = trueNorthDeg;
+    osg::Matrix rot = osg::Matrix::rotate(osg::DegreesToRadians(-trueNorthDeg), osg::Vec3(0, 0, 1));
+    osg::Matrix trans = osg::Matrix::translate(-projectOffset);
+    m_projectTransform = trans * rot;
+    m_inverseProjectTransform = osg::Matrix::inverse(m_projectTransform);
+    m_transformRoot->setMatrix(m_projectTransform);
 }
 
 const std::string &GeoData::projection() const
@@ -96,10 +106,21 @@ const osg::Vec3 &GeoData::projectOffset() const
 {
     return m_projectOffset;
 }
-
-osg::PositionAttitudeTransform *GeoData::offsetRoot()
+const double GeoData::projectTrueNorthDegree() const
 {
-    return m_offsetRoot;
+    return m_projectTrueNorthDegree;
+}
+const osg::Matrix &GeoData::projectTransform() const
+{
+    return m_projectTransform;
+}
+const osg::Matrix &GeoData::inverseProjectTransform() const
+{
+    return m_inverseProjectTransform;
+}
+osg::MatrixTransform *GeoData::transformRoot()
+{
+    return m_transformRoot;
 }
 
 osg::Group *GeoData::terrainRoot()
@@ -120,7 +141,7 @@ osg::Vec3 GeoData::getGlobalPosition()
 
 osg::Vec3 GeoData::globalToProject(const osg::Vec3 &globalPosition) const
 {
-    return globalToReference(globalPosition) - m_projectOffset;
+    return globalToReference(globalPosition) * m_projectTransform;
 }
 
 osg::Vec3 GeoData::globalToReference(const osg::Vec3 &globalPosition) const
@@ -146,7 +167,7 @@ osg::Vec3 GeoData::projectToGlobal(const osg::Vec3 &projectPosition) const
 #ifndef HAVE_PROJ
     return projectPosition;
 #else
-    auto p = projectPosition + m_projectOffset;
+    auto p = projectPosition * m_inverseProjectTransform;
 
     PJ_COORD c;
     c.enu.e = p.x();
