@@ -92,3 +92,9 @@ easting = 513326.996
 northing = 5402342.657
 altitude = 247.2
 trueNorth = -311.99
+
+[[datasets]]
+name = "Breisgau-Hochschwarzwald"
+easting = 411994
+northing = 5313364
+altitude = 0
