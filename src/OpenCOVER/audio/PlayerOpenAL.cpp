@@ -159,13 +159,31 @@ void PlayerOpenAL::Source::play(double start)
     }
 
     ALuint buf = audio->buffer();
+    if (buf == AL_NONE)
+    {
+        std::cerr << "Audio: OpenAL source play requested with invalid buffer for URL '" << audio->url() << "'" << std::endl;
+        return;
+    }
+
     alSourceQueueBuffers(alSource, 1, &buf);
+    ALenum queueError = alGetError();
+    if (queueError != AL_NO_ERROR)
+    {
+        std::cerr << "Audio: alSourceQueueBuffers failed with error " << queueError << " for URL '" << audio->url() << "'" << std::endl;
+        return;
+    }
+
     if (loop)
     {
         alSourcei(alSource, AL_LOOPING, AL_TRUE);
     }
 
     alSourcePlay(alSource);
+    ALenum playError = alGetError();
+    if (playError != AL_NO_ERROR)
+    {
+        std::cerr << "Audio: alSourcePlay failed with error " << playError << " for URL '" << audio->url() << "'" << std::endl;
+    }
 }
 
 void PlayerOpenAL::Source::stop()
