@@ -108,6 +108,8 @@ void gpu_context::test_video_memory(scm::gl::render_device_ptr device)
     size_t render_budget_in_mb = policy->render_budget_in_mb();
 
     size_t video_ram_free_in_mb = (gpu_access::query_video_memory_in_mb(device) * 3u) / 4u;
+    if(video_ram_free_in_mb < 1000)
+     video_ram_free_in_mb = 1000;
 
     if (policy->out_of_core_budget_in_mb() == 0 || video_ram_free_in_mb < render_budget_in_mb)
     {
@@ -152,6 +154,8 @@ void gpu_context::test_video_memory(scm::gl::render_device_ptr device, Data_Prov
     size_t render_budget_in_mb = policy->render_budget_in_mb();
 
     size_t video_ram_free_in_mb = (gpu_access::query_video_memory_in_mb(device) * 3u) / 4u;
+    if(video_ram_free_in_mb < 1000)
+     video_ram_free_in_mb = 1000;
 
     if (policy->out_of_core_budget_in_mb() == 0 || video_ram_free_in_mb < render_budget_in_mb)
     {
