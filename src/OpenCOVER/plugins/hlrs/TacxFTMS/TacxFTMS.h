@@ -64,6 +64,7 @@ public:
     float getBrakeForce() const;
     float getAccelleration() const;
     float getSpeed() const;
+    float getPower() const;
     std::atomic<bool> running;
     void run() override;
     bool doStop;

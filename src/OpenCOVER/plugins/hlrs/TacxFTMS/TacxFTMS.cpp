@@ -320,6 +320,10 @@ float TacxFTMS::getSpeed() const {
     return ftmsData.speed / 3.6;  // speed in m/s
 }
 
+float TacxFTMS::getPower() const {
+    return ftmsData.power;  // speed in m/s
+}
+
 float TacxFTMS::getAngle() const{ return alpineData.steering_angle; }
 
 float TacxFTMS::getBrakeForce() const{
