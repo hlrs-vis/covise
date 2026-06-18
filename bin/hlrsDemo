@@ -332,9 +332,13 @@ demo 140 "Zweite mobilitaetswoche" run_marienplatz_mobilitaetswoche
 demo 141 "FLOWER" vistle /data/iag/windpark_gagnon/FLOWer_Beispiel_MERIDIONAL/workflows/tracer_cluster.vsl
 
 run_EP() {
-opencover opencover://plugin/GeoData /data/mack-research/Europa-Park-Twin/praesentation.wrl
+opencover opencover://plugin/Sky /data/mack-research/Europa-Park-Twin/praesentation.wrl
 }
 demo 142 "EuropaPark" run_EP
+category="Aero"
+demo 143 "MDA1" covise /data/Kasaero/Aero_2026_Demos/Kasaero/run_6/MDA1.net
+demo 144 "MJet Stroemung" covise /data/Kasaero/MJET-sim/Mjet1.net
+demo 145 "MJet" cover /data/Kasaero/Aero_2026_Demos/Kasaero/M-Jet.wrl
 
 # COVISE BACKUP
 category="COVISE_BACKUP"
