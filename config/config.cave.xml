@@ -16,10 +16,10 @@
 
    <COVER>
             <PointerAppearance>
-                <IconName value="line"/>
+                <!--IconName value="line"/-->
                 <Width value="10"/>
                 <Length value="1500"/>
-                <!-- interscetion length is used also for mouse, it needs to be long enough to intersect far objects -->
+                <!-- interscetion length is used also for mouse, it needs to be long enough to intersect far objects but short enough to not accidentally interact with somethin you don't want to-->
                 <Intersection value="15000" />
             </PointerAppearance>
 
@@ -544,7 +544,7 @@
    <PointCloud>
    <PointSize value="4" />
    </PointCloud>
-   <JSBSim menu="on" >
+   <JSBSim menu="on" value="off" >
    <Geometry y="-800" z="200" />
    <Glider serverPort="31319" localPort="1234" />
    <Sound server="192.168.0.240" />
