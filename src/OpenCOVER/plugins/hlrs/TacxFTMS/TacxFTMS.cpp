@@ -171,8 +171,8 @@ bool TacxFTMS::update() {
             TransformMat =
                 VRSceneGraph::instance()->getTransform()->getMatrix();
 
-            float grade = getGrade();
-            ftmsControl.grade = grade;
+            //float grade = getGrade();
+            // is done in getMatrix() ftmsControl.grade = grade;
 
             if (fabs(speed) < 0.00001) {
                 speed = 0;
@@ -297,7 +297,7 @@ void TacxFTMS::updateThread() {
             OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
             memcpy(&ftmsData, tmpBuf, sizeof(FTMSBikeData));
             sendIndoorBikeSimulationParameters();
-	    cerr << "speed" << ftmsData.speed << endl;
+	    //cerr << "speed" << ftmsData.speed << endl;
 
         } else if (status >= sizeof(AlpineData)) {
 
@@ -378,7 +378,8 @@ osgUtil::LineSegmentIntersector::Intersection getFirstIntersection(
     return intersector->getFirstIntersection();
 }
 
-osg::Matrix TacxFTMS::getMatrix() const{
+osg::Matrix TacxFTMS::getMatrix()
+{
     float wheelDis = wheelBase * 1000;
     osg::Vec3 pos = TacxFTMSPos.getTrans();
     osg::Vec3d y{TacxFTMSPos(1, 0), TacxFTMSPos(1, 1), TacxFTMSPos(1, 2)};
@@ -419,10 +420,29 @@ osg::Matrix TacxFTMS::getMatrix() const{
     backNormal.normalize();
     // fprintf(stderr,"f %f \n",frontNormal*osg::Vec3(0,0,1));
     // fprintf(stderr,"b %f \n",backNormal*osg::Vec3(0,0,1) );
-    if (frontNormal * osg::Vec3(0, 0, 1) < 0.2) return TransformMat;
-    if (backNormal * osg::Vec3(0, 0, 1) < 0.2) return TransformMat;
+    //if (frontNormal * osg::Vec3(0, 0, 1) < 0.2) return TransformMat;
+    //if (backNormal * osg::Vec3(0, 0, 1) < 0.2) return TransformMat;
+    
+    osg::Vec3d forward{front.getWorldIntersectPoint() - back.getWorldIntersectPoint()};
+    forward.normalize();
 
-    osg::Vec3d newY =
+    osg::Vec3d forwardXY{forward.x(), forward.y(), 0.0};
+    double run = forwardXY.length();
+    double rise = forward.z();
+
+    float grade = 0.0f;
+    if (run > 1e-6) {
+        grade = (rise / run) * 100.0f;
+    }
+ 
+ //fprintf(stderr,"grade = %f",grade);
+    
+    ftmsControl.grade = grade;
+    
+    osg::Matrix newMatrix;
+    osg::Vec3d translation = front.getWorldIntersectPoint();
+
+    /*osg::Vec3d newY =
         front.getWorldIntersectPoint() - back.getWorldIntersectPoint();
     newY.normalize();
     //osg::Vec3d newX = newY ^ frontNormal;
@@ -430,9 +450,7 @@ osg::Matrix TacxFTMS::getMatrix() const{
     newX.normalize();
     osg::Vec3d newZ = newX ^ newY;
 
-    osg::Vec3d translation = front.getWorldIntersectPoint();
 
-    osg::Matrix newMatrix;
 
     newMatrix(0, 0) = newX.x();
     newMatrix(0, 1) = newX.y();
@@ -445,9 +463,9 @@ osg::Matrix TacxFTMS::getMatrix() const{
     newMatrix(2, 0) = newZ.x();
     newMatrix(2, 1) = newZ.y();
     newMatrix(2, 2) = newZ.z();
-
-    newMatrix = newMatrix * osg::Matrix::translate(translation);
-
+    
+    newMatrix = newMatrix * osg::Matrix::translate(translation);*/
+    newMatrix = osg::Matrix::translate(translation);
     osg::Matrix Nn = newMatrix;
     osg::Matrix invNn;
     invNn.invert(Nn);

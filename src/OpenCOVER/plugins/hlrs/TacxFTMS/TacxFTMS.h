@@ -79,7 +79,7 @@ private:
     float getYAcceleration();
     float getGrade();
     float resistance;
-    osg::Matrix getMatrix() const;
+    osg::Matrix getMatrix();
     osg::Matrix TransformMat;
     osg::Matrix TacxFTMSPos;
     void setEnabled(bool) override;
