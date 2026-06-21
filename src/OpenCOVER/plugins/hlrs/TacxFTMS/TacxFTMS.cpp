@@ -32,6 +32,7 @@ using namespace opencover;
 TacxFTMS::TacxFTMS()
 : coVRPlugin(COVER_PLUGIN_NAME)
 , coVRNavigationProvider("TacxFTMS", this)
+, ui::Owner("Tacx", cover->ui)
 {
     ftmsData.speed = 0.0;
     ftmsData.cadence = 0.0;
@@ -114,6 +115,18 @@ bool TacxFTMS::init() {
 
     std::cerr << "Init FTMS done" << std::endl;
     auto retval = coVRMSController::instance()->syncBool(ret);
+    
+    TacxMenu = new ui::Menu("Tacx", this);
+    
+    Speed = new ui::Label(TacxMenu, "speed");
+    Power = new ui::Label(TacxMenu, "power");
+    
+    Weight = new ui::EditField(TacxMenu, "weight");
+    Weight->setValue(ftmsControl.weight);
+    Weight->setCallback([this](const std::string &w) {
+            ftmsControl.weight = stof(w);
+            std::cerr << "weight: " << stof(w)<<std::endl;
+        });
     return retval;
 }
 
@@ -178,6 +191,8 @@ bool TacxFTMS::update() {
                 speed = 0;
             }
 
+            Speed->setText(std::to_string(ftmsData.speed)+ " km/h");
+            Power->setText(std::to_string(ftmsData.power)+ " W");
             float s = speed * dT;
             // fprintf(stderr, "Displacement: %lf   Speed: %lf    dt: %lf
             // Y-acceleration: %lf\n", s, speed, dT, a);

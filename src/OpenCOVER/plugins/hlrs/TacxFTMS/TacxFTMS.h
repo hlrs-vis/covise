@@ -22,8 +22,15 @@
 #include <cover/input/deviceDiscovery.h>
 
 
+#include <cover/ui/Button.h>
+#include <cover/ui/Action.h>
+#include <cover/ui/Menu.h>
+#include <cover/ui/EditField.h>
+#include <cover/ui/Label.h>
 #define MAX_CALLSIGN_LEN        8
 
+using namespace opencover;
+using namespace covise;
 
 class UDPComm;
 
@@ -54,7 +61,7 @@ struct AlpineData
 
 #pragma pack(pop)
 
-class PLUGINEXPORT TacxFTMS : public opencover::coVRPlugin, public opencover::coVRNavigationProvider, public OpenThreads::Thread
+class PLUGINEXPORT TacxFTMS : public opencover::coVRPlugin, public opencover::coVRNavigationProvider, public OpenThreads::Thread, public ui::Owner
 {
 public:
     TacxFTMS();
@@ -70,6 +77,11 @@ public:
     bool doStop;
 
 private:
+
+    ui::Menu *TacxMenu;
+    ui::Label *Speed;
+    ui::Label *Power;
+    ui::EditField *Weight;
     float stepSizeUp;
     float stepSizeDown;
     const float BrakeThreshold = 1.0;
