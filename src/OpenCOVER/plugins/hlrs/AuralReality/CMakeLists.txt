@@ -34,10 +34,12 @@ set(PROTO_FILES
 
 SET(HEADERS
     AuralRealityPlugin.h
+    CustomTransformInteractor.h
 )
 
 SET(SOURCES
     AuralRealityPlugin.cpp
+    CustomTransformInteractor.cpp
 )
 
 cover_add_plugin(AuralReality ${HEADERS} ${SOURCES})

@@ -49,7 +49,7 @@ Speaker::Speaker(const std::string &id)
     transform->addChild(transform2);
 
     // Attach the speaker icon to the transform
-    auto icon = coVRFileManager::instance()->loadFile("share/covise/icons/speaker.glb", nullptr, transform2);
+    auto icon = coVRFileManager::instance()->loadFile("share/covise/icons/speaker.glb", nullptr, transform2, "", true);
 
     osg::StateSet *ss = icon->getOrCreateStateSet();
     ss->setMode(GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::OVERRIDE);

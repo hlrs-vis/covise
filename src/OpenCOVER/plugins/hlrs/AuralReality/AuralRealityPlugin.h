@@ -8,7 +8,6 @@
 #ifndef _AURAL_REALITY_PLUGIN_H
 #define _AURAL_REALITY_PLUGIN_H
 
-#include <PluginUtil/coVR3DTransRotInteractor.h>
 #include <cover/coInteractor.h>
 #include <cover/coVRPlugin.h>
 #include <cover/ui/Owner.h>
@@ -24,6 +23,8 @@
 
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
+
+#include "CustomTransformInteractor.h"
 
 #include "tmt_service.grpc.pb.h"
 
@@ -69,7 +70,7 @@ public:
 
 private:
     std::string id;
-    opencover::coVR3DTransRotInteractor interactor;
+    CustomTransformInteractor interactor;
     osg::ref_ptr<osg::MatrixTransform> transform;
     SpeakerProperties properties;
 
