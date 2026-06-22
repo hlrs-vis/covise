@@ -119,7 +119,7 @@ bool GeoDataLoader::init()
 
         if (latitude || longitude)
         {
-            auto enu = GeoData::instance()->globalToReference(osg::Vec3(longitude, latitude, altitude));
+            auto enu = GeoData::instance()->globalToReference(osg::Vec3d(longitude, latitude, altitude));
             dataset.easting = enu.x();
             dataset.northing = enu.y();
             dataset.altitude = enu.z();
@@ -769,7 +769,7 @@ std::optional<PlaceLabelGroup> GeoDataLoader::loadLabels(const std::string &file
             double altitude = feature->GetFieldAsDouble("altitude");
             int size = feature->GetFieldAsInteger("size");
 
-            osg::Vec3f global(poPoint->getX(), poPoint->getY(), altitude);
+            osg::Vec3d global(poPoint->getX(), poPoint->getY(), altitude);
             auto local = GeoData::instance()->globalToReference(global);
 
             labels.emplace_back(std::make_shared<PlaceLabel>(name, local, node, size));

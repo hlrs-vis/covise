@@ -11,8 +11,8 @@
 #include <string>
 #include <string_view>
 
-#include <osg/Vec3>
-#include <osg/Matrix>
+#include <osg/Vec3d>
+#include <osg/Matrixd>
 #include <osg/PositionAttitudeTransform>
 
 #include <util/coExport.h>
@@ -36,43 +36,43 @@ public:
     static GeoData *instance();
 
     void setProjection(std::string_view projection);
-    void setProjectOffset(const osg::Vec3 &projectOffset);
-    void setProjectTransform(const osg::Vec3 &projectOffset, const double trueNorthDeg);
+    void setProjectOffset(const osg::Vec3d &projectOffset);
+    void setProjectTransform(const osg::Vec3d &projectOffset, const double trueNorthDeg);
 
     const std::string &projection() const;
-    const osg::Vec3 &projectOffset() const;
+    const osg::Vec3d &projectOffset() const;
     const double projectTrueNorthDegree() const;
-    const osg::Matrix &projectTransform() const;
-    const osg::Matrix &inverseProjectTransform() const;
+    const osg::Matrixd &projectTransform() const;
+    const osg::Matrixd &inverseProjectTransform() const;
 
     osg::MatrixTransform *transformRoot();
     osg::Group *terrainRoot();
 
-    osg::Vec3 getProjectPosition();
-    osg::Vec3 getGlobalPosition();
+    osg::Vec3d getProjectPosition();
+    osg::Vec3d getGlobalPosition();
 
     /**
      * Transform a global position (easting-northing-altitude) into project
      * (x-y-z) coordinates, applying transform and project offset.
      */
-    osg::Vec3 globalToProject(const osg::Vec3 &globalPosition) const;
+    osg::Vec3d globalToProject(const osg::Vec3d &globalPosition) const;
 
     /**
      * Transform a global position (easting-northing-altitude) into the
      * reference (x-y-z) coordinates, applying the projection transform, but
      * not the project offset.
      */
-    osg::Vec3 globalToReference(const osg::Vec3 &globalPosition) const;
+    osg::Vec3d globalToReference(const osg::Vec3d &globalPosition) const;
 
     /**
      * Transform a project (x-y-z) coordinate into a global position
      * (easting-northing-altitude), applying the reverse project offset and
      * transformation.
      */
-    osg::Vec3 projectToGlobal(const osg::Vec3 &projectPosition) const;
+    osg::Vec3d projectToGlobal(const osg::Vec3d &projectPosition) const;
 
-    void jumpToLocation(const osg::Vec3 &projectPosition);
-    void jumpToLocation(const osg::Vec3 &projectPosition, double aboveTerrain);
+    void jumpToLocation(const osg::Vec3d &projectPosition);
+    void jumpToLocation(const osg::Vec3d &projectPosition, double aboveTerrain);
 
 protected:
 #ifdef HAVE_PROJ
@@ -81,10 +81,10 @@ protected:
 #endif
 
     std::string m_projection;
-    osg::Vec3 m_projectOffset;
+    osg::Vec3d m_projectOffset;
     double m_projectTrueNorthDegree = 0.0;
-    osg::Matrix m_projectTransform;
-    osg::Matrix m_inverseProjectTransform;
+    osg::Matrixd m_projectTransform;
+    osg::Matrixd m_inverseProjectTransform;
 
     osg::MatrixTransform *m_transformRoot;
     osg::Group *m_terrainRoot;
