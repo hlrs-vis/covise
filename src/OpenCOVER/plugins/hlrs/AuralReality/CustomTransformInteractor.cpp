@@ -165,22 +165,20 @@ void CustomTransformInteractor::doInteraction()
 
         result = rot * osg::Matrix::translate(pos);
     }
+    else if (m_translateOnlyAxis)
+    {
+        auto relativeMovement = osg::Matrix::inverse(m_startMatrix) * target;
+
+        auto translation = relativeMovement.getTrans();
+        translation.x() *= m_translateOnlyAxis == 1;
+        translation.y() *= m_translateOnlyAxis == 2;
+        translation.z() *= m_translateOnlyAxis == 3;
+
+        result = osg::Matrix::translate(translation) * m_startMatrix;
+    }
     else
     {
         result = m_objectRotation * osg::Matrix::inverse(m_objectToTarget) * target;
-
-        if (m_translateOnlyAxis)
-        {
-            // TODO: this is not correct yet
-            auto relativeMovement = result.getTrans() - m_startMatrix.getTrans();
-
-            auto dir = osg::Vec3(
-                relativeMovement.x() * (m_translateOnlyAxis == 1),
-                relativeMovement.y() * (m_translateOnlyAxis == 2),
-                relativeMovement.z() * (m_translateOnlyAxis == 3));
-
-            result = (osg::Matrix::translate(m_startMatrix.getRotate() * dir)) * m_startMatrix;
-        }
     }
 
     m_debugTarget->setNodeMask(Isect::Visible);

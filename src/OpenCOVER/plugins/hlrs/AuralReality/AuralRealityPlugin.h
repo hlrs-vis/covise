@@ -8,6 +8,7 @@
 #ifndef _AURAL_REALITY_PLUGIN_H
 #define _AURAL_REALITY_PLUGIN_H
 
+#include <PluginUtil/coSensor.h>
 #include <cover/coInteractor.h>
 #include <cover/coVRPlugin.h>
 #include <cover/ui/Owner.h>
@@ -18,7 +19,6 @@
 #include <grpc/grpc.h>
 #include <grpcpp/channel.h>
 
-#include <cover/ui/Button.h>
 #include <cover/ui/Menu.h>
 
 #include <boost/uuid/uuid.hpp>
@@ -38,10 +38,124 @@ struct SpeakerProperties
     float power_handling = 0.0;
 };
 
-class Speaker
+class Selectable
+{
+public:
+    void select()
+    {
+        if (m_isSelected)
+            return;
+        m_isSelected = true;
+        updateSelection();
+    }
+    void deselect()
+    {
+        if (!m_isSelected)
+            return;
+        m_isSelected = false;
+        updateSelection();
+    }
+
+    bool isSelected() const { return m_isSelected; }
+
+protected:
+    virtual void updateSelection() { };
+    bool m_isSelected;
+};
+
+class Selection
+{
+    typedef Selectable *SelectablePtr;
+
+public:
+    void selectSingle(SelectablePtr selectable)
+    {
+        for (auto i : m_selected)
+        {
+            if (i != selectable)
+            {
+                i->deselect();
+                m_selected.erase(i);
+            }
+        }
+
+        addToSelection(selectable);
+    }
+
+    void removeFromSelection(SelectablePtr selectable)
+    {
+        if (m_selected.find(selectable) != m_selected.end())
+        {
+            selectable->deselect();
+            m_selected.erase(selectable);
+        }
+    }
+
+    void toggleSelection(SelectablePtr selectable)
+    {
+        if (selectable->isSelected())
+        {
+            removeFromSelection(selectable);
+        }
+        else
+        {
+            addToSelection(selectable);
+        }
+    }
+
+    void addToSelection(SelectablePtr selectable)
+    {
+        if (m_selected.find(selectable) == m_selected.end())
+        {
+            selectable->select();
+            m_selected.insert(selectable);
+        }
+    }
+
+    const std::set<SelectablePtr> getSelected() const
+    {
+        return m_selected;
+    }
+
+protected:
+    std::set<SelectablePtr> m_selected;
+};
+
+class SelectableSensor : public coPickSensor
+{
+private:
+    Selection *selection;
+    Selectable *selectable;
+
+public:
+    SelectableSensor(Selection *s, Selectable *s2, osg::Node *n)
+        : coPickSensor(n)
+        , selection(s)
+        , selectable(s2)
+    {
+    }
+    ~SelectableSensor()
+    {
+        if (active)
+            disactivate();
+    }
+    void activate() override
+    {
+        std::cout << "ACTIVATE!" << std::endl;
+        selection->toggleSelection(selectable);
+    }
+
+    void disactivate() override
+    {
+        // selection->removeFromSelection(selectable);
+    }
+};
+
+class Speaker : public Selectable
 {
 public:
     Speaker(const std::string &id);
+    ~Speaker();
     void preFrame();
 
     const std::string &getId() const
@@ -68,6 +182,21 @@ public:
         return properties;
     }
 
+protected:
+    virtual void updateSelection()
+    {
+        if (isSelected())
+        {
+            interactor.show();
+            interactor.enableIntersection();
+        }
+        else
+        {
+            interactor.hide();
+            interactor.disableIntersection();
+        }
+    }
+
 private:
     std::string id;
     CustomTransformInteractor interactor;
@@ -76,6 +205,8 @@ private:
 
     osg::Matrix offset;
     osg::Matrix offset_i;
+
+    SelectableSensor *sensor;
 };
 
 class AuralRealityPlugin : public opencover::coVRPlugin,
@@ -108,6 +239,7 @@ private:
     opencover::ui::Menu *menu;
 
     boost::uuids::random_generator uuid_generator;
+    Selection selection;
 };
 
 #endif

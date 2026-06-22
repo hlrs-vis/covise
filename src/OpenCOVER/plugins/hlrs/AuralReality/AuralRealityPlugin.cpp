@@ -7,21 +7,26 @@
 
 #include "AuralRealityPlugin.h"
 
+#include <cover/VRSceneGraph.h>
 #include <cover/coVRFileManager.h>
 #include <cover/coVRPluginSupport.h>
 #include <boost/uuid/uuid_io.hpp>
+
+#include <map>
+#include <utility>
 
 #include <grpc/grpc.h>
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/channel.h>
 #include <grpcpp/client_context.h>
 #include <grpcpp/create_channel.h>
-#include <map>
 #include <grpcpp/security/credentials.h>
 #include <osg/MatrixTransform>
 #include <osg/TexEnv>
 #include <osg/Material>
-#include <utility>
+#include <osg/io_utils>
+
+#include <cover/ui/Action.h>
 
 AuralRealityPlugin *AuralRealityPlugin::plugin = NULL;
 
@@ -33,10 +38,10 @@ Speaker::Speaker(const std::string &id)
     : id(id)
     , interactor(osg::Matrix::identity(), 1000, vrui::coInteraction::ButtonA, "hand", "speakerInteractor", vrui::coInteraction::Medium)
 {
-    interactor.show();
-    interactor.enableIntersection();
+    interactor.hide();
+    interactor.disableIntersection();
 
-    offset.makeTranslate(0, 0, 0.4);
+    offset.makeTranslate(0.0, 0.0, 0);
     offset_i.invert(offset);
 
     transform = new osg::MatrixTransform;
@@ -51,16 +56,26 @@ Speaker::Speaker(const std::string &id)
     // Attach the speaker icon to the transform
     auto icon = coVRFileManager::instance()->loadFile("share/covise/icons/speaker.glb", nullptr, transform2, "", true);
 
-    osg::StateSet *ss = icon->getOrCreateStateSet();
-    ss->setMode(GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::OVERRIDE);
+    // osg::StateSet *ss = icon->getOrCreateStateSet();
+    // ss->setMode(GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::OVERRIDE);
+    //
+    // osg::ref_ptr<osg::Material> mat = new osg::Material;
+    // mat->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    // ss->setAttributeAndModes(mat, osg::StateAttribute::ON);
 
-    osg::ref_ptr<osg::Material> mat = new osg::Material;
-    mat->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    ss->setAttributeAndModes(mat, osg::StateAttribute::ON);
+    icon->setStateSet(VRSceneGraph::instance()->loadDefaultGeostate(osg::Material::AMBIENT_AND_DIFFUSE));
+
+    sensor = new SelectableSensor(&(AuralRealityPlugin::instance()->selection), this, transform.get());
+}
+
+Speaker::~Speaker()
+{
+    delete sensor;
 }
 
 void Speaker::preFrame()
 {
+    sensor->update();
     interactor.preFrame();
 
     if (interactor.isRunning())
@@ -82,11 +97,9 @@ AuralRealityPlugin::AuralRealityPlugin()
     menu = new ui::Menu("Aural Reality", this);
     menu->setText("Aural Reality");
 
-    auto new_speaker = new ui::Button(menu, "New speaker");
-    new_speaker->setCallback([this](bool state)
+    auto new_speaker = new ui::Action(menu, "New speaker");
+    new_speaker->setCallback([this]()
         { createSpeaker(); });
-
-    // speakers["foo"] = std::make_shared<Speaker>("foo");
 
     // connect
     channel = grpc::CreateChannel("[::]:9999", grpc::InsecureChannelCredentials());
@@ -195,7 +208,10 @@ osg::Matrix tmt_transform_to_matrix(const ar::Transform &t)
     float s = t.has_scale() ? t.scale() : 1.0;
     m3.makeScale(s, s, s);
 
-    return m1 * m2 * m3; // TODO: check order ;)
+    osg::Matrix result = m2 * m1 * m3; // TODO: check order ;)
+    std::cout << "tmt_transform_to_matrix result " << result << std::endl;
+
+    return result;
 }
 
 void matrix_to_tmt_transform(const osg::Matrix &m, ar::Transform *result)
@@ -295,10 +311,28 @@ void AuralRealityPlugin::pushSpeaker(const Speaker *speaker)
     // TODO: parse response again?
 }
 
+osg::Matrix unscale(osg::Matrix v)
+{
+    osg::Vec3d translation;
+    osg::Quat rotation;
+    osg::Vec3d scale;
+    osg::Quat so;
+    v.decompose(translation, rotation, scale, so);
+    return osg::Matrix::rotate(rotation) * osg::Matrix::translate(translation);
+}
+
 void AuralRealityPlugin::createSpeaker()
 {
     std::string id = boost::uuids::to_string(uuid_generator());
     speakers[id] = std::make_shared<Speaker>(id);
+
+    // auto m = VRSceneGraph::instance()->getTransform()->getMatrix();
+    auto m = cover->getInvBaseMat();
+    m = unscale(m);
+    // m = osg::Matrix::rotate(m.getRotate()) * osg::Matrix::translate(m.getTrans());
+    m.preMultTranslate(osg::Vec3(0, 2, 0));
+    speakers[id]->setTransform(m);
+
     pushSpeaker(id);
 }
 
