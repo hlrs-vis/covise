@@ -69,6 +69,7 @@ JSBSimPlugin::JSBSimPlugin()
     plugin = this;
 
     geometryTrans = new osg::MatrixTransform();
+    geometryTrans->getOrCreateStateSet()->setMode(GL_CULL_FACE, osg::StateAttribute::OFF | osg::StateAttribute::OVERRIDE);
 
     loadAvailableAircraft();
     readJoystickConfiguration();
@@ -148,6 +149,7 @@ JSBSimPlugin::~JSBSimPlugin()
     {
         delete FDMExec;
         delete printCatalog;
+        delete startAction;
         delete debugButton;
         delete resetButton;
         delete upButton;
@@ -175,7 +177,8 @@ void JSBSimPlugin::reset(double dz)
     // Compute the eyepoint transformation from the aircraft. The GetXYZep method returns
     // a dimension in inches, so we divide by
     osg::Vec3 aircraftEyePoint(Aircraft->GetXYZep(1), Aircraft->GetXYZep(2), Aircraft->GetXYZep(3));
-    eyePoint = osg::Matrix::translate(aircraftEyePoint / 0.00254);
+    eyePoint = osg::Matrix::translate(aircraftEyePoint * 25.4);
+    std::cout << "EYE POINT " << aircraftEyePoint * 25.4 << std::endl;
 
     std::shared_ptr<JSBSim::FGInitialCondition> IC = FDMExec->GetIC();
     if (!IC->Load(SGPath("reset00.xml")))
@@ -184,7 +187,7 @@ void JSBSimPlugin::reset(double dz)
     }
 
     // Transform the viewer coordinates to lat/lng
-    osg::Vec3 pos = GeoData::instance()->getGlobalPosition();
+    osg::Vec3d pos = GeoData::instance()->getGlobalPosition();
 
     float altitude = pos.z();
     float altitudeFt = altitude / METERS_PER_FOOT - Aircraft->GetXYZep(3) * FEET_PER_INCH;
@@ -196,9 +199,9 @@ void JSBSimPlugin::reset(double dz)
     // there is also IC->SetAltitudeAGLFtIC(...), maybe we want that?
 
     // Align heading to viewer, reset roll (wings level), keep pitch according to aircraft reset file
-    osg::Vec3 dir(viewer(1, 0), viewer(1, 1), viewer(1, 2));
+    osg::Vec3d dir(viewer(1, 0), viewer(1, 1), viewer(1, 2));
     dir.normalize();
-    IC->SetPsiRadIC(atan2(dir[1], dir[0])); // heading
+    IC->SetPsiRadIC(atan2(dir[1], dir[0]) - M_PI_2); // heading
     IC->SetPhiRadIC(0.0); // roll
 
     // IC->SetPsiRadIC(0.0); // heading
@@ -343,10 +346,10 @@ void JSBSimPlugin::loadAvailableAircraft()
             .systemsDir = entry.value<std::string>("", "systemsDir", "systems")->value(),
             .enginesDir = entry.value<std::string>("", "enginesDir", "engine")->value(),
             .geometryTransform = osg::Matrix::scale(s, s, s)
-                * osg::Matrix::rotate(
-                    osg::DegreesToRadians(h), osg::Vec3(0, 0, 1),
-                    osg::DegreesToRadians(p), osg::Vec3(1, 0, 0),
-                    osg::DegreesToRadians(r), osg::Vec3(0, 1, 0))
+                * osg::Matrixd::rotate(
+                    osg::DegreesToRadians(h), osg::Vec3d(0, 0, 1),
+                    osg::DegreesToRadians(p), osg::Vec3d(1, 0, 0),
+                    osg::DegreesToRadians(r), osg::Vec3d(0, 1, 0))
                 * osg::Matrix::translate(x, y, z),
         };
 
@@ -482,6 +485,10 @@ bool JSBSimPlugin::init()
         {
         if (FDMExec)
             FDMExec->PrintPropertyCatalog(); });
+
+    startAction = new ui::Action(JSBMenu, "start");
+    startAction->setCallback([this]()
+        { coVRNavigationManager::instance()->setNavMode("JSBSim"); });
 
     pauseButton = new ui::Button(JSBMenu, "pause");
     pauseButton->setState(false);
@@ -735,11 +742,11 @@ bool JSBSimPlugin::update()
                     auto vehicleState = Propagate->GetVState();
                     auto location = vehicleState.vLocation;
 
-                    osg::Vec3 pos(location.GetLongitudeDeg(), location.GetLatitudeDeg(), location.GetGeodAltitude() * METERS_PER_FOOT);
+                    osg::Vec3d pos(location.GetLongitudeDeg(), location.GetLatitudeDeg(), location.GetGeodAltitude() * METERS_PER_FOOT);
 
-                    float scale = cover->getScale();
+                    double scale = cover->getScale();
                     auto position = GeoData::instance()->globalToProject(pos);
-                    auto trans = osg::Matrix::translate(position * scale);
+                    auto trans = osg::Matrixd::translate(position * scale);
 
                     float heading = Propagate->GetEuler(JSBSim::FGJSBBase::ePsi);
                     float roll = Propagate->GetEuler(JSBSim::FGJSBBase::ePhi);
@@ -747,13 +754,13 @@ bool JSBSimPlugin::update()
 
                     // std::cout << " Heading " << heading << " Roll " << roll << " Pitch " << pitch << std::endl;
                     // auto rot = osg::Matrix::rotate(
-                    //     -pitch, osg::Vec3(1, 0, 0),
-                    //     roll, osg::Vec3(0, 1, 0),
-                    //     heading, osg::Vec3(0, 0, 1));
+                    //     -pitch, osg::Vec3d(1, 0, 0),
+                    //     roll, osg::Vec3d(0, 1, 0),
+                    //     heading, osg::Vec3d(0, 0, 1));
 
-                    auto rot = osg::Matrix::rotate(roll, osg::Vec3(0, 1, 0)) * osg::Matrix::rotate(pitch, osg::Vec3(1, 0, 0)) * osg::Matrix::rotate(-heading, osg::Vec3(0, 0, 1));
+                    auto rot = osg::Matrixd::rotate(roll, osg::Vec3d(0, 1, 0)) * osg::Matrix::rotate(pitch, osg::Vec3d(1, 0, 0)) * osg::Matrix::rotate(-heading, osg::Vec3d(0, 0, 1));
 
-                    osg::Matrix newPos = osg::Matrix::inverse(/*osg::Matrix::rotate(-M_PI_2, 0, 0, 1.0) * eyePoint */ rot * trans);
+                    osg::Matrixd newPos = osg::Matrix::inverse(/*osg::Matrix::rotate(-M_PI_2, 0, 0, 1.0) * eyePoint */ rot * trans);
 
                     if (newPos.isNaN())
                     {
@@ -846,6 +853,7 @@ void JSBSimPlugin::setEnabled(bool flag)
     {
         cover->getScene()->removeChild(geometryTrans.get());
     }
+
     if (coVRMSController::instance()->isMaster())
     {
         if (flag)
@@ -943,7 +951,7 @@ void JSBSimPlugin::updateUdp()
     }
 }
 
-void JSBSimPlugin::addThermal(const osg::Vec3 &velocity, float turbulence)
+void JSBSimPlugin::addThermal(const osg::Vec3d &velocity, float turbulence)
 {
     m_windVelocityTarget += velocity;
     m_windTurbulenceTarget += turbulence;

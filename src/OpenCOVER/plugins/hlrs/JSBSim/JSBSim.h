@@ -11,6 +11,7 @@
 #include <cover/coVRPlugin.h>
 #include <cover/input/dev/Joystick/Joystick.h>
 
+#include <cover/input/input.h>
 #include <string>
 #include <util/common.h>
 
@@ -58,7 +59,7 @@ struct AircraftInfo
     std::string geometryFile;
     std::string systemsDir;
     std::string enginesDir;
-    osg::Matrix geometryTransform;
+    osg::Matrixd geometryTransform;
 };
 
 enum JoystickActionType
@@ -69,6 +70,7 @@ enum JoystickActionType
     THROTTLE,
     MIXTURE
 };
+
 class JoystickAction
 {
 public:
@@ -80,7 +82,7 @@ public:
     int engine = -1;
     bool invert = false;
 
-    void update(Joystick *device)
+    virtual void update(Joystick *device)
     {
         m_oldValue = m_value;
 
@@ -116,13 +118,13 @@ public:
 
     static JSBSimPlugin *instance() { return plugin; };
 
-    bool init();
-    bool update();
+    bool init() override;
+    bool update() override;
 
     // from coVRNavigationProvider
     virtual void setEnabled(bool) override;
 
-    void addThermal(const osg::Vec3 &velocity, float turbulence);
+    void addThermal(const osg::Vec3d &velocity, float turbulence);
 
 private:
     void readJoystickConfiguration();
@@ -136,6 +138,7 @@ private:
     static JSBSimPlugin *plugin;
     ui::Menu *JSBMenu;
     ui::Action *printCatalog;
+    ui::Action *startAction;
     ui::Button *pauseButton;
     ui::Button *debugButton;
     ui::Action *resetButton;
@@ -170,7 +173,7 @@ private:
     vector<SGPath> LogDirectiveName;
     vector<string> CommandLineProperties;
     vector<double> CommandLinePropertyValues;
-    osg::Matrix eyePoint;
+    osg::Matrixd eyePoint;
 
     double current_seconds = 0.0;
     double SimStartTime = 0.0;
@@ -236,16 +239,16 @@ private:
     void reset(double dz = 0.0);
 
     //! this functions is called when a key is pressed or released
-    virtual void key(int type, int keySym, int mod);
+    virtual void key(int type, int keySym, int mod) override;
 
     OpenThreads::Mutex mutex;
 
-    osg::Matrix lastPos;
+    osg::Matrixd lastPos;
 
     // For wind/turbulence
-    osg::Vec3 m_windVelocitySetting;
-    osg::Vec3 m_windVelocityCurrent;
-    osg::Vec3 m_windVelocityTarget;
+    osg::Vec3d m_windVelocitySetting;
+    osg::Vec3d m_windVelocityCurrent;
+    osg::Vec3d m_windVelocityTarget;
     float m_windTurbulenceCurrent;
     float m_windTurbulenceTarget;
 
