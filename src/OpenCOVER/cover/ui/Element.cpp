@@ -83,6 +83,8 @@ Group *Element::parent() const
 
 void Element::setParent(Group *parent)
 {
+    if (parent == m_parent)
+        return;
     if (m_parent)
         manager()->queueUpdate(m_parent, UpdateChildren);
     m_parent = parent;
@@ -107,8 +109,11 @@ std::set<Container *> Element::containers()
 
 void Element::setText(const std::string &label)
 {
-    m_label = label;
-    manager()->queueUpdate(this, UpdateText);
+    if (label != m_label)
+    {
+        m_label = label;
+        manager()->queueUpdate(this, UpdateText);
+    }
 }
 
 const std::string &Element::text() const
@@ -126,6 +131,7 @@ bool Element::visible(const View *view) const
 
 void Element::setVisible(bool flag, int viewBits)
 {
+    auto oldbits = m_viewBits;
     if (flag)
     {
         m_viewBits |= viewBits;
@@ -134,7 +140,8 @@ void Element::setVisible(bool flag, int viewBits)
     {
         m_viewBits &= ~viewBits;
     }
-    manager()->queueUpdate(this, UpdateVisible);
+    if (m_viewBits != oldbits)
+        manager()->queueUpdate(this, UpdateVisible);
 }
 
 bool Element::enabled() const
@@ -144,8 +151,11 @@ bool Element::enabled() const
 
 void Element::setEnabled(bool flag)
 {
-    m_enabled = flag;
-    manager()->queueUpdate(this, UpdateEnabled);
+    if (flag != m_enabled)
+    {
+        m_enabled = flag;
+        manager()->queueUpdate(this, UpdateEnabled);
+    }
 }
 
 void Element::trigger() const
