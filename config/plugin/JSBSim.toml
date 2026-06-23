@@ -82,7 +82,7 @@ name = "Zugspitze"
 latitude = 47.422706952147365
 longitude = 11.015563201045584
 heading = 270
-altitude = 1500
+altitude = 3000
 aircraft = "Hansajet"
 regions = ["Bayern"]
 
@@ -91,6 +91,6 @@ name = "Matterhorn"
 latitude = 46.007799881283745
 longitude = 7.691735913898299
 heading = 200
-altitude = 1500
+altitude = 4500
 aircraft = "Hansajet"
 regions = ["Schweiz"]
