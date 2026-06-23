@@ -37,7 +37,6 @@
 #include <osg/MatrixTransform>
 #include <osg/Vec3f>
 #include <osg/io_utils>
-#include <plugins/general/GeoData/GeoDataLoader.h>
 #include <string>
 #include <util/UDPComm.h>
 #include <util/byteswap.h>
@@ -48,6 +47,8 @@
 #include <vrml97/vrml/VrmlNamespace.h>
 #include <vrml97/vrml/VrmlNodeType.h>
 #include <vrml97/vrml/Viewer.h>
+
+#include <PluginUtil/PluginMessageTypes.h>
 
 #include <cover/coVRFileManager.h>
 #include <osg/Vec3>
@@ -507,7 +508,10 @@ bool JSBSimPlugin::init()
                 scenario.latitude,
                 scenario.altitude )));
 
-            // TODO: set enabled regions in GeoDataLoader
+            // Set enabled regions in GeoDataLoader
+            for (auto r : scenario.regions) {
+                cover->sendMessage(this, "GeoData", PluginMessageTypes::GeoDataSetRegionEnabled, r.size() + 1, r.c_str());
+            }
 
             loadAircraft(scenario.aircraft);
             initJSB();
