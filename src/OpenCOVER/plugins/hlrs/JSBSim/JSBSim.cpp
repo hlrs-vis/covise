@@ -36,6 +36,7 @@
 #include <osg/Matrix>
 #include <osg/MatrixTransform>
 #include <osg/Vec3f>
+#include <osg/io_utils>
 #include <plugins/general/GeoData/GeoDataLoader.h>
 #include <string>
 #include <util/UDPComm.h>
@@ -57,6 +58,8 @@
 
 inline constexpr float METERS_PER_FOOT = 0.3048f;
 inline constexpr float FEET_PER_INCH = 1.f / 12.f;
+
+typedef osgGA::GUIEventAdapter::KeySymbol KeySymbol;
 
 JSBSimPlugin *JSBSimPlugin::plugin = NULL;
 
@@ -102,6 +105,11 @@ void JSBSimPlugin::windChangedCallback()
     m_windVelocitySetting.set(WX->number(), WY->number(), WZ->number());
 }
 
+void JSBSimPlugin::startNavigationMode()
+{
+    coVRNavigationManager::instance()->setNavMode("JSBSim");
+}
+
 void JSBSimPlugin::loadAircraft(const std::string &aircraftName)
 {
     if (m_availableAircraft.find(aircraftName) == m_availableAircraft.end())
@@ -135,8 +143,6 @@ void JSBSimPlugin::loadAircraft(const std::string &aircraftName)
     {
         coVRFileManager::instance()->loadFile(geometryFile.c_str(), nullptr, geometryTrans);
     }
-
-    initJSB();
 }
 
 // this is called if the plugin is removed at runtime
@@ -152,19 +158,12 @@ JSBSimPlugin::~JSBSimPlugin()
         delete startAction;
         delete debugButton;
         delete resetButton;
-        delete upButton;
         delete JSBMenu;
     }
 }
 
-#include <osg/io_utils>
-
-void JSBSimPlugin::reset(double dz)
+void JSBSimPlugin::resetAircraftAttitude(std::optional<double> force_heading)
 {
-    if (FDMExec == nullptr)
-    {
-        initJSB();
-    }
     FDMExec->Setdt(1.0 / 120.0);
     frame_duration = FDMExec->GetDeltaT();
 
@@ -192,20 +191,31 @@ void JSBSimPlugin::reset(double dz)
     float altitude = pos.z();
     float altitudeFt = altitude / METERS_PER_FOOT - Aircraft->GetXYZep(3) * FEET_PER_INCH;
 
-    std::cout << "Initialize aircraft at latitude " << pos.y() << "°, longitude " << pos.x() << "°, altitude " << altitude << "m (" << altitudeFt << " ft)" << std::endl;
     IC->SetLatitudeDegIC(pos.y());
     IC->SetLongitudeDegIC(pos.x());
     IC->SetAltitudeASLFtIC(altitudeFt);
     // there is also IC->SetAltitudeAGLFtIC(...), maybe we want that?
 
-    // Align heading to viewer, reset roll (wings level), keep pitch according to aircraft reset file
-    osg::Vec3d dir(viewer(1, 0), viewer(1, 1), viewer(1, 2));
-    dir.normalize();
-    IC->SetPsiRadIC(atan2(dir[1], dir[0]) - M_PI_2); // heading
-    IC->SetPhiRadIC(0.0); // roll
+    double heading;
+    if (force_heading)
+    {
+        std::cout << "using forced heading " << force_heading.value() << std::endl;
+        heading = osg::DegreesToRadians(force_heading.value());
+    }
+    else
+    {
+        // Align heading to viewer
+        osg::Vec3d dir(viewer(1, 0), viewer(1, 1), viewer(1, 2));
+        dir.normalize();
+        heading = atan2(dir[1], dir[0]) - M_PI_2;
+        std::cout << "computed heading " << heading << std::endl;
+    }
 
-    // IC->SetPsiRadIC(0.0); // heading
-    // IC->SetThetaRadIC(-20.0*DEG_TO_RAD); // pitch from reset file beause the paraglider is sensitive to start pitch
+    // Assign heading (psi), reset roll (wings level; phi), keep pitch according to aircraft reset file
+    IC->SetPsiRadIC(heading);
+    IC->SetPhiRadIC(0.0);
+
+    std::cout << "Initialized aircraft at latitude " << pos.y() << "°, longitude " << pos.x() << "°, altitude " << altitude << "m (" << altitudeFt << " ft)" << ", heading " << osg::RadiansToDegrees(heading) << std::endl;
 
     Propagate->InitModel();
     Propagate->InitializeDerivatives();
@@ -221,9 +231,33 @@ void JSBSimPlugin::reset(double dz)
     JSBSim::FGPropagate::VehicleState vehicleState = Propagate->GetVState();
 
     lastPos = VRSceneGraph::instance()->getTransform()->getMatrix();
+
+    // PRINT SIMULATION CONFIGURATION
+    FDMExec->PrintSimulationConfiguration();
+
+    // Dump the simulation state (position, orientation, etc.)
+    FDMExec->GetPropagate()->DumpState();
+
+    // Perform trim if requested via the initialization file
+    JSBSim::TrimMode icTrimRequested = (JSBSim::TrimMode)FDMExec->GetIC()->TrimRequested();
+    if (icTrimRequested != JSBSim::TrimMode::tNone)
+    {
+        JSBSim::FGTrim trimmer(FDMExec, icTrimRequested);
+        try
+        {
+            trimmer.DoTrim();
+
+            if (FDMExec->GetDebugLevel() > 0)
+                trimmer.Report();
+        }
+        catch (string &msg)
+        {
+            cerr << "Failed to trim: " << msg << endl;
+        }
+    }
 }
 
-bool JSBSimPlugin::initJSB()
+void JSBSimPlugin::initJSB()
 {
     // *** SET UP JSBSIM *** //
     FDMExec = new JSBSim::FGFDMExec();
@@ -260,53 +294,18 @@ bool JSBSimPlugin::initJSB()
     {
         cerr << "  JSBSim could not be started" << endl
              << endl;
-        return false;
+        return;
     }
 
     std::shared_ptr<JSBSim::FGInitialCondition> IC = FDMExec->GetIC();
     if (!IC->Load(SGPath("reset00.xml")))
     {
         cerr << "Initialization unsuccessful" << endl;
-        return false;
+        return;
     }
-
-    il.SetLatitude(0.0);
-    il.SetLongitude(0.0);
 
     m_controls.aileron = 0.0;
     m_controls.elevator = 0.0;
-
-    reset(0.0);
-
-    // PRINT SIMULATION CONFIGURATION
-    FDMExec->PrintSimulationConfiguration();
-
-    // Dump the simulation state (position, orientation, etc.)
-    FDMExec->GetPropagate()->DumpState();
-
-    // Perform trim if requested via the initialization file
-    JSBSim::TrimMode icTrimRequested = (JSBSim::TrimMode)FDMExec->GetIC()->TrimRequested();
-    if (icTrimRequested != JSBSim::TrimMode::tNone)
-    {
-        trimmer = new JSBSim::FGTrim(FDMExec, icTrimRequested);
-        try
-        {
-            trimmer->DoTrim();
-
-            if (FDMExec->GetDebugLevel() > 0)
-                trimmer->Report();
-
-            delete trimmer;
-        }
-        catch (string &msg)
-        {
-            cerr << endl
-                 << msg << endl
-                 << endl;
-            return false;
-        }
-    }
-    return true;
 }
 
 void JSBSimPlugin::loadAvailableAircraft()
@@ -475,47 +474,80 @@ bool JSBSimPlugin::init()
         aircraftNames.push_back(key);
     }
 
-    planeType = new ui::SelectionList(JSBMenu, "planeType");
+    planeType = new ui::SelectionList(JSBMenu, "Aircraft");
     planeType->setList(aircraftNames);
     planeType->setCallback([this, aircraftNames](int val)
-        { loadAircraft(aircraftNames[val]); });
+        { loadAircraft(aircraftNames[val]); 
+        initJSB(); 
+        resetAircraftAttitude(); });
 
     printCatalog = new ui::Action(JSBMenu, "printCatalog");
     printCatalog->setCallback([this]()
         {
         if (FDMExec)
             FDMExec->PrintPropertyCatalog(); });
+    printCatalog->setVisible(false);
 
-    startAction = new ui::Action(JSBMenu, "start");
+    startAction = new ui::Action(JSBMenu, "Start");
     startAction->setCallback([this]()
-        { coVRNavigationManager::instance()->setNavMode("JSBSim"); });
+        { 
+        resetAircraftAttitude();
+        startNavigationMode(); });
 
-    pauseButton = new ui::Button(JSBMenu, "pause");
+    scenarioSelectionList = new ui::SelectionList(JSBMenu, "scenarios");
+    scenarioSelectionList->setText("Start scenario");
+    scenarioSelectionList->setCallback([this](int selection)
+        {
+            auto &scenario = m_scenarios[selection];
+            std::cout << "Load " << scenario.name << std::endl;
+            GeoData *geoData = GeoData::instance();
+
+            geoData->jumpToLocation(geoData->globalToProject(osg::Vec3d(
+                scenario.longitude,
+                scenario.latitude,
+                scenario.altitude )));
+
+            // TODO: set enabled regions in GeoDataLoader
+
+            loadAircraft(scenario.aircraft);
+            initJSB();
+            resetAircraftAttitude(scenario.heading); 
+            startNavigationMode(); });
+
+    auto configFile = config();
+    auto scenarioEntries = configFile->array<opencover::config::Section>("", "scenarios");
+    for (size_t i = 0; i < scenarioEntries->size(); i++)
+    {
+        opencover::config::Section entry = (*scenarioEntries)[i];
+
+        auto name = entry.value<std::string>("", "name")->value();
+        m_scenarios.push_back(Scenario {
+            name,
+            entry.value<double>("", "latitude")->value(),
+            entry.value<double>("", "longitude")->value(),
+            entry.value<double>("", "altitude")->value(),
+            entry.value<double>("", "heading")->value(),
+            entry.value<std::string>("", "aircraft")->value(),
+            entry.array<std::string>("", "regions")->value(),
+        });
+        scenarioSelectionList->append(name);
+    }
+
+    pauseButton = new ui::Button(JSBMenu, "Pause");
     pauseButton->setState(false);
     pauseButton->setCallback([this](bool state)
-        {
-        if (FDMExec)
-        {
-            if (state)
-                FDMExec->Hold();
-            else
-                FDMExec->Resume();
-        } });
+        { setPaused(state); });
 
     debugButton = new ui::Button(JSBMenu, "debug");
     debugButton->setState(false);
+    debugButton->setVisible(false);
 
     resetButton = new ui::Action(JSBMenu, "reset");
+    resetButton->setVisible(false);
     resetButton->setCallback([this]()
         {
         initJSB();
-        reset(); });
-
-    upButton = new ui::Action(JSBMenu, "Up");
-    upButton->setCallback([this]()
-        {
-        if (FDMExec)
-            reset(100); });
+        resetAircraftAttitude(); });
 
     weatherGroup = new ui::Group(JSBMenu, "Weather");
     windLabel = new ui::Label(weatherGroup, "Wind");
@@ -529,6 +561,7 @@ bool JSBSimPlugin::init()
     WX->setCallback(std::bind(&JSBSimPlugin::windChangedCallback, this));
     WY->setCallback(std::bind(&JSBSimPlugin::windChangedCallback, this));
     WZ->setCallback(std::bind(&JSBSimPlugin::windChangedCallback, this));
+    weatherGroup->setVisible(false);
 
     labelVelocityX = new ui::Label(JSBMenu, "V_x");
     labelVelocityY = new ui::Label(JSBMenu, "V_y");
@@ -548,7 +581,7 @@ bool JSBSimPlugin::init()
                     deviceVersion = 2;
                 }
                 std::cerr << "JSBSim config: UDP: serverHost: " << host << ", localPort: " << localPort << ", serverPort: " << serverPort << std::endl;
-                reset();
+                resetAircraftAttitude();
                 udp = new UDPComm(host.c_str(), serverPort, localPort);
                 if (!udp->isBad())
                 {
@@ -576,6 +609,8 @@ bool JSBSimPlugin::init()
     VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeThermal>());
 
     loadAircraft(m_defaultAircraft);
+    initJSB();
+    resetAircraftAttitude();
 
     return true;
 }
@@ -588,42 +623,59 @@ void JSBSimPlugin::key(int type, int keySym, int mod)
         {
             switch (keySym)
             {
+            case KeySymbol::KEY_Right:
             case 'l':
-            case 65363:
-                m_controls.aileron += 0.1;
+                aileron_key = 1.f;
                 break;
 
+            case KeySymbol::KEY_Left:
             case 'j':
-            case 65361:
-                m_controls.aileron -= 0.1;
+                aileron_key = -1.f;
                 break;
 
+            case KeySymbol::KEY_Down:
             case 'm':
-            case 65364:
-                m_controls.elevator -= 0.1;
+                elevator_key = -1.f;
                 break;
 
+            case KeySymbol::KEY_Up:
             case 'i':
-            case 65362:
-                m_controls.elevator += 0.1;
+                elevator_key = 1.f;
                 break;
 
-            case 'u':
-                reset(100);
+            case 'p':
+                setPaused(!FDMExec->Holding());
                 break;
 
             case 'r':
-                reset();
+                resetAircraftAttitude();
                 break;
 
             case 'R':
                 initJSB();
-                reset();
+                resetAircraftAttitude();
                 break;
             }
+        }
 
-            m_controls.aileron = std::clamp(m_controls.aileron, -1.0, 1.0);
-            m_controls.elevator = std::clamp(m_controls.elevator, -1.0, 1.0);
+        if (type == osgGA::GUIEventAdapter::KEYUP)
+        {
+            switch (keySym)
+            {
+            case KeySymbol::KEY_Left:
+            case 'j':
+            case KeySymbol::KEY_Right:
+            case 'l':
+                aileron_key = 0.f;
+                break;
+
+            case KeySymbol::KEY_Up:
+            case KeySymbol::KEY_Down:
+            case 'i':
+            case 'm':
+                elevator_key = 0.f;
+                break;
+            }
         }
     }
 }
@@ -634,6 +686,17 @@ void JSBSimPlugin::updateInputs()
     for (auto &a : m_joystickActions)
     {
         a.update(joystickDev);
+    }
+
+    if (aileron_key)
+    {
+        m_controls.aileron += aileron_key * cover->frameDuration() * 2.f;
+        m_controls.aileron = std::clamp(m_controls.aileron, -1.0, 1.0);
+    }
+    if (elevator_key)
+    {
+        m_controls.elevator += elevator_key * cover->frameDuration() * 2.f;
+        m_controls.elevator = std::clamp(m_controls.elevator, -1.0, 1.0);
     }
 
     // Update aileron from the first changed joystick
@@ -688,6 +751,25 @@ void JSBSimPlugin::updateInputs()
     }
 }
 
+void JSBSimPlugin::setPaused(bool paused)
+{
+    pauseButton->setState(paused);
+    if (FDMExec)
+    {
+        if (paused)
+        {
+            FDMExec->Hold();
+        }
+        else
+        {
+            FDMExec->Setsim_time(0.0);
+            SimStartTime = cover->frameTime();
+
+            FDMExec->Resume();
+        }
+    }
+}
+
 bool JSBSimPlugin::update()
 {
     // Receive input data even when disabled or paused, so we don't fill buffers
@@ -702,7 +784,7 @@ bool JSBSimPlugin::update()
             if (VRSceneGraph::instance()->getTransform()->getMatrix() != lastPos) // if someone else moved e.g. a new viewpoint has been set, then do a reset to this position
             {
                 lastPos = VRSceneGraph::instance()->getTransform()->getMatrix();
-                reset();
+                resetAircraftAttitude();
             }
             else
             {
@@ -858,7 +940,8 @@ void JSBSimPlugin::setEnabled(bool flag)
     {
         if (flag)
         {
-            reset();
+            // resetAircraftAttitude();
+
             if (varioSource)
                 varioSource->play();
             if (windSource)

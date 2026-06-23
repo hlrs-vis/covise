@@ -67,3 +67,30 @@ actions = [
     {type = "throttle", axis = 2},
     {type = "rudder", axis = 5},
 ]
+
+[[scenarios]]
+name = "Schauinsland"
+latitude = 47.913248396330125
+longitude = 7.893682009507014
+heading = 140
+altitude = 1300
+aircraft = "paraglider"
+regions = ["Baden-Württemberg"]
+
+[[scenarios]]
+name = "Zugspitze"
+latitude = 47.422706952147365
+longitude = 11.015563201045584
+heading = 270
+altitude = 1500
+aircraft = "Hansajet"
+regions = ["Bayern"]
+
+[[scenarios]]
+name = "Matterhorn"
+latitude = 46.007799881283745
+longitude = 7.691735913898299
+heading = 200
+altitude = 1500
+aircraft = "Hansajet"
+regions = ["Schweiz"]

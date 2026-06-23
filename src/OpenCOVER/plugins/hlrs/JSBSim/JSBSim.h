@@ -12,7 +12,9 @@
 #include <cover/input/dev/Joystick/Joystick.h>
 
 #include <cover/input/input.h>
+#include <vector>
 #include <string>
+#include <optional>
 #include <util/common.h>
 
 #include <math.h>
@@ -127,22 +129,36 @@ public:
     void addThermal(const osg::Vec3d &velocity, float turbulence);
 
 private:
+    struct Scenario
+    {
+        std::string name;
+        double latitude;
+        double longitude;
+        double altitude;
+        double heading;
+        std::string aircraft;
+        std::vector<std::string> regions;
+    };
+
     void readJoystickConfiguration();
     void loadAvailableAircraft();
     void loadAircraft(const std::string &aircraftName);
 
     void updateInputs();
+    void setPaused(bool paused);
 
     void windChangedCallback();
+
+    void startNavigationMode();
 
     static JSBSimPlugin *plugin;
     ui::Menu *JSBMenu;
     ui::Action *printCatalog;
     ui::Action *startAction;
+    ui::SelectionList *scenarioSelectionList;
     ui::Button *pauseButton;
     ui::Button *debugButton;
     ui::Action *resetButton;
-    ui::Action *upButton;
     ui::Group *weatherGroup;
     ui::Label *windLabel;
     ui::Label *labelVelocityX;
@@ -155,6 +171,7 @@ private:
     std::map<std::string, AircraftInfo> m_availableAircraft;
 
     std::vector<JoystickAction> m_joystickActions;
+    std::vector<Scenario> m_scenarios;
 
     Joystick *joystickDev = nullptr;
     // bool state0 = false;
@@ -210,8 +227,6 @@ private:
 
     osg::Vec3d zeroPosition;
 
-    JSBSim::FGLocation il;
-
 #pragma pack(push, 1)
     struct Controls
     {
@@ -232,11 +247,20 @@ private:
     };
 #pragma pack(pop)
 
+    float aileron_key = 0.0;
+    float elevator_key = 0.0;
+
     UDPComm *udp;
     int deviceVersion = 1;
-    bool initJSB();
+    void initJSB();
     void updateUdp();
-    void reset(double dz = 0.0);
+
+    /**!
+     * Reset the aircraft position and attiude in the simulation. If
+     * `force_heading` is specified, it overrides the current heading with a
+     * numeric value in degrees (compass heading; clockwise from north).
+     */
+    void resetAircraftAttitude(std::optional<double> force_heading = std::nullopt);
 
     //! this functions is called when a key is pressed or released
     virtual void key(int type, int keySym, int mod) override;
