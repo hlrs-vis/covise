@@ -107,14 +107,21 @@
             <Input>
                 <MouseNav value="ON" />
                 <!-- <Keyboard terminal="on" evdev="/dev/input/coverkeys" /> -->
+
+                <Device>
+                    <joystick driver="joystick" device="/dev/input/js"/>
+                </Device>
             </Input>
 
             <!--Console value="on" file="/tmp/coverlog"/-->
             <Plugin>
                 <GeoData menu="true" />
-                <GeoCoding menu="true" />
-                <Sky menu="true" />
+                <TabletUI value="off" menu="true" />
+                <GeoCoding menu="true" value="on" />
+                <Sky menu="true" value="on" />
                 <Video menu="true" />
+                <JSBSim menu="true" />
+
                 <CompositorIceT menu="false" />
                 <ViewPoint value="true" />
                 <Measure menu="true" />

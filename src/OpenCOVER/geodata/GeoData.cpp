@@ -18,7 +18,7 @@ GeoData::GeoData()
 #endif
 
     m_transformRoot = new osg::MatrixTransform;
-    m_transformRoot->setMatrix(osg::Matrix::identity());
+    m_transformRoot->setMatrix(osg::Matrixd::identity());
     cover->getObjectsRoot()->addChild(m_transformRoot);
 
     m_terrainRoot = new osg::Group;
@@ -82,19 +82,19 @@ void GeoData::setProjection(std::string_view projection)
 #endif
 }
 
-void GeoData::setProjectOffset(const osg::Vec3 &projectOffset)
+void GeoData::setProjectOffset(const osg::Vec3d &projectOffset)
 {
     setProjectTransform(projectOffset, m_projectTrueNorthDegree);
 }
 
-void GeoData::setProjectTransform(const osg::Vec3 &projectOffset, const double trueNorthDeg)
+void GeoData::setProjectTransform(const osg::Vec3d &projectOffset, const double trueNorthDeg)
 {
     m_projectOffset = projectOffset;
     m_projectTrueNorthDegree = trueNorthDeg;
-    osg::Matrix rot = osg::Matrix::rotate(osg::DegreesToRadians(-trueNorthDeg), osg::Vec3(0, 0, 1));
-    osg::Matrix trans = osg::Matrix::translate(-projectOffset);
+    osg::Matrixd rot = osg::Matrixd::rotate(osg::DegreesToRadians(-trueNorthDeg), osg::Vec3d(0, 0, 1));
+    osg::Matrixd trans = osg::Matrixd::translate(-projectOffset);
     m_projectTransform = trans * rot;
-    m_inverseProjectTransform = osg::Matrix::inverse(m_projectTransform);
+    m_inverseProjectTransform = osg::Matrixd::inverse(m_projectTransform);
     m_transformRoot->setMatrix(m_projectTransform);
 }
 
@@ -102,7 +102,7 @@ const std::string &GeoData::projection() const
 {
     return m_projection;
 }
-const osg::Vec3 &GeoData::projectOffset() const
+const osg::Vec3d &GeoData::projectOffset() const
 {
     return m_projectOffset;
 }
@@ -110,11 +110,11 @@ const double GeoData::projectTrueNorthDegree() const
 {
     return m_projectTrueNorthDegree;
 }
-const osg::Matrix &GeoData::projectTransform() const
+const osg::Matrixd &GeoData::projectTransform() const
 {
     return m_projectTransform;
 }
-const osg::Matrix &GeoData::inverseProjectTransform() const
+const osg::Matrixd &GeoData::inverseProjectTransform() const
 {
     return m_inverseProjectTransform;
 }
@@ -128,23 +128,23 @@ osg::Group *GeoData::terrainRoot()
     return m_terrainRoot;
 }
 
-osg::Vec3 GeoData::getProjectPosition()
+osg::Vec3d GeoData::getProjectPosition()
 {
-    return osg::Matrix::inverse(cover->getXformMat()).getTrans() / cover->getScale();
+    return osg::Matrixd::inverse(cover->getXformMat()).getTrans() / cover->getScale();
 }
 
-osg::Vec3 GeoData::getGlobalPosition()
+osg::Vec3d GeoData::getGlobalPosition()
 {
     auto projectLocation = getProjectPosition();
     return projectToGlobal(projectLocation);
 }
 
-osg::Vec3 GeoData::globalToProject(const osg::Vec3 &globalPosition) const
+osg::Vec3d GeoData::globalToProject(const osg::Vec3d &globalPosition) const
 {
     return globalToReference(globalPosition) * m_projectTransform;
 }
 
-osg::Vec3 GeoData::globalToReference(const osg::Vec3 &globalPosition) const
+osg::Vec3d GeoData::globalToReference(const osg::Vec3d &globalPosition) const
 {
 #ifndef HAVE_PROJ
     return globalPosition;
@@ -156,13 +156,13 @@ osg::Vec3 GeoData::globalToReference(const osg::Vec3 &globalPosition) const
 
     PJ_COORD c_out = proj_trans(m_transformation, PJ_FWD, c);
 
-    osg::Vec3 position_transformed(c_out.enu.e, c_out.enu.n, c_out.enu.u);
+    osg::Vec3d position_transformed(c_out.enu.e, c_out.enu.n, c_out.enu.u);
 
     return position_transformed;
 #endif
 }
 
-osg::Vec3 GeoData::projectToGlobal(const osg::Vec3 &projectPosition) const
+osg::Vec3d GeoData::projectToGlobal(const osg::Vec3d &projectPosition) const
 {
 #ifndef HAVE_PROJ
     return projectPosition;
@@ -176,23 +176,23 @@ osg::Vec3 GeoData::projectToGlobal(const osg::Vec3 &projectPosition) const
 
     PJ_COORD c_out = proj_trans(m_transformation, PJ_INV, c);
 
-    return osg::Vec3(c_out.lpz.lam, c_out.lpz.phi, c_out.lpz.z);
+    return osg::Vec3d(c_out.lpz.lam, c_out.lpz.phi, c_out.lpz.z);
 #endif
 }
 
-void GeoData::jumpToLocation(const osg::Vec3 &projectPosition)
+void GeoData::jumpToLocation(const osg::Vec3d &projectPosition)
 {
-    osg::Vec3 target = projectPosition;
+    osg::Vec3d target = projectPosition;
     double scale = cover->getScale();
 
-    cover->setXformMat(osg::Matrix::translate(-projectPosition * scale)); // * osg::Matrix::rotate(cover->getXformMat().getRotate()));
+    cover->setXformMat(osg::Matrixd::translate(-projectPosition * scale)); // * osg::Matrixd::rotate(cover->getXformMat().getRotate()));
 }
 
-void GeoData::jumpToLocation(const osg::Vec3 &projectPosition, double aboveTerrain)
+void GeoData::jumpToLocation(const osg::Vec3d &projectPosition, double aboveTerrain)
 {
     osg::ref_ptr<osgUtil::LineSegmentIntersector> intersector = new osgUtil::LineSegmentIntersector(
-        osg::Vec3(projectPosition.x(), projectPosition.y(), 10000.0),
-        osg::Vec3(projectPosition.x(), projectPosition.y(), -10000.0));
+        osg::Vec3d(projectPosition.x(), projectPosition.y(), 10000.0),
+        osg::Vec3d(projectPosition.x(), projectPosition.y(), -10000.0));
     osgUtil::IntersectionVisitor iv(intersector);
 
     auto terrainRoot = GeoData::instance()->terrainRoot();
@@ -201,7 +201,7 @@ void GeoData::jumpToLocation(const osg::Vec3 &projectPosition, double aboveTerra
 
     if (intersector->containsIntersections())
     {
-        jumpToLocation(osg::Vec3(
+        jumpToLocation(osg::Vec3d(
             projectPosition.x(),
             projectPosition.y(),
             intersector->getFirstIntersection().getLocalIntersectPoint().z() + aboveTerrain));

@@ -98,3 +98,8 @@ name = "Breisgau-Hochschwarzwald"
 easting = 411994
 northing = 5313364
 altitude = 0
+
+[[datasets]]
+name = "Wiesbaden"
+easting = 448342
+northing = 5545672

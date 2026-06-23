@@ -1,0 +1,108 @@
+OpenCOVER and COVISE collaborative setup
+========================================
+
+This directory contains the VRB client/server code that OpenCOVER uses for
+collaborative sessions. The VRB server is the central connection point. It manages clients and can host
+multiple sessions in which states are shared between clients. Clients can be
+OpenCOVER instances, coviseDaemons, and COVISE instances.
+
+What you need
+-------------
+
+- A working COVISE/OpenCOVER build
+- One VRB server endpoint that all clients can reach
+- A valid COCONFIG
+
+Collaborative configuration
+---------------------------
+
+OpenCOVER, VRB, COVISE, and coviseDaemon use COCONFIG for connection details:
+
+  <System>
+    <VRB>
+      <Server value="host_url" tcpPort="31253" udpPort="49999" />
+      <RemoteFetch value="on" path="/var/tmp/$USER/remoteFetch" hash="on" />
+      <CheckConnectionTimeout value="5" />
+    </VRB>
+  </System>
+
+Remote fetch allows OpenCOVER to copy loaded files from the source machine.
+If hash is enabled, the source file system path is hashed to create individual
+file names.
+
+Warning: This does not work for non-VRML files that implicitly depend on other
+files.
+
+Client information for OpenCOVER can be configured in the COVER section:
+
+  <COVER>
+    <Collaborative>
+      <UserName value="your_name" />
+      <Email value="your_email" />
+      <Icon value="path_to_your_icon" />
+    </Collaborative>
+  </COVER>
+
+The icon (for example, .obj) is shown on the floor panel of the VR avatar.
+
+Connecting two OpenCOVER instances
+----------------------------------
+
+After the configuration is set up:
+
+1. Start VRB on the configured endpoint that all clients can reach.
+2. Start OpenCOVER on machine A: Opencover -g your_session_name ...
+3. Start OpenCOVER on machine B: Opencover -g your_session_name ...
+
+Collaboration modes (Collaborate menu)
+--------------------------------------
+
+The Collaborate menu is available as long as you are in a collaborative
+session with at least one other OpenCOVER instance.
+
+Collaboration modes:
+
+- Loose: each client moves independently and is represented to others by a VR avatar.
+- Master/Slave: the master perspective is forced on clients; head tracking still works.
+- Tight: clients share the perspective; navigation is enabled only if no other client is navigating.
+
+Using coviseDaemon
+------------------
+
+The coviseDaemon signals that a client is ready to be invited to OpenCOVER or
+COVISE sessions.
+
+In OpenCOVER, use File -> Launch remote COVER. In COVISE, use CSCW -> manage
+partners. All coviseDaemons connected to the same VRB are listed and can be
+selected to add that client to the remote session.
+
+COVISE specifics
+----------------
+Since COVISE objects can be quite large the VRB tries to setup peer-to-peer connections between the master client and it's slaves. If that failes the objects are tunneld through the VRB.
+
+For developers
+--------------
+
+Use the SharedState template class to synchronize variables via VRB.
+
+VRML specifics
+--------------
+
+TUI nodes (TUIButton, TUIToggleButton, TUISlider, TUIFloatSlider,
+TUIComboBox, TUIListBox) are not shared by default. Set shared TRUE to
+synchronize them, for example:
+
+  TUIFloatSlider
+  {
+    elementName "your_slider_name"
+    pos 0 14
+    max 100.0
+    min 0.0
+    value 0.0
+    shared TRUE
+  }
+
+
+
+
+
