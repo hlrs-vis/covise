@@ -94,3 +94,13 @@ heading = 200
 altitude = 4500
 aircraft = "Hansajet"
 regions = ["Schweiz"]
+
+
+[[scenarios]]
+name = "Weilheim"
+latitude = 47.84318
+longitude = 11.13960
+heading = 0
+altitude = 800
+aircraft = "c172p"
+regions = ["Schweiz"]
