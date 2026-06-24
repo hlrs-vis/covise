@@ -103,3 +103,10 @@ altitude = 0
 name = "Wiesbaden"
 easting = 448342
 northing = 5545672
+
+[[datasets]]
+name = "Winterhalde"
+easting = 517370
+northing = 5405720
+altitude = 0
+
