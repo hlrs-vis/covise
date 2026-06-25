@@ -25,6 +25,7 @@ public:
     virtual int send_cmd(const char *cmd) const;
     virtual int send_data(const char *data, int size, bool swapped = false) const;
     virtual int read_answer(char *buf, int maxsize) const;
+    bool isConnected() const;
 
 protected:
     void connect();

@@ -32,13 +32,24 @@ using namespace opencover::audio;
 
 #define MAX_BUFLEN 1024
 
-inline int errno_sys()
+namespace {
+
+int errno_sys()
 {
 #ifdef _WIN32
     return WSAGetLastError();
 #else
     return errno;
 #endif
+}
+
+#ifdef _WIN32
+int close(int fd)
+{
+    return closesocket(fd);
+}
+#endif
+
 }
 
 PlayerAServer::PlayerAServer(const Listener *listener, const std::string &host, int port, bool isMaster)
@@ -80,44 +91,22 @@ void PlayerAServer::connect()
         return;
     }
 
-    asFd = (int)socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    asFd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (asFd == -1)
     {
         CERR << "opening socket failed" << endl;
         return;
     }
 
-    struct sockaddr_in hostaddr;
-    memset(&hostaddr, 0, sizeof(hostaddr));
-    hostaddr.sin_family = AF_INET;
-    int sourceport = 31431;
-    hostaddr.sin_port = htons(sourceport);
-    hostaddr.sin_addr.s_addr = INADDR_ANY;
-    while (bind(asFd, (struct sockaddr *)&hostaddr, sizeof(hostaddr)) < 0)
+    if (fcntl(asFd, F_SETFL, O_NONBLOCK) == -1)
     {
-#ifndef _WIN32
-        if (errno == EADDRINUSE)
-#else
-        if (GetLastError() == WSAEADDRINUSE)
-#endif
-        {
-            sourceport++;
-            hostaddr.sin_port = htons(sourceport);
-        }
-        else
-        {
-
-#ifdef WIN32
-            closesocket(asFd);
-#else
-            close(asFd);
-#endif
-            CERR << "binding socket failed: " << strerror(errno_sys()) << endl;
-            asFd = -1;
-            return;
-        }
+        CERR << "making socket non-blocking failed" << endl;
+        close(asFd);
+        asFd = -1;
+        return;
     }
 
+    struct sockaddr_in hostaddr;
     memset(&hostaddr, 0, sizeof(hostaddr));
     hostaddr.sin_family = AF_INET;
     hostaddr.sin_port = htons((unsigned short)asPort);
@@ -134,22 +123,48 @@ void PlayerAServer::connect()
 
     if (::connect(asFd, (struct sockaddr *)&hostaddr, sizeof(hostaddr)) == -1)
     {
+        auto error = errno_sys();
+        if (error != EINPROGRESS
 #ifdef WIN32
-        int error = WSAGetLastError();
-        // cerr << "error:" <<error << endl;
-        if (error != WSAEISCONN) // this is a weird Windows specific necessity!
+            || error != WSAEISCONN // this is a weird Windows specific necessity!
+#endif
+        )
         {
-//  closesocket(asFd);
-#else
-        close(asFd);
-
-        CERR << "connecting socket failed: " << strerror(errno_sys()) << endl;
-        asFd = -1;
-        return;
-#endif
-#ifdef WIN32
+            CERR << "connecting socket failed: " << strerror(errno_sys()) << endl;
+            close(asFd);
+            asFd = -1;
+            return;
         }
-#endif
+    }
+
+    fd_set fdset;
+    FD_ZERO(&fdset);
+    FD_SET(asFd, &fdset);
+    struct timeval tv;
+    tv.tv_sec = 3;
+    tv.tv_usec = 0;
+
+    if (select(asFd + 1, NULL, &fdset, NULL, &tv) == 1)
+    {
+        int so_error;
+        socklen_t len = sizeof so_error;
+
+        getsockopt(asFd, SOL_SOCKET, SO_ERROR, &so_error, &len);
+
+        if (so_error != 0) {
+            CERR << "connecting socket failed: " << strerror(errno_sys()) << endl;
+            close(asFd);
+            asFd = -1;
+            return;
+        }
+
+        if (fcntl(asFd, F_SETFL, 0) == -1)
+        {
+            CERR << "making socket blocking again failed" << endl;
+            close(asFd);
+            asFd = -1;
+            return;
+        }
     }
 
     cerr << " ok." << endl;
@@ -160,12 +175,13 @@ void PlayerAServer::connect()
 PlayerAServer::~PlayerAServer()
 {
     if (asFd != -1)
-#ifdef WIN32
-        closesocket(asFd);
-#else
         close(asFd);
-#endif
     asFd = -1;
+}
+
+bool PlayerAServer::isConnected() const
+{
+    return asFd != -1;
 }
 
 int PlayerAServer::send_cmd(const char *cmd) const
@@ -264,11 +280,7 @@ int PlayerAServer::send_data(const char *data, int size, bool swapped) const
 
     if (written != size)
     {
-#ifdef WIN32
-        closesocket(asFd);
-#else
         close(asFd);
-#endif
         // CERR << "asFd reset1: " << asFd<< endl;
         asFd = -1;
         return -1;
@@ -293,22 +305,14 @@ int PlayerAServer::read_answer(char *buf, int maxsize) const
     if (ret < 0)
     {
         CERR << "select failed: " << strerror(errno_sys()) << endl;
-#ifdef WIN32
-        closesocket(asFd);
-#else
         close(asFd);
-#endif
         asFd = -1;
         return -1;
     }
     if (ret == 0)
     {
         CERR << "timed out" << endl;
-#ifdef WIN32
-        closesocket(asFd);
-#else
         close(asFd);
-#endif
         asFd = -1;
         return -1;
     }
@@ -324,11 +328,7 @@ int PlayerAServer::read_answer(char *buf, int maxsize) const
 
         if (n < 0)
         {
-#ifdef WIN32
-            closesocket(asFd);
-#else
             close(asFd);
-#endif
             asFd = -1;
             return -1;
         }
