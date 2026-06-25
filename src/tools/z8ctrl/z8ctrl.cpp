@@ -16,7 +16,18 @@ enum Type{
     INTEGER, UNSIGNED_SHORT
 };
 
-const char *usage = "Usage: z8ctrl [3Don|3Doff|preset n|brightness n|test n|black|wakeup]\n"
+const char *usage = "Usage: z8ctrl [macro] [native command] [--help]\n"
+                    "  macros:\n"
+                    "  on\n"
+                    "  off\n"
+                    "  hdmi: Stereo HDMI\n"
+                    "  dp: Stereo DisplayPort\n"
+                    "  hdmi1\n"
+                    "  hdmi2\n"
+                    "  dp1\n"
+                    "  dp2\n"
+                    "  \n"
+                    "  raw commands:\n"
                     "  3Don: turn 3D on\n"
                     "  3Doff: turn 3D off\n"
                     "  preset n: set preset to n 0 = HDMI1, 1 = HDMI2, 2=STEREO(DP1), 3=DP1, 4=DP2; stereo has to be toggled independently\n"
@@ -48,9 +59,42 @@ static const auto commands = {
     Command{"TEST",       {0x12, 0x10, 0x00, 0x13, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00 }, 17},
     Command{"BLACK", {0x10, 0x10, 0x00, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 }},
     Command{"WAKEUP", {0x10, 0x10, 0x00, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }},
-    Command{"StereoDP", {0x80, 0x10, 0x04, 0x1e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x10, 0x00 , 0x17, 0x00, 0x21, 0x01, 0x00, 0x00, 0x00, 0x00}},
-    Command{"StereoHDMI", {0x80, 0x10, 0x04, 0x1e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x12, 0x00 , 0x1b, 0x00, 0x20, 0x01, 0x00, 0x00, 0x00, 0x00}}
+    Command{"TEST1", {0x80, 0x10, 0x04, 0x1e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x10, 0x00 , 0x17, 0x00, 0x21, 0x01, 0x00, 0x00, 0x00, 0x00}},
+    Command{"TEST2", {0x80, 0x10, 0x04, 0x1e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x12, 0x00 , 0x1b, 0x00, 0x20, 0x01, 0x00, 0x00, 0x00, 0x00}},
+    Command{"STEREODP", {0x80, 0x10, 0x04, 0x1e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x10, 0x00 , 0x17, 0x00, 0x21, 0x01, 0x00, 0x00, 0x00, 0x00}},
+    Command{"STEREOHDMI", {0x80, 0x10, 0x04, 0x1e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x12, 0x00 , 0x1b, 0x00, 0x20, 0x01, 0x00, 0x00, 0x00, 0x00}}
 };
+int sendCommand(UDP_Sender &z8, std::string commandName,int num=-1)
+{
+        for(const auto command : commands)
+        {
+            if(commandName == command.name)
+            {
+                std::unique_ptr<Command> cmd = std::make_unique<Command>(command);
+                if(num != -1) // we need another argument
+                {
+                   if(cmd->type == INTEGER)
+                   {
+                       cmd->buf[cmd->argpos] = num;
+                   } else {
+                       unsigned short i = num;
+                       *((unsigned short *)(&(cmd->buf[cmd->argpos]))) = num;
+                   }
+                   z8.send(cmd->buf.data(), cmd->buf.size());
+                   std::cerr << "setting " << cmd->name << " to " << num << std::endl;
+                   return 0;
+                }
+                else
+                {
+                   z8.send(cmd->buf.data(), cmd->buf.size());
+                   std::cerr << "exec " << cmd->name << std::endl;
+                   return 0;
+                }
+            }
+       }
+       cerr << "did not find command "<<  commandName << std::endl;
+       return 0;
+}
 
 int main(int argc, char **argv)
 {
@@ -60,48 +104,101 @@ int main(int argc, char **argv)
     {
         string arg = argv[i];
         transform(arg.begin(), arg.end(), arg.begin(), ::toupper);
-
-        if(cmd)
+        if(arg == "--HELP")
         {
-            int num = 0;
-            try
-            {   
-                num = std::stoi(arg);
-            }
-            catch(const std::exception&)
-            {
-                std::cerr << "invalid argument" << std::endl;
-                return 1;
-            }
-            if(cmd->type == INTEGER)
-            {
-                cmd->buf[cmd->argpos] = num;
-            } else {
-                unsigned short i = num;
-                *((unsigned short *)(&(cmd->buf[cmd->argpos]))) = num;
-            }
-            z8.send(cmd->buf.data(), cmd->buf.size());
-            std::cerr << "setting " << cmd->name << " to " << num << std::endl;
-            return 0;
+            std::cerr << usage << std::endl;
+            return 1;
+        }
+        else if(arg == "ON")
+        {
+            sendCommand(z8,"WAKEUP");
+            sendCommand(z8,"TEST",0);
+            sendCommand(z8,"3DON");
+            sendCommand(z8,"STEREODP");
+            return 1;
+        }
+        else if(arg == "OFF")
+        {
+            sendCommand(z8,"BLACK");
+            sendCommand(z8,"3DOFF");
+            return 1;
+        }
+        else if(arg == "HDMI1")
+        {
+            sendCommand(z8,"PRESET",0);
+            sendCommand(z8,"3DOFF");
+            return 1;
+        }
+        else if(arg == "HDMI2")
+        {
+            sendCommand(z8,"PRESET",1);
+            sendCommand(z8,"3DOFF");
+            return 1;
+        }
+        else if(arg == "DP1")
+        {
+            sendCommand(z8,"PRESET",3);
+            sendCommand(z8,"3DOFF");
+            return 1;
+        }
+        else if(arg == "DP2")
+        {
+            sendCommand(z8,"PRESET",4);
+            sendCommand(z8,"3DOFF");
+            return 1;
+        }
+        else if(arg == "DP")
+        {
+            sendCommand(z8,"PRESET",2);
+            sendCommand(z8,"3DON");
+            sendCommand(z8,"STEREODP");
+            return 1;
+        }
+        else if(arg == "HDMI")
+        {
+            sendCommand(z8,"PRESET",0);
+            sendCommand(z8,"3DON");
+            sendCommand(z8,"STEREOHDMI");
+            return 1;
         }
         for(const auto command : commands)
         {
             if(arg == command.name)
             {
-                if(command.argpos != -1)
+                if(command.argpos != -1) // we need another argument
                 {
-                    cmd = std::make_unique<Command>(command);
-                    break;
+                    i++;
+                    if(i < argc)
+                    {
+                        int num = 0;
+                        try
+                        {   
+                            num = std::stoi(argv[i]);
+                        }
+                        catch(const std::exception&)
+                        {
+                            std::cerr << "invalid argument" << argv[i]<< std::endl;
+                            return 1;
+                        }
+                        sendCommand(z8,arg,num);
+                    }
+                    else
+                    {
+                        std::cerr << "missing argument for command " << command.name << std::endl;
+                        return 1;
+                    }
                 }
                 else
                 {
-                    z8.send(command.buf.data(), command.buf.size());
-                    std::cerr << "setting " << command.name << std::endl;
-                    return 0;
+                    sendCommand(z8,arg);
                 }
             }
         }
     }
-    std::cerr << usage << std::endl;
-    return 1;
+    if(argc < 2)
+    {
+        std::cerr << usage << std::endl;
+        return 1;
+    }
+    return 0;
  }
