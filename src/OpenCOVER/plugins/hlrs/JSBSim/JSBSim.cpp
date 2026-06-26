@@ -729,6 +729,7 @@ void JSBSimPlugin::updateInputs()
         {
             if (a.type == THROTTLE && (a.engine == -1 || a.engine == i) && a.getChangedValue(value))
             {
+                std::cout << "SET THROTTLE on engine=" << i << " to value " << value *0.5 + 0.5 << std::endl;
                 FCS->SetThrottleCmd(i, value * 0.5 + 0.5);
                 break;
             }
