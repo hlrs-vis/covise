@@ -341,7 +341,7 @@ demo 143 "MDA1" covise /data/Kasaero/Aero_2026_Demos/Kasaero/run_6/MDA1.net
 demo 144 "MJet Stroemung" covise /data/Kasaero/MJET-sim/Mjet1.net
 demo 145 "MJet" cover /data/Kasaero/Aero_2026_Demos/Kasaero/M-Jet.wrl
 run_fly() {
-opencover /data/Geodata/all.wrl opencover://plugin/GeoData opencover://plugin/JSBSim
+opencover /data/Geodata/airplane.wrl opencover://plugin/JSBSim
 }
 demo 146 "Flugtraining BW" run_fly
 
