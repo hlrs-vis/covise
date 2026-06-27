@@ -571,6 +571,8 @@ bool JSBSimPlugin::init()
     labelVelocityY = new ui::Label(JSBMenu, "V_y");
     labelVelocityZ = new ui::Label(JSBMenu, "V_z");
 
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeThermal>());
+
     bool ret = false;
     if (coVRMSController::instance()->isMaster())
     {
@@ -585,7 +587,10 @@ bool JSBSimPlugin::init()
                     deviceVersion = 2;
                 }
                 std::cerr << "JSBSim config: UDP: serverHost: " << host << ", localPort: " << localPort << ", serverPort: " << serverPort << std::endl;
+                loadAircraft("paraglider");
+                initJSB();
                 resetAircraftAttitude();
+                reset();
                 udp = new UDPComm(host.c_str(), serverPort, localPort);
                 if (!udp->isBad())
                 {
@@ -610,12 +615,12 @@ bool JSBSimPlugin::init()
 
     coVRNavigationManager::instance()->registerNavigationProvider(this);
 
-    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeThermal>());
-
-    loadAircraft(m_defaultAircraft);
-    initJSB();
-    resetAircraftAttitude();
-
+    if(currentAircraft == nullptr)
+    {
+        loadAircraft(m_defaultAircraft);
+        initJSB();
+        resetAircraftAttitude();
+    }
     return true;
 }
 
