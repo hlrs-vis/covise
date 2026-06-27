@@ -75,6 +75,7 @@ bool TacxFTMS::init() {
     MAKE_EULER_MAT(TacxFTMSPos, h, p, r);
     TacxFTMSPos.postMultTranslate(osg::Vec3(x, y, z));
 
+    invTacxFTMSPos.invert(TacxFTMSPos);
 
     /*std::cerr << "TacxFTMS config: UDP: serverHost: " << host
               << ", localPort: " << localPort << ", serverPort: " << serverPort
@@ -200,7 +201,7 @@ bool TacxFTMS::update() {
             osg::Vec3 V(0, s, 0);
             float rotAngle = 0.0;
             float wheelAngle = - getAngle() / 100.0;
-            //fprintf(stderr, "wheelAngle: %f\n", wheelAngle);
+            fprintf(stderr, "wheelAngle: %f\n", wheelAngle);
 
             if (fabs(s) < 0.001 || fabs(wheelAngle) < 0.001) {
                 rotAngle = 0;
@@ -222,7 +223,9 @@ bool TacxFTMS::update() {
 
             auto mat = getMatrix();
 
-            TransformMat = mat * relTrans * relRot;
+            fprintf(stderr, "rotAngle: %f\n", rotAngle);
+            //TransformMat = mat * relTrans * invTacxFTMSPos *relRot * TacxFTMSPos;
+            TransformMat = mat * relTrans *relRot;
             coVRMSController::instance()->sendSlaves(TransformMat.ptr(),
                                                      sizeof(osg::Matrix::value_type) * 16);
         } else {
@@ -456,6 +459,13 @@ osg::Matrix TacxFTMS::getMatrix()
     
     osg::Matrix newMatrix;
     osg::Vec3d translation = front.getWorldIntersectPoint();
+    //cerr << "trans:" << TransformMat(3,2) << "front " <<front.getWorldIntersectPoint()[2] << "Tacx" <<TacxFTMSPos.getTrans()[2]<< endl;
+    //cerr << "transN:" << front.getWorldIntersectPoint()[2]-TacxFTMSPos.getTrans()[2] << endl;
+    
+    osg::Matrix tmp;
+    tmp.makeTranslate(0, 0, -(front.getWorldIntersectPoint()[2]-TacxFTMSPos.getTrans()[2]));
+    TransformMat.postMult(tmp);
+    return TransformMat;
 
     /*osg::Vec3d newY =
         front.getWorldIntersectPoint() - back.getWorldIntersectPoint();

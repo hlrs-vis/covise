@@ -20,7 +20,7 @@ geometryTransform = {x = 0, y = -700, z = -100, h = 90, p = 180, r = 90, scale =
 geometry = "share/covise/jsbsim/geometry/Hansajet/Hansajet.ac"
 systemsDir = "Hansajet/Systems"
 enginesDir = "Hansajet/Engines"
-geometryTransform = {x = 0, y = -7800, z = -2800, h = 90, p = 180, r = 90, scale = 1000}
+geometryTransform = {x = 0, y = -7800, z = -2400, h = 90, p = 180, r = 90, scale = 1000}
 
 
 [[joysticks]]
@@ -82,7 +82,7 @@ name = "Zugspitze"
 latitude = 47.422706952147365
 longitude = 11.015563201045584
 heading = 270
-altitude = 1500
+altitude = 3000
 aircraft = "Hansajet"
 regions = ["Bayern"]
 
@@ -91,6 +91,16 @@ name = "Matterhorn"
 latitude = 46.007799881283745
 longitude = 7.691735913898299
 heading = 200
-altitude = 1500
+altitude = 4500
 aircraft = "Hansajet"
+regions = ["Schweiz"]
+
+
+[[scenarios]]
+name = "Weilheim"
+latitude = 47.84318
+longitude = 11.13960
+heading = 0
+altitude = 800
+aircraft = "c172p"
 regions = ["Schweiz"]

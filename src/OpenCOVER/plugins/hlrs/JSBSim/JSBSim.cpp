@@ -37,7 +37,6 @@
 #include <osg/MatrixTransform>
 #include <osg/Vec3f>
 #include <osg/io_utils>
-#include <plugins/general/GeoData/GeoDataLoader.h>
 #include <string>
 #include <util/UDPComm.h>
 #include <util/byteswap.h>
@@ -48,6 +47,8 @@
 #include <vrml97/vrml/VrmlNamespace.h>
 #include <vrml97/vrml/VrmlNodeType.h>
 #include <vrml97/vrml/Viewer.h>
+
+#include <PluginUtil/PluginMessageTypes.h>
 
 #include <cover/coVRFileManager.h>
 #include <osg/Vec3>
@@ -507,7 +508,10 @@ bool JSBSimPlugin::init()
                 scenario.latitude,
                 scenario.altitude )));
 
-            // TODO: set enabled regions in GeoDataLoader
+            // Set enabled regions in GeoDataLoader
+            for (auto r : scenario.regions) {
+                cover->sendMessage(this, "GeoData", PluginMessageTypes::GeoDataSetRegionEnabled, r.size() + 1, r.c_str());
+            }
 
             loadAircraft(scenario.aircraft);
             initJSB();
@@ -567,6 +571,8 @@ bool JSBSimPlugin::init()
     labelVelocityY = new ui::Label(JSBMenu, "V_y");
     labelVelocityZ = new ui::Label(JSBMenu, "V_z");
 
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeThermal>());
+
     bool ret = false;
     if (coVRMSController::instance()->isMaster())
     {
@@ -581,7 +587,10 @@ bool JSBSimPlugin::init()
                     deviceVersion = 2;
                 }
                 std::cerr << "JSBSim config: UDP: serverHost: " << host << ", localPort: " << localPort << ", serverPort: " << serverPort << std::endl;
+                loadAircraft("paraglider");
+                initJSB();
                 resetAircraftAttitude();
+                reset();
                 udp = new UDPComm(host.c_str(), serverPort, localPort);
                 if (!udp->isBad())
                 {
@@ -606,12 +615,12 @@ bool JSBSimPlugin::init()
 
     coVRNavigationManager::instance()->registerNavigationProvider(this);
 
-    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeThermal>());
-
-    loadAircraft(m_defaultAircraft);
-    initJSB();
-    resetAircraftAttitude();
-
+    if(currentAircraft == nullptr)
+    {
+        loadAircraft(m_defaultAircraft);
+        initJSB();
+        resetAircraftAttitude();
+    }
     return true;
 }
 
@@ -725,6 +734,7 @@ void JSBSimPlugin::updateInputs()
         {
             if (a.type == THROTTLE && (a.engine == -1 || a.engine == i) && a.getChangedValue(value))
             {
+                std::cout << "SET THROTTLE on engine=" << i << " to value " << value *0.5 + 0.5 << std::endl;
                 FCS->SetThrottleCmd(i, value * 0.5 + 0.5);
                 break;
             }

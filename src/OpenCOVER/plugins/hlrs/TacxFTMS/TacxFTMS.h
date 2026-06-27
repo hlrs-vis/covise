@@ -94,6 +94,7 @@ private:
     osg::Matrix getMatrix();
     osg::Matrix TransformMat;
     osg::Matrix TacxFTMSPos;
+    osg::Matrix invTacxFTMSPos;
     void setEnabled(bool) override;
     void updateThread();
     std::unique_ptr<UDPComm> udpNeo=nullptr; 

@@ -515,6 +515,8 @@ void GeoDataLoader::message(int toWhom, int type, int length, const void *data)
     const char *messageData = (const char *)data;
     if (type == PluginMessageTypes::LoadTerrain)
         loadTerrain(messageData + 20, osg::Vec3d(0, 0, 0)); // 20= opencover://terrain/
+    else if (type == PluginMessageTypes::GeoDataSetRegionEnabled)
+        setRegionEnabled(std::string(messageData), true);
 }
 
 bool GeoDataLoader::update()

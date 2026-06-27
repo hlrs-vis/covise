@@ -130,7 +130,14 @@ Player *Player::createPlayer(Listener *listener, const std::string &type, bool i
         // config file and parse it itself.
         std::string host = coCoviseConfig::getEntry("value", "COVER.Audio.Host", "localhost");
         int port = coCoviseConfig::getInt("port", "COVER.Audio.Host", 31231);
-        return new PlayerAServer(listener, host, port, isMa);
+        auto player = new PlayerAServer(listener, host, port, isMa);
+        if (!player->isConnected())
+        {
+            std::cerr << "PlayerAServer: could not connect to audio server at " << host << ":" << port << endl;
+            delete player;
+            return nullptr;
+        }
+        return player;
     }
     else if (boost::iequals(type, "openal"))
     {

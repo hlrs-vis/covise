@@ -107,6 +107,7 @@ public:
         HLRS_Oddlot_Message = 10700,
         LoadTerrain = 10701,
         setSky = 10702,
+        GeoDataSetRegionEnabled = 10703,
 
         // Calit2 plugins start with 20000 --------------------------------------
         Calit2_FileBrowserRegisterExt = 20001,
