@@ -1567,9 +1567,9 @@ void SimulationSystem::readSimulationDataStream(
       std::make_unique<HeatingSimulationUI<IEnergyGrid>>(sim, heatingGrid.grid);
   heatingGrid.sim = std::move(sim);
 
-  auto timesteps = heatingGrid.sim->getScalarProperties().getTimesteps("mass_flow");
-  std::cout << "Number of timesteps: " << timesteps << std::endl;
-  setAnimationTimesteps(timesteps, heatingGrid.group);
+//   auto timesteps = heatingGrid.sim->getScalarProperties().getTimesteps("mass_flow");
+//   std::cout << "Number of timesteps: " << timesteps << std::endl;
+//   setAnimationTimesteps(timesteps, heatingGrid.group);
 }
 
 void SimulationSystem::applySimulationDataToHeatingGrid() {
