@@ -17,7 +17,7 @@ struct SolarPanelConfig {
   osg::Matrixd rotation;
   osg::ref_ptr<osg::Group> parent;
   osg::ref_ptr<osg::Geode> geode;
-  std::vector<core::utils::osgUtils::instancing::GeometryData> masterGeometryData;
+  std::vector<prototype::core::utils::osgUtils::instancing::GeometryData> masterGeometryData;
   bool valid() const { return parent && geode && !masterGeometryData.empty(); }
 };
 
@@ -25,14 +25,14 @@ struct SolarPanelConfig {
  * @class SolarPanel
  * @brief Represents a solar panel and provides functionality to manage its graphical representation.
  *
- * Inherits from core::interface::ISolarPanel and encapsulates an OSG node representing the solar panel.
+ * Inherits from prototype::core::interface::ISolarPanel and encapsulates an OSG node representing the solar panel.
  * Provides methods to initialize, update, and modify the appearance of the solar panel's drawables.
  *
  * @note The class is intended for use within the OpenCOVER Energy plugin presentation layer.
  *
- * @see core::interface::ISolarPanel
+ * @see prototype::core::interface::ISolarPanel
  */
-class SolarPanel : public core::interface::ISolarPanel {
+class SolarPanel : public prototype::core::interface::ISolarPanel {
  public:
   SolarPanel(osg::ref_ptr<osg::Node> node) : m_node(node) { init(); }
 

@@ -2,7 +2,7 @@
 
 #include "ITimedependable.h"
 
-namespace core::interface {
+namespace prototype::core::interface {
 class ISystem : public ITimedependable {
  public:
   virtual ~ISystem() = default;

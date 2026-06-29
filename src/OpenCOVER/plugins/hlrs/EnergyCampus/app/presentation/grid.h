@@ -46,7 +46,7 @@ class Point : public osg::MatrixTransform {
   }
 
   void updateColor(const osg::Vec4 &color) {
-    core::utils::color::overrideGeodeColor(getGeode(), color);
+    prototype::core::utils::color::overrideGeodeColor(getGeode(), color);
   }
 
   void updateColorMapInShader(const opencover::ColorMap &colormap,
@@ -135,7 +135,7 @@ class DirectedConnection : public osg::MatrixTransform {
   osg::ref_ptr<osg::Geode> getGeode() const { return m_geode; }
   const auto &getAdditionalData() const { return m_additionalData; }
   void updateColor(const osg::Vec4 &color) {
-    core::utils::color::overrideGeodeColor(m_geode, color);
+    prototype::core::utils::color::overrideGeodeColor(m_geode, color);
   }
   void setDataInShader(const std::vector<double> &fromData,
                        const std::vector<double> &toData);

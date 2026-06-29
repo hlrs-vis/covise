@@ -47,7 +47,7 @@
 #include "CityGMLSystem.h"
 
 using namespace opencover;
-using namespace core::interface;
+using namespace prototype::core::interface;
 namespace fs = boost::filesystem;
 
 namespace {
@@ -69,7 +69,7 @@ void printObjectContainerDistribution(
     const ObjectMap &map, float min, float max, int numBins = 20,
     const std::string &species = "loading_percent") {
   static_assert(std::is_base_of_v<Object, T>,
-                "T must be derived from core::simulation::Object");
+                "T must be derived from prototype::core::simulation::Object");
   std::vector<int> histogram(numBins, 0);
   int total = 0;
 
@@ -178,7 +178,7 @@ void SimulationSystem::updateEnergyGridColorMapInShader(
     const opencover::ColorMap &map, EnergyGridType type) {
   auto gridTypeIndex = getEnergyGridTypeIndex(type);
   auto &grid = m_energyGrids[gridTypeIndex];
-  if (grid.group && core::utils::osgUtils::isActive(m_gridSwitch, grid.group) &&
+  if (grid.group && prototype::core::utils::osgUtils::isActive(m_gridSwitch, grid.group) &&
       grid.simUI) {
     auto gridPtr = dynamic_cast<EnergyGrid *>(grid.grid.get());
     if (!gridPtr) return;
@@ -247,7 +247,7 @@ void SimulationSystem::initSimMenu(opencover::ui::Menu *parent) {
                      getScenarioIndex(Scenario::optimized_bigger_awz));
 
   m_scenarios->setCallback([this](int value) {
-    core::utils::osgUtils::switchTo(
+    prototype::core::utils::osgUtils::switchTo(
         m_energyGrids[getEnergyGridTypeIndex(EnergyGridType::PowerGrid)].group,
         m_gridSwitch);
     // auto scenarioIndex = getScenarioIndex(Scenario(value));
@@ -305,7 +305,7 @@ void SimulationSystem::switchEnergyGrid(EnergyGridType grid) {
     auto &colorMapMenu = defaultGrid.colorMapRegistry[selected];
     colorMapMenu.selector->show(showHud);
   }
-  core::utils::osgUtils::switchTo(switch_to, m_gridSwitch);
+  prototype::core::utils::osgUtils::switchTo(switch_to, m_gridSwitch);
 }
 
 void SimulationSystem::initEnergyGridUI() {
@@ -415,7 +415,7 @@ void SimulationSystem::initPowerGridUI(
   m_updatePowerGridSelection->setCallback([this](bool enable) {
     updatePowerGridSelection(enable);
     auto idx = getEnergyGridTypeIndex(EnergyGridType::PowerGrid);
-    core::utils::osgUtils::switchTo(m_energyGrids[idx].group, m_gridSwitch);
+    prototype::core::utils::osgUtils::switchTo(m_energyGrids[idx].group, m_gridSwitch);
   });
 
   m_powerGridSelectionPtr = m_plugin->configBoolArray(
@@ -635,7 +635,7 @@ void SimulationSystem::initEnergyGridColorMaps() {
       auto steps = cms->colorMap().steps();
 
       auto colormapName = scalarProperty.preferredColorMap;
-      if (colormapName == core::simulation::INVALID_UNIT)
+      if (colormapName == prototype::core::simulation::INVALID_UNIT)
         colormapName = cms->colorMap().name();
 
       cms->setColorMap(colormapName);
@@ -1105,26 +1105,26 @@ void SimulationSystem::initHeatingGridStreams() {
   }
 }
 
-ObjectMap * getObjMapByType(core::simulation::ObjectType type, 
-                     std::shared_ptr<core::simulation::heating::HeatingSimulation> sim) {
-  if (type == core::simulation::ObjectType::Consumer)
+ObjectMap * getObjMapByType(prototype::core::simulation::ObjectType type, 
+                     std::shared_ptr<prototype::core::simulation::heating::HeatingSimulation> sim) {
+  if (type == prototype::core::simulation::ObjectType::Consumer)
     return &sim->Consumers();
-  else if (type == core::simulation::ObjectType::Producer)
+  else if (type == prototype::core::simulation::ObjectType::Producer)
     return &sim->Producers();
   return nullptr;
 };
 
-void createObjAndAddToMap(core::simulation::ObjectType type, const std::string &name,
-                          std::shared_ptr<core::simulation::heating::HeatingSimulation> sim) {
+void createObjAndAddToMap(prototype::core::simulation::ObjectType type, const std::string &name,
+                          std::shared_ptr<prototype::core::simulation::heating::HeatingSimulation> sim) {
   auto obj =
-      core::simulation::createObject(type, name, {{std::string("value"), {}}});
+      prototype::core::simulation::createObject(type, name, {{std::string("value"), {}}});
   auto map = getObjMapByType(type, sim);
   if (map == nullptr) return;
   map->emplace(name, std::move(obj));
 };
 
-core::simulation::Object* getObjPtr(core::simulation::ObjectType type, const std::string &name,
-         std::shared_ptr<core::simulation::heating::HeatingSimulation> sim) {
+prototype::core::simulation::Object* getObjPtr(prototype::core::simulation::ObjectType type, const std::string &name,
+         std::shared_ptr<prototype::core::simulation::heating::HeatingSimulation> sim) {
   auto map = getObjMapByType(type, sim);
   auto it = map->find(name);
   if (it != map->end()) return it->second.get();
@@ -1132,9 +1132,9 @@ core::simulation::Object* getObjPtr(core::simulation::ObjectType type, const std
   return map->at(name).get();
 };
 
-void addDataToMap(core::simulation::ObjectType type, const std::string &name,
+void addDataToMap(prototype::core::simulation::ObjectType type, const std::string &name,
                   const std::string &valName, double value,
-                  std::shared_ptr<core::simulation::heating::HeatingSimulation> sim) {
+                  std::shared_ptr<prototype::core::simulation::heating::HeatingSimulation> sim) {
   auto objPtr = getObjPtr(type, name, sim);
   objPtr->addData(valName, value);
 };
@@ -1263,7 +1263,7 @@ void SimulationSystem::interpolateDataForNode(int nodeId,
         interpolatedValue += dataValues[i] * weightFactors[nd.get().neighboringNodesIds.back()];
       }
 
-      addDataToMap(core::simulation::ObjectType::Consumer, name, dataKey, interpolatedValue, sim);
+      addDataToMap(prototype::core::simulation::ObjectType::Consumer, name, dataKey, interpolatedValue, sim);
     }
   }
 }
@@ -1309,7 +1309,7 @@ std::pair<int, int> SimulationSystem::getFromAndToIdsFromConnectionName(const st
   return {fromId, toId};
 }
 
-core::simulation::Data SimulationSystem::getNodeDataFromSimulation(int nodeId) {
+prototype::core::simulation::Data SimulationSystem::getNodeDataFromSimulation(int nodeId) {
   auto idx = getEnergyGridTypeIndex(EnergyGridType::HeatingGrid);
   auto sim = std::dynamic_pointer_cast<heating::HeatingSimulation>(m_energyGrids[idx].sim);
 
@@ -1326,7 +1326,7 @@ core::simulation::Data SimulationSystem::getNodeDataFromSimulation(int nodeId) {
   }
 
   std::cout << "No data found for node ID: " << nodeId << std::endl;
-  return core::simulation::Data();
+  return prototype::core::simulation::Data();
 }
 
 std::vector<SimulationSystem::NodeData> SimulationSystem::getDataOfFromNode(int fromId,
@@ -1347,7 +1347,7 @@ std::vector<SimulationSystem::NodeData> SimulationSystem::getDataOfFromNode(int 
 
   if (fromNode == nullptr)
   {
-    core::simulation::Data nodeData = getNodeDataFromSimulation(fromId);
+    prototype::core::simulation::Data nodeData = getNodeDataFromSimulation(fromId);
 
     for (auto& [key, values] : nodeData) {
       fromNodeDataPtr->neighboringNodesDataMap[key] = values;
@@ -1397,7 +1397,7 @@ std::vector<SimulationSystem::NodeData> SimulationSystem::getDataOfToNode(int to
 
   if (toNode == nullptr)
   {
-   core::simulation::Data nodeData = getNodeDataFromSimulation(toId);
+   prototype::core::simulation::Data nodeData = getNodeDataFromSimulation(toId);
 
     for (auto& [key, values] : nodeData) {
       toNodeDataPtr->neighboringNodesDataMap[key] = values;
@@ -1542,11 +1542,11 @@ void SimulationSystem::readSimulationDataStream(
       if (std::regex_search(col, match, consumer_value_split_regex)) {
         name = match[1];
         valName = match[2];
-        addDataToMap(core::simulation::ObjectType::Consumer, name, valName, val, sim);
+        addDataToMap(prototype::core::simulation::ObjectType::Consumer, name, valName, val, sim);
       } else if (std::regex_search(col, match, producer_value_split_regex)) {
         name = match[1];
         valName = match[2];
-        addDataToMap(core::simulation::ObjectType::Producer, name, valName, val, sim);
+        addDataToMap(prototype::core::simulation::ObjectType::Producer, name, valName, val, sim);
       } else {
         if (val == 0) continue;
         sim->addData(col, val);
@@ -1720,7 +1720,7 @@ void SimulationSystem::addEnergyGridToGridSwitch(
     osg::ref_ptr<osg::Group> energyGridGroup) {
   assert(energyGridGroup && "EnergyGridGroup is nullptr");
   m_gridSwitch->addChild(energyGridGroup);
-  core::utils::osgUtils::switchTo(energyGridGroup, m_gridSwitch);
+  prototype::core::utils::osgUtils::switchTo(energyGridGroup, m_gridSwitch);
 }
 
 void SimulationSystem::buildHeatingGrid() {

@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-namespace core::simulation {
+namespace prototype::core::simulation {
 typedef std::map<std::string, std::vector<double>> Data;
 
 class Object {

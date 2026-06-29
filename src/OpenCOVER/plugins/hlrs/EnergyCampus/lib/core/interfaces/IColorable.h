@@ -1,7 +1,7 @@
 #pragma once
 #include <osg/Vec4>
 
-namespace core::interface {
+namespace prototype::core::interface {
 class IColorable {
  public:
   virtual ~IColorable() = default;

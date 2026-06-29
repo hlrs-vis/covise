@@ -3,7 +3,7 @@
 
 #include "simulation.h"
 
-namespace core::simulation::power {
+namespace prototype::core::simulation::power {
 
 struct PVData {
   std::string cityGMLID;

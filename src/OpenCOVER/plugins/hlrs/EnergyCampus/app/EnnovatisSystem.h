@@ -2,7 +2,7 @@
  * @class EnnovatisSystem
  * @brief Manages the integration of Ennovatis energy system within the OpenCOVER plugin framework.
  *
- * This class implements the core::interface::ISystem interface to provide functionality for
+ * This class implements the prototype::core::interface::ISystem interface to provide functionality for
  * initializing, enabling, updating, and managing Ennovatis devices and channels in a 3D visualization environment.
  * It handles UI components, REST requests, device sensors, and data loading from CSV/JSON files.
  *
@@ -49,7 +49,7 @@
 #include "presentation/PrototypeBuilding.h"
 #include "ui/ennovatis/EnnovatisDeviceSensor.h"
 
-class EnnovatisSystem final : public core::interface::ISystem {
+class EnnovatisSystem final : public prototype::core::interface::ISystem {
  public:
   EnnovatisSystem(opencover::coVRPlugin *plugin, opencover::ui::Menu *parentMenu,
                   osg::ref_ptr<osg::Switch> parent);

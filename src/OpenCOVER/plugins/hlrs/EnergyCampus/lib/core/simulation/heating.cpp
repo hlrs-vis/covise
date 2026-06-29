@@ -1,7 +1,7 @@
 #include "heating.h"
 
 #include <iostream>
-namespace core::simulation::heating {
+namespace prototype::core::simulation::heating {
 
 void HeatingSimulation::computeParameters() {
   computeParameter({std::ref(m_consumers), std::ref(m_producers)});

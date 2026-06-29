@@ -15,15 +15,15 @@
 
 #include "app/presentation/EnergyGrid.h"
 
-using namespace core::simulation;
+using namespace prototype::core::simulation;
 
 /**
  * @brief BaseSimulationUI is a template class providing a UI interface for
  * simulation objects.
  *
  * This class is designed to work with simulation objects that are derived from
- * core::interface::IDrawables, core::interface::IColorable, and
- * core::interface::ITimedependable. It manages color mapping and time-dependent
+ * prototype::core::interface::IDrawables, prototype::core::interface::IColorable, and
+ * prototype::core::interface::ITimedependable. It manages color mapping and time-dependent
  * updates for simulation visualization.
  *
  * @tparam T Simulation object type, must inherit from IDrawables, IColorable, and
@@ -61,11 +61,11 @@ using namespace core::simulation;
 template <typename T>
 class BaseSimulationUI
 {
-    static_assert(std::is_base_of_v<core::interface::IDrawables, T>,
+    static_assert(std::is_base_of_v<prototype::core::interface::IDrawables, T>,
         "T must be derived from IDrawable");
-    static_assert(std::is_base_of_v<core::interface::IColorable, T>,
+    static_assert(std::is_base_of_v<prototype::core::interface::IColorable, T>,
         "T must be derived from IColorable");
-    static_assert(std::is_base_of_v<core::interface::ITimedependable, T>,
+    static_assert(std::is_base_of_v<prototype::core::interface::ITimedependable, T>,
         "T must be derived from ITimeDependable");
 
 public:
@@ -162,7 +162,7 @@ protected:
                 // color_map
                 for (auto i = 0; i < values.size(); ++i)
                 {
-                    auto interpolated_value = core::utils::math::interpolate(
+                    auto interpolated_value = prototype::core::utils::math::interpolate(
                         values[i], minKeyVal, maxKeyVal, colorMap.min(), colorMap.max());
                     colors[i] = colorMap.getColor(interpolated_value);
                 }

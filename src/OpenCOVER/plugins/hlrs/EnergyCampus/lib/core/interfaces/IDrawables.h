@@ -1,7 +1,7 @@
 #pragma once
 #include <osg/Node>
 
-namespace core::interface {
+namespace prototype::core::interface {
 class IDrawables {
  public:
   virtual ~IDrawables() = default;

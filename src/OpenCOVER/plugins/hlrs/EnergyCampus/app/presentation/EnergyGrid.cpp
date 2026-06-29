@@ -347,7 +347,7 @@ void EnergyGrid::setColorMap(const opencover::ColorMap &colorMap, const opencove
             conn->updateColorMapInShader(colorMap);
 }
 
-void EnergyGrid::setData(const core::simulation::Simulation &sim,
+void EnergyGrid::setData(const prototype::core::simulation::Simulation &sim,
     const std::string &species, bool interpolate)
 {
     for (auto &point : m_config.points)

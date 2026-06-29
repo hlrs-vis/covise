@@ -35,7 +35,7 @@ using namespace opencover::utils::read;
  * @class SimulationSystem
  * @brief Manages the simulation system for energy grids within the OpenCOVER plugin.
  *
- * This class implements the core::interface::ISystem interface and provides
+ * This class implements the prototype::core::interface::ISystem interface and provides
  * functionality for initializing, enabling, updating, and managing different energy
  * grid simulations, including power grid, heating grid, and cooling grid. It handles
  * UI integration, color map management, scenario selection, and data processing for
@@ -57,7 +57,7 @@ using namespace opencover::utils::read;
  *
  * @note This class is final and cannot be inherited.
  */
-class SimulationSystem final : public core::interface::ISystem
+class SimulationSystem final : public prototype::core::interface::ISystem
 {
 public:
     SimulationSystem(opencover::coVRPlugin *plugin, opencover::ui::Menu *parentMenu,
@@ -104,9 +104,9 @@ private:
         opencover::ui::Button *simulationUIBtn = nullptr;
         opencover::ui::SelectionList *scalarSelector = nullptr;
         osg::ref_ptr<osg::MatrixTransform> group = nullptr;
-        std::shared_ptr<core::interface::IEnergyGrid> grid;
-        std::shared_ptr<core::simulation::Simulation> sim;
-        std::unique_ptr<BaseSimulationUI<core::interface::IEnergyGrid>> simUI;
+        std::shared_ptr<prototype::core::interface::IEnergyGrid> grid;
+        std::shared_ptr<prototype::core::simulation::Simulation> sim;
+        std::unique_ptr<BaseSimulationUI<prototype::core::interface::IEnergyGrid>> simUI;
         std::map<std::string, ColorMapMenu> colorMapRegistry;
     };
 
@@ -204,7 +204,7 @@ private:
                                                           std::vector<int> tempNodeList,
                                                           grid::Points &nodesToInterpolateDataFor,
                                                           grid::Lines &connections);
-  core::simulation::Data getNodeDataFromSimulation(int nodeId);
+  prototype::core::simulation::Data getNodeDataFromSimulation(int nodeId);
   std::vector<int> createHeatingGridIndices(
       const std::string &pointName,
       const std::string &connectionsStrWithCommaDelimiter,

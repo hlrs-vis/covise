@@ -286,7 +286,7 @@ void EnnovatisSystem::updateEnnovatisChannelGrp() {
 }
 
 void EnnovatisSystem::setEnnovatisChannelGrp(ennovatis::ChannelGroup group) {
-  core::utils::osgUtils::switchTo(m_ennovatis, m_parent);
+  prototype::core::utils::osgUtils::switchTo(m_ennovatis, m_parent);
   m_channelGrp = std::make_shared<ennovatis::ChannelGroup>(group);
 
   if constexpr (debug) {

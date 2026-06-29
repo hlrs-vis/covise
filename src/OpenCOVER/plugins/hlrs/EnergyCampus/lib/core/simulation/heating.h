@@ -4,7 +4,7 @@
 
 #include "simulation.h"
 
-namespace core::simulation::heating {
+namespace prototype::core::simulation::heating {
 
 class HeatingSimulation : public Simulation {
  public:

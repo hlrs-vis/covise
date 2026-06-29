@@ -16,7 +16,7 @@
 #include "PluginUtil/coSensor.h"
 #include "TxtInfoboard.h"
 
-using namespace core;
+using namespace prototype::core;
 
 enum class EnergyGridConnectionType
 {
@@ -142,7 +142,7 @@ public:
     void updateTime(int timestep) override;
 
   void setColorMap(const opencover::ColorMap &colorMap, const opencover::ColorMap &vm_pu_Colormap);
-  void setData(const core::simulation::Simulation& sim, const std::string & species, bool interpolate = false);
+  void setData(const prototype::core::simulation::Simulation& sim, const std::string & species, bool interpolate = false);
   osg::ref_ptr<grid::DirectedConnection> getConnectionByName(
       const std::string &name);
   osg::ref_ptr<grid::DirectedConnection> getConnectionByIdx(int idx) {
