@@ -1,5 +1,5 @@
 #pragma once
-#include <PluginUtil/colors/coColorMap.h>
+#include <PluginUtil/coColorMap.h>
 #include <lib/core/interfaces/IEnergyGrid.h>
 #include <lib/core/interfaces/IInfoboard.h>
 #include <lib/core/simulation/simulationresult.h>

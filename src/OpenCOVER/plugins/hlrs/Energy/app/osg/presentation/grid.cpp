@@ -1,6 +1,6 @@
 #include "grid.h"
 
-#include <PluginUtil/colors/coColorMap.h>
+#include <PluginUtil/coColorMap.h>
 #include <lib/core/utils/osgUtils.h>
 
 #include <algorithm>

@@ -2,7 +2,7 @@
 
 #include "BaseUI.h"
 #include "app/typedefs.h"
-#include <PluginUtil/colors/ColorBar.h>
+#include <PluginUtil/ColorBar.h>
 #include <memory>
 #include <string>
 #include <map>

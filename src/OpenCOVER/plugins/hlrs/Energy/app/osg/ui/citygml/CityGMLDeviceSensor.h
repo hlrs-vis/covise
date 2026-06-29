@@ -1,6 +1,6 @@
 #pragma once
 #include <PluginUtil/coSensor.h>
-#include <PluginUtil/colors/coColorMap.h>
+#include <PluginUtil/coColorMap.h>
 #include <lib/core/utils/color.h>
 
 #include <memory>

@@ -1,7 +1,7 @@
 #include "EnergyGrid.h"
 
-#include <PluginUtil/colors/ColorBar.h>
-#include <PluginUtil/colors/coColorMap.h>
+#include <PluginUtil/ColorBar.h>
+#include <PluginUtil/coColorMap.h>
 #include <cover/coVRSelectionManager.h>
 #include <lib/core/constants.h>
 #include <lib/core/interfaces/IColorable.h>
