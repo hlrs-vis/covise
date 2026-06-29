@@ -9,10 +9,10 @@
  * @class CityGMLBuilding
  * @brief Represents a building entity based on CityGML data, providing rendering and data mapping functionalities.
  *
- * Inherits from core::interface::IBuilding and manages graphical representation using OpenSceneGraph (OSG) geodes.
+ * Inherits from prototype::core::interface::IBuilding and manages graphical representation using OpenSceneGraph (OSG) geodes.
  * Supports shader-based coloring and data visualization.
  *
- * @constructor CityGMLBuilding(const core::utils::osgUtils::Geodes &geodes)
+ * @constructor CityGMLBuilding(const prototype::core::utils::osgUtils::Geodes &geodes)
  *   Constructs a CityGMLBuilding with the specified OSG geodes.
  *
  * @fn void initDrawables() override
@@ -42,9 +42,9 @@
  * @var std::vector<opencover::coVRShader *> m_shaders
  *   Stores pointers to shaders used for rendering and data mapping.
  */
-class CityGMLBuilding : public core::interface::IBuilding {
+class CityGMLBuilding : public prototype::core::interface::IBuilding {
  public:
-  CityGMLBuilding(const core::utils::osgUtils::Geodes &geodes);
+  CityGMLBuilding(const prototype::core::utils::osgUtils::Geodes &geodes);
   void initDrawables() override;
   void updateColor(const osg::Vec4 &color) override;
   void updateTime(int timestep) override;

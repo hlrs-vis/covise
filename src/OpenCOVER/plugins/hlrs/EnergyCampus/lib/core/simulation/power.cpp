@@ -1,6 +1,6 @@
 #include "power.h"
 
-namespace core::simulation::power {
+namespace prototype::core::simulation::power {
 
 void PowerSimulation::computeParameters() {
   computeParameter(

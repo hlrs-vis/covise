@@ -3,7 +3,7 @@
 #include "IMovable.h"
 #include "ITimedependable.h"
 
-namespace core::interface {
+namespace prototype::core::interface {
 template <typename Info>
 class IInfoboard : public IInformable<Info>,
                    public ITimedependable,

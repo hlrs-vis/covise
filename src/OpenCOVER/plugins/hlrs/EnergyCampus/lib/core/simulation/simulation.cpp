@@ -16,7 +16,7 @@ std::pair<double, double> robustMinMax(const std::vector<double> &values,
   return {sorted[lower], sorted[upper]};
 }
 
-const core::simulation::UnitMap UNIT_MAP = core::simulation::UnitMap(
+const prototype::core::simulation::UnitMap UNIT_MAP = prototype::core::simulation::UnitMap(
     {{{"kWh", "leistung", "power"}, "kWh"},
      {{"kW"}, "kW"},
      {{"q_dem_w", "waermestromdichte"}, "W/m2"},
@@ -39,13 +39,13 @@ const core::simulation::UnitMap UNIT_MAP = core::simulation::UnitMap(
      {{"loading_percent", "percent"}, "%"},
      {{"res_mw"}, "MW"}});
 
-const core::simulation::UnitMap COLORMAP_MAP =
-    core::simulation::UnitMap({{{"res_mw"}, "Power_Grey"},
+const prototype::core::simulation::UnitMap COLORMAP_MAP =
+    prototype::core::simulation::UnitMap({{{"res_mw"}, "Power_Grey"},
                                {{"loading_percent"}, "Utilization"},
                                {{"vm_pu"}, "Voltage"}});
 }  // namespace
 
-namespace core::simulation {
+namespace prototype::core::simulation {
 
 void Simulation::computeMinMax(const std::string &key,
                                const std::vector<double> &values,

@@ -18,7 +18,7 @@
 #include "cover/coBillboard.h"
 #include "lib/core/utils/color.h"
 
-using namespace core;
+using namespace prototype::core;
 
 void TxtInfoboard::updateTime(int timestep) {
   // TODO: implement later when needed

@@ -4,7 +4,7 @@
 #include "IDrawables.h"
 #include "ITimedependable.h"
 
-namespace core::interface {
+namespace prototype::core::interface {
 class IEnergyGrid : public IDrawables, public IColorable, public ITimedependable {
  public:
   virtual ~IEnergyGrid() = default;

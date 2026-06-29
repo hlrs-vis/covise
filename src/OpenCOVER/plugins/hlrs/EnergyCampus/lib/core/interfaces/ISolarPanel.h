@@ -2,7 +2,7 @@
 #include "IColorable.h"
 #include "IDrawables.h"
 
-namespace core::interface {
+namespace prototype::core::interface {
 class ISolarPanel : public IDrawables, public IColorable {
  public:
   virtual ~ISolarPanel() = default;

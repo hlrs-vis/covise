@@ -7,7 +7,7 @@
 #include <osg/Vec4>
 
 struct CylinderAttributes {
-  typedef core::utils::color::ColorMap ColorMap;
+  typedef prototype::core::utils::color::ColorMap ColorMap;
   CylinderAttributes(const float &rad, const float &height, const osg::Vec3 &pos,
                      const ColorMap &colorMap)
       : radius(rad), height(height), position(pos), colorMap(colorMap) {}
@@ -31,7 +31,7 @@ struct CylinderAttributes {
  *
  * Inherits IBuilding. Manages drawables and colors based on simulation state.
  */
-class PrototypeBuilding : public core::interface::IBuilding {
+class PrototypeBuilding : public prototype::core::interface::IBuilding {
  public:
   PrototypeBuilding(const CylinderAttributes &cylinderAttributes)
       : m_attributes(cylinderAttributes) {};

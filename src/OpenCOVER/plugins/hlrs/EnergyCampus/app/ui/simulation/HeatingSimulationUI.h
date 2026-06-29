@@ -9,7 +9,7 @@
 #include "app/presentation/EnergyGrid.h"
 #include "app/ui/simulation/BaseSimulationUI.h"
 
-using namespace core::simulation::heating;
+using namespace prototype::core::simulation::heating;
 
 /**
  * @brief UI class for managing and visualizing a HeatingSimulation.

@@ -12,8 +12,8 @@
 
 CityGMLDeviceSensor::CityGMLDeviceSensor(
     osg::ref_ptr<osg::Group> parent,
-    std::unique_ptr<core::interface::IInfoboard<std::string>> &&infoBoard,
-    std::unique_ptr<core::interface::IBuilding> &&drawableBuilding,
+    std::unique_ptr<prototype::core::interface::IInfoboard<std::string>> &&infoBoard,
+    std::unique_ptr<prototype::core::interface::IBuilding> &&drawableBuilding,
     const std::vector<std::string> &textBoxTxt)
     : coPickSensor(parent)
     , m_cityGMLBuilding(std::move(drawableBuilding))

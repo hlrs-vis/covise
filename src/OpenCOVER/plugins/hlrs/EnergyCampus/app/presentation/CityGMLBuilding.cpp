@@ -7,7 +7,7 @@
 #include <osg/Geode>
 #include <osg/MatrixTransform>
 
-using namespace core::utils;
+using namespace prototype::core::utils;
 
 namespace {
 constexpr auto SHADER_SCALAR_TIMESTEP_MAPPING_INDEX =
@@ -98,7 +98,7 @@ void CityGMLBuilding::setDataInShader(const std::vector<double> &data, float min
     assert(uniform);
     uniform->setValue(std::to_string(SHADER_SCALAR_TIMESTEP_MAPPING_INDEX).c_str());
 
-    auto texture = core::utils::osgUtils::createValue1DTexture(data);
+    auto texture = prototype::core::utils::osgUtils::createValue1DTexture(data);
     auto state = geo->getOrCreateStateSet();
     state->setTextureAttribute(SHADER_SCALAR_TIMESTEP_MAPPING_INDEX, texture,
                                osg::StateAttribute::ON);

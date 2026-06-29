@@ -50,8 +50,8 @@ class CityGMLDeviceSensor : public coPickSensor
 public:
     CityGMLDeviceSensor(
         osg::ref_ptr<osg::Group> group,
-        std::unique_ptr<core::interface::IInfoboard<std::string>> &&infoBoard,
-        std::unique_ptr<core::interface::IBuilding> &&drawableBuilding,
+        std::unique_ptr<prototype::core::interface::IInfoboard<std::string>> &&infoBoard,
+        std::unique_ptr<prototype::core::interface::IBuilding> &&drawableBuilding,
         const std::vector<std::string> &textBoxTxt = {});
 
     ~CityGMLDeviceSensor();
@@ -82,8 +82,8 @@ public:
     void setDataInShader(const std::vector<double> &data, float min, float max);
 
 private:
-    std::unique_ptr<core::interface::IBuilding> m_cityGMLBuilding;
-    std::unique_ptr<core::interface::IInfoboard<std::string>> m_infoBoard;
+    std::unique_ptr<prototype::core::interface::IBuilding> m_cityGMLBuilding;
+    std::unique_ptr<prototype::core::interface::IInfoboard<std::string>> m_infoBoard;
     std::vector<osg::Vec4> m_colors;
     std::vector<std::string> m_textBoxTxt;
     bool m_active = false;

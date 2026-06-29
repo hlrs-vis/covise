@@ -1,8 +1,8 @@
-set(Name "EnergyCore")
+set(Name "EnergyCampusCore")
 add_subdirectory(interfaces)
 add_subdirectory(simulation)
 add_subdirectory(utils)
 
 add_library(${Name} INTERFACE)
-target_link_libraries(${Name} INTERFACE core::interface INTERFACE core::simulation INTERFACE core::utils)
+target_link_libraries(${Name} INTERFACE prototype::core::interface INTERFACE prototype::core::simulation INTERFACE prototype::core::utils)
 COVISE_INSTALL_TARGET(${Name})
