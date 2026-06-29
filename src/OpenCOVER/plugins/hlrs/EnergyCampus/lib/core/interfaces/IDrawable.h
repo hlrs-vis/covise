@@ -2,13 +2,15 @@
 #include <osg/Node>
 #include <osg/ref_ptr>
 
-namespace prototype::core::interface {
+namespace core::interface {
 class IDrawable {
  public:
-  IDrawable() = default;
   virtual void initDrawable() = 0;
+  virtual void updateDrawable() = 0;
   virtual ~IDrawable() = default;
-  IDrawable(const IDrawable&) = delete;
-  IDrawable& operator=(const IDrawable&) = delete;
+  auto getDrawable() { return m_drawable; }
+
+ protected:
+  osg::ref_ptr<osg::Node> m_drawable;
 };
 }  // namespace core::interface

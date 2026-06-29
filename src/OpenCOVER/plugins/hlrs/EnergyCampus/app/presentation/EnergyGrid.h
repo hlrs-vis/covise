@@ -12,14 +12,11 @@
 #include <osg/ShapeDrawable>
 #include <osg/Vec3>
 #include <osg/ref_ptr>
-#include <string>
 
-#include "OsgTxtInfoboard.h"
 #include "PluginUtil/coSensor.h"
-#include "grid.h"
-#include "app/typedefs.h"
+#include "TxtInfoboard.h"
 
-using namespace prototype::core;
+using namespace core;
 
 enum class EnergyGridConnectionType
 {
@@ -40,44 +37,43 @@ enum class EnergyGridConnectionType
  * @param connectionRadius The radius for connections (default is 1.0f).
  * @param additionalConData Additional connection data (default is an empty list).
  */
-struct EnergyGridConfig {
-  EnergyGridConfig(const std::string &gridName, const grid::Points &gridPoints,
-                   const grid::Indices &gridIndices,
-                   const grid::PointsMap &gridPointsMap = {},
-                   osg::ref_ptr<osg::MatrixTransform> gridParent = nullptr,
-                   const float &gridConnectionRadius = 1.0f,
-                   const grid::ConnectionDataList &extraConnectionData =
-                       grid::ConnectionDataList(),
-                   const OsgTxtBoxAttributes &gridInfoAttributes =
-                       OsgTxtBoxAttributes(osg::Vec3(0, 0, 0), "EnergyGridText",
-                                           "DejaVuSans-Bold.ttf", 50, 50, 2.0f, 0.1,
-                                           2),
-                   const EnergyGridConnectionType &gridConnectionType =
-                       EnergyGridConnectionType::Index,
-                   const grid::Lines &gridLines = grid::Lines())
-      : name(gridName),
-        points(gridPoints),
-        indices(gridIndices),
-        pointsMap(gridPointsMap),
-        parent(gridParent),
-        connectionRadius(gridConnectionRadius),
-        additionalConnectionData(extraConnectionData),
-        infoboardAttributes(gridInfoAttributes),
-        connectionType(gridConnectionType),
-        lines(gridLines) {}
+struct EnergyGridConfig
+{
+    EnergyGridConfig(const std::string &gridName, const grid::Points &gridPoints,
+        const grid::Indices &gridIndices,
+        const grid::PointsMap &gridPointsMap = {},
+        osg::ref_ptr<osg::MatrixTransform> gridParent = nullptr,
+        const float &gridConnectionRadius = 1.0f,
+        const grid::ConnectionDataList &extraConnectionData = grid::ConnectionDataList(),
+        const TxtBoxAttributes &gridInfoAttributes = TxtBoxAttributes(osg::Vec3(0, 0, 0), "EnergyGridText",
+            "DejaVuSans-Bold.ttf", 50, 50, 2.0f, 0.1, 2),
+        const EnergyGridConnectionType &gridConnectionType = EnergyGridConnectionType::Index,
+        const grid::Lines &gridLines = grid::Lines())
+        : name(gridName)
+        , points(gridPoints)
+        , indices(gridIndices)
+        , pointsMap(gridPointsMap)
+        , parent(gridParent)
+        , connectionRadius(gridConnectionRadius)
+        , additionalConnectionData(extraConnectionData)
+        , infoboardAttributes(gridInfoAttributes)
+        , connectionType(gridConnectionType)
+        , lines(gridLines)
+    {
+    }
 
-  // mandatory
-  std::string name;
-  grid::Points points;
-  grid::Indices indices;
-  // optional
-  grid::PointsMap pointsMap;  // for faster access
-  osg::ref_ptr<osg::MatrixTransform> parent;
-  float connectionRadius;
-  grid::ConnectionDataList additionalConnectionData;
-  OsgTxtBoxAttributes infoboardAttributes;
-  EnergyGridConnectionType connectionType;
-  grid::Lines lines;
+    // mandatory
+    std::string name;
+    grid::Points points;
+    grid::Indices indices;
+    // optional
+    grid::PointsMap pointsMap; // for faster access
+    osg::ref_ptr<osg::MatrixTransform> parent;
+    float connectionRadius;
+    grid::ConnectionDataList additionalConnectionData;
+    TxtBoxAttributes infoboardAttributes;
+    EnergyGridConnectionType connectionType;
+    grid::Lines lines;
 
     bool valid() const
     {
@@ -89,17 +85,14 @@ struct EnergyGridConfig {
 
 /**
  * @class InfoboardSensor
- * @brief A sensor class that interacts with an infoboard and responds to pick
- * events.
+ * @brief A sensor class that interacts with an infoboard and responds to pick events.
  *
  * Inherits from coPickSensor and manages an infoboard displaying string content.
- * Provides methods to activate the sensor, update its state, and refresh the
- * infoboard's drawable.
+ * Provides methods to activate the sensor, update its state, and refresh the infoboard's drawable.
  *
  * @constructor
  * @param parent The parent osg::Group node to attach the sensor to.
- * @param infoboard A unique pointer to an IInfoboard instance for displaying
- * information.
+ * @param infoboard A unique pointer to an IInfoboard instance for displaying information.
  * @param content Optional initial content to display on the infoboard.
  *
  * @method updateDrawable Updates the drawable representation of the infoboard.
@@ -110,19 +103,20 @@ struct EnergyGridConfig {
  * @var m_enabled Indicates whether the sensor is enabled.
  * @var m_infoBoard Unique pointer to the managed infoboard instance.
  */
-class InfoboardSensor : public coPickSensor {
+class InfoboardSensor : public coPickSensor
+{
+public:
+    InfoboardSensor(osg::ref_ptr<osg::Group> parent,
+        std::unique_ptr<interface::IInfoboard<std::string>> &&infoboard,
+        const std::string &content = "");
 
- public:
-  InfoboardSensor(osg::ref_ptr<osg::Group> parent,
-                  std::unique_ptr<InfoboardImpl> &&infoboard,
-                  const std::string &content = "");
+    void updateDrawable() { m_infoBoard->updateDrawable(); }
+    void activate() override;
+    void update() override;
 
-  void activate() override;
-  void update() override;
-
- private:
-  bool m_enabled = false;
-  std::unique_ptr<InfoboardImpl> m_infoBoard;
+private:
+    bool m_enabled = false;
+    std::unique_ptr<interface::IInfoboard<std::string>> m_infoBoard;
 };
 
 /**
@@ -133,20 +127,22 @@ class InfoboardSensor : public coPickSensor {
  * OpenSceneGraph.
  *
  */
-class EnergyGrid : public interface::IEnergyGrid {
- public:
-  EnergyGrid(const EnergyGridConfig &data, bool ignoreOverlap = true);
-  void initDrawable() override;
-  void update() override {
-    for (auto &infoboard : m_infoboards) infoboard->update();
-  }
-  void updateColor(const osg::Vec4 &color) override;
-  void updateTime(int timestep) override;
+class EnergyGrid : public interface::IEnergyGrid
+{
+public:
+    EnergyGrid(const EnergyGridConfig &data, bool ignoreOverlap = true);
+    void initDrawables() override;
+    void update() override
+    {
+        for (auto &infoboard : m_infoboards)
+            infoboard->update();
+    }
+    void updateColor(const osg::Vec4 &color) override;
+    void updateDrawables() override;
+    void updateTime(int timestep) override;
 
-  void setColorMap(const opencover::ColorMap &colorMap,
-                   const opencover::ColorMap &vm_pu_Colormap);
-  void setData(const prototype::core::simulation::Simulation &sim, const std::string &species,
-               bool interpolate = false);
+  void setColorMap(const opencover::ColorMap &colorMap, const opencover::ColorMap &vm_pu_Colormap);
+  void setData(const core::simulation::Simulation& sim, const std::string & species, bool interpolate = false);
   osg::ref_ptr<grid::DirectedConnection> getConnectionByName(
       const std::string &name);
   osg::ref_ptr<grid::DirectedConnection> getConnectionByIdx(int idx) {
@@ -173,13 +169,12 @@ private:
         center.z() += 30;
         auto name = gridObj->getName();
 
-    m_config.infoboardAttributes.position = center;
-    m_config.infoboardAttributes.title = name;
-    // OsgTxtInfoboard infoboard(m_config.infoboardAttributes);
-    auto infoboard = std::make_unique<OsgTxtInfoboard>(m_config.infoboardAttributes);
-    m_infoboards.push_back(std::make_unique<InfoboardSensor>(
-        gridObj, std::move(infoboard), toPrint));
-  }
+        m_config.infoboardAttributes.position = center;
+        m_config.infoboardAttributes.title = name;
+        TxtInfoboard infoboard(m_config.infoboardAttributes);
+        m_infoboards.push_back(std::make_unique<InfoboardSensor>(
+            gridObj, std::make_unique<TxtInfoboard>(infoboard), toPrint));
+    }
 
     std::string createDataString(const grid::Data &data) const;
 
@@ -197,7 +192,6 @@ private:
     EnergyGridConfig m_config;
     grid::Connections m_connections;
     grid::Lines m_lines;
-    Drawables m_drawables;
     std::vector<std::unique_ptr<InfoboardSensor>> m_infoboards;
     bool m_ignoreOverlap;
 };

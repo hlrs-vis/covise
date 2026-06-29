@@ -33,12 +33,12 @@ constexpr int SHADER_SCALAR_TIMESTEP_MAPPING_INDEX = 0; // index of the texture 
                                                         // value
 } // namespace
   //
-using namespace prototype::core;
+using namespace core;
 
 namespace grid
 {
 
-// namespace prototype::core::simulation::grid {
+// namespace core::simulation::grid {
 Point::Point(const std::string &name, const float &x, const float &y, const float &z,
     const float &radius, const Data &additionalData)
     : osg::MatrixTransform()
@@ -98,7 +98,7 @@ void Point::updateDataInShader(const std::vector<double> &data, float min,
     assert(uniform);
     uniform->setValue(std::to_string(SHADER_SCALAR_TIMESTEP_MAPPING_INDEX).c_str());
 
-    auto texture = prototype::core::utils::osgUtils::createValue1DTexture(data);
+    auto texture = core::utils::osgUtils::createValue1DTexture(data);
     auto geode = getChild(0);
     auto state = geode->getOrCreateStateSet();
     state->setTextureAttribute(SHADER_SCALAR_TIMESTEP_MAPPING_INDEX, texture,
@@ -189,7 +189,7 @@ void DirectedConnection::setDataInShader(const std::vector<double> &fromData,
     assert(uniform);
     uniform->setValue(std::to_string(SHADER_SCALAR_TIMESTEP_MAPPING_INDEX).c_str());
 
-    auto texture = prototype::core::utils::osgUtils::createValueTexture(fromData, toData);
+    auto texture = core::utils::osgUtils::createValueTexture(fromData, toData);
     auto drawable = m_geode->getDrawable(0);
     auto state = drawable->getOrCreateStateSet();
     state->setTextureAttribute(SHADER_SCALAR_TIMESTEP_MAPPING_INDEX, texture,
@@ -216,7 +216,7 @@ void DirectedConnection::setData1DInShader(const std::vector<double> &data,
     assert(uniform);
     uniform->setValue(std::to_string(SHADER_SCALAR_TIMESTEP_MAPPING_INDEX).c_str());
 
-    auto texture = prototype::core::utils::osgUtils::createValue1DTexture(data);
+    auto texture = core::utils::osgUtils::createValue1DTexture(data);
     auto drawable = m_geode->getDrawable(0);
     auto state = drawable->getOrCreateStateSet();
     state->setTextureAttribute(SHADER_SCALAR_TIMESTEP_MAPPING_INDEX, texture,

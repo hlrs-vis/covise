@@ -1,5 +1,5 @@
-option(BUILD_ENERGYCAMPUS "Build Energy Campus plugin" OFF)
-if (NOT BUILD_ENERGYCAMPUS)
+option(BUILD_ENERGY "Build Energy Campus plugin" OFF)
+if (NOT BUILD_ENERGY)
     return()
 else()
     set(BUILD_ARROW ON CACHE BOOL "Build Apache Arrow for Energy Campus plugin" FORCE)
@@ -17,8 +17,6 @@ SET(HEADERS
     app/CityGMLSystem.h
     app/EnnovatisSystem.h
     app/SimulationSystem.h
-    app/typedefs.h
-    app/OsgImpl.h
     app/ui/ennovatis/EnnovatisDevice.h
     app/ui/ennovatis/EnnovatisDeviceSensor.h
     app/ui/citygml/CityGMLDeviceSensor.h
@@ -27,7 +25,7 @@ SET(HEADERS
     app/ui/simulation/PowerSimulationUI.h
     app/presentation/PrototypeBuilding.h
     app/presentation/CityGMLBuilding.h
-    app/presentation/OsgTxtInfoboard.h
+    app/presentation/TxtInfoboard.h
     app/presentation/EnergyGrid.h
     app/presentation/SolarPanel.h
     app/presentation/grid.h
@@ -42,7 +40,7 @@ SET(SOURCES
     app/ui/citygml/CityGMLDeviceSensor.cpp
     app/presentation/PrototypeBuilding.cpp
     app/presentation/CityGMLBuilding.cpp
-    app/presentation/OsgTxtInfoboard.cpp
+    app/presentation/TxtInfoboard.cpp
     app/presentation/EnergyGrid.cpp
     app/presentation/SolarPanel.cpp
     app/presentation/grid.cpp
@@ -53,9 +51,10 @@ add_subdirectory(lib)
 cover_add_plugin(
     ${Name} 
     Ennovatis 
-    EnergyCampusCore
+    EnergyCore
     coApacheArrow
     ${HEADERS} ${SOURCES})
+# add_dependencies(${Name} coApacheArrow)
 
 target_include_directories(${Name} PRIVATE
 	"${CMAKE_CURRENT_BINARY_DIR}/lib/ennovatis/include")

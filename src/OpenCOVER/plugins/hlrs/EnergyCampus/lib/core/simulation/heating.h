@@ -2,10 +2,9 @@
 
 #include <string>
 
-#include "object.h"
 #include "simulation.h"
 
-namespace prototype::core::simulation::heating {
+namespace core::simulation::heating {
 
 class HeatingSimulation : public Simulation {
  public:
@@ -15,7 +14,7 @@ class HeatingSimulation : public Simulation {
   const auto &Consumers() const { return m_consumers; }
   const auto &Producers() const { return m_producers; }
 
-  void init() override;
+  void computeParameters() override;
   const std::vector<double> *getTimedependentScalar(
       const std::string &species, const std::string &node) const override;
 

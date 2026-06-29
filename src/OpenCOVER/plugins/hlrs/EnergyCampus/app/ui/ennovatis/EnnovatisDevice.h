@@ -27,7 +27,6 @@
 
 // std
 #include <memory>
-#include "app/typedefs.h"
 
 /**
  * @class EnnovatisDevice
@@ -65,8 +64,8 @@ class EnnovatisDevice {
       const ennovatis::Building &building, opencover::ui::SelectionList *channelList,
       std::shared_ptr<ennovatis::rest_request> req,
       std::shared_ptr<ennovatis::ChannelGroup> channelGroup,
-      std::unique_ptr<InfoboardImpl> &&infoBoard,
-      std::unique_ptr<BuildingImpl> &&drawableBuilding);
+      std::unique_ptr<core::interface::IInfoboard<std::string>> &&infoBoard,
+      std::unique_ptr<core::interface::IBuilding> &&drawableBuilding);
 
   void update();
   void activate();
@@ -103,8 +102,8 @@ class EnnovatisDevice {
       const ennovatis::json_response_object &j_resp_obj);
 
   osg::ref_ptr<osg::Group> m_deviceGroup = nullptr;
-  std::unique_ptr<InfoboardImpl> m_infoBoard;
-  std::unique_ptr<BuildingImpl> m_drawableBuilding;
+  std::unique_ptr<core::interface::IInfoboard<std::string>> m_infoBoard;
+  std::unique_ptr<core::interface::IBuilding> m_drawableBuilding;
   std::weak_ptr<ennovatis::rest_request> m_request;
   std::weak_ptr<ennovatis::ChannelGroup> m_channelGroup;
   opencover::ui::SelectionList *m_channelSelectionList;
@@ -114,7 +113,7 @@ class EnnovatisDevice {
   ennovatis::rest_request_handler m_restWorker;
   opencover::coVRMSController *m_opncvrCtrl;  // cannot be const because syncing
                                               // methods are not const correct
-  prototype::core::utils::osgUtils::Geodes m_defaultStateSets;
+  core::utils::osgUtils::Geodes m_defaultStateSets;
   TimestepColorList m_timestepColors;
   SensorData m_sensorData;
   float m_consumptionPerArea = 0.0f;

@@ -1,18 +1,24 @@
 #pragma once
+#include <memory>
 #include <osg/Vec4>
 
 #include "IColorable.h"
-#include "IDrawable.h"
+#include "IDrawables.h"
+#include "ITimedependable.h"
 
-namespace prototype::core::interface {
-template <typename DrawableType, template <typename> class Container>
-class IBuilding : public IDrawable, public IColorable {
+namespace core::interface {
+class IBuilding : public IDrawables, public IColorable, public ITimedependable {
  public:
-  IBuilding() = default;
   virtual ~IBuilding() = default;
-  IBuilding(const IBuilding&) = delete;
-  IBuilding& operator=(const IBuilding&) = delete;
-  virtual Container<DrawableType>& getDrawables() = 0;
-  virtual DrawableType& getDrawable(size_t idx) = 0;
+  /**
+   * Returns the color in the range [0, maxValue] based on the given value based
+   * on colorRange of building instance.
+   *
+   * @param value The value to determine the color for.
+   * @param maxValue The maximum value in the range.
+   * @return The color represented as an osg::Vec4.
+   */
+  virtual std::unique_ptr<osg::Vec4> getColorInRange(float value,
+                                                     float maxValue) = 0;
 };
 }  // namespace core::interface

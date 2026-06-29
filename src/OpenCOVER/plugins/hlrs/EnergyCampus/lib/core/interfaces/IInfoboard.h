@@ -1,18 +1,19 @@
 #pragma once
 #include "IInformable.h"
 #include "IMovable.h"
+#include "ITimedependable.h"
 
-namespace prototype::core::interface {
-template <typename InfoType, typename DrawableType>
-class IInfoboard : public IInformable<InfoType>,
+namespace core::interface {
+template <typename Info>
+class IInfoboard : public IInformable<Info>,
+                   public ITimedependable,
                    public IMoveable {
  public:
-  IInfoboard() = default;
   virtual ~IInfoboard() = default;
-  IInfoboard(const IInfoboard&) = delete;
-  IInfoboard& operator=(const IInfoboard&) = delete;
   virtual void initInfoboard() = 0;
-  virtual bool enabled() = 0;
-  virtual DrawableType& getDrawable() = 0;
+  bool enabled() { return m_enabled; }
+
+ protected:
+  bool m_enabled = false;
 };
 }  // namespace core::interface

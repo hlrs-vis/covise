@@ -1,16 +1,16 @@
 #pragma once
 #include "IDrawable.h"
 
-namespace prototype::core::interface {
-template <typename InfoType>
+namespace core::interface {
+template <typename Info>
 class IInformable : public IDrawable {
  public:
-  IInformable() = default;
   virtual ~IInformable() = default;
-  IInformable(const IInformable&) = delete;
-  IInformable& operator=(const IInformable&) = delete;
   virtual void showInfo() = 0;
   virtual void hideInfo() = 0;
-  virtual void updateInfo(const InfoType &info) = 0;
+  virtual void updateInfo(const Info &info) = 0;
+
+ protected:
+  Info m_info;
 };
 }  // namespace core::interface

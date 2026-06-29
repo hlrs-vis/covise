@@ -41,7 +41,7 @@
 #include <utility>
 #include <vector>
 
-namespace prototype::core::utils::osgUtils {
+namespace core::utils::osgUtils {
 namespace visitors {
 void NodeNameToggler::apply(osg::Node &node) {
   if (node.getName() == _targetName) {

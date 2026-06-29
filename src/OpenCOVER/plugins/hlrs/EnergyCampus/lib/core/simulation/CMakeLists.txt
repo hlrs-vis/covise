@@ -1,17 +1,11 @@
 set(SOURCES
     heating.cpp
     power.cpp
-    scalarpropertiesprocessor.cpp
-    collector.cpp
+    simulation.cpp
 )
 
 set(HEADERS
     heating.h
-    unitmap.h
-    datastorage.h
-    scalarproperties.h
-    scalarpropertiesprocessor.h
-    collector.h
     simulation.h
     power.h
     object.h
@@ -19,9 +13,9 @@ set(HEADERS
     object_type.h
 )
 
-set(Name "simulationCampus")
+set(Name "simulation")
 add_library(${Name} STATIC ${SOURCES} ${HEADERS})
-add_library(prototype::core::simulation ALIAS ${Name})
+add_library(core::simulation ALIAS ${Name})
 target_compile_options(${Name} PRIVATE -fPIC)
 target_include_directories(${Name} PRIVATE
 	"${CMAKE_CURRENT_BINARY_DIR}/include")

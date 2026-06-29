@@ -5,7 +5,7 @@
 #include "app/presentation/EnergyGrid.h"
 #include "app/ui/simulation/BaseSimulationUI.h"
 
-using namespace prototype::core::simulation::power;
+using namespace core::simulation::power;
 
 /**
  * @brief UI class for managing and visualizing power simulation data.
@@ -65,11 +65,11 @@ class PowerSimulationUI : public BaseSimulationUI<T> {
   }
 
   float min(const std::string& species) override {
-    return powerSimulationPtr()->getScalarProperties().getMin(species);
+    return powerSimulationPtr()->getMin(species);
   }
 
   float max(const std::string& species) override {
-    return powerSimulationPtr()->getScalarProperties().getMax(species);
+    return powerSimulationPtr()->getMax(species);
   }
 
   void updateTimestepColors(const opencover::ColorMap& colorMap) override {

@@ -19,11 +19,11 @@
 #include <osg/ref_ptr>
 #include <string>
 
-using namespace prototype::core::utils::osgUtils;
+using namespace core::utils::osgUtils;
 
-void SolarPanel::init() { initDrawable(); }
+void SolarPanel::init() { initDrawables(); }
 
-void SolarPanel::initDrawable() {
+void SolarPanel::initDrawables() {
   osg::ref_ptr<osg::Group> group = m_node->asGroup();
   if (!group) {
     std::cerr << "SolarPanel: m_node is not a group!" << std::endl;
@@ -39,11 +39,13 @@ void SolarPanel::initDrawable() {
   m_drawables.push_back(m_node);
 }
 
+void SolarPanel::updateDrawables() {}
+
 void SolarPanel::updateColor(const osg::Vec4 &color) {
   for (auto &node : m_drawables) {
     auto geode = dynamic_cast<osg::Geode *>(node.get());
     if (geode) {
-      prototype::core::utils::color::overrideGeodeColor(geode, color);
+      core::utils::color::overrideGeodeColor(geode, color);
       continue;
     }
 

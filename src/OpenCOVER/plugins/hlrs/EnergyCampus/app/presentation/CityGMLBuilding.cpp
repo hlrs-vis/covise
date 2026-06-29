@@ -7,20 +7,19 @@
 #include <osg/Geode>
 #include <osg/MatrixTransform>
 
-using namespace prototype::core::utils;
+using namespace core::utils;
 
 namespace {
 constexpr auto SHADER_SCALAR_TIMESTEP_MAPPING_INDEX =
     0;  // index of the texture that maps from node index to timestep value
 }
 
-CityGMLBuilding::CityGMLBuilding(const osgUtils::Geodes &geodes)
-    : m_shaders(), m_timestep(0) {
+CityGMLBuilding::CityGMLBuilding(const osgUtils::Geodes &geodes) : m_shaders() {
   m_drawables.reserve(geodes.size());
   m_drawables.insert(m_drawables.begin(), geodes.begin(), geodes.end());
 }
 
-void CityGMLBuilding::initDrawable() {}
+void CityGMLBuilding::initDrawables() {}
 
 void CityGMLBuilding::updateColor(const osg::Vec4 &color) {
   for (auto drawable : m_drawables) {
@@ -49,6 +48,12 @@ void CityGMLBuilding::updateTime(int timestep) {
     shader->apply(state);
     geo->setStateSet(state);
   }
+}
+
+void CityGMLBuilding::updateDrawables() {}
+std::unique_ptr<osg::Vec4> CityGMLBuilding::getColorInRange(float value,
+                                                            float maxValue) {
+  return nullptr;
 }
 
 void CityGMLBuilding::setColorMapInShader(const opencover::ColorMap &colorMap) {
@@ -93,7 +98,7 @@ void CityGMLBuilding::setDataInShader(const std::vector<double> &data, float min
     assert(uniform);
     uniform->setValue(std::to_string(SHADER_SCALAR_TIMESTEP_MAPPING_INDEX).c_str());
 
-    auto texture = prototype::core::utils::osgUtils::createValue1DTexture(data);
+    auto texture = core::utils::osgUtils::createValue1DTexture(data);
     auto state = geo->getOrCreateStateSet();
     state->setTextureAttribute(SHADER_SCALAR_TIMESTEP_MAPPING_INDEX, texture,
                                osg::StateAttribute::ON);

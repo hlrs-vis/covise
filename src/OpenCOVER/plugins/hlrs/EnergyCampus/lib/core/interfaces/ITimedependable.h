@@ -1,11 +1,12 @@
 #pragma once
-namespace prototype::core::interface {
+namespace core::interface {
 class ITimedependable {
  public:
-  ITimedependable() = default;
   virtual ~ITimedependable() = default;
-  ITimedependable(const ITimedependable&) = delete;
-  ITimedependable operator=(const ITimedependable&) = delete;
   virtual void updateTime(int timestep) = 0;
+  virtual int getCurrentTimeStep() const { return m_timestep; }
+
+ protected:
+  int m_timestep = 0;
 };
 }  // namespace core::interface
