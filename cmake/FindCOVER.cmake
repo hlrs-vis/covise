@@ -7,7 +7,7 @@ if(NOT COVISE_FOUND)
 endif()
 
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "$ENV{EXTERNLIBS}/OpenSceneGraph")
-covise_find_package(OpenSceneGraph 3.2.0 COMPONENTS osgViewer osgGA osgDB)
+covise_find_package(OpenSceneGraph 3.6.0 COMPONENTS osgViewer osgGA osgDB osgUtil osgText osgParticle osgSim osgFX)
 set(OpenGL_GL_PREFERENCE LEGACY)
 covise_find_package(OpenGL)
 covise_find_package(GLEW)
@@ -16,6 +16,12 @@ covise_find_package(OpenAL)
 covise_find_package(ALUT)
 if(NOT OPENSCENEGRAPH_FOUND)
    message("COVER: OpenSceneGraph not found")
+   return()
+endif()
+if(NOT TARGET glm::glm)
+   return()
+endif()
+if(NOT TARGET GLEW::GLEW)
    return()
 endif()
 
@@ -63,9 +69,17 @@ mark_as_advanced(COVER_LIBRARY
    COVER_PLUGINUTIL_LIBRARY
    COVER_INCLUDE_DIR)
 
-if(COVER_FOUND)
-   set(COVER_INCLUDE_DIRS ${COVER_INCLUDE_DIR} ${COVISE_INCLUDE_DIR})
-   target_link_libraries(${COVER_AUDIO_LIBRARY} INTERFACE glm::glm)
+if(NOT COVER_FOUND)
+   return()
+endif()
+
+set(COVER_INCLUDE_DIRS ${COVER_INCLUDE_DIR} ${COVISE_INCLUDE_DIR})
+add_library(cover::audio INTERFACE IMPORTED)
+target_link_libraries(cover::audio INTERFACE ${COVER_AUDIO_LIBRARY} glm::glm)
+
+if(COVER_VRML_LIBRARY AND COVER_VRMLINTERFACE_LIBRARY)
+   add_library(cover::vrml INTERFACE IMPORTED)
+   target_link_libraries(cover::vrml INTERFACE ${COVER_VRML_LIBRARY} ${COVER_VRMLINTERFACE_LIBRARY})
 endif()
 
 MACRO(COVER_ADD_PLUGIN targetname)
@@ -125,7 +139,7 @@ MACRO(COVER_ADD_PLUGIN_TARGET targetname)
   ENDIF()
     
   TARGET_LINK_LIBRARIES(${targetname} ${COVER_PLUGINUTIL_LIBRARY}
-     ${COVER_LIBRARY} ${COVER_AUDIO_LIBRARY} ${COVER_VRUI_LIBRARY} ${COVER_OSGVRUI_LIBRARY} ${COVER_CONFIG_LIBRARY}
+     ${COVER_LIBRARY} cover::audio ${COVER_VRUI_LIBRARY} ${COVER_OSGVRUI_LIBRARY} ${COVER_CONFIG_LIBRARY}
      ${COVISE_VRBCLIENT_LIBRARY} ${COVISE_CONFIG_LIBRARY} ${COVISE_UTIL_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES})
   
   qt_use_modules(${targetname} Core)

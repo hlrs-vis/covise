@@ -32,6 +32,7 @@ using namespace opencover;
 TacxFTMS::TacxFTMS()
 : coVRPlugin(COVER_PLUGIN_NAME)
 , coVRNavigationProvider("TacxFTMS", this)
+, ui::Owner("Tacx", cover->ui)
 {
     ftmsData.speed = 0.0;
     ftmsData.cadence = 0.0;
@@ -74,6 +75,7 @@ bool TacxFTMS::init() {
     MAKE_EULER_MAT(TacxFTMSPos, h, p, r);
     TacxFTMSPos.postMultTranslate(osg::Vec3(x, y, z));
 
+    invTacxFTMSPos.invert(TacxFTMSPos);
 
     /*std::cerr << "TacxFTMS config: UDP: serverHost: " << host
               << ", localPort: " << localPort << ", serverPort: " << serverPort
@@ -114,6 +116,18 @@ bool TacxFTMS::init() {
 
     std::cerr << "Init FTMS done" << std::endl;
     auto retval = coVRMSController::instance()->syncBool(ret);
+    
+    TacxMenu = new ui::Menu("Tacx", this);
+    
+    Speed = new ui::Label(TacxMenu, "speed");
+    Power = new ui::Label(TacxMenu, "power");
+    
+    Weight = new ui::EditField(TacxMenu, "weight");
+    Weight->setValue(ftmsControl.weight);
+    Weight->setCallback([this](const std::string &w) {
+            ftmsControl.weight = stof(w);
+            std::cerr << "weight: " << stof(w)<<std::endl;
+        });
     return retval;
 }
 
@@ -171,13 +185,15 @@ bool TacxFTMS::update() {
             TransformMat =
                 VRSceneGraph::instance()->getTransform()->getMatrix();
 
-            float grade = getGrade();
-            ftmsControl.grade = grade;
+            //float grade = getGrade();
+            // is done in getMatrix() ftmsControl.grade = grade;
 
             if (fabs(speed) < 0.00001) {
                 speed = 0;
             }
 
+            Speed->setText(std::to_string(ftmsData.speed)+ " km/h");
+            Power->setText(std::to_string(ftmsData.power)+ " W");
             float s = speed * dT;
             // fprintf(stderr, "Displacement: %lf   Speed: %lf    dt: %lf
             // Y-acceleration: %lf\n", s, speed, dT, a);
@@ -185,7 +201,7 @@ bool TacxFTMS::update() {
             osg::Vec3 V(0, s, 0);
             float rotAngle = 0.0;
             float wheelAngle = - getAngle() / 100.0;
-            //fprintf(stderr, "wheelAngle: %f\n", wheelAngle);
+            fprintf(stderr, "wheelAngle: %f\n", wheelAngle);
 
             if (fabs(s) < 0.001 || fabs(wheelAngle) < 0.001) {
                 rotAngle = 0;
@@ -207,7 +223,9 @@ bool TacxFTMS::update() {
 
             auto mat = getMatrix();
 
-            TransformMat = mat * relTrans * relRot;
+            fprintf(stderr, "rotAngle: %f\n", rotAngle);
+            //TransformMat = mat * relTrans * invTacxFTMSPos *relRot * TacxFTMSPos;
+            TransformMat = mat * relTrans *relRot;
             coVRMSController::instance()->sendSlaves(TransformMat.ptr(),
                                                      sizeof(osg::Matrix::value_type) * 16);
         } else {
@@ -297,7 +315,7 @@ void TacxFTMS::updateThread() {
             OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
             memcpy(&ftmsData, tmpBuf, sizeof(FTMSBikeData));
             sendIndoorBikeSimulationParameters();
-	    cerr << "speed" << ftmsData.speed << endl;
+	    //cerr << "speed" << ftmsData.speed << endl;
 
         } else if (status >= sizeof(AlpineData)) {
 
@@ -318,6 +336,10 @@ void TacxFTMS::updateThread() {
 
 float TacxFTMS::getSpeed() const {
     return ftmsData.speed / 3.6;  // speed in m/s
+}
+
+float TacxFTMS::getPower() const {
+    return ftmsData.power;  // speed in m/s
 }
 
 float TacxFTMS::getAngle() const{ return alpineData.steering_angle; }
@@ -374,7 +396,8 @@ osgUtil::LineSegmentIntersector::Intersection getFirstIntersection(
     return intersector->getFirstIntersection();
 }
 
-osg::Matrix TacxFTMS::getMatrix() const{
+osg::Matrix TacxFTMS::getMatrix()
+{
     float wheelDis = wheelBase * 1000;
     osg::Vec3 pos = TacxFTMSPos.getTrans();
     osg::Vec3d y{TacxFTMSPos(1, 0), TacxFTMSPos(1, 1), TacxFTMSPos(1, 2)};
@@ -415,10 +438,36 @@ osg::Matrix TacxFTMS::getMatrix() const{
     backNormal.normalize();
     // fprintf(stderr,"f %f \n",frontNormal*osg::Vec3(0,0,1));
     // fprintf(stderr,"b %f \n",backNormal*osg::Vec3(0,0,1) );
-    if (frontNormal * osg::Vec3(0, 0, 1) < 0.2) return TransformMat;
-    if (backNormal * osg::Vec3(0, 0, 1) < 0.2) return TransformMat;
+    //if (frontNormal * osg::Vec3(0, 0, 1) < 0.2) return TransformMat;
+    //if (backNormal * osg::Vec3(0, 0, 1) < 0.2) return TransformMat;
+    
+    osg::Vec3d forward{front.getWorldIntersectPoint() - back.getWorldIntersectPoint()};
+    forward.normalize();
 
-    osg::Vec3d newY =
+    osg::Vec3d forwardXY{forward.x(), forward.y(), 0.0};
+    double run = forwardXY.length();
+    double rise = forward.z();
+
+    float grade = 0.0f;
+    if (run > 1e-6) {
+        grade = (rise / run) * 100.0f;
+    }
+ 
+ //fprintf(stderr,"grade = %f",grade);
+    
+    ftmsControl.grade = grade;
+    
+    osg::Matrix newMatrix;
+    osg::Vec3d translation = front.getWorldIntersectPoint();
+    //cerr << "trans:" << TransformMat(3,2) << "front " <<front.getWorldIntersectPoint()[2] << "Tacx" <<TacxFTMSPos.getTrans()[2]<< endl;
+    //cerr << "transN:" << front.getWorldIntersectPoint()[2]-TacxFTMSPos.getTrans()[2] << endl;
+    
+    osg::Matrix tmp;
+    tmp.makeTranslate(0, 0, -(front.getWorldIntersectPoint()[2]-TacxFTMSPos.getTrans()[2]));
+    TransformMat.postMult(tmp);
+    return TransformMat;
+
+    /*osg::Vec3d newY =
         front.getWorldIntersectPoint() - back.getWorldIntersectPoint();
     newY.normalize();
     //osg::Vec3d newX = newY ^ frontNormal;
@@ -426,9 +475,7 @@ osg::Matrix TacxFTMS::getMatrix() const{
     newX.normalize();
     osg::Vec3d newZ = newX ^ newY;
 
-    osg::Vec3d translation = front.getWorldIntersectPoint();
 
-    osg::Matrix newMatrix;
 
     newMatrix(0, 0) = newX.x();
     newMatrix(0, 1) = newX.y();
@@ -441,9 +488,9 @@ osg::Matrix TacxFTMS::getMatrix() const{
     newMatrix(2, 0) = newZ.x();
     newMatrix(2, 1) = newZ.y();
     newMatrix(2, 2) = newZ.z();
-
-    newMatrix = newMatrix * osg::Matrix::translate(translation);
-
+    
+    newMatrix = newMatrix * osg::Matrix::translate(translation);*/
+    newMatrix = osg::Matrix::translate(translation);
     osg::Matrix Nn = newMatrix;
     osg::Matrix invNn;
     invNn.invert(Nn);

@@ -11,6 +11,10 @@
 #include <cover/coVRPlugin.h>
 #include <cover/input/dev/Joystick/Joystick.h>
 
+#include <cover/input/input.h>
+#include <vector>
+#include <string>
+#include <optional>
 #include <util/common.h>
 
 #include <math.h>
@@ -18,6 +22,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <cfenv>
+#include <map>
 
 #include <cover/VRViewer.h>
 #include <cover/coVRPluginSupport.h>
@@ -42,80 +47,150 @@
 #include <cover/ui/Label.h>
 #include <cover/ui/SelectionList.h>
 
-#include <proj.h>
-
-#include <vrml97/vrml/VrmlNodeChild.h>
-#include <vrml97/vrml/VrmlSFFloat.h>
-#include <vrml97/vrml/VrmlSFVec3f.h>
-
 class UDPComm;
 
 using JSBSim::Element;
 using JSBSim::FGXMLFileRead;
 using namespace opencover;
 using namespace covise;
-using namespace vrml;
+
+struct AircraftInfo
+{
+    std::string name;
+    std::string displayName;
+    std::string geometryFile;
+    std::string systemsDir;
+    std::string enginesDir;
+    osg::Matrixd geometryTransform;
+};
+
+enum JoystickActionType
+{
+    AILERON,
+    ELEVATOR,
+    RUDDER,
+    THROTTLE,
+    MIXTURE
+};
+
+class JoystickAction
+{
+public:
+    int joystickNumber;
+    JoystickActionType type;
+
+    int axisNumber = -1;
+    int sliderNumber = -1;
+    int engine = -1;
+    bool invert = false;
+
+    virtual void update(Joystick *device)
+    {
+        m_oldValue = m_value;
+
+        if (axisNumber >= 0)
+        {
+            m_value = device->axes[joystickNumber][axisNumber];
+        }
+        if (sliderNumber >= 0)
+        {
+            m_value = device->sliders[joystickNumber][sliderNumber];
+        }
+    }
+    bool getChangedValue(double &value) const
+    {
+        if (m_oldValue != m_value)
+        {
+            value = invert ? -m_value : m_value;
+            return true;
+        }
+        return false;
+    }
+
+private:
+    double m_value = 0.0;
+    double m_oldValue = 0.0;
+};
 
 class JSBSimPlugin : public coVRPlugin, public ui::Owner, public opencover::coVRNavigationProvider
 {
 public:
     JSBSimPlugin();
     ~JSBSimPlugin();
-    bool init();
-    bool destroy();
 
-    bool update();
-    virtual void setEnabled(bool);
     static JSBSimPlugin *instance() { return plugin; };
-    void addThermal(const osg::Vec3 &velocity, float turbulence);
+
+    bool init() override;
+    bool update() override;
+
+    // from coVRNavigationProvider
+    virtual void setEnabled(bool) override;
+
+    void addThermal(const osg::Vec3d &velocity, float turbulence);
 
 private:
+    struct Scenario
+    {
+        std::string name;
+        double latitude;
+        double longitude;
+        double altitude;
+        double heading;
+        std::string aircraft;
+        std::vector<std::string> regions;
+    };
+
+    void readJoystickConfiguration();
+    void loadAvailableAircraft();
+    void loadAircraft(const std::string &aircraftName);
+
+    void updateInputs();
+    void setPaused(bool paused);
+
+    void windChangedCallback();
+
+    void startNavigationMode();
+
     static JSBSimPlugin *plugin;
     ui::Menu *JSBMenu;
     ui::Action *printCatalog;
+    ui::Action *startAction;
+    ui::SelectionList *scenarioSelectionList;
     ui::Button *pauseButton;
-    ui::Button *DebugButton;
+    ui::Button *debugButton;
     ui::Action *resetButton;
-    ui::Action *upButton;
-    ui::Group *Weather;
-    ui::Group *Geometry;
-    ui::Label *WindLabel;
-    ui::Label *VLabel;
-    ui::Label *VzLabel;
+    ui::Group *weatherGroup;
+    ui::Label *windLabel;
+    ui::Label *labelVelocityX;
+    ui::Label *labelVelocityY;
+    ui::Label *labelVelocityZ;
     ui::EditField *WX;
     ui::EditField *WY;
     ui::EditField *WZ;
-    ui::EditField *tX;
-    ui::EditField *tY;
-    ui::EditField *tZ;
-    ui::EditField *tH;
-    ui::EditField *tP;
-    ui::EditField *tR;
-    ui::EditField *tS;
     ui::SelectionList *planeType;
-    std::unique_ptr<config::Array<std::string>> aircrafts;
-    void initAircraft();
+    std::map<std::string, AircraftInfo> m_availableAircraft;
+
+    std::vector<JoystickAction> m_joystickActions;
+    std::vector<Scenario> m_scenarios;
 
     Joystick *joystickDev = nullptr;
     // bool state0 = false;
     // bool state1 = false;
     // bool state2 = false;
 
+    std::string m_defaultAircraft;
+
     SGPath RootDir;
     SGPath ScriptName;
-    std::string AircraftDir;
-    std::string EnginesDir;
-    std::string SystemsDir;
     std::string AircraftName;
     std::string resetFile;
-    std::string geometryFile;
-    std::string currentAircraft;
+    AircraftInfo *currentAircraft = nullptr;
     osg::ref_ptr<osg::MatrixTransform> geometryTrans;
     vector<string> LogOutputName;
     vector<SGPath> LogDirectiveName;
     vector<string> CommandLineProperties;
     vector<double> CommandLinePropertyValues;
-    osg::Matrix eyePoint;
+    osg::Matrixd eyePoint;
 
     double current_seconds = 0.0;
     double SimStartTime = 0.0;
@@ -152,15 +227,16 @@ private:
 
     osg::Vec3d zeroPosition;
 
-    JSBSim::FGLocation il;
-
 #pragma pack(push, 1)
-    struct FGControl
+    struct Controls
     {
         double elevator;
         double aileron;
+        double rudder;
         double throttle;
-    } fgcontrol;
+        double mixture;
+    } m_controls;
+
     struct GliderValues
     {
         int32_t left;
@@ -169,38 +245,38 @@ private:
         int32_t speed;
         uint32_t state;
     };
-    GliderValues gliderValues;
 #pragma pack(pop)
+
+    float aileron_key = 0.0;
+    float elevator_key = 0.0;
+
     UDPComm *udp;
     int deviceVersion = 1;
-    void initUDP();
-    bool initJSB();
-    bool updateUdp();
-    void reset(double dz = 0.0);
-    void updateTrans();
+    void initJSB();
+    void updateUdp();
+
+    /**!
+     * Reset the aircraft position and attiude in the simulation. If
+     * `force_heading` is specified, it overrides the current heading with a
+     * numeric value in degrees (compass heading; clockwise from north).
+     */
+    void resetAircraftAttitude(std::optional<double> force_heading = std::nullopt);
 
     //! this functions is called when a key is pressed or released
-    virtual void key(int type, int keySym, int mod);
+    virtual void key(int type, int keySym, int mod) override;
 
-    bool realtime;
-    bool play_nice;
-    bool suspend;
-    bool catalog;
-    bool nohighlight;
-
-    double end_time = 1e99;
-    double actual_elapsed_time = 0;
-    double cycle_duration = 0;
     OpenThreads::Mutex mutex;
-    PJ *coordTransformation;
-    std::string coviseSharedDir;
-    osg::Vec3d projectOffset;
-    osg::Matrix lastPos;
-    osg::Vec3 currentVelocity;
-    float currentTurbulence;
-    osg::Vec3 targetVelocity;
-    float targetTurbulence;
 
+    osg::Matrixd lastPos;
+
+    // For wind/turbulence
+    osg::Vec3d m_windVelocitySetting;
+    osg::Vec3d m_windVelocityCurrent;
+    osg::Vec3d m_windVelocityTarget;
+    float m_windTurbulenceCurrent;
+    float m_windTurbulenceTarget;
+
+    // Audio related
     audio::Audio engineAudio;
     audio::Audio varioAudio;
     audio::Audio windAudio;
@@ -211,37 +287,6 @@ private:
     std::string host;
     unsigned short serverPort;
     unsigned short localPort;
-    int ThrottleNumber = -1;
-    int Joysticknumber = -1;
-    int Ruddernumber = -1;
 };
 
-class PLUGINEXPORT VrmlNodeThermal : public VrmlNodeChild
-{
-public:
-    static void initFields(VrmlNodeThermal *node, VrmlNodeType *t);
-    static const char *typeName();
-
-    VrmlNodeThermal(VrmlScene *scene = 0);
-    VrmlNodeThermal(const VrmlNodeThermal &n);
-    virtual ~VrmlNodeThermal();
-
-    void eventIn(double timeStamp, const char *eventName,
-        const VrmlField *fieldValue);
-
-    virtual void render(Viewer *);
-
-    VrmlSFVec3f d_direction;
-    VrmlSFVec3f d_location;
-    VrmlSFFloat d_maxBack;
-    VrmlSFFloat d_maxFront;
-    VrmlSFFloat d_minBack;
-    VrmlSFFloat d_minFront;
-    VrmlSFFloat d_height;
-    VrmlSFVec3f d_velocity;
-    VrmlSFFloat d_turbulence;
-    static int numThermalNodes;
-
-private:
-};
 #endif

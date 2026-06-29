@@ -25,6 +25,8 @@
 #include <stdio.h>
 
 #include "coRawDevice.h"
+#include <hidsdi.h>
+#include <setupapi.h>
 #include <iostream>
 #include <sstream>
 namespace opencover
@@ -43,7 +45,8 @@ typedef WINUSERAPI BOOL(WINAPI *pRegisterRawInputDevices)(IN PCRAWINPUTDEVICE pR
 //============================================================
 
 #define RAW_SYS_MOUSE 0 // The sys device combines all the other usb mice into one
-#define MAX_RAW_MOUSE_BUTTONS 20
+#define MAX_RAW_MOUSE_BUTTONS 30
+#define MAX_RAW_MOUSE_VALUES 30
 
 //============================================================
 //	DATA TYPES
@@ -54,6 +57,9 @@ typedef struct STRUCT_RAW_MOUSE
 
     // Identifier for the device.  WM_INPUT passes the device HANDLE as lparam when registering a devicemove
     HANDLE device_handle;
+    HANDLE HIDdevice_handle;
+    PHIDP_PREPARSED_DATA preparsed = nullptr;
+    HIDP_CAPS caps {};
 
     // The running tally of device moves received from WM_INPUT (device delta).
     ULONG x;
@@ -70,6 +76,9 @@ typedef struct STRUCT_RAW_MOUSE
     BOOL is_virtual_desktop;
 
     int buttonpressed[MAX_RAW_MOUSE_BUTTONS];
+    float values[MAX_RAW_MOUSE_VALUES];
+    int numValues;
+    int numIndices;
 
     // Identifying the name of the button may be useful in the future as a way to
     //   use a devicewheel as a button and other neat tricks (button name: "wheel up", "wheel down")
@@ -77,9 +86,11 @@ typedef struct STRUCT_RAW_MOUSE
     char *button_name[MAX_RAW_MOUSE_BUTTONS];
 
     char *deviceName;
+    std::wstring productName;
 
     // type can be RIM_TYPEMOUSE RIM_TYPEKEYBOARD or RIM_TYPEHID
     int type;
+
 
 } RAW_MOUSE, *PRAW_MOUSE;
 
@@ -102,6 +113,8 @@ public:
     int getWheelCount();
     unsigned int getButtonBits();
     bool getButton(int i);
+    int getNumValues();
+    float getValue(int i);
 };
 
 class coRawDeviceManager
@@ -131,6 +144,7 @@ private:
 
     void setupDevices();
 
+
     // register to reviece WM_INPUT messages in WNDPROC
     BOOL register_raw_device(void);
     
@@ -141,6 +155,7 @@ public:
     static coRawDeviceManager *instance();
     void update();
     int numDevices();
+    std::wstring GetDeviceProductName(HANDLE deviceHandle);
 
     // Pointer to our array of raw mice.  Created by called init_raw_device()
     PRAW_MOUSE rawDevices;

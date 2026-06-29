@@ -31,7 +31,6 @@
 #include <vrml97/vrml/VrmlScene.h>
 #include <cover/VRViewer.h>
 #include <cover/VRSceneGraph.h>
-#include <cover/coVRAnimationManager.h>
 #include <cover/coVRPluginSupport.h>
 #include <math.h>
 #include "VrmlNodeVariant.h"

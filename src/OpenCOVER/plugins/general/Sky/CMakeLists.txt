@@ -1,14 +1,30 @@
-#OpenCOVER plugins general Sky
+using(VRML)
+covise_find_package(OSGEPHEMERIS)
 
-USING(OSGEPHEMERIS)
-USING(VRML)
+covise_find_package(exiv2)
+if(NOT TARGET exiv2lib)
+  return()
+endif()
 
-SET(HEADERS
-  Sky.h
+set(HEADERS
+    Sky.h
+    VrmlNodeSky.h
 )
 
-SET(SOURCES
-  Sky.cpp
+set(SOURCES
+    Sky.cpp
+    VrmlNodeSky.cpp
 )
 
-cover_add_plugin(Sky)
+if(OSGEPHEMERIS_FOUND)
+    LIST(APPEND HEADERS EphemeralSky.h)
+    LIST(APPEND SOURCES EphemeralSky.cpp)
+endif()
+
+cover_add_plugin(Sky coVRGeoData exiv2lib)
+
+if(OSGEPHEMERIS_FOUND)
+    target_include_directories(Sky PRIVATE ${OSGEPHEMERIS_INCLUDE_DIR})
+    target_link_libraries(Sky ${OSGEPHEMERIS_LIBRARIES})
+    target_compile_definitions(Sky PRIVATE -DHAVE_EPHEMERIS)
+endif()

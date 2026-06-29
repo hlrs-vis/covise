@@ -13,6 +13,7 @@
 
 #define MAX_STRING_LENGTH 80
 
+
 struct sim_info_t
 {
     int file_format_version;
@@ -31,15 +32,32 @@ struct sim_info_t
 struct grid_t
 {
     typedef std::array<char, 4> char4;
-    typedef struct __attribute__((packed)) { double x, y, z; } vec3d;
-    typedef struct { vec3d min, max; } aabbd;
-
+#ifdef _MSC_VER
+    __pragma(pack(push, 1)) typedef struct
+    {
+        double x, y, z;
+    } vec3d;
+    struct gid_t
+    {
+        int neighbors[6];
+        int parent;
+        int children[8];
+    };
+    __pragma(pack(pop))
+#else
+    typedef struct __attribute__((packed))
+    {
+        double x, y, z;
+    } vec3d;
     struct __attribute__((packed)) gid_t
     {
         int neighbors[6];
         int parent;
         int children[8];
     };
+#endif
+    typedef struct { vec3d min, max; } aabbd;
+
 
     std::vector<char4> unknown_names;
     std::vector<int> refine_level;

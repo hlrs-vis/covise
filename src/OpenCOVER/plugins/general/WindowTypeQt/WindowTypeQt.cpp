@@ -285,23 +285,17 @@ bool WindowTypeQtPlugin::windowCreate(int i)
         VRSceneGraph::instance()->setMenu(state ? VRSceneGraph::MenuAndObjects : VRSceneGraph::MenuHidden); });
     window->addContextAction(win.toggleMenu);
 
-    win.menubar = nullptr;
     win.nativeMenubar = nullptr;
+    win.menubar = win.window->menuBar();
 #ifdef __APPLE__
-    win.nativeMenubar = new QMenuBar(nullptr);
-    win.nativeMenubar->setNativeMenuBar(true);
-    win.nativeMenubar->show();
+    win.menubar->setNativeMenuBar(false);
     bool nativeMenubar = covise::coCoviseConfig::isOn("nativeMenuBar", "COVER.UI.Qt", true);
     if (nativeMenubar)
     {
+        win.nativeMenubar = new QMenuBar(nullptr);
+        win.nativeMenubar->setNativeMenuBar(true);
+        win.nativeMenubar->show();
     }
-    else
-    {
-        win.menubar = win.window->menuBar();
-        win.menubar->setNativeMenuBar(false);
-    }
-#else
-    win.menubar = win.window->menuBar();
 #endif
     if (win.menubar)
         win.menubar->show();
@@ -337,6 +331,7 @@ bool WindowTypeQtPlugin::windowCreate(int i)
             win.view.emplace_back(new ui::QtView(win.nativeMenubar));
         else
             win.view.emplace_back(new ui::QtView(win.nativeMenubar, toolbar));
+        win.view.back()->setShowSliders(false);
         cover->ui->addView(win.view.back());
     }
 #if 0
@@ -461,8 +456,10 @@ bool WindowTypeQtPlugin::windowCreate(int i)
 
     // std::cerr << "window " << i << ": ctx=" << coVRConfig::instance()->windows[i].context << std::endl;
 
-    qApp->sendPostedEvents();
-    qApp->processEvents();
+    if(qApp)
+        qApp->sendPostedEvents();
+    if(qApp)
+        qApp->processEvents();
 
     return true;
 }
@@ -500,10 +497,9 @@ void WindowTypeQtPlugin::aboutCover() const
 void WindowTypeQtPlugin::windowCheckEvents(int num)
 {
     if (qApp)
-    {
         qApp->sendPostedEvents();
+    if (qApp)
         qApp->processEvents();
-    }
 }
 
 void WindowTypeQtPlugin::windowUpdateContents(int num)
@@ -539,15 +535,20 @@ void WindowTypeQtPlugin::windowDestroy(int num)
     }
     delete win.widget;
     delete win.window;
-    qApp->sendPostedEvents();
-    qApp->processEvents();
+    if (qApp)
+        qApp->sendPostedEvents();
+    if (qApp)
+        qApp->processEvents();
     m_windows.erase(it);
 
     if (m_deleteQApp && m_windows.empty())
     {
-        qApp->quit();
-        qApp->sendPostedEvents();
-        qApp->processEvents();
+        if (qApp)
+            qApp->quit();
+        if (qApp)
+            qApp->sendPostedEvents();
+        if (qApp)
+            qApp->processEvents();
         delete qApp;
     }
 }

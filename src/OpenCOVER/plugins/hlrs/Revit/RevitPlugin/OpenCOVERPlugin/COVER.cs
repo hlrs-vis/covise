@@ -2051,7 +2051,10 @@ namespace OpenCOVERPlugin
                 }
                 else if (elem.Category.Id.Value == (int)BuiltInCategory.OST_Doors)
                 {
-                    GeometryObject geomObject = elementGeom.ElementAt(0);
+                    if (elementGeom != null && elementGeom.Any())
+                    {
+                        GeometryObject geomObject = elementGeom.First();
+                    }
                     
                 }
             }
@@ -2072,12 +2075,23 @@ namespace OpenCOVERPlugin
                     isGeometryInstance = true;
 
             }
+            bool isElevatorDoor = false;
+            if ((fi != null) && elem.Category.Id.Value == (int)BuiltInCategory.OST_Doors && !isGeometryInstance)
+            {
+                ParameterSet para = fi.Parameters;
+                foreach (Parameter p in para)
+                {
+                    if (p.Definition.Name == "elevatorName")
+                    {
+                        isElevatorDoor = true;
+                    }
+                }
 
-            if (elem.Category != null && elem.Category.Id.Value == (int)BuiltInCategory.OST_SpecialityEquipment)
+            }
+            if (elem.Category != null && elem.Category.Id.Value == (int)BuiltInCategory.OST_SpecialityEquipment || isElevatorDoor)
             {
 
-
-                    string elevatorName = "noname";
+                String elevatorName = "noname";
                 ParameterSet para = fi.Parameters;
                 foreach (Parameter p in para)
                 {
@@ -2092,6 +2106,12 @@ namespace OpenCOVERPlugin
 
                     if (fi != null && fi.Symbol.Name.Substring(0, 5) == "Cabin")
                     {
+                        BasePoint projectBasePoint = BasePoint.GetProjectBasePoint(elem.Document);
+
+                        // BasePoint surveyPoint =
+                        //                      BasePoint.GetSurveyPoint(doc);
+
+                        XYZ pbp = projectBasePoint.Position;
                         //add another transform for the whole cabin
                         MessageBuffer mb = new();
                         mb.add(elem.Id.Value);
@@ -2113,6 +2133,7 @@ namespace OpenCOVERPlugin
                         addParameter(elem, "elevatorSpeed", mb);
                         addParameter(elem, "elevatorAcceleration", mb);
                         addParameter(elem, "elevatorOpening", mb);
+                        //mb.add(pbp);
                         mb.add("end");
                         sendMessage(mb.buf, MessageTypes.ElevatorPart);
                     }
@@ -2134,13 +2155,18 @@ namespace OpenCOVERPlugin
                             {
                                 extendBB(ebb, solid.GetBoundingBox());
                             }
+                            doWalk = false;
+                            if (graphicsStyle.Name.Substring(0, 6) == "doWalk")
+                            {
+                                doWalk = true;
+                            }
                             if (graphicsStyle.Name.Substring(0, 8) == "elevator")
                             {
-                                sendElevatorGeomElement(elevatorName, graphicsStyle.Name, elem, num, geomObject, false, false);
+                                sendElevatorGeomElement(elevatorName, graphicsStyle.Name, elem, num, geomObject, false, doWalk);
                             }
                             else
                             {
-                                sendGeomElement(elem, num, geomObject, false, false);
+                                sendGeomElement(elem, num, geomObject, false, doWalk);
                             }
                         }
                         else // no style --> will be treated as static parts

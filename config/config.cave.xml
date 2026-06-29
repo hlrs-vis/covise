@@ -15,6 +15,16 @@
  <CLUSTER MASTER="viscluster50">
 
    <COVER>
+            <PointerAppearance>
+                <!--IconName value="line"/-->
+                <Width value="10"/>
+                <Length value="1500"/>
+                <!-- interscetion length is used also for mouse, it needs to be long enough to intersect far objects but short enough to not accidentally interact with somethin you don't want to-->
+                <Intersection value="15000" />
+            </PointerAppearance>
+
+
+
      <Stats leftPos="135.0" />
      
      <DebugTUI value="true" />
@@ -39,6 +49,7 @@
 
            <CaveButtons driver="mousebuttons" device="/dev/input/presenter"/>
            <CyberstickButtons driver="mousebuttons" device="/dev/input/cyberstick"/>
+           <joystick driver="joystick" device="/dev/input/js"/>
 
         </Device>
 
@@ -54,7 +65,7 @@
            </CaveHead>
 
            <CaveHand device="DTrackCave" device1="DTrackCaveOutside" bodyIndex="0">
-              <Offset x="10" y="-110" z="0" />
+              <Offset x="-80" y="-110" z="-20" />
               <Orientation h="-2" p="-2" r="14" />
            </CaveHand>
 
@@ -111,9 +122,6 @@
            <CaveJoyY device="DTrackCave" valuatorIndex="1" />
         </Valuator>
 	
-	<Device>
-           <joystick driver="joystick" device="/dev/input/js"/>
-	</Device>
 
         <Persons>
            <Person name="Tracked" default="true" head="CaveHead" hand="CaveHand" buttons="CaveMouse" />
@@ -217,6 +225,9 @@
    <!--FSAAMode value="0" /-->
     <Multisample value="OFF" numSamples="4" numBuffers="2" mode="FASTEST" />
    <AnisotropicFiltering value="0" />
+     <Audio value="AServer" >
+        <Host value="192.168.0.241"/> 
+     </Audio>
    <Plugin>
     <Skateboard>
         <Position x="0" y="0" />
@@ -533,7 +544,7 @@
    <PointCloud>
    <PointSize value="4" />
    </PointCloud>
-   <JSBSim menu="on" >
+   <JSBSim menu="on" value="off" >
    <Geometry y="-800" z="200" />
    <Glider serverPort="31319" localPort="1234" />
    <Sound server="192.168.0.240" />

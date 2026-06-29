@@ -1,5 +1,5 @@
 MACRO(USE_IFCPP)
-  covise_find_package(IFCPP)
+  covise_find_package(IFCPP CONFIG)
   IF ((NOT IFCPP_FOUND) AND (${ARGC} LESS 1))
     USING_MESSAGE("Skipping because of missing IFCPP")
     RETURN()

@@ -308,6 +308,11 @@ coDistributedObject *ApplicationProcess::get_part_obj(char *pname)
 }
 #endif
 
+UserInterface::UserInterface(const char *n, int arc, char *arv[])
+        : ApplicationProcess(n, arc, arv, USERINTERFACE){}
+
+UserInterface::~UserInterface() = default;
+
 void UserInterface::contact_controller(int p, Host *h)
 {
     controller = list_of_connections->addNewConn<ControllerConnection>(h, p, id, send_type);

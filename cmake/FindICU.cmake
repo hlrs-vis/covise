@@ -26,7 +26,7 @@ mark_as_advanced(ICU_LIBRARY)
 # Look for the library.
 find_library(
   ICU_DATA_LIBRARY
-  NAMES icudata
+  NAMES icudata icudt
   DOC "Libraries to link against for the common parts of ICU")
 mark_as_advanced(ICU_DATA_LIBRARY)
 

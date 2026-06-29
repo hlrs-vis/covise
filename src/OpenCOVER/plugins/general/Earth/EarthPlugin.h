@@ -78,6 +78,7 @@ public:
     static EarthPlugin *plugin;
 
 private:
+    osg::Operation *realizeOp = nullptr;
     osg::Node *loadedModel;
     osgEarth::MapNode *mapNode;
     bool useSky;

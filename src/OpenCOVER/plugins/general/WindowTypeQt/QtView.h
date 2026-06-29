@@ -125,8 +125,10 @@ class QtView: public QObject, public View
    ViewType typeBit() const override;
 
    void setInsertPosition(QAction *item);
+   void setShowSliders(bool show);
 
  private:
+   bool m_showSliders = true;
    QMenuBar *m_menubar = nullptr;
    QAction *m_insertBefore = nullptr;
    QToolBar *m_toolbar = nullptr;

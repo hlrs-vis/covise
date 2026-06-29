@@ -10,8 +10,8 @@
     <Viewport width="3840" height="1" left="0" bottom="0" windowIndex="0" channelIndex="0" name="0"  />
     <Viewport width="3840" height="1" left="3840" bottom="0" windowIndex="0" channelIndex="1" name="1"  /> </ViewportConfig>
    <ChannelConfig>
-    <Channel stereoMode="LEFT" comment="FRONT" channel="0" width="3840" left="0" windowIndex="0" screenIndex="0" top="0" name="1" height="1" />
-    <Channel stereoMode="RIGHT" comment="FRONT" channel="0" width="3840" left="0" windowIndex="1" screenIndex="0" top="0" name="0" height="1" />
+    <Channel stereoMode="RIGHT" comment="FRONT" channel="0" width="3840" left="0" windowIndex="1" screenIndex="0" top="0" name="1" height="1" />
+    <Channel stereoMode="LEFT" comment="FRONT" channel="0" width="3840" left="0" windowIndex="0" screenIndex="0" top="0" name="0" height="1" />
    </ChannelConfig>
 
    <WindowConfig>
@@ -61,6 +61,10 @@
       <UserName value="LED_wall"/>
       <Email value="grieger@hlrs.de"/>
    </Collaborative>
+      <Audio value="OpenAL" />
+     <!-- <Audio value="AServer" >
+	 <Host value="192.168.0.5" />
+     </Audio> -->
      <Input>
         <MouseNav value="true" />
         <Device>
@@ -76,6 +80,10 @@
 
 
         </Device>
+	        <Device>
+           <joystick driver="joystick" device="/dev/input/js"/>
+        </Device>
+
 
         <Body>
            <ConstHead>
@@ -84,8 +92,7 @@
            </ConstHead>
 
            <CaveHead device="DTrackCave" bodyIndex="3">
-              <!--Offset x="100" y="40" z="-100" /-->
-              <Offset x="60" y="0" z="-50" />
+              <Offset x="120" y="-40" z="-50" />
               <Orientation h="0" p="0" r="-10" />
            </CaveHead>
 
@@ -100,8 +107,8 @@
            </CaveHead3>
 
            <CaveHand device="DTrackCave" bodyIndex="2">
-              <Offset x="-70" y="0" z="0" />
-              <Orientation h="-10" p="-6" r="0" />
+              <Offset x="0" y="0" z="-50" />
+              <Orientation h="5" p="5" r="0" />
            </CaveHand>
 
            <CaveCamera device="DTrackCave" bodyIndex="2">
@@ -200,14 +207,10 @@
    <Vrml97>
      <!--MaybeGC value="ON" /-->
   
-     <!--Audio value="AServer" >
-	 <Host value="192.168.0.10" />
-     </Audio-->
 
      <StateFixLevel value="100" />
      <TextureCounter value="ON" />
      <Texture mode="MODULATE" quality="High" />
-     <TransparencyMode value="sorted_blended_alphatest" />
      <Headlight value="ON" />
      <Lights value="ON" />
     </Vrml97>
@@ -263,7 +266,7 @@
    <TabletUI host="localhost" />
 
     <UI>
-        <VRUI toolbar="true" />
+        <VRUI toolbar="false" />
     </UI>
     </COVER>
 

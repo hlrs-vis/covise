@@ -13,6 +13,7 @@
 #include <sys/wait.h>
 #endif
 
+#include <iostream>
 
 using json = nlohmann::json;
 namespace fs = std::filesystem;

@@ -56,8 +56,9 @@ public:
     PartType type = PartUdefined;
     std::vector<ElevatorPart *> doors;
     int levelNumber;
-    ElevatorPart *buttonLanding; // landing this button is for.
+    ElevatorPart *buttonLanding=nullptr; // landing this button is for.
     int doorNumber;
+    int direction = 1;
     virtual int hit(vrui::vruiHit *hit);
     virtual void miss();
 
@@ -69,6 +70,7 @@ public:
     CabinState oldTravelDirection = MoveUp;
     int currentLanding=0;
     float carPos = 0;
+    float heightOffset = 0;
     float destinationY = 0;
     float startingY = 0;
     float v = 0;

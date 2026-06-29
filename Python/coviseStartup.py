@@ -95,7 +95,7 @@ class Rec(Thread):
                 #print(" received message ", type)
                 #print(data)
                 
-                if ( type == 142 ): #COVISE_MESSAGE_NEW_UI
+                if type == 141:  # COVISE_MESSAGE_NEW_UI
                     CoviseMsgLoop().parse(msg)
                 else:
 
@@ -227,7 +227,7 @@ def ListAction():
 
 class _NewListAction(CoviseMsgLoopAction):
 
-    NEW_UI=142
+    NEW_UI = 141
     instance_ = None
     
     def __init__(self):

@@ -22,9 +22,9 @@
 
                 <Body>
                     <SpaceMouse device="SpaceNav">
-                        <AssembleX valuator="0" scale="-400" shift="0" />
-                        <AssembleY valuator="1" scale=" 400" shift="0" />
-                        <AssembleZ valuator="2" scale=" 400" shift="0" />
+                        <AssembleX valuator="0" scale="-800" shift="0" />
+                        <AssembleY valuator="1" scale=" 800" shift="0" />
+                        <AssembleZ valuator="2" scale=" 800" shift="0" />
                         <AssembleH valuator="5" scale=" 4.0" shift="0" />
                         <AssembleP valuator="3" scale="-4.0" shift="0" />
                         <AssembleR valuator="4" scale=" 4.0" shift="0" />

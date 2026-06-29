@@ -13,3 +13,4 @@ SET(SOURCES
 
 cover_add_plugin(GLTF ${HEADERS})
 COVISE_WNOERROR(GLTF)
+target_link_libraries(GLTF stb::stb)

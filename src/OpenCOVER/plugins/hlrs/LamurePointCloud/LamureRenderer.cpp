@@ -394,6 +394,8 @@ void DispatchDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const
     // Ensure initialization happened
     if (!initialized || !scmCamera) return;
     if (!_renderer->gpuOrganizationReady()) return;
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
+    glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
 
     if (allowLodUpdate) {
         lamure::ren::cut_database* cuts = lamure::ren::cut_database::get_instance();
@@ -456,7 +458,10 @@ void DispatchDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const
         }
     }
 
-    if (drawable) drawable->drawImplementation(renderInfo);
+    if (drawable)
+        drawable->drawImplementation(renderInfo);
+    glPopClientAttrib();
+    glPopAttrib();
 }
 
 void CutsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg::Drawable* drawable) const
@@ -470,6 +475,8 @@ void CutsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg
     if (!plugin->getSettings().lod_update || plugin->isRebuildInProgress()) {
         return;
     }
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
+    glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
 
     int ctx = renderInfo.getContextID();
     const uint64_t frameNo = frameNumberFromRenderInfo(renderInfo);
@@ -509,7 +516,10 @@ void CutsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg
         m_renderer->noteContextUpdateMs(ctx, frameNo, elapsedMs(tContextStart));
     }
     
-    if (drawable) drawable->drawImplementation(renderInfo);
+    if (drawable)
+        drawable->drawImplementation(renderInfo);
+    glPopClientAttrib();
+    glPopAttrib();
 }
 
 
@@ -521,11 +531,15 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
     Lamure* plugin = m_renderer->getPlugin();
     if (!plugin) return;
 
+
     const uint64_t frameNo = frameNumberFromRenderInfo(renderInfo);
     int ctx = renderInfo.getContextID();
     const osg::Camera* cam = renderInfo.getCurrentCamera();
 
-    if (!m_renderer->beginFrame(ctx)) return;
+    if (!m_renderer->beginFrame(ctx))
+        return;
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
+    glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
 
     bool pixelMetricsActive = false;
     bool stateCaptured = false;
@@ -540,6 +554,8 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
             before.restore();
             stateCaptured = false;
         }
+        glPopClientAttrib();
+        glPopAttrib();
     };
 
     const auto& settings = plugin->getSettings();
@@ -1173,6 +1189,8 @@ void BoundingBoxDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, co
         return;
     }
 
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
+    glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
     GLuint boxVao = 0;
     {
         std::lock_guard<std::mutex> callbackLock(res.callback_mutex);
@@ -1192,7 +1210,10 @@ void BoundingBoxDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, co
             }
         }
     }
-    if (boxVao == 0) {
+    if (boxVao == 0)
+    {
+        glPopClientAttrib();
+        glPopAttrib();
         return;
     }
     
@@ -1211,19 +1232,28 @@ void BoundingBoxDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, co
     osg::Matrixd model_osg;
     osg::Matrixd view_osg;
     osg::Matrixd proj_osg;
-    if (!m_renderer->getModelViewProjectionFromRenderInfo(renderInfo, drawableParent, model_osg, view_osg, proj_osg)) {
+    if (!m_renderer->getModelViewProjectionFromRenderInfo(renderInfo, drawableParent, model_osg, view_osg, proj_osg))
+    {
+        glPopClientAttrib();
+        glPopAttrib();
         return;
     }
     scm::math::mat4 model_matrix = LamureUtil::matConv4F(model_osg);
 
     lamure::ren::cut& cut = cuts->get_cut(context_id, view_id, data->modelId);
     const auto& renderable = cut.complete_set();
-    if (renderable.empty()) {
+    if (renderable.empty())
+    {
+        glPopClientAttrib();
+        glPopAttrib();
         return;
     }
 
     const auto it = m_renderer->m_bvh_node_vertex_offsets.find(data->modelId);
-    if (it == m_renderer->m_bvh_node_vertex_offsets.end()) {
+    if (it == m_renderer->m_bvh_node_vertex_offsets.end())
+    {
+        glPopClientAttrib();
+        glPopAttrib();
         return;
     }
 
@@ -1284,6 +1314,8 @@ void BoundingBoxDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, co
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLuint>(prevElementBuffer));
 
     m_renderer->noteContextRenderCounts(ctx, frameNo, 0, 0, rendered_bounding_boxes);
+    glPopClientAttrib();
+    glPopAttrib();
 }
 
 
@@ -2094,6 +2126,9 @@ InitDrawCallback::InitDrawCallback(Lamure* plugin)
 
 void InitDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg::Drawable* drawable) const
 {
+
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
+    glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
     int ctx = renderInfo.getContextID();
     osg::Camera* cam = renderInfo.getCurrentCamera();
     if (!cam) {
@@ -2182,6 +2217,9 @@ void InitDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg
     }
     
     if (drawable) { drawable->drawImplementation(renderInfo); }
+
+    glPopClientAttrib();
+    glPopAttrib();
 }
 
 StatsDrawCallback::StatsDrawCallback(Lamure *plugin, osgText::Text *label, osgText::Text *values)

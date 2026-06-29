@@ -32,7 +32,9 @@ using namespace opencover;
 #include <osgDB/FileNameUtils>
 #include <osgDB/Registry>
 
+#ifndef TINYGLTF_ENABLE_DRACO
 #define TINYGLTF_ENABLE_DRACO
+#endif
 #include "tiny_gltf.h"
 
 class PLUGINEXPORT GLTFPlugin : public coVRPlugin

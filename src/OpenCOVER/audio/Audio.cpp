@@ -61,6 +61,13 @@ void Audio::loadFile()
     ALvoid *sample = alutLoadMemoryFromFile(_url.c_str(), &format, &size, &frequency);
     if (sample == nullptr)
     {
+    // Check for ALUT errors
+	 ALenum error = alutGetError();
+	 if (error != ALUT_ERROR_NO_ERROR) {
+	     // Print the error description
+	     printf("ALUT Error: %s\n", alutGetErrorString(error));
+	     return;
+	 }
         return;
     }
 

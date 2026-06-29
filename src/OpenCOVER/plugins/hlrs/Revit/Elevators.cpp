@@ -30,19 +30,22 @@ Elevator::Elevator(int id, const char *Name, const std::string &evn)
     ID = id;
     name = Name;
     elevatorName = evn;
+    cabin = nullptr;
 }
 bool Elevator::update(osg::Vec3 &viewerPosition)
 {
-
-    if ((cabin->isIdle()))
+    if (cabin)
     {
+        if ((cabin->isIdle()))
         {
-            // tell it to move to next stop
-            cabin->moveToNext();
+            {
+                // tell it to move to next stop
+                cabin->moveToNext();
+            }
+            return false;
         }
-        return false;
+        cabin->update(viewerPosition);
     }
-    cabin->update(viewerPosition);
     for (auto &landing : landings)
     {
         if (landing != NULL)
@@ -68,7 +71,14 @@ int ElevatorPart::hit(vrui::vruiHit *hit)
     else if (buttons->wasReleased(vruiButtons::ACTION_BUTTON))
     {
         // left Button was released
-        elevator->cabin->goTo(levelNumber);
+        if (buttonLanding)
+        {
+            elevator->cabin->goTo(buttonLanding->levelNumber);
+        }
+        else
+        {
+            elevator->cabin->goTo(levelNumber);
+        }
     }
 
     return vrui::coAction::Result::ACTION_DONE;
@@ -213,7 +223,7 @@ bool ElevatorPart::update(osg::Vec3& viewerPosition)
                 v = 0;
             }
             osg::Matrix newTrans = transformNode->getMatrix();
-            newTrans.setTrans(initialTranslation + osg::Vec3(0, 0, carPos));
+            newTrans.setTrans(initialTranslation + osg::Vec3(0, 0, carPos - heightOffset));
             transformNode->setMatrix(newTrans);
         }
         else // we are there
@@ -245,10 +255,10 @@ bool ElevatorPart::update(osg::Vec3& viewerPosition)
                 doorFraction = 1;
                 state = DoorOpen;
             }
-            float doorPos = doorFraction * openingDistance * (doorNumber+1);
+            float doorPos = direction * doorFraction * openingDistance * (doorNumber+1);
 
             osg::Matrix newTrans = transformNode->getMatrix();
-            newTrans.setTrans(initialTranslation + osg::Vec3(doorPos, 0, 0));
+            newTrans.setTrans(initialTranslation + osg::Vec3(doorPos, 0, -heightOffset));
             transformNode->setMatrix(newTrans);
         }
         else // we are there
@@ -274,10 +284,10 @@ bool ElevatorPart::update(osg::Vec3& viewerPosition)
                 doorFraction = 0;
                 state = DoorClosed;
             }
-            float doorPos = doorFraction * openingDistance * (doorNumber+1);
+            float doorPos = direction * doorFraction * openingDistance * (doorNumber + 1);
 
             osg::Matrix newTrans = transformNode->getMatrix();
-            newTrans.setTrans(initialTranslation + osg::Vec3(doorPos, 0, 0));
+            newTrans.setTrans(initialTranslation + osg::Vec3(doorPos, 0, -heightOffset));
             transformNode->setMatrix(newTrans);
         }
         else // we are there
@@ -375,7 +385,23 @@ void Elevator::addPart(const std::string &familyName, const std::string &subType
     {
         ep->type = ElevatorPart::Cabin;
         cabin = ep;
-        cabin->destinationY = cabin->carPos = cabin->elevation; // car is on this elevation
+        cabin->destinationY = cabin->carPos = cabin->heightOffset = cabin->elevation; // car is on this elevation
+
+        int levelNumber = 0;
+        for (const auto &landingPart : landings)
+        {
+            if (landingPart->elevation == cabin->elevation)
+            {
+                cabin->buttonLanding = landingPart;
+                cabin->levelNumber = levelNumber;
+                cabin->currentLanding = levelNumber;
+                break;
+            }
+            else
+            {
+                levelNumber++;
+            }
+        }
     }
     else if (subType.substr(0,12) == "elevatorDoor")
     {
@@ -385,17 +411,25 @@ void Elevator::addPart(const std::string &familyName, const std::string &subType
         if (familyName.substr(0, 5) == "Cabin")
         {
             cabin->doors.push_back(ep);
-            if (subType.substr(16, 4) == "ight")
+            if (subType.length() < 18 || subType.substr(16, 4) == "ight")
             {
-
+                ep->direction = 1;
             }
             else
             {
-                ep->doorNumber *= -1;
+                ep->direction = -1;
             }
         }
         else
         {
+            if (subType.length() < 18 || subType.substr(16, 4) == "ight")
+            {
+                ep->direction = 1;
+            }
+            else
+            {
+                ep->direction = -1;
+            }
             ElevatorPart *landing=nullptr;
             for (const auto &landingPart : landings)
             {
@@ -414,6 +448,31 @@ void Elevator::addPart(const std::string &familyName, const std::string &subType
                 std::sort(landings.begin(), landings.end(),
                     [](ElevatorPart *const &a, ElevatorPart *const &b)
                     { return a->elevation < b->elevation; });
+                int levelNumber = 0;
+                for (const auto &landingPart : landings)
+                {
+                    landingPart->levelNumber = levelNumber;
+                    levelNumber++;
+                }
+                // update cabin level numbers
+                if (cabin)
+                {
+                    int levelNumber = 0;
+                    for (const auto &landingPart : landings)
+                    {
+                        if (landingPart->elevation == cabin->elevation)
+                        {
+                            cabin->buttonLanding = landingPart;
+                            cabin->levelNumber = levelNumber;
+                            cabin->currentLanding = levelNumber;
+                            break;
+                        }
+                        else
+                        {
+                            levelNumber++;
+                        }
+                    }
+                }
             }
             landing->doors.push_back(ep);
         }

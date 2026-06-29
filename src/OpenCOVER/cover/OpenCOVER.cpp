@@ -115,6 +115,8 @@ static void usage()
     fprintf(stderr, "       -s : collaborative VR configuration file, used by web interface\n");
     fprintf(stderr, "       -C : vrb to connect to in form host:port\n");
     fprintf(stderr, "       -g : Collaborative Session to load\n");
+    fprintf(stderr, "       -S : save as .osg\n");
+    fprintf(stderr, "       -I : save as .ive\n");
 }
 
 //Signal handler
@@ -668,9 +670,9 @@ bool OpenCOVER::init()
     coVRShaderList::instance()->update();
     VRViewer::instance()->setSceneData(cover->getScene());
 
-	Input::instance()->update(); // requires scenegraph
+    coVRPluginList::instance()->loadDefault(); // vive and other tracking system plugins have to be loaded before Input is initialized
 
-    cover->setScale(coCoviseConfig::getFloat("COVER.DefaultScaleFactor", 1.f));
+    Input::instance()->update(); // requires scenegraph
 
     bool haveWindows = VRWindow::instance()->config();
     haveWindows = coVRMSController::instance()->allReduceOr(haveWindows);
@@ -709,6 +711,9 @@ bool OpenCOVER::init()
     hud->setText2("loading plugins");
     hud->redraw();
 
+    coVRNavigationManager::instance();
+    cover->setScale(coCoviseConfig::getFloat("COVER.DefaultScaleFactor", 1.f));
+
     if (m_loadVistlePlugin)
     {
         loadFiles = false;
@@ -739,8 +744,6 @@ bool OpenCOVER::init()
             cover->ui->addView(new ui::TabletView("mapeditor", tab));
         }
     }
-
-    coVRPluginList::instance()->loadDefault(); // vive and other tracking system plugins have to be loaded before Input is initialized
 
     string welcomeMessage = coCoviseConfig::getEntry("value", "COVER.WelcomeMessage", "Welcome to OpenCOVER at HLRS");
     hud->setText1(welcomeMessage.c_str());
@@ -815,10 +818,18 @@ bool OpenCOVER::init()
     }
     if(VRViewer::instance()->softwareRendering)
     {
-        hud->setText2("Warning: llvmpipe detected!");
-        hud->setText3("COVER may run very slow and some shaders may not work.");
-        hud->redraw();
-        std::this_thread::sleep_for(std::chrono::seconds(5));
+        std::cerr << "****************************************************************" << std::endl;
+        std::cerr << "*** WARNING: software rendering/llvmpipe detected.           ***" << std::endl;
+        std::cerr << "*** COVER may run very slowly and some shaders may not work. ***" << std::endl;
+        std::cerr << "****************************************************************" << std::endl;
+
+        if(!coCoviseConfig::isOn("COVER.AcceptSoftwareRendering", true))
+        {
+            hud->setText2("Warning: llvmpipe detected!");
+            hud->setText3("COVER may run very slow and some shaders may not work.");
+            hud->redraw();
+            std::this_thread::sleep_for(std::chrono::seconds(5));
+        }
     }
 
     hud->setText2("initialising plugins");

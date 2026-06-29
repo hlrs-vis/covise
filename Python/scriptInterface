@@ -11,6 +11,7 @@
 
 _PYTHON=${PYTHON_HOME}/bin/python3
 _STARTUP=$COVISEDIR/Python/scriptInterface.py 
+_PYOPT="-d -v -i"
 _PYOPT="-i"
 
 if test $COVISE_LOCAL_PYTHON ; then
@@ -27,4 +28,4 @@ if [ -n "${COVISE_DYLD_FRAMEWORK_PATH}" ]; then
 fi
 
 exec $_PYTHON $_PYOPT $_STARTUP "$@"
-exit 0 
+exit 1 

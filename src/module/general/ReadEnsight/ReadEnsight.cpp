@@ -198,10 +198,9 @@ void ReadEnsight::param(const char *paramName, bool inMapLoading)
                         readGeo_ = true;
                         // this is dirty TBD do it better
                         ////// print Number of Timesteps
-                        const TimeSets &ts = case_.getAllTimeSets();
-                        TimeSets::const_iterator tsIter;
+                        const TimeSets ts = case_.getAllTimeSets();
                         int numTs = 0;
-                        for (tsIter = ts.begin(); tsIter != ts.end(); ++tsIter)
+                        for (auto tsIter = ts.begin(); tsIter != ts.end(); ++tsIter)
                         {
                             numTs += (*tsIter)->getNumTs();
                         }

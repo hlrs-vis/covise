@@ -87,8 +87,7 @@ bool ShapefilesPlugin::init()
 {
     //PVL = osgDB::readNodeFile("/data/Weinberge/PVL.ive");
     //PVP = osgDB::readNodeFile("/data/Weinberge/PVP.ive");
-    //loadPVShp("/mnt/data/HLRS/klima-qgis/08315_Traj_RKLS.shp");
-    loadPVShp("/data/greenventory/draped_waermeleitungen.shp");
+    loadPVShp("/mnt/data/HLRS/klima-qgis/08315_Traj_RKLS.shp");
     return true;
 }
 

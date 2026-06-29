@@ -101,10 +101,12 @@ bool Source::isPlaying()
     return playing;
 }
 
-Player::Player(const Listener *listener)
-    : listener(listener)
+Player::Player(const Listener *listener, bool isMaster)
+    : listener(listener), isMaster(isMaster)
 {
 }
+
+Player::~Player() = default;
 
 void Player::update()
 {
@@ -114,7 +116,7 @@ void Player::update()
     }
 }
 
-Player *Player::createPlayer(Listener *listener, const std::string &type)
+Player *Player::createPlayer(Listener *listener, const std::string &type, bool isMa)
 {
 #ifdef HAVE_AUDIO
     if (type.empty())
@@ -128,12 +130,19 @@ Player *Player::createPlayer(Listener *listener, const std::string &type)
         // config file and parse it itself.
         std::string host = coCoviseConfig::getEntry("value", "COVER.Audio.Host", "localhost");
         int port = coCoviseConfig::getInt("port", "COVER.Audio.Host", 31231);
-
-        return new PlayerAServer(listener, host, port);
+        auto player = new PlayerAServer(listener, host, port, isMa);
+        if (!player->isConnected())
+        {
+            std::cerr << "PlayerAServer: could not connect to audio server at " << host << ":" << port << endl;
+            delete player;
+            return nullptr;
+        }
+        return player;
     }
     else if (boost::iequals(type, "openal"))
     {
-        return new PlayerOpenAL(listener);
+        return new PlayerOpenAL(listener,isMa);
+
     }
     else if (boost::iequals(type, "none"))
     {

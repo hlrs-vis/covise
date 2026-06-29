@@ -40,13 +40,17 @@ using namespace covise;
 
 typedef opencover::coVRPlugin *(coVRPluginInitFunc)();
 
-// do something for all plugins
+// do something with "plugin" for all initialized plugins
+// as soon as one plugin loads or removes a plugin the iteration stops
 #define DOALL(something) \
     { \
         m_stopIteration = false; \
         for (PluginMap::const_iterator plugin_it = m_plugins.begin(); plugin_it != m_plugins.end(); ++plugin_it) \
         { \
             coVRPlugin *plugin = plugin_it->second; \
+            if (!plugin->m_initDone) { \
+                continue; \
+            } \
             { \
                 something; \
             } \

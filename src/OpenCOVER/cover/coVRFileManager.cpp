@@ -52,6 +52,7 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/locale.hpp>
 #include <fcntl.h>
+#include <regex>
 #include <osg/Identifier>
 #include <osg/Texture2D>
 #include <osgDB/FileNameUtils>
@@ -919,7 +920,7 @@ bool coVRFileManager::fileExist(const std::string& fileName)
 	return fileExist(fileName.c_str());
 }
 
-osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButton *fb, osg::Group *parent, const char *covise_key)
+osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButton *fb, osg::Group *parent, const char *covise_key, bool isIcon)
 {
     START("coVRFileManager::loadFile");
     if (!fileName || strcmp(fileName, "") == 0)
@@ -980,11 +981,11 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         }
         else if (url.authority() == "sky")
         {
-            coVRPlugin* plugin = coVRPluginList::instance()->addPlugin("GeoData");
+            coVRPlugin *plugin = coVRPluginList::instance()->addPlugin("Sky");
             if (plugin)
             {
-                std::string skyNumber = url.str();
-                plugin->message(coVRPluginSupport::TO_ALL, PluginMessageTypes::setSky, skyNumber.size() + 1, skyNumber.c_str());
+                std::string skyName = std::regex_replace(url.path(), std::regex("^[/\\\\]+"), "");
+                plugin->message(coVRPluginSupport::TO_ALL, PluginMessageTypes::setSky, skyName.size() + 1, skyName.c_str());
             }
         }
         return nullptr;
@@ -1003,75 +1004,82 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
 
     bool isRoot = m_loadingFile==nullptr;
     ui::Button *button = nullptr;
-    if (cover && isRoot)
+    LoadedFile *fe = nullptr;
+    
+    if (!isIcon)
     {
-		std::string relPath(adjustedFileName);
-		makeRelativeToSharedDataLink(relPath);
-		button = new ui::Button(m_fileGroup, "File" + reduceToAlphanumeric(relPath)+std::to_string(uniqueNumber));
-        uniqueNumber++;
-    }
-	if (isRoot)
-	{
-		//if file is not shared, add it to the shared filePaths list
-		fileOwnerList v = m_sharedFiles;
-		std::string pathIdentifier(adjustedFileName);
-		makeRelativeToSharedDataLink(pathIdentifier);
-		bool found = false;
-		for (auto p : v)
-		{
-			if (p.first == pathIdentifier)
-			{
-				found = true;
-				break;
-			}
-		}
+        if (cover && isRoot)
+        {
+            std::string relPath(adjustedFileName);
+            makeRelativeToSharedDataLink(relPath);
+            button = new ui::Button(m_fileGroup, "File" + reduceToAlphanumeric(relPath) + std::to_string(uniqueNumber));
+            uniqueNumber++;
+        }
+        fe = new LoadedFile(url, button, isRoot);
+        if (isRoot)
+        {
+            // if file is not shared, add it to the shared filePaths list
+            fileOwnerList v = m_sharedFiles;
+            std::string pathIdentifier(adjustedFileName);
+            makeRelativeToSharedDataLink(pathIdentifier);
+            bool found = false;
+            for (auto p : v)
+            {
+                if (p.first == pathIdentifier)
+                {
+                    found = true;
+                    break;
+                }
+            }
 
+            if (!found)
+            {
+                v.push_back(fileOwner(pathIdentifier, coVRCommunication::instance()->getID()));
+                m_sharedFiles = v;
+            }
+        }
+        if (covise_key)
+            fe->key = covise_key;
+        fe->filebrowser = fb;
+        if (!OpenCOVER::instance()->visPlugin() && !m_settings && fe->url.valid() && fe->url.isLocal())
+        {
+            std::cerr << "Sidecar file for " << fe->url.str() << std::endl;
+            m_settings = std::make_unique<SidecarConfigBridge>(fe->url.str(), coVRMSController::instance()->isMaster());
+            cover->m_config.setWorkspaceBridge(m_settings.get());
+            m_mainFile = fe->url.str();
+        }
 
-		if (!found)
-		{
-			v.push_back(fileOwner(pathIdentifier, coVRCommunication::instance()->getID()));
-			m_sharedFiles = v;
-		}
-	}
-    auto fe = new LoadedFile(url, button, isRoot);
-    if (covise_key)
-        fe->key = covise_key;
-    fe->filebrowser = fb;
-    if (!OpenCOVER::instance()->visPlugin() && !m_settings && fe->url.valid() && fe->url.isLocal())
-    {
-        std::cerr << "Sidecar file for " << fe->url.str() << std::endl;
-        m_settings = std::make_unique<SidecarConfigBridge>(fe->url.str(), coVRMSController::instance()->isMaster());
-        cover->m_config.setWorkspaceBridge(m_settings.get());
-        m_mainFile = fe->url.str();
-    }
-
-    OpenCOVER::instance()->hud->setText2("loading");
+        OpenCOVER::instance()->hud->setText2("loading");
 
 #ifdef WIN32
-    std::string utf8_filename = boost::locale::conv::to_utf<char>(validFileName, "ISO-8859-1");
+        std::string utf8_filename = boost::locale::conv::to_utf<char>(validFileName, "ISO-8859-1");
 #else
-    std::string utf8_filename = validFileName;
+        std::string utf8_filename = validFileName;
 #endif
-    OpenCOVER::instance()->hud->setText3(utf8_filename);
-    OpenCOVER::instance()->hud->redraw();
+        OpenCOVER::instance()->hud->setText3(utf8_filename);
+        OpenCOVER::instance()->hud->redraw();
 
-    if (isRoot)
-    {
-        m_loadingFile = fe;
-
-        if(viewPointFile == "" && url.isLocal())
+        if (isRoot)
         {
-            const char *ext = strchr(url.path().c_str(), '.');
-            if(ext)
+            m_loadingFile = fe;
+
+            if (viewPointFile == "" && url.isLocal())
             {
-                viewPointFile = validFileName;
-                std::string::size_type pos = viewPointFile.find_last_of('.');
-                viewPointFile = viewPointFile.substr(0,pos);
-                viewPointFile+=".vwp";
+                const char *ext = strchr(url.path().c_str(), '.');
+                if (ext)
+                {
+                    viewPointFile = validFileName;
+                    std::string::size_type pos = viewPointFile.find_last_of('.');
+                    viewPointFile = viewPointFile.substr(0, pos);
+                    viewPointFile += ".vwp";
+                }
             }
         }
     }
-
+    if (!fe)
+    {
+        fe = new LoadedFile(url, button, isRoot);
+    }
     /// read the 1st line of file and try to guess the type
     std::string fileTypeString = findFileExt(url);
     const FileHandler *handler = findFileHandler(url.path().c_str());
@@ -1112,12 +1120,15 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     if (!isVRML)
     {
         std::string filename = findOrGetFile(adjustedFileName);
-		if (filename.length() == 0)
-		{
+        if (filename.length() == 0)
+        {
             delete fe;
-			return nullptr;
-		}
-		fe->url = Url::fromFileOrUrl(filename);
+            return nullptr;
+        }
+        if (fe)
+        {
+            fe->url = Url::fromFileOrUrl(filename);
+        }
 
 	}
     fe->handler = handler;
@@ -1137,7 +1148,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
 
         parent->addChild(node);
 
-        if (isRoot) {
+        if (isRoot && !isIcon) {
             m_files[validFileName] = fe;
 
             m_lastFile = fe;
@@ -1168,7 +1179,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
 
 osg::Node *coVRFileManager::replaceFile(const char *fileName, coTUIFileBrowserButton *fb, osg::Group *parent, const char *covise_key)
 {
-    return loadFile(fileName, fb, parent, covise_key);
+    return loadFile(fileName, fb, parent, covise_key, false);
 }
 
 struct Magic

@@ -77,7 +77,6 @@
 
 #include "coreexp.h"
 #include "IDxMaterial.h"
-#include "RTMax.h"
 
 #include <windows.h>
 #include <Winuser.h>
@@ -2947,93 +2946,65 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
 		}
 		ShaderEffect se(fileName);
 
-		IParameterManager *pm = l_pIDxMaterial3->GetCurrentParameterManager();
-		if (pm)
-		{
+                TSTR paramValues;
 
-			TSTR paramValues;
-			for (int i = 0; i < pm->GetNumberOfParams(); i++)
-			{
-				int pt = pm->GetParamType(i);
-				const TCHAR *name = pm->GetParamName(i);
-				TCHAR buf[1000];
-				switch (pt)
-				{
-				case IParameterManager::kPType_Float:
-				{
-					float fval;
-					pm->GetParamData((void *)&fval, i);
-					_stprintf(buf, _T("%s=%s_"), name, floatVal(fval));
-					paramValues += buf;
-					//pEffect->SetFloat(pm->GetParamName(i), fval);
-				}
-				break;
-				case IParameterManager::kPType_Color:
-				case IParameterManager::kPType_Point4:
-				{
-					D3DCOLORVALUE cval;
-					pm->GetParamData((void *)&cval, i);
-					_stprintf(buf, _T("%s=%f_%f_%f_%f_"), name, cval.r, cval.g, cval.b, cval.a);
-					paramValues += buf;
-					//pEffect->SetVector(pm->GetParamName(i), (D3DXVECTOR4*)&cval);
-				}
-				break;
-				case IParameterManager::kPType_Bool:
-				{
-					BOOL bval;
-					pm->GetParamData((void *)&bval, i);
-					if (bval)
-						_stprintf(buf, _T("%s=true_"), name);
-					else
-						_stprintf(buf, _T("%s=false_"), name);
-					paramValues += buf;
-					//pEffect->SetBool(pm->GetParamName(i), bval);
-				}
-				break;
-				case IParameterManager::kPType_Int:
-				{
-					int ival;
-					pm->GetParamData((void *)&ival, i);
-					_stprintf(buf, _T("%s=%d_"), name, ival);
-					paramValues += buf;
-					//pEffect->SetInt(pm->GetParamName(i), ival);
-				}
-				break;
-				case IParameterManager::kPType_Matrix:
-				{
-					float mat[16];
-					pm->GetParamData((void *)&mat, i);
-					_stprintf(buf, _T("%s=%f_%f_%f_%f_%f_%f_%f_%f_%f_%f_%f_%f_%f_%f_%f_%f_"), name, mat[0], mat[1], mat[2], mat[3], mat[4], mat[5], mat[6], mat[7], mat[8], mat[9], mat[10], mat[11], mat[12], mat[13], mat[14], mat[15]);
-					paramValues += buf;
-					//pEffect->SetInt(pm->GetParamName(i), ival);
-				}
-				break;
-				case IParameterManager::kPType_Struct:
-				{
-					char *buf;
-					int pSize = pm->GetParamSize(i);
-					buf = new char[pSize];
-					pm->GetParamData((void *)buf, i);
-					//pEffect->SetInt(pm->GetParamName(i), ival);
-				}
-				break;
-				case IParameterManager::kPType_Texture:
-				{
-					char *buf;
-					int pSize = pm->GetParamSize(i);
-					buf = new char[pSize];
-					pm->GetParamData((void *)buf, i);
-					//pEffect->SetInt(pm->GetParamName(i), ival);
-				}
+                for (int pb = 0; pb < mtl->NumParamBlocks(); ++pb)
+                {
+                    TCHAR buf[1000];
+                    IParamBlock2 *pblock = mtl->GetParamBlock(pb);
+                    if (!pblock)
+                        continue;
 
-				break;
-				default:
-				{
-					_ftprintf(stderr, name);
-				}
-				break;
-				}
-			}
+                    for (int p = 0; p < pblock->NumParams(); ++p)
+                    {
+                        ParamID id = pblock->IndextoID(p);
+                        ParamDef &def = pblock->GetParamDef(id);
+
+                        TSTR name(def.int_name);
+
+                        switch (def.type)
+                        {
+                        case TYPE_FLOAT:
+                        {
+                            float value;
+                            pblock->GetValue(id, 0, value, FOREVER);
+                            _stprintf(buf, _T("%s=%s_"), name, floatVal(value));
+                            paramValues += buf;
+                            break;
+                        }
+
+                        case TYPE_INT:
+                        {
+                            int value;
+                            pblock->GetValue(id, 0, value, FOREVER);
+                            _stprintf(buf, _T("%s=%d_"), name, value);
+                            paramValues += buf;
+                            break;
+                        }
+
+                        case TYPE_RGBA:
+                        {
+                            AColor value;
+                            pblock->GetValue(id, 0, value, FOREVER);
+                            _stprintf(buf, _T("%s=%f_%f_%f_%f_"), name, value.r, value.g, value.b, value.a);
+                            paramValues += buf;
+                            break;
+                        }
+
+                        case TYPE_BOOL:
+                        {
+                            BOOL value;
+                            pblock->GetValue(id, 0, value, FOREVER);
+                            if (value)
+                                _stprintf(buf, _T("%s=true_"), name);
+                            else
+                                _stprintf(buf, _T("%s=false_"), name);
+                            paramValues += buf;
+                            break;
+                        }
+                        }
+                    }
+                }
 
 #if MAX_PRODUCT_VERSION_MAJOR > 14
 			paramValues.Replace(_T("="), _T("%"));
@@ -3056,7 +3027,6 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
 			se.setParamValues(paramValues);
 			effect = (int)shaderEffects.size();
 			shaderEffects.push_back(se);
-		}
 	}
 
 	StdMat *sm = NULL;
@@ -6319,6 +6289,12 @@ void
 VRML2Export::VrmlOutObject(INode *node, INode *parent, Object *obj, int level,
 	BOOL mirrored)
 {
+
+    Class_ID id = obj->ClassID();
+    if (id == Class_ID(685327, 452283)) // if this is a Populate Idle Area, don't render it
+    {
+        return;
+    }
 	// need to get a valid obj ptr
 	obj = node->EvalWorldState(mStart).obj;
 	BOOL isTriMesh = obj->CanConvertToType(triObjectClassID);

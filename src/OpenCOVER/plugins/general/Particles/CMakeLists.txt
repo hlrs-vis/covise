@@ -1,16 +1,18 @@
 if(NOT COVISE_USE_QT)
     return()
 endif()
+USING(VRML)
 
-#USING(CG OPENGL)
 
 SET(HEADERS
   ParticleViewer.h
   Particles.h
+  VrmlNodeParticles.h
 )
 SET(SOURCES
   ParticleViewer.cpp
   Particles.cpp
+  VrmlNodeParticles.cpp
 )
 cover_add_plugin(Particles)
 

@@ -77,7 +77,7 @@ IF(APPLE)
   MARK_AS_ADVANCED(APP_SERVICES_LIBRARY)
 ENDIF(APPLE)
 
-covise_find_package(OpenSceneGraph 3.2.0 COMPONENTS osgDB osgUtil osgViewer
+covise_find_package(OpenSceneGraph 3.6.0 COMPONENTS osgDB osgUtil osgViewer
    osgParticle osgText osgSim osgGA osgFX osgTerrain osgShadow REQUIRED)
 
 COVISE_FIND_PACKAGE(CURL)
@@ -141,9 +141,10 @@ ADD_SUBDIRECTORY(plugins)
 ADD_SUBDIRECTORY(ManagedOpenCOVER)
 ADD_SUBDIRECTORY(Sur40COVER)
 ADD_SUBDIRECTORY(utils)
+ADD_SUBDIRECTORY(geodata)
 
 INSTALL(FILES "../../cmake/FindCOVER.cmake" DESTINATION
-    "${CMAKE_INSTALL_PREFIX}/share/cover/cmake/" RENAME "cover-config.cmake")
+    "${CMAKE_INSTALL_LIBDIR}/cmake/cover/" RENAME "cover-config.cmake")
 
 # IF(MSVC)
   # ADD_SUBDIRECTORY(ManagedOpenCOVER)

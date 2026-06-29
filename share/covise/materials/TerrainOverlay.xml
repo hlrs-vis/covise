@@ -1,0 +1,35 @@
+<TerrainOverlay transparent="true">
+
+<uniform name="Transparency" type="float" value="0.5" />
+<uniform name="DepthBump" type="float" value="0.0" />
+<uniform name="diffuseMap" type="sampler2D" value="0" />
+
+<vertexProgram>
+    varying vec2 Texcoord;
+
+    void main( void ) 
+    {
+        Texcoord = gl_MultiTexCoord0.xy;
+        gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+        gl_Position = ftransform();	
+    }
+
+</vertexProgram><fragmentProgram>
+
+    varying vec2 Texcoord;
+
+    uniform float Transparency;
+    uniform float DepthBump;
+    uniform sampler2D diffuseMap;
+
+    void main( void ) 
+    {
+        vec4 DiffuseColor = texture2D( diffuseMap, Texcoord );
+        DiffuseColor.a = DiffuseColor.a * Transparency;
+
+        gl_FragColor = DiffuseColor;
+        gl_FragDepth = gl_FragCoord[2] + DepthBump;
+    }
+
+</fragmentProgram>
+</TerrainOverlay>

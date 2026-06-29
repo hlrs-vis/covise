@@ -27,6 +27,14 @@
         </System>
 
         <COVER>
+            <PointerAppearance>
+                <IconName value="line"/>
+                <Width value="10"/>
+                <Length value="1500"/>
+                <!-- interscetion length is used also for mouse, it needs to be long enough to intersect far objects -->
+                <Intersection value="15000" />
+            </PointerAppearance>
+
             <UI>
                 <VRUI toolbar="false" />
                 <NavigationManager>
@@ -99,12 +107,21 @@
             <Input>
                 <MouseNav value="ON" />
                 <!-- <Keyboard terminal="on" evdev="/dev/input/coverkeys" /> -->
+
+                <Device>
+                    <joystick driver="joystick" device="/dev/input/js"/>
+                </Device>
             </Input>
 
             <!--Console value="on" file="/tmp/coverlog"/-->
             <Plugin>
-                <PBufferSnapShot menu="true" />
+                <GeoData menu="true" />
+                <TabletUI value="off" menu="true" />
+                <GeoCoding menu="true" value="on" />
+                <Sky menu="true" value="on" />
                 <Video menu="true" />
+                <JSBSim menu="true" />
+
                 <CompositorIceT menu="false" />
                 <ViewPoint value="true" />
                 <Measure menu="true" />

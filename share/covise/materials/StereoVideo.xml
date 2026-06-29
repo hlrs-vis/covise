@@ -1,0 +1,30 @@
+<_StereoVideo><uniform name="diffuseMap" type="sampler2D" value="0"/><uniform name="Stereo" type="int" value="0"/><vertexProgram>varying vec2 Texcoord;
+  
+     
+    void main( void )
+    {
+             Texcoord = gl_MultiTexCoord0;
+	    gl_Position = ftransform();	
+    }
+  </vertexProgram><fragmentProgram>varying vec2 Texcoord;
+    uniform sampler2D diffuseMap;
+   
+    uniform int Stereo;
+   
+    void main( void )
+    {
+    vec2 tcl = Texcoord;
+    vec2 tcr = Texcoord;
+    tcr.x = Texcoord.x*0.5;
+    tcl.y = -tcl.y;
+    tcl.x = Texcoord.x*0.5-0.5;
+    tcr.y = -tcr.y;
+    //tcr.x = (Texcoord.x+0.5)*0.5;
+    if(Stereo==1) //right
+      gl_FragColor = texture2D( diffuseMap, tcr );
+    else          //left
+      gl_FragColor = texture2D( diffuseMap, tcl );
+    
+    }
+	
+	</fragmentProgram></_StereoVideo>

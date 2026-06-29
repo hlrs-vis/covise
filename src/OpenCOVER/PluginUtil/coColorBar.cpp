@@ -46,7 +46,7 @@ static void calcFormat(float &minIO, float &maxIO, char * /*mask*/, int &iSteps)
     double min = minIO;
     double max = maxIO;
     bool swapped = false;
-    if (min > max) 
+    if (min > max)
     {
         swapped = true;
         std::swap(min, max);
@@ -101,7 +101,7 @@ static void calcFormat(float &minIO, float &maxIO, char * /*mask*/, int &iSteps)
    }
    else
    {
- 
+
       /// negative digits - may require exponetials
       double maxAbs = fabs(max);
       double minAbs = fabs(min);
@@ -296,7 +296,7 @@ coColorBar::update(const ColorMap &map)
     makeLabelValues(map);
     float vgap = (Height - (numLabels_-1)*LabelHeight)/(numLabels_-1);
 
-    for (size_t i = 0; i < numLabels_; i++)
+    for (int i = 0; i < numLabels_; i++)
     {
         snprintf(str+off, sizeof(str)-off, format_str_, labelValues_[i]);
         if (str[off] == '-')
@@ -322,7 +322,7 @@ coColorBar::update(const ColorMap &map)
             labels_[i]->setString(str+off);
         }
         allLabels_->addElement(labelAndHspaces_[i]);
-        if (i < numLabels_-1)
+        if (i+1 < numLabels_)
         {
             vspaces_[i]->setMinHeight(vgap);
             allLabels_->addElement(vspaces_[i]);
