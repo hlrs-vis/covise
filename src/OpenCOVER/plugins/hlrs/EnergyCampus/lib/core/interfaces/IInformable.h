@@ -1,7 +1,7 @@
 #pragma once
 #include "IDrawable.h"
 
-namespace core::interface {
+namespace prototype::core::interface {
 template <typename InfoType>
 class IInformable : public IDrawable {
  public:

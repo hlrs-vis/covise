@@ -3,6 +3,6 @@
 
 #include "OsgImpl.h"
 
-typedef core::interface::IInfoboard<std::string, Drawable> InfoboardImpl;
+typedef prototype::core::interface::IInfoboard<std::string, Drawable> InfoboardImpl;
 typedef OsgBuildingImpl BuildingImpl;
 typedef OsgBuildingTimedependImpl BuildingTimedependImpl;

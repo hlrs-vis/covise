@@ -1,6 +1,6 @@
 #include "heating.h"
 
-namespace core::simulation::heating {
+namespace prototype::core::simulation::heating {
 
 void HeatingSimulation::init() {
   initScalarProperties(

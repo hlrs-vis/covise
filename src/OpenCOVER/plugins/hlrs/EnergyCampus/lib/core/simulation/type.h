@@ -3,7 +3,7 @@
 #include <map>
 #include <string>
 
-namespace core::simulation {
+namespace prototype::core::simulation {
 typedef size_t Timestep;
 typedef std::string Unit;
 typedef std::string Species;

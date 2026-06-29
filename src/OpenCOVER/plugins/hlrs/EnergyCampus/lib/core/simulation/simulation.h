@@ -8,7 +8,7 @@
 #include "scalarproperties.h"
 #include "scalarpropertiesprocessor.h"
 
-namespace core::simulation {
+namespace prototype::core::simulation {
 
 class Simulation {
  public:

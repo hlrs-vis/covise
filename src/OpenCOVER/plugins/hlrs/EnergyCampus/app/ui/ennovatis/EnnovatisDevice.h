@@ -114,7 +114,7 @@ class EnnovatisDevice {
   ennovatis::rest_request_handler m_restWorker;
   opencover::coVRMSController *m_opncvrCtrl;  // cannot be const because syncing
                                               // methods are not const correct
-  core::utils::osgUtils::Geodes m_defaultStateSets;
+  prototype::core::utils::osgUtils::Geodes m_defaultStateSets;
   TimestepColorList m_timestepColors;
   SensorData m_sensorData;
   float m_consumptionPerArea = 0.0f;

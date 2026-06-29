@@ -9,7 +9,7 @@ typedef osg::ref_ptr<osg::Node> Drawable;
 typedef std::vector<Drawable> Drawables;
 
 class OsgBuildingImpl
-    : public core::interface::IBuilding<Drawable, std::vector> {
+    : public prototype::core::interface::IBuilding<Drawable, std::vector> {
  public:
   OsgBuildingImpl() = default;
   Drawables &getDrawables() override { return m_drawables; };
@@ -24,7 +24,7 @@ class OsgBuildingImpl
   Drawables m_drawables;
 };
 
-class OsgBuildingTimedependImpl : public OsgBuildingImpl, public core::interface::ITimedependable {
+class OsgBuildingTimedependImpl : public OsgBuildingImpl, public prototype::core::interface::ITimedependable {
     public:
      OsgBuildingTimedependImpl() = default;
      virtual ~OsgBuildingTimedependImpl() = default;

@@ -2,7 +2,7 @@
 #include <osg/Node>
 #include <osg/ref_ptr>
 
-namespace core::interface {
+namespace prototype::core::interface {
 class IDrawable {
  public:
   IDrawable() = default;

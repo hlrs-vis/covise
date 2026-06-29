@@ -7,7 +7,7 @@
 #include "app/typedefs.h"
 
 struct CylinderAttributes {
-  typedef core::utils::color::ColorMap ColorMap;
+  typedef prototype::core::utils::color::ColorMap ColorMap;
   CylinderAttributes(const float &rad, const float &height, const osg::Vec3 &pos,
                      const ColorMap &colorMap)
       : radius(rad), height(height), position(pos), colorMap(colorMap) {}

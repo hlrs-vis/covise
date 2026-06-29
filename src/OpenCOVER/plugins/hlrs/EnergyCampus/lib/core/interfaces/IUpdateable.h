@@ -1,5 +1,5 @@
 #pragma once
-namespace core::interface {
+namespace prototype::core::interface {
 class IUpdateable {
  public:
   IUpdateable() = default;

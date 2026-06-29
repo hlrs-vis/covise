@@ -3,7 +3,7 @@
 #include "object.h"
 #include "type.h"
 
-namespace core::simulation {
+namespace prototype::core::simulation {
 template <typename T>
 class Collector {
  public:

@@ -4,7 +4,7 @@
 #include "scalarproperties.h"
 #include "type.h"
 
-namespace core::simulation {
+namespace prototype::core::simulation {
 
 class ScalarPropertiesProcessor {
  public:

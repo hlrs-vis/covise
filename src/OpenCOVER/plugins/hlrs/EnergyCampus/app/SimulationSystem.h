@@ -30,13 +30,13 @@
 #include "CityGMLSystem.h"
 #include "ui/simulation/BaseSimulationUI.h"
 
-using namespace opencover::utils::read;
+// using namespace opencover::utils::read;
 
 /**
  * @class SimulationSystem
  * @brief Manages the simulation system for energy grids within the OpenCOVER plugin.
  *
- * This class implements the core::interface::ISystem interface and provides
+ * This class implements the prototype::core::interface::ISystem interface and provides
  * functionality for initializing, enabling, updating, and managing different energy
  * grid simulations, including power grid, heating grid, and cooling grid. It handles
  * UI integration, color map management, scenario selection, and data processing for
@@ -58,7 +58,7 @@ using namespace opencover::utils::read;
  *
  * @note This class is final and cannot be inherited.
  */
-class SimulationSystem final : public core::interface::ISystem
+class SimulationSystem final : public prototype::core::interface::ISystem
 {
 public:
     SimulationSystem(opencover::coVRPlugin *plugin, opencover::ui::Menu *parentMenu,
@@ -105,9 +105,9 @@ private:
         opencover::ui::Button *simulationUIBtn = nullptr;
         opencover::ui::SelectionList *scalarSelector = nullptr;
         osg::ref_ptr<osg::MatrixTransform> group = nullptr;
-        std::shared_ptr<core::interface::IEnergyGrid> grid;
-        std::shared_ptr<core::simulation::Simulation> sim;
-        std::unique_ptr<BaseSimulationUI<core::interface::IEnergyGrid>> simUI;
+        std::shared_ptr<prototype::core::interface::IEnergyGrid> grid;
+        std::shared_ptr<prototype::core::simulation::Simulation> sim;
+        std::unique_ptr<BaseSimulationUI<prototype::core::interface::IEnergyGrid>> simUI;
         std::map<std::string, ColorMapMenu> colorMapRegistry;
     };
 
@@ -157,12 +157,12 @@ private:
 
     std::pair<std::unique_ptr<grid::Indices>,
         std::unique_ptr<grid::ConnectionDataList>>
-    getPowerGridIndicesAndOptionalData(CSVStream &stream, const size_t &numPoints);
+    getPowerGridIndicesAndOptionalData(opencover::utils::read::CSVStream &stream, const size_t &numPoints);
 
     std::pair<std::vector<grid::Lines>, std::vector<grid::ConnectionDataList>>
-    getPowerGridLines(CSVStream &stream, const std::vector<grid::PointsMap> &points);
+    getPowerGridLines(opencover::utils::read::CSVStream &stream, const std::vector<grid::PointsMap> &points);
 
-    std::vector<IDLookupTable> retrieveBusNameIdMapping(CSVStream &stream);
+    std::vector<IDLookupTable> retrieveBusNameIdMapping(opencover::utils::read::CSVStream &stream);
 
     bool checkBoxSelection_powergrid(const std::string &tableName,
         const std::string &paramName);
@@ -185,9 +185,9 @@ private:
   void initHeatingGridStreams();
   void initHeatingGrid();
   void buildHeatingGrid();
-  void readSimulationDataStream(CSVStream &heatingSimStream);
+  void readSimulationDataStream(opencover::utils::read::CSVStream &heatingSimStream);
   void applySimulationDataToHeatingGrid();
-  void readHeatingGridStream(CSVStream &heatingStream);
+  void readHeatingGridStream(opencover::utils::read::CSVStream &heatingStream);
   std::vector<osg::ref_ptr<grid::Point>> getHeatingGridNodesToInterpolateDataFor();
   void interpolateDataForHeatingGridNodes(std::vector<osg::ref_ptr<grid::Point>> &nodes);
   void interpolateDataForNode(int nodeId,
@@ -205,7 +205,7 @@ private:
                                                           std::vector<int> tempNodeList,
                                                           grid::Points &nodesToInterpolateDataFor,
                                                           grid::Lines &connections);
-  core::simulation::Data getNodeDataFromSimulation(int nodeId);
+  prototype::core::simulation::Data getNodeDataFromSimulation(int nodeId);
   std::vector<int> createHeatingGridIndices(
       const std::string &pointName,
       const std::string &connectionsStrWithCommaDelimiter,
@@ -216,7 +216,7 @@ private:
         const std::string &connectionsStrWithCommaDelimiter,
         grid::ConnectionDataList &additionalData);
     std::pair<grid::Points, grid::Data> createHeatingGridPointsAndData(
-        CSVStream &heatingStream, std::map<int, std::string> &connectionStrings);
+        opencover::utils::read::CSVStream &heatingStream, std::map<int, std::string> &connectionStrings);
     grid::Lines createHeatingGridLines(
         const grid::Points &points,
         const std::map<int, std::string> &connectionStrings,
@@ -267,8 +267,8 @@ private:
     std::array<EnergySimulation,
         static_cast<std::size_t>(EnergyGridType::NUM_ENERGY_TYPES)>
         m_energyGrids;
-    StreamMap m_powerGridStreams;
-    StreamMap m_heatingGridStreams;
+    opencover::utils::read::StreamMap m_powerGridStreams;
+    opencover::utils::read::StreamMap m_heatingGridStreams;
     std::vector<double> m_offset;
     std::string m_powerGridDir;
 

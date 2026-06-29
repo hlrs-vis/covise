@@ -4,7 +4,7 @@
 #include "IColorable.h"
 #include "IDrawable.h"
 
-namespace core::interface {
+namespace prototype::core::interface {
 template <typename DrawableType, template <typename> class Container>
 class IBuilding : public IDrawable, public IColorable {
  public:

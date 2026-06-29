@@ -5,7 +5,7 @@
 #include "app/presentation/EnergyGrid.h"
 #include "app/ui/simulation/BaseSimulationUI.h"
 
-using namespace core::simulation::power;
+using namespace prototype::core::simulation::power;
 
 /**
  * @brief UI class for managing and visualizing power simulation data.

@@ -1,7 +1,7 @@
 #pragma once
 #include <osg/Vec3>
 
-namespace core::interface {
+namespace prototype::core::interface {
 class IMoveable {
  public:
   IMoveable() = default;

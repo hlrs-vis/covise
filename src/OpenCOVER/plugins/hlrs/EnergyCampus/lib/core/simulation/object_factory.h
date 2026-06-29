@@ -5,7 +5,7 @@
 #include "object.h"
 #include "object_type.h"
 
-namespace core::simulation {
+namespace prototype::core::simulation {
 
 inline std::unique_ptr<Object> createObject(ObjectType type, const std::string& name,
                                             const Data& data) {
