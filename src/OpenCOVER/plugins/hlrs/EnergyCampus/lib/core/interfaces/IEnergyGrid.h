@@ -1,19 +1,13 @@
 #pragma once
 
 #include "IColorable.h"
-#include "IDrawable.h"
+#include "IDrawables.h"
 #include "ITimedependable.h"
-#include "IUpdateable.h"
 
-namespace prototype::core::interface {
-class IEnergyGrid : public IDrawable,
-                    public IColorable,
-                    public ITimedependable,
-                    public IUpdateable {
+namespace core::interface {
+class IEnergyGrid : public IDrawables, public IColorable, public ITimedependable {
  public:
-  IEnergyGrid() = default;
   virtual ~IEnergyGrid() = default;
-  IEnergyGrid(const IEnergyGrid&) = delete;
-  IEnergyGrid& operator=(const IEnergyGrid&) = delete;
+  virtual void update() = 0;
 };
 }  // namespace core::interface

@@ -4,22 +4,24 @@
 #include <PluginUtil/coShaderUtil.h>
 #include <PluginUtil/coColorMap.h>
 #include <app/presentation/CityGMLBuilding.h>
-#include <app/presentation/OsgTxtInfoboard.h>
+#include <app/presentation/TxtInfoboard.h>
 
 #include <algorithm>
 #include <memory>
 #include <osg/Geometry>
 
 CityGMLDeviceSensor::CityGMLDeviceSensor(
-    osg::ref_ptr<osg::Group> parent, std::unique_ptr<InfoboardImpl> &&infoBoard,
-    std::unique_ptr<BuildingTimedependImpl> &&drawableBuilding,
+    osg::ref_ptr<osg::Group> parent,
+    std::unique_ptr<core::interface::IInfoboard<std::string>> &&infoBoard,
+    std::unique_ptr<core::interface::IBuilding> &&drawableBuilding,
     const std::vector<std::string> &textBoxTxt)
-    : coPickSensor(parent),
-      m_cityGMLBuilding(std::move(drawableBuilding)),
-      m_infoBoard(std::move(infoBoard)),
-      m_textBoxTxt(textBoxTxt),
-      m_colors({}) {
-  m_cityGMLBuilding->initDrawable();
+    : coPickSensor(parent)
+    , m_cityGMLBuilding(std::move(drawableBuilding))
+    , m_infoBoard(std::move(infoBoard))
+    , m_textBoxTxt(textBoxTxt)
+    , m_colors({})
+{
+    m_cityGMLBuilding->initDrawables();
 
     // infoboard
     m_infoBoard->initInfoboard();
@@ -34,8 +36,11 @@ CityGMLDeviceSensor::~CityGMLDeviceSensor()
     getParent()->removeChild(m_infoBoard->getDrawable());
 }
 
-void CityGMLDeviceSensor::update() {
-  coPickSensor::update();
+void CityGMLDeviceSensor::update()
+{
+    m_cityGMLBuilding->updateDrawables();
+    m_infoBoard->updateDrawable();
+    coPickSensor::update();
 }
 
 void CityGMLDeviceSensor::activate()
@@ -71,11 +76,13 @@ void CityGMLDeviceSensor::updateTxtBoxTexts(const std::vector<std::string> &text
     m_textBoxTxt = texts;
 }
 
-void CityGMLDeviceSensor::updateTitleOfInfoboard(const std::string &title) {
-  auto txtInfoboard = dynamic_cast<OsgTxtInfoboard *>(m_infoBoard.get());
-  if (txtInfoboard) {
-    txtInfoboard->setTitle(title);
-  }
+void CityGMLDeviceSensor::updateTitleOfInfoboard(const std::string &title)
+{
+    auto txtInfoboard = dynamic_cast<TxtInfoboard *>(m_infoBoard.get());
+    if (txtInfoboard)
+    {
+        txtInfoboard->setTitle(title);
+    }
 }
 
 void CityGMLDeviceSensor::updateTime(int timestep)

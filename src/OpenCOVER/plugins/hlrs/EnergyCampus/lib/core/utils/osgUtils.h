@@ -12,7 +12,7 @@
 #include <osgText/Text>
 #include <vector>
 
-namespace prototype::core::utils::osgUtils {
+namespace core::utils::osgUtils {
 typedef std::vector<osg::ref_ptr<osg::Geode>> Geodes;
 
 namespace visitors {

@@ -11,7 +11,7 @@ set(HEADERS
     math.h
 )
 
-set(Name "utilsCampus")
+set(Name "utils")
 add_library(${Name} STATIC ${SOURCES} ${HEADERS})
 target_link_libraries(${Name} ${EXTRA_LIBS})
 target_compile_options(${Name} PRIVATE -fPIC)
@@ -20,5 +20,5 @@ target_include_directories(
     PRIVATE ${OPENSCENEGRAPH_INCLUDE_DIRS}
 	PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/include"
     )
-add_library(prototype::core::utils ALIAS ${Name})
+add_library(core::utils ALIAS ${Name})
 COVISE_INSTALL_TARGET(${Name})

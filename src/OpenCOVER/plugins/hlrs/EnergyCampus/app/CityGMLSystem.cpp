@@ -1,10 +1,9 @@
 #include "CityGMLSystem.h"
 #include "app/presentation/CityGMLBuilding.h"
-#include "app/presentation/OsgTxtInfoboard.h"
+#include "app/presentation/TxtInfoboard.h"
 
 #include <cover/coVRAnimationManager.h>
 
-#include <memory>
 #include <osg/ClipNode>
 #include <osg/MatrixTransform>
 
@@ -12,8 +11,8 @@
 namespace fs = boost::filesystem;
 using namespace opencover;
 using namespace opencover::utils::read;
-using namespace prototype::core::utils::osgUtils;
-using namespace prototype::core::simulation::power;
+using namespace core::utils::osgUtils;
+using namespace core::simulation::power;
 
 namespace {
 struct StaticPowerData {
@@ -65,7 +64,7 @@ CityGMLSystem::~CityGMLSystem() {
       auto child = m_cityGMLGroup->getChild(i);
       m_coverRootGroup->addChild(child);
     }
-    prototype::core::utils::osgUtils::deleteChildrenFromOtherGroup(m_cityGMLGroup,
+    core::utils::osgUtils::deleteChildrenFromOtherGroup(m_cityGMLGroup,
                                                         m_coverRootGroup);
   }
 }
@@ -221,7 +220,7 @@ void CityGMLSystem::processPVRow(const CSVStream::CSVRow &row,
 
 void CityGMLSystem::updateInfluxColorMaps(
     float min, float max,
-    std::shared_ptr<prototype::core::simulation::Simulation> powerSimulation,
+    std::shared_ptr<core::simulation::Simulation> powerSimulation,
     const std::string &colormapName, const std::string &species,
     const std::string &unit) {
   if (m_enableInfluxArrow->state()) {
@@ -242,7 +241,7 @@ void CityGMLSystem::updateInfluxColorMaps(
 
       auto steps = m_colorMap->colorMap().steps();
       auto colorMapName = colormapName;
-      if (colorMapName == prototype::core::simulation::INVALID_UNIT)
+      if (colorMapName == core::simulation::INVALID_UNIT)
         colorMapName = m_colorMap->colorMap().name();
       m_colorMap->setColorMap(colorMapName);
       m_colorMap->setSteps(steps);
@@ -280,7 +279,7 @@ osg::ref_ptr<osg::Node> CityGMLSystem::readPVModel(
       osg::ref_ptr<osgDB::Options> options = new osgDB::Options;
       options->setOptionString("DIFFUSE=0 SPECULAR=1 SPECULAR_EXPONENT=2 OPACITY=3");
 
-      masterPanel = prototype::core::utils::osgUtils::readFileViaOSGDB(path.string(), options);
+      masterPanel = core::utils::osgUtils::readFileViaOSGDB(path.string(), options);
       if (!masterPanel) {
         std::cerr << "Error: Could not load solar panel model from " << path
                   << std::endl;
@@ -292,19 +291,19 @@ osg::ref_ptr<osg::Node> CityGMLSystem::readPVModel(
   return masterPanel;
 }
 
-std::unique_ptr<SolarPanel> CityGMLSystem::createSolarPanel(
+SolarPanel CityGMLSystem::createSolarPanel(
     const std::string &name, osg::ref_ptr<osg::Group> parent,
-    const std::vector<prototype::core::utils::osgUtils::instancing::GeometryData>
+    const std::vector<core::utils::osgUtils::instancing::GeometryData>
         &masterGeometryData,
     const osg::Matrix &matrix, const osg::Vec4 &colorIntensity) {
-  using namespace prototype::core::utils::osgUtils;
+  using namespace core::utils::osgUtils;
   auto solarPanelInstance = instancing::createInstance(masterGeometryData, matrix);
   solarPanelInstance->setName(name);
 
-  auto solarPanel = std::make_unique<SolarPanel>(solarPanelInstance);
-  solarPanel->updateColor(colorIntensity);
+  SolarPanel solarPanel(solarPanelInstance);
+  solarPanel.updateColor(colorIntensity);
   parent->addChild(solarPanelInstance);
-  return std::move(solarPanel);
+  return solarPanel;
 }
 
 void CityGMLSystem::processSolarPanelDrawable(SolarPanelList &solarPanels,
@@ -367,7 +366,7 @@ void CityGMLSystem::processSolarPanelDrawable(SolarPanelList &solarPanels,
     auto solarPanel =
         createSolarPanel("SolarPanel_" + std::to_string(i), pvPanelsTransform,
                          config.masterGeometryData, matrix, config.colorIntensity);
-    solarPanels.push_back(std::move(solarPanel));
+    solarPanels.push_back(std::make_unique<SolarPanel>(solarPanel));
   }
 
   config.parent->addChild(pvPanelsTransform);
@@ -394,10 +393,10 @@ void CityGMLSystem::processSolarPanelDrawables(
 }
 
 void CityGMLSystem::processPVDataMap(
-    const std::vector<prototype::core::utils::osgUtils::instancing::GeometryData>
+    const std::vector<core::utils::osgUtils::instancing::GeometryData>
         &masterGeometryData,
     const std::map<std::string, PVData> &pvDataMap, float maxPVIntensity) {
-  using namespace prototype::core::utils::osgUtils;
+  using namespace core::utils::osgUtils;
 
   if (m_sensorMap.empty()) {
     std::cerr << "Error: No cityGML objects found." << std::endl;
@@ -432,7 +431,7 @@ void CityGMLSystem::processPVDataMap(
   for (const auto &[id, data] : pvDataMap) {
     try {
       auto &cityGMLObj = m_sensorMap.at(id);
-      config.colorIntensity = prototype::core::utils::color::getTrafficLightColor(
+      config.colorIntensity = core::utils::color::getTrafficLightColor(
           data.energyYearlyKWhMax / data.area, maxPVIntensity);
       processSolarPanelDrawables(data, cityGMLObj->getDrawables(), m_panels, config);
 
@@ -447,7 +446,7 @@ void CityGMLSystem::processPVDataMap(
 void CityGMLSystem::initPV(osg::ref_ptr<osg::Node> masterPanel,
                            const std::map<std::string, PVData> &pvDataMap,
                            float maxPVIntensity) {
-  using namespace prototype::core::utils::osgUtils;
+  using namespace core::utils::osgUtils;
 
   // for only textured geometry data
   auto masterGeometryData = instancing::extractAllGeometryData(masterPanel);
@@ -590,7 +589,7 @@ void CityGMLSystem::enableCityGML(bool on, bool updateColorMap) {
           }
         }
       }
-      prototype::core::utils::osgUtils::deleteChildrenFromOtherGroup(m_coverRootGroup,
+      core::utils::osgUtils::deleteChildrenFromOtherGroup(m_coverRootGroup,
                                                           m_cityGMLGroup);
     }
     if (!m_colorMap) initCityGMLColorMap();
@@ -759,17 +758,17 @@ void CityGMLSystem::addCityGMLObject(const std::string &name,
 
   if (m_sensorMap.find(name) != m_sensorMap.end()) return;
 
-  auto geodes = prototype::core::utils::osgUtils::getGeodes(citygmlObjGroup);
+  auto geodes = core::utils::osgUtils::getGeodes(citygmlObjGroup);
   if (geodes->empty()) return;
 
   // store default stateset
   saveCityGMLObjectDefaultStateSet(name, *geodes);
 
-  auto boundingbox = prototype::core::utils::osgUtils::getBoundingBox(*geodes);
+  auto boundingbox = core::utils::osgUtils::getBoundingBox(*geodes);
   auto infoboardPos = boundingbox.center();
   infoboardPos.z() +=
       (boundingbox.zMax() - boundingbox.zMin()) / 2 + boundingbox.zMin();
-  auto infoboard = std::make_unique<OsgTxtInfoboard>(
+  auto infoboard = std::make_unique<TxtInfoboard>(
       infoboardPos, name, "DroidSans-Bold.ttf", 50, 50, 2.0f, 0.1, 2);
   auto building = std::make_unique<CityGMLBuilding>(*geodes);
   auto sensor = std::make_unique<CityGMLDeviceSensor>(

@@ -9,7 +9,7 @@
 #include "app/presentation/EnergyGrid.h"
 #include "app/ui/simulation/BaseSimulationUI.h"
 
-using namespace prototype::core::simulation::heating;
+using namespace core::simulation::heating;
 
 /**
  * @brief UI class for managing and visualizing a HeatingSimulation.
@@ -49,11 +49,11 @@ class HeatingSimulationUI : public BaseSimulationUI<T> {
   }
 
   float min(const std::string& species) override {
-    return this->heatingSimulationPtr()->getScalarProperties().getMin(species);
+    return this->heatingSimulationPtr()->getMin(species);
   }
 
   float max(const std::string& species) override {
-    return this->heatingSimulationPtr()->getScalarProperties().getMax(species);
+    return this->heatingSimulationPtr()->getMax(species);
   }
 
   void updateTimestepColors(const opencover::ColorMap& colorMap) override {

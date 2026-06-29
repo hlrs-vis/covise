@@ -44,7 +44,7 @@ target_link_libraries(
     PRIVATE coThreadUtil 
     PRIVATE coStringUtil 
     PRIVATE coReadCSVUtil 
-    PRIVATE prototype::core::simulation 
+    PRIVATE core::simulation 
     PRIVATE nlohmann_json::nlohmann_json 
     PRIVATE GTest::gtest_main 
     ${EXTRA_LIBS}

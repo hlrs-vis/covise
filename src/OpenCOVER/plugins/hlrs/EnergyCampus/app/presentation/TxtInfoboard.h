@@ -4,8 +4,8 @@
 
 #include <osg/ref_ptr>
 
-struct OsgTxtBoxAttributes {
-  OsgTxtBoxAttributes(const osg::Vec3 &pos, const std::string &title,
+struct TxtBoxAttributes {
+  TxtBoxAttributes(const osg::Vec3 &pos, const std::string &title,
                    const std::string &font, const float &width, const float &height,
                    const float &margin, const float &titleHeightPercentage,
                    int charSize = 2)
@@ -28,44 +28,37 @@ struct OsgTxtBoxAttributes {
 };
 
 /**
- * @class OsgTxtInfoboard
+ * @class TxtInfoboard
  * @brief A text-based infoboard for displaying information in an OpenCOVER scene.
  *
- * TxtInfoboard provides an interface for showing, hiding, and updating textual
- * information on a 3D infoboard. It supports customization of appearance via
- * attributes such as position, title, font, size, and margins. The class inherits
- * from prototype::core::interface::IInfoboard and implements its required methods for managing
- * the infoboard's lifecycle and content.
+ * TxtInfoboard provides an interface for showing, hiding, and updating textual information
+ * on a 3D infoboard. It supports customization of appearance via attributes such as position,
+ * title, font, size, and margins. The class inherits from core::interface::IInfoboard and
+ * implements its required methods for managing the infoboard's lifecycle and content.
  *
- * @note The infoboard uses OSG (OpenSceneGraph) objects for rendering and
- * positioning.
+ * @note The infoboard uses OSG (OpenSceneGraph) objects for rendering and positioning.
  *
- * @see prototype::core::interface::IInfoboard
+ * @see core::interface::IInfoboard
  */
-class OsgTxtInfoboard : public prototype::core::interface::IInfoboard<std::string, osg::ref_ptr<osg::Node>> {
+class TxtInfoboard : public core::interface::IInfoboard<std::string> {
  public:
-  OsgTxtInfoboard(const OsgTxtBoxAttributes &attributes)
-      : m_attributes(attributes),
-        m_TextGeode(nullptr),
-        m_BBoard(nullptr),
-        m_drawable(nullptr),
-        m_enabled(false),
-        m_info("") {};
-  OsgTxtInfoboard(const osg::Vec3 &position, const std::string &title,
+  TxtInfoboard(const TxtBoxAttributes &attributes) : m_attributes(attributes) {};
+  TxtInfoboard(const osg::Vec3 &position, const std::string &title,
                const std::string &font, const float &maxWidth, const float &height,
                const float &margin, const float &titleHeightPercentage,
                int charSize = 2)
-      : OsgTxtInfoboard(OsgTxtBoxAttributes(position, title, font, maxWidth, height,
+      : m_attributes(TxtBoxAttributes(position, title, font, maxWidth, height,
                                       margin, titleHeightPercentage, charSize)) {};
 
   // IInfoboard interface
+  void updateTime(int timestep) override;
   void showInfo() override;
   void hideInfo() override;
   void initDrawable() override;
   void initInfoboard() override;
+  void updateDrawable() override;
   void updateInfo(const std::string &info) override;
   void move(const osg::Vec3 &pos) override;
-  bool enabled() override { return m_enabled; }
 
   // getter and setter
   void setMaxWidth(float width) { m_attributes.maxWidth = width; }
@@ -73,8 +66,6 @@ class OsgTxtInfoboard : public prototype::core::interface::IInfoboard<std::strin
   void setFont(const std::string &font) { m_attributes.fontFile = font; }
   void setTitle(const std::string &title) { m_attributes.title = title; }
   void setCharSize(int charSize) { m_attributes.charSize = charSize; }
-
-  osg::ref_ptr<osg::Node> &getDrawable() override { return m_drawable; }
   [[nodiscard]] const auto &getMaxWidth(float width) {
     return m_attributes.maxWidth;
   }
@@ -88,15 +79,11 @@ class OsgTxtInfoboard : public prototype::core::interface::IInfoboard<std::strin
   [[nodiscard]] const auto &getCharSize(int charSize) {
     return m_attributes.charSize;
   }
-  [[nodiscard]] const auto &getDrawable() const { return m_drawable; }
 
  private:
-  osg::ref_ptr<osg::Group> m_TextGeode;
-  osg::ref_ptr<opencover::coBillboard> m_BBoard;
-  osg::ref_ptr<osg::Node> m_drawable;
+  osg::ref_ptr<osg::Group> m_TextGeode = nullptr;
+  osg::ref_ptr<opencover::coBillboard> m_BBoard = nullptr;
 
   // txtbox attributes
-  OsgTxtBoxAttributes m_attributes;
-  bool m_enabled;
-  std::string m_info;
+  TxtBoxAttributes m_attributes;
 };

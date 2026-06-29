@@ -3,7 +3,7 @@
 
 #include "simulation.h"
 
-namespace prototype::core::simulation::power {
+namespace core::simulation::power {
 
 struct PVData {
   std::string cityGMLID;
@@ -18,7 +18,7 @@ class PowerSimulation : public Simulation {
  public:
   PowerSimulation() = default;
 
-  void init() override;
+  void computeParameters() override;
   auto &Buses() { return m_buses; }
   auto &Generators() { return m_generators; }
   auto &Transformators() { return m_transformators; }
@@ -29,7 +29,7 @@ class PowerSimulation : public Simulation {
   const auto &Transformators() const { return m_transformators; }
   const auto &Cables() const { return m_cables; }
   const auto &Buildings() const { return m_buildings; }
-  const_ScalarVecs getTimedependentScalar(
+  const std::vector<double> *getTimedependentScalar(
       const std::string &species, const std::string &node) const override;
 
  private:

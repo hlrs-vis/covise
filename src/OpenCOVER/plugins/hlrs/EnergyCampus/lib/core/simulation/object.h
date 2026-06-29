@@ -2,11 +2,9 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <memory>
-#include "type.h"
 
-namespace prototype::core::simulation {
-typedef std::map<std::string, ScalarVec, std::less<>> Data;
+namespace core::simulation {
+typedef std::map<std::string, std::vector<double>> Data;
 
 class Object {
  public:
@@ -37,7 +35,4 @@ class Object {
   std::string m_name;
   Data m_data;  // timestep data
 };
-
-using ObjectMap = std::map<std::string, std::unique_ptr<Object>, std::less<>>;
-using ObjectMapView = std::vector<std::reference_wrapper<const ObjectMap>>;
 }  // namespace core::simulation

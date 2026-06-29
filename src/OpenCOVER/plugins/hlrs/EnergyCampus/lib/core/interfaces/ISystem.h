@@ -1,15 +1,11 @@
 #pragma once
 
 #include "ITimedependable.h"
-#include "IUpdateable.h"
 
-namespace prototype::core::interface {
-class ISystem : public ITimedependable, public IUpdateable {
+namespace core::interface {
+class ISystem : public ITimedependable {
  public:
-  ISystem() = default;
   virtual ~ISystem() = default;
-  ISystem(const ISystem&) = delete;
-  ISystem& operator=(const ISystem&) = delete;
 
   // Initialize the system
   virtual void init() = 0;
@@ -19,5 +15,8 @@ class ISystem : public ITimedependable, public IUpdateable {
 
   // Check if the system is enabled
   virtual bool isEnabled() const = 0;
+
+  // Update the system state
+  virtual void update() = 0;
 };
 }  // namespace core::interface

@@ -1,6 +1,5 @@
 #include "EnnovatisDevice.h"
 
-#include "app/presentation/PrototypeBuilding.h"
 #include "build_options.h"
 
 // core
@@ -53,8 +52,8 @@ EnnovatisDevice::EnnovatisDevice(
     const ennovatis::Building &building, opencover::ui::SelectionList *channelList,
     std::shared_ptr<ennovatis::rest_request> req,
     std::shared_ptr<ennovatis::ChannelGroup> channelGroup,
-    std::unique_ptr<InfoboardImpl> &&infoBoard,
-    std::unique_ptr<BuildingImpl> &&drawableBuilding)
+    std::unique_ptr<core::interface::IInfoboard<std::string>> &&infoBoard,
+    std::unique_ptr<core::interface::IBuilding> &&drawableBuilding)
     : m_deviceGroup(new osg::Group()),
       m_infoBoard(std::move(infoBoard)),
       m_drawableBuilding(std::move(drawableBuilding)),
@@ -181,7 +180,7 @@ void EnnovatisDevice::init() {
   m_deviceGroup->addChild(m_infoBoard->getDrawable());
 
   // cylinder / building representation
-  m_drawableBuilding->initDrawable();
+  m_drawableBuilding->initDrawables();
   auto drawables = m_drawableBuilding->getDrawables();
   for (auto drawable : drawables) {
     m_deviceGroup->addChild(drawable);
@@ -344,13 +343,7 @@ void EnnovatisDevice::createTimestepColorList(
   if (numTimesteps > opencover::coVRAnimationManager::instance()->getNumTimesteps())
     opencover::coVRAnimationManager::instance()->setNumTimesteps(numTimesteps);
 
-  auto buildingPtr =
-      dynamic_cast<PrototypeBuilding *>(m_drawableBuilding.get());
-  if (!buildingPtr) {
-    std::cout << "Error: Building pointer is not a PrototypeBuilding.";
-    return;
-  }
-  for (auto t = 0; t < numTimesteps; ++t) {
-    m_timestepColors[t] = buildingPtr->getColorInRange(respValues[t], maxValue);
-  }
+  for (auto t = 0; t < numTimesteps; ++t)
+    m_timestepColors[t] =
+        m_drawableBuilding->getColorInRange(respValues[t], maxValue);
 }

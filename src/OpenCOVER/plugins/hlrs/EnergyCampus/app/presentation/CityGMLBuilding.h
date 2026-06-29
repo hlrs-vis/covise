@@ -1,19 +1,18 @@
 #pragma once
-#include <PluginUtil/coShaderUtil.h>
+#include <lib/core/interfaces/IBuilding.h>
 #include <lib/core/utils/osgUtils.h>
+#include <PluginUtil/coShaderUtil.h>
 
-#include "app/typedefs.h"
+#include <memory>
 
 /**
  * @class CityGMLBuilding
- * @brief Represents a building entity based on CityGML data, providing rendering and
- * data mapping functionalities.
+ * @brief Represents a building entity based on CityGML data, providing rendering and data mapping functionalities.
  *
- * Inherits from prototype::core::interface::IBuilding and manages graphical representation
- * using OpenSceneGraph (OSG) geodes. Supports shader-based coloring and data
- * visualization.
+ * Inherits from core::interface::IBuilding and manages graphical representation using OpenSceneGraph (OSG) geodes.
+ * Supports shader-based coloring and data visualization.
  *
- * @constructor CityGMLBuilding(const prototype::core::utils::osgUtils::Geodes &geodes)
+ * @constructor CityGMLBuilding(const core::utils::osgUtils::Geodes &geodes)
  *   Constructs a CityGMLBuilding with the specified OSG geodes.
  *
  * @fn void initDrawables() override
@@ -24,6 +23,12 @@
  *
  * @fn void updateTime(int timestep) override
  *   Updates the building's state based on the given timestep.
+ *
+ * @fn void updateDrawables() override
+ *   Refreshes the drawable objects, typically after data or state changes.
+ *
+ * @fn std::unique_ptr<osg::Vec4> getColorInRange(float value, float maxValue) override
+ *   Computes and returns a color corresponding to the given value within a specified range.
  *
  * @fn void setColorMapInShader(const opencover::ColorMap &colorMap)
  *   Sets the color map in the building's shaders for data visualization.
@@ -37,18 +42,19 @@
  * @var std::vector<opencover::coVRShader *> m_shaders
  *   Stores pointers to shaders used for rendering and data mapping.
  */
-class CityGMLBuilding : public BuildingTimedependImpl {
+class CityGMLBuilding : public core::interface::IBuilding {
  public:
-  CityGMLBuilding(const prototype::core::utils::osgUtils::Geodes &geodes);
-  void initDrawable() override;
+  CityGMLBuilding(const core::utils::osgUtils::Geodes &geodes);
+  void initDrawables() override;
   void updateColor(const osg::Vec4 &color) override;
   void updateTime(int timestep) override;
+  void updateDrawables() override;
+  std::unique_ptr<osg::Vec4> getColorInRange(float value, float maxValue) override;
 
   void setColorMapInShader(const opencover::ColorMap &colorMap);
   void setDataInShader(const std::vector<double> &data, float min, float max);
   bool hasShader() const { return !m_shaders.empty(); }
 
- private:
+private:
   std::vector<opencover::coVRShader *> m_shaders;
-  int m_timestep;
 };

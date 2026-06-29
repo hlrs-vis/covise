@@ -1,5 +1,5 @@
 #include "color.h"
-namespace prototype::core::utils::color {
+namespace core::utils::color {
 
 std::unique_ptr<osg::Vec4> ColorMap::getColor(float value, float maxValue) const {
   // RGB Colors 1,1,1 = white, 0,0,0 = black

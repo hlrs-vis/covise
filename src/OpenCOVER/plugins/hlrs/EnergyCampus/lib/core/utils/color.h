@@ -3,7 +3,7 @@
 #include <osg/Geode>
 #include <osg/Material>
 
-namespace prototype::core::utils::color {
+namespace core::utils::color {
 
 struct ColorMap {
   ColorMap(const osg::Vec4 &max, const osg::Vec4 &min, const osg::Vec4 &def)

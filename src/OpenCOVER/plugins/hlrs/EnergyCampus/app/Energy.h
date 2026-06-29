@@ -100,5 +100,5 @@ class EnergyPlugin : public opencover::coVRPlugin,
   osg::ref_ptr<osg::Switch> m_grid;
   osg::ref_ptr<osg::MatrixTransform> m_Energy;
 
-  std::map<System, std::unique_ptr<prototype::core::interface::ISystem>> m_systems;
+  std::map<System, std::unique_ptr<core::interface::ISystem>> m_systems;
 };

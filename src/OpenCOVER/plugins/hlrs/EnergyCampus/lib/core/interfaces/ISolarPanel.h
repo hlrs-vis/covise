@@ -1,13 +1,10 @@
 #pragma once
 #include "IColorable.h"
-#include "IDrawable.h"
+#include "IDrawables.h"
 
-namespace prototype::core::interface {
-class ISolarPanel : public IDrawable, public IColorable {
+namespace core::interface {
+class ISolarPanel : public IDrawables, public IColorable {
  public:
-  ISolarPanel() = default;
   virtual ~ISolarPanel() = default;
-  ISolarPanel(const ISolarPanel&) = delete;
-  ISolarPanel& operator=(const ISolarPanel&) = delete;
 };
 }  // namespace core::interface
