@@ -250,12 +250,6 @@ void Application::compute(void *)
     fclose(file);
 }
 
-/*******************************\ 
- **                             **
- **        Ex ApplMain.C        **
- **                             **
-\*******************************/
-
 int main(int argc, char *argv[])
 {
     Application *application = new Application(argc, argv);

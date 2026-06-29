@@ -7,16 +7,6 @@
 
 #ifndef _CADCV3D_PLUGIN_H
 #define _CADCV3D_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2009 HLRS  **
- **                                                                          **
- ** Description: CADCv3D plugin                                               **
- ** Load data from University of Cologne CAD server                          **
- **                                                                          **
- ** Author: Andreas Kopecki                                                  **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
 
 #include <cover/coVRPlugin.h>
 #include <cover/coVRPluginSupport.h>
@@ -30,6 +20,8 @@ using namespace opencover;
 
 class CADCv3DGeoList;
 
+
+// Load data from University of Cologne CAD server
 class CADCv3DPlugin : public coVRPlugin, public coVRIOReader
 {
 public:

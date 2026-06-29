@@ -5,20 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: Material Plugin					                           **
- **                                                                          **
- **                                                                          **
- ** Author: A.Brestrich		                                                **
- **                                                                          **
- ** History:  								                                **
- ** Jan-05  v1	    				       		                            **
- **                                                                          **
- **                                                                          **
- \****************************************************************************/
-
 #include "MaterialPlugin.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>

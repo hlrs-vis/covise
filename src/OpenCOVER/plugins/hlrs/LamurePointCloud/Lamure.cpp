@@ -1,7 +1,10 @@
 //local
+#include "gl_state.h"
+#ifdef Status
+#undef Status
+#endif
 #include "Lamure.h" 
 #include "LamureEditTool.h"
-#include "gl_state.h"
 #include "osg_util.h"
 
 // std
@@ -82,6 +85,16 @@ namespace {
         return covise::coCoviseConfig::isOn(std::string("value"), std::string(path), def);
     }
 
+    inline std::string normalizeAbsolutePath(const char* filename)
+    {
+        if (!filename) return {};
+        std::string path = std::filesystem::absolute(std::filesystem::path(filename)).string();
+#ifdef _WIN32
+        std::replace(path.begin(), path.end(), '\\', '/');
+#endif
+        return path;
+    }
+
 } // namespace
 
 namespace {
@@ -137,10 +150,17 @@ Lamure::~Lamure()
 
     if (m_edit_tool)
         m_edit_tool->disable();
-    if (m_renderer && m_lamure_grp)
-        m_renderer->destroyEditBrushNode(m_lamure_grp.get());
+
+    if (m_renderer) {
+        if (m_lamure_grp)
+            m_renderer->destroyEditBrushNode(m_lamure_grp.get());
+        m_renderer->shutdown();
+    }
+
     opencover::cover->getObjectsRoot()->removeChild(m_lamure_grp);
+    m_lamure_grp = nullptr;
     opencover::coVRFileManager::instance()->unregisterFileHandler(&handler);
+    plugin = nullptr;
 }
 
 void Lamure::setModelVisible(uint16_t idx, bool v) {
@@ -160,11 +180,11 @@ void Lamure::setShowPointcloud(bool show)
 {
     std::lock_guard<std::mutex> lock(m_settings_mutex);
     m_settings.show_pointcloud = show;
+    const unsigned int mask = show ? 0xFFFFFFFFu : 0u;
 
     for (auto& sn : m_scene_nodes) {
-        if (sn.point_geode.valid()) {
-            sn.point_geode->setNodeMask(show ? 0xFFFFFFFF : 0x0);
-        }
+        if (sn.point_geode.valid())
+            sn.point_geode->setNodeMask(mask);
     }
 }
 
@@ -172,11 +192,11 @@ void Lamure::setShowBoundingbox(bool show)
 {
     std::lock_guard<std::mutex> lock(m_settings_mutex);
     m_settings.show_boundingbox = show;
+    const unsigned int mask = show ? 0xFFFFFFFFu : 0u;
 
     for (auto& sn : m_scene_nodes) {
-        if (sn.box_geode.valid()) {
-            sn.box_geode->setNodeMask(show ? 0xFFFFFFFF : 0x0);
-        }
+        if (sn.box_geode.valid())
+            sn.box_geode->setNodeMask(mask);
     }
 }
 
@@ -185,11 +205,10 @@ void Lamure::setEditMode(bool enabled) {
         return;
     m_edit_mode = enabled;
 
-    if (!m_edit_mode) {
-        if (m_edit_tool)
+    if (m_edit_tool) {
+        if (!enabled) {
             m_edit_tool->disable();
-    } else {
-        if (m_edit_tool) {
+        } else {
             m_edit_tool->setBrushAction(m_edit_action);
             m_edit_tool->enable();
             m_edit_tool->update();
@@ -197,11 +216,9 @@ void Lamure::setEditMode(bool enabled) {
     }
 
     logInfo("Edit mode ", (enabled ? "enabled" : "disabled"));
-    if (m_ui) {
-        if (auto* btn = m_ui->getEditModeButton()) {
-            if (btn->state() != enabled)
-                btn->setState(enabled);
-        }
+    if (auto* btn = m_ui ? m_ui->getEditModeButton() : nullptr) {
+        if (btn->state() != enabled)
+            btn->setState(enabled);
     }
 }
 
@@ -214,33 +231,31 @@ void Lamure::setEditAction(LamureEditTool::BrushAction action) {
 
 int Lamure::unloadBvh(const char* filename, const char* /*covise_key*/)
 {
-    if (plugin) {
-        plugin->logInfo("unloadBvh: filename=", (filename ? filename : "null"));
+    Lamure* p = Lamure::plugin;
+    if (p) {
+        p->logInfo("unloadBvh: filename=", (filename ? filename : "null"));
     }
-    
-    if (!filename || !Lamure::plugin) return 0;
 
-    std::string path = std::filesystem::absolute(std::filesystem::path(filename)).string();
-#ifdef _WIN32
-    std::replace(path.begin(), path.end(), '\\', '/');
-#endif
+    if (!filename || !p) return 0;
+
+    std::string path = normalizeAbsolutePath(filename);
     if (path.empty()) return 0;
 
-    std::lock_guard<std::mutex> lock(plugin->m_settings_mutex);
+    std::lock_guard<std::mutex> lock(p->m_settings_mutex);
 
-    auto it_idx = plugin->m_model_idx.find(path);
-    if (it_idx == plugin->m_model_idx.end()) {
-        plugin->logInfo("unloadBvh: '", path, "' not found (no-op)");
+    auto it_idx = p->m_model_idx.find(path);
+    if (it_idx == p->m_model_idx.end()) {
+        p->logInfo("unloadBvh: '", path, "' not found (no-op)");
         return 0;
     }
     uint16_t idx = it_idx->second;
 
-    if (idx < plugin->m_model_info.model_visible.size()) {
-        plugin->m_model_info.model_visible[idx] = false;
+    if (idx < p->m_model_info.model_visible.size()) {
+        p->m_model_info.model_visible[idx] = false;
     }
 
-    if (idx < plugin->m_scene_nodes.size()) {
-        auto& sn = plugin->m_scene_nodes[idx];
+    if (idx < p->m_scene_nodes.size()) {
+        auto& sn = p->m_scene_nodes[idx];
         if (sn.point_geode.valid())
             sn.point_geode->setNodeMask(0x0);
         if (sn.cut_geode.valid())
@@ -257,10 +272,10 @@ int Lamure::unloadBvh(const char* filename, const char* /*covise_key*/)
         sn.box_geode = nullptr;
     }
 
-    plugin->m_model_idx.erase(it_idx);
-    plugin->m_pendingTransformUpdate.erase(path);
-    plugin->m_registeredFiles.erase(path);
-    plugin->m_model_source_keys.erase(path);
+    p->m_model_idx.erase(it_idx);
+    p->m_pendingTransformUpdate.erase(path);
+    p->m_registeredFiles.erase(path);
+    p->m_model_source_keys.erase(path);
 
     return 1;
 }
@@ -272,10 +287,7 @@ int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *covise
         return 0;
     std::lock_guard<std::mutex> lock(plugin->m_load_bvh_mutex);
 
-    std::string file = std::filesystem::absolute(std::filesystem::path(filename)).string();
-#ifdef _WIN32
-    std::replace(file.begin(), file.end(), '\\', '/');
-#endif
+    std::string file = normalizeAbsolutePath(filename);
 
     const bool isMenuCall = (covise_key && std::strcmp(covise_key, kLamureRegistrationKey) == 0);
     const bool isRegistrationCall = (isMenuCall && parent == nullptr);
@@ -285,12 +297,9 @@ int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *covise
         return 0;
 
     if (!isMenuCall) {
-        std::string sourceKey = "<direct>";
-        if (covise_key && covise_key[0])
-            sourceKey = covise_key;
-        plugin->m_model_source_keys[file] = sourceKey;
-    } else if (plugin->m_model_source_keys.find(file) == plugin->m_model_source_keys.end()) {
-        plugin->m_model_source_keys[file] = std::string();
+        plugin->m_model_source_keys[file] = (covise_key && covise_key[0]) ? std::string(covise_key) : std::string("<direct>");
+    } else {
+        plugin->m_model_source_keys.try_emplace(file, std::string());
     }
 
 
@@ -316,6 +325,17 @@ int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *covise
             plugin->m_model_parents[idx]->setName("LamureAnchor_" + std::to_string(idx));
         }
     };
+    auto ensureModelParentSlots = [&]() {
+        if (plugin->m_model_parents.size() < plugin->m_settings.models.size())
+            plugin->m_model_parents.resize(plugin->m_settings.models.size());
+    };
+    auto updateKnownModelParent = [&](size_t knownIdx, osg::Group* groupParent) {
+        if (!groupParent) return;
+        ensureModelParentSlots();
+        if (knownIdx >= plugin->m_model_parents.size()) return;
+        plugin->m_model_parents[knownIdx] = groupParent;
+        nameAnchor(knownIdx);
+    };
 
     if (!plugin->initialized) {
         size_t bootstrap_idx = 0;
@@ -323,20 +343,17 @@ int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *covise
         if (it_boot == plugin->m_bootstrap_files.end()) {
             plugin->m_bootstrap_files.push_back(file);
             bootstrap_idx = plugin->m_bootstrap_files.size() - 1;
-            if (plugin->m_bootstrap_parents.size() < plugin->m_bootstrap_files.size())
-                plugin->m_bootstrap_parents.resize(plugin->m_bootstrap_files.size());
         } else {
             bootstrap_idx = static_cast<size_t>(std::distance(plugin->m_bootstrap_files.begin(), it_boot));
-            if (plugin->m_bootstrap_parents.size() < plugin->m_bootstrap_files.size())
-                plugin->m_bootstrap_parents.resize(plugin->m_bootstrap_files.size());
         }
+        if (plugin->m_bootstrap_parents.size() < plugin->m_bootstrap_files.size())
+            plugin->m_bootstrap_parents.resize(plugin->m_bootstrap_files.size());
 
         osg::Group *vrml_parent = parent;
         if (parent) {
             parent = ensureAnchor(parent, plugin->m_bootstrap_parents[bootstrap_idx]);
             plugin->m_pendingTransformUpdate[file] = vrml_parent;
         }
-        std::lock_guard<std::mutex> settings_lock(plugin->m_settings_mutex);
         return 1;
     }
 
@@ -347,6 +364,7 @@ int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *covise
 
     auto it_model = std::find(plugin->m_settings.models.begin(), plugin->m_settings.models.end(), file);
     const bool in_model_list = (it_model != plugin->m_settings.models.end());
+    const bool knownModel = loaded || in_model_list;
 
     size_t idx = 0;
     if (loaded) {
@@ -357,7 +375,7 @@ int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *covise
 
     osg::Group *vrml_parent = parent;
     osg::ref_ptr<osg::Group> new_anchor;
-    if (!parent && (loaded || in_model_list)) {
+    if (!parent && knownModel) {
         if (idx < plugin->m_model_parents.size() && plugin->m_model_parents[idx].valid()) {
             parent = plugin->m_model_parents[idx].get();
             vrml_parent = parent;
@@ -365,34 +383,21 @@ int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *covise
     }
 
     if (parent) {
-        if (loaded || in_model_list) {
-            if (plugin->m_model_parents.size() < plugin->m_settings.models.size())
-                plugin->m_model_parents.resize(plugin->m_settings.models.size());
+        if (knownModel) {
+            ensureModelParentSlots();
             parent = ensureAnchor(parent, plugin->m_model_parents[idx]);
         } else {
             parent = ensureAnchor(parent, new_anchor);
         }
     }
 
+    if (knownModel)
+        updateKnownModelParent(idx, parent);
+
     if (!isMenuReload && loaded) {
-        if (parent) {
-            if (idx < plugin->m_model_parents.size())
-                plugin->m_model_parents[idx] = dynamic_cast<osg::Group *>(parent);
-            nameAnchor(idx);
-        }
         if (vrml_parent)
             plugin->m_pendingTransformUpdate[file] = vrml_parent;
         return 0;
-    }
-
-    if (loaded || in_model_list) {
-        if (parent) {
-            if (plugin->m_model_parents.size() < plugin->m_settings.models.size())
-                plugin->m_model_parents.resize(plugin->m_settings.models.size());
-            if (idx < plugin->m_model_parents.size())
-                plugin->m_model_parents[idx] = dynamic_cast<osg::Group *>(parent);
-            nameAnchor(idx);
-        }
     }
 
     if (!plugin->m_files_to_load_set.insert(file).second) {
@@ -404,9 +409,7 @@ int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *covise
     if (!in_model_list) {
         plugin->m_settings.models.push_back(file);
         plugin->m_model_parents.resize(plugin->m_settings.models.size());
-        plugin->m_model_parents.back() = dynamic_cast<osg::Group *>(parent);
-        if (new_anchor.valid())
-            plugin->m_model_parents.back() = new_anchor.get();
+        plugin->m_model_parents.back() = new_anchor.valid() ? new_anchor.get() : parent;
         nameAnchor(plugin->m_model_parents.size() - 1);
     }
 
@@ -425,10 +428,8 @@ int Lamure::loadBvh(const char *filename, osg::Group *parent, const char *covise
             plugin->m_frames_to_wait = collectFrames;
         else
             plugin->m_frames_to_wait = std::max(plugin->m_frames_to_wait, collectFrames);
-        plugin->setBrushFrozen(true);
-    } else {
-        plugin->setBrushFrozen(true);
     }
+    plugin->setBrushFrozen(true);
     plugin->m_files_to_load.push_back(file);
 
     return 1;
@@ -540,23 +541,23 @@ void Lamure::preFrame() {
     }
 
     if (!m_pendingTransformUpdate.empty()) {
-        std::vector<std::string> finished;
-        finished.reserve(m_pendingTransformUpdate.size());
-        for (auto &entry : m_pendingTransformUpdate) {
-            const std::string &path = entry.first;
-            osg::Node *node = entry.second.get();
-            if (!node)
+        for (auto it = m_pendingTransformUpdate.begin(); it != m_pendingTransformUpdate.end(); ) {
+            const std::string &path = it->first;
+            osg::Node *node = it->second.get();
+            if (!node || node->getNumParents() == 0) {
+                ++it;
                 continue;
+            }
 
-            if (node->getNumParents() == 0)
-                continue;
-
-            osg::Node *parentNode = node->getParent(0);
             osg::Group *target_parent = dynamic_cast<osg::Group *>(node);
-            if (!target_parent && parentNode)
-                target_parent = dynamic_cast<osg::Group *>(parentNode);
-            if (!target_parent)
+            if (!target_parent) {
+                osg::Node *parentNode = node->getParent(0);
+                target_parent = parentNode ? dynamic_cast<osg::Group *>(parentNode) : nullptr;
+            }
+            if (!target_parent) {
+                ++it;
                 continue;
+            }
 
             bool updated = false;
             {
@@ -574,7 +575,6 @@ void Lamure::preFrame() {
                         have_idx = true;
                     }
                 }
-
                 if (have_idx) {
                     if (m_model_parents.size() < m_settings.models.size())
                         m_model_parents.resize(m_settings.models.size());
@@ -617,14 +617,12 @@ void Lamure::preFrame() {
                 }
             }
 
-            if (!updated)
+            if (!updated) {
+                ++it;
                 continue;
-
+            }
             ensureFileMenuEntry(path, target_parent);
-            finished.push_back(path);
-        }
-        for (const auto &path : finished) {
-            m_pendingTransformUpdate.erase(path);
+            it = m_pendingTransformUpdate.erase(it);
         }
     }
 
@@ -632,10 +630,8 @@ void Lamure::preFrame() {
         stopMeasurement();
     }
 
-    if (m_edit_mode) {
-        if (m_edit_tool)
-            m_edit_tool->update();
-    }
+    if (m_edit_mode && m_edit_tool)
+        m_edit_tool->update();
 
     if (m_settings.lod_auto_fps) {
         double realDur = opencover::cover->frameDuration();
@@ -689,6 +685,7 @@ void Lamure::preFrame() {
                 }
             }
         }
+
         m_prev_lod_error_for_sensitivity = m_settings.lod_error;
         m_prev_smoothed_fps_for_sensitivity = m_smoothed_fps_;
 
@@ -768,6 +765,10 @@ void Lamure::preFrame() {
         m_pid_integral = 0.0f;
         m_pid_prev_error = 0.0f;
         m_pid_output_bias = m_settings.lod_error;
+    }
+
+    if (m_renderer) {
+        m_renderer->syncHudCameras();
     }
 
 #ifdef _WIN32
@@ -1101,6 +1102,7 @@ void Lamure::rebuildRenderer()
                                                   (global_min.z + global_max.z) * 0.5 );
 
     if (m_renderer) {
+        m_renderer->updateSharedBoxData();
         m_renderer->init();
         
         // Unfreeze and force update to apply correct transform to the new renderer node
@@ -1164,7 +1166,9 @@ void Lamure::loadSettingsFromCovise() {
     s.show_pointcloud         = getOn((std::string(root) + ".show_pointcloud").c_str(),        s.show_pointcloud);
     s.show_boundingbox        = getOn((std::string(root) + ".show_boundingbox").c_str(),       s.show_boundingbox);
     s.show_frustum            = getOn((std::string(root) + ".show_frustum").c_str(),           s.show_frustum);
-    s.show_text               = getOn((std::string(root) + ".show_text").c_str(),              s.show_text);
+    // Legacy compatibility: old key was .show_text
+    s.show_stats              = getOn((std::string(root) + ".show_text").c_str(),              s.show_stats);
+    s.show_stats              = getOn((std::string(root) + ".show_stats").c_str(),             s.show_stats);
     s.show_sync               = getOn((std::string(root) + ".show_sync").c_str(),              s.show_sync);
     s.show_notify             = getOn((std::string(root) + ".show_notify").c_str(),            s.show_notify);
     s.show_pvs                = getOn((std::string(root) + ".show_pvs").c_str(),               s.show_pvs);
@@ -1431,24 +1435,6 @@ void Lamure::stopMeasurement() {
     if (fps_cap_modified_) { opencover::coVRConfig::instance()->setFrameRate(prev_frame_rate_); }
     if (vsync_modified_) { osg::DisplaySettings::instance()->setSyncSwapBuffers(prev_vsync_frames_); }
 }
-
-void Lamure::addMarkMs(MarkField f, double ms) noexcept
-{
-    if (!m_measurement) return; // only accumulate when measurement is active
-
-    switch (f) {
-    case MarkField::DrawCB_Total: m_marks.draw_cb_ms      = ms; break;
-    case MarkField::Dispatch:     m_marks.dispatch_ms     = ms; break;
-    case MarkField::ContextBind:  m_marks.context_bind_ms = ms; break;
-    case MarkField::Estimates:    m_marks.estimates_ms    = ms; break;
-    case MarkField::Pass1:        m_marks.pass1_ms        = ms; break;
-    case MarkField::Pass2:        m_marks.pass2_ms        = ms; break;
-    case MarkField::Pass3:        m_marks.pass3_ms        = ms; break;
-    case MarkField::SinglePass:   m_marks.singlepass_ms   = ms; break;
-    default: break;
-    }
-}
-
 
 void Lamure::applyShaderToRendererFromSettings() {
     if (!m_renderer) return;
@@ -1795,7 +1781,7 @@ bool Lamure::writeSettingsJson(const Lamure::Settings& s, const std::string& out
     add_bool("show_pointcloud",  s.show_pointcloud);
     add_bool("show_boundingbox", s.show_boundingbox);
     add_bool("show_frustum",     s.show_frustum);
-    add_bool("show_text",        s.show_text);
+    add_bool("show_stats",       s.show_stats);
     add_bool("show_sync",        s.show_sync);
     add_bool("show_notify",      s.show_notify);
 
@@ -1935,14 +1921,11 @@ std::vector<std::string> Lamure::resolveAndNormalizeModels()
 void Lamure::ensureFileMenuEntry(const std::string& path, osg::Group *parent)
 {
     if (path.empty()) return;
-    if (m_registeredFiles.count(path)) return;
-
-    if (auto *fm = opencover::coVRFileManager::instance()) {
-        osg::Group *target_parent = parent ? parent : m_lamure_grp.get();
-        // Guard against re-entrant loadFile callbacks for the same path.
-        m_registeredFiles.insert(path);
-        fm->loadFile(path.c_str(), nullptr, target_parent, "");
-    }
+    auto *fm = opencover::coVRFileManager::instance();
+    if (!fm) return;
+    if (!m_registeredFiles.insert(path).second) return;
+    osg::Group *target_parent = parent ? parent : m_lamure_grp.get();
+    fm->loadFile(path.c_str(), nullptr, target_parent, "");
 }
 
 

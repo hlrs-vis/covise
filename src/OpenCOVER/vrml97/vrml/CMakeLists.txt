@@ -12,7 +12,7 @@ ADD_DEFINITIONS(-DHAVE_CONFIG_H -DYYERROR_VERBOSE)
 # handle them with cmake feature tests or simply with
 # IF(${CMAKE_SYSTEM_NAME} MATCHES "whater_system_name")
 
-# TODO: create Find-Modules for esd, libwww, arts, oss, irixal
+# TODO: create Find-Modules for libwww, irixal
 
 # gather optional includes in EXTRA_INCS
 SET(EXTRA_INCS )
@@ -27,38 +27,6 @@ using(JPEG)
 using(PNG)
 using(TIFF)
 using(ZLIB)
-
-
-IF(UNIX AND NOT APPLE)
-  FIND_PACKAGE(ALSA QUIET)
-  IF(ALSA_FOUND)
-    ADD_DEFINITIONS(-DHAVE_ALSA)
-    SET(EXTRA_INCS ${EXTRA_INCS} ${ALSA_INCLUDE_DIR})
-    SET(EXTRA_LIBS ${EXTRA_LIBS} ${ALSA_LIBRARIES})
-  ENDIF()
-ENDIF()
-
-FIND_PACKAGE(OpenAL QUIET)
-IF(OPENAL_FOUND)
-  ADD_DEFINITIONS(-DHAVE_OPENAL)
-  SET(EXTRA_INCS ${EXTRA_INCS} ${OPENAL_INCLUDE_DIR})
-  SET(EXTRA_LIBS ${EXTRA_LIBS} ${OPENAL_LIBRARY})
-
-  # we can also make use of ALUT
-  FIND_PACKAGE(ALUT)
-  IF(ALUT_FOUND)
-    ADD_DEFINITIONS(-DHAVE_ALUT)
-    SET(EXTRA_INCS ${EXTRA_INCS} ${ALUT_INCLUDE_DIR})
-    SET(EXTRA_LIBS ${EXTRA_LIBS} ${ALUT_LIBRARIES})
-  ENDIF()
-ENDIF()
-
-FIND_PACKAGE(AUDIOFILE QUIET)
-IF(AUDIOFILE_FOUND)
-  ADD_DEFINITIONS(-DHAVE_AUDIOFILE)
-  SET(EXTRA_INCS ${EXTRA_INCS} ${AUDIOFILE_INCLUDE_DIR})
-  SET(EXTRA_LIBS ${EXTRA_LIBS} ${AUDIOFILE_LIBRARIES})
-ENDIF()
 
 IF(CURL_FOUND)
   SET(EXTRA_INCS ${EXTRA_INCS} ${CURL_INCLUDE_DIR})
@@ -92,12 +60,10 @@ ADD_FLEX_BISON_DEPENDENCY(VrmlScanner VrmlParser)
 INCLUDE_DIRECTORIES(
   ${EXTRA_INCS}
   "${CMAKE_CURRENT_BINARY_DIR}/../js"
-  "${CMAKE_CURRENT_SOURCE_DIR}/../../../3rdparty/oscpp/include"
 )
 set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 
 SET(VRML_SOURCES
-  Audio.cpp
   coEventQueue.cpp
   Doc.cpp
   gifread.c
@@ -105,16 +71,6 @@ SET(VRML_SOURCES
   jpgread.c
   MathUtils.cpp
   mpgread.cpp
-  Player.cpp
-  PlayerAlsa.cpp
-  PlayerArts.cpp
-  PlayerAServer.cpp
-  PlayerEsd.cpp
-  PlayerFactory.cpp
-  PlayerMix.cpp
-  PlayerOpenAL.cpp
-  PlayerOsc.cpp
-  PlayerOSS.cpp
   pngread.c
   ScriptJDK.cpp
   ScriptJS.cpp
@@ -216,7 +172,6 @@ SET(VRML_SOURCES
 )
 
 SET(VRML_HEADERS
-  Audio.h
   Byteswap.h
   coEventQueue.h
   config.h
@@ -224,19 +179,8 @@ SET(VRML_HEADERS
   gifread.h
   Image.h
   jpgread.h
-  Listener.h
   MathUtils.h
   mpgread.h
-  Player.h
-  PlayerAlsa.h
-  PlayerArts.h
-  PlayerAServer.h
-  PlayerEsd.h
-  PlayerFactory.h
-  PlayerMix.h
-  PlayerOpenAL.h
-  PlayerOsc.h
-  PlayerOSS.h
   pngread.h
   ScriptJDK.h
   ScriptJS.h
@@ -400,9 +344,17 @@ endif()
 COVISE_WNOERROR(coVRML BASEARCH zebu)
 
 TARGET_LINK_LIBRARIES(coVRML
-  coJS coNet ${COVISE_UTIL_LIBRARY}
-  ${EXTRA_LIBS}
-  ${CMAKE_THREAD_LIBS_INIT}
+    coJS
+    coNet
+    coOpenConfig
+    ${COVISE_UTIL_LIBRARY}
+    ${EXTRA_LIBS}
+    ${CMAKE_THREAD_LIBS_INIT}
 )
 
+if (TARGET coVRAudio)
+  TARGET_LINK_LIBRARIES(coVRML coVRAudio)
+endif()
+
 COVISE_INSTALL_TARGET(coVRML)
+COVISE_INSTALL_HEADERS(vrml97/vrml ${VRML_HEADERS})

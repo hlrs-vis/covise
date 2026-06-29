@@ -30,7 +30,7 @@
 using namespace opencover;
 using namespace vrml;
 
-class  VrmlNodeGeoData : public VrmlNodeChild
+class VrmlNodeGeoData : public VrmlNodeChild
 {
 
 public:
@@ -55,6 +55,7 @@ public:
 private:
     // Fields
     VrmlSFVec3f d_offset;
+    VrmlSFString d_offsetName;
     VrmlSFBool d_enabled;
     VrmlSFString d_skyName;
 };

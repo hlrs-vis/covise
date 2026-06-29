@@ -7,13 +7,8 @@
 
 # requirements to cmake version
 
-# 2.8.7 is too old for identifying clang
 CMAKE_MINIMUM_REQUIRED(VERSION 3.1...3.10)
-if(APPLE)
-  set (CMAKE_CXX_STANDARD 17) 
-else()
-  set (CMAKE_CXX_STANDARD 17) 
-endif()
+set (CMAKE_CXX_STANDARD 17) 
 set (CXX_STANDARD_REQUIRED ON) 
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -195,11 +190,12 @@ if (CMAKE_GENERATOR STREQUAL "Ninja" OR CMAKE_GENERATOR STREQUAL "Ninja Multi-Co
   OPTION(COVISE_USE_FORTRAN "Enable Modules using Fortran" OFF)
   OPTION(COVISE_USE_CSHARP "Enable C#" OFF)
 else()
-  OPTION(COVISE_USE_FORTRAN "Enable Modules using Fortran" ON)
   if (MSVC)
     OPTION(COVISE_USE_CSHARP "Enable C#" ON)
+    OPTION(COVISE_USE_FORTRAN "Enable Modules using Fortran" OFF)
   else()
     OPTION(COVISE_USE_CSHARP "Enable C#" OFF)
+    OPTION(COVISE_USE_FORTRAN "Enable Modules using Fortran" ON)
   endif()
 endif()
 
@@ -320,6 +316,7 @@ if (NOT COVISE_BUILD_ONLY_FILE)
     set(THREADS_PREFER_PTHREAD_FLAG TRUE)
     COVISE_FIND_PACKAGE(Threads)
     COVISE_FIND_PACKAGE(PTHREAD)
+    COVISE_FIND_PACKAGE(OpenAL)
     #COVISE_FIND_PACKAGE(Pthreads)
     COVISE_FIND_PACKAGE(OpenSSL)
     COVISE_FIND_PACKAGE(OpenXR CONFIG)

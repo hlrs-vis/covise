@@ -66,7 +66,7 @@ protected:
 
     void                Toggledispatching();
 
-    void                check_for_nodes_within_cells(const std::vector<std::vector<size_t>>& total_depths, const std::vector<std::vector<size_t>>& total_nums);
+    void                check_for_nodes_within_cells(const std::vector<std::vector<uint32_t>>& total_depths, const std::vector<std::vector<uint32_t>>& total_nums);
 
     void                emit_node_visibility(grid* visibility_grid);
     void                set_node_parents_visible(const size_t& cell_id, const view_cell* cell, const model_t& model_id, const node_t& node_id);
@@ -116,8 +116,8 @@ protected:
 #endif
 
     // Used to identify the depth of nodes for the check which nodes are inside the grid cells. (model id<grid cell id<data>>)
-    std::vector<std::vector<size_t>> total_depth_rendered_nodes_;
-    std::vector<std::vector<size_t>> total_num_rendered_nodes_;
+    std::vector<std::vector<uint32_t>> total_depth_rendered_nodes_;
+    std::vector<std::vector<uint32_t>> total_num_rendered_nodes_;
 };
 
 }

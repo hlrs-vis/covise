@@ -15,6 +15,7 @@ using vrui::coTextureRectBackground;
 
 class IRemoteDesktop;
 
+// Remote Desktop Event Handler class
 class RemoteDTActor : public coTextureRectBackgroundActor
 {
 public:

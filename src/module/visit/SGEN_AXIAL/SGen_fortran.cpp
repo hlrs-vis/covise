@@ -5,25 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1998 IHS  **
- **                                                                        **
- ** Description: Interaktiver Schaufelgenerator     	                  **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **     Alexander Kaps                                                     **
- **     Universitaet Stuttgart                                             **
- **     Pfaffenwaldring 10                                                 **
- **     70550 Stuttgart                                                    **
- **                                                                        **
- ** Date:  26.08.98 (Start)                                                **
-\**************************************************************************/
-
 #include <appl/ApplInterface.h>
 #include "SGen_fortran.h"
 

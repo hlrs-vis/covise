@@ -25,12 +25,12 @@ namespace ren
 class gpu_access
 {
   public:
-    gpu_access(scm::gl::render_device_ptr device, const slot_t num_slots, const uint32_t num_surfels_per_node, bool create_layout = true);
-    gpu_access(scm::gl::render_device_ptr device, const slot_t num_slots, const uint32_t num_surfels_per_node, Data_Provenance const &data_provenance, bool create_layout = true);
+    gpu_access(scm::gl::render_device_ptr device, const slot_t num_slots, const size_t num_surfels_per_node, bool create_layout = true);
+    gpu_access(scm::gl::render_device_ptr device, const slot_t num_slots, const size_t num_surfels_per_node, Data_Provenance const &data_provenance, bool create_layout = true);
     ~gpu_access();
 
     const slot_t num_slots() const { return num_slots_; };
-    const size_t size_of_surfel() const { return size_of_surfel_; };
+    const uint32_t size_of_surfel() const { return size_of_surfel_; };
     const size_t size_of_slot() const { return size_of_slot_; };
 
     char *map(scm::gl::render_device_ptr const &device);
@@ -51,8 +51,8 @@ class gpu_access
     slot_t num_slots_;
     size_t size_of_slot_;
     size_t size_of_slot_provenance_;
-    size_t size_of_surfel_;
-    size_t size_of_surfel_qz_;
+    uint32_t size_of_surfel_;
+    uint32_t size_of_surfel_qz_;
     
     bool is_mapped_;
     bool is_mapped_provenance_;

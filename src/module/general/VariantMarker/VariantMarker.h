@@ -10,6 +10,8 @@
 #include <api/coModule.h>
 using namespace covise;
 #include <do/coDoData.h>
+
+// Groups other modules into so called variants.
 class VariantMarker : public coModule
 {
 

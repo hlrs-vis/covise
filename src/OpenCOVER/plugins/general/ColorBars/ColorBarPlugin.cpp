@@ -5,19 +5,9 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2008 HLRS  **
- **                                                                          **
- ** Description: ColorBar Plugin                                             **
- **                                                                          **
- **                                                                          **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #include "ColorBarPlugin.h"
 #include <OpenVRUI/osg/mathUtils.h>
-#include <PluginUtil/colors/ColorBar.h>
+#include <PluginUtil/ColorBar.h>
 #include <config/CoviseConfig.h>
 #include <cover/OpenCOVER.h>
 #include <cover/RenderObject.h>
@@ -34,14 +24,14 @@
 using namespace opencover;
 
 ColorBarPlugin::ColorBarPlugin()
-: coVRPlugin(COVER_PLUGIN_NAME)
-, ui::Owner("ColorBarPlugin", cover->ui)
+    : coVRPlugin(COVER_PLUGIN_NAME)
+    , ui::Owner("ColorBarPlugin", cover->ui)
 {
 }
 
 bool ColorBarPlugin::init()
 {
-    //fprintf(stderr,"ColorBarPlugin::ColorBarPlugin\n");
+    // fprintf(stderr,"ColorBarPlugin::ColorBarPlugin\n");
     colorSubmenu = NULL;
     colorsModuleMap.clear();
 
@@ -59,13 +49,12 @@ bool ColorBarPlugin::init()
 // this is called if the plugin is removed at runtime
 ColorBarPlugin::~ColorBarPlugin()
 {
-    //fprintf(stderr,"ColorBarPlugin::~ColorBarPlugin\n");
+    // fprintf(stderr,"ColorBarPlugin::~ColorBarPlugin\n");
 
     colorsModuleMap.clear();
 }
 
-void
-ColorBarPlugin::removeObject(const char *container, bool replace)
+void ColorBarPlugin::removeObject(const char *container, bool replace)
 {
     if (replace)
     {
@@ -88,7 +77,7 @@ void ColorBarPlugin::preFrame()
             it = visibleHuds.erase(it);
     }
 
-    for (const auto &cm: colorsModuleMap)
+    for (const auto &cm : colorsModuleMap)
     {
         auto &mod = cm.second;
         if (mod.hudVisible() && std::find(visibleHuds.begin(), visibleHuds.end(), &mod) == visibleHuds.end())
@@ -97,7 +86,7 @@ void ColorBarPlugin::preFrame()
 
     ColorBar::HudPosition hudPos(hudScale);
 
-    for (size_t i=0; i<visibleHuds.size(); ++i)
+    for (size_t i = 0; i < visibleHuds.size(); ++i)
     {
         hudPos.setNumHuds(i);
         auto mod = visibleHuds[i];
@@ -105,16 +94,14 @@ void ColorBarPlugin::preFrame()
     }
 }
 
-void
-ColorBarPlugin::postFrame()
+void ColorBarPlugin::postFrame()
 {
-    for (size_t i=0; i<removeQueue.size(); ++i)
+    for (size_t i = 0; i < removeQueue.size(); ++i)
         removeInteractor(removeQueue[i]);
     removeQueue.clear();
 }
 
-void
-ColorBarPlugin::removeInteractor(const std::string &container)
+void ColorBarPlugin::removeInteractor(const std::string &container)
 {
     InteractorMap::iterator it = interactorMap.find(container);
     if (it != interactorMap.end())
@@ -159,10 +146,10 @@ ColorBarPlugin::removeInteractor(const std::string &container)
 
 void ColorBarPlugin::guiToRenderMsg(const grmsg::coGRMsg &msg)
 {
-    if(msg.getType() == grmsg::coGRMsg::COLOR_BAR_PLUGIN)
+    if (msg.getType() == grmsg::coGRMsg::COLOR_BAR_PLUGIN)
     {
         static bool state = true;
-        for(auto &c : colorsModuleMap)
+        for (auto &c : colorsModuleMap)
         {
             c.second.colorbar->show(state);
         }
@@ -170,9 +157,7 @@ void ColorBarPlugin::guiToRenderMsg(const grmsg::coGRMsg &msg)
     }
 };
 
-
-void
-ColorBarPlugin::newInteractor(const RenderObject *container, coInteractor *inter)
+void ColorBarPlugin::newInteractor(const RenderObject *container, coInteractor *inter)
 {
     if (strcmp(inter->getPluginName(), "ColorBars") != 0)
         return;
@@ -228,7 +213,7 @@ ColorBarPlugin::newInteractor(const RenderObject *container, coInteractor *inter
 
     if (!found)
     {
-        it = colorsModuleMap.emplace(inter, ColorsModule(std::string(inter->getModuleName())+"_"+std::to_string(inter->getModuleInstance()), this)).first;
+        it = colorsModuleMap.emplace(inter, ColorsModule(std::string(inter->getModuleName()) + "_" + std::to_string(inter->getModuleInstance()), this)).first;
         inter->incRefCount();
         ColorsModule &mod = it->second;
         mod.menu = new ui::Menu(menuName, &mod);

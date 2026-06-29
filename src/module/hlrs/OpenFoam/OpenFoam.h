@@ -7,18 +7,9 @@
 
 #ifndef _OPENFOAM_H
 #define _OPENFOAM_H
-/**************************************************************************\ 
- **                                                           (C)2010 HLRS **
- **                                                                        **
- ** Description: OpenFoam interface vai SimLib                             **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Date:  18.10.2010                                                      **
-\**************************************************************************/
+
+// OpenFoam interface vai SimLib
+
 
 #include <appl/ApplInterface.h>
 #include <api/coSimLibComm.h>

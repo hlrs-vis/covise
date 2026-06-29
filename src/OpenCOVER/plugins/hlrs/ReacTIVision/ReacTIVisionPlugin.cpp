@@ -5,21 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
-**                                                            (C)2009 HLRS  **
-**                                                                          **
-** Description: ReacTIVision Plugin (does also TouchTable)                  **
-**                                                                          **
-**                                                                          **
-** Author: B. Burbaum                                                       **
-**                		                                                    **
-**                                                                          **
-** History:  								                                **
-** Feb-09  v1	    				       		                            **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
-
 #include "ReacTIVisionPlugin.h"
 
 #include <cover/coVRPluginSupport.h>

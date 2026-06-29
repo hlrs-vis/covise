@@ -5,22 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1998 RUS  **
- **                                                                        **
- ** Description:  COVISE Select      application module                    **
- **                                                                        **
- **                                                                        **
- **                       (C) Vircinity 2000, 2001                         **
- **                                                                        **
- **                                                                        **
- ** Author:  Andreas Werner, Sasha Cioringa                                **
- **                                                                        **
- **                                                                        **
- ** Date:  05.01.97                                                        **
- ** Date:  30.05.01                                                        **
-\**************************************************************************/
-
 #include "SelectUsg.h"
 #include <util/coviseCompat.h>
 #include <do/coDoData.h>

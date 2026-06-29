@@ -5,23 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
-**                                                            (C)2012 HLRS  **
-**                                                                          **
-** Description: Surface Plugin (does Surface)								**
-**                                                                          **
-**                                                                          **
-** Author:																	**
-**			Jens Dehlke														**
-**			U. Woessner														**
-**                                                                          **
-** History:																	**
-** Sep-12  v2 updated to work with Multitouch Plugin						**
-** xxx-08  v1	    				       		                            **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
-
 #include "SurfacePlugin.h"
 #include "cover/coVRPluginList.h"
 #include <cover/coVRConfig.h>

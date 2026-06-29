@@ -7,16 +7,6 @@
 
 #ifndef COVISE_PLUGIN_H
 #define COVISE_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2013 HLRS  **
- **                                                                          **
- ** Description: COVISE Plugin (COVIS module interface)                      **
- **                                                                          **
- **                                                                          **
- ** Author: Martin Aumüller                                                  **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
 
 #include <cover/coVRPlugin.h>
 #include <cover/ui/Owner.h>

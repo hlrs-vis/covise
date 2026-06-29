@@ -21,35 +21,10 @@
 #include <sys/param.h>
 #endif
 
-/***********************************************************************\ 
- **                                                                     **
- **   Process classes                              Version: 1.5         **
- **                                                                     **
- **                                                                     **
- **   Description  : All classes that work as the processes own data    **
- **                  and function base. Each process should make a new  **
- **                  object of its appropriate class type to have       **
- **                  access to the basic functionality.                 **
- **                                                                     **
- **   Classes      : Process, OrdinaryProcess, ApplicationProcess,      **
- **                  DataManagerProcess, UserInterfaceProcess,          **
- **                  Controller, ObjectEntry                            **
- **                                                                     **
- **   Copyright (C) 1993     by University of Stuttgart                 **
- **                             Computer Center (RUS)                   **
- **                             Allmandring 30                          **
- **                             7000 Stuttgart 80                       **
- **                                                                     **
- **                                                                     **
- **   Author       : A. Wierse   (RUS)                                  **
- **                                                                     **
- **   History      :                                                    **
- **                  15.04.93  Ver 1.0                                  **
- **                  27.05.93  Ver 1.1 remote processstart added,       **
- **                                    DMEntry added,                   **
- **                                    partial redesign                 **
- **                                                                     **
-\***********************************************************************/
+// Description: All classes that work as the processes own data
+//              and function base. Each process should make a new
+//              object of its appropriate class type to have
+//              access to the basic functionality.
 
 /* each process has to create a process object according to its type.
    Process is the base class, that handles shared memory attachment.

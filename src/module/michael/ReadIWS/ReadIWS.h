@@ -5,49 +5,14 @@
 
  * License: LGPL 2+ */
 
-// 19.11.2001 / 1 / file ReadIWS.h
-
 #ifndef _READ_IWS_H
 #define _READ_IWS_H
-
-/***************************************************************************\ 
- **                                                           (C)2001 RUS **
- **                                                                       **
- ** Description: Reader for files from IWS                                **
- **                                                                       **
- **                                                                       **
- **                                                                       **
- **                                                                       **
- **                                                                       **
- ** Author: M. Muench                                                     **
- **                                                                       **
- ** History:                                                              **
- ** March 01         v1                                                   **
- ** xxxxxxxx         new covise api                                       **
-\***************************************************************************/
-
-/***********************************\ 
- *                                 *
- *  place the #include files here  *
- *                                 *
-\***********************************/
 
 #include <api/coModule.h>
 using namespace covise;
 
 #include <util/coviseCompat.h>
 
-/*********************************************\ 
- *                                           *
- *  place for all the "elementary" typedefs  *
- *                                           *
-\*********************************************/
-
-/****************************\ 
- *                          *
- *  place your macros here  *
- *                          *
-\****************************/
 
 //lenght of a line
 const int LINE_SIZE = 8192;

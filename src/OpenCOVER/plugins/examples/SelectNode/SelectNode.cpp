@@ -5,19 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2008 HLRS  **
- **                                                                          **
- ** Description: SelectNode OpenCOVER Plugin selects vertices of a mesh      **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                  **
- **                                                                          **
- ** History:  								                                         **
- ** June 2008  v1	    				       		                                **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
 #include "SelectNode.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/VRSceneGraph.h>

@@ -5,19 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                   	                  **
- **                                                                        **
- ** Description: READ MPA pdb / rasmol files                               **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author: Uwe Woessner / Martin Becker                                   **
- **                                                                        **
-\**************************************************************************/
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>

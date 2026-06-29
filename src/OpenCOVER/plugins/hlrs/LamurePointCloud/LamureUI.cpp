@@ -28,12 +28,13 @@ void LamureUI::setupUi() {
     m_pointcloud_button  = new opencover::ui::Button(m_rendering_group, "Pointcloud");
     m_boundingbox_button = new opencover::ui::Button(m_rendering_group, "BoundingBoxes");
     m_frustum_button     = new opencover::ui::Button(m_rendering_group, "Frustum");
-    m_text_button        = new opencover::ui::Button(m_rendering_group, "Text");
+    m_stats_button       = new opencover::ui::Button(m_rendering_group, "Stats");
+    m_stats_button->setText("Stats");
 
     m_pointcloud_button->setShared(true);
     m_boundingbox_button->setShared(true);
     m_frustum_button->setShared(true);
-    m_text_button->setShared(true);
+    m_stats_button->setShared(true);
 
 
     // Miscellaneous options

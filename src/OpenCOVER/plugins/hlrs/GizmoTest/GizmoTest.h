@@ -6,19 +6,6 @@
  * License: LGPL 2+ */
 
 #pragma once
-/****************************************************************************\ 
- **                                                            (C)2008 HLRS  **
- **                                                                          **
- ** Description: Gizmo OpenCOVER Plugin (draws a gizmo)                      **
- **                                                                          **
- **                                                                          **
- ** Author: Matthias Epple		                                             **
- **                                                                          **
- ** History:  								                                 **
- ** July 2020  v1	    				       		                         **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
 
 #include <cover/coVRPlugin.h>
 #include <cover/coVRPluginSupport.h>

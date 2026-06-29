@@ -4,6 +4,8 @@ using(VRML)
 ADD_SUBDIRECTORY(RevitPlugin)
 SET(HEADERS
   RevitPlugin.h
+  Doors.h
+  Elevators.h
   GenNormals.h
   VrmlNodePhases.h
 IK/CJacobianTranspose.h
@@ -27,6 +29,8 @@ SET(SOURCES
   RevitPlugin.cpp
   GenNormals.cpp
   VrmlNodePhases.cpp
+  Doors.cpp
+  Elevators.cpp
 IK/CMatrixFactory.cpp
 IK/CAlgoFactory.cpp
 IK/CLink.cpp

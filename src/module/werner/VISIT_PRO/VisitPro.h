@@ -7,19 +7,6 @@
 
 #ifndef _STAR_GEOMETRY_H_
 #define _STAR_GEOMETRY_H_
-/**************************************************************************\ 
- **                                                     (C)2002 VirCinity  **
- **                                                                        **
- ** Description: Read Star Geometry for DC Simulation Coupling             **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** History:                                                               **
- **      07/2002    A. Werner      Initial version                         **
- *\**************************************************************************/
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -32,6 +19,7 @@ class AddGeom;
 class Attachable;
 class MultiFileParam;
 
+// Read Star Geometry for DC Simulation Coupling
 class VisitPro : public coModule
 {
 

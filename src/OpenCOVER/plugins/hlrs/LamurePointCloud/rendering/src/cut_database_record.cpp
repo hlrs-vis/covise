@@ -330,12 +330,12 @@ expand_front_a(const view_t view_id, const model_t model_id) {
         front_a_thresholds_.insert(std::make_pair(model_id, LAMURE_DEFAULT_THRESHOLD));
     }
 
-    view_t new_view_id = front_a_cuts_[model_id].size();
+    size_t new_view_id = front_a_cuts_[model_id].size();
 
     while (view_id >= front_a_cuts_[model_id].size())
     {
-        front_a_cuts_[model_id].push_back(cut(context_id_, new_view_id, model_id));
-        front_a_height_divided_by_top_minus_bottom_.insert(std::make_pair(new_view_id, 1000.0f));
+        front_a_cuts_[model_id].push_back(cut(context_id_, static_cast<view_t>(new_view_id), model_id));
+        front_a_height_divided_by_top_minus_bottom_.insert(std::make_pair(static_cast<view_t>(new_view_id), 1000.0f));
         ++new_view_id;
     }
 
@@ -355,12 +355,12 @@ expand_front_b(const view_t view_id, const model_t model_id) {
         front_b_thresholds_.insert(std::make_pair(model_id, LAMURE_DEFAULT_THRESHOLD));
     }
 
-    view_t new_view_id = front_b_cuts_[model_id].size();
+    size_t new_view_id = front_b_cuts_[model_id].size();
 
     while (view_id >= front_b_cuts_[model_id].size())
     {
-        front_b_cuts_[model_id].push_back(cut(context_id_, new_view_id, model_id));
-        front_b_height_divided_by_top_minus_bottom_.insert(std::make_pair(new_view_id, 1000.0f));
+        front_b_cuts_[model_id].push_back(cut(context_id_, static_cast<view_t>(new_view_id), model_id));
+        front_b_height_divided_by_top_minus_bottom_.insert(std::make_pair(static_cast<view_t>(new_view_id), 1000.0f));
         ++new_view_id;
     }
 

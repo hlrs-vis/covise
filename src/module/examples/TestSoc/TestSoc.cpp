@@ -5,17 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1999 RUS  **
- ** Example module for Covise API 2.0 User-interface functions             **
- **                                                                        **
- ** Author:                                                                **
- **                             Andreas Werner                             **
- **                Computing Center University of Stuttgart                **
- **                            Allmandring 30a                             **
- **                            70550 Stuttgart                             **
- ** Date:  23.09.99  V1.0                                                  **
-\**************************************************************************/
 
 #include "TestSoc.h"
 

@@ -7,21 +7,10 @@
 
 #ifndef _ExampleTracker_PLUGIN_H
 #define _ExampleTracker_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2008 HLRS  **
- **                                                                          **
- ** Description: ExampleTracker OpenCOVER Plugin (demonstrates how to implement a tracker plugin)                          **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                  **
- **                                                                          **
- ** History:  								                                         **
- ** June 2008  v1	    				       		                                **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 
+// demonstrates how to implement a tracker plugin
 class ExampleTracker : public opencover::coVRPlugin
 {
 public:

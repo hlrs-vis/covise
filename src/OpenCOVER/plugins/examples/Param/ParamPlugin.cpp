@@ -5,20 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
-**                                                            (C)2001 HLRS  **
-**                                                                          **
-** Description: Param Plugin (does nothing)                              **
-**                                                                          **
-**                                                                          **
-** Author: U.Woessner		                                                **
-**                                                                          **
-** History:  								                                **
-** Nov-01  v1	    				       		                            **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
-
 #define USE_MATH_DEFINES
 #include <math.h>
 #include <QDir>

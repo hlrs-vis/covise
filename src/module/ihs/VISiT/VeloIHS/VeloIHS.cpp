@@ -1,16 +1,3 @@
-/**************************************************************************\ 
- **                                                              2002      **
- **                                                                        **
- ** Description:  COVISE VeloIHS     New application module               **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:  M. Becker                                                     **
- **                                                                        **
- **                                                                        **
- ** Date:  01.07.02  V1.0                                                  **
-\**************************************************************************/
-
 #include <math.h>
 #include <do/coDoData.h>
 #include <do/coDoUnstructuredGrid.h>

@@ -1,0 +1,21 @@
+type = "osc"
+
+[osc]
+setup = "speakers"
+connection = { host = "localhost", port = 8000 }
+
+[[speakers]]
+name = "Front Top Left"
+position = [-1500, -1500, 2700]
+
+[[speakers]]
+name = "Front Top Right"
+position = [1500, -1500, 2700]
+
+[[speakers]]
+name = "Back Top Left"
+position = [-1500, 1500, 2700]
+
+[[speakers]]
+name = "Back Top Right"
+position = [1500, 1500, 2700]

@@ -7,23 +7,6 @@
 
 #ifndef _READ_RFL_H
 #define _READ_RFL_H
-/**************************************************************************\ 
- **                                                   	      (C)2001     **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author: Björn Sander/Uwe                                               **
- ** =============================================================================
- ** READRFL Modul zum Lesen von ANSYS RFL-Ergebnisfiles (FLOWTRAN)
- ** -----------------------------------------------------------------------------
- ** 17.9.2001  Björn Sander
- ** =============================================================================
- **                           **
- **                                                                        **
-\**************************************************************************/
 
 #include <api/coModule.h>
 #include <do/coDoData.h>
@@ -33,7 +16,7 @@ using namespace covise;
 #include "ReadRflFile.h"
 
 #define NUMPORTS 5
-
+// READRFL Modul zum Lesen von ANSYS RFL-Ergebnisfiles (FLOWTRAN)
 class ReadRFL : public coModule
 {
 

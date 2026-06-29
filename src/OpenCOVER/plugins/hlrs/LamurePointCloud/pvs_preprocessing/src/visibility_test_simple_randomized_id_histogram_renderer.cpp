@@ -122,7 +122,7 @@ initialize(int& argc, char** argv)
 			ofstr.close();
 		}
 	}
-	catch (std::exception& e)
+	catch (const std::exception&)
 	{
 		std::cout << "Warning: No input file specified. \n" << desc;
 		return 0;

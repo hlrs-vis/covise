@@ -5,20 +5,6 @@
 
  * License: LGPL 2+ */
 
-
-/****************************************************************************\ 
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: Tracker Plugin for Razer Hydra                              **
- **                                                                          **
- ** Author: U.Woessner		                                                  **
- **                                                                          **
- ** History:  								                                         **
- ** dec-11  v1	    				       		                                   **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #include "Hydra.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>

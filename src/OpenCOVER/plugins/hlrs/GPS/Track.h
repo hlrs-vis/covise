@@ -7,19 +7,7 @@
 
 #ifndef _GPS_PLUGIN_TRACK_H
 #define _GPS_PLUGIN_TRACK_H
-/****************************************************************************\ 
- **                                                            (C)2008 HLRS  **
- **                                                                          **
- ** Description: GPS OpenCOVER Plugin (is polite)                            **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner, T.Gudat		                                     **
- **                                                                          **
- ** History:  								     **
- ** June 2008  v1	    				       		     **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 #include <xercesc/dom/DOM.hpp>
 #include <osg/Vec3>

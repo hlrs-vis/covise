@@ -5,21 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                                          **
- ** Description: IsoSurface for UniformGrids                                 **
- **              uses Thomas Lewiner's algorithm that checks                 **
- **              for topologically correct results                           **
- **                                                                          **
- ** Name:        IsoSurface_TopoCheck                                        **
- ** Category:    Mapper                                                      **
- **                                                                          **
- ** Author: M. Becker                                                        **
- ** 01/2009                                                                  **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #include "IsoSurface_TopoCheck.h"
 #include <stdlib.h>
 #include <stdio.h>

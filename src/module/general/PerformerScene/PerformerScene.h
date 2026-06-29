@@ -7,29 +7,13 @@
 
 #ifndef _PERFORMER_SCENE_H
 #define _PERFORMER_SCENE_H
-/**************************************************************************\ 
- **                                                           (C)1995 RUS  **
- **                                                                        **
- ** Description: Fake read for Performer Models         	                  **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                             Uwe Woessner                               **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  12.10.95  V1.0                                                  **
-\**************************************************************************/
 
 #include <appl/ApplInterface.h>
 using namespace covise;
 #include <util/coviseCompat.h>
 #include <do/coDoPoints.h>
+
+// Fake read for Performer Models
 
 class Application
 {

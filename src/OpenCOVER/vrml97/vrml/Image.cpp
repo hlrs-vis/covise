@@ -60,16 +60,10 @@ Image::Image(const char *url, Doc *relative)
     , d_pixels(0)
     , d_frame(0)
 {
-    static bool firstTime = true;
-    static bool sMovieSupport;
-    if (firstTime)
-    {
-        sMovieSupport = System::the->getConfigState("COVER.Plugin.Vrml97.NewMovieSupport", true);
-        firstTime = false;
-    }
-    newMovies = sMovieSupport;
     if (url)
-        (void)setURL(url, relative);
+    {
+        setURL(url, relative);
+    }
 }
 
 Image::~Image()
@@ -113,18 +107,11 @@ bool Image::setURL(const char *url, Doc *relative)
 
         case ImageFile_MOVIE:
             // change here to use new movie code
-            if (newMovies)
-            {
-                d_pixels = (unsigned char *)malloc(fileName.length() + 1);
-                strcpy((char *)d_pixels, fileName.c_str());
-                d_w = d_h = 0;
-                d_nc = -1;
-                d_nFrames = 0;
-            }
-            else
-            {
-                d_pixels = mpgread(fp, &d_w, &d_h, &d_nc, &d_nFrames, &d_frame);
-            }
+            d_pixels = (unsigned char *)malloc(fileName.length() + 1);
+            strcpy((char *)d_pixels, fileName.c_str());
+            d_w = d_h = 0;
+            d_nc = -1;
+            d_nFrames = 0;
             break;
 
 #if HAVE_LIBJPEG
@@ -147,8 +134,8 @@ bool Image::setURL(const char *url, Doc *relative)
             d_pixels = (unsigned char *)malloc(fileName.length() + 1);
             strcpy((char *)d_pixels, fileName.c_str());
             d_w = d_h = d_nc = 0;
-//fprintf(stderr,"Error: could not open (%s).\n", url);
-        break;
+            // fprintf(stderr,"Error: could not open (%s).\n", url);
+            break;
         }
 
         if (!d_pixels)

@@ -8,24 +8,10 @@
 #ifndef _DATAHEIGHT_H
 #define _DATAHEIGHT_H
 
-/****************************************************************************\ 
- **                                                            (C)2009 HLRS  **
- **                                                                          **
- ** Description: Use scalar data array to displace polygon mesh              **
- **              in normal direction                                         **
- **                                                                          **
- ** Name:        DataHeight                                                  **                                                        **
- ** Category:    Mapper                                                      **
- **                                                                          **
- ** Author: M. Becker                                                        **
- **                                                                          **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #include <api/coModule.h>
 using namespace covise;
 
+// Use scalar data array to displace polygon mesh in normal direction
 class DataHeight : public coModule
 {
 

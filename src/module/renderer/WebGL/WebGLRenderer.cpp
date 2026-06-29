@@ -5,12 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************
- * WebGL renderer                                                           *
- *                                                                          *
- * Author: Florian Niebling                                                 *
- ****************************************************************************/
-
 /*
  * WebGL renderer features an HTTP server listening for requests for
  * COVISE objects and sending back XML CDATA consisting of javascript code 

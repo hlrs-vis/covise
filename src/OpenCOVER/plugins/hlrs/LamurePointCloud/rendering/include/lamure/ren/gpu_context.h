@@ -47,8 +47,8 @@ class gpu_context
     scm::gl::vertex_array_ptr get_context_memory(bvh::primitive_type type, scm::gl::render_device_ptr device);
     scm::gl::vertex_array_ptr get_context_memory(bvh::primitive_type type, scm::gl::render_device_ptr device, Data_Provenance const &data_provenance);
 
-    const node_t upload_budget_in_nodes() const { return upload_budget_in_nodes_; };
-    const node_t render_budget_in_nodes() const { return render_budget_in_nodes_; };
+    const size_t upload_budget_in_nodes() const { return upload_budget_in_nodes_; };
+    const size_t render_budget_in_nodes() const { return render_budget_in_nodes_; };
 
     void map_temporary_storage(const cut_database_record::temporary_buffer &buffer, scm::gl::render_device_ptr device);
     void map_temporary_storage(const cut_database_record::temporary_buffer &buffer, scm::gl::render_device_ptr device, Data_Provenance const &data_provenance);
@@ -82,8 +82,8 @@ class gpu_context
 
     temporary_storages temporary_storages_;
     temporary_storages temporary_storages_provenance_;
-    node_t upload_budget_in_nodes_;
-    node_t render_budget_in_nodes_;
+    size_t upload_budget_in_nodes_;
+    size_t render_budget_in_nodes_;
     uint32_t contexts_{1};
 };
 }

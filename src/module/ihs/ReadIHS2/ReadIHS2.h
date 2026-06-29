@@ -1,16 +1,3 @@
-/**************************************************************************\ 
- **                                                              2002      **
- **                                                                        **
- ** Description:  COVISE ReadIHS2     New application module               **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:  M. Becker                                                     **
- **                                                                        **
- **                                                                        **
- ** Date:  01.07.02  V1.0                                                  **
-\**************************************************************************/
-
 #include <api/coModule.h>
 using namespace covise;
 #include <util/coviseCompat.h>

@@ -5,20 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                   	      (C)2000 RUS **
- **                                                                        **
- ** Description:  Reader for ICEMCFD Hexa Blocking Files	                  **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author: Gabor Duroska                                                  **
- ** Date: April 2000                                                       **
- **                                                                        **
-\**************************************************************************/
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>

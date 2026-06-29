@@ -25,7 +25,7 @@
         <CSV value="/data/MERIDIONAL/kitedata/flight.csv" />
         
         <!-- Geographic model settings -->
-        <GeoModel value="/data/MERIDIONAL/simonsSensordata/MultiSensorSWE1/winsent_terrain_yup.obj" />
+        <!--GeoModel value="/data/MERIDIONAL/simonsSensordata/MultiSensorSWE1/winsent_terrain_yup.obj" /-->
         <GeoScale value="20" />
         <GeoPosX value="0" />
         <GeoPosY value="0" />

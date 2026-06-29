@@ -7,19 +7,7 @@
 
 #ifndef _BLOOD_PLUGIN_H
 #define _BLOOD_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2018 HLRS  **
- **                                                                          **
- ** Description: TestTracker                                                 **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                 **
- **                                                                          **
- ** History:  								                                 **
- ** August 2018 v1	    				                                     **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 
 #include <cover/ui/Menu.h>

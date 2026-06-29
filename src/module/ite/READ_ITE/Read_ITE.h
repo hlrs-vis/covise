@@ -7,24 +7,6 @@
 
 #ifndef _READITE_H
 #define _READITE_H
-/**************************************************************************\ 
- **                                                           (C)1995 RUS  **
- **                                                                        **
- ** Description: Read module for ITE data         	                  **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                                                                        **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  Tue May 27 1997                                                 **
-\**************************************************************************/
 
 #include <appl/ApplInterface.h>
 using namespace covise;

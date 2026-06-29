@@ -7,15 +7,7 @@
 
 #ifndef _UTOUCH3D_PLUGIN_H
 #define _UTOUCH3D_PLUGIN_H
-/****************************************************************************\ 
- **                                              (C)2010 Anton Baumesberger  **
- **                                                                          **
- ** Description: Utouch3D Plugin                                             **
- **                                                                          **
- **                                                                          **
- ** Author: Anton Baumesberger	                                             **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 #ifdef USE_TUIOCLIENT
 #include "TuioClient.h"

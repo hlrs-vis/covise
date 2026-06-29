@@ -7,22 +7,6 @@
 
 #ifndef _READ_OBJ_H
 #define _READ_OBJ_H
-/**************************************************************************\ 
- **                                                   	      (C)1999 RUS **
- **                                                                        **
- ** Description: Reader for Wavefront OBJ Format	                          **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author: D. Rainer		                                              **
- **                                                                        **
- ** History:  								                              **
- ** 01-September-99 v1					       		                      **
- **                                                                        **
- **                                                                        **
-\**************************************************************************/
 
 #include <api/coModule.h>
 #include <filesystem>
@@ -30,6 +14,7 @@
 #include <filesystem>
 using namespace covise;
 
+// Reader for Wavefront OBJ Format
 class ReadObj : public coModule
 {
 

@@ -5,25 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description: Calculating module for Solution-Data (Plot3D)             **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                             Uwe Woessner                               **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30a                             **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:                                                                  **
-\**************************************************************************/
-
 #ifndef _FreeCut_H
 #define _FreeCut_H
 
@@ -31,6 +12,8 @@
 #include <api/coSimpleModule.h>
 using namespace covise;
 #include <util/coviseCompat.h>
+
+// COVISE ReadPlot3D FreeCut module 
 
 class FreeCut : public coSimpleModule
 {

@@ -156,7 +156,7 @@
     <surfel value="off"/>
     <splatting value="off"/>
     <!-- LOD -->
-    <lod_error value="3.0"/>
+    <lod_error value="1.0"/>
     <!-- scaling -->
     <scale_radius value="0.05" />
     <scale_radius_gamma value="0.5" />

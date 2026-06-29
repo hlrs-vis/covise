@@ -8,31 +8,6 @@
 #ifndef _EC_SIGNAL_H_
 #define _EC_SIGNAL_H_
 
-/*
-   $Log$
-*/
-
-/**************************************************************************\ 
- **                                                                        **
- **                                                                        **
- ** Description: Signal manager class for the COVISE                       **
- **              software environment                                      **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                               (C) 1995                                 **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Author: D. Rantzau, A. Wierse                                          **
- **                                                                        **
- ** Date:  12.12.95  V1.0                                                  **
- ** Last:                                                                  **
-\**************************************************************************/
 
 #include <util/coTypes.h>
 

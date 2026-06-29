@@ -104,8 +104,11 @@ jobs:
         libnetcdf-c++4-dev
         libcgns-dev
         libalut-dev
+        libopenal-dev
         libfreetype-dev
         libomp-dev
+        libglm-dev
+        protobuf-compiler
         nlohmann-json3-dev
         qt6-base-dev
         qt6-tools-dev

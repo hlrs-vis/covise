@@ -282,8 +282,14 @@ ref_ptr<Node> VSGVruiValuePoti::createPanelNode(const string &textureName)
     ref_ptr<GraphicsPipelineConfigurator> gpConfigurator = GraphicsPipelineConfigurator::create(shaderSet);
 
     auto image = VSGVruiRendererInterface::the()->createVsgTexture(textureName);
+
+    auto sampler = Sampler::create();
+    sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+    sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+    sampler->borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
+
     if (image && image->data)
-        gpConfigurator->assignTexture("diffuseMap", image->data);
+        gpConfigurator->assignTexture("diffuseMap", image->data, sampler);
     else
         cerr << "No texture could be loaded for poti panel!" << endl;
 

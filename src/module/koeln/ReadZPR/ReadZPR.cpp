@@ -5,16 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                          (C)2004 RRZK  **
- **                                                                        **
- ** Description: Read CRD files from ZPR.                                  **
- **                                                                        **
- ** Author: Martin Aumueller (aumueller@uni-koeln.de)                      **
- **                                                                        **
- ** Creation Date: 14.12.2004                                              **
-\**************************************************************************/
-
 #include <do/coDoSet.h>
 #include <do/coDoPoints.h>
 #include <api/coModule.h>

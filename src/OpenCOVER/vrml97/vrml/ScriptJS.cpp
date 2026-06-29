@@ -930,6 +930,8 @@ node_setProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
         char *eventIn = str ? JS_GetStringBytes(str) : 0;
         char *setEventIn = NULL;
         VrmlField::VrmlFieldType expect;
+        expect = n->nodeType()->hasExposedField(eventIn);
+        if (!expect)
         expect = n->nodeType()->hasEventIn(eventIn);
         if (!expect)
         {

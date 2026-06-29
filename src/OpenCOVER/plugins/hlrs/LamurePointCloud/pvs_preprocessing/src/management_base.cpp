@@ -112,7 +112,7 @@ management_base::
 }
 
 void management_base::
-check_for_nodes_within_cells(const std::vector<std::vector<size_t>>& total_depths, const std::vector<std::vector<size_t>>& total_nums)
+check_for_nodes_within_cells(const std::vector<std::vector<uint32_t>>& total_depths, const std::vector<std::vector<uint32_t>>& total_nums)
 {
     lamure::ren::model_database* database = lamure::ren::model_database::get_instance();
 
@@ -128,7 +128,13 @@ check_for_nodes_within_cells(const std::vector<std::vector<size_t>>& total_depth
             bounding_box cell_bounds(min_vertex, max_vertex);
 
             // We can get the first and last index of the nodes on a certain depth inside the bvh.
-            unsigned int average_depth = total_depth_rendered_nodes_[model_index][cell_index] / total_num_rendered_nodes_[model_index][cell_index];
+            const uint32_t rendered_nodes = total_nums[model_index][cell_index];
+            if(rendered_nodes == 0u)
+            {
+                continue;
+            }
+
+            const uint32_t average_depth = total_depths[model_index][cell_index] / rendered_nodes;
 
             node_t start_index = database->get_model(model_index)->get_bvh()->get_first_node_id_of_depth(average_depth);
             node_t end_index = start_index + database->get_model(model_index)->get_bvh()->get_length_of_depth(average_depth);
@@ -154,8 +160,8 @@ check_for_nodes_within_cells(const std::vector<std::vector<size_t>>& total_depth
 void management_base::
 emit_node_visibility(grid* visibility_grid)
 {
-    float steps_finished = 0.0f;
-    float total_steps = visibility_grid_->get_cell_count();
+    double steps_finished = 0.0;
+    const double total_steps = static_cast<double>(visibility_grid_->get_cell_count());
 
     // Advance node visibility downwards and upwards in the LOD-hierarchy.
     // Since only a single LOD-level was rendered in the visibility test, this is necessary to produce a complete PVS.
@@ -167,7 +173,7 @@ emit_node_visibility(grid* visibility_grid)
 
         for(std::map<model_t, std::vector<node_t>>::const_iterator map_iter = visible_indices.begin(); map_iter != visible_indices.end(); ++map_iter)
         {
-            for(node_t node_index = 0; node_index < map_iter->second.size(); ++node_index)
+            for(size_t node_index = 0; node_index < map_iter->second.size(); ++node_index)
             {
                 node_t visible_node_id = map_iter->second.at(node_index);
 
@@ -181,7 +187,7 @@ emit_node_visibility(grid* visibility_grid)
         {
             // Calculate current node propagation state so user gets visual feedback on the preprocessing progress.
             steps_finished++;
-            float current_percentage_done = (steps_finished / total_steps) * 100.0f;
+            const double current_percentage_done = (steps_finished / total_steps) * 100.0;
             std::cout << "\rvisibility propagation in progress [" << current_percentage_done << "]       " << std::flush;
         }
     }

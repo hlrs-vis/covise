@@ -21,8 +21,11 @@
 #include <QString>
 #include <QStringList>
 #include <QTemporaryDir>
-#include <proj_api.h>
+#include <proj.h>
 #include "dataelement.hpp"
+
+#define RAD_TO_DEG 57.295779513082321
+#define DEG_TO_RAD .017453292519943296
 
 class ProjectWidget;
 class QUndoGroup;
@@ -114,16 +117,13 @@ public:
     {
         return geoReferenceParams_;
     }
+    void setGeoReference(GeoReference *);
 
-    projPJ getProj4ReferenceTo()
+    PJ *getProjReference()
     {
-        return proj4ReferenceTo_;
+        return PJ_;
     }
 
-    projPJ getProj4ReferenceFrom()
-    {
-        return proj4ReferenceFrom_;
-    }
 
     void setRevMajor(int revMajor);
     void setRevMinor(int revMinor);
@@ -139,9 +139,7 @@ public:
     void setDimensions(double north, double south, double east, double west);
     bool adaptView(double north, double south, double east, double west);
 
-    void setGeoReference(GeoReference *geoParams);
-    void setProj4ReferenceTo(projPJ proj);
-    void setProj4ReferenceFrom(projPJ proj);
+    void setProjReference(PJ *Pproj);
 
     // RoadSystem //
     //
@@ -346,11 +344,8 @@ private:
 
     // Proj4 Object ProjFromString
     //
-    projPJ proj4ReferenceTo_;
+    PJ *PJ_;
 
-    // Proj4 Object ProjToString
-    //
-    projPJ proj4ReferenceFrom_;
 };
 
 #endif // PROJECTDATA_HPP

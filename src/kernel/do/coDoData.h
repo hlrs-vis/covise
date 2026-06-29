@@ -10,29 +10,6 @@
 
 #include "coDistributedObject.h"
 
-/***********************************************************************\ 
- **                                                                     **
- **   Unstructured data class                            Version: 1.0   **
- **                                                                     **
- **                                                                     **
- **   Description  : Classes for the handling of the data on            **
- **                  a structured grid in a distributed manner.         **
- **                                                                     **
- **   Classes      : DO_Unstructured_S3d_data, DO_Unstructured_V3d_data **
- **                                                                     **
- **   Copyright (C) 1993     by University of Stuttgart                 **
- **                             Computer Center (RUS)                   **
- **                             Allmandring 30                          **
- **                             7000 Stuttgart 80                       **
- **                                                                     **
- **                                                                     **
- **   Author       : A. Wierse   (RUS)                                  **
- **                                                                     **
- **   History      :                                                    **
- **                  23.06.93  Ver 1.0                                  **
- **                                                                     **
- **                                                                     **
-\***********************************************************************/
 
 namespace covise
 {

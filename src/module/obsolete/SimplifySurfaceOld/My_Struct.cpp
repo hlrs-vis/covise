@@ -5,31 +5,11 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description:  Data structures for the triangulation of simple polygons **
- **               without holes                                            **
- **                                                                        **
- **                                                                        **
- **                             (C) 1997                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30a                             **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Karin Frank                                                   **
- **                                                                        **
- **                                                                        **
- ** Date:  September 1997  V1.0                                            **
-\**************************************************************************/
 
 #include <util/coviseCompat.h>
 #include "My_Struct.h"
 
-////////////////////////////////////////////////////////////////////////////////
-// BINARY SEARCH TREE FOR EDGES                                               //
-////////////////////////////////////////////////////////////////////////////////
+// BINARY SEARCH TREE FOR EDGES
 
 double Tree::get_x(struct knot *k, double sweep)
 {

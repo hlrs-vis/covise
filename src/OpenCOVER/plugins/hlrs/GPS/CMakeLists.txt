@@ -1,7 +1,6 @@
-USING(PROJ4)
+USING(PROJ)
 USING(GDAL)
 USING(XercesC)
-USING(Vrml)
 
 SET(HEADERS
   GPS.h
@@ -19,3 +18,6 @@ SET(SOURCES
   PointSensor.cpp
 )
 cover_add_plugin(GPS ${HEADERS} ${SOURCES})
+if (TARGET coVRAudio)
+  target_link_libraries(GPS coVRAudio)
+endif()

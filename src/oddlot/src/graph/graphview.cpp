@@ -547,21 +547,18 @@ GraphView::loadGoogleMap()
     QString sizePair;
     QDir directoryOperator;
     QPointF sceneCenter = mapToScene(viewport()->rect().center());
+    PJ_COORD c;
 
-    projPJ from = topviewGraph_->getProjectData()->getProj4ReferenceFrom();
-    projPJ to = topviewGraph_->getProjectData()->getProj4ReferenceTo();
+
     double x = 0, y = 0, z = 0;
-    if (from != nullptr && to != nullptr)
-    {
-        x = sceneCenter.x();
-        y = sceneCenter.y();
-        z = 0;
-        int e = pj_transform(to, from, 1, 1, &x, &y, &z);
-        if (e != 0)
-        {
-            printf("Transform failed: %s\n", pj_strerrno(e));
-        }
-    }
+
+    c.lpzt.lam = sceneCenter.x();
+    c.lpzt.phi = sceneCenter.y();
+    c.lpzt.z = 0;
+    PJ_COORD c_out = proj_trans(topviewGraph_->getProjectData()->getProjReference(), PJ_FWD, c);
+    x = c_out.xyz.x;
+    y = c_out.xyz.y;
+    z = c_out.xyz.z;
     bool mapRejected = false;
 
     //Sets up the UI
@@ -767,20 +764,17 @@ GraphView::loadBingMap()
 
     QPointF sceneCenter = mapToScene(viewport()->rect().center());
 
-    projPJ from = topviewGraph_->getProjectData()->getProj4ReferenceFrom();
-    projPJ to = topviewGraph_->getProjectData()->getProj4ReferenceTo();
     double x = 0, y = 0, z = 0;
-    if (from != nullptr && to != nullptr)
-    {
-        x = sceneCenter.x();
-        y = sceneCenter.y();
-        z = 0;
-        int e = pj_transform(to, from, 1, 1, &x, &y, &z);
-        if (e != 0)
-        {
-            printf("Transform failed: %s\n", pj_strerrno(e));
-        }
-    }
+
+    PJ_COORD c;
+
+    c.lpzt.lam = sceneCenter.x();
+    c.lpzt.phi = sceneCenter.y();
+    c.lpzt.z = 0;
+    PJ_COORD c_out = proj_trans(topviewGraph_->getProjectData()->getProjReference(), PJ_FWD, c);
+    x = c_out.xyz.x;
+    y = c_out.xyz.y;
+    z = c_out.xyz.z;
     QString tmpDir = topviewGraph_->getProjectData()->tempDir.path() + "/";
     QString location;
     QString mapType;

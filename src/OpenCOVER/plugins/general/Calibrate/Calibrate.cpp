@@ -5,15 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
-**                                                            (C)1999 RUS   **
-**                                                                          **
-** Description: Module for Calibrating VEs                                  **
-**                                                                          **
-**                                                                          **
-** Author: U. Woessner                                                      **
-**                                                                          **
-\****************************************************************************/
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRMSController.h>
 #include <config/CoviseConfig.h>

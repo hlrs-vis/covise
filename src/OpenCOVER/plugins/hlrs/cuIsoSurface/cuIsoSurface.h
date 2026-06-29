@@ -42,9 +42,6 @@ struct minmax
     float min, max;
 };
 
-/*
- * Author: Florian Niebling
- */
 class cuIsoSurface : public coVRPlugin, public ui::Owner
 {
 public:

@@ -5,21 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1998 RUS  **
- **                                                                        **
- ** Description:  COVISE PartSelect application module                           **
- **                                                                        **
- **                                                                        **
- **                             (C) Vircinity 2000                         **
- **                                                                        **
- **                                                                        **
- ** Author:  Sasha Cioringa                                                **
- **                                                                        **
- **                                                                        **
- ** Date:  05.05.01  V1.0                                                  **
-\**************************************************************************/
-
 #include "PartSelect.h"
 #include <util/coviseCompat.h>
 #include <do/coDoSet.h>

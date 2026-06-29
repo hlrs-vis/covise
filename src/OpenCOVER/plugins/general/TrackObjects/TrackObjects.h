@@ -7,19 +7,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 #ifndef _TrackObjects_PLUGIN_H
 #define _TrackObjects_PLUGIN_H
-/****************************************************************************\ 
-**                                                            (C)2001 HLRS  **
-**                                                                          **
-** Description: TrackObjects Plugin (does nothing)                          **
-**                                                                          **
-**                                                                          **
-** Author: U.Woessner		                                                 **
-**                                                                          **
-** History:  								                                 **
-** Nov-01  v1	    				       		                             **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPluginSupport.h>
 #include <cover/coTabletUI.h>
 #include <cover/coInteractor.h>

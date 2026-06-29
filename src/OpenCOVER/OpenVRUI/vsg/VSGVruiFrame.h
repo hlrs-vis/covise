@@ -64,9 +64,6 @@ private:
     static vsg::ref_ptr<vsg::vec2Array> texCoords; 
     static vsg::ref_ptr<vsg::Data> textureData; 
 
-    // test variable to test the order of the Frames created
-    static std::int16_t frameCreatedCount;
-
     vsg::DataList vertexArrays;
 
     vsg::ref_ptr<vsg::Image> image;
@@ -74,6 +71,7 @@ private:
 
     vsg::ref_ptr<vsg::StateGroup> stateGroup; 
     vsg::ref_ptr<vsg::VertexIndexDraw> vertexIndexDraw;
+    vsg::ref_ptr<vsg::DepthSorted> depthSorted;
     //vsg::ref_ptr<vsg::Geometry> geometry;
 
     vsg::ref_ptr<vsg::GraphicsPipelineConfigurator> gpConfigurator;

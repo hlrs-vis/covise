@@ -8,19 +8,12 @@
 #ifndef ERROR_PLUGIN_H
 #define ERROR_PLUGIN_H
 
-/****************************************************************************\ 
- **                                                            (C)2008 ZAIK  **
- **                                                                          **
- ** Description: Error Plugin (use HUD to show COVISE errors)                **
- **                                                                          **
- **                                                                          **
- ** Author: Martin Aumueller <aumueller@uni-koeln.de>                        **
- **                                                                          **
-\****************************************************************************/
 
 #include <cover/coVRPlugin.h>
 
 using namespace opencover;
+
+// use HUD to show COVISE errors
 class ErrorPlugin : public coVRPlugin
 {
 public:

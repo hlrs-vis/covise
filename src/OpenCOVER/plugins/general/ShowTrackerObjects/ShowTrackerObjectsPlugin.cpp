@@ -5,16 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2007 ZAIK  **
- **                                                                          **
- ** Description: Show Tracker Objects Plugin                                 **
- **         (shows an icon at the tracked object's position)                 **
- **                                                                          **
- ** Author: Hauke Fuehres                                                    **
- **                                                                          **
- \****************************************************************************/
-
 #include <config/CoviseConfig.h>
 #include "ShowTrackerObjectsPlugin.h"
 #include <cover/coVRPluginSupport.h>

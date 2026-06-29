@@ -5,20 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2008 HLRS  **
- **                                                                          **
- ** Description: Hello OpenCOVER Plugin (is polite)                          **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                             **
- **                                                                          **
- ** History:  								     **
- ** June 2008  v1	    				       		     **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #include <cover/coVRPluginSupport.h>
 #include <cmath>
 
@@ -58,7 +44,7 @@ void Blood::integrate(float dt, osg::Vec3 vObj) {
     }
 }
 
-//*************************************************************************************Functions for class Droplet
+// Functions for class Droplet
 //defines the transformation matrix in x,y,z world coordinates and sets artificial 4th coordinate to 1
 double d[] = {1.,0.,0.,0., //x scaling
               0.,1.,0.,0., //y scaling

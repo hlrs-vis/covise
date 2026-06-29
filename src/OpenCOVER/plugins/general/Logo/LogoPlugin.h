@@ -7,19 +7,7 @@
 
 #ifndef _LOGO_PLUGIN_H
 #define _LOGO_PLUGIN_H
-/****************************************************************************\ 
-**                                                            (C)2009 HLRS  **
-**                                                                          **
-** Description: Logo Plugin (displays a bitmap logo)                        **
-**                                                                          **
-**                                                                          **
-** Author: U.Woessner		                                                  **
-**                                                                          **
-** History:  								                                         **
-** Feb-09  v1	    				       		                                   **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 #include <util/common.h>
 
@@ -30,6 +18,7 @@ using namespace opencover;
 
 #include "Logo.h"
 
+// displays a bitmap logo
 class LogoPlugin : public coVRPlugin
 {
 public:

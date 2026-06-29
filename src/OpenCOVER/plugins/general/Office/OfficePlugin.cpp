@@ -5,20 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2009 HLRS  **
- **                                                                          **
- ** Description: Office Plugin (connection to Microsoft Office)              **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                 **
- **                                                                          **
- ** History:  								                                 **
- ** Mar-16  v1	    				       		                             **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #include "OfficePlugin.h"
 #include <util/unixcompat.h>
 #include <cover/coVRPluginSupport.h>

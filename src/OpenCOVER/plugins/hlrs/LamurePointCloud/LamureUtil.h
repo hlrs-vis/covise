@@ -6,6 +6,8 @@
 #include <vector>
 #include <functional>
 #include <utility>
+#include <cmath>
+#include <algorithm>
 
 #ifdef _WIN32
 #ifndef NOMINMAX
@@ -25,6 +27,25 @@
 #include <osg/Group>
 
 namespace LamureUtil {
+
+// --- Shared value-checking helpers ---
+
+/// Check whether a numeric value is finite and >= 0 (replaces isSetMs / is_setD)
+inline bool isValidValue(double v) { return std::isfinite(v) && v >= 0.0; }
+
+/// Extract column-vector length from an osg::Matrix (shared across files)
+inline double colLen(const osg::Matrix& M, int c) {
+    osg::Vec3 v(M(0,c), M(1,c), M(2,c));
+    return (std::max)(1e-9, static_cast<double>(v.length()));
+}
+
+/// Accumulator that averages only valid (set) values
+struct RunningAvg {
+    double sum = 0.0;
+    int count = 0;
+    void add(double v) { if (isValidValue(v)) { sum += v; ++count; } }
+    double avg() const  { return count > 0 ? sum / count : -1.0; }
+};
 
 // Forward declarations
 osg::Vec3f vecConv3F(scm::math::vec3f& v);

@@ -5,29 +5,11 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                 (C)2000 VirCinity GmbH **
- ** Module IndexManifolds                                                    **
- **                                                                        **
- ** Author:                                                                **
- **                             Dirk Straka                                **
- **                          Christof Schwenzer                            **
- **                    VirCinity IT-Consulting GmbH                        **
- **                             Nobelstr. 35                               **
- **                            70569 Stuttgart                             **
- ** Date:  28.10.00  V1.0                                                  **
-\**************************************************************************/
 
 #include "IndexManifolds.h"
 #include <util/coviseCompat.h>
 
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// ++++
-// ++++  Constructor: This will set up module port structure
-// ++++
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// Extract 0-, 1- & 2-dimensional index manifolds from a structured grid
 
 IndexManifolds::IndexManifolds(int argc, char *argv[])
     : coSimpleModule(argc, argv, "Index Surface: Extract an Index Surface from a structured grid")

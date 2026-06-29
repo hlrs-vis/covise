@@ -5,20 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                           (C)2008 HLRS **
- **                                                                        **
- ** Description: Find cells in an unstructured grid that exhibit certain   **
- **              properties that decrease their usefulness for cfd         **
- **              simulations (e.g. faces containing small angles).         **
- **              The faces of the bad cells are output as polygons.        **
- **                                                                        **
- ** Name:        FindBadCellsUSG                                           **
- ** Category:    Tools                                                     **
- **                                                                        **
- **                                                                        **
-\****************************************************************************/
-
 #include "FindBadCellsUSG.h"
 
 #include <util/coVector.h>

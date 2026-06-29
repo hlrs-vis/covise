@@ -1,5 +1,6 @@
 #pragma once
-#include <PluginUtil/colors/coColorMap.h>
+#include "grid.h"
+#include <PluginUtil/coColorMap.h>
 #include <lib/core/interfaces/IEnergyGrid.h>
 #include <lib/core/interfaces/IInfoboard.h>
 #include <lib/core/simulation/simulation.h>
@@ -20,7 +21,11 @@
 
 using namespace core;
 
-enum class EnergyGridConnectionType { Index, Line };
+enum class EnergyGridConnectionType
+{
+    Index,
+    Line
+};
 
 /**
  * @struct EnergyGridConfig
@@ -74,14 +79,12 @@ struct EnergyGridConfig {
   EnergyGridConnectionType connectionType;
   grid::Lines lines;
 
-  bool valid() const {
-    bool isMandatoryValid = !name.empty() ||
-                            ((points.empty() || pointsMap.empty()) &&
-                             (points.empty() && pointsMap.empty())) ||
-                            !indices.empty();
-    return connectionType == EnergyGridConnectionType::Index ? isMandatoryValid
-                                                             : !lines.empty();
-  }
+    bool valid() const
+    {
+        bool isMandatoryValid = !name.empty() || ((points.empty() || pointsMap.empty()) && (points.empty() && pointsMap.empty())) || !indices.empty();
+        return connectionType == EnergyGridConnectionType::Index ? isMandatoryValid
+                                                                 : !lines.empty();
+    }
 };
 
 /**
@@ -155,16 +158,20 @@ class EnergyGrid : public interface::IEnergyGrid {
     if (idx < 0 || idx >= m_config.points.size()) return nullptr;
     return m_config.points[idx];
   }
+  const auto &getPoints() const { return m_config.points; }
+  const auto &getLines() const { return m_config.lines; }
+  const auto &getName() const { return m_config.name; }
 
- private:
-  template <typename T>
-  void initDrawableGridObject(osg::ref_ptr<osg::Group> parent, const T &gridObj) {
-    m_drawables.push_back(gridObj);
-    parent->addChild(gridObj);
-    std::string toPrint(createDataString(gridObj->getAdditionalData()));
-    auto center = gridObj->getCenter();
-    center.z() += 30;
-    auto name = gridObj->getName();
+private:
+    template <typename T>
+    void initDrawableGridObject(osg::ref_ptr<osg::Group> parent, const T &gridObj)
+    {
+        m_drawables.push_back(gridObj);
+        parent->addChild(gridObj);
+        std::string toPrint(createDataString(gridObj->getAdditionalData()));
+        auto center = gridObj->getCenter();
+        center.z() += 30;
+        auto name = gridObj->getName();
 
     m_config.infoboardAttributes.position = center;
     m_config.infoboardAttributes.title = name;
@@ -174,18 +181,18 @@ class EnergyGrid : public interface::IEnergyGrid {
         gridObj, std::move(infoboard), toPrint));
   }
 
-  std::string createDataString(const grid::Data &data) const;
+    std::string createDataString(const grid::Data &data) const;
 
-  void initConnections();
-  void initConnectionsByIndex(
-      const grid::Indices &indices, const float &radius,
-      const grid::ConnectionDataList &additionalConnectionData);
-  void initDrawableConnections();
-  void initDrawableLines();
-  void initDrawablePoints();
-  bool validPointIdx(int idx) { return idx < 0 || idx >= m_config.points.size(); }
-  void findCorrectHeightForLine(float radius, osg::ref_ptr<grid::Line> line,
-                                grid::Lines &lines);
+    void initConnections();
+    void initConnectionsByIndex(
+        const grid::Indices &indices, const float &radius,
+        const grid::ConnectionDataList &additionalConnectionData);
+    void initDrawableConnections();
+    void initDrawableLines();
+    void initDrawablePoints();
+    bool validPointIdx(int idx) { return idx < 0 || idx >= m_config.points.size(); }
+    void findCorrectHeightForLine(float radius, osg::ref_ptr<grid::Line> line,
+        grid::Lines &lines);
 
   EnergyGridConfig m_config;
   grid::Connections m_connections;

@@ -42,33 +42,6 @@
  *
  */
 
-/***********************************************************************\
- **                                                                     **
- **   Message classes                              Version: 1.1         **
- **                                                                     **
- **                                                                     **
- **   Description  : The basic message structure as well as ways to     **
- **                  initialize messages easily are provided.           **
- **                  Subclasses for special types of messages           **
- **                  can be introduced.                                 **
- **                                                                     **
- **   Classes      : Message, ShmMessage                                **
- **                                                                     **
- **   Copyright (C) 1993     by University of Stuttgart                 **
- **                             Computer Center (RUS)                   **
- **                             Allmandring 30                          **
- **                             7000 Stuttgart 80                       **
- **                        HOSTID                                             **
- **                                                                     **
- **   Author       : A. Wierse   (RUS)                                  **
- **                                                                     **
- **   History      :                                                    **
- **                  15.04.93  Ver 1.0                                  **
- **                  15.04.93  Ver 1.1 new Messages and type added      **
- **                                    sender and send_type added       **
- **                                                                     **
- **                                                                     **
-\***********************************************************************/
 
 namespace covise
 {

@@ -73,10 +73,6 @@ struct Synthesis {
     double est_overdraw    = 0.0;
     double avg_area_px_per_prim = 0.0;
 
-    // Zeitmarken (avg)
-    double mark_draw_impl_ms=0, mark_pass1_ms=0, mark_pass2_ms=0, mark_pass3_ms=0,
-           mark_dispatch_ms=0, mark_context_bind_ms=0, mark_estimates_ms=0, mark_singlepass_ms=0;
-
     // Boundness-Zählung
     size_t cnt_gpu=0, cnt_cpu=0, cnt_wait=0, cnt_mixed=0, cnt_unknown=0;
 };
@@ -152,16 +148,6 @@ public:
         // Per-primitive Statistik
         float avg_area_px_per_prim = -1.0f;
 
-        // Zeitmarken
-        float mark_draw_impl_ms    = -1.0f;
-        float mark_pass1_ms        = -1.0f;
-        float mark_pass2_ms        = -1.0f;
-        float mark_pass3_ms        = -1.0f;
-        float mark_singlepass_ms   = -1.0f;
-        float mark_dispatch_ms     = -1.0f;
-        float mark_context_bind_ms = -1.0f;
-        float mark_estimates_ms    = -1.0f;
-
         // Pose
         osg::Vec3d position{0.0,0.0,0.0};
         osg::Quat  orientation{0.0,0.0,0.0,1.0};
@@ -178,6 +164,12 @@ public:
         float gpu_busy_pct_proxy = -1.0f;
         float wait_ms            = -1.0f;
         float wait_frac_pct      = -1.0f;
+
+        // Renderer-Telemetrie (pro Frame aus Kontext-Snapshots aggregiert)
+        float dispatch_ms        = -1.0f;
+        float context_update_ms  = -1.0f;
+        float render_cpu_ms      = -1.0f;
+        std::string ctx_timing;
 
         std::string boundness;   // "GPU-bound" | "CPU-bound" | "Wait/Sync-bound" | "mixed" | "unknown"
     };

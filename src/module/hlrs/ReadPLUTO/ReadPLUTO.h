@@ -7,24 +7,6 @@
 
 #ifndef _READPLUTO_H
 #define _READPLUTO_H
-/**************************************************************************\ 
-**                                                           (C)2011 HLRS **
-**                                                                        **
-** Description: Read module for PLUTO data         	                   **
-**                                                                        **
-**                                                                        **
-**                                                                        **
-**                                                                        **
-**                                                                        **
-** Author:                                                                **
-**                                                                        **
-**                   Steffen Brinkmann, Uwe Woessner                      **
-**                Computer Center University of Stuttgart                 **
-**                            Allmandring 30                              **
-**                            70550 Stuttgart                             **
-**                                                                        **
-** Date:  22.11.11  V1.0                                                  **
-\**************************************************************************/
 
 #include <api/coSimpleModule.h>
 using namespace covise;

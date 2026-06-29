@@ -17,7 +17,7 @@
 #ifndef _VIEWER_
 #define _VIEWER_
 
-#include "Player.h"
+#include <string>
 
 namespace vrml
 {
@@ -336,18 +336,6 @@ public:
     // specify which child of a switch node to draw
     virtual void setChoice(int which) = 0;
 
-    // retrieve the Player
-    virtual Player *getPlayer()
-    {
-        return d_player;
-    }
-
-    // set Player
-    virtual void setPlayer(Player *player)
-    {
-        d_player = player;
-    }
-
     // set number of active textures
     virtual void setNumTextures(int numTex);
 
@@ -358,8 +346,6 @@ public:
 
 protected:
     VrmlScene *d_scene;
-
-    Player *d_player;
 
 private:
     Viewer(); // Don't allow default constructors

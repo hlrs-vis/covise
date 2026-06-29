@@ -5,20 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: PSO Plugin (does nothing)                              **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                **
- **                                                                          **
- ** History:  								                                **
- ** Nov-01  v1	    				       		                            **
- **                                                                          **
- **                OSGPSOParticleOnResponseSurface OSGPSOParticleOnResponseSurface                                                         **
-\****************************************************************************/
-
 #include "PSOPlugin.h"
 #include "OSGPSOParticleOnResponseSurface.h"
 #include "OSGResponseSurface.h"

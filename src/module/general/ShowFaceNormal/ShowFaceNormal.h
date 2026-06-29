@@ -7,21 +7,6 @@
 
 #ifndef _NORMAL_H
 #define _NORMAL_H
-/****************************************************************************\ 
- **                                                            (C)2000 RUS   **
- **                                                                          **
- ** Description: Calculates the normals of an Vector and a suitable point    **
- **                                                                          **
- ** Name:        NORMAL                                                      **
- ** Category:    TOOLS                                                       **
- **                                                                          **
- ** Author: A. Heinchen		                                            **
- **                                                                          **
- ** History:  								    **
- ** Dec-00       					       		    **
- **   --started writting this module                                         **
- **                                                                          **
-\****************************************************************************/
 
 #include <do/coDoPolygons.h>
 #include <do/coDoPoints.h>

@@ -61,6 +61,10 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <osgDB/WriteFile>
 #include <chrono>
 #include <thread>
+#ifdef WIN32 
+#include < direct.h> // _getcwd
+#define getcwd _getcwd
+#endif
 
 using namespace OpenScenario;
 using namespace opencover;

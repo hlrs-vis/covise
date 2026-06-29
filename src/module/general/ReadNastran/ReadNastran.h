@@ -7,24 +7,6 @@
 
 #ifndef _READNASTRAN_H
 #define _READNASTRAN_H
-/**************************************************************************\ 
- **                                                           (C)1998 RUS  **
- **                                                                        **
- ** Description: Read module for Nastran data         	                  **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                             Franz Maurer                               **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30a                             **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  07.04.1998  V1.0                                                **
-\**************************************************************************/
 
 #include <api/coModule.h>
 using namespace covise;

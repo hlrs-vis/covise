@@ -5,23 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2000 RUS   **
- **                                                                          **
- ** Description: Calculates normals and a point in the middle of a polygon   **
- **                                                                          **
- ** Name:        Normal                                                      **
- ** Category:    Tools                                                       **
- **                                                                          **
- ** Author: A. Heinchen		                                            **
- **                                                                          **
- ** History:  								    **
- ** Dec-00                                                                   **
- **   -- started writting module                                             **
- ** Jan-01                                                                   **
- **   -- working Version, strips and sets added                              **
- **                                                                          **
-\****************************************************************************/
 
 #include "ShowFaceNormal.h"
 #include <util/coviseCompat.h>

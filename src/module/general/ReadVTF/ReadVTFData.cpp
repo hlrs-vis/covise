@@ -5,16 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)2001    **
- ** Author:                                                              **
- **                            Karin Mueller                             **
- **                                        Vircinity                     **
- **                            Technologiezentrum                        **
- **                            70550 Stuttgart                           **
- ** Date:  01.10.01                                                      **
-\**************************************************************************/
-
 #include "ReadVTFData.h"
 #include "Binary.h"
 

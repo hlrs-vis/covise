@@ -5,27 +5,13 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2000 RUS   **
- **                                                                          **
- ** Description: Fix one part of an Dyna3D animation                         **
- **                                                                          **
- ** Name:        FixPart                                                     **
- ** Category:    Tools                                                       **
- **                                                                          **
- ** Author: Sven Kufer		                                            **
- **                                                                          **
- ** History:  								    **
- ** January-01     					       		    **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #include "FixPart.h"
 #include <util/coviseCompat.h>
 #include <float.h>
 #include <do/coDoUnstructuredGrid.h>
 #include <do/coDoSet.h>
+
+// Fix one part of an Dyna3D animation
 
 FixPart::FixPart(int argc, char *argv[])
     : coModule(argc, argv, "Fix one part")

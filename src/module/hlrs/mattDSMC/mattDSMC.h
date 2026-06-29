@@ -7,28 +7,14 @@
 
 #ifndef _MATT_DSMC_SIMPLE_H
 #define _READ_OBJ_MATT_DSMC_SIMPLE_H_SIMPLE_H
-/**************************************************************************\
-**                                                   	      (C)1999 RUS **
-**                                                                        **
-** Description: Interface to Matthias Muellers Simulation    	          **
-**                                                                        **
-**                                                                        **
-**                                                                        **
-**                                                                        **
-**                                                                        **
-** Author: Uwe Woessner		                                          **
-**                                                                        **
-** History:  								  **
-** 27-Sep-00	v1						          ** 
-**                                                                        **
-**                                                                        **
-\**************************************************************************/
 
 #include <appl/ApplInterface.h>
 using namespace covise;
 #include <util/DLinkList.h>
 
 #include <Performer/pr/pfLinMath.h>
+
+// Interface to Matthias Muellers Simulation
 
 class Application
 {

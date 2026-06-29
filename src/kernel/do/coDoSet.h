@@ -17,28 +17,7 @@
 
 #include "coDistributedObject.h"
 
-/***********************************************************************\ 
- **                                                                     **
- **   Geometry class                                 Version: 1.0       **
- **                                                                     **
- **                                                                     **
- **   Description  : Container class handling multiple objects          **
- **                                                                     **
- **   Classes      : coDoSet                                             **
- **                                                                     **
- **   Copyright (C) 1993     by University of Stuttgart                 **
- **                             Computer Center (RUS)                   **
- **                             Allmandring 30                          **
- **                             7000 Stuttgart 80                       **
- **                                                                     **
- **                                                                     **
- **   Author       : A. Wierse   (RUS)                                  **
- **                                                                     **
- **   History      :                                                    **
- **                  12.08.93  Ver 1.0                                  **
- **                                                                     **
- **                                                                     **
-\***********************************************************************/
+// Description: Container class handling multiple objects
 
 #define SET_CHUNK 20
 

@@ -126,6 +126,7 @@ ADD_SUBDIRECTORY(PluginUtil)
 ADD_SUBDIRECTORY(DataClient)
 ADD_SUBDIRECTORY(OpcUaClient)
 ADD_SUBDIRECTORY(HTTPClient)
+ADD_SUBDIRECTORY(audio)
 ADD_SUBDIRECTORY(cover)
 ADD_SUBDIRECTORY(main)
 ADD_SUBDIRECTORY(main.mpi)
@@ -166,3 +167,4 @@ INSTALL(FILES "../../cmake/FindCOVER.cmake" DESTINATION
     # && cp -HR ${OPENSCENEGRAPH_LIBPATH}/osgPlugins-2.9.7/* "$@"/Contents/PlugIns/ \
     # && cp -HR $$COVISEDIR/$$COVISE_ARCHSUFFIX/lib/OpenCOVER/plugins/* "$@"/Contents/PlugIns/ \
     # && ${COVISEDIR}/../common/mkspecs/makebundle.sh "$@"
+

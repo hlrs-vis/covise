@@ -680,10 +680,7 @@ fvec bary(const fvec &point, const f2ten &coord)
     return lambda;
 }
 
-/********************************************************\ 
- * 3D vector data ==>> tangential components as 2D data *
-\********************************************************/
-
+ // 3D vector data ==>> tangential components as 2D data
 void project2triangle(Triangles *tri, const f2ten &v)
 {
     f2ten c = f2ten();

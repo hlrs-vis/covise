@@ -36,7 +36,7 @@
 
 #include "vvPlugin.h"
 #include "units.h"
-#include "../OpenConfig/access.h"
+#include "../ViveConfig/access.h"
 
 #include <net/message_types.h>
 #include <vsg/nodes/Group.h>
@@ -44,23 +44,27 @@
 #include <vsg/maths/mat4.h>
 #include <array>
 #include "vvMathUtils.h"
-namespace vive {
+namespace vive
+{
 
-namespace ui {
-class ButtonGroup;
-class Menu;
-class Manager;
-class VruiView;
+namespace ui
+{
+    class ButtonGroup;
+    class Menu;
+    class Manager;
+    class VruiView;
 }
 }
 
-namespace covise {
+namespace covise
+{
 class MessageBase;
 class Message;
 class UdpMessage;
 }
 
-namespace grmsg {
+namespace grmsg
+{
 class coGRMsg;
 }
 
@@ -114,7 +118,7 @@ struct Isect
         Right = 256,
         CastShadow = 512,
         ReceiveShadow = 1024,
-		Update = 2048,
+        Update = 2048,
         vsgEarthSecondary = 0x80000000,
     };
 
@@ -123,14 +127,14 @@ private:
 
 namespace Notify
 {
-enum NotificationLevel
-{
-    Debug,
-    Info,
-    Warning,
-    Error,
-    Fatal
-};
+    enum NotificationLevel
+    {
+        Debug,
+        Info,
+        Warning,
+        Error,
+        Fatal
+    };
 }
 
 /*! \class coPointerButton vvPluginSupport.h cover/vvPluginSupport.h
@@ -151,13 +155,13 @@ public:
     //! @return old button state
     unsigned int oldState() const;
     //! buttons pressed since last frame
-    unsigned int wasPressed(unsigned int buttonMask=vrui::vruiButtons::ALL_BUTTONS) const;
+    unsigned int wasPressed(unsigned int buttonMask = vrui::vruiButtons::ALL_BUTTONS) const;
     //! buttons released since last frame
-    unsigned int wasReleased(unsigned int buttonMask=vrui::vruiButtons::ALL_BUTTONS) const;
+    unsigned int wasReleased(unsigned int buttonMask = vrui::vruiButtons::ALL_BUTTONS) const;
     //! is no button pressed
     bool notPressed() const;
     //! accumulated number of wheel events
-    int getWheel(size_t idx=0) const;
+    int getWheel(size_t idx = 0) const;
     //! set number wheel events
     void setWheel(size_t idx, int count);
     //! button name
@@ -169,7 +173,7 @@ private:
 
     unsigned int buttonStatus = 0;
     unsigned int lastStatus = 0;
-    int wheelCount[2]={0,0};
+    int wheelCount[2] = { 0, 0 };
     std::string m_name;
 };
 
@@ -196,19 +200,19 @@ public:
           3 all functions which are not called continously,
           4,
           5 all functions which are called continously */
-    static vvPluginSupport* instance();
+    static vvPluginSupport *instance();
     static void destroy();
 
     static bool removeChild(vsg::ref_ptr<vsg::Group> &parent, const vsg::ref_ptr<vsg::Node> &child)
     {
         return removeChild(parent.get(), child);
     }
-   /* bool removeChild(vsg::Group* parent, const vsg::ref_ptr<vsg::Node>& child)
-    {
+    /* bool removeChild(vsg::Group* parent, const vsg::ref_ptr<vsg::Node>& child)
+     {
 
-        return removeChild(parent, child);
-    }*/
-    static bool removeChild(vsg::Group* parent, const vsg::Node* child)
+         return removeChild(parent, child);
+     }*/
+    static bool removeChild(vsg::Group *parent, const vsg::Node *child)
     {
         if (parent)
         {
@@ -223,7 +227,7 @@ public:
         }
         return false;
     }
-    static bool hasChild(vsg::Group* parent, const vsg::Node* child)
+    static bool hasChild(vsg::Group *parent, const vsg::Node *child)
     {
         if (parent)
         {
@@ -238,7 +242,7 @@ public:
         return false;
     }
 
-    vsg::ref_ptr <vsg::ShaderSet> phongShaderSet;
+    vsg::ref_ptr<vsg::ShaderSet> phongShaderSet;
     vsg::ref_ptr<vsg::ShaderSet> getOrCreatePhongShaderSet()
     {
         if (!phongShaderSet)
@@ -255,7 +259,7 @@ public:
     bool debugLevel(int level) const;
     void initUI();
 
-	void preparePluginUnload();
+    void preparePluginUnload();
 
     //! returns true if clipping is on
     bool isClippingOn() const;
@@ -272,7 +276,7 @@ public:
     vsg::ref_ptr<vsg::Group> getScene() const;
 
     //! get the group node for all COVISE and model geometry
-    vsg::ref_ptr<vsg::MatrixTransform>  getObjectsRoot() const;
+    vsg::ref_ptr<vsg::MatrixTransform> getObjectsRoot() const;
 
     //! get the MatrixTransform node of the hand
     // (in vvSceneGraph handTransform)
@@ -309,7 +313,7 @@ public:
 
     LengthUnit getSceneUnit() const;
     void setSceneUnit(LengthUnit unit);
-    void setSceneUnit(const std::string& unitName);
+    void setSceneUnit(const std::string &unitName);
     //! transformation matrix from object coordinates to world coordinates
     /*! multiplied matrices from scene node to objects root node */
     const vsg::dmat4 &getBaseMat() const
@@ -381,7 +385,7 @@ public:
 
     //! remove node from the scene graph,
     /*! use this method when removing nodes from the scene graph in order to update
-       * VIVE's internal state */
+     * VIVE's internal state */
     //! @return if a node was removed
     bool removeNode(vsg::Node *node, bool isGroup = false);
 
@@ -392,7 +396,7 @@ public:
     void sendMessage(const vvPlugin *sender, const char *destination, int type, int len, const void *buf, bool localonly = false);
 
     //! handle coGRMsgs and call guiToRenderMsg method of all plugins
-    void guiToRenderMsg(const grmsg::coGRMsg &msg)  const;
+    void guiToRenderMsg(const grmsg::coGRMsg &msg) const;
 
     //! grab keyboard input
     /*! other plugins will not get key event notifications,
@@ -437,11 +441,11 @@ public:
     static double currentTime();
 
     //! get the number of the active cursor shape
-    //vsgViewer::GraphicsWindow::MouseCursor getCurrentCursor() const;
+    // vsgViewer::GraphicsWindow::MouseCursor getCurrentCursor() const;
 
     //! set cursor shape
     //! @param type number of cursor shape
-    //void setCurrentCursor(vsgViewer::GraphicsWindow::MouseCursor type);
+    // void setCurrentCursor(vsgViewer::GraphicsWindow::MouseCursor type);
 
     //! make the cursor visible or invisible
     void setCursorVisible(bool visible) {};
@@ -479,7 +483,7 @@ public:
     //! update internal state related to current person being tracked - called Input system
     void personSwitched(size_t personNumber);
 
-    ui::Manager* ui = nullptr;
+    ui::Manager *ui = nullptr;
     ui::Menu *fileMenu = nullptr;
     ui::Menu *viewOptionsMenu = nullptr;
     ui::Menu *visMenu = nullptr;
@@ -520,7 +524,7 @@ public:
     //! returns viewer-screen distance
     float getViewerScreenDistance();
 
-    //restrict interactors to visible scene
+    // restrict interactors to visible scene
     bool restrictOn() const;
 
     /// @endcond INTERNAL
@@ -555,7 +559,6 @@ private:
     float viewerDist = 0; ///< distance of viewer from screen
     LengthUnit m_sceneUnit = LengthUnit::Meter; ///< unit in which the scene is specified
     vsg::vec3 eyeToScreen; ///< eye to screen center vector
-
 
     mutable vrui::coUpdateManager *updateManager = nullptr;
 

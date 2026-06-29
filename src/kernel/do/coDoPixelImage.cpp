@@ -5,23 +5,6 @@
 
  * License: LGPL 2+ */
 
-/***************************************************************************
- **                                                           (C)1996 RUS  **
- **                                                                        **
- ** Description: Constructors and Member-Functions of the new COVISE-OBJECT**
- **              for handling Image-Data                                   **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                               (C) 1996                                 **
- **                             Paul Benoelken                             **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- ** Author: Paul Benoelken                                                 **
- **                                                                        **
- ** Date:  04.12.96  V1.0                                                  **
- ****************************************************************************/
 
 #include "coDoPixelImage.h"
 

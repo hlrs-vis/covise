@@ -5,24 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1995 RUS  **
- **                                                                        **
- ** Description:  COVISE Shows surface polygons of unstructured grids       **
- **                                                                        **
- **                                                                        **
- **                             (C) 1995                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Oliver Heck                                                   **
- **                                                                        **
- **                                                                        **
- ** Date:  22.03.96  V1.0                                                  **
-\**************************************************************************/
-
 #include "DomainSurfaceUsg.h"
 #include <util/coviseCompat.h>
 //

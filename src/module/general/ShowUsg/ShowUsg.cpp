@@ -5,24 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1994 RUS  **
- **                                                                        **
- ** Description:  COVISE ShowUsg application module                       **
- **                                                                        **
- **                                                                        **
- **                             (C) 1995                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Uwe Woessner                                                  **
- **                                                                        **
- **                                                                        **
- ** Date:  27.01.95  V1.0                                                  **
-\**************************************************************************/
-
 #include <appl/ApplInterface.h>
 #include <do/coDoSet.h>
 #include <do/coDoGeometry.h>

@@ -68,30 +68,8 @@ class Host;
  *
 */
 
-/***********************************************************************\
- **                                                                     **
- **   Socket Classes                              Version: 1.0          **
- **                                                                     **
- **                                                                     **
- **   Description  : The Socket class handles the operating system      **
- **		    part of the socket handling.                       **
- **                                                                     **
- **   Classes      : Socket                                             **
- **                                                                     **
- **   Copyright (C) 1993     by University of Stuttgart                 **
- **                             Computer Center (RUS)                   **
- **                             Allmandring 30                          **
- **                             7000 Stuttgart 80                       **
- **                                                                     **
- **                                                                     **
- **   Author       : A. Wierse   (RUS)                                  **
- **                                                                     **
- **   History      :                                                    **
- **                  15.04.93  Ver 1.0                                  **
- **                                                                     **
- **                                                                     **
- **                                                                     **
-\***********************************************************************/
+// Description: The Socket class handles the operating system
+//              part of the socket handling.
 
 enum
 {

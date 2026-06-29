@@ -8,23 +8,6 @@
 #ifndef _VECT_SCAL_NEW_H
 #define _VECT_SCAL_NEW_H
 
-/**************************************************************************\ 
- **                                                           (C)1994 RUS  **
- **                                                                        **
- ** Description:  COVISE VectScal application module                       **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                             (C) Vircinity 2000                         **
- **                                                                        **
- **                                                                        **
- ** Author:  R.Lang, D.Rantzau, Sasha Cioringa                             **
- **                                                                        **
- **                                                                        **
- ** Date:  18.05.94  V1.0                                                  **
- ** Date:  08.11.00                                                        **
-\**************************************************************************/
-
 #include <api/coSimpleModule.h>
 using namespace covise;
 #include <util/coviseCompat.h>

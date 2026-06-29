@@ -5,25 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1994 RUS  **
- **                                                                        **
- ** Description: Interface class for application modules to the COVISE     **
- **              software environment                                      **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                             Dirk Rantzau                               **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  18.05.94  V1.0                                                  **
- **	  25.06.97  V1.1 Harald Nebel, added GENERIC-stuff		  **
-\**************************************************************************/
 
 #include "ApplInterface.h"
 #include <covise/covise.h>

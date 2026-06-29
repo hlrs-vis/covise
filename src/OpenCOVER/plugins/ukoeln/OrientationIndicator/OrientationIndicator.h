@@ -7,23 +7,12 @@
 
 #ifndef _OrientationIndicator_PLUGIN_H
 #define _OrientationIndicator_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2024 RRZK  **
- **                                                                          **
- ** Description: OrientationIndicator OpenCOVER Plugin (draws axis showing   **
- **              showing the orientation of the loaded model)                **
- **                                                                          **
- ** Author: D.Wickeroth                                                      **
- **                                                                          **
- ** History:  								                                 **
- ** March 2024  v1	    				       		                         **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 #include <osg/Geode>
 #include <osg/MatrixTransform>
 
+//draws axis showing the orientation of the loaded model
 class OrientationIndicator : public opencover::coVRPlugin
 {
 public:

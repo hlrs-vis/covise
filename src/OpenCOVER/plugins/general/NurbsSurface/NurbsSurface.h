@@ -7,19 +7,7 @@
 
 #ifndef _NurbsSurface_PLUGIN_H
 #define _NurbsSurface_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2008 HLRS  **
- **                                                                          **
- ** Description: NurbsSurface OpenCOVER Plugin (draws a NurbsSurface)        **
- **                                                                          **
- **                                                                          **
- ** Author: F.Karle/ K.Ahmann                                                **
- **                                                                          **
- ** History:                                                                 **
- ** December 2017  v1                                                        **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 #include <cover/coVRPluginSupport.h>
 
@@ -60,6 +48,7 @@ using namespace opencover;
 using namespace alglib;
 using namespace osg;
 
+// draws a NurbsSurface
 class NurbsSurface : public coVRPlugin, public ui::Owner
 {
 public:

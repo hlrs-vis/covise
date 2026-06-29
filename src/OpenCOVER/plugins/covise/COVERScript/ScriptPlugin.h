@@ -7,19 +7,7 @@
 
 #ifndef _SCRIPT_PLUGIN_H
 #define _SCRIPT_PLUGIN_H
-/****************************************************************************\ 
-**                                                            (C)2001 HLRS  **
-**                                                                          **
-** Description: Script Plugin (does nothing)                              **
-**                                                                          **
-**                                                                          **
-** Author: U.Woessner		                                                **
-**                                                                          **
-** History:  								                                **
-** Nov-01  v1	    				       		                            **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 #include <QMainWindow>
 #include <QString>

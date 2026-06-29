@@ -25,33 +25,10 @@ Initial revision
 
 */
 
-/***********************************************************************\
- **                                                                     **
- **   Message classes Routines                     Version: 1.1         **
- **                                                                     **
- **                                                                     **
- **   Description  : The basic message structure as well as ways to     **
- **                  initialize messages easily are provided.           **
- **                  Subclasses for special types of messages           **
- **                  can be introduced.                                 **
- **                                                                     **
- **   Classes      : Message, ShmMessage                                **
- **                                                                     **
- **   Copyright (C) 1993     by University of Stuttgart                 **
- **                             Computer Center (RUS)                   **
- **                             Allmandring 30                          **
- **                             7000 Stuttgart 80                       **
- **                                                                     **
- **                                                                     **
- **   Author       : A. Wierse   (RUS)                                  **
- **                                                                     **
- **   History      :                                                    **
- **                  15.04.93  Ver 1.0                                  **
- **                  15.04.93  Ver 1.1 adopted to shm-malloc handling   **
- **                                                                     **
- **                                                                     **
- **                                                                     **
-\***********************************************************************/
+// Description: The basic message structure as well as ways to
+//              initialize messages easily are provided.
+//              Subclasses for special types of messages
+//              can be introduced.
 
 #undef DEBUG
 MessageBase::MessageBase()

@@ -191,8 +191,8 @@ void CO_MemAddAVLTree::rebalance_tree(CO_MemAVLNode *tree_node,
 #endif
                 if ((Left->balance == -1) || (Left->balance == 0))
                 {
-                    /* R-ROTATE */
-                    /*****************************************\ 
+                /* R-ROTATE */
+                /*****************************************\
                 *         F                  F          *
                 *         |                  |          *
                 *        node      ==>       L          *
@@ -242,8 +242,8 @@ void CO_MemAddAVLTree::rebalance_tree(CO_MemAVLNode *tree_node,
                 }
                 else /* Left->balance == +1 */
                 {
-                    /* LR-ROTATE */
-                    /*********************************************************\ 
+                /* LR-ROTATE */
+                /*********************************************************\
                 *         F                 F                 F         *
                 *         |                 |                 |         *
                 *        node              node               LR        *
@@ -321,8 +321,8 @@ void CO_MemAddAVLTree::rebalance_tree(CO_MemAVLNode *tree_node,
 #endif
                 if ((Right->balance == 1) || (Right->balance == 0))
                 {
-                    /* L-ROTATE */
-                    /*****************************************\ 
+                /* L-ROTATE */
+                /*****************************************\
                 *       F                    F          *
                 *       |                    |          *
                 *      node      ==>         R          *
@@ -372,8 +372,8 @@ void CO_MemAddAVLTree::rebalance_tree(CO_MemAVLNode *tree_node,
                 }
                 else
                 {
-                    /* RL-ROTATE */
-                    /*********************************************************\ 
+                /* RL-ROTATE */
+                /*********************************************************\
                 *     F                 F                      F        *
                 *     |                 |                      |        *
                 *    node              node                    RL       *
@@ -536,8 +536,8 @@ void CO_MemSizeAVLTree::rebalance_tree(CO_MemSizeAVLNode *tree_node,
 #endif
                 if ((Left->balance == -1) || (Left->balance == 0))
                 {
-                    /* R-ROTATE */
-                    /*****************************************\ 
+                /* R-ROTATE */
+                /*****************************************\
                 *         F                  F          *
                 *         |                  |          *
                 *        node      ==>       L          *
@@ -587,8 +587,8 @@ void CO_MemSizeAVLTree::rebalance_tree(CO_MemSizeAVLNode *tree_node,
                 }
                 else /* Left->balance == +1 */
                 {
-                    /* LR-ROTATE */
-                    /*********************************************************\ 
+                /* LR-ROTATE */
+                /*********************************************************\
                 *         F                 F                 F         *
                 *         |                 |                 |         *
                 *        node              node               LR        *
@@ -666,8 +666,8 @@ void CO_MemSizeAVLTree::rebalance_tree(CO_MemSizeAVLNode *tree_node,
 #endif
                 if ((Right->balance == 1) || (Right->balance == 0))
                 {
-                    /* L-ROTATE */
-                    /*****************************************\ 
+                /* L-ROTATE */
+                /*****************************************\
                 *       F                    F          *
                 *       |                    |          *
                 *      node      ==>         R          *
@@ -717,8 +717,8 @@ void CO_MemSizeAVLTree::rebalance_tree(CO_MemSizeAVLNode *tree_node,
                 }
                 else
                 {
-                    /* RL-ROTATE */
-                    /*********************************************************\ 
+                /* RL-ROTATE */
+                /*********************************************************\
                 *     F                 F                      F        *
                 *     |                 |                      |        *
                 *    node              node                    RL       *

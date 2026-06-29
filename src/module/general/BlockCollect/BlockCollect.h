@@ -5,25 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                               (C) 2001 VirCinity GmbH  **
- ** Description: BlockCollect                                              **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                             Lars Frenzel                               **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30a                             **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date: 03.04.2001 Sven Kufer: changed to new API                        **
-\**************************************************************************/
-
 #ifndef _BLOCK_COLLECT_H
 #define _BLOCK_COLLECT_H
 

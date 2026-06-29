@@ -1,5 +1,5 @@
 set(CONFIG_SOURCES config.cpp)
-set(CONFIG_HEADERS array.h access.h file.h value.h config.h)
+set(CONFIG_HEADERS array.h access.h file.h value.h config.h section.h)
 
 set(PREFIX covconfig/)
 include(${PREFIX}covconfig.cmake)

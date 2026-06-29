@@ -5,28 +5,12 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)2002 RUS  **
- **                                                                        **
- ** Description: Read IMD checkpoint files from ITAP.                      **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                     Juergen Schulze-Doebold                            **
- **     High Performance Computing Center University of Stuttgart          **
- **                         Allmandring 30                                 **
- **                         70550 Stuttgart                                **
- **                                                                        **
- ** Cration Date: 03.09.2002                                               **
-\**************************************************************************/
-
 #ifndef _READ_IMD_H_
 #define _READ_IMD_H_
 
 #include <api/coSimpleModule.h>
 using namespace covise;
-
+// Read IMD checkpoint files from ITAP
 /** Routines for checkpoint file handling.
  */
 class coCheckpointFile

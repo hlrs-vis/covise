@@ -64,31 +64,6 @@ Revision 1.1  93/09/25  20:50:47  zrhk0125
 Initial revision
 
 */
-/***********************************************************************\
- **                                                                     **
- **   Socket Class Routines                       Version: 1.0          **
- **                                                                     **
- **                                                                     **
- **   Description  : The Socket class handles the operating system      **
- **		    part of the socket handling.                       **
- **                                                                     **
- **   Classes      : Socket                                             **
- **                                                                     **
- **   Copyright (C) 1993     by University of Stuttgart                 **
- **                             Computer Center (RUS)                   **
- **                             Allmandring 30                          **
- **                             7000 Stuttgart 80                       **
- **                                                                     **
- **                                                                     **
- **   Author       : A. Wierse   (RUS)                                  **
- **                                                                     **
- **   History      :                                                    **
- **                  15.04.93  Ver 1.0                                  **
- **                  26.05.93      TCP_NODELAY inserted                 **
- **                                                                     **
- **                                                                     **
- **                                                                     **
-\***********************************************************************/
 
 #define MAX_SOCK_BUF 65536
 

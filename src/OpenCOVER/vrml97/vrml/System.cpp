@@ -47,6 +47,7 @@ using std::endl;
 #include "config.h"
 #include "System.h"
 #include "Byteswap.h"
+#include <audio/Player.h>
 
 using namespace vrml;
 
@@ -115,9 +116,7 @@ System::System()
 {
 }
 
-System::~System()
-{
-}
+System::~System() = default;
 
 // Should make these iostream objects...
 

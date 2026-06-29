@@ -12,40 +12,12 @@
 #include <util/coObjID.h>
 #include "coShmPtrArray.h"
 
-/*
- $Log:  $
- * Revision 1.1  1993/09/25  20:42:21  zrhk0125
- * Initial revision
- *
-*/
 
-/***********************************************************************\
- **                                                                     **
- **   Distributed Object class                     Version: 1.1         **
- **                                                                     **
- **                                                                     **
- **   Description  : The base class for all objects that are            **
- **                  distributed between processes.                     **
- **                  Basic functionality to use shared storage is       **
- **                  provided for its subclasses.                       **
- **                                                                     **
- **   Classes      : coDistributedObject                                  **
- **                                                                     **
- **   Copyright (C) 1993     by University of Stuttgart                 **
- **                             Computer Center (RUS)                   **
- **                             Allmandring 30                          **
- **                             7000 Stuttgart 80                       **
- **                                                                     **
- **                                                                     **
- **   Author       : A. Wierse   (RUS)                                  **
- **                                                                     **
- **   History      :                                                    **
- **                  15.04.93  Ver 1.0                                  **
- **                  26.05.93  Ver 1.1  PackElement introduced for      **
- **                                     sending whole Objects between   **
- **                                     Data Managers                   **
- **                                                                     **
-\***********************************************************************/
+// Description: The base class for all objects that are
+//              distributed between processes.
+//              Basic functionality to use shared storage is
+//              provided for its subclasses.
+
 namespace covise
 {
 class DataHandle;

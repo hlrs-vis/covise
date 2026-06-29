@@ -33,7 +33,7 @@
       <Headlight value="on" />
       <RenderOnMaster value="on" />
       <Statistics value="off" />
-      <DebugLevel value="0" />
+      <DebugLevel value="3" />
       <ContinuousRendering value="on" />
       <trackedHMD value="off" />
       <HMDMode value="off" />
@@ -43,6 +43,9 @@
       <Stencil value="off" />
       <CheckForOpenGLErrors value="off" />
       <StencilBits value="8" />
+      <HUDShaderTrace value="on" />
+      <HUDShaderTraceDumpSources value="off" />
+      <GLDebug value="off" level="0" abortOnError="off" />
       <Notify value="INFO" />
       <Turntable value="off"/>
       <Near value="10" />
@@ -58,8 +61,7 @@
       <TabletUI value="off" host="localhost" /> 
       <NumBlendingTextures value="0" />
 
-
-      <NumPipes value="3" />
+      <NumPipes value="1" />
       <NumChannels value="3"/>
       <NumViewports value="3"/>
       <NumWindows value="3"/>
@@ -85,17 +87,16 @@
 
       <PipeConfig>
         <Pipe name="0" useDISPLAY="false" screen="0" />
-        <Pipe name="1" useDISPLAY="false" screen="1" />
-        <Pipe name="2" useDISPLAY="false" screen="2" />
       </PipeConfig>
 
       <WindowConfig>
-        <Window type="Qt" width="853" comment="Center" window="0" pipeIndex="0" height="800" left="853" top="0" name="0" embedded="false" decoration="true" />
-        <Window type="Qt" width="853" comment="Right" window="1" pipeIndex="1" height="800" left="1706" top="0" name="1" embedded="false" decoration="true" />
-        <Window type="Qt" width="853" comment="Left" window="2" pipeIndex="2" height="800" left="0" top="0" name="2" embedded="false" decoration="true" />
+        <Window type="None" width="853" comment="Center" window="0" pipeIndex="0" height="800" left="853" top="0" name="0" embedded="false" />
+        <Window type="None" width="853" comment="Right" window="1" pipeIndex="0" height="800" left="1706" top="0" name="1" embedded="false" />
+        <Window type="None" width="853" comment="Left" window="2" pipeIndex="0" height="800" left="0" top="0" name="2" embedded="false" />
       </WindowConfig>
-     <!--
+     
 
+<!--
  
       <NumPipes value="1" />
       <NumChannels value="1" />
@@ -122,6 +123,8 @@
       <WindowConfig>
         <Window type="Qt" arch="windows" width="1280" height="800" left="0" top="0" comment="FRONT" window="0" pipeIndex="0" name="0" embedded="true" decoration="false" /> 
       </WindowConfig>
+
+      
       -->
       
       <UI>
@@ -137,9 +140,9 @@
       </Input>
 
       <Menu>
-        <Visible value="false" />
+        <Visible value="true" />
         <Position x="900" y="0" z="700" />
-        <Size value=".7" />
+        <Size value="2.0" />
       </Menu>
 
       <VRB>
@@ -174,13 +177,12 @@
             <models value="D:/Forschungsarbeit/Data/myanmar.bvh"/>
             <models value="C:/Users/Daniel/Documents/Studium/Forschungsarbeit/Data/Data_bin/naturkundemuseum_School000.bvh"/>
 
-            <data_dir value="C:/Users/Daniel/Documents/Studium/Forschungsarbeit/Data/Data_vis"/>
-            <initial_selection value="0,1"/>
+            
             <models value="C:/Users/Daniel/Documents/Studium/Forschungsarbeit/Data/Data_bin/naturkundemuseum_School000.bvh"/>
             
              -->
-
-            <models value="C:/Users/Daniel/Documents/Studium/Forschungsarbeit/Data/Data_bin/naturkundemuseum_School000.bvh"/>
+            <data_dir value="C:/Users/Daniel/Documents/Studium/Forschungsarbeit/Data/Data_vis"/>
+            <initial_selection value="0"/>
             <point_light_intensity value="0.6"/>
             <ambient_intensity value="0.6"/>
             <shininess value="0.1"/>
@@ -201,7 +203,7 @@
             <max_screen_size value="10000.0"/>
             <min_screen_size value="1.0"/>
             <scale_points value="1.0"/>
-            <scale_surfel value="1.0"/>
+            <scale_surfel value="1.5"/>
             <lighting value="off"/>
             <color value="off"/>
             <color_mode value="normals"/> <!-- normals, accuracy, derivation, sensitivity -->

@@ -9,7 +9,7 @@
 #include "vvPluginList.h"
 #include <cassert>
 #include <iostream>
-#include "../OpenConfig/access.h"
+#include "../ViveConfig/access.h"
 
 // #ifndef COVER_PLUGIN_NAME
 // #define COVER_PLUGIN_NAME ""
@@ -18,7 +18,7 @@
 using namespace vive;
 
 vvPlugin::vvPlugin(const std::string &name)
-:m_name(name)
+    : m_name(name)
 {
     assert(!m_name.empty());
 }
@@ -52,69 +52,69 @@ std::shared_ptr<config::File> vvPlugin::config()
     return m_configFile;
 }
 
-template<class V>
+template <class V>
 std::unique_ptr<config::Value<V>> vvPlugin::config(const std::string &section, const std::string &name,
-                                                     const V &defVal, config::Flag flags)
+    const V &defVal, config::Flag flags)
 {
     return config()->value<V>(section, name, defVal, flags);
 }
 
 std::unique_ptr<config::Value<bool>> vvPlugin::configBool(const std::string &section, const std::string &name,
-                                                            const bool &defVal, config::Flag flags)
+    const bool &defVal, config::Flag flags)
 {
     return config(section, name, defVal, flags);
 }
 
 std::unique_ptr<config::Value<int64_t>> vvPlugin::configInt(const std::string &section, const std::string &name,
-                                                              const int64_t &defVal, config::Flag flags)
+    const int64_t &defVal, config::Flag flags)
 {
     return config(section, name, defVal, flags);
 }
 
 std::unique_ptr<config::Value<double>> vvPlugin::configFloat(const std::string &section, const std::string &name,
-                                                               const double &defVal, config::Flag flags)
+    const double &defVal, config::Flag flags)
 {
     return config(section, name, defVal, flags);
 }
 
 std::unique_ptr<config::Value<std::string>> vvPlugin::configString(const std::string &section,
-                                                                     const std::string &name, const std::string &defVal,
-                                                                     config::Flag flags)
+    const std::string &name, const std::string &defVal,
+    config::Flag flags)
 {
     return config(section, name, defVal, flags);
 }
 
-template<class V>
+template <class V>
 std::unique_ptr<config::Array<V>> vvPlugin::configArray(const std::string &section, const std::string &name,
-                                                          const std::vector<V> &defVal, config::Flag flags)
+    const std::vector<V> &defVal, config::Flag flags)
 {
     return config()->array<V>(section, name, defVal, flags);
 }
 
 std::unique_ptr<config::Array<bool>> vvPlugin::configBoolArray(const std::string &section, const std::string &name,
-                                                                 const std::vector<bool> &defVal, config::Flag flags)
+    const std::vector<bool> &defVal, config::Flag flags)
 {
     return configArray(section, name, defVal, flags);
 }
 
 std::unique_ptr<config::Array<int64_t>> vvPlugin::configIntArray(const std::string &section, const std::string &name,
-                                                                   const std::vector<int64_t> &defVal,
-                                                                   config::Flag flags)
+    const std::vector<int64_t> &defVal,
+    config::Flag flags)
 {
     return configArray(section, name, defVal, flags);
 }
 
 std::unique_ptr<config::Array<double>> vvPlugin::configFloatArray(const std::string &section, const std::string &name,
-                                                                    const std::vector<double> &defVal,
-                                                                    config::Flag flags)
+    const std::vector<double> &defVal,
+    config::Flag flags)
 {
     return configArray(section, name, defVal, flags);
 }
 
 std::unique_ptr<config::Array<std::string>> vvPlugin::configStringArray(const std::string &section,
-                                                                          const std::string &name,
-                                                                          const std::vector<std::string> &defVal,
-                                                                          config::Flag flags)
+    const std::string &name,
+    const std::vector<std::string> &defVal,
+    config::Flag flags)
 {
     return configArray(section, name, defVal, flags);
 }

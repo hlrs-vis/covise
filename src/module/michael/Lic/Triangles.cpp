@@ -556,10 +556,7 @@ Triangles::Triangles()
     c2d = f2ten();
 }
 
-/*******************************\ 
- * find neighbouring triangles *
-\*******************************/
-
+// find neighbouring triangles
 bool commonEdge(Triangles *first, Triangles *second)
 {
     bool hce = false;

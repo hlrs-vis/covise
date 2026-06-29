@@ -5,16 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                          (C)2005 RRZK  **
- **                                                                        **
- ** Description: Read STP3 volume files.                                   **
- **                                                                        **
- ** Author:      Martin Aumueller <aumueller@uni-koeln.de>                 **
- **                                                                        **
- ** Cration Date: 05.01.2005                                               **
- \**************************************************************************/
-
 #include <api/coModule.h>
 #include "ReadSTP3.h"
 
@@ -28,6 +18,7 @@
 #define byteSwapM(x, no) byteSwap(x, no)
 #endif
 
+// Read STP3 volume files.
 /// Constructor
 coReadSTP3::coReadSTP3(int argc, char *argv[])
     : coModule(argc, argv, "Read STP3 volume files.")

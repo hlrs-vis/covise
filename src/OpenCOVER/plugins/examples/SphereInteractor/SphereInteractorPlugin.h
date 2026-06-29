@@ -7,20 +7,8 @@
 
 #ifndef _SPHEREINTERACTOR_PLUGIN_H
 #define _SPHEREINTERACTOR_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2010 HLRS  **
- **                                                                          **
- ** Description: This plugin shows how to work with coPickSensor             **
- **              Therefore a red Sphere was created. This sphere can be moved**
- **              by user interaction.                                        **
- **                                                                          **
- ** Author: A.Gottlieb		                                                  **
- **                                                                          **
- ** History:  								                                         **
- ** Jan-10  v1	    				       		                                   **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
+
 #include <cover/coVRPlugin.h>
 
 #include <osg/ShapeDrawable>
@@ -41,6 +29,9 @@ using namespace opencover;
 
 class mySensor; //sensor class, based on coPickSensor
 
+// This plugin shows how to work with coPickSensor             
+// Therefore a red Sphere was created. This sphere can be moved
+// by user interaction.                                        
 class SphereInteractorPlugin : public coVRPlugin
 {
     friend class mySensor;

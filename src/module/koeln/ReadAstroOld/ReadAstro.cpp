@@ -5,21 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)2002 RUS  **
- **                                                                        **
- ** Description: Read IMD checkpoint files from ITAP.                      **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                     Juergen Schulze-Doebold                            **
- **     High Performance Computing Center University of Stuttgart          **
- **                         Allmandring 30                                 **
- **                         70550 Stuttgart                                **
- **                                                                        **
- ** Cration Date: 03.09.2002                                               **
-\**************************************************************************/
-
 #include <api/coModule.h>
 #include <limits.h>
 #include <float.h>

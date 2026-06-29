@@ -8,20 +8,7 @@
 #ifndef _TASC_FLOW_TDI_H
 #define _TASC_FLOW_TDI_H
 
-/**************************************************************************\ 
- **                                                                        **
- **                                                                        **
- ** Description:  COVISE TascFlowTDI  application module                   **
- **                                                                        **
- **                                                                        **
- **                             (C) Vircinity 2000                         **
- **                                                                        **
- **                                                                        **
- ** Author:  Sasha Cioringa, Thilo Krueger                                 **
- **                                                                        **
- **                                                                        **
- ** Date:  16.11.00                                                        **
-\**************************************************************************/
+// COVISE TascFlowTDI  application module
 
 //#include "coModule.h"
 #include "FieldFile.h"

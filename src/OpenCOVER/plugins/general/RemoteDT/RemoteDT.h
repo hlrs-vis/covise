@@ -52,6 +52,7 @@ class RemoteDTActor;
 using namespace vrui;
 using namespace opencover;
 
+// Remote Desktop plugin (VNC, RDP) 
 class RemoteDT : public coVRPlugin, public coMenuListener, public coTUIListener
 {
 public:

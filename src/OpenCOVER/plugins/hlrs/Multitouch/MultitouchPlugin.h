@@ -7,20 +7,6 @@
 
 #ifndef _Multitouch_PLUGIN_H
 #define _Multitouch_PLUGIN_H
-/****************************************************************************\ 
-**                                                            (C)2012 HLRS  **
-**                                                                          **
-** Description: Multitouch Plugin											**
-**                                                                          **
-**                                                                          **
-** Author:																	**
-**         Jens Dehlke														**
-**                                                                          **
-** History:  								                                **
-** Sep-12  v1.0	    				       		                            **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
 
 #include <cover/coVRPluginSupport.h>
 using namespace covise;

@@ -5,23 +5,7 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1999 RUS  **
- **                                                                        **
- ** Description: Constructors and Member-Functions for object "Element"    **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                            Reiner Beller                               **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:                                                                  **
-\**************************************************************************/
+
 
 #include "Element.h"
 

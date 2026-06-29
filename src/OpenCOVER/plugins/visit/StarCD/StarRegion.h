@@ -3,19 +3,6 @@
 // Fr abend eingecheckt
 
 // Di abend eingecheckt
-/****************************************************************************\ 
- **                                                            (C)1999 RUS   **
- **                                                                          **
- ** Description: class describing a STAR boundary condition region in COVER  **
- **                                                                          **
- **                                                                          **
- ** Author: D. Rainer                                                        **
- **                                                                          **
- ** History:                                                                 **
- ** October-99                                                               **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
 
 #ifndef _STAR_REGION_H
 #define _STAR_REGION_H
@@ -34,6 +21,7 @@ using namespace opencover;
 #include "StarRegionInteractor.h"
 #include "InteractorSensor.h"
 
+// describing a STAR boundary condition region in COVER
 class StarRegion
 {
  private:

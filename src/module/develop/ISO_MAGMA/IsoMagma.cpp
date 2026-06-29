@@ -5,22 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2000 RUS   **
- **                                                                          **
- ** Description: Simple Example how to create a set of polygons              **
- **                                                                          **
- ** Name:        IsoMagma                                                  **
- ** Category:    examples                                                    **
- **                                                                          **
- ** Author: D. Rainer		                                                **
- **                                                                          **
- ** History:  								                                **
- ** April-00     					       		                            **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #include "IsoMagma.h"
 #include <stdlib.h>
 #include <stdio.h>

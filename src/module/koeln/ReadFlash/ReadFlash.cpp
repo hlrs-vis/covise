@@ -5,25 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)2025 GER  **
- **                                                                        **
- ** Description: Read volume files in formats supported by Virvo.          **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                     Pierre Colin Nürnberger                            **
- **           University of Cologne - Institute of Physics I               **
- **                        Zülpicher Straße 77                             **
- **                            50937 Köln                                  **
- **                                                                        **
- ** Cration Date: 28.05.2025                                               **
-\**************************************************************************/
-
 #include <sstream>
 #include <cmath>
 #include <boost/filesystem.hpp>

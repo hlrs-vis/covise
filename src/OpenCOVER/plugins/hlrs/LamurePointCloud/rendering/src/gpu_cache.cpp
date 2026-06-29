@@ -41,7 +41,7 @@ register_node(const model_t model_id, const node_t node_id) {
         --transfer_budget_;
     }
 
-    node_t least_recently_used_slot = index_->reserve_slot();
+    slot_t least_recently_used_slot = index_->reserve_slot();
 
     index_->apply_slot(least_recently_used_slot, model_id, node_id);
 

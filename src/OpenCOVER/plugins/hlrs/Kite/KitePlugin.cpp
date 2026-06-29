@@ -128,6 +128,11 @@ bool KitePlugin::init()
     m_rollOffsetDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.RollOffset", m_rollOffsetDeg);
     m_pitchOffsetDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.PitchOffset", m_pitchOffsetDeg);
     m_yawOffsetDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.YawOffset", m_yawOffsetDeg);
+    m_rollScale = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.RollScale", (float)m_rollScale);
+    m_pitchScale = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.PitchScale", (float)m_pitchScale);
+    m_limitAttitude = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.LimitAttitude", m_limitAttitude);
+    m_maxAbsRollDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.MaxAbsRollDeg", (float)m_maxAbsRollDeg);
+    m_maxAbsPitchDeg = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.MaxAbsPitchDeg", (float)m_maxAbsPitchDeg);
     m_smoothPose = coCoviseConfig::isOn("COVER.Plugin.KitePlugin.SmoothPose", m_smoothPose);
     m_posSmoothAlpha = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.PositionSmoothing", (float)m_posSmoothAlpha);
     m_rotSmoothAlpha = coCoviseConfig::getFloat("COVER.Plugin.KitePlugin.RotationSmoothing", (float)m_rotSmoothAlpha);
@@ -259,6 +264,11 @@ bool KitePlugin::init()
     m_rollOffsetDeg = envToDouble("KITE_ROLL_OFFSET", m_rollOffsetDeg);
     m_pitchOffsetDeg = envToDouble("KITE_PITCH_OFFSET", m_pitchOffsetDeg);
     m_yawOffsetDeg = envToDouble("KITE_YAW_OFFSET", m_yawOffsetDeg);
+    m_rollScale = envToDouble("KITE_ROLL_SCALE", m_rollScale);
+    m_pitchScale = envToDouble("KITE_PITCH_SCALE", m_pitchScale);
+    m_limitAttitude = envToBool("KITE_LIMIT_ATTITUDE", m_limitAttitude);
+    m_maxAbsRollDeg = envToDouble("KITE_MAX_ABS_ROLL_DEG", m_maxAbsRollDeg);
+    m_maxAbsPitchDeg = envToDouble("KITE_MAX_ABS_PITCH_DEG", m_maxAbsPitchDeg);
     m_smoothPose = envToBool("KITE_SMOOTH_POSE", m_smoothPose);
     m_posSmoothAlpha = envToDouble("KITE_POSITION_SMOOTHING", m_posSmoothAlpha);
     m_rotSmoothAlpha = envToDouble("KITE_ROTATION_SMOOTHING", m_rotSmoothAlpha);
@@ -270,6 +280,10 @@ bool KitePlugin::init()
 
     m_posSmoothAlpha = std::max(0.0, std::min(1.0, m_posSmoothAlpha));
     m_rotSmoothAlpha = std::max(0.0, std::min(1.0, m_rotSmoothAlpha));
+    m_rollScale = std::max(0.0, m_rollScale);
+    m_pitchScale = std::max(0.0, m_pitchScale);
+    m_maxAbsRollDeg = std::max(0.0, m_maxAbsRollDeg);
+    m_maxAbsPitchDeg = std::max(0.0, m_maxAbsPitchDeg);
 
     m_ropeEnabled = envToBool("KITE_ROPE", m_ropeEnabled);
     m_ropeRadius = envToFloat("KITE_ROPE_RADIUS", m_ropeRadius);

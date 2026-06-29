@@ -5,24 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                   (C)2001 VirCinity    **
- **                                                                        **
- ** Description: Read/Write module for multiple COVISE Files               **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                             Sven Kufer                                 **
- **                      VirCinity IT-Consulting GmbH                      **
- **                            Nobelstrasse 15                             **
- **                            70569 Stuttgart                             **
- **                                                                        **
- ** Date:  03.08.01                                                        **
-\**************************************************************************/
 
 #include "RWCoviseGroup.h"
 #include <algorithm>

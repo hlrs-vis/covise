@@ -5,18 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
- *	        Libary to create files in COVISE format                   *
- *                                			                  *
- *                           (C) 2001 			                  *
- *                   VirCinity IT-Consulting GmbH                          *
- *                         Nobelstrasse 15				  *
- *                       D-70569 Stuttgart				  *
- *                            Germany					  *
- * Author: S. Kufer							  *
- * Date: 28. Juli 2001							  *
- **************************************************************************/
-
 #ifndef _COVISE_FILELIB
 #define _COVISE_FILELIB
 

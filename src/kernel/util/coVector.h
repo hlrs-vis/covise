@@ -8,23 +8,6 @@
 #ifndef COVISE_VECTOR_H
 #define COVISE_VECTOR_H
 
-/**************************************************************************\ 
- **                                                                        **
- **                                                                        **
- ** Description: Interface classes for application modules to the COVISE   **
- **              software environment                                      **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                             (C)1997 RUS                                **
- **                Computing Center University of Stuttgart                **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- ** Author: D. Rantzau                                                     **
- ** Date:  15.08.97  V1.0                                                  **
-\**************************************************************************/
 
 #include <math.h>
 #include <string.h>

@@ -7,20 +7,6 @@
 
 #ifndef _TRANS3D_H
 #define _TRANS3D_H
-/**************************************************************************\ 
- **                                                   	      (C)2000 RUS **
- **                                                                        **
- ** Description:  Trans3D  Simulation Module            	                  **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author: Uwe Woessner                                                   **
- ** History:                                                               **
- ** Apr 00         v1                                                      **                               **
- **                                                                        **
-\**************************************************************************/
 
 #include <api/coModule.h>
 using namespace covise;

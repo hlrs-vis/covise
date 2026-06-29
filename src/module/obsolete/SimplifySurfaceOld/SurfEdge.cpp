@@ -5,32 +5,10 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1998 RUS  **
- **                                                                        **
- ** Description:  COVISE Surface edge collapse class                       **
- **                      for Surface Reduction Methods                     **
- **                                                                        **
- **                                                                        **
- **                             (C) 1998                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Karin Frank                                                   **
- **                                                                        **
- **                                                                        **
- ** Date:  April 1998  V1.0                                                **
-\**************************************************************************/
 
 #include <appl/ApplInterface.h>
 #include "SurfEdge.h"
 #include <util/coviseCompat.h>
-
-/////////////////////////////////////////////////////////////////////////////
-// Make COVISE output objects in Shared memory                             //
-/////////////////////////////////////////////////////////////////////////////
 
 coDistributedObject **SurfaceEdgeCollapse::createcoDistributedObjects(int red_tri, int red_points, const char *Triangle_name, const char *Data_name, const char *Normals_name)
 {

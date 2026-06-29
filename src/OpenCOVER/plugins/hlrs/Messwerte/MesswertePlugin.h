@@ -7,19 +7,7 @@
 
 #ifndef _Messwerte_PLUGIN_H
 #define _Messwerte_PLUGIN_H
-/****************************************************************************\ 
-**                                                            (C)2001 HLRS  **
-**                                                                          **
-** Description: Messwerte Plugin (does nothing)                              **
-**                                                                          **
-**                                                                          **
-** Author: U.Woessner		                                                **
-**                                                                          **
-** History:  								                                **
-** Nov-01  v1	    				       		                            **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPluginSupport.h>
 using namespace covise;
 using namespace opencover;
@@ -71,8 +59,7 @@ using namespace opencover;
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
 
-#include <PluginUtil/colors/ColorBar.h>
-
+#include <PluginUtil/ColorBar.h>
 
 class MesswertePlugin : public coVRPlugin, public coTUIListener
 {

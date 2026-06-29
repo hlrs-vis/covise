@@ -5,21 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)2008 HLRS **
- **                                                                        **
- ** Description: RawConverter .                                            **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:             Bruno Burbaum                                      **
- **                                                                        **
- **                                                                        **
- ** Cration Date: 9.10.2008                                               **
-\***************************************************************************/
-
 #ifndef _RAW_CONCERTER_H // OK, Verhindert mehrfach aufrufe
 #define _RAW_CONCERTER_H //
 

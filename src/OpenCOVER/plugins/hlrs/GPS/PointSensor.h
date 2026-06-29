@@ -7,19 +7,7 @@
 
 #ifndef _GPS_PLUGIN_SENSOR_H
 #define _GPS_PLUGIN_SENSOR_H
-/****************************************************************************\ 
- **                                                            (C)2008 HLRS  **
- **                                                                          **
- ** Description: GPS OpenCOVER Plugin (is polite)                            **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner, T.Gudat		                                     **
- **                                                                          **
- ** History:  								     **
- ** June 2008  v1	    				       		     **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <PluginUtil/coSensor.h>
 
 class PointSensor : public coPickSensor

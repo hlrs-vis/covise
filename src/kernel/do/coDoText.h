@@ -10,29 +10,6 @@
 
 #include "coDistributedObject.h"
 
-/***********************************************************************\ 
- **                                                                     **
- **   Text class                                   Version: 1.0         **
- **                                                                     **
- **                                                                     **
- **   Description  : Classes for the handling of text data              **
- **                  in a distributed manner.                           **
- **                                                                     **
- **   Classes      : coDoText                                            **
- **                                                                     **
- **   Copyright (C) 1993     by University of Stuttgart                 **
- **                             Computer Center (RUS)                   **
- **                             Allmandring 30                          **
- **                             7000 Stuttgart 80                       **
- **                                                                     **
- **                                                                     **
- **   Author       : Uwe Woessner                                       **
- **                                                                     **
- **   History      :                                                    **
- **                  14.02.95  Ver 1.0                                  **
- **                                                                     **
- **                                                                     **
-\***********************************************************************/
 namespace covise
 {
 

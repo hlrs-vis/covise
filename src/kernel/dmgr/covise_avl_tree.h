@@ -217,7 +217,7 @@ CO_AVL_Node<T> *AVLTree<T>::search_identical_node(T *d, CO_AVL_Node<T> *start)
     return 0L;
 };
 
-/*--------------------------------------------------------------------------*\ 
+/*--------------------------------------------------------------------------*\
  **                                                                          **
  ** AVL Tree Handling                                  Version: 1.3          **
  **                                                                          **
@@ -467,8 +467,8 @@ void AVLTree<T>::rebalance_tree(CO_AVL_Node<T> *tree_node,
 #endif
                 if ((Left->balance == -1) || (Left->balance == 0))
                 {
-                    /* R-ROTATE */
-                    /*****************************************\ 
+                /* R-ROTATE */
+                /*****************************************\
                 *         F                  F          *
                 *         |                  |          *
                 *        node      ==>       L          *
@@ -518,8 +518,8 @@ void AVLTree<T>::rebalance_tree(CO_AVL_Node<T> *tree_node,
                 }
                 else /* Left->balance == +1 */
                 {
-                    /* LR-ROTATE */
-                    /*********************************************************\ 
+                /* LR-ROTATE */
+                /*********************************************************\
                 *         F                 F                 F         *
                 *         |                 |                 |         *
                 *        node              node               LR        *
@@ -597,8 +597,8 @@ void AVLTree<T>::rebalance_tree(CO_AVL_Node<T> *tree_node,
 #endif
                 if ((Right->balance == 1) || (Right->balance == 0))
                 {
-                    /* L-ROTATE */
-                    /*****************************************\ 
+                /* L-ROTATE */
+                /*****************************************\
                 *       F                    F          *
                 *       |                    |          *
                 *      node      ==>         R          *
@@ -648,8 +648,8 @@ void AVLTree<T>::rebalance_tree(CO_AVL_Node<T> *tree_node,
                 }
                 else
                 {
-                    /* RL-ROTATE */
-                    /*********************************************************\ 
+                /* RL-ROTATE */
+                /*********************************************************\
                 *     F                 F                      F        *
                 *     |                 |                      |        *
                 *    node              node                    RL       *

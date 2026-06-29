@@ -648,7 +648,7 @@ coVRPlugin *coVRPluginList::addPlugin(const char *name, PluginDomain domain)
     coVRPlugin *m = getPlugin(name);
     if (m == NULL)
     {
-        m = loadPlugin(name, domain == Default);
+        m = loadPlugin(name, domain == Default || domain == Vis);
         if (m)
         {
             if (m->init())

@@ -7,24 +7,13 @@
 
 #ifndef _ISOTOPO_H
 #define _ISOTOPO_H
-/****************************************************************************\ 
- **                                                                          **
- ** Description: IsoSurface for UniformGrids                                 **
- **              uses Thomas Lewiner's algorithm that checks                 **
- **              for topologically correct results                           **
- **                                                                          **
- ** Name:        IsoSurface_TopoCheck                                        **
- ** Category:    Mapper                                                      **
- **                                                                          **
- ** Author: M. Becker                                                        **
- ** 01/2009                                                                  **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
 
 #include <api/coModule.h>
 using namespace covise;
 #include "marching_cubes_jgt/MarchingCubes.h"
+
+// IsoSurface for UniformGrids uses Thomas Lewiner's algorithm that checks
+// for topologically correct results
 
 class IsoSurface_TopoCheck : public coModule
 {

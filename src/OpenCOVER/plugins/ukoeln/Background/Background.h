@@ -7,19 +7,7 @@
 
 #ifndef _BACKGROUND_PLUGIN_H
 #define _BACKGROUND_PLUGIN_H
-/****************************************************************************\ 
- **                                                           (C)2009 UKOELN **
- **                                                                          **
- ** Description: Background Plugin                                           **
- **                                                                          **
- **                                                                          **
- ** Author: D. Wickeroth                                                     **
- **                                                                          **
- ** History:                                                                 **
- ** Dez 2009  v1                                                             **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 #include <cover/coVRPluginSupport.h>
 

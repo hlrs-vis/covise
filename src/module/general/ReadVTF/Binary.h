@@ -8,16 +8,6 @@
 #ifndef BINARY_H
 #define BINARY_H
 
-/**************************************************************************\ 
- **                                                           (C)2001    **
- ** Author:                                                              **
- **                            Karin Mller                              **
- **                                        Vircinity                     **
- **                            Technologiezentrum                        **
- **                            70550 Stuttgart                           **
- ** Date:  01.10.01                                                      **
-\**************************************************************************/
-
 #include <stdio.h>
 
 class Binary

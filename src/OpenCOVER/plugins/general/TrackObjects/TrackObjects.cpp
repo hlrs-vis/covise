@@ -5,20 +5,6 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-/****************************************************************************\ 
-**                                                            (C)2001 HLRS  **
-**                                                                          **
-** Description: TrackObjects Plugin (does nothing)                          **
-**                                                                          **
-**                                                                          **
-** Author: U.Woessner		                                                 **
-**                                                                          **
-** History:  								                                 **
-** Nov-01  v1	    				       		                             **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
-
 #include "TrackObjects.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>

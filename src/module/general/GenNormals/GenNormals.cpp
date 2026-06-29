@@ -5,13 +5,6 @@
 
  * License: LGPL 2+ */
 
-#/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description: Interpolation from Cell Data to Vertex Data               **
- **                                                                        **
- **                                                                        **
-\**************************************************************************/
 #include <util/coviseCompat.h>
 #include "GenNormals.h"
 #include <iostream>

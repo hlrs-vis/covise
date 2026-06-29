@@ -8,28 +8,11 @@
 #ifndef _READ_DASA_H
 #define _READ_DASA_H
 
-/**************************************************************************\ 
- **                                                           (C)1994 RUS  **
- **                                                                        **
- ** Description: Read module for DASA Nastran data                         **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                             Andreas Wierse                             **
- **                     VirCinity IT-Consulting GmbH                       **
- **                            Schulstrsse 15                              **
- **                            71229 Warmbronn                             **
- **                                                                        **
- ** Date:  17.06.99  V1.0                                                  **
-\**************************************************************************/
-
 #include <appl/ApplInterface.h>
 using namespace covise;
 #include <util/coviseCompat.h>
+
+// Read module for DASA Nastran data
 
 class Application
 {

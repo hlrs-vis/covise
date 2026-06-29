@@ -11,33 +11,10 @@
 #include <iostream>
 #include <unistd.h>
 
-/***********************************************************************\ 
- **                                                                     **
- **   Header classes Routines                     Version: 1.1         **
- **                                                                     **
- **                                                                     **
- **   Description  : The basic message structure as well as ways to     **
- **                  initialize messages easily are provided.           **
- **                  Subclasses for special types of messages           **
- **                  can be introduced.                                 **
- **                                                                     **
- **   Classes      : Header, UnknownH                                   **
- **                                                                     **
- **   Copyright (C) 2001     by                  **
- **                                              **
- **                                              **
- **                                              **
- **                                                                     **
- **                                                                     **
- **   Author       :                                   **
- **                                                                     **
- **   History      :                                                    **
- **                                                  **
- **                    **
- **                                                                     **
- **                                                                     **
- **                                                                     **
-\***********************************************************************/
+// Description: The basic message structure as well as ways to
+//              initialize messages easily are provided.
+//              Subclasses for special types of messages
+//              can be introduced.
 
 // IDs for all header types that go between processes are fixed here
 

@@ -15,12 +15,6 @@ using namespace covise;
 #include "Triangles.h"
 //#include "RungeKutta.h"
 
-/*****************************\ 
- *                           *
- *  place the typedefs here  *
- *                           *
-\*****************************/
-
 //see W.H. Press et al.: Numerical Recipes in C, 2nd edition, pg. 282
 //period > 2*10^8 (or 2*10**8 for "FORTRANers)
 float random2(long *idum);

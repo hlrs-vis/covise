@@ -5,20 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: Rennteam Plugin (does nothing)                              **
- **                                                                          **
- **                                                                          **
- ** Author: Florian Seybold		                                     **
- **                                                                          **
- ** History:  								     **
- ** Nov-01  v1	    				       		             **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #include "RennteamPlugin.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRShader.h>

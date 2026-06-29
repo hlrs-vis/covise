@@ -8,26 +8,13 @@
 #ifndef __MAKE_PLOTS_H_
 #define __MAKE_PLOTS_H_
 
-/**************************************************************************\ 
- **                                                     (C)2001 Vircinity  **
- **                                                                        **
- ** Description: Make a set of coDoVec2 out of a few        **
- **              DO_Unstructured_S3D data. The object of the first input   **
- **              is the magnitude for the X-axis                           **
- ** Author:                                                                **
- **                                                                        **
- **                            Sergio Leseduarte                           **
- **                            Vircinity GmbH                              **
- **                            Nobelstr. 15                                **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  31.7.2001  (coding begins)                                      **
- **                   1.8.2001: Use properMinMax from COLLECT_TIMESTEPS    **
- **                             This routine is not perfect for all cases!!**
-\**************************************************************************/
 
 #include <api/coModule.h>
 using namespace covise;
+
+// Make a set of coDoVec2 out of a few
+// DO_Unstructured_S3D data. The object of the first input
+// is the magnitude for the X-axis
 
 class MakePlots : public coModule
 {

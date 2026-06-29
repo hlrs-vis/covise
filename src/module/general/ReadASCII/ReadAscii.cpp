@@ -5,21 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)2005 GER  **
- **                                                                        **
- ** Description: Read ASCII Files.					   **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                     	 Oliver Krause			           **
- **     			Zentrum fuer angewandte Informatik Koeln   **
- **                     University  of Cologne                             **
- **                                                   			   **
- **                                                                        **
- ** Creation Date: May 2005                                                **
-\**************************************************************************/
-
 #include <api/coModule.h>
 #include <limits.h>
 #include <float.h>

@@ -17,7 +17,7 @@ namespace lamure
 {
 namespace ren
 {
-cut_update_pool::cut_update_pool(const context_t context_id, const node_t upload_budget_in_nodes, const node_t render_budget_in_nodes, Data_Provenance const &data_provenance)
+cut_update_pool::cut_update_pool(const context_t context_id, const size_t upload_budget_in_nodes, const size_t render_budget_in_nodes, Data_Provenance const &data_provenance)
     : context_id_(context_id), locked_(false), num_threads_(LAMURE_CUT_UPDATE_NUM_CUT_UPDATE_THREADS), shutdown_(false), current_gpu_storage_A_(nullptr), current_gpu_storage_B_(nullptr),
       current_gpu_storage_(nullptr), current_gpu_storage_A_provenance_(nullptr), current_gpu_storage_B_provenance_(nullptr), current_gpu_storage_provenance_(nullptr),
       current_gpu_buffer_(cut_database_record::temporary_buffer::BUFFER_A), upload_budget_in_nodes_(upload_budget_in_nodes), render_budget_in_nodes_(render_budget_in_nodes),
@@ -36,7 +36,7 @@ cut_update_pool::cut_update_pool(const context_t context_id, const node_t upload
     }
 }
 
-cut_update_pool::cut_update_pool(const context_t context_id, const node_t upload_budget_in_nodes, const node_t render_budget_in_nodes)
+cut_update_pool::cut_update_pool(const context_t context_id, const size_t upload_budget_in_nodes, const size_t render_budget_in_nodes)
     : context_id_(context_id), locked_(false), num_threads_(LAMURE_CUT_UPDATE_NUM_CUT_UPDATE_THREADS), shutdown_(false), current_gpu_storage_A_(nullptr), current_gpu_storage_B_(nullptr),
       current_gpu_storage_(nullptr), current_gpu_storage_A_provenance_(nullptr), current_gpu_storage_B_provenance_(nullptr), current_gpu_storage_provenance_(nullptr),
       current_gpu_buffer_(cut_database_record::temporary_buffer::BUFFER_A), upload_budget_in_nodes_(upload_budget_in_nodes), render_budget_in_nodes_(render_budget_in_nodes),

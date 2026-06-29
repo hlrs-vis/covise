@@ -6,24 +6,6 @@
  * License: LGPL 2+ */
 
 
-/**************************************************************************\ 
- **                                                           (C)1995 RUS  **
- **                                                                        **
- ** Description: Interface class for arrayset parameter                    **
- **              used in COVISE software environment                       **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                             Dirk Rantzau                               **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  10.08.95  V1.0                                                  **
-\**************************************************************************/
 
 #include <covise/covise.h>
 #include "ApplInterface.h"

@@ -15,6 +15,7 @@
 #include <sstream>
 #include <chrono>
 #include <thread>
+#include <cmath>
 
 #include "lamure/pvs/pvs_database.h"
 
@@ -64,7 +65,7 @@ MainLoop()
     
     float opening_angle = 90.0f;        // TODO: these two should also be computed per cell (these constants only work in the regular box case)
     float aspect_ratio = 1.0f;
-    float near_plane = 0.01f;
+    double near_plane = 0.01;
 
     // Only used in second phase.
     scm::math::vec3d current_corner_pos;
@@ -118,7 +119,7 @@ MainLoop()
                 break;
         }
 
-        active_camera_->set_projection_matrix(opening_angle, aspect_ratio, near_plane, far_plane_);
+        active_camera_->set_projection_matrix(opening_angle, aspect_ratio, static_cast<float>(near_plane), far_plane_);
         active_camera_->set_view_matrix(scm::math::make_look_at_matrix(current_cell->get_position_center(), current_cell->get_position_center() + look_dir, up_dir));  // look_at(eye, center, up)
     }
     else
@@ -167,7 +168,7 @@ MainLoop()
                 break;
         }
 
-        active_camera_->set_projection_matrix(opening_angle, aspect_ratio, near_plane, far_plane_);
+        active_camera_->set_projection_matrix(opening_angle, aspect_ratio, static_cast<float>(near_plane), far_plane_);
         active_camera_->set_view_matrix(scm::math::make_look_at_matrix(current_corner_pos, current_corner_pos + look_dir, up_dir));  // look_at(eye, center, up)
     }
 
@@ -205,7 +206,7 @@ MainLoop()
     }
     else
     {
-        std::vector<unsigned int> old_cut_lengths(num_models_, 0);
+        std::vector<size_t> old_cut_lengths(num_models_, 0);
         bool done = false;
         int repetition_counter = 0;
 
@@ -243,9 +244,9 @@ MainLoop()
 
                     std::vector<scm::math::vec3d> corner_values = active_camera_->get_frustum_corners();
                     double top_minus_bottom = scm::math::length((corner_values[2]) - (corner_values[0]));
-                    float height_divided_by_top_minus_bottom = lamure::ren::policy::get_instance()->window_height() / top_minus_bottom;
-
-                    cuts->send_height_divided_by_top_minus_bottom(context_id, cam_id, height_divided_by_top_minus_bottom);
+                    const double height_divided_by_top_minus_bottom =
+                        static_cast<double>(lamure::ren::policy::get_instance()->window_height()) / top_minus_bottom;
+                    cuts->send_height_divided_by_top_minus_bottom(context_id, cam_id, static_cast<float>(height_divided_by_top_minus_bottom));
                 }
 
                 controller->dispatch(context_id, renderer_->device());
@@ -334,7 +335,8 @@ MainLoop()
             start_time = std::chrono::system_clock::now();
         #endif
 
-            id_histogram hist = renderer_->create_node_id_histogram(false, (direction_counter_ * visibility_grid_->get_cell_count()) + current_grid_index_);
+            const size_t image_index = static_cast<size_t>(direction_counter_) * visibility_grid_->get_cell_count() + current_grid_index_;
+            id_histogram hist = renderer_->create_node_id_histogram(false, image_index);
             std::map<model_t, std::vector<node_t>> visible_ids = hist.get_visible_nodes(width_ * height_, visibility_threshold_);
 
             for(std::map<model_t, std::vector<node_t>>::iterator iter = visible_ids.begin(); iter != visible_ids.end(); ++iter)
@@ -387,9 +389,9 @@ MainLoop()
         {
             // Calculate current rendering state so user gets visual feedback on the preprocessing progress.
             size_t num_cells = visibility_grid_->get_cell_count();
-            float total_rendering_steps = num_cells * 6;
-            float current_rendering_step = (num_cells * direction_counter_) + current_grid_index_;
-            float current_percentage_done = (current_rendering_step / total_rendering_steps) * 100.0f;
+            const double total_rendering_steps = static_cast<double>(num_cells) * 6.0;
+            const double current_rendering_step = static_cast<double>(num_cells) * direction_counter_ + current_grid_index_;
+            const double current_percentage_done = (current_rendering_step / total_rendering_steps) * 100.0;
             std::cout << "\rfirst phase rendering in progress [" << current_percentage_done << "]       " << std::flush;
 
             if(current_percentage_done == 100.0f)
@@ -407,7 +409,8 @@ MainLoop()
             start_time = std::chrono::system_clock::now();
         #endif
 
-            id_histogram hist = renderer_->create_node_id_histogram(false, (direction_counter_ * visibility_grid_->get_cell_count()) + current_grid_index_);
+            const size_t image_index = static_cast<size_t>(direction_counter_) * visibility_grid_->get_cell_count() + current_grid_index_;
+            id_histogram hist = renderer_->create_node_id_histogram(false, image_index);
             std::map<model_t, std::vector<node_t>> visible_ids = hist.get_visible_nodes(width_ * height_, visibility_threshold_);
 
             for(std::map<model_t, std::vector<node_t>>::iterator iter = visible_ids.begin(); iter != visible_ids.end(); ++iter)
@@ -439,9 +442,9 @@ MainLoop()
         }
 
         // Update current render position and direction.
-        size_t max_index_x = std::round(visibility_grid_->get_size().x / smallest_cell_size_.x) + 1;
-        size_t max_index_y = std::round(visibility_grid_->get_size().y / smallest_cell_size_.y) + 1;
-        size_t max_index_z = std::round(visibility_grid_->get_size().z / smallest_cell_size_.z) + 1;
+        const size_t max_index_x = static_cast<size_t>(std::llround(visibility_grid_->get_size().x / smallest_cell_size_.x)) + 1u;
+        const size_t max_index_y = static_cast<size_t>(std::llround(visibility_grid_->get_size().y / smallest_cell_size_.y)) + 1u;
+        const size_t max_index_z = static_cast<size_t>(std::llround(visibility_grid_->get_size().z / smallest_cell_size_.z)) + 1u;
 
         ++current_corner_index_x_;
 
@@ -473,9 +476,11 @@ MainLoop()
         {
             // Calculate current rendering state so user gets visual feedback on the preprocessing progress.
             size_t num_corners = max_index_x * max_index_y * max_index_z;
-            float total_rendering_steps = num_corners * 6;
-            float current_rendering_step = (num_corners * direction_counter_) + (current_corner_index_z_ * max_index_y * max_index_x + current_corner_index_y_ * max_index_x + current_corner_index_x_);
-            float current_percentage_done = (current_rendering_step / total_rendering_steps) * 100.0f;
+            const double total_rendering_steps = static_cast<double>(num_corners) * 6.0;
+            const double current_rendering_step =
+                static_cast<double>(num_corners) * direction_counter_ +
+                (current_corner_index_z_ * max_index_y * max_index_x + current_corner_index_y_ * max_index_x + current_corner_index_x_);
+            const double current_percentage_done = (current_rendering_step / total_rendering_steps) * 100.0;
             std::cout << "\rsecond phase rendering in progress [" << current_percentage_done << "]       " << std::flush;
 
             if(current_percentage_done == 100.0f)

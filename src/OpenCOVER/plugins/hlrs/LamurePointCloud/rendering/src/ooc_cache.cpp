@@ -103,8 +103,7 @@ ooc_cache *ooc_cache::get_instance(Data_Provenance const &data_provenance)
                 freeram = info.freeram;
 #endif
 
-                float safety = 0.75;
-                size_t ram_free_in_bytes = freeram * safety;
+                size_t ram_free_in_bytes = (freeram * 3u) / 4u;
                 size_t out_of_core_budget_in_bytes = policy->out_of_core_budget_in_mb() * 1024 * 1024;
 
                 if(policy->out_of_core_budget_in_mb() == 0 || ram_free_in_bytes < out_of_core_budget_in_bytes)
@@ -173,8 +172,7 @@ ooc_cache *ooc_cache::get_instance()
                 freeram = info.freeram;
 #endif
 
-                float safety = 0.75;
-                size_t ram_free_in_bytes = freeram * safety;
+                size_t ram_free_in_bytes = (freeram * 3u) / 4u;
                 size_t out_of_core_budget_in_bytes = policy->out_of_core_budget_in_mb() * 1024 * 1024;
 
                 if(policy->out_of_core_budget_in_mb() == 0 || ram_free_in_bytes < out_of_core_budget_in_bytes)

@@ -163,17 +163,21 @@ const bool ray::intersect(const float aabb_scale, scm::math::vec3f &ray_up_vecto
             if(best_errors[i] < std::numeric_limits<float>::max())
             {
                 scm::math::vec3f &c = intersections[i].position_;
-                covariance_mat.m00 += std::pow(c.x - plane_center.x, 2);
-                covariance_mat.m01 += (c.x - plane_center.x) * (c.y - plane_center.y);
-                covariance_mat.m02 += (c.x - plane_center.x) * (c.z - plane_center.z);
+                const float dx = c.x - plane_center.x;
+                const float dy = c.y - plane_center.y;
+                const float dz = c.z - plane_center.z;
 
-                covariance_mat.m03 += (c.y - plane_center.y) * (c.x - plane_center.x);
-                covariance_mat.m04 += std::pow(c.y - plane_center.y, 2);
-                covariance_mat.m05 += (c.y - plane_center.y) * (c.z - plane_center.z);
+                covariance_mat.m00 += dx * dx;
+                covariance_mat.m01 += dx * dy;
+                covariance_mat.m02 += dx * dz;
 
-                covariance_mat.m06 += (c.z - plane_center.z) * (c.x - plane_center.x);
-                covariance_mat.m07 += (c.z - plane_center.z) * (c.y - plane_center.y);
-                covariance_mat.m08 += std::pow(c.z - plane_center.z, 2);
+                covariance_mat.m03 += dy * dx;
+                covariance_mat.m04 += dy * dy;
+                covariance_mat.m05 += dy * dz;
+
+                covariance_mat.m06 += dz * dx;
+                covariance_mat.m07 += dz * dy;
+                covariance_mat.m08 += dz * dz;
             }
         }
 
@@ -254,7 +258,7 @@ const bool ray::intersect_model_unsafe(const model_t model_id, const scm::math::
 
     unsigned int fan_factor = tree->get_fan_factor();
     node_t num_nodes = tree->get_num_nodes();
-    uint32_t num_surfels_per_node = database->get_primitives_per_node();
+    const uint32_t num_surfels_per_node = static_cast<uint32_t>(database->get_primitives_per_node());
 
     scm::math::mat4f inverse_model_transform = scm::math::inverse(model_transform);
     scm::math::vec3f object_ray_origin = inverse_model_transform * origin_;

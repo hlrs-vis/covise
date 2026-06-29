@@ -7,23 +7,6 @@
 
 #ifndef NURBS_H
 #define NURBS_H
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description:  Class-Declaration of NURBS                               **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                            Reiner Beller                               **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  23.06.97  V1.0                                                  **
-\**************************************************************************/
 
 // include files
 #include <iostream.h>

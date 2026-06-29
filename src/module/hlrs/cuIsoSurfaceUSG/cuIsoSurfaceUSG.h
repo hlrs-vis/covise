@@ -18,6 +18,7 @@ struct polyData
     covise::coDistributedObject *data;
 };
 
+// Iso-surface generation using CUDA on nVidia GPUs
 class cuIsoSurfaceUSG : public covise::coModule
 {
 

@@ -6,11 +6,6 @@
  * License: LGPL 2+ */
 
 /** Reliable Multicast via NORM (NACK-Oriented Reliable Multicast) ******
- *									*
- * Filename: rel_mcast.cpp						*
- * Author:   Alex Velazquez						*
- * Created:  2011-03-31							*
- ************************************************************************/
 
 #ifndef NOMCAST
 

@@ -5,20 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                              2008      **
- **                                                                        **
- ** Description:  ReadIBB                                                  **
- **                                                                        **
- ** Covise read module for IBB GID files                                   **
- **                                                                        **
- **                                                                        **
- ** Author:  Uwe Woessner                                                  **
- **                                                                        **
- **                                                                        **
- ** Date:  19.07.08  V1.0                                                  **
- \**************************************************************************/
-
 #include "ReadIBB.h"
 #include <math.h>
 #include <do/coDoData.h>

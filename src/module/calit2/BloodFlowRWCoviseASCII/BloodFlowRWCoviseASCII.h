@@ -7,24 +7,6 @@
 
 #ifndef _RW_ASCII_H
 #define _RW_ASCII_H
-/**************************************************************************\ 
- **                                                           (C)2000 RUS  **
- **                                                                        **
- ** Description: Read / write ASCII data from / to files                   **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                            Gabor Duroska                               **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  08.12.00  v0.1                                                  **
-\**************************************************************************/
 
 #include <api/coModule.h>
 using namespace covise;

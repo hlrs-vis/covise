@@ -5,27 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                    (C) 2000 VirCinity  **
- ** Description: axe-murder geometry                                       **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                            Lars Frenzel                                **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  05.01.97  V0.1                                                  **
- **        18.10.2000 V1.0 new API, several data ports, triangle strips    **
- **                                               ( converted to polygons )**
- **			Sven Kufer 					  **
-\**************************************************************************/
 
 #define NUM_DATA_IN_PORTS 4 // number of data ports
 

@@ -5,24 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                    (C) 2000 VirCinity  **
- ** Description: transform polygon in the x-y-plane to a cylinder          **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Name:        AssembleUsg                                               **
- ** Category:    Tools                                                     **
- **                                                                        **
- ** Author: Sven Kufer		                                          **
- **         (C)  VirCinity IT- Consulting GmbH                             **
- **         Nobelstrasse 15                                                **
- **         D- 70569 Stuttgart    			       	          **
- **                                                                        **
- **  Date:5.7.2002                                                                       **
- **                                                                        **
-\**************************************************************************/
 
 #include <iostream>
 #include "PolyToCyl.h"

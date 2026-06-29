@@ -7,24 +7,6 @@
 
 #ifndef _DISPLACEUSG_H
 #define _DISPLACEUSG_H
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description: Module to displace unstructured grids                     **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                            Reiner Beller                               **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  29.08.97  V0.1                                                  **
-\**************************************************************************/
 
 #include <util/coviseCompat.h>
 #include <api/coSimpleModule.h>

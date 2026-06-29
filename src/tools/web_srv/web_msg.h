@@ -28,33 +28,11 @@ typedef uint32_t uint32;
 typedef unsigned long int uint32;
 #endif
 #endif
-/***********************************************************************\ 
- **                                                                     **
- **   Message classes                              Version: 1.1         **
- **                                                                     **
- **                                                                     **
- **   Description  : The basic message structure as well as ways to     **
- **                  initialize messages easily are provided.           **
- **                  Subclasses for special types of messages           **
- **                  can be introduced.                                 **
- **                                                                     **
- **   Classes      : Message                              **
- **                                                                     **
- **   Copyright (C) 2001     by Vircinity                 **
- **                                               **
- **                             NöbelStr 15                          **
- **                             7000 Stuttgart                       **
- **                  HOSTID                                             **
- **                                                                     **
- **   Author       :                                  **
- **                                                                     **
- **   History      :                                                    **
- **                                                    **
- **                        **
- **                        **
- **                                                                     **
- **                                                                     **
-\***********************************************************************/
+
+// Description: The basic message structure as well as ways to
+//              initialize messages easily are provided.
+//              Subclasses for special types of messages
+//              can be introduced.
 
 class Connection;
 

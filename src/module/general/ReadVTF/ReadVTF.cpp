@@ -5,17 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)2001    **
- ** Author:                                                              **
- **                            Karin Mller                              **
- **                                         Vircinity                    **
- **                            Technologiezentrum                        **
- **                            70550 Stuttgart                           **
- ** Date:  01.10.01                                                      **
- **             Adaption to GLView 7.1 Thomas Speiser, Andreas Funke     **
-\**************************************************************************/
-
 #include "ReadVTF.h"
 #include "Binary.h"
 #include <alg/coCellToVert.h>

@@ -43,12 +43,10 @@ class Element;
 using namespace vrml;
 using namespace opencover;
 
-class ListenerCover;
 class SystemCover;
 
 class VRML97PLUGINEXPORT Vrml97Plugin : public coVRPlugin, public ui::Owner
 {
-    friend class ListenerCover;
     friend class SystemCover;
     friend class ViewerOsg;
     friend class coSensor;
@@ -76,10 +74,6 @@ public:
 
     void addNode(osg::Node *, const RenderObject *) override;
 
-    Player *getPlayer() const
-    {
-        return player;
-    }
     ViewerOsg *getViewer()
     {
         return viewer;
@@ -109,10 +103,8 @@ private:
     std::string vrmlFilename;
 
     SystemCover *system;
-    ListenerCover *listener;
     ViewerOsg *viewer;
     VrmlScene *vrmlScene;
-    Player *player;
 
     bool raw;
 

@@ -30,9 +30,17 @@ void KitePlugin::updateTransform(int frameIndex)
     const auto &f = m_frames[frameIndex];
 
     const double d2r = M_PI / 180.0;
-    const double rollDeg = f.roll * m_rollSign + m_rollOffsetDeg;
-    const double pitchDeg = f.pitch * m_pitchSign + m_pitchOffsetDeg;
+    double rollDeg = (f.roll * m_rollSign) * m_rollScale + m_rollOffsetDeg;
+    double pitchDeg = (f.pitch * m_pitchSign) * m_pitchScale + m_pitchOffsetDeg;
     const double yawDeg = f.yaw * m_yawSign + m_yawOffsetDeg;
+
+    if (m_limitAttitude)
+    {
+        const double maxRoll = std::max(0.0, m_maxAbsRollDeg);
+        const double maxPitch = std::max(0.0, m_maxAbsPitchDeg);
+        rollDeg = std::max(-maxRoll, std::min(maxRoll, rollDeg));
+        pitchDeg = std::max(-maxPitch, std::min(maxPitch, pitchDeg));
+    }
 
     const osg::Quat roll(rollDeg * d2r, osg::Vec3(1, 0, 0));
     const osg::Quat pitch(pitchDeg * d2r, osg::Vec3(0, 1, 0));

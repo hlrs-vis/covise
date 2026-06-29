@@ -208,10 +208,10 @@ public:
     void toggle_visible_set();
     void toggle_display_info();
 
-    lamure::pvs::id_histogram create_node_id_histogram(const bool& save_screenshot, const int& image_index) const;
+    lamure::pvs::id_histogram create_node_id_histogram(const bool& save_screenshot, const size_t image_index) const;
     void compare_histogram_to_cut(const lamure::pvs::id_histogram& hist, const float& visibility_threshold);
 
-    int get_rendered_node_count() const;
+    size_t get_rendered_node_count() const;
 };
 
 #endif // PVS_OLD_RENDERER_H_

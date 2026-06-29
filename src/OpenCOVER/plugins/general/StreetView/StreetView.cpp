@@ -5,20 +5,6 @@ version 2.1 or later, see lgpl-2.1.txt.
 
 * License: LGPL 2+ */
 
-/****************************************************************************\ 
-**                                                            (C)2016 HLRS  **
-**                                                                          **
-** Description: Streetview Plugin				                             **
-**                                                                          **
-**                                                                          **
-** Author: M.Guedey		                                                 **
-**                                                                          **
-** History:  								                                 **
-** Sep-16  v1	    				       		                             **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
-
 #include "StreetView.h"
 #include "IndexParser.h"
 #include "Picture.h"

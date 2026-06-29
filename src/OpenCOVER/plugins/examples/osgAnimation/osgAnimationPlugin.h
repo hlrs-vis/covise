@@ -7,22 +7,11 @@
 
 #ifndef _osgAnimation_PLUGIN_H
 #define _osgAnimation_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: osgAnimation Plugin (skin Animation exaple)                              **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                **
- **                                                                          **
- ** History:  								                                **
- ** Nov-01  v1	    				       		                            **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 using namespace opencover;
 
+// skin Animation exaple
 class osgAnimationPlugin : public coVRPlugin
 {
 public:

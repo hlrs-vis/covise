@@ -5,16 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: create windows with Qt
- **                                                                          **
- **                                                                          **
- ** Author: Martin Aumüller <aumueller@hlrs.de>
- **                                                                          **
-\****************************************************************************/
-
 #include "TabletUIPlugin.h"
 
 #include <cover/coVRPluginSupport.h>

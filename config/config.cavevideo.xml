@@ -233,9 +233,6 @@
 
     <ViewpointType value = "free"/>
 
-    <NewMovieSupport value="true"/>
-
-
     </Vrml97>
     
     <StereoVideoPlayer>

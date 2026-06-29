@@ -11,11 +11,11 @@ namespace vive
 {
 namespace ui
 {
-class Group;
-class Menu;
-class Action;
-class Button;
-class Slider;
+    class Group;
+    class Menu;
+    class Action;
+    class Button;
+    class Slider;
 }
 }
 #include "ui/Owner.h"
@@ -26,16 +26,17 @@ class Slider;
 #include <vector>
 #include <vsg/nodes/Switch.h>
 
-#include "../OpenConfig/file.h"
+#include "../ViveConfig/file.h"
 namespace vive
 {
 class VVCORE_EXPORT vvAnimationManager
-: public ui::Owner
+    : public ui::Owner
 {
     friend class vvPluginList;
 
     static vvAnimationManager *s_instance;
     vvAnimationManager();
+
 public:
     ~vvAnimationManager();
     static vvAnimationManager *instance();
@@ -50,7 +51,11 @@ public:
 
     struct Sequence
     {
-        Sequence(vsg::Switch *seq, FillMode mode=Nothing): seq(seq), fill(mode) {}
+        Sequence(vsg::Switch *seq, FillMode mode = Nothing)
+            : seq(seq)
+            , fill(mode)
+        {
+        }
 
         vsg::ref_ptr<vsg::Switch> seq;
         FillMode fill = Nothing;
@@ -60,7 +65,7 @@ public:
     void setNumTimesteps(int);
     void showAnimMenu(bool visible);
 
-    void addSequence(vsg::Switch *seq, FillMode mode=Nothing);
+    void addSequence(vsg::Switch *seq, FillMode mode = Nothing);
     void removeSequence(vsg::Switch *seq);
 
     const std::vector<Sequence> &getSequences() const;
@@ -146,7 +151,6 @@ private:
     std::unique_ptr<ui::SliderConfigValue> presentationStep;
     std::unique_ptr<ui::SliderConfigValue> animSkipItem;
 
-    
     bool m_animRunning;
     double m_lastAnimationUpdate;
     int m_currentAnimationFrame, m_requestedAnimationFrame;
@@ -158,6 +162,5 @@ private:
     double m_timestepScale, m_timestepBase;
     std::string m_timestepUnit;
     bool m_animationPaused = false;
-
 };
 }

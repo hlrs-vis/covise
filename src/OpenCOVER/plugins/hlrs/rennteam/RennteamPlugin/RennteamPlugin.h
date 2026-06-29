@@ -7,19 +7,7 @@
 
 #ifndef _RennteamPlugin_h
 #define _RennteamPlugin_h
-/****************************************************************************\ 
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: Rennteam Plugin (does nothing)                              **
- **                                                                          **
- **                                                                          **
- ** Author: Florian Seybold		                                                **
- **                                                                          **
- ** History:  								                                **
- ** Nov-01  v1	    				       		                            **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 #include <cover/coVRTui.h>
 

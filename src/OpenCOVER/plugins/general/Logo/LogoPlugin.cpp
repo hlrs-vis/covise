@@ -5,21 +5,6 @@
 
  * License: LGPL 2+ */
 
-
-/****************************************************************************\ 
-**                                                            (C)2009 HLRS  **
-**                                                                          **
-** Description: Logo Plugin (displays a bitmap logo)                        **
-**                                                                          **
-**                                                                          **
-** Author: U.Woessner		                                                  **
-**                                                                          **
-** History:  								                                         **
-** Feb-09  v1	    				       		                                   **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
-
 #include "LogoPlugin.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRConfig.h>

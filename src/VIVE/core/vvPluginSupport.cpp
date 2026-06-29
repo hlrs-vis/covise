@@ -17,7 +17,7 @@
 #include "vvMSController.h"
 #include "vvFileManager.h"
 
-#include "../OpenConfig/file.h"
+#include "../ViveConfig/file.h"
 #include "../../OpenCOVER/OpenVRUI/coUpdateManager.h"
 #include "../../OpenCOVER/OpenVRUI/coInteractionManager.h"
 #include "../../OpenCOVER/OpenVRUI/coToolboxMenu.h"
@@ -77,7 +77,6 @@
 #include <grmsg/coGRPluginMsg.h>
 #include <vsgXchange/all.h>
 
-
 using namespace vrui;
 using namespace grmsg;
 using namespace covise;
@@ -87,21 +86,25 @@ namespace vive
 
 vvPluginSupport *vv = NULL;
 
-class NotifyBuf: public std::stringbuf
+class NotifyBuf : public std::stringbuf
 {
- public:
-    NotifyBuf(int level): level(level) {}
+public:
+    NotifyBuf(int level)
+        : level(level)
+    {
+    }
     int sync()
     {
         auto s = str();
         if (!s.empty())
         {
-           // vvPluginList::instance()->notify(level, s.c_str());
+            // vvPluginList::instance()->notify(level, s.c_str());
             str("");
         }
         return 0;
     }
- private:
+
+private:
     int level;
 };
 
@@ -123,16 +126,13 @@ void vvPluginSupport::initUI()
     interactorScaleSlider->setBounds(0.01, 100.);
     interactorScaleSlider->setValue(1.);
     interactorScaleSlider->setScale(ui::Slider::Logarithmic);
-    interactorScaleSlider->setCallback([this](double value, bool released) {
-        interactorScale = value;
-    });
+    interactorScaleSlider->setCallback([this](double value, bool released)
+        { interactorScale = value; });
 
     ui->init();
 }
 
-
-
-vsg::ref_ptr<vsg::MatrixTransform>  vvPluginSupport::getObjectsRoot() const
+vsg::ref_ptr<vsg::MatrixTransform> vvPluginSupport::getObjectsRoot() const
 {
     START("vvPluginSupport::getObjectsRoot");
     return (vvSceneGraph::instance()->objectsRoot());
@@ -140,39 +140,38 @@ vsg::ref_ptr<vsg::MatrixTransform>  vvPluginSupport::getObjectsRoot() const
 
 vsg::ref_ptr<vsg::Group> vvPluginSupport::getScene() const
 {
-    //START("vvPluginSupport::getScene");
+    // START("vvPluginSupport::getScene");
     return (vvSceneGraph::instance()->getScene());
 }
 
-bool
-vvPluginSupport::removeNode(vsg::Node *node, bool isGroup)
+bool vvPluginSupport::removeNode(vsg::Node *node, bool isGroup)
 {
     (void)isGroup;
 
     if (!node)
         return false;
 
-   /* if (node->getNumParents() == 0)
-        return false;
+    /* if (node->getNumParents() == 0)
+         return false;
 
-    vsg::ref_ptr<vsg::Node> n =node;
+     vsg::ref_ptr<vsg::Node> n =node;
 
-    while (n->getNumParents() > 0)
-    {
-        vsg::ref_ptr<vsg::Group> parent = n->getParent(0);
-        vsg::ref_ptr<vsg::Node> child = n;
+     while (n->getNumParents() > 0)
+     {
+         vsg::ref_ptr<vsg::Group> parent = n->getParent(0);
+         vsg::ref_ptr<vsg::Node> child = n;
 
-        while (vvSelectionManager::instance()->isHelperNode(parent))
-        {
-            parent->removeChild(child);
-            child = parent;
-            parent = parent->getNumParents() > 0 ? parent->getParent(0) : NULL;
-        }
-        if (parent)
-            parent->removeChild(child);
-        else
-            break;
-    }*/
+         while (vvSelectionManager::instance()->isHelperNode(parent))
+         {
+             parent->removeChild(child);
+             child = parent;
+             parent = parent->getNumParents() > 0 ? parent->getParent(0) : NULL;
+         }
+         if (parent)
+             parent->removeChild(child);
+         else
+             break;
+     }*/
     return true;
 }
 
@@ -184,7 +183,7 @@ vvPluginSupport::getMenuGroup() const
 
 vsg::MatrixTransform *vvPluginSupport::getPointer() const
 {
-    //START("vvPluginSupport::getPointer");
+    // START("vvPluginSupport::getPointer");
     return (vvSceneGraph::instance()->getHandTransform());
 }
 
@@ -252,7 +251,7 @@ const vsg::dmat4 &vvPluginSupport::getRelativeMat() const
 
 const vsg::dmat4 &vvPluginSupport::getPointerMat() const
 {
-    //START("vvPluginSupport::getPointerMat");
+    // START("vvPluginSupport::getPointerMat");
 
     if (wasHandValid)
         return handMat;
@@ -274,7 +273,7 @@ float vvPluginSupport::getSceneSize() const
     return vvConfig::instance()->getSceneSize();
 }
 
-// return no. of seconds since epoch 
+// return no. of seconds since epoch
 double vvPluginSupport::currentTime()
 {
     START("vvPluginSupport::currentTime");
@@ -348,7 +347,7 @@ void vvPluginSupport::addedNode(vsg::Node *node, vvPlugin *addingPlugin)
 
 coPointerButton *vvPluginSupport::getPointerButton() const
 {
-    //START("vvPluginSupport::getPointerButton");
+    // START("vvPluginSupport::getPointerButton");
     if (vvConfig::instance()->mouseTracking())
     {
         return getMouseButton();
@@ -369,7 +368,7 @@ void vvPluginSupport::setFrameTime(double ft)
 bool vvPluginSupport::sendGrMessage(const coGRMsg &gr, int msgType) const
 {
     std::string s = gr.getString();
-    Message grmsg{ msgType, DataHandle{const_cast<char *>(s.c_str()), s.length()+1, false} };
+    Message grmsg { msgType, DataHandle { const_cast<char *>(s.c_str()), s.length() + 1, false } };
     return sendVrbMessage(&grmsg);
 }
 
@@ -397,7 +396,7 @@ void vvPluginSupport::updateTime()
             frameStartTime = frameStartRealTime;
         }
     }
-    
+
     vvMSController::instance()->syncTime();
 #ifdef DOTIMING
     MARK0("done");
@@ -410,7 +409,8 @@ void vvPluginSupport::update()
     if (debugLevel(5))
         fprintf(stderr, "vvPluginSupport::update\n");
 
-    for (auto nb: m_notifyBuf) {
+    for (auto nb : m_notifyBuf)
+    {
         if (nb)
             nb->sync();
     }
@@ -426,9 +426,9 @@ void vvPluginSupport::update()
         getRelativeButton()->setState(Input::instance()->getRelativeButtonState());
     }
 
-    if (getPointerButton() && getPointerButton()!=getMouseButton())
+    if (getPointerButton() && getPointerButton() != getMouseButton())
     {
-        for (size_t i=0; i<2; ++i)
+        for (size_t i = 0; i < 2; ++i)
             getPointerButton()->setWheel(i, 0);
         getPointerButton()->setState(Input::instance()->getButtonState());
 #if 0
@@ -439,7 +439,7 @@ void vvPluginSupport::update()
 
     if (getMouseButton())
     {
-        for (size_t i=0; i<2; ++i)
+        for (size_t i = 0; i < 2; ++i)
             getMouseButton()->setWheel(i, Input::instance()->mouse()->wheel(i));
         getMouseButton()->setState(Input::instance()->mouse()->buttonState());
 #if 0
@@ -449,14 +449,14 @@ void vvPluginSupport::update()
 
         size_t currentPerson = Input::instance()->getActivePerson();
         if ((getMouseButton()->wasPressed(vruiButtons::PERSON_NEXT))
-                || (getPointerButton()->wasPressed(vruiButtons::PERSON_NEXT)))
+            || (getPointerButton()->wasPressed(vruiButtons::PERSON_NEXT)))
         {
             ++currentPerson;
             currentPerson %= Input::instance()->getNumPersons();
             Input::instance()->setActivePerson(currentPerson);
         }
         if ((getMouseButton()->wasPressed(vruiButtons::PERSON_PREV))
-                || (getPointerButton()->wasPressed(vruiButtons::PERSON_PREV)))
+            || (getPointerButton()->wasPressed(vruiButtons::PERSON_PREV)))
         {
             if (currentPerson == 0)
                 currentPerson = Input::instance()->getNumPersons();
@@ -464,7 +464,7 @@ void vvPluginSupport::update()
             Input::instance()->setActivePerson(currentPerson);
         }
     }
-    
+
 #ifdef DOTIMING
     MARK0("COVER update matrices and button status in plugin support class");
 #endif
@@ -485,7 +485,6 @@ void vvPluginSupport::update()
     invCalculated = 0;
     updateManager->update();
 
-    
     if (vvMSController::instance()->isMaster())
     {
         frontScreenCenter = vsg::vec3(0., 0., 0.);
@@ -560,7 +559,7 @@ const vsg::dmat4 &vvPluginSupport::getInvBaseMat() const
     if (!invCalculated)
     {
         invBaseMatrix = vsg::inverse(baseMatrix);
-        //fprintf(stderr,"vvPluginSupport::getInvBaseMat baseMatrix is singular\n");
+        // fprintf(stderr,"vvPluginSupport::getInvBaseMat baseMatrix is singular\n");
         invCalculated = 1;
     }
     return invBaseMatrix;
@@ -574,7 +573,7 @@ void vvPluginSupport::removePlugin(vvPlugin *m)
 
 int vvPluginSupport::isPointerLocked()
 {
-    //START("vvPluginSupport::isPointerLocked");
+    // START("vvPluginSupport::isPointerLocked");
     bool isLocked;
     isLocked = coInteractionManager::the()->isOneActive(coInteraction::ButtonA);
     if (isLocked)
@@ -589,46 +588,46 @@ int vvPluginSupport::isPointerLocked()
 }
 
 float vvPluginSupport::getSqrDistance(vsg::Node *n, vsg::vec3 &p,
-                                        vsg::MatrixTransform **path = NULL, int pathLength = 0) const
+    vsg::MatrixTransform **path = NULL, int pathLength = 0) const
 {
-   /* START("vvPluginSupport::getSqrDistance");
-    vsg::dmat4 mat;
-    vsg::BoundingSphere bsphere = n->getBound();
-    if (pathLength > 0)
-    {
-        for (int i = 0; i < pathLength; i++)
-        {
-            vsg::MatrixTransform *mt = path[i]->asMatrixTransform();
-            if (mt)
-            {
-                mat.postMult(mt->matrix);
-            }
-        }
-    }
-    else
-    {
-        vsg::Node *node = n;
-        vsg::Transform *trans = NULL;
-        while (node)
-        {
-            if ((trans = node->asTransform()))
-                break;
-            node = node->getParent(0);
-        }
-        if (trans)
-        {
-            trans->asTransform()->computeLocalToWorldMatrix(mat, NULL);
-        }
-    }
-    vsg::vec3 svec(mat(0, 0), mat(0, 1), mat(0, 2));
-    float Scale = svec * svec; // Scale ^2
-    vsg::vec3 v;
-    if (n->asTransform())
-        v = mat.getTrans();
-    else
-        v = mat.preMult(bsphere.center());
-    vsg::vec3 dist = v - p;
-    return (dist.length2() / Scale);*/
+    /* START("vvPluginSupport::getSqrDistance");
+     vsg::dmat4 mat;
+     vsg::BoundingSphere bsphere = n->getBound();
+     if (pathLength > 0)
+     {
+         for (int i = 0; i < pathLength; i++)
+         {
+             vsg::MatrixTransform *mt = path[i]->asMatrixTransform();
+             if (mt)
+             {
+                 mat.postMult(mt->matrix);
+             }
+         }
+     }
+     else
+     {
+         vsg::Node *node = n;
+         vsg::Transform *trans = NULL;
+         while (node)
+         {
+             if ((trans = node->asTransform()))
+                 break;
+             node = node->getParent(0);
+         }
+         if (trans)
+         {
+             trans->asTransform()->computeLocalToWorldMatrix(mat, NULL);
+         }
+     }
+     vsg::vec3 svec(mat(0, 0), mat(0, 1), mat(0, 2));
+     float Scale = svec * svec; // Scale ^2
+     vsg::vec3 v;
+     if (n->asTransform())
+         v = mat.getTrans();
+     else
+         v = mat.preMult(bsphere.center());
+     vsg::vec3 dist = v - p;
+     return (dist.length2() / Scale);*/
     return 0;
 }
 
@@ -655,20 +654,19 @@ void vvPluginSupport::setSceneUnit(LengthUnit unit)
     m_sceneUnit = unit;
 }
 
-void vvPluginSupport::setSceneUnit(const std::string& unitName)
+void vvPluginSupport::setSceneUnit(const std::string &unitName)
 {
     auto u = getUnitFromName(unitName);
-    if(isValid(u))
+    if (isValid(u))
         m_sceneUnit = u;
     else
         std::cerr << "warning: " << unitName << " is not a valid length unit" << std::endl;
-
 }
 
 float vvPluginSupport::getInteractorScale(vsg::dvec3 &pos) // pos in World coordinates
 {
-    
-    const vsg::dvec3 eyePos = getTrans(vv->getViewerMat()); 
+
+    const vsg::dvec3 eyePos = getTrans(vv->getViewerMat());
     const vsg::dvec3 eyeToPos = pos - eyePos;
     double eyeToPosDist = length(eyeToPos);
     double scaleVal;
@@ -678,8 +676,8 @@ float vvPluginSupport::getInteractorScale(vsg::dvec3 &pos) // pos in World coord
     }
     else
     {
-        //float oeffnungswinkel = frontHorizontalSize/(frontScreenCenter[1]-eyePos[1]);
-        //scaleVal = ((eyeToPosDist) * oeffnungswinkel/(oeffnungswinkel*2000));
+        // float oeffnungswinkel = frontHorizontalSize/(frontScreenCenter[1]-eyePos[1]);
+        // scaleVal = ((eyeToPosDist) * oeffnungswinkel/(oeffnungswinkel*2000));
 
         scaleVal = eyeToPosDist / (2000);
     }
@@ -692,10 +690,9 @@ float vvPluginSupport::getViewerScreenDistance()
     return viewerDist;
 }
 
-
 bool vvPluginSupport::restrictOn() const
 {
-    return false;// return vvNavigationManager::instance()->restrictOn();
+    return false; // return vvNavigationManager::instance()->restrictOn();
 }
 
 coToolboxMenu *vvPluginSupport::getToolBar(bool create)
@@ -734,7 +731,7 @@ coToolboxMenu *vvPluginSupport::getToolBar(bool create)
             }
         }
 
-        //float sceneSize = vv->getSceneSize();
+        // float sceneSize = vv->getSceneSize();
         /*
         vruiMatrix *mat = vruiRendererInterface::the()->createMatrix();
         vruiMatrix *rot = vruiRendererInterface::the()->createMatrix();
@@ -764,7 +761,7 @@ void vvPluginSupport::setToolBar(coToolboxMenu *tb)
 
 void vvPluginSupport::preparePluginUnload()
 {
-	vv->intersectedNode = nullptr;
+    vv->intersectedNode = nullptr;
 }
 vvPluginSupport *vvPluginSupport::instance()
 {
@@ -785,7 +782,6 @@ vvPluginSupport::vvPluginSupport()
 
     START("vvPluginSupport::vvPluginSupport");
 
-
     new vvVruiRenderInterface();
 
     ui = new ui::Manager();
@@ -794,18 +790,15 @@ vvPluginSupport::vvPluginSupport()
     options->add(vsgXchange::all::create());
     options->shaderSets["phong"] = phongShader();
     auto OptionsFile = vvFileManager::instance()->getName("share/covise/shaders/BuildOptions.vsgt");
-    if(OptionsFile)
+    if (OptionsFile)
         options->setValue("read_build_options", OptionsFile);
 
-
-
-    char* covisedir = getenv("COVISEDIR");
+    char *covisedir = getenv("COVISEDIR");
 
     options->paths.push_back((std::string(covisedir) + "\\share\\covise").c_str());
     builder = vsg::Builder::create();
 
-
-    for (int level=0; level<Notify::Fatal; ++level)
+    for (int level = 0; level < Notify::Fatal; ++level)
     {
         m_notifyBuf.push_back(new NotifyBuf(level));
         m_notifyStream.push_back(new std::ostream(m_notifyBuf[level]));
@@ -839,8 +832,8 @@ vvPluginSupport::vvPluginSupport()
         POVs[i] = NULL;
     }
 
-  //  currentCursor = vsgViewer::GraphicsWindow::LeftArrowCursor;
-   // setCurrentCursor(currentCursor);
+    //  currentCursor = vsgViewer::GraphicsWindow::LeftArrowCursor;
+    // setCurrentCursor(currentCursor);
 
     frontWindowHorizontalSize = 0;
 
@@ -854,27 +847,25 @@ vvPluginSupport::~vvPluginSupport()
     if (debugLevel(2))
         fprintf(stderr, "delete vvPluginSupport\n");
 
-    if(updateManager)
-    updateManager->removeAll();
-   // delete vvVruiRenderInterface::the();
+    if (updateManager)
+        updateManager->removeAll();
+    // delete vvVruiRenderInterface::the();
     delete updateManager;
 
-    while(!m_notifyStream.empty())
+    while (!m_notifyStream.empty())
     {
         delete m_notifyStream.back();
         m_notifyStream.pop_back();
     }
-    while(!m_notifyBuf.empty())
+    while (!m_notifyBuf.empty())
     {
         delete m_notifyBuf.back();
         m_notifyBuf.pop_back();
     }
 
-	intersectedNode = nullptr;
+    intersectedNode = nullptr;
     vv = NULL;
-
 }
-
 
 void vvPluginSupport::releaseKeyboard(vvPlugin *plugin)
 {
@@ -974,7 +965,7 @@ void vvPluginSupport::sendMessage(const vvPlugin * /*sender*/, const char *desti
 {
     START("vvPluginSupport::sendMessage");
 
-    //fprintf(stderr,"vvPluginSupport::sendMessage dest=%s\n",destination);
+    // fprintf(stderr,"vvPluginSupport::sendMessage dest=%s\n",destination);
 
     size_t size = len + 2 * sizeof(int);
     vvPlugin *dest = vvPluginList::instance()->getPlugin(destination);
@@ -1027,7 +1018,7 @@ int vvPluginSupport::sendBinMessage(const char *keyword, const char *data, int l
         size_t size = strlen(keyword) + 2;
         size += len;
 
-        Message message{ Message::RENDER, DataHandle{size} };
+        Message message { Message::RENDER, DataHandle { size } };
         message.data.accessData()[0] = 0;
         strcpy(&message.data.accessData()[1], keyword);
         memcpy(&message.data.accessData()[strlen(keyword) + 2], data, len);
@@ -1040,110 +1031,109 @@ int vvPluginSupport::sendBinMessage(const char *keyword, const char *data, int l
 }
 
 //! handle coGRMsgs and call guiToRenderMsg method of all plugins
-void vvPluginSupport::guiToRenderMsg(const grmsg::coGRMsg &msg)  const
+void vvPluginSupport::guiToRenderMsg(const grmsg::coGRMsg &msg) const
 {
     vvPluginList::instance()->guiToRenderMsg(msg);
 
     if (!msg.isValid())
         return;
 
-    switch(msg.getType())
+    switch (msg.getType())
     {
-        case coGRMsg::PLUGIN:
+    case coGRMsg::PLUGIN:
+    {
+        auto &pluginMsg = msg.as<coGRPluginMsg>();
+        std::string act(pluginMsg.getAction());
+        if (act == "load" || act == "add")
         {
-            auto &pluginMsg = msg.as<coGRPluginMsg>();
-            std::string act(pluginMsg.getAction());
-            if (act == "load" || act == "add")
-            {
-                vv->addPlugin(pluginMsg.getPlugin());
-            }
-            else if (act == "unload" || act == "remove")
-            {
-                vv->removePlugin(pluginMsg.getPlugin());
-            }
+            vv->addPlugin(pluginMsg.getPlugin());
         }
-        break;
-        case coGRMsg::ANIMATION_ON:
+        else if (act == "unload" || act == "remove")
         {
-            auto &animationModeMsg = msg.as<coGRAnimationOnMsg>();
-            bool mode = animationModeMsg.getMode() != 0;
-            if (vv->debugLevel(3))
-                fprintf(stderr, "coGRMsg::ANIMATION_ON mode=%s\n", (mode ? "true" : "false"));
-            //vvAnimationManager::instance()->setRemoteAnimate(mode);
+            vv->removePlugin(pluginMsg.getPlugin());
         }
-        break;
-        case coGRMsg::ANIMATION_SPEED:
+    }
+    break;
+    case coGRMsg::ANIMATION_ON:
+    {
+        auto &animationModeMsg = msg.as<coGRAnimationOnMsg>();
+        bool mode = animationModeMsg.getMode() != 0;
+        if (vv->debugLevel(3))
+            fprintf(stderr, "coGRMsg::ANIMATION_ON mode=%s\n", (mode ? "true" : "false"));
+        // vvAnimationManager::instance()->setRemoteAnimate(mode);
+    }
+    break;
+    case coGRMsg::ANIMATION_SPEED:
+    {
+        auto &animationSpeedMsg = msg.as<coGRSetAnimationSpeedMsg>();
+        float speed = animationSpeedMsg.getAnimationSpeed();
+        // vvAnimationManager::instance()->setAnimationSpeed(speed);
+    }
+    break;
+    case coGRMsg::ANIMATION_TIMESTEP:
+    {
+        auto &timestepMsg = msg.as<coGRSetTimestepMsg>();
+        int actStep = timestepMsg.getActualTimeStep();
+        int maxSteps = timestepMsg.getNumTimeSteps();
+        if (vv->debugLevel(3))
+            fprintf(stderr, "coGRMsg::ANIMATION_TIMESTEP actStep=%d numSteps=%d\n", actStep, maxSteps);
+        if (maxSteps > 0)
         {
-            auto &animationSpeedMsg = msg.as<coGRSetAnimationSpeedMsg>();
-            float speed = animationSpeedMsg.getAnimationSpeed();
-            //vvAnimationManager::instance()->setAnimationSpeed(speed);
+            //   vvAnimationManager::instance()->setRemoteAnimationFrame(actStep);
+            //   vvAnimationManager::instance()->setNumTimesteps(maxSteps);
         }
-        break;
-        case coGRMsg::ANIMATION_TIMESTEP:
-        {
-            auto &timestepMsg = msg.as<coGRSetTimestepMsg>();
-            int actStep = timestepMsg.getActualTimeStep();
-            int maxSteps = timestepMsg.getNumTimeSteps();
-            if (vv->debugLevel(3))
-                fprintf(stderr, "coGRMsg::ANIMATION_TIMESTEP actStep=%d numSteps=%d\n", actStep, maxSteps);
-            if (maxSteps > 0)
-            {
-             //   vvAnimationManager::instance()->setRemoteAnimationFrame(actStep);
-             //   vvAnimationManager::instance()->setNumTimesteps(maxSteps);
-            }
-        }
-        break;
-        case coGRMsg::SET_TRACKING_PARAMS:
-        {
-            auto& trackingMsg = msg.as<coGRSetTrackingParamsMsg>();
-            // restrict rotation
-            if (trackingMsg.isRotatePoint())
-                vvNavigationManager::instance()->setRotationPoint(
-                    trackingMsg.getRotatePointX(), trackingMsg.getRotatePointY(), trackingMsg.getRotatePointZ(),
-                    trackingMsg.getRotationPointSize());
-            else
-                vvNavigationManager::instance()->disableRotationPoint();
-            if (coCoviseConfig::isOn("VIVE.showRotationPoint", true))
-                vvNavigationManager::instance()->setRotationPointVisible(trackingMsg.isRotatePointVisible());
-            else
-                vvNavigationManager::instance()->setRotationPointVisible(false);
-            if (trackingMsg.isRotateAxis())
-                vvNavigationManager::instance()->setRotationAxis(
-                    trackingMsg.getRotateAxisX(), trackingMsg.getRotateAxisY(), trackingMsg.getRotateAxisZ());
-            else
-                vvNavigationManager::instance()->disableRotationAxis();
-                
+    }
+    break;
+    case coGRMsg::SET_TRACKING_PARAMS:
+    {
+        auto &trackingMsg = msg.as<coGRSetTrackingParamsMsg>();
+        // restrict rotation
+        if (trackingMsg.isRotatePoint())
+            vvNavigationManager::instance()->setRotationPoint(
+                trackingMsg.getRotatePointX(), trackingMsg.getRotatePointY(), trackingMsg.getRotatePointZ(),
+                trackingMsg.getRotationPointSize());
+        else
+            vvNavigationManager::instance()->disableRotationPoint();
+        if (coCoviseConfig::isOn("VIVE.showRotationPoint", true))
+            vvNavigationManager::instance()->setRotationPointVisible(trackingMsg.isRotatePointVisible());
+        else
+            vvNavigationManager::instance()->setRotationPointVisible(false);
+        if (trackingMsg.isRotateAxis())
+            vvNavigationManager::instance()->setRotationAxis(
+                trackingMsg.getRotateAxisX(), trackingMsg.getRotateAxisY(), trackingMsg.getRotateAxisZ());
+        else
+            vvNavigationManager::instance()->disableRotationAxis();
 
-            // restrict tranlsation
-            if (trackingMsg.isTranslateRestrict())
-                vvSceneGraph::instance()->setRestrictBox(trackingMsg.getTranslateMinX(), trackingMsg.getTranslateMaxX(),
-                                                        trackingMsg.getTranslateMinY(), trackingMsg.getTranslateMaxY(),
-                                                        trackingMsg.getTranslateMinZ(), trackingMsg.getTranslateMaxZ());
-            else
-                vvSceneGraph::instance()->setRestrictBox(0, 0, 0, 0, 0, 0);
-            vvNavigationManager::instance()->setTranslateFactor(trackingMsg.getTranslateFactor());
+        // restrict tranlsation
+        if (trackingMsg.isTranslateRestrict())
+            vvSceneGraph::instance()->setRestrictBox(trackingMsg.getTranslateMinX(), trackingMsg.getTranslateMaxX(),
+                trackingMsg.getTranslateMinY(), trackingMsg.getTranslateMaxY(),
+                trackingMsg.getTranslateMinZ(), trackingMsg.getTranslateMaxZ());
+        else
+            vvSceneGraph::instance()->setRestrictBox(0, 0, 0, 0, 0, 0);
+        vvNavigationManager::instance()->setTranslateFactor(trackingMsg.getTranslateFactor());
 
-            // restrict scaling
-            if (trackingMsg.isScaleRestrict())
-                vvSceneGraph::instance()->setScaleRestrictFactor(trackingMsg.getScaleMin(), trackingMsg.getScaleMax());
-            vvSceneGraph::instance()->setScaleFactorButton(trackingMsg.getScaleFactor());
-            
-            // navigation
-            // enable navigationmode showName
-            //vvNavigationManager::instance()->setShowName(trackingMsg.isNavModeShowName());
-            // set navigationMode
-            std::string navmode(trackingMsg.getNavigationMode());
-            auto nav = vvNavigationManager::instance();
-            nav->setNavMode(navmode);
-            //enable tracking in vive
+        // restrict scaling
+        if (trackingMsg.isScaleRestrict())
+            vvSceneGraph::instance()->setScaleRestrictFactor(trackingMsg.getScaleMin(), trackingMsg.getScaleMax());
+        vvSceneGraph::instance()->setScaleFactorButton(trackingMsg.getScaleFactor());
 
-            //vld: VRTracker use. Enable tracking. Add the method in input?
-            //vvTracker::instance()->enableTracking(trackingMsg.isTrackingOn());
-        }
+        // navigation
+        // enable navigationmode showName
+        // vvNavigationManager::instance()->setShowName(trackingMsg.isNavModeShowName());
+        // set navigationMode
+        std::string navmode(trackingMsg.getNavigationMode());
+        auto nav = vvNavigationManager::instance();
+        nav->setNavMode(navmode);
+        // enable tracking in vive
+
+        // vld: VRTracker use. Enable tracking. Add the method in input?
+        // vvTracker::instance()->enableTracking(trackingMsg.isTrackingOn());
+    }
+    break;
+    default:
         break;
-        default:
-            break;
-        }
+    }
 }
 
 vsg::Node *vvPluginSupport::getIntersectedNode() const
@@ -1222,7 +1212,7 @@ const std::string &coPointerButton::name() const
 
 unsigned int coPointerButton::getState() const
 {
-    //START("coPointerButton::getButtonStatus")
+    // START("coPointerButton::getButtonStatus")
     return buttonStatus;
 }
 
@@ -1250,7 +1240,7 @@ unsigned int coPointerButton::wasReleased(unsigned int buttonMask) const
 
 void coPointerButton::setState(unsigned int newButton) // called from
 {
-    //START("coPointerButton::setButtonStatus");
+    // START("coPointerButton::setButtonStatus");
     lastStatus = buttonStatus;
     buttonStatus = newButton;
 }
@@ -1283,7 +1273,7 @@ int vvPluginSupport::unregisterPlayer(vrml::Player *player)
     if (this->player != player)
         return -1;
 
-    for (auto cb: playerUseList)
+    for (auto cb : playerUseList)
     {
         if (cb)
             cb();
@@ -1425,10 +1415,9 @@ bool vvPluginSupport::isHighQuality() const
     return vvSceneGraph::instance()->highQuality();
 }
 
-
 bool vvPluginSupport::isVRBconnected()
 {
-    return false; //return vvMSController::instance()->syncBool(vvVIVE::instance()->isVRBconnected());
+    return false; // return vvMSController::instance()->syncBool(vvVIVE::instance()->isVRBconnected());
 }
 
 void vvPluginSupport::protectScenegraph()
@@ -1438,13 +1427,14 @@ void vvPluginSupport::protectScenegraph()
 
 bool vvPluginSupport::sendVrbMessage(const covise::MessageBase *msg) const
 {
-    if(const auto vrbc = vvVIVE::instance()->vrbc())
+    if (const auto vrbc = vvVIVE::instance()->vrbc())
     {
         vrbc->send(msg);
         return true;
     }
 
-    if (const auto *m = dynamic_cast<const covise::Message *>(msg)) {
+    if (const auto *m = dynamic_cast<const covise::Message *>(msg))
+    {
         return vvPluginList::instance()->sendVisMessage(m);
     }
 
@@ -1487,13 +1477,13 @@ std::unique_ptr<config::File> vvPluginSupport::configFile(const std::string &pat
 
 } // namespace vive
 
-covise::TokenBuffer & vive::operator<<(covise::TokenBuffer &buffer, const vsg::dmat4 &matrix)
+covise::TokenBuffer &vive::operator<<(covise::TokenBuffer &buffer, const vsg::dmat4 &matrix)
 {
     for (int r = 0; r < 4; ++r)
         for (int c = 0; c < 4; ++c)
-    {
-        buffer << matrix[r][c];
-    }
+        {
+            buffer << matrix[r][c];
+        }
     return buffer;
 }
 
@@ -1502,12 +1492,12 @@ covise::TokenBuffer &vive::operator>>(covise::TokenBuffer &buffer, vsg::dmat4 &m
     for (int r = 0; r < 4; ++r)
         for (int c = 0; c < 4; ++c)
         {
-            buffer >>  matrix[r][c];
+            buffer >> matrix[r][c];
         }
     return buffer;
 }
 
-covise::TokenBuffer & vive::operator<<(covise::TokenBuffer &buffer, const vsg::vec3 &vec)
+covise::TokenBuffer &vive::operator<<(covise::TokenBuffer &buffer, const vsg::vec3 &vec)
 {
     for (int ctr = 0; ctr < 3; ++ctr)
     {
@@ -1516,7 +1506,7 @@ covise::TokenBuffer & vive::operator<<(covise::TokenBuffer &buffer, const vsg::v
     return buffer;
 }
 
-covise::TokenBuffer & vive::operator>>(covise::TokenBuffer &buffer, vsg::vec3 &vec)
+covise::TokenBuffer &vive::operator>>(covise::TokenBuffer &buffer, vsg::vec3 &vec)
 {
     for (int ctr = 0; ctr < 3; ++ctr)
     {

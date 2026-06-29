@@ -8,14 +8,6 @@
 #ifndef SUMOTRACI_H
 #define SUMOTRACI_H
 
-/****************************************************************************\ 
- **                                                            (C)2017 HLRS  **
- **                                                                          **
- ** Description: SumoTraCI - Traffic Control Interface client                **
- ** for traffic simulations with Sumo software - http://sumo.dlr.de          **
- **                                                                          **
-\****************************************************************************/
-
 #include <cover/coVRPlugin.h>
 #include <cover/ui/Owner.h>
 

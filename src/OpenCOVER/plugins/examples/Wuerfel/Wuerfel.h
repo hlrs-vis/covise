@@ -7,22 +7,11 @@
 
 #ifndef _Wuerfel_PLUGIN_H
 #define _Wuerfel_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2008 HLRS  **
- **                                                                          **
- ** Description: Wuerfel OpenCOVER Plugin (draws a cube)                          **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                  **
- **                                                                          **
- ** History:  								                                         **
- ** June 2008  v1	    				       		                                **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 #include <osg/Geode>
 
+// draws a cube
 class Wuerfel : public opencover::coVRPlugin
 {
 public:

@@ -7,24 +7,6 @@
 
 #ifndef _STAR_H
 #define _STAR_H
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description: Interpolation from Cell Data to Vertex Data               **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                            Andreas Werner                              **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  05.01.97  V0.1                                                  **
-\**************************************************************************/
 
 #include <appl/ApplInterface.h>
 

@@ -5,21 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)2002 RUS  **
- **                                                                        **
- ** Description: Read PTV data from DLR.                      **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                          Uwe Woessner                                  **
- **     High Performance Computing Center University of Stuttgart          **
- **                         Nobelstrasse 19                                **
- **                         70550 Stuttgart                                **
- **                                                                        **
- ** Cration Date: 01.02.2016                                               **
-\**************************************************************************/
-
 #include <do/coDoSet.h>
 #include <do/coDoData.h>
 #include <do/coDoPoints.h>
@@ -30,6 +15,8 @@
 #include <float.h>
 #include <cassert>
 #include "ReadPTV.h"
+
+// Read PTV data from DLR. 
 
 /// Constructor
 coReadPTV::coReadPTV(int argc, char *argv[])

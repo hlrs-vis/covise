@@ -5,15 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2005 ZAIK  **
- **                                                                          **
- ** Description: Normals Plugin  (draw normals)                              **
- **                                                                          **
- ** Author: Martin Aumueller (aumueller@uni-koeln.de)                        **
- **                                                                          **
- \****************************************************************************/
-
 #include "NormalsPlugin.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRTui.h>

@@ -1241,14 +1241,27 @@ void Renderer::renderFrame(unsigned chan)
     }
 #endif
 
+    if (objectUpdates != 0x0)
+        info.accumFrames = 0;
+
     objectUpdates = 0x0;
 
-    if (info.frame.width != width || info.frame.height != height) {
-        info.frame.width = width;
+    static const float renderScale =
+        covise::coCoviseConfig::getFloat("value", "COVER.Plugin.ANARI.RenderScale", 1.0f);
+
+    if (info.frame.width != width || info.frame.height != height || info.renderWidth == 1) {
+        info.frame.width  = width;
         info.frame.height = height;
         info.frame.resized = true;
 
-        unsigned imgSize[] = {(unsigned)width,(unsigned)height};
+        info.renderWidth  = std::max(1, (int)(width  * renderScale));
+        info.renderHeight = std::max(1, (int)(height * renderScale));
+
+        info.depthBuffer.resize(info.renderWidth * info.renderHeight);
+        if (info.renderWidth != width)
+            info.colorBuffer.resize(info.renderWidth * info.renderHeight);
+
+        unsigned imgSize[] = {(unsigned)info.renderWidth, (unsigned)info.renderHeight};
         anariSetParameter(anari.device, anari.frames[chan], "size", ANARI_UINT32_VEC2, imgSize);
         anariCommitParameters(anari.device, anari.frames[chan]);
     }
@@ -1256,6 +1269,7 @@ void Renderer::renderFrame(unsigned chan)
     if (info.mv != mv || info.pr != pr) {
         info.mv = mv;
         info.pr = pr;
+        info.accumFrames = 0;
 
         offaxisStereoCameraFromTransform(
             inverse(pr), inverse(mv), info.eye, info.dir, info.up, info.fovy, info.aspect, info.imgRegion);
@@ -1271,8 +1285,14 @@ void Renderer::renderFrame(unsigned chan)
 
     if (info.mm != mm) {
         info.mm = mm;
+        info.accumFrames = 0;
         updateLights(glm2osg(mm));
     }
+
+    static const int accumCap =
+        covise::coCoviseConfig::getInt("value", "COVER.Plugin.ANARI.AccumFramesCap", 64);
+    if (info.accumFrames >= accumCap)
+        return;
 
     #ifdef TIMING
     double t0 = getCurrentTime();
@@ -1283,6 +1303,7 @@ void Renderer::renderFrame(unsigned chan)
     double t1 = getCurrentTime();
     std::cout << "renderFrame() takes " << (t1-t0) << " sec.\n";
     #endif
+    info.accumFrames++;
 
 #ifdef ANARI_PLUGIN_HAVE_RR
     if (isClient) {
@@ -1373,29 +1394,46 @@ void Renderer::drawFrame(unsigned chan)
         anariUnmapFrame(anari.device, anari.frames[chan], "channel.depthGPU");
 #endif
     } else {
-        uint32_t widthOUT;
-        uint32_t heightOUT;
+        uint32_t widthOUT, heightOUT;
         ANARIDataType typeOUT;
+
+        // color
         const uint32_t *fbPointer = (const uint32_t *)anariMapFrame(anari.device, anari.frames[chan],
                                                                     "channel.color",
-                                                                    &widthOUT,
-                                                                    &heightOUT,
-                                                                    &typeOUT);
-        memcpy((uint32_t *)multiChannelDrawer->rgba(chan), fbPointer,
-               widthOUT*heightOUT*anari::sizeOf(typeOUT));
+                                                                    &widthOUT, &heightOUT, &typeOUT);
+        uint32_t *colorDst = (uint32_t *)multiChannelDrawer->rgba(chan);
+        if ((int)widthOUT == info.frame.width) {
+            memcpy(colorDst, fbPointer, widthOUT * heightOUT * anari::sizeOf(typeOUT));
+        } else {
+            for (int y = 0; y < info.frame.height; ++y) {
+                int sy = y * (int)heightOUT / info.frame.height;
+                for (int x = 0; x < info.frame.width; ++x) {
+                    int sx = x * (int)widthOUT / info.frame.width;
+                    colorDst[y * info.frame.width + x] = fbPointer[sy * (int)widthOUT + sx];
+                }
+            }
+        }
         anariUnmapFrame(anari.device, anari.frames[chan], "channel.color");
 
+        // depth
         const float *dbPointer = (const float *)anariMapFrame(anari.device, anari.frames[chan],
                                                               "channel.depth",
-                                                              &widthOUT,
-                                                              &heightOUT,
-                                                              &typeOUT);
-        std::vector<float> dbXformed(widthOUT*heightOUT);
-        transformDepthFromWorldToGL(dbPointer, dbXformed.data(), info.eye, info.dir, info.up, info.fovy,
-                                    info.aspect, info.imgRegion, info.mv, info.pr, widthOUT, heightOUT);
-        memcpy((float *)multiChannelDrawer->depth(chan), dbXformed.data(),
-               widthOUT*heightOUT*anari::sizeOf(typeOUT));
-
+                                                              &widthOUT, &heightOUT, &typeOUT);
+        transformDepthFromWorldToGL(dbPointer, info.depthBuffer.data(), info.eye, info.dir, info.up,
+                                    info.fovy, info.aspect, info.imgRegion, info.mv, info.pr,
+                                    widthOUT, heightOUT);
+        float *depthDst = (float *)multiChannelDrawer->depth(chan);
+        if ((int)widthOUT == info.frame.width) {
+            memcpy(depthDst, info.depthBuffer.data(), widthOUT * heightOUT * anari::sizeOf(typeOUT));
+        } else {
+            for (int y = 0; y < info.frame.height; ++y) {
+                int sy = y * (int)heightOUT / info.frame.height;
+                for (int x = 0; x < info.frame.width; ++x) {
+                    int sx = x * (int)widthOUT / info.frame.width;
+                    depthDst[y * info.frame.width + x] = info.depthBuffer[sy * (int)widthOUT + sx];
+                }
+            }
+        }
         anariUnmapFrame(anari.device, anari.frames[chan], "channel.depth");
     }
 
@@ -1541,6 +1579,11 @@ void Renderer::initDevice()
             anariSetParameter(anari.device, anari.device, "server.port", ANARI_UINT16, &port);
     }
     anariCommitParameters(anari.device, anari.device);
+    anari.renderertype = covise::coCoviseConfig::getEntry(
+        "subtype",
+        "COVER.Plugin.ANARI.Renderer",
+        "default"
+    );
     anari.world = anari::newObject<anari::World>(anari.device);
 #ifdef ANARI_PLUGIN_HAVE_CUDA
     anari.cudaInterop.enabled
@@ -1579,9 +1622,11 @@ void Renderer::initFrames()
     anariSetParameter(anari.device, anari.renderer, "ambientOcclusionDistance", ANARI_FLOAT32,
                       &ambientRadius);
                                                                                      
-bool denoise=true;                                                                   
-anariSetParameter(anari.device, anari.renderer, "denoise", ANARI_BOOL,               
-                  &denoise);
+    bool denoise = coCoviseConfig::isOn("value", "COVER.Plugin.ANARI.Denoise", false);
+    anariSetParameter(anari.device, anari.renderer, "denoise", ANARI_BOOL, &denoise);
+
+    int pixelSamples = coCoviseConfig::getInt("value", "COVER.Plugin.ANARI.PixelSamples", 1);
+    anariSetParameter(anari.device, anari.renderer, "pixelSamples", ANARI_INT32, &pixelSamples);
 
     anariCommitParameters(anari.device, anari.renderer);
 

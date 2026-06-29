@@ -5,22 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1998 RUS  **
- **                                                                        **
- ** Description:  COVISE VectScalNew  application module                   **
- **                                                                        **
- **                                                                        **
- **                             (C) Vircinity 2000                         **
- **                                                                        **
- **                                                                        **
- ** Author:  R. Beller, Sasha Cioringa                                     **
- **                                                                        **
- **                                                                        **
- ** Date:  01.12.97  V1.0                                                  **
- ** Date   08.11.00                                                        **
-\**************************************************************************/
-
 #include <do/coDoTriangleStrips.h>
 #include <do/coDoData.h>
 #include <do/coDoUnstructuredGrid.h>

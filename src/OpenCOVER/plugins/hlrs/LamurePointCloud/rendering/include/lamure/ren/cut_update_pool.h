@@ -34,8 +34,8 @@ namespace ren
 class cut_update_pool
 {
   public:
-    cut_update_pool(const context_t context_id, const node_t upload_budget_in_nodes, const node_t render_budget_in_nodes, Data_Provenance const &data_provenance);
-    cut_update_pool(const context_t context_id, const node_t upload_budget_in_nodes, const node_t render_budget_in_nodes);
+    cut_update_pool(const context_t context_id, const size_t upload_budget_in_nodes, const size_t render_budget_in_nodes, Data_Provenance const &data_provenance);
+    cut_update_pool(const context_t context_id, const size_t upload_budget_in_nodes, const size_t render_budget_in_nodes);
     virtual ~cut_update_pool();
 
     const uint32_t num_threads() const { return num_threads_; };

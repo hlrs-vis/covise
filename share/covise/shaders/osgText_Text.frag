@@ -47,8 +47,13 @@
 
 uniform sampler2D glyphTexture;
 
-varying vec2 texCoord;
-varying vec4 vertexColor;
+#if __VERSION__ >= 130
+    in vec2 texCoord;
+    in vec4 vertexColor;
+#else
+    varying vec2 texCoord;
+    varying vec4 vertexColor;
+#endif
 
 #ifndef TEXTURE_DIMENSION
 const float TEXTURE_DIMENSION = 1024.0;
@@ -224,7 +229,7 @@ vec4 textColor(vec2 src_texCoord)
 #else
 
     float alpha = TEXTURE(glyphTexture, src_texCoord).ALPHA;
-    if (alpha==0.0) vec4(0.0, 0.0, 0.0, 0.0);
+    if (alpha==0.0) return vec4(0.0, 0.0, 0.0, 0.0);
     return vec4(vertexColor.rgb, vertexColor.a * alpha);
 
 #endif

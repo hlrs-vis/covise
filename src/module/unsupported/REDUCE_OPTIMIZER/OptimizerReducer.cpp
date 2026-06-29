@@ -5,21 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1997 SGI  **
- **                                                                        **
- ** Description:  COVISE Surface reduction application module  using       **
- **                               Optimizer                                **
- **                                                                        **
- **                             (C) 1997                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Author:  Monika Wierse                                                 **
- **                                                                        **
- ** Date:  October 1997  V1.0                                              **
-\**************************************************************************/
 #define _IEEE 1
 #define NUMVERTS 64
 

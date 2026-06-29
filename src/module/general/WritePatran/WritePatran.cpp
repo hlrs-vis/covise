@@ -5,25 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1998 RUS  **
- **                                                                        **
- ** Description: Writing of Elements in Patran Format                      **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                            Monika Wierse                               **
- **                          SGI/Cray Research                             **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  18.12.97  V0.1                                                  **
-\**************************************************************************/
-
 #include <appl/ApplInterface.h>
 #include "WritePatran.h"
 #include <util/coviseCompat.h>
@@ -388,12 +369,6 @@ void Application::compute(void *)
     delete new_data;
     fclose(file);
 }
-
-/*******************************\ 
- **                             **
- **        Ex ApplMain.C        **
- **                             **
-\*******************************/
 
 int main(int argc, char *argv[])
 {

@@ -7,19 +7,7 @@
 
 #ifndef _URBANTEMPO_PLUGIN_H
 #define _URBANTEMPO_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2023 HLRS  **
- **                                                                          **
- ** Description: Urban Tempo OpenCOVER Plugin                                **
- **                                                                          **
- **                                                                          **
- ** Author: Kilian Türk		                                                 **
- **                                                                          **
- ** History:  								                                 **
- ** Feb 2023  v1	    				       		                         **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include "Tree.h"
 #include "TreeModel.h"
 #include <string>

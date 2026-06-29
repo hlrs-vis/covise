@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <COCONFIG version="1">
     
-    <GLOBAL>
+<GLOBAL>
 	<Module>
 		<CuttingSurface>
         <SupportPolyhedra value="true" />
@@ -65,12 +65,15 @@
                 <FileType name="c2m" plugin="PointCloud" />                
                 <!--FileType name="ply" plugin="PointCloud" /-->
                                 
-                <FileType name="pts" plugin="PointRayTracer" />
-		<!--FileType name="xyz" plugin="PointRayTracer" />
-		<FileType name="ptsb" plugin="PointRayTracer" /-->
+                <!--FileType name="pts" plugin="PointRayTracer" />
+		        <FileType name="xyz" plugin="PointRayTracer" />
+		        <FileType name="ptsb" plugin="PointRayTracer" />
                 <FileType name="ply" plugin="PointRayTracer" />
-                <!--FileType name="e57" plugin="PointRayTracer" /-->
+                <FileType name="e57" plugin="PointRayTracer" /-->
                 
+                <FileType name="ply" plugin="ANARI" />
+                <!--FileType name="obj" plugin="AssimpPlugin" /-->
+
                 <FileType name="x3dv" plugin="Vrml97" />
                 <FileType name="wrl" plugin="Vrml97" />
                 <FileType name="wrl.gz" plugin="Vrml97" />
@@ -151,12 +154,7 @@
             </Menu>
             
             <Sound server="134.95.85.134" />
-  <!-- 
-            <Menu>
-                <Orientation h="-20" p="0" r="0" />
-                <Position x="1200" y="0" z="1150" />
-            </Menu-->
-
+             
             <DebugTUI value="false" />
             <MenuMode value="false" />
             <OMPThreads value="off" />
@@ -178,7 +176,6 @@
             <Spheres>
                 <UseVertexArrays value="on" />
             </Spheres>
-  
 
             <MultiProcess value="ON" />
             <MultiThreaded value="ON" />
@@ -243,17 +240,80 @@
             <TabletUI host="134.95.95.253" />
 
             <Plugin>
+                <MADIconnect value ="off">
+                    <DataPath value ="/share/data/KeiItoTest" />
+                </MADIconnect>
+
+                <AssimpPlugin value="off">
+                    <!-- Commonly used flags (enabled by default) -->
+                    <Triangulate              value="off" />
+                    <GenNormals               value="off" />
+                    <GenSmoothNormals         value="off" />
+                    <JoinIdenticalVertices    value="off" />
+                    <ImproveCacheLocality     value="off" />
+                    <RemoveRedundantMaterials value="off" />
+                    <SortByPType              value="off" />
+                    <FindInvalidData          value="off" />
+                    <GenUVCoords              value="off" />
+                    <OptimizeMeshes           value="off" />
+                    <ValidateDataStructure    value="off" />
+                    <FindDegenerates          value="off" />
+                    <FindInstances            value="off" />
+                    <OptimizeGraph            value="off" />
+
+                    <!-- Advanced flags (disabled by default) -->
+                    <CalcTangentSpace         value="off" />
+                    <MakeLeftHanded           value="off" />
+                    <RemoveComponent          value="off" />
+                    <SplitLargeMeshes         value="off" />
+                    <PreTransformVertices     value="off" />
+                    <LimitBoneWeights         value="off" />
+                    <FixInfacingNormals       value="off" />
+                    <PopulateArmatureData     value="off" />
+                    <TransformUVCoords        value="off" />
+                    <FlipUVs                  value="off" />
+                    <FlipWindingOrder         value="off" />
+                    <SplitByBoneCount         value="off" />
+                    <Debone                   value="off" />
+                    <GlobalScale              value="off" />
+                    <EmbedTextures            value="off" />
+                    <DropNormals              value="off" />
+                    <GenBoundingBoxes         value="off" />
+                </AssimpPlugin>
+
+                <ANARI value="on" menu="on">
+                    <loadPlyAsPointCloud value="on"/>
+
+                    <!-- Barbarastollen: 0.006  -->
+                    <!-- Roemergrab:     0.035  -->
+                    <PointCloud radius="0.04" />
+
+                    <Library value="visrtx" />
+                    <Renderer subtype="raycast" />
+
+                    <AmbientRadiance value="0.5" />
+                    <!--AmbientRadius   value="0.04" /-->
+                    <AmbientRadius   value="0" />
+                    <AmbientColor r="1.0" g="1.0" b="1.0" />
+                    <Denoise value="on" />
+                    <RenderScale value="0.75" />
+                </ANARI>
+
                 <Revit value="off" ignoreDepthOnly="true" textures="/data/revit/Textures" localTextures="/data/revit/Textures"/>
+
                 <Neuro value="off" menu="on" />
+
                 <PointRayTracer value="off">
                     <!--PointSize value="0.504" /-->
                     <PointSize value="0.04" />
                     <CacheBinaryFile value="on"/>
                     <CutUTMData value="off" />
                 </PointRayTracer>
+
                 <PointCloud value="off">
                   <PointSize value="4" />
                 </PointCloud>
+
                 <Visionaray value="off" menu="on">
                     <DataVariance value="static"  />                 <!-- "static" | "dynamic" -->
                     <Algorithm    value="simple"  />                <!-- "simple" | "whitted" -->
@@ -262,7 +322,8 @@
                     <Device       value="GPU"     />                 <!-- "CPU"    | "GPU"     -->
                     <CPUScheduler numThreads="16" />                 <!-- numThreads:Integer   -->
                 </Visionaray>
-                <Volume value="on" >
+
+                <Volume value="off" >
                     <Renderer value="rayrendcuda" />
                     <!--Renderer value="texrend" /-->
                     <!--Renderer value="rayrendcuda" /-->
@@ -271,9 +332,13 @@
                     <ShowTFE value="on" />
                     <UseHistogram value="off"/>
                 </Volume>
+
                 <ClipPlane value="off" />
+
                 <COVERScript value="off" />
+
                 <ViewPoint value="on" FlightTime="8" />
+
                 <Vrml97 value="on">
                     <Lights value="ON" />
                     <Audio value="OpenAL">			    
@@ -282,11 +347,11 @@
                         <!--Device value="plughw:1,0" /-->
                     </Audio>
                     <ViewpointType value="free" />
-                    <NewMovieSupport value="true" />
                     <UseTextureRectangle value="true" />
                     <GenerateTriangleStrips value="false" />
                     <ReTesselate value="false" />
                 </Vrml97>
+
                 <!--StereoVideoPlayer>
                     <Audio value="off"/>
                 </StereoVideoPlayer-->
@@ -297,6 +362,7 @@
                   <Filename value="/localData/AstroVideo.mpeg"/>
                   <Bitrate value="10000"/>                  
                 </Video-->
+
                 <ClipPlane value="on" />
             </Plugin>
 

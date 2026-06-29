@@ -28,7 +28,6 @@
 #include <chrono>
 #include <mutex>
 
-#include <osg/Timer>
 #include <osg/Matrix>
 #include <osg/Vec3>
 #include <osg/MatrixTransform>
@@ -59,59 +58,6 @@ namespace opencover {
 
 class Lamure;
 class LamureEditTool;
-
-struct FrameMarks {
-    double draw_cb_ms      = -1.0;
-    double dispatch_ms     = -1.0;
-    double context_bind_ms = -1.0;
-    double estimates_ms    = -1.0;
-    double pass1_ms        = -1.0;
-    double pass2_ms        = -1.0;
-    double pass3_ms        = -1.0;
-    double singlepass_ms   = -1.0;
-
-    void reset() { *this = FrameMarks{}; }
-};
-
-enum class MarkField : uint8_t {
-    DrawCB_Total,
-    Dispatch,
-    ContextBind,
-    Estimates,
-    Pass1,
-    Pass2,
-    Pass3,
-    SinglePass,
-};
-
-struct ScopedMark {
-    Lamure* plugin;
-    MarkField field;
-    double t0;
-    ScopedMark(Lamure* p, MarkField f) noexcept
-        : plugin(p), field(f), t0(osg::Timer::instance()->time_s()) {}
-    ~ScopedMark();
-};
-
-#define LM_CAT_IMPL(a,b) a##b
-#define LM_CAT(a,b) LM_CAT_IMPL(a,b)
-
-// für „unused“-Warnungen (trotzdem läuft der Destruktor!)
-#if __cplusplus >= 201703L
-#define LM_MAYBE_UNUSED [[maybe_unused]]
-#else
-#define LM_MAYBE_UNUSED
-#endif
-
-// Einziger öffentliche Entry-Point: erzeugt eine RAII-Variable.
-// Ctor = Begin-Mark, Dtor = End + "time taken" schreiben.
-// Wenn kein Measurement aktiv ist, macht ScopedMark intern nichts.
-#define LM_SCOPE(pluginPtr, FIELD) \
-  LM_MAYBE_UNUSED ::ScopedMark LM_CAT(_lm_scope_, __LINE__){ (pluginPtr), MarkField::FIELD }
-
-// Start-Marke: legt nur eine lokale Tick-Variable an
-#define LM_MARK_BEGIN(VARNAME) \
-    const osg::Timer_t VARNAME = osg::Timer::instance()->tick()
 
 enum class MeasureMode { Off, Lite, Full };
 
@@ -196,7 +142,7 @@ public:
         bool show_pointcloud{ true };
         bool show_boundingbox{ false };
         bool show_frustum{ false };
-        bool show_text{ false };
+        bool show_stats{ false };
         bool show_sync{ true };
         bool show_notify{ true };
         bool use_initial_navigation{ false };
@@ -236,22 +182,6 @@ public:
         uint64_t rendered_primitives{0};
         uint64_t rendered_nodes{0};
         uint64_t rendered_bounding_boxes{0};
-
-        float est_screen_px       = -1.0f;
-        float est_sum_area_px     = -1.0f;
-        float est_coverage_px     = -1.0f;
-        float est_density         = -1.0f;
-        float est_coverage        = -1.0f;
-        float est_overdraw        = -1.0f;
-        float estimates_ms        = -1.0f;
-        float avg_area_px_per_prim= -1.0f;
-
-        float est_density_raw     = -1.0f;
-        float est_coverage_raw    = -1.0f;
-        float est_coverage_px_raw = -1.0f;
-        float est_overdraw_raw    = -1.0f;
-
-        float fps                 = -1.0f;
     };
 
     struct Trackball
@@ -362,10 +292,6 @@ public:
         (void)expander{0, ((std::cout << std::forward<Rest>(rest)), 0)...};
     }
 
-    void beginFrameMarks() noexcept { m_marks.reset(); }
-    void addMarkMs(MarkField f, double ms) noexcept;
-    const FrameMarks& getFrameMarks() const noexcept { return m_marks; }
-
     void setModelVisible(uint16_t idx, bool v);
     bool isModelVisible(uint16_t idx) const;
 
@@ -433,7 +359,6 @@ private:
     unsigned int                        prev_vsync_frames_ = 0;
     bool                                fps_cap_modified_ = false;
     bool                                vsync_modified_   = false;
-    FrameMarks                          m_marks;
     osg::ref_ptr<osg::Group>            m_lamure_grp;
 
     std::bitset<512> m_keyDown_;
@@ -476,11 +401,5 @@ private:
     bool m_edit_mode{false};
     bool m_brush_frozen{false};
 };
-
-inline ScopedMark::~ScopedMark() {
-    if (!plugin || !plugin->getMeasurement()) return;
-    const double t1 = osg::Timer::instance()->time_s();
-    plugin->addMarkMs(field, (t1 - t0) * 1000.0);
-}
 
 #endif

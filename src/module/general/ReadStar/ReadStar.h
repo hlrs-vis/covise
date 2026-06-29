@@ -7,24 +7,6 @@
 
 #ifndef _READSTAR09_H
 #define _READSTAR09_H
-/**************************************************************************\ 
- **                                                           (C)1995 RUS  **
- **                                                                        **
- ** Description: Read module for Star-CD Files          	                  **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                             Andreas Werner                             **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  03.01.96  V0.1                                                  **
-\**************************************************************************/
 
 #include <appl/ApplInterface.h>
 #include <star/File29.h>
@@ -39,6 +21,7 @@
 
 using namespace covise;
 
+// Read module for Star-CD Files
 class ReadStar : public coModule
 {
 

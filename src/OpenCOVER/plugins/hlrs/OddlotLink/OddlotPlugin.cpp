@@ -5,20 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
-**                                                            (C)2009 HLRS  **
-**                                                                          **
-** Description: Oddlot Plugin (connection to the OpenDrive Road Editor)     **
-**                                                                          **
-**                                                                          **
-** Author: U.Woessner		                                                **
-**                                                                          **
-** History:  								                                **
-**                                                                          **
-** Apr-16  v1	    				       		                            **
-**                                                                          **
-\****************************************************************************/
-
 #include "OddlotPlugin.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>

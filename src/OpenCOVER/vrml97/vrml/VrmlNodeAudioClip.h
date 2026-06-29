@@ -24,14 +24,20 @@
 #include "VrmlSFTime.h"
 #include "VrmlSFVec3f.h"
 
+namespace opencover::audio
+{
+class Audio;
+}
+
 namespace vrml
 {
 
-class Audio;
 class Doc;
+class VrmlNodeSound;
 
 class VRMLEXPORT VrmlNodeAudioClip : public VrmlNode
 {
+    friend VrmlNodeSound;
 
 public:
     // Define the fields of AudioClip nodes
@@ -47,7 +53,7 @@ public:
     // an update. Renderable nodes need to redefine this.
     virtual void update(VrmlSFTime &now);
 
-    const Audio *getAudio() const;
+    const opencover::audio::Audio *getAudio() const;
 
     bool isAudible(VrmlSFTime &now) const;
 
@@ -66,10 +72,10 @@ private:
     VrmlSFTime d_duration;
     VrmlSFBool d_isActive;
 
-    Audio *d_audio;
+    opencover::audio::Audio *d_audio = nullptr;
     bool d_url_modified;
     Doc *_doc;
-    double lastTime;
+    double audioLastModified;
     bool lastActive;
 };
 }

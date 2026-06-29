@@ -7,19 +7,7 @@
 
 #ifndef _TestTrees_PLUGIN_H
 #define _TestTrees_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2013 HLRS  **
- **                                                                          **
- ** Description: TestTrees Plugin (testInstancecRenderer)                    **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                 **
- **                                                                          **
- ** History:  								                                 **
- ** Aug-2013  v1	    				       		                         **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 using namespace opencover;
 

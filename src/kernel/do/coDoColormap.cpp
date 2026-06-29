@@ -7,27 +7,6 @@
 
 #include "coDoColormap.h"
 
-/****************************************************************\ 
- **                                                              **
- **   Colormap Object Class                        Version: 1.o  **
- **                                                              **
- **                                                              **
- **   Description  : for Colormap objects                        **
- **                                                              **
- **   Classes      : coDoColormap                                 **
- **                                                              **
- **   Copyright (C) 1997     by University of Stuttgart          **
- **                             Computer Center (RUS)            **
- **                             Allmandring 30a                  **
- **                             70550 Stuttgart                  **
- **                                                              **
- **                                                              **
- **   Author       : A. Werner   (RUS)                           **
- **                                                              **
- **   History      : 26.06.97  Implementation                    **
- **                                                              **
-\****************************************************************/
-
 using namespace covise;
 
 //////////////////////////////////////////////////////////////////

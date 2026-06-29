@@ -7,24 +7,7 @@
 
 #ifndef _INTERPOLATE_H
 #define _INTERPOLATE_H
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description: Module to interpolate between unstructured data types     **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                            Reiner Beller                               **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  10.10.97  V0.1                                                  **
-\**************************************************************************/
+
 
 #include <api/coModule.h>
 using namespace covise;
@@ -34,6 +17,7 @@ using namespace covise;
 #define M_PI 3.14159265358979323846
 #endif // M_PI
 
+// Module to interpolate between unstructured data types
 class Interpolate : public coModule
 {
 

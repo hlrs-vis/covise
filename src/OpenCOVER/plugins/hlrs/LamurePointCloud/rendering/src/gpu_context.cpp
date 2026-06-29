@@ -107,8 +107,7 @@ void gpu_context::test_video_memory(scm::gl::render_device_ptr device)
     policy *policy = policy::get_instance();
     size_t render_budget_in_mb = policy->render_budget_in_mb();
 
-    float safety = 0.75f;
-    size_t video_ram_free_in_mb = gpu_access::query_video_memory_in_mb(device) * safety;
+    size_t video_ram_free_in_mb = (gpu_access::query_video_memory_in_mb(device) * 3u) / 4u;
 
     if (policy->out_of_core_budget_in_mb() == 0 || video_ram_free_in_mb < render_budget_in_mb)
     {
@@ -126,7 +125,7 @@ void gpu_context::test_video_memory(scm::gl::render_device_ptr device)
         render_budget_in_mb = std::max<size_t>(1, render_budget_in_mb / contexts_);
     }
 
-    long node_size_total = database->get_slot_size();
+    size_t node_size_total = database->get_slot_size();
     if(node_size_total==0)
         render_budget_in_nodes_ = 0;
     else
@@ -152,8 +151,7 @@ void gpu_context::test_video_memory(scm::gl::render_device_ptr device, Data_Prov
     policy *policy = policy::get_instance();
     size_t render_budget_in_mb = policy->render_budget_in_mb();
 
-    float safety = 0.75f;
-    size_t video_ram_free_in_mb = gpu_access::query_video_memory_in_mb(device) * safety;
+    size_t video_ram_free_in_mb = (gpu_access::query_video_memory_in_mb(device) * 3u) / 4u;
 
     if (policy->out_of_core_budget_in_mb() == 0 || video_ram_free_in_mb < render_budget_in_mb)
     {
@@ -167,15 +165,21 @@ void gpu_context::test_video_memory(scm::gl::render_device_ptr device, Data_Prov
         std::cout << "##### " << render_budget_in_mb << " MB will be used for the render budget #####" << std::endl;
     }
 
-    long node_size_total = database->get_primitives_per_node() * data_provenance.get_size_in_bytes() + database->get_slot_size();
+    size_t node_size_total = database->get_primitives_per_node() * data_provenance.get_size_in_bytes() + database->get_slot_size();
     if (contexts_ > 1) {
         render_budget_in_mb = std::max<size_t>(1, render_budget_in_mb / contexts_);
     }
-    render_budget_in_nodes_ = (render_budget_in_mb * 1024 * 1024) / node_size_total;
+    if(node_size_total == 0u)
+        render_budget_in_nodes_ = 0u;
+    else
+        render_budget_in_nodes_ = (render_budget_in_mb * 1024 * 1024) / node_size_total;
 
     size_t max_upload_budget_in_mb = policy->max_upload_budget_in_mb();
 
-    upload_budget_in_nodes_ = (max_upload_budget_in_mb * 1024u * 1024u) / node_size_total;
+    if(node_size_total == 0u)
+        upload_budget_in_nodes_ = 0u;
+    else
+        upload_budget_in_nodes_ = (max_upload_budget_in_mb * 1024u * 1024u) / node_size_total;
 
     std::cout << "[Lamure] ctx=" << context_id_
               << " contexts=" << contexts_

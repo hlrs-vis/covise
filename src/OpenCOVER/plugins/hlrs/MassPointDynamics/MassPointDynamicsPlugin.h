@@ -7,19 +7,7 @@
 
 #ifndef _MASS_POINT_DYNAMICS_PLUGIN_H
 #define _MASS_POINT_DYNAMICS_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: MassPointDynamics Plugin (does nothing)                              **
- **                                                                          **
- **                                                                          **
- ** Author: Florian Seybold		                                                **
- **                                                                          **
- ** History:  								                                **
- ** Nov-01  v1	    				       		                            **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 
 //#include "MassSpringState.h"

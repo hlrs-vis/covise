@@ -7,23 +7,9 @@
 
 #ifndef _READDX_H
 #define _READDX_H
-/****************************************************************************\ 
- **                                                            (C)1999 RUS   **
- **                                                                          **
- ** Description: Reader for the IBM Dataexploerer format                     **
- **                                                                          **
- **                                                                          **
- **                                                                          **
- ** Name:        ReadDx                                                      **
- ** Category:                                                                **
- **                                                                          **
- ** Author: C. Schwenzer		                                                **
- **                                                                          **
- ** History:  								                                **
- ** September-99  					       		                            **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
+// Reader for the IBM Dataexploerer format
+
 //covise specific includes
 #include <api/coModule.h>
 using namespace covise;

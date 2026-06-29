@@ -81,7 +81,7 @@ void VSGVruiColoredBackground::createSharedLists()
     normal = vsg::vec3Value::create(vsg::vec3(0.0f, 0.0f, 1.0f));
     config->assignArray(vertexArrays, "vsg_Normal", VK_VERTEX_INPUT_RATE_INSTANCE, normal);
 
-    color = vsg::vec4Value::create(vsg::vec4(1.0f, 1.0f, 1.0f, 0.5f));
+    color = vsg::vec4Value::create(vsg::vec4(.6f, .6f, .6f, 1.0f));
     config->assignArray(vertexArrays, "vsg_Color", VK_VERTEX_INPUT_RATE_INSTANCE, color);
 }
 

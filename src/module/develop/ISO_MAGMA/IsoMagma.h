@@ -7,21 +7,6 @@
 
 #ifndef _POLYGON_SET_H
 #define _POLYGON_SET_H
-/****************************************************************************\ 
- **                                                            (C)2000 RUS   **
- **                                                                          **
- ** Description: Simple Example how to create a set of polygons              **
- **                                                                          **
- ** Name:        IsoMagma                                                  **
- ** Category:    examples                                                    **
- **                                                                          **
- ** Author: D. Rainer		                                                **
- **                                                                          **
- ** History:  								                                **
- ** April-00     					       		                            **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
 
 #include <api/coModule.h>
 using namespace covise;

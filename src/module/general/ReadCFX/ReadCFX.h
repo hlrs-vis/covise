@@ -7,15 +7,6 @@
 
 #ifndef _READ_CFX_H
 #define _READ_CFX_H
-/**************************************************************************\ 
- **                                                                        **
- **                                                                        **
- ** Description: Read Ansys CFX                                            **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- *\**************************************************************************/
 
 #include <api/coSimpleModule.h>
 using namespace covise;

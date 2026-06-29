@@ -5,24 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1998 RUS  **
- **                                                                        **
- ** Description:  COVISE Surface vertex removal class                      **
- **                                                                        **
- **                                                                        **
- **                             (C) 1998                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Karin Frank                                                   **
- **                                                                        **
- **                                                                        **
- ** Date:  June 1998   V1.0                                                **
-\**************************************************************************/
-
 #include <appl/ApplInterface.h>
 #include "SurfVertex.h"
 #include <util/coviseCompat.h>

@@ -5,21 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
-**                                                            (C)2008 HLRS  **
-**                                                                          **
-** Description: TouchTable Plugin (does TouchTable )                        **
-**                                                                          **
-**                                                                          **
-** Author: B. Burbaum und                                                  **
-**         U. Woessner		                                               **
-**                                                                          **
-** History:  								                                **
-** Nov-08  v1	    				       		                            **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
-
 #include "TouchTablePlugin.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRFileManager.h>

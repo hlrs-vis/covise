@@ -5,32 +5,7 @@
 
  * License: LGPL 2+ */
 
-// 19.11.2001 / 1 / file ReadIWS.cpp
-
-/******************************************************************************\ 
- **                                                              (C)2001 RUS **
- **                                                                          **
- ** Description:Reader for IWS data files                                    **
- **                                                                          **
- **                                                                          **
- **                                                                          **
- **                                                                          **
- **                                                                          **
- ** Author: M. Muench                                                        **
- **                                                                          **
- ** History:                                                                 **
- ** Someday 01 v1                                                            **
- ** XXXXXXXXX xx new covise api                                              **
- **                                                                          **
-\******************************************************************************/
-
 #include "ReadIWS.h"
-
-/********************\ 
- *                  *
- * Covise main loop *
- *                  *
-\********************/
 
 int main(int argc, char *argv[])
 {
@@ -39,12 +14,6 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-
-/******************************\ 
- *                            *
- * Ingredients of Application *
- *                            *
-\******************************/
 
 ReadIWS::ReadIWS()
 {
@@ -123,12 +92,7 @@ int ReadIWS::compute()
     return SUCCESS;
 }
 
-/***************************************************************\ 
- *                                                             *
- * reads the file in ascii mode and creates the covise objects *
- *                                                             *
-\***************************************************************/
-
+// reads the file in ascii mode and creates the covise objects
 FILE *ReadIWS::openFile(const char *filename)
 {
     char infobuf[3000];
@@ -807,11 +771,7 @@ void ReadIWS::line2coord(int *corner_list, int edge_index, int *edge_list, int p
     }
 }
 
-/*****************************************\ 
- *                                       *
- * auxilliary functions string -> number *
- *                                       *
-\*****************************************/
+// auxilliary functions string -> number
 
 //test if we found a whole number
 bool ReadIWS::isWholeNumber(char *line)
@@ -952,9 +912,3 @@ bool ReadIWS::isNumber(char *line)
     }
     return false;
 }
-
-/*************************************\ 
- *                                   *
- * THE DEFINITE BUT NOT ULTIMATE END *
- *                                   *
-\*************************************/

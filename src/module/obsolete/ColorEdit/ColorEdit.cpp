@@ -5,24 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1994 RUS  **
- **                                                                        **
- ** Description:  COVISE ColorEdit application module                      **
- **                                                                        **
- **                                                                        **
- **                             (C) 1994                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  R.Lang, D.Rantzau                                             **
- **                                                                        **
- **                                                                        **
- ** Date:  18.05.94  V1.0                                                  **
-\**************************************************************************/
-
 #include <appl/ApplInterface.h>
 #include "ColorEdit.h"
 #include <colormap/IntColorMap.h>

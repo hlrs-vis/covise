@@ -7,22 +7,6 @@
 
 #ifndef _READ_VOIS_H
 #define _READ_VOIS_H
-/**************************************************************************\ 
- **                                                   	   (C)2016 UKoeln  **
- **                                                                        **
- ** Description: Simple Reader for Volumes of Interest (VOIs)              **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author: D. Wickeroth                                                   **
- **                                                                        **
- ** History:                                                               **
- ** June 2016        v1                                                    **
- **                                                                        **
- **                                                                        **
-\**************************************************************************/
 
 #include <vector>
 #include <api/coModule.h>
@@ -31,6 +15,7 @@ using namespace covise;
 
 static const int MAXVOIS = 20;
 
+// Simple Reader for Volumes of Interest (VOIs) 
 class ReadVois : public coModule
 {
 

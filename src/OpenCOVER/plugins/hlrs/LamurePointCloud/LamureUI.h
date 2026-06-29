@@ -26,7 +26,7 @@ public:
     opencover::ui::Button* getBoundingboxButton() { return m_boundingbox_button; }
     opencover::ui::Button* getFrustumButton() { return m_frustum_button; }
     opencover::ui::Button* getSyncButton() { return m_sync_button; }
-    opencover::ui::Button* getTextButton() { return m_text_button; }
+    opencover::ui::Button* getStatsButton() { return m_stats_button; }
     opencover::ui::Button* getDumpButton() { return m_dump_button; }
     opencover::ui::Button* getProvButton() { return m_prov_button; }
     opencover::ui::Button* getMeasureButton() { return m_measure_button; }
@@ -66,7 +66,7 @@ private:
     opencover::ui::Button* m_frustum_button      = nullptr;
     opencover::ui::Button* m_sync_button         = nullptr;
     opencover::ui::Button* m_notify_button       = nullptr;
-    opencover::ui::Button* m_text_button         = nullptr;
+    opencover::ui::Button* m_stats_button        = nullptr;
     opencover::ui::Button* m_dump_button         = nullptr;
     opencover::ui::Button* m_prov_button         = nullptr;
     opencover::ui::Button* m_edit_button         = nullptr;

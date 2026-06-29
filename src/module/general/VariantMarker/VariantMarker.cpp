@@ -5,19 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                           (C)2008 HLRS **
- **                                                                        **
- ** Description: 					                                       **
- **  this module allows to group other modules into so called variants.    **
- **                                                                        **
- **                                                                        **
- ** Name:        VariantMarker                                             **
- ** Category:    Filter                                                    **
- **                                                                        **
- **                                                                        **
-\****************************************************************************/
-
 #include "VariantMarker.h"
 #include <util/coVector.h>
 #include <do/coDoSet.h>

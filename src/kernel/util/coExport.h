@@ -88,6 +88,13 @@
 #define COMSGEXPORT COIMPORT
 #endif
 
+
+#if defined(coVRAudio_EXPORTS)
+#define COVRAUDIOEXPORT COEXPORT
+#else
+#define COVRAUDIOEXPORT COIMPORT
+#endif
+
 #if defined(coVRB_EXPORTS)
 #define VRBEXPORT COEXPORT
 #else

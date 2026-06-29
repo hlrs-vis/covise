@@ -5,21 +5,6 @@
 
  * License: LGPL 2+ */
 
-
-/****************************************************************************\ 
- **                                                            (C)2008 HLRS  **
- **                                                                          **
- ** Description: NurbsSurface OpenCOVER Plugin (draws a NurbsSurface)        **
- **                                                                          **
- **                                                                          **
- ** Author: F.Karle/ K.Ahmann                                                **
- **                                                                          **
- ** History:                                                                 **
- ** December 2017  v1                                                        **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #include "NurbsSurface.h"
 #include <cover/coVRPluginSupport.h>
 #include <PluginUtil/PluginMessageTypes.h>

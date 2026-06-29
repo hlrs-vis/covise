@@ -12,6 +12,7 @@
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRCollaboration.h>
 #include <cover/coVRMSController.h>
+#include <cover/coVRPluginSupport.h>
 #include <cover/input/deviceDiscovery.h>
 #include <cover/input/input.h>
 #include <util/UDPComm.h>
@@ -39,7 +40,7 @@ TacxFTMS::TacxFTMS()
     ftmsControl.wind_speed = 0.0;
     ftmsControl.grade = 0.0;
     ftmsControl.crr = 0.0033; // random default value in the range of road bike
-    ftmsControl.cw = 0.49;  //  random default value for average rider 
+    ftmsControl.cw = 0.49;  //  random default value for average rider
     ftmsControl.weight = 72.0;
 
     stepSizeUp = 2000;
@@ -61,7 +62,7 @@ bool TacxFTMS::init() {
         configFloat("Position", "x", 0)->value();
     float y =
         configFloat("Position", "y", 0)->value();
-    float z = 
+    float z =
         configFloat("Position", "z", floorHeight)->value();
     float h =
         configFloat("Orientation", "h", 0)->value();
@@ -107,7 +108,7 @@ bool TacxFTMS::init() {
                 std::cerr << "TacxFTMS config: UDP: start listening on port: " << listeningPort << std::endl;
                 start();
 
-            } 
+            }
         }
     }
 
@@ -118,9 +119,10 @@ bool TacxFTMS::init() {
 
 void TacxFTMS::addDevice(const opencover::deviceInfo *i)
 {
-    
-    std::cerr << "TacxFTMS::addDevice called" << std::endl;
-    
+
+    if (cover->debugLevel(2))
+        std::cerr << "TacxFTMS::addDevice called" << std::endl;
+
     //const std::string host = configString("TacxFTMS", "severHost", "192.168.178.36")->value();
     unsigned short serverPortNeo = configInt("TacxFTMS", "serverPort", 31319)->value();
     //unsigned short localPortNeo = configInt("TacxFTMS", "localPort", 31322)->value();
@@ -268,14 +270,15 @@ void TacxFTMS::run() {
 }
 
 void TacxFTMS::updateThread() {
-                std::cerr << "ut" << endl;
     if (udpListen) {
         char tmpBuf[10000];
         int status;
 
         status = udpListen->receive(&tmpBuf, 10000);
 
-                std::cerr << "status" << status << endl;
+        if (cover->debugLevel(3))
+            std::cerr << "status" << status << endl;
+
         if (status == -1) {
             if (isEnabled())  // otherwise we are not supposed to receive
                               // anything

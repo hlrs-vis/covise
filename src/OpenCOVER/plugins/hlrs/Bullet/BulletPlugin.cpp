@@ -5,25 +5,10 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
-**                                                            (C)2001 HLRS  **
-**                                                                          **
-** Description: Template Plugin (does nothing)                              **
-**                                                                          **
-**                                                                          **
-** Author: U.Woessner		                                                **
-**                                                                          **
-** History:  								                                **
-** Nov-01  v1	    				       		                            **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
-
 #include "BulletPlugin.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
 #include "VrmlNodePhysics.h"
-#include <vrml97/vrml/Player.h>
 #include <vrml97/vrml/VrmlNodeCOVER.h>
 #include <vrml97/vrml/VrmlScene.h>
 #include <vrml97/vrml/VrmlMFString.h>

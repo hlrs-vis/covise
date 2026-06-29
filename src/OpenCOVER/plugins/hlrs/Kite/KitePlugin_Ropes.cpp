@@ -36,6 +36,29 @@ osg::BoundingBox computeLocalBBox(osg::Node *n)
     n->accept(cbv);
     return cbv.getBoundingBox();
 }
+
+float baseSagMeters(float lengthMeters, float sagFactor, float sagMaxMeters)
+{
+    const float L = std::max(0.0f, lengthMeters);
+    const float base = std::max(0.0f, sagFactor) * L;
+    return std::min(base, std::max(0.0f, sagMaxMeters));
+}
+
+float boostedMainSagMeters(float lengthMeters,
+                           float sagFactor,
+                           float sagMaxMeters,
+                           float sagBoost,
+                           float sagMaxLongMeters)
+{
+    const float base = baseSagMeters(lengthMeters, sagFactor, sagMaxMeters);
+    if (base <= 1e-6f)
+        return 0.0f;
+
+    const float boost = std::max(1.0f, sagBoost);
+    const float longCap = std::max(base, sagMaxLongMeters);
+    const float boosted = std::min(base * boost, longCap);
+    return std::max(base, boosted);
+}
 } // namespace
 
 std::vector<osg::Vec3> KitePlugin::sagCurvePoints(const osg::Vec3 &a, const osg::Vec3 &b,
@@ -43,7 +66,7 @@ std::vector<osg::Vec3> KitePlugin::sagCurvePoints(const osg::Vec3 &a, const osg:
 {
     samples = std::max(2, samples);
 
-    const osg::Vec3 up(0, 0, 1);
+    const osg::Vec3 gravity(0, 0, -1);
     const osg::Vec3 ab = b - a;
     const float L = ab.length();
 
@@ -58,19 +81,31 @@ std::vector<osg::Vec3> KitePlugin::sagCurvePoints(const osg::Vec3 &a, const osg:
     }
 
     const osg::Vec3 d = ab / L;
-    const float verticalness = std::fabs(d * up);
-    // IMPORTANT: keep some sag even if nearly vertical (visual + still plausible)
-    const float sagScale = std::max(0.25f, 1.0f - verticalness);
-    const float sag = sagUnits * sagScale;
+
+    // Bend in the gravity plane orthogonal to the rope direction.
+    osg::Vec3 sagDir = gravity - d * (gravity * d);
+    if (sagDir.length2() < 1e-10f)
+    {
+        // Rope almost vertical: keep a stable lateral bend direction.
+        sagDir = osg::Vec3(1, 0, 0) ^ d;
+        if (sagDir.length2() < 1e-10f)
+            sagDir = osg::Vec3(0, 1, 0) ^ d;
+    }
+    sagDir.normalize();
+
+    // Keep a minimum visible bend even for steep rope directions.
+    const float verticalness = std::fabs(d.z());
+    const float sagScale = 0.60f + 0.40f * (1.0f - verticalness);
+    const float sag = std::max(0.0f, sagUnits) * sagScale;
 
     for (int i = 0; i < samples; ++i)
     {
         const float t = float(i) / float(samples - 1);
         osg::Vec3 p = a + ab * t;
 
-        // max sag at mid (sin curve) - purely visual
+        // Max offset at mid-span, clamped to the segment endpoints.
         const float s = std::sin(float(M_PI) * t);
-        p -= up * (sag * s);
+        p += sagDir * (sag * s);
 
         pts.push_back(p);
     }
@@ -501,7 +536,8 @@ void KitePlugin::updateRopes()
 
         const float L_units = (k - g).length();
         const float L_m = (m_unitsPerMeter > 1e-6f) ? (L_units / m_unitsPerMeter) : L_units;
-        const float sag_m = std::min(m_ropeSagFactor * L_m, m_ropeSagMax);
+        const float sag_m = boostedMainSagMeters(
+            L_m, m_ropeSagFactor, m_ropeSagMax, m_tetherSagBoost, m_tetherSagMaxLong_m);
         const float sag_units = sag_m * m_unitsPerMeter;
 
         const int samplesMain = std::max(8, m_ropeSamplesMain);
@@ -525,7 +561,8 @@ void KitePlugin::updateRopes()
         {
             const float L_units = (k - g).length();
             const float L_m = (m_unitsPerMeter > 1e-6f) ? (L_units / m_unitsPerMeter) : L_units;
-            const float sag_m = std::min(m_ropeSagFactor * L_m, m_ropeSagMax);
+            const float sag_m = boostedMainSagMeters(
+                L_m, m_ropeSagFactor, m_ropeSagMax, m_tetherSagBoost, m_tetherSagMaxLong_m);
             const float sag_units = sag_m * m_unitsPerMeter;
 
             const int samplesMain = std::max(8, m_ropeSamplesMain);

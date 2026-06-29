@@ -7,23 +7,6 @@
 
 #ifndef _GEOMREDUCE_H
 #define _GEOMREDUCE_H
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description:  COVISE Surface reduction application module              **
- **                                                                        **
- **                                                                        **
- **                             (C) 1997                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Karin Frank                                                   **
- **                                                                        **
- **                                                                        **
- ** Date:  April 1997  V1.0                                                **
-\**************************************************************************/
 
 #include <appl/ApplInterface.h>
 using namespace covise;

@@ -5,32 +5,13 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)2002 RUS  **
- **                                                                        **
- ** Description: Read volume files in formats supported by Virvo.          **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                     Juergen Schulze-Doebold                            **
- **     High Performance Computing Center University of Stuttgart          **
- **                         Allmandring 30                                 **
- **                         70550 Stuttgart                                **
- **                                                                        **
- ** Cration Date: 28.10.2000                                               **
-\**************************************************************************/
-
 #ifndef _READ_VOLUME_H
 #define _READ_VOLUME_H
 
 #include <api/coModule.h>
 using namespace covise;
-
-/** Reader module for Virvo volume files. The volume data will be in the
+/** Read volume files in formats supported by Virvo.
+    Reader module for Virvo volume files. The volume data will be in the
     range from 0.0 to 1.0.
     Transient data support added on 02-06-18.
     The volume files can be written by WRITE_VOLUME.

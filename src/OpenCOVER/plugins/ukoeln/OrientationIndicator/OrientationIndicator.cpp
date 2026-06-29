@@ -5,20 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2024 RRZK  **
- **                                                                          **
- ** Description: OrientationIndicator OpenCOVER Plugin (draws axis showing   **
- **              the orientation of the loaded model)                        **
- **                                                                          **
- ** Author: D.Wickeroth                                                      **
- **                                                                          **
- ** History:  								                                 **
- ** March 2024  v1	    				       		                         **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #include "OrientationIndicator.h"
 #include <cover/coVRPluginSupport.h>
 #include <config/CoviseConfig.h>

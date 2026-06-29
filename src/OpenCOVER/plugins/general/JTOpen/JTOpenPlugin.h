@@ -24,7 +24,6 @@
 using namespace covise;
 using namespace opencover;
 
-class PLUGINEXPORT ListenerCover;
 class PLUGINEXPORT ViewerOsg;
 class VrmlScene;
 class PLUGINEXPORT SystemCover;
@@ -39,7 +38,6 @@ class JtkShape;
 typedef std::list<osg::ref_ptr<osg::Group> > ParentList;
 class PLUGINEXPORT JTOpenPlugin : public coVRPlugin
 {
-    friend class ListenerCover;
     friend class SystemCover;
     friend class ViewerOsg;
 

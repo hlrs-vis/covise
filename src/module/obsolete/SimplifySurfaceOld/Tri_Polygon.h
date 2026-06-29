@@ -7,24 +7,7 @@
 
 #ifndef TRI_POLYGON_H
 #define TRI_POLYGON_H
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description:  Source Code for the triangulation of simple polygons     **
- **               without holes (Header file)                              **
- **                                                                        **
- **                                                                        **
- **                             (C) 1997                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30a                             **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Karin Frank                                                   **
- **                                                                        **
- **                                                                        **
- ** Date:  September 1997  V1.0                                            **
-\**************************************************************************/
+
 #include <util/coviseCompat.h>
 #include "My_Struct.h"
 #include "PQ.h"

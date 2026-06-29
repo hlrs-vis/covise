@@ -5,25 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description: Interpolation from Cell Data to Vertex Data               **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                            Andreas Werner                              **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  05.01.97  V0.1                                                  **
-\**************************************************************************/
-
 #include <appl/ApplInterface.h>
 #include "WriteASC.h"
 #include <util/coviseCompat.h>
@@ -592,12 +573,6 @@ void Application::compute(void *)
     delete new_data;
     fclose(file);
 }
-
-/*******************************\ 
- **                             **
- **        Ex ApplMain.C        **
- **                             **
-\*******************************/
 
 int main(int argc, char *argv[])
 {

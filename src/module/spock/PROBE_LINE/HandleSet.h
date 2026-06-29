@@ -8,26 +8,6 @@
 #ifndef _LARS_SET_HANDLER_H
 #define _LARS_SET_HANDLER_H
 
-/**************************************************************************\ 
- **                                                           (C)1997 RUS  **
- **                                                                        **
- ** Description:                                                           **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                             Lars Frenzel                               **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date: aug97                                                            **
-\**************************************************************************/
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream.h>

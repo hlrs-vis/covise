@@ -8,26 +8,6 @@
 #ifndef _APPLICATION_H
 #define _APPLICATION_H
 
-/**************************************************************************\ 
- **                                                                        **
- **                                                                        **
- ** Description:  COVISE Calc application module                           **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                             (C) 1996                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Robert Stetter                                                **
- **          Christof Schwenzer                                            **
- **                                                                        **
- ** Date:  21.11.96  V1.0  (Final Version)                                 **
- **        8.12.2000                                                       **
-\**************************************************************************/
-
 #include <api/coSimpleModule.h>
 using namespace covise;
 #include <util/coviseCompat.h>

@@ -5,18 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1999 RUS  **
- **   ReadCADMould module for Covise API 2.0                               **
- **                                                                        **
- ** Author:                                                                **
- **                           Ralph Bruckschen                             **
- **                            Vircinity GmbH                              **
- **                             Nobelstr. 15                               **
- **                            70550 Stuttgart                             **
- ** Date:  11.11.99  V0.1                                                  **
-\**************************************************************************/
-
 #include <iostream.h>
 #include <fstream.h>
 #include <strstream.h>

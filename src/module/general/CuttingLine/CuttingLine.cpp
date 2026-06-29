@@ -5,30 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)1994 RUS  **
- **                                                                        **
- ** Description:  Extract a line from a structured data set                **
- **                                                                        **
- **                                                                        **
- **                             (C) 1994                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Uwe Woessner                                                  **
- **                                                                        **
- **                                                                        **
- ** Date:  11.11.94  V1.0      						  **
- **									  **
- ** changed to new API:   22. 02. 2001					  **
- **  	 Sven Kufer							  **
- **	 (C) VirCinity IT-Consulting GmbH				  **
- **       Nobelstrasse 15						  **
- **       D- 70569 Stuttgart                                           	  **
-\**************************************************************************/
-
 #include "CuttingLine.h"
 
 CuttingLine::CuttingLine(int argc, char *argv[])

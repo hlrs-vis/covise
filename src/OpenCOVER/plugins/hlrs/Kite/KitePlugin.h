@@ -64,6 +64,11 @@ private:
     double m_rollOffsetDeg = 0.0;
     double m_pitchOffsetDeg = 0.0;
     double m_yawOffsetDeg = 0.0;
+    double m_rollScale = 0.55;
+    double m_pitchScale = 0.90;
+    bool m_limitAttitude = true;
+    double m_maxAbsRollDeg = 80.0;
+    double m_maxAbsPitchDeg = 70.0;
 
     bool m_smoothPose = true;
     double m_posSmoothAlpha = 0.25;

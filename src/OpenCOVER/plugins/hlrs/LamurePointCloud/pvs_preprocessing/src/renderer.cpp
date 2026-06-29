@@ -238,7 +238,9 @@ render_depth(lamure::context_t context_id,
                     context_->begin_query(depth_pass_timer_query);
 #endif
 
-                    context_->draw_arrays(PRIMITIVE_POINT_LIST, (node_slot_aggregate.slot_id_) * number_of_surfels_per_node, surfels_per_node_of_model);
+                    const int first_surfel = static_cast<int>(node_slot_aggregate.slot_id_ * number_of_surfels_per_node);
+                    const int num_surfels = static_cast<int>(surfels_per_node_of_model);
+                    context_->draw_arrays(PRIMITIVE_POINT_LIST, first_surfel, num_surfels);
 
 #ifdef LAMURE_RENDERING_ENABLE_PERFORMANCE_MEASUREMENT
                     context_->collect_query_results(depth_pass_timer_query);
@@ -293,7 +295,7 @@ strip_whitespace(std::string const& in_string) {
 bool const Renderer::
 parse_prefix(std::string& in_string, std::string const& prefix) {
 
- uint32_t num_prefix_characters = prefix.size();
+ size_t num_prefix_characters = prefix.size();
 
  bool prefix_found 
   = (!(in_string.size() < num_prefix_characters ) 
@@ -389,7 +391,7 @@ render(lamure::context_t context_id, lamure::ren::camera const& camera, const la
 
     std::vector<uint32_t>                       frustum_culling_results;
 
-    uint32_t size_of_culling_result_vector = 0;
+    size_t size_of_culling_result_vector = 0;
 
     for (auto& model_id : current_set) {
         cut& cut = cuts->get_cut(context_id, view_id, model_id);
@@ -622,13 +624,13 @@ void Renderer::reset_viewport(int w, int h)
 void Renderer::
 update_frustum_dependent_parameters(lamure::ren::camera const& camera)
 {
-    near_plane_ = camera.near_plane_value();
-    far_plane_  = camera.far_plane_value();
+    near_plane_ = static_cast<float>(camera.near_plane_value());
+    far_plane_  = static_cast<float>(camera.far_plane_value());
 
     std::vector<scm::math::vec3d> corner_values = camera.get_frustum_corners();
     double top_minus_bottom = scm::math::length((corner_values[2]) - (corner_values[0]));
 
-    height_divided_by_top_minus_bottom_ = win_y_ / top_minus_bottom;
+    height_divided_by_top_minus_bottom_ = static_cast<float>(static_cast<double>(win_y_) / top_minus_bottom);
 }
 
 void Renderer::
@@ -666,7 +668,7 @@ change_point_size(float amount)
     point_size_factor_ += amount;
     if(point_size_factor_ < 0.0001f)
     {
-        point_size_factor_ = 0.0001;
+        point_size_factor_ = 0.0001f;
     }
 
     std::cout<<"set point size factor to: "<<point_size_factor_<<"\n\n";
@@ -703,7 +705,7 @@ switch_render_mode(RenderMode const& render_mode)
 }
 
 lamure::pvs::id_histogram Renderer::
-create_node_id_histogram(const bool& save_screenshot, const int& image_index) const
+create_node_id_histogram(const bool& save_screenshot, const size_t image_index) const
 {
     // Make the BYTE array, factor of 4 because it's RGBA.
     GLubyte* pixels = new GLubyte[4 * win_x_ * win_y_];
@@ -812,7 +814,7 @@ compare_histogram_to_cut(const lamure::pvs::id_histogram& hist, const float& vis
     f.close();   
 }
 
-int Renderer::
+size_t Renderer::
 get_rendered_node_count() const
 {
     return rendered_splats_ / lamure::ren::model_database::get_instance()->get_primitives_per_node();

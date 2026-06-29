@@ -7,23 +7,6 @@
 
 #ifndef _CuttingSurface_H
 #define _CuttingSurface_H
-/**************************************************************************\ 
- **                                                           (C)1995 RUS  **
- **                                                                        **
- ** Description:  COVISE CuttingSurfaceUsg CuttingSurface module                **
- **                                                                        **
- **                                                                        **
- **                             (C) 1995                                   **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- **                                                                        **
- ** Author:  Uwe Woessner                                                  **
- **                                                                        **
- **                                                                        **
- ** Date:  23.02.95  V1.0                                                  **
-\**************************************************************************/
 
 #include <api/coSimpleModule.h>
 #include <do/coDoGeometry.h>

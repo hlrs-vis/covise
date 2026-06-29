@@ -5,25 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)2001 RUS  **
- **                                                                        **
- ** Description: Write coDoLines in Ensight ASCII data format               **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                     Juergen Schulze-Doebold                            **
- **     High Performance Computing Center University of Stuttgart          **
- **                         Allmandring 30                                 **
- **                         70550 Stuttgart                                **
- **                                                                        **
- ** Cration Date: 06.04.01                                                 **
-\**************************************************************************/
-
 #include <stdio.h>
 #include <api/coModule.h>
 #include "WriteEnsight.h"

@@ -7,23 +7,6 @@
 
 #ifndef _ELEMENT_H_
 #define _ELEMENT_H_
-/**************************************************************************\ 
- **                                                           (C)1999 RUS  **
- **                                                                        **
- ** Description:  Class-Declaration of object "Element"                    **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                            Reiner Beller                               **
- **                Computer Center University of Stuttgart                 **
- **                            Allmandring 30                              **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:                                                                  **
-\**************************************************************************/
 
 #include <util/coviseCompat.h>
 

@@ -35,7 +35,7 @@ management_simple_randomized(std::vector<std::string> const& model_filenames,
     num_samples_to_finish_ = 0;
     num_samples_completed_ = 0;
 
-    view_cell_rng_.seed(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()));
+    view_cell_rng_.seed(std::random_device{}());
 }
 
 management_simple_randomized::
@@ -127,7 +127,7 @@ MainLoop()
     }
     else
     {
-        std::vector<unsigned int> old_cut_lengths(num_models_, 0);
+        std::vector<size_t> old_cut_lengths(num_models_, 0);
         bool done = false;
 
         while (!done)
@@ -161,9 +161,9 @@ MainLoop()
 
                     std::vector<scm::math::vec3d> corner_values = active_camera_->get_frustum_corners();
                     double top_minus_bottom = scm::math::length((corner_values[2]) - (corner_values[0]));
-                    float height_divided_by_top_minus_bottom = lamure::ren::policy::get_instance()->window_height() / top_minus_bottom;
-
-                    cuts->send_height_divided_by_top_minus_bottom(context_id, cam_id, height_divided_by_top_minus_bottom);
+                    const double height_divided_by_top_minus_bottom =
+                        static_cast<double>(lamure::ren::policy::get_instance()->window_height()) / top_minus_bottom;
+                    cuts->send_height_divided_by_top_minus_bottom(context_id, cam_id, static_cast<float>(height_divided_by_top_minus_bottom));
                 }
 
                 controller->dispatch(context_id, renderer_->device());
@@ -196,7 +196,8 @@ MainLoop()
         // Analyze histogram data of current rendered image.
         if(renderer_->get_rendered_node_count() > 0)
         {
-            id_histogram hist = renderer_->create_node_id_histogram(false, (direction_counter_ * visibility_grid_->get_cell_count()) + current_grid_index_);
+            const size_t image_index = static_cast<size_t>(direction_counter_) * visibility_grid_->get_cell_count() + current_grid_index_;
+            id_histogram hist = renderer_->create_node_id_histogram(false, image_index);
             std::map<model_t, std::vector<node_t>> visible_ids = hist.get_visible_nodes(width_ * height_, visibility_threshold_);
 
             for(std::map<model_t, std::vector<node_t>>::iterator iter = visible_ids.begin(); iter != visible_ids.end(); ++iter)

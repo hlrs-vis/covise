@@ -11,7 +11,9 @@
 #include <osg/Quat>
 #include <osg/Vec3>
 #include <lamure/types.h>
-
+#ifdef None
+#undef None
+#endif
 class Lamure;
 namespace opencover { class coVR3DTransInteractor; }
 

@@ -35,12 +35,14 @@
 
 #include "ui/Owner.h"
 
-namespace opencover {
-namespace ui {
-class Menu;
-class Action;
-class Button;
-class SelectionList;
+namespace opencover
+{
+namespace ui
+{
+    class Menu;
+    class Action;
+    class Button;
+    class SelectionList;
 }
 }
 
@@ -57,10 +59,11 @@ class coCombinedButtonInteraction;
 
 namespace opencover
 {
-class COVEREXPORT VRSceneGraph: public ui::Owner
+class COVEREXPORT VRSceneGraph : public ui::Owner
 {
 public:
-    enum WireframeMode {
+    enum WireframeMode
+    {
         Disabled,
         Enabled,
         HiddenLineBlack,
@@ -78,7 +81,7 @@ public:
     virtual ~VRSceneGraph();
     static VRSceneGraph *instance();
 
-    bool saveScenegraph(const std::string &filename, bool withMenu=false);
+    bool saveScenegraph(const std::string &filename, bool withMenu = false);
 #ifdef PHANTOM_TRACKER
     static void manipulateCallback(void *sceneGraph, buttonSpecCell *spec);
 #endif
@@ -111,6 +114,7 @@ public:
         return m_scene.get();
     };
 
+    // used by CompositorIceT in Vistle repository
     osg::Group *getObjectsScene()
     {
         return m_objectsScene.get();
@@ -156,7 +160,7 @@ public:
     bool highQuality() const;
 
     template <class T>
-    T *findFirstNode(const char *name, bool startsWith = false, osg::Node * rootNode = NULL)
+    T *findFirstNode(const char *name, bool startsWith = false, osg::Node *rootNode = NULL)
     {
         if (!rootNode)
             rootNode = m_objectsRoot;
@@ -212,7 +216,7 @@ public:
         return m_scalingAllObjects;
     }
     void boundingSphereToMatrices(const osg::BoundingSphere &boundingSphere,
-                                  bool resetView, osg::Matrix *currentMatrix, float *scaleFactor) const;
+        bool resetView, osg::Matrix *currentMatrix, float *scaleFactor) const;
     void adjustScale();
 
     void toggleAxis(bool state);
@@ -240,7 +244,7 @@ public:
 
     void setRestrictBox(float minX, float maxX, float minY, float maxY, float minZ, float maxZ);
 
-    //Coloring
+    // Coloring
     void setColor(const char *nodeName, int *color, float transparency);
     void setColor(osg::Geode *geode, int *color, float transparency);
     void setTransparency(const char *nodeName, float transparency);
@@ -345,20 +349,21 @@ private:
 
     bool isScenegraphProtected_;
 
-    typedef std::map<osg::Drawable *, osg::ref_ptr<osg::Material> > StoredMaterialsMap;
+    typedef std::map<osg::Drawable *, osg::ref_ptr<osg::Material>> StoredMaterialsMap;
     StoredMaterialsMap storedMaterials;
     void storeMaterial(osg::Drawable *drawable);
     bool m_enableHighQualityOption, m_switchToHighQuality, m_highQuality;
     vrui::coCombinedButtonInteraction *m_interactionHQ;
 
-    ui::Menu *m_miscMenu=nullptr;
-    ui::SelectionList *m_drawStyle=nullptr;
-    ui::Button *m_trackHead=nullptr;;
-    ui::Button *m_hidePointer=nullptr;
-    ui::SelectionList *m_showStats=nullptr;
-    ui::Button *m_showAxis=nullptr, *m_allowHighQuality=nullptr;
-    ui::Button *m_useTextures=nullptr, *m_useShaders=nullptr;
-    ui::Button *m_showMenuButton=nullptr;
+    ui::Menu *m_miscMenu = nullptr;
+    ui::SelectionList *m_drawStyle = nullptr;
+    ui::Button *m_trackHead = nullptr;
+    ;
+    ui::Button *m_hidePointer = nullptr;
+    ui::SelectionList *m_showStats = nullptr;
+    ui::Button *m_showAxis = nullptr, *m_allowHighQuality = nullptr;
+    ui::Button *m_useTextures = nullptr, *m_useShaders = nullptr;
+    ui::Button *m_showMenuButton = nullptr;
 };
 }
 #endif

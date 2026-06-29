@@ -114,14 +114,23 @@ void InitGLOperation::operator()(osg::GraphicsContext* gc)
 
     glewExperimental = GL_TRUE; // for ARB_vertex_array_object on macOS
     auto glewResult = glewInit();
-    if (glewResult != GLEW_OK && glewResult != GLEW_ERROR_NO_GLX_DISPLAY)
+    bool ignoreGlewError = false;
+#ifdef GLEW_ERROR_NO_GLX_DISPLAY
+    if (glewResult == GLEW_ERROR_NO_GLX_DISPLAY)
+        ignoreGlewError = true;
+#endif
+    if (glewResult != GLEW_OK && !ignoreGlewError)
     {
         std::string err;
         switch(glewResult) {
+#ifdef GLEW_ERROR_NO_GLX_DISPLAY
         case GLEW_ERROR_NO_GLX_DISPLAY: err="no GLX display"; break;
+#endif
         case GLEW_ERROR_NO_GL_VERSION: err="no GL version"; break;
         case GLEW_ERROR_GL_VERSION_10_ONLY: err="only GL version 1.0"; break;
+#ifdef GLEW_ERROR_GLX_VERSION_11_ONLY
         case GLEW_ERROR_GLX_VERSION_11_ONLY: err="only GLX version 1.1"; break;
+#endif
         default: err = std::string("unknown error ") + std::to_string(glewResult); break;
         }
         if (!err.empty())

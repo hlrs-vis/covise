@@ -20,31 +20,8 @@ using namespace covise;
 
 ApplicationProcess *ApplicationProcess::approc = NULL;
 
-/***********************************************************************\ 
- **                                                                     **
- **   ApplicationProcess class Routines            Version: 1.1         **
- **                                                                     **
- **                                                                     **
- **   Description  : The ApplicationProcess handles the infrastructure  **
- **                  for the environment                                **
- **                                                                     **
- **   Classes      : ApplicationProcess                                 **
- **                                                                     **
- **   Copyright (C) 1993     by University of Stuttgart                 **
- **                             Computer Center (RUS)                   **
- **                             Allmandring 30                          **
- **                             7000 Stuttgart 80                       **
- **                                                                     **
- **                                                                     **
- **   Author       : A. Wierse   (RUS)                                  **
- **                                                                     **
- **   History      :                                                    **
- **                  15.04.93  Ver 1.0                                  **
- **                  26.05.93  Ver 1.1 now the shared memory key comes  **
- **                                    from the datamanager             **
- **                                                                     **
- **                                                                     **
-\***********************************************************************/
+// Description: The ApplicationProcess handles the infrastructure
+//              for the environment
 
 ApplicationProcess::~ApplicationProcess()
 {

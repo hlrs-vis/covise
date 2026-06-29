@@ -343,6 +343,7 @@ bool setupEnvironment(int argc, char *argv[])
 #endif
 
     addpath("COVISE_PATH", covisedir);
+    addpath("OSG_FILE_PATH", covisedir + "/share/covise");
 #ifdef _WIN32
     prependpath("PATH", covisedir + "\\" + ARCHSUFFIX + "\\bin");
 #endif

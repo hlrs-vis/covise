@@ -5,18 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                     (C)1999 Vircinity  **
- **   Clip_Interval module for Covise API 2.0                              **
- **                                                                        **
- ** Author:                                                                **
- **                           Ralph Bruckschen                             **
- **                            Vircinity GmbH                              **
- **                             Nobelstr. 15                               **
- **                            70550 Stuttgart                             **
- ** Date:  30.03.00  V0.1                                                  **
-\**************************************************************************/
-
 #include "ClipInterval.h"
 #include "clip_interval.h"
 #include <util/coviseCompat.h>
@@ -24,13 +12,6 @@
 
 #include <float.h>
 
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// ++++
-// ++++  Constructor : This will set up module port structure
-// ++++
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Clip_Interval::Clip_Interval(int argc, char *argv[])
     : coSimpleModule(argc, argv, "Clips Geometry according to a Scalar Interval")
 {

@@ -10,30 +10,6 @@
 #ifndef _IP_LIC_TRY_H
 #define _IP LIC_TRY_H
 
-/***************************************************************************\ 
- **                                                           (C)2001 RUS **
- **                                                                       **
- ** Description:   COVISE LineIntegralConvolution application module      **
- **                                                                       **
- **                                                                       **
- **                                                                       **
- **                                                                       **
- **                                                                       **
- ** Author: M. Muench                                                     **
- **                                                                       **
- ** History:                                                              **
- ** xx. ???? 01         v1                                                **
- ** xxxxxxxx         new covise api                                       **
-\***************************************************************************/
-
-/***********************************\ 
- *                                 *
- *  place the #include files here  *
- *                                 *
-\***********************************/
-
-//#include "Carbo.h"
-
 #include "IPLicUtilTry.h"
 //#include "RungeKutta.h"
 //#include "IPGeometry.h"

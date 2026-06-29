@@ -5,18 +5,6 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************\ 
- **                                                           (C)2002 OSR  **
- **                                                                        **
- ** Description: Read module Rect Norsk Hydro FLACS data format            **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- *\**************************************************************************/
-
 #include "ReadRect.h"
 #include <api/coStepFile.h>
 

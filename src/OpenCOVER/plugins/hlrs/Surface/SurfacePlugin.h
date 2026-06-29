@@ -7,22 +7,6 @@
 
 #ifndef _Surface_PLUGIN_H
 #define _Surface_PLUGIN_H
-/****************************************************************************\ 
-**                                                            (C)2012 HLRS  **
-**                                                                          **
-** Description: Surface Plugin (does Surface)								**
-**                                                                          **
-**                                                                          **
-** Author:																	**
-**			Jens Dehlke														**
-**			U. Woessner														**
-**                                                                          **
-** History:																	**
-** Sep-12  v2 (updated to work with Multitouch Plugin)						**
-** xxx-08  v1	    				       		                            **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
 
 #include <cover/coVRPluginSupport.h>
 using namespace covise;

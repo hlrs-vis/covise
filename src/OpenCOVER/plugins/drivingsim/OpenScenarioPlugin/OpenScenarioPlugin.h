@@ -7,19 +7,6 @@
 
 #ifndef OPENSCENARIO_PLUGIN_H
 #define OPENSCENARIO_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2001 HLRS  **
- **                                                                          **
- ** Description: OpenScenario                           					  **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                **
- **                                                                          **
- ** History:  								                                **
- ** Nov-01  v1	    				       		                            **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
 
 #include <cover/coVRPlugin.h>
 #include <net/covise_connect.h>

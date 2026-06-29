@@ -109,17 +109,13 @@ float scalar_product(const fvec &a, const fvec &b);
 //theta: angle with positive z-axis
 //void polar_coordinates(const fvec& a, float* phi, float* theta);
 
-/*****************************\ 
- *         print             *
-\*****************************/
+// print
 void prIvec(ivec iv);
 void prI2ten(i2ten i2t);
 void prFvec(fvec fv);
 void prF2ten(f2ten f2t);
 
-/*****************************\ 
- *          copy             *
-\*****************************/
+// copy
 void ivecCopy(ivec &copy, ivec original);
 void i2tCopy(i2ten &copy, i2ten original);
 void fvecCopy(fvec &copy, fvec original);

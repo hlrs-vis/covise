@@ -10,12 +10,12 @@
     <Viewport width="3840" height="1" left="0" bottom="0" windowIndex="0" channelIndex="0" name="0"  />
     <Viewport width="3840" height="1" left="3840" bottom="0" windowIndex="0" channelIndex="1" name="1"  /> </ViewportConfig>
    <ChannelConfig>
-    <Channel stereoMode="RIGHT" comment="FRONT" channel="0" width="3840" left="0" windowIndex="0" screenIndex="0" top="0" name="1" height="1" />
-    <Channel stereoMode="LEFT" comment="FRONT" channel="0" width="3840" left="0" windowIndex="1" screenIndex="0" top="0" name="0" height="1" />
+    <Channel stereoMode="LEFT" comment="FRONT" channel="0" width="3840" left="0" windowIndex="0" screenIndex="0" top="0" name="1" height="1" />
+    <Channel stereoMode="RIGHT" comment="FRONT" channel="0" width="3840" left="0" windowIndex="1" screenIndex="0" top="0" name="0" height="1" />
    </ChannelConfig>
 
    <WindowConfig>
-    <Window type="None" width="7680" comment="FRONT" window="0" pipeIndex="0" height="2160" left="3840" top="0" name="0" decoration="false" stereo="false" />
+    <Window type="None" width="7680" comment="FRONT" window="0" pipeIndex="0" height="2160" left="2560" top="0" name="0" decoration="false" stereo="false" />
     <!--Window width="1400" comment="FRONT" window="1" pipeIndex="0" height="1050" left="1400" bottom="0" name="1" decoration="false" stereo="false" /-->
    </WindowConfig>
    <PipeConfig>
@@ -53,7 +53,7 @@
    <VRB>
     <Server value="visent.hlrs.de" tcpPort="31252" udpPort="49999"/>
     <!--Server value="visent.hlrs.de" tcpPort="31251" udpPort="49999"/-->
-	  <!-- <RemoteFetch value="on" path="/var/tmp/$USER/remoteFetch" hash="on"/> -->
+	  <RemoteFetch value="on" path="/var/tmp/$USER/remoteFetch" hash="on"/>
    </VRB>
    </System>
   <COVER>
@@ -67,7 +67,7 @@
 		<DTrackCave driver="dtrack" port="5005" serverHost="192.168.0.2">
               <!--Offset x="0" y="-1500" z="-1030" /-->
               <!--Offset x="0" y="-1500" z="-967" /-->
-              <Offset x="0" y="-2000" z="-1323" />
+              <Offset x="0" y="-1500" z="-1380" />
               <Orientation h="0" p="0" r="0" />
            </DTrackCave>
 
@@ -83,14 +83,25 @@
               <Orientation h="0" p="0" r="0" />
            </ConstHead>
 
-           <CaveHead device="DTrackCave" bodyIndex="0">
-              <Offset x="105" y="-20" z="-90" />
-              <Orientation h="0" p="0" r="0" />
+           <CaveHead device="DTrackCave" bodyIndex="3">
+              <!--Offset x="100" y="40" z="-100" /-->
+              <Offset x="60" y="0" z="-50" />
+              <Orientation h="0" p="0" r="-10" />
            </CaveHead>
 
-           <CaveHand device="DTrackCave" bodyIndex="1">
-              <Offset x="-60" y="0" z="10" />
-              <Orientation h="1" p="0" r="0" />
+           <CaveHead2 device="DTrackCave" bodyIndex="1">
+              <Offset x="-10" y="0" z="-60" />
+              <Orientation h="0" p="0" r="-10" />
+           </CaveHead2>
+
+           <CaveHead3 device="DTrackCave" bodyIndex="4">
+              <Offset x="-10" y="0" z="-60" />
+              <Orientation h="0" p="0" r="0" />
+           </CaveHead3>
+
+           <CaveHand device="DTrackCave" bodyIndex="2">
+              <Offset x="-70" y="0" z="0" />
+              <Orientation h="-10" p="-6" r="0" />
            </CaveHand>
 
            <CaveCamera device="DTrackCave" bodyIndex="2">
@@ -139,10 +150,15 @@
            <CaveJoyX device="DTrackCave" valuatorIndex="0" />
            <CaveJoyY device="DTrackCave" valuatorIndex="1" />
         </Valuator>
+	    <Device>
+           <joystick driver="joystick" device="/dev/input/js"/>
+    </Device>
+
 
         <Persons>
            <Person name="Tracked" head="CaveHead" hand="CaveHand" buttons="CaveMouse" default="true" />
-           <Person name="Tracked2" head="CaveHead2" hand="CaveHand2" buttons="CaveMouse" />
+           <Person name="Tracked2" head="CaveHead2" hand="CaveHand" buttons="CaveMouse" />
+           <Person name="Tracked3" head="CaveHead3" hand="CaveHand" buttons="CaveMouse" />
            <Person name="Tripod" eyeDistance="0.0" head="TripodHead" hand="CaveHand" buttons="CaveMouse" />
            <Person name="Camera" eyeDistance="0.0" head="CaveCamera" hand="CaveHand" buttons="CaveMouse" />
         </Persons>
@@ -166,6 +182,8 @@
   <WelcomeMessage value="Welcome to HLRS @ GCS" />
 
   <Plugin>
+	  <Revit value="on" ignoreDepthOnly="true" textures="/data/revit/Textures" localTextures="/data/revit/Textures">
+    </Revit>
 
    <VncClient value="off" menu="true" rfbHost="visent.hlrs.de" rfbPort="31590" />
    <!--Revit value="off" /-->
@@ -215,6 +233,8 @@
    
    
    <SceneSize value="1500" />
+   <Near value="100" />
+   <Far value="100000000" />
    <FloorHeight value="-1361" />
    <Menu>
     <Orientation h="0" p="0" r="0" />

@@ -7,24 +7,6 @@
 
 #ifndef _CLIP_INTERVAL_H
 #define _CLIP_INTERVAL_H
-/**************************************************************************\ 
- **                                                     (C)2000 Vircinity  **
- **                                                                        **
- ** Description: Clip Interval Application                                 **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author:                                                                **
- **                                                                        **
- **                            Ralph Bruckschen                            **
- **                            Vircinity GmbH                              **
- **                            Nobelstr. 15                                **
- **                            70550 Stuttgart                             **
- **                                                                        **
- ** Date:  30.0.00  V0.1                                                  **
-\**************************************************************************/
 
 #include <api/coSimpleModule.h>
 using namespace covise;

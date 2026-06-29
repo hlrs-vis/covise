@@ -7,19 +7,7 @@
 
 #ifndef _Office_PLUGIN_H
 #define _Office_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2009 HLRS  **
- **                                                                          **
- ** Description: Office Plugin (connection to Microsoft Office)              **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                 **
- **                                                                          **
- ** History:  								                                 **
- ** Mar-16  v1	    				       		                             **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPlugin.h>
 #include <net/covise_connect.h>
 #include <osg/Material>
@@ -45,6 +33,7 @@ using namespace opencover;
 using covise::Message;
 using covise::ServerConnection;
 
+// connection to Microsoft Office
 class OfficeConnection: public ui::Owner
 {
 public:

@@ -5,16 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                            (C)2008 ZAIK  **
- **                                                                          **
- ** Description: Error Plugin (use HUD to show COVISE errors)                **
- **                                                                          **
- **                                                                          **
- ** Author: Martin Aumueller <aumueller@uni-koeln.de>                        **
- **                                                                          **
-\****************************************************************************/
-
 #include "ErrorPlugin.h"
 #include <cover/OpenCOVER.h>
 #include <cover/coHud.h>

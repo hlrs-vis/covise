@@ -5,23 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
-**                                                            (C)1999 RUS   **
-**                                                                          **
-** Description: Simple Geometry Generation Module                           **
-**              supports interaction from a COVER plugin                    **
-**              feedback style is later than COVISE 4.5.2                   **
-**                                                                          **
-** Name:        TraceLineExtractor                                                        **
-** Category:    examples                                                    **
-**                                                                          **
-** Author: D. Rainer                                                        **
-**                                                                          **
-** History:                                                                 **
-** September-99                                                             **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
 //#define OLD_COVISE
 
 #ifdef OLD_COVISE

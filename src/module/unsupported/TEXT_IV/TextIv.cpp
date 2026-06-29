@@ -5,21 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                                                          **
- **                                                                          **
- ** Description: Assemble blocks of unstructured grids( per timestep)        **
- **                                                                          **
- ** Name:        TextIv                                                 **
- ** Category:    Tools                                                       **
- **                                                                          **
- ** Author: Sven Kufer		                                            **
- **         (C)  VirCinity IT- Consulting GmbH                               **
- **         Nobelstrasse 15                               		    **
- **         D- 70569 Stuttgart    			       		    **
- **                                                                          **
- **  19.02.2001                                                              **
-\****************************************************************************/
 
 #include "TextIv.h"
 #include <stdlib.h>

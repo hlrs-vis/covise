@@ -5,21 +5,6 @@
 
  * License: LGPL 2+ */
 
-
-/****************************************************************************\ 
- **                                                            (C)2013 HLRS  **
- **                                                                          **
- ** Description: TestTrees Plugin (testInstancecRenderer)                    **
- **                                                                          **
- **                                                                          **
- ** Author: U.Woessner		                                                 **
- **                                                                          **
- ** History:  								                                 **
- ** Aug-2013  v1	    				       		                         **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
-
 #include "TestTrees.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>

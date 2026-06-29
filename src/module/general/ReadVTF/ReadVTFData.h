@@ -8,16 +8,6 @@
 #ifndef READ_VTF_DATA_H
 #define READ_VTF_DATA_H
 
-/**************************************************************************\ 
- **                                                           (C)2001    **
- ** Author:                                                              **
- **                            Karin Mller                              **
- **                                        Vircinity                     **
- **                            Technologiezentrum                        **
- **                            70550 Stuttgart                           **
- ** Date:  01.10.01                                                      **
-\**************************************************************************/
-
 #include <api/coModule.h>
 using namespace covise;
 

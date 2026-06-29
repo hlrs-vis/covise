@@ -22,7 +22,7 @@
 
 #include <util/coExport.h>
 
-#include "colors/ColorBar.h"
+#include "ColorBar.h"
 
 #include <osgDB/WriteFile>
 
@@ -40,8 +40,7 @@ using namespace covise;
 using namespace vrui;
 using namespace opencover;
 
-void
-writeSgToFile()
+void writeSgToFile()
 {
     fprintf(stderr, "ModuleFeedbackManager writeSgToFile\n");
     std::string filename = covise::coCoviseConfig::getEntry("value", "COVER.SaveFile", "/var/tmp/OpenCOVER.osg");
@@ -55,7 +54,7 @@ writeSgToFile()
 // ----------------------------------------------------------------------
 
 ModuleFeedbackManager::ModuleFeedbackManager(const RenderObject *containerObject, coInteractor *inter, const char *pluginName)
-    : ui::Owner(std::string("ModuleFeedbackManager")+pluginName, cover->ui)
+    : ui::Owner(std::string("ModuleFeedbackManager") + pluginName, cover->ui)
     , inter_(inter)
 {
     inter_->incRefCount();
@@ -69,8 +68,8 @@ ModuleFeedbackManager::ModuleFeedbackManager(const RenderObject *containerObject
     }
 
     pName_ = string(pluginName, strlen(pluginName));
-    //pName_ = new char[strlen(pluginName)+1];
-    //strcpy(pName_, pluginName);
+    // pName_ = new char[strlen(pluginName)+1];
+    // strcpy(pName_, pluginName);
 
     containerObjectName_ = "";
     attrObjectName_ = "";
@@ -119,7 +118,7 @@ ModuleFeedbackManager::ModuleFeedbackManager(const RenderObject *containerObject
 }
 
 ModuleFeedbackManager::ModuleFeedbackManager(const RenderObject *containerObject, const RenderObject *geomObject, const char *pluginName)
-    : ui::Owner(std::string("ModuleFeedbackManager")+pluginName, cover->ui)
+    : ui::Owner(std::string("ModuleFeedbackManager") + pluginName, cover->ui)
     , inter_(nullptr)
 {
     if (cover->debugLevel(3))
@@ -131,8 +130,8 @@ ModuleFeedbackManager::ModuleFeedbackManager(const RenderObject *containerObject
     }
 
     pName_ = string(pluginName, strlen(pluginName));
-    //pName_ = new char[strlen(pluginName)+1];
-    //strcpy(pName_, pluginName);
+    // pName_ = new char[strlen(pluginName)+1];
+    // strcpy(pName_, pluginName);
 
     containerObjectName_ = "";
     attrObjectName_ = "";
@@ -178,7 +177,7 @@ ModuleFeedbackManager::ModuleFeedbackManager(const RenderObject *containerObject
     {
         attrObjectName_ = "";
     }
-    //fprintf(stderr,"attrObjectName_=%s\n", attrObjectName_.c_str());
+    // fprintf(stderr,"attrObjectName_=%s\n", attrObjectName_.c_str());
     if (geomObject->getAttribute("PART"))
         attrPartName_ = geomObject->getAttribute("PART");
     else
@@ -225,16 +224,14 @@ void ModuleFeedbackManager::createMenu()
     }
     hideCheckbox_ = new ui::Button(menu_, "Hide");
     hideCheckbox_->setState(false);
-    hideCheckbox_->setCallback([this](bool state){
-        triggerHide(state);
-    });
+    hideCheckbox_->setCallback([this](bool state)
+        { triggerHide(state); });
     hideCheckbox_->setShared(true);
     hideCheckbox_->setVisible(covise);
     syncCheckbox_ = new ui::Button(menu_, "Sync");
     syncCheckbox_->setVisible(covise);
     syncCheckbox_->setState(covise);
-    syncCheckbox_->setCallback([this](bool state){
-    });
+    syncCheckbox_->setCallback([this](bool state) {});
 
 #if 0
     std::vector<std::string> complexModules;
@@ -275,11 +272,11 @@ void ModuleFeedbackManager::createMenu()
     else if (!covise::coCoviseConfig::isOn("COVER.ExecuteOnChange", true))
     {
         executeCheckbox_ = new ui::Button(menu_, "Execute");
-        executeCheckbox_->setCallback([this](bool){
+        executeCheckbox_->setCallback([this](bool)
+            {
             executeCheckbox_->setState(true);
             inExecute_ = true;
-            inter_->executeModule();
-        });
+            inter_->executeModule(); });
     }
 
     inExecute_ = false;
@@ -340,10 +337,10 @@ bool ModuleFeedbackManager::compare(const char *objectName) const
     // check container module name or geomObject module name
     if ((containerObjectName_ != "" && (ModuleName(objectName) == ModuleName(containerObjectName_.c_str())))
         || (ModuleName(objectName) == ModuleName(geomObjectName_.c_str()))
-        || (ModuleName(objectName) == ModuleName(attrObjectName_.c_str())) //naja knnte man auch gleich strcmp nehmen
-        )
+        || (ModuleName(objectName) == ModuleName(attrObjectName_.c_str())) // naja knnte man auch gleich strcmp nehmen
+    )
     {
-        //fprintf(stderr,"compare successful\n\n");
+        // fprintf(stderr,"compare successful\n\n");
         return true;
     }
     else
@@ -355,17 +352,15 @@ bool ModuleFeedbackManager::comparePlugin(const char *name) const
     return (strcmp(pName_.c_str(), name) == 0);
 }
 
-void
-ModuleFeedbackManager::preFrame()
+void ModuleFeedbackManager::preFrame()
 {
-    //fprintf(stderr,"ModuleFeedbackManager::preFrame for object=%s plugin=%s\n", initialObjectName_.c_str(), pName_.c_str());
+    // fprintf(stderr,"ModuleFeedbackManager::preFrame for object=%s plugin=%s\n", initialObjectName_.c_str(), pName_.c_str());
 }
 
 // -----------------------------------------------------------------
 // update functions
 // -----------------------------------------------------------------
-void
-ModuleFeedbackManager::update(const RenderObject *containerObject, coInteractor *inter)
+void ModuleFeedbackManager::update(const RenderObject *containerObject, coInteractor *inter)
 {
 
     if (cover->debugLevel(3))
@@ -420,8 +415,7 @@ ModuleFeedbackManager::update(const RenderObject *containerObject, coInteractor 
     updateColorBar(containerObject);
 }
 
-void
-ModuleFeedbackManager::update(const RenderObject *containerObject, const RenderObject *geomObject)
+void ModuleFeedbackManager::update(const RenderObject *containerObject, const RenderObject *geomObject)
 {
 
     if (containerObject)
@@ -459,17 +453,14 @@ ModuleFeedbackManager::update(const RenderObject *containerObject, const RenderO
 }
 
 // empty implementation of 3D tex functionality
-void
-ModuleFeedbackManager::update3DTex(string, cp3dplane *, const char *)
+void ModuleFeedbackManager::update3DTex(string, cp3dplane *, const char *)
 {
 }
 
-void
-ModuleFeedbackManager::updateMenuNames()
+void ModuleFeedbackManager::updateMenuNames()
 {
     // if the user changed the module title
     // we have to update the submenu item and the menu title
-
 
     std::string modDisplayName;
     if (inter_)
@@ -493,8 +484,7 @@ ModuleFeedbackManager::updateMenuNames()
     }
 }
 
-void
-ModuleFeedbackManager::addColorbarInteractor(coInteractor *i)
+void ModuleFeedbackManager::addColorbarInteractor(coInteractor *i)
 {
 #ifdef VRUI
     if (colorBar_)
@@ -510,8 +500,7 @@ void ModuleFeedbackManager::triggerHide(bool state)
     sendHideMsg(state);
 }
 
-void
-ModuleFeedbackManager::updateColorBar(const RenderObject *containerObject)
+void ModuleFeedbackManager::updateColorBar(const RenderObject *containerObject)
 {
 
 #ifdef VRUI
@@ -549,7 +538,7 @@ ModuleFeedbackManager::updateColorBar(const RenderObject *containerObject)
             char *species = NULL;
             if (colormapString)
             {
-                //cerr << "ModuleFeedbackManager::updateColorBar(..) COLORMAPSTRING " << colormapString << endl;
+                // cerr << "ModuleFeedbackManager::updateColorBar(..) COLORMAPSTRING " << colormapString << endl;
                 ColorBar::parseAttrib(colormapString, species, min, max, numColors, r, g, b, a);
             }
             else
@@ -580,9 +569,9 @@ ModuleFeedbackManager::updateColorBar(const RenderObject *containerObject)
             }
             else
             {
-                //cerr << "ModuleFeedbackManager::updateColorBar(..) MODNAME <" << modname << ">" << endl;
+                // cerr << "ModuleFeedbackManager::updateColorBar(..) MODNAME <" << modname << ">" << endl;
                 colorBar_ = new ColorBar(colorsButton_, menu_,
-                                         modname, species, min, max, numColors, r, g, b, a);
+                    modname, species, min, max, numColors, r, g, b, a);
             }
             delete[] species;
             delete[] r;
@@ -599,7 +588,7 @@ ModuleFeedbackManager::updateColorBar(const RenderObject *containerObject)
     }
     else // no container
     {
-        if (colorBar_) //the previous object had colors
+        if (colorBar_) // the previous object had colors
             delete colorBar_;
         colorBar_ = NULL;
     }
@@ -608,8 +597,7 @@ ModuleFeedbackManager::updateColorBar(const RenderObject *containerObject)
 
 // hides geometry
 // needed for menuevent
-void
-ModuleFeedbackManager::hideGeometry(bool hide)
+void ModuleFeedbackManager::hideGeometry(bool hide)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "ModuleFeedbackManager::hideGeometry hide=%d\n", hide);
@@ -628,13 +616,13 @@ ModuleFeedbackManager::hideGeometry(bool hide)
                 myNodesParent_ = node->getParent(0);
                 myNodesParent_->removeChild(node);
             }
-            //osgDB::writeNodeFile(*dcs,"invisible.osg");
+            // osgDB::writeNodeFile(*dcs,"invisible.osg");
         }
         else
         {
             if (myNodesParent_.get())
                 myNodesParent_->addChild(myNode_);
-            //osgDB::writeNodeFile(*dcs,"visible.osg");
+            // osgDB::writeNodeFile(*dcs,"visible.osg");
         }
     }
     else
@@ -651,74 +639,74 @@ ModuleFeedbackManager::findMyNode()
         fprintf(stderr, "ModuleFeedbackManager::findMyNode\n");
     if (attrObjectName_ != "")
     {
-        //fprintf(stderr,"looking for attrObjectName_=%s\n", attrObjectName_.c_str());
+        // fprintf(stderr,"looking for attrObjectName_=%s\n", attrObjectName_.c_str());
         auto geode = VRSceneGraph::instance()->findFirstNode<osg::Geode>(attrObjectName_.c_str());
         if (geode != NULL)
         {
-            //fprintf(stderr,"found geode with attrObjectName_=%s\n", attrObjectName_.c_str());
+            // fprintf(stderr,"found geode with attrObjectName_=%s\n", attrObjectName_.c_str());
             return (geode);
         }
         auto group = VRSceneGraph::instance()->findFirstNode<osg::Group>(attrObjectName_.c_str());
         if (group != NULL)
         {
-            //fprintf(stderr,"found group with attrObjectName_=%s\n", attrObjectName_.c_str());
+            // fprintf(stderr,"found group with attrObjectName_=%s\n", attrObjectName_.c_str());
             return (group);
         }
     }
     if (attrPartName_ != "")
     {
-        //fprintf(stderr,"looking for attrPartName_=%s\n", attrPartName_.c_str());
+        // fprintf(stderr,"looking for attrPartName_=%s\n", attrPartName_.c_str());
         auto geode = VRSceneGraph::instance()->findFirstNode<osg::Geode>(attrPartName_.c_str());
         if (geode != NULL)
         {
-            //fprintf(stderr,"found geode with attrPartName_=%s\n", attrPartName_.c_str());
+            // fprintf(stderr,"found geode with attrPartName_=%s\n", attrPartName_.c_str());
             return (geode);
         }
         auto group = VRSceneGraph::instance()->findFirstNode<osg::Group>(attrPartName_.c_str());
         if (group != NULL)
         {
-            //fprintf(stderr,"found group with attrPartName_=%s\n", attrPartName_.c_str());
+            // fprintf(stderr,"found group with attrPartName_=%s\n", attrPartName_.c_str());
             return (group);
         }
     }
 
     if (containerObjectName_ != "")
     {
-        //fprintf(stderr,"looking for containerObjectName_=%s\n", containerObjectName_.c_str());
+        // fprintf(stderr,"looking for containerObjectName_=%s\n", containerObjectName_.c_str());
         auto geode = VRSceneGraph::instance()->findFirstNode<osg::Geode>(containerObjectName_.c_str());
         if (geode != NULL)
         {
-            //fprintf(stderr,"found geode with containerObjectName_=%s\n", containerObjectName_.c_str());
+            // fprintf(stderr,"found geode with containerObjectName_=%s\n", containerObjectName_.c_str());
             return (geode);
         }
 
         auto group = VRSceneGraph::instance()->findFirstNode<osg::Group>(containerObjectName_.c_str());
         if (group)
         {
-            //fprintf(stderr,"found group with containerObjectName_=%s\n", containerObjectName_.c_str());
+            // fprintf(stderr,"found group with containerObjectName_=%s\n", containerObjectName_.c_str());
             return (group);
         }
     }
 
-    //fprintf(stderr,"looking for moduleName_=%s\n", moduleName_.c_str());
+    // fprintf(stderr,"looking for moduleName_=%s\n", moduleName_.c_str());
     auto group = VRSceneGraph::instance()->findFirstNode<osg::Group>(moduleName_.c_str());
     if (group)
     {
-        //fprintf(stderr,"found group with moduleName_=%s\n", moduleName_.c_str());
+        // fprintf(stderr,"found group with moduleName_=%s\n", moduleName_.c_str());
         return (group);
     }
 
-    //fprintf(stderr,"looking for geomObjectName_=%s\n", geomObjectName_.c_str());
+    // fprintf(stderr,"looking for geomObjectName_=%s\n", geomObjectName_.c_str());
     auto geode = VRSceneGraph::instance()->findFirstNode<osg::Geode>(geomObjectName_.c_str());
     if (geode != NULL)
     {
-        //fprintf(stderr,"found geode with geomObjectName_=%s\n", geomObjectName_.c_str());
+        // fprintf(stderr,"found geode with geomObjectName_=%s\n", geomObjectName_.c_str());
         return (geode);
     }
     else
     {
-        //fprintf(stderr,"ModuleFeedbackManager::findMyNode could not find node\n");
-        //writeSgToFile();
+        // fprintf(stderr,"ModuleFeedbackManager::findMyNode could not find node\n");
+        // writeSgToFile();
     }
     return (NULL);
 }
@@ -726,12 +714,12 @@ ModuleFeedbackManager::findMyNode()
 std::vector<osg::Geode *>
 ModuleFeedbackManager::findMyGeode()
 {
-    //fprintf(stderr,"ModuleFeedbackManager::findMyGeode\n");
+    // fprintf(stderr,"ModuleFeedbackManager::findMyGeode\n");
     std::vector<osg::Geode *> geodelist;
     osg::Node *node;
 
     node = findMyNode();
-    //pfPrint(node, PFTRAV_SELF | PFTRAV_DESCEND, PFPRINT_VB_NOTICE, stderr);
+    // pfPrint(node, PFTRAV_SELF | PFTRAV_DESCEND, PFPRINT_VB_NOTICE, stderr);
     if (!node)
     {
         fprintf(stderr, "ModuleFeedbackManager::findMyGeode ERROR didn't find my node\n");
@@ -752,7 +740,7 @@ ModuleFeedbackManager::findRecMyGeode(osg::Node *node)
     sequence = dynamic_cast<osg::Switch *>(node);
     if (sequence)
     {
-        //fprintf(stderr,"node is a sequence\n");
+        // fprintf(stderr,"node is a sequence\n");
         for (unsigned int i = 0; i < sequence->getNumChildren(); i++)
         {
             // seq-dcs-geode
@@ -771,24 +759,24 @@ ModuleFeedbackManager::findRecMyGeode(osg::Node *node)
     group = dynamic_cast<osg::Group *>(node);
     if (group)
     {
-        //fprintf(stderr,"node is a group %d\n", group->getNumChildren());
+        // fprintf(stderr,"node is a group %d\n", group->getNumChildren());
         for (unsigned int i = 0; i < group->getNumChildren(); i++)
         {
             // seq-dcs-geode
             dcs = dynamic_cast<osg::MatrixTransform *>(group->getChild(i));
-            //fprintf(stderr, "type of child %s\n", group->getChild(i)->className());
+            // fprintf(stderr, "type of child %s\n", group->getChild(i)->className());
             if (dynamic_cast<osg::Group *>(group->getChild(i)))
                 tmp_geodelist = findRecMyGeode(group->getChild(i));
             if ((geode = dynamic_cast<osg::Geode *>(group->getChild(i))))
                 geodelist.push_back(geode);
             if (dcs && dcs->getNumChildren() > 0)
             {
-                //fprintf(stderr, "findRecMyGeode\n");
+                // fprintf(stderr, "findRecMyGeode\n");
                 tmp_geodelist = findRecMyGeode(dcs->getChild(0));
             }
             if (!tmp_geodelist.empty())
             {
-                //fprintf(stderr, "copy\n");
+                // fprintf(stderr, "copy\n");
                 std::copy(tmp_geodelist.begin(), tmp_geodelist.end(), std::back_inserter(geodelist));
             }
         }
@@ -799,26 +787,24 @@ ModuleFeedbackManager::findRecMyGeode(osg::Node *node)
     geode = dynamic_cast<osg::Geode *>(node);
     if (geode)
     {
-        //fprintf(stderr,"node is a geode\n");
+        // fprintf(stderr,"node is a geode\n");
         geodelist.push_back(geode);
     }
 
     return (geodelist);
 }
 
-void
-ModuleFeedbackManager::setHideFromGui(bool hide)
+void ModuleFeedbackManager::setHideFromGui(bool hide)
 {
-    //fprintf(stderr,"ModuleFeedbackManager::setHideFromGui %d\n", hide);
+    // fprintf(stderr,"ModuleFeedbackManager::setHideFromGui %d\n", hide);
     hideCheckbox_->setState(hide);
     hideGeometry(hide);
     updateInteractorVisibility();
 }
 
-void
-ModuleFeedbackManager::setCaseFromGui(const char *casename)
+void ModuleFeedbackManager::setCaseFromGui(const char *casename)
 {
-    //fprintf(stderr,"ModuleFeedbackManager::setCaseFromGui case=%s menuItem=%s \n", casename, geomObjectName_.c_str());
+    // fprintf(stderr,"ModuleFeedbackManager::setCaseFromGui case=%s menuItem=%s \n", casename, geomObjectName_.c_str());
 
     caseName_ = casename;
 
@@ -845,9 +831,9 @@ ModuleFeedbackManager::setCaseFromGui(const char *casename)
         geometryCaseDCS_ = VRSceneGraph::instance()->findFirstNode<osg::MatrixTransform>(casename);
         if (geometryCaseDCS_ == NULL)
         {
-            //fprintf(stderr,"creating geometryCaseDCS_\n");
-            // firsttime we create also a case DCS
-            //fprintf(stderr,"ModuleFeedbackManager::setCaseFromGui create case DCS\n");
+            // fprintf(stderr,"creating geometryCaseDCS_\n");
+            //  firsttime we create also a case DCS
+            // fprintf(stderr,"ModuleFeedbackManager::setCaseFromGui create case DCS\n");
             geometryCaseDCS_ = new osg::MatrixTransform();
             geometryCaseDCS_->ref();
             geometryCaseDCS_->setName(casename);
@@ -864,13 +850,13 @@ ModuleFeedbackManager::setCaseFromGui(const char *casename)
             interactorSetCaseFromGui(casename);
             return;
         }
-        //else
+        // else
         //{
         //	  if (!myNode->getName().empty())
         //		  fprintf(stderr,"found my node %s\n", myNode->getName().c_str());
         //	  else
         //		  fprintf(stderr,"found my node but doesn't have a name\n");
-        //}
+        // }
 
         osg::MatrixTransform *dcs = dynamic_cast<osg::MatrixTransform *>(myNode);
         if (!dcs)
@@ -886,13 +872,12 @@ ModuleFeedbackManager::setCaseFromGui(const char *casename)
         // nothing to do at the moment, because we assume it can change only once
     }
     interactorSetCaseFromGui(casename);
-    //fprintf(stderr,"ModuleFeedbackManager::setCaseFromGui done\n");
+    // fprintf(stderr,"ModuleFeedbackManager::setCaseFromGui done\n");
 }
 
-void
-ModuleFeedbackManager::setNameFromGui(const char *newName)
+void ModuleFeedbackManager::setNameFromGui(const char *newName)
 {
-    //fprintf(stderr,"ModuleFeedbackManager::setNameFromGui coviseObjectName=%s newName=%s \n",  geomObjectName_.c_str(), newName);
+    // fprintf(stderr,"ModuleFeedbackManager::setNameFromGui coviseObjectName=%s newName=%s \n",  geomObjectName_.c_str(), newName);
 
     visMenuName_ = newName;
     visItemName_ = visMenuName_;
@@ -924,10 +909,9 @@ ModuleFeedbackManager::setNameFromGui(const char *newName)
     }
 }
 
-void
-ModuleFeedbackManager::sendHideMsg(bool hide)
+void ModuleFeedbackManager::sendHideMsg(bool hide)
 {
-    //fprintf(stderr,"-------------------ModuleFeedbackManager::sendHideMsg for %s\n", initialObjectName_.c_str());
+    // fprintf(stderr,"-------------------ModuleFeedbackManager::sendHideMsg for %s\n", initialObjectName_.c_str());
     if (coVRMSController::instance()->isMaster())
     {
         coGRObjVisMsg visMsg(coGRMsg::GEO_VISIBLE, initialObjectName_.c_str(), !hide);
@@ -936,31 +920,30 @@ ModuleFeedbackManager::sendHideMsg(bool hide)
 }
 
 /* set Transformation of a geode*/
-void
-ModuleFeedbackManager::setMatrix(float *row0, float *row1, float *row2, float *row3)
+void ModuleFeedbackManager::setMatrix(float *row0, float *row1, float *row2, float *row3)
 {
-    //fprintf(stderr,"ModuleFeedbackManager::setMatrix\n");
-    // get the parent of goede -> should be dcs
+    // fprintf(stderr,"ModuleFeedbackManager::setMatrix\n");
+    //  get the parent of goede -> should be dcs
     osg::Node *node = findMyNode();
-    //fprintf(stderr,"GeneralGeometryInteraction::setMatrix of object %s\n", geode->getName());
+    // fprintf(stderr,"GeneralGeometryInteraction::setMatrix of object %s\n", geode->getName());
     if (node->getNumParents() < 1)
     {
-        //fprintf(stderr, "ERROR geode has no parent -> cannot set dcs\n");
+        // fprintf(stderr, "ERROR geode has no parent -> cannot set dcs\n");
         return;
     }
     osg::MatrixTransform *dcs = dynamic_cast<osg::MatrixTransform *>(node->getParent(0));
     if (!dcs)
     {
-        //fprintf(stderr, "ERROR parent of geode no dcs -> cannot set transformation");
+        // fprintf(stderr, "ERROR parent of geode no dcs -> cannot set transformation");
         return;
     }
 
-    //set the matrix of the dcs
+    // set the matrix of the dcs
     osg::Matrix m;
     m.set(row0[0], row0[1], row0[2], row0[3],
-          row1[0], row1[1], row1[2], row1[3],
-          row2[0], row2[1], row2[2], row2[3],
-          row3[0], row3[1], row3[2], 1.0);
+        row1[0], row1[1], row1[2], row1[3],
+        row2[0], row2[1], row2[2], row2[3],
+        row3[0], row3[1], row3[2], 1.0);
 
     dcs->setMatrix(m);
 }
@@ -1006,8 +989,8 @@ ModuleFeedbackManager::getMenuName() const
 string
 ModuleFeedbackManager::ModuleName(const char *objectName) const
 {
-    //cerr << "ModuleFeedbackManager::ModuleName(..) objectName <"<< objectName << ">" << endl;
-    //fprintf(stderr,"ModuleFeedbackManager::ModuleName(objectName=%s)\n", objectName);
+    // cerr << "ModuleFeedbackManager::ModuleName(..) objectName <"<< objectName << ">" << endl;
+    // fprintf(stderr,"ModuleFeedbackManager::ModuleName(objectName=%s)\n", objectName);
     string moduleName;
     char *buf;
 
@@ -1024,12 +1007,11 @@ ModuleFeedbackManager::ModuleName(const char *objectName) const
         moduleName += objectName;
     delete[] buf;
 
-    //fprintf(stderr,"\tmodulename=%s\n", moduleName.c_str());
+    // fprintf(stderr,"\tmodulename=%s\n", moduleName.c_str());
     return moduleName;
 }
 
-void
-ModuleFeedbackManager::addNodeToCase(osg::Node *node)
+void ModuleFeedbackManager::addNodeToCase(osg::Node *node)
 {
     // der Knoten ist das DCS
     if (cover->debugLevel(3))
@@ -1066,13 +1048,14 @@ ModuleFeedbackManager::addNodeToCase(osg::Node *node)
             }
         }
     }
-    //else
+    // else
     //{
-    //      // vor der ersten setCase msg
-    //      fprintf(stderr,"ModuleFeedbackManager::addNodeToCase add node to case ERROR: geometryCaseDCS_=NULL\n");
-    //}
+    //       // vor der ersten setCase msg
+    //       fprintf(stderr,"ModuleFeedbackManager::addNodeToCase add node to case ERROR: geometryCaseDCS_=NULL\n");
+    // }
 }
 
-bool ModuleFeedbackManager::getSyncState() {
+bool ModuleFeedbackManager::getSyncState()
+{
     return syncCheckbox_->state();
 }

@@ -19,7 +19,7 @@ namespace lamure
 {
 namespace ren
 {
-gpu_access::gpu_access(scm::gl::render_device_ptr device, const slot_t num_slots, const uint32_t num_surfels_per_node, bool create_layout)
+gpu_access::gpu_access(scm::gl::render_device_ptr device, const slot_t num_slots, const size_t num_surfels_per_node, bool create_layout)
     : num_slots_(num_slots), 
       size_of_surfel_(8 * sizeof(float)), 
       size_of_surfel_qz_(3*sizeof(float)), 
@@ -31,7 +31,7 @@ gpu_access::gpu_access(scm::gl::render_device_ptr device, const slot_t num_slots
     assert(sizeof(float) == 4);
 
     num_slots_ = num_slots;
-    size_of_slot_ = num_surfels_per_node * size_of_surfel_;
+    size_of_slot_ = num_surfels_per_node * static_cast<size_t>(size_of_surfel_);
     //std::cout << "num_surfels_per_node: " << num_surfels_per_node << ", size_of_surfel: " << size_of_surfel_ << std::endl;
 
     buffer_ = device->create_buffer(scm::gl::BIND_VERTEX_BUFFER, scm::gl::USAGE_DYNAMIC_COPY, num_slots_ * size_of_slot_, 0);
@@ -73,7 +73,7 @@ gpu_access::gpu_access(scm::gl::render_device_ptr device, const slot_t num_slots
 }
 
 
-gpu_access::gpu_access(scm::gl::render_device_ptr device, const slot_t num_slots, const uint32_t num_surfels_per_node, Data_Provenance const &data_provenance, bool create_layout)
+gpu_access::gpu_access(scm::gl::render_device_ptr device, const slot_t num_slots, const size_t num_surfels_per_node, Data_Provenance const &data_provenance, bool create_layout)
     : num_slots_(num_slots), 
       size_of_surfel_(8 * sizeof(float)), 
       size_of_surfel_qz_(3*sizeof(float)), 
@@ -85,11 +85,11 @@ gpu_access::gpu_access(scm::gl::render_device_ptr device, const slot_t num_slots
     assert(sizeof(float) == 4);
 
     num_slots_ = num_slots;
-    size_of_slot_ = num_surfels_per_node * size_of_surfel_;
+    size_of_slot_ = num_surfels_per_node * static_cast<size_t>(size_of_surfel_);
 
     buffer_ = device->create_buffer(scm::gl::BIND_VERTEX_BUFFER, scm::gl::USAGE_DYNAMIC_COPY, num_slots_ * size_of_slot_, 0);
 
-    size_of_slot_provenance_ = static_cast<size_t>(num_surfels_per_node) * data_provenance.get_size_in_bytes();
+    size_of_slot_provenance_ = num_surfels_per_node * data_provenance.get_size_in_bytes();
     buffer_provenance_ = device->create_buffer(scm::gl::BIND_VERTEX_BUFFER, scm::gl::USAGE_DYNAMIC_COPY, num_slots_ * size_of_slot_provenance_, 0);
 
     if(has_layout_)

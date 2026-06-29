@@ -1,14 +1,10 @@
-/* This file is part of COVISE.
-
-   You can use it under the terms of the GNU Lesser General Public License
-   version 2.1 or later, see lgpl-2.1.txt.
-
- * License: LGPL 2+ */
+#ifndef VISTLE_READENSIGHT_DATAITEM_H
+#define VISTLE_READENSIGHT_DATAITEM_H
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // CLASS    DataItem
 //
-// Description: data-class for description of data contained in ENSIGHT
+// Description: data-class for description of data contained in EnSight
 //              case file
 //
 // Initial version: 23.05.2002
@@ -20,71 +16,42 @@
 // Changes:
 //
 
-#ifndef DATAITEM_H
-#define DATAITEM_H
-
 #include <string>
 
-class DataItem
-{
+class DataItem {
 public:
-    enum
-    {
-        scalar,
-        vector,
-        tensor
-    };
+    enum Type { scalar, vector, tensor };
+    enum Mapping { PerCase, PerNode, PerElement };
 
     // default CONSTRUCTOR
     DataItem();
-    DataItem(const int &type, const std::string &file, const std::string &desc);
 
     // DESTRUCTOR
     virtual ~DataItem();
 
-    void setType(const int &tp)
-    {
-        type_ = tp;
-    };
-    void setFileName(const std::string &fn)
-    {
-        fileName_ = fn;
-    };
-    void setDesc(const std::string &ds)
-    {
-        desc_ = ds;
-    };
-    void setDataType(const bool &t)
-    {
-        perVertex_ = t;
-    };
-    void setMeasured(const bool &t)
-    {
-        measured_ = t;
-    };
+    void setType(Type tp) { type_ = tp; }
+    void setFileName(const std::string &fn) { fileName_ = fn; }
+    void setDesc(const std::string &ds) { desc_ = ds; }
+    void setMeasured(bool t) { measured_ = t; }
+    void setMapping(Mapping m) { mapping_ = m; }
+    void setTimeSet(int ts) { timeSet_ = ts; }
 
-    bool perVertex() // bad name
+    bool perVertex() const // bad name
     {
-        return perVertex_;
-    };
-    int getType() const
-    {
-        return type_;
-    };
-    std::string getFileName() const
-    {
-        return fileName_;
-    };
-    std::string getDesc() const
-    {
-        return desc_;
-    };
+        return mapping_ == PerNode;
+    }
+    Mapping mapping() const { return mapping_; }
+    Type getType() const { return type_; }
+    std::string getFileName() const { return fileName_; }
+    std::string getDesc() const { return desc_; }
+    int getTimeSet() const { return timeSet_; }
 
 private:
-    int type_; // scalar vector tensor
+    Type type_; // scalar vector tensor
     std::string fileName_;
     std::string desc_;
-    bool perVertex_;
     bool measured_;
+    Mapping mapping_;
+    int timeSet_ = -1;
 };
 #endif

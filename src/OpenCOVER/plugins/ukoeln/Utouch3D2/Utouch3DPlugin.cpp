@@ -5,16 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
- **                                              (C)2010 Anton Baumesberger  **
- **                                                                          **
- ** Description: Utouch3D Plugin                                             **
- **                                                                          **
- **                                                                          **
- ** Author: Anton Baumesberger	                                             **
- **                                                                          **
-\****************************************************************************/
-
 #include "Utouch3DPlugin.h"
 #include "RREvent.h"
 #include "TouchCursor.h"

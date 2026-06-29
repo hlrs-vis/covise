@@ -10,9 +10,9 @@
   <longitude unit="DEG"> -95.163839  </longitude>
   <latitude unit="DEG">   29.593978  </latitude>
   <phi unit="DEG">         0.0  </phi>
-  <theta unit="DEG">       0.0  </theta>
+  <theta unit="DEG">      0.0 </theta>
   <psi unit="DEG">         0.0  </psi>
-  <altitude unit="FT">     4.305 </altitude>
+  <altitude unit="FT">     404.305 </altitude>
   <elevation unit="FT">    0.0  </elevation>
   <hwind> 0.0 </hwind>
 </initialize>

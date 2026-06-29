@@ -7,19 +7,7 @@
 
 #ifndef _TEMPLATE_PLUGIN_H
 #define _TEMPLATE_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2005 HLRS  **
- **                                                                          **
- ** Description: Material Plugin											 **
- ** to change the diffuse, ambient and specular color of a picked object     **
- **                                                                          **
- ** Author: A.Brestrich		                                                **
- **                                                                          **
- ** History:  								                                **
- ** Jan-05  v1	    				       		                            **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPluginSupport.h>
 using namespace covise;
 using namespace opencover;
@@ -49,6 +37,7 @@ protected:
     std::vector<osg::Image *> imageList;
 };
 
+// change the diffuse, ambient and specular color of a picked object
 class MaterialPlugin : public coVRPlugin, public coTUIListener, public coSelectionListener
 {
 public:

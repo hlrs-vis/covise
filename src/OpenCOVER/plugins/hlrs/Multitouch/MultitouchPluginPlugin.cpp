@@ -5,22 +5,6 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
-**                                                            (C)2012 HLRS  **
-**                                                                          **
-** Description: Multitouch Plugin											**
-**                                                                          **
-**                                                                          **
-** Author:																	**
-**         Jens Dehlke														**
-**                                                                          **
-** History:  								                                **
-** Feb-13  v1.1																** 
-** Sep-12  v1.0	    				       		                            **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
-
 #include "MultitouchPlugin.h"
 
 COVERPLUGIN(MultitouchPlugin)

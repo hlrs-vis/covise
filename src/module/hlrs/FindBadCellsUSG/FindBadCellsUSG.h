@@ -21,6 +21,10 @@ struct polyData
     coDistributedObject *polygons;
     coDistributedObject *data;
 };
+// Find cells in an unstructured grid that exhibit certain
+// properties that decrease their usefulness for cfd
+// simulations (e.g. faces containing small angles).
+// The faces of the bad cells are output as polygons.
 
 class FindBadCellsUSG : public coModule
 {

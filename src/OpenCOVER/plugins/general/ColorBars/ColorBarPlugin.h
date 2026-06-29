@@ -7,32 +7,24 @@
 
 #ifndef _COLORBAR_PLUGIN_H
 #define _COLORBAR_PLUGIN_H
-/****************************************************************************\ 
- **                                                            (C)2008 HLRS  **
- **                                                                          **
- ** Description: ColorBar Plugin (does nothing)                              **
- **                                                                          **
- **                                                                          **
- **                                                                          **
- **                                                                          **
-\****************************************************************************/
+
 #include <cover/coInteractor.h>
 #include <cover/coVRPlugin.h>
 #include <map>
 
-#include <PluginUtil/colors/ColorBar.h>
-#include <PluginUtil/colors/coColorHUD.h>
+#include <PluginUtil/ColorBar.h>
+#include <PluginUtil/coColorHUD.h>
 #include <cover/ui/Owner.h>
 
 namespace opencover
 {
 namespace ui
 {
-class Menu;
+    class Menu;
 }
 }
 
-class ColorBarPlugin: public opencover::coVRPlugin, public opencover::ui::Owner, public opencover::coTUIListener
+class ColorBarPlugin : public opencover::coVRPlugin, public opencover::ui::Owner, public opencover::coTUIListener
 {
 public:
     ColorBarPlugin();
@@ -56,7 +48,7 @@ private:
     typedef std::map<std::string, opencover::coInteractor *> InteractorMap;
     InteractorMap interactorMap; // from container to interactor
     typedef std::map<opencover::coInteractor *, ColorsModule> ColorsModuleMap;
-    
+
     ColorsModuleMap colorsModuleMap;
     std::vector<const ColorsModule *> visibleHuds;
     float hudScale = 1.f;

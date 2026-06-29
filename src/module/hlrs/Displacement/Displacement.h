@@ -7,18 +7,6 @@
 
 #ifndef _READ_DASIM_H
 #define _READ_DASIM_H
-/**************************************************************************\ 
- **                                                   	      (C)2002 RUS **
- **                                                                        **
- ** Description: READ SoundVol result files             	                  **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- **                                                                        **
- ** Author: Uwe Woessner                                                   **                             **
- **                                                                        **
-\**************************************************************************/
 
 #include <stdlib.h>
 #include <stdio.h>
