@@ -19,7 +19,7 @@
 #include <osg/ref_ptr>
 #include <string>
 
-using namespace core::utils::osgUtils;
+using namespace prototype::core::utils::osgUtils;
 
 void SolarPanel::init() { initDrawable(); }
 
@@ -43,7 +43,7 @@ void SolarPanel::updateColor(const osg::Vec4 &color) {
   for (auto &node : m_drawables) {
     auto geode = dynamic_cast<osg::Geode *>(node.get());
     if (geode) {
-      core::utils::color::overrideGeodeColor(geode, color);
+      prototype::core::utils::color::overrideGeodeColor(geode, color);
       continue;
     }
 

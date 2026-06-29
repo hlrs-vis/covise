@@ -7,7 +7,7 @@
 #include "unitmap.h"
 #include "type.h"
 
-namespace core::simulation {
+namespace prototype::core::simulation {
 
 struct ScalarProperty {
   double min;

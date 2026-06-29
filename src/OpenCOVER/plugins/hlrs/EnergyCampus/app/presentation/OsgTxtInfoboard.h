@@ -34,15 +34,15 @@ struct OsgTxtBoxAttributes {
  * TxtInfoboard provides an interface for showing, hiding, and updating textual
  * information on a 3D infoboard. It supports customization of appearance via
  * attributes such as position, title, font, size, and margins. The class inherits
- * from core::interface::IInfoboard and implements its required methods for managing
+ * from prototype::core::interface::IInfoboard and implements its required methods for managing
  * the infoboard's lifecycle and content.
  *
  * @note The infoboard uses OSG (OpenSceneGraph) objects for rendering and
  * positioning.
  *
- * @see core::interface::IInfoboard
+ * @see prototype::core::interface::IInfoboard
  */
-class OsgTxtInfoboard : public core::interface::IInfoboard<std::string, osg::ref_ptr<osg::Node>> {
+class OsgTxtInfoboard : public prototype::core::interface::IInfoboard<std::string, osg::ref_ptr<osg::Node>> {
  public:
   OsgTxtInfoboard(const OsgTxtBoxAttributes &attributes)
       : m_attributes(attributes),

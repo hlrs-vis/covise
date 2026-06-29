@@ -3,7 +3,7 @@
 #include "ITimedependable.h"
 #include "IUpdateable.h"
 
-namespace core::interface {
+namespace prototype::core::interface {
 class ISystem : public ITimedependable, public IUpdateable {
  public:
   ISystem() = default;

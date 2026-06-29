@@ -5,7 +5,7 @@
 #include <memory>
 #include "type.h"
 
-namespace core::simulation {
+namespace prototype::core::simulation {
 typedef std::map<std::string, ScalarVec, std::less<>> Data;
 
 class Object {

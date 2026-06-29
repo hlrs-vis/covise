@@ -5,7 +5,7 @@
 #include "ITimedependable.h"
 #include "IUpdateable.h"
 
-namespace core::interface {
+namespace prototype::core::interface {
 class IEnergyGrid : public IDrawable,
                     public IColorable,
                     public ITimedependable,

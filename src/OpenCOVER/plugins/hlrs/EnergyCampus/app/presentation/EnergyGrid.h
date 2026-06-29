@@ -19,7 +19,7 @@
 #include "grid.h"
 #include "app/typedefs.h"
 
-using namespace core;
+using namespace prototype::core;
 
 enum class EnergyGridConnectionType
 {
@@ -145,7 +145,7 @@ class EnergyGrid : public interface::IEnergyGrid {
 
   void setColorMap(const opencover::ColorMap &colorMap,
                    const opencover::ColorMap &vm_pu_Colormap);
-  void setData(const core::simulation::Simulation &sim, const std::string &species,
+  void setData(const prototype::core::simulation::Simulation &sim, const std::string &species,
                bool interpolate = false);
   osg::ref_ptr<grid::DirectedConnection> getConnectionByName(
       const std::string &name);

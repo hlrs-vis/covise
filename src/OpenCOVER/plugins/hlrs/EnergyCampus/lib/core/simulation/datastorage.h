@@ -1,7 +1,7 @@
 #pragma once
 #include "object.h"
 
-namespace core::simulation {
+namespace prototype::core::simulation {
 class DataStorage {
  public:
   void addData(const std::string &key, const ScalarVec &value) {

@@ -15,15 +15,15 @@
 
 #include "app/presentation/EnergyGrid.h"
 
-using namespace core::simulation;
+using namespace prototype::core::simulation;
 
 /**
  * @brief BaseSimulationUI is a template class providing a UI interface for
  * simulation objects.
  *
  * This class is designed to work with simulation objects that are derived from
- * core::interface::IDrawables, core::interface::IColorable, and
- * core::interface::ITimedependable. It manages color mapping and time-dependent
+ * prototype::core::interface::IDrawables, prototype::core::interface::IColorable, and
+ * prototype::core::interface::ITimedependable. It manages color mapping and time-dependent
  * updates for simulation visualization.
  *
  * @tparam T Simulation object type, must inherit from IDrawables, IColorable, and
@@ -60,11 +60,11 @@ using namespace core::simulation;
  */
 template <typename T>
 class BaseSimulationUI {
-  static_assert(std::is_base_of_v<core::interface::IDrawable, T>,
+  static_assert(std::is_base_of_v<prototype::core::interface::IDrawable, T>,
                 "T must be derived from IDrawable");
-  static_assert(std::is_base_of_v<core::interface::IColorable, T>,
+  static_assert(std::is_base_of_v<prototype::core::interface::IColorable, T>,
                 "T must be derived from IColorable");
-  static_assert(std::is_base_of_v<core::interface::ITimedependable, T>,
+  static_assert(std::is_base_of_v<prototype::core::interface::ITimedependable, T>,
                 "T must be derived from ITimeDependable");
 
  public:
@@ -106,56 +106,28 @@ class BaseSimulationUI {
   const opencover::ColorMap *m_colorMap = nullptr;
   void computeColors(const opencover::ColorMap &colorMap,
                      const ObjectMapView &objectMapView) {
-        m_colorMap = &colorMap;
-        double minKeyVal = 1000.0, maxKeyVal = 1.0;
+    m_colorMap = &colorMap;
+    double minKeyVal = 1000.0, maxKeyVal = 1.0;
 
-        try {
-          auto simulation = m_simulation.lock();
-          if (!simulation) {
-            std::cerr << "Simulation is not available for computation of colors."
-                      << std::endl;
-            return;
-          }
+    try {
+      auto simulation = m_simulation.lock();
+      if (!simulation) {
+        std::cerr << "Simulation is not available for computation of colors."
+                  << std::endl;
+        return;
+      }
 
-          const auto &properties = simulation->getScalarProperties();
+      const auto &properties = simulation->getScalarProperties();
 
-          minKeyVal = properties.getMin(colorMap.species());
-          maxKeyVal = properties.getMax(colorMap.species());
-        } catch (const std::out_of_range &e) {
-          std::cerr << "Key not found in minMaxValues: " << colorMap.species()
-                    << std::endl;
-          return;
-        }
-
-        for (const auto &objectMap : objectMapView)
-        {
-            // Iterate over each object in the map
-            for (auto &[name, object] : objectMap.get())
-            {
-                const auto &data = object->getData();
-                auto it = data.find(colorMap.species());
-                if (it == data.end())
-                {
-                    std::cerr << "Key not found in data: " << colorMap.species() << std::endl;
-                    continue;
-                }
-                const auto &values = data.at(colorMap.species());
-                if (auto color_it = m_colors.find(name); color_it == m_colors.end())
-                {
-                    m_colors.insert({ name, std::vector<osg::Vec4>(values.size()) });
-                }
-                auto &colors = m_colors[name];
-
-                // color_map
-                for (auto i = 0; i < values.size(); ++i)
-                {
-                    auto interpolated_value = core::utils::math::interpolate(
-                        values[i], minKeyVal, maxKeyVal, colorMap.min(), colorMap.max());
-                    colors[i] = colorMap.getColor(interpolated_value);
-                }
-            }
-        }
+      minKeyVal = properties.getMin(colorMap.species());
+      maxKeyVal = properties.getMax(colorMap.species());
+    } catch (const std::out_of_range &e) {
+      std::cerr << "Key not found in minMaxValues: " << colorMap.species()
+                << std::endl;
+      return;
     }
+}
+
     std::weak_ptr<T> m_parent; // parent which manages drawable
     std::weak_ptr<Simulation> m_simulation;
 

@@ -6,7 +6,7 @@
 #include <memory>
 #include <osg/ref_ptr>
 
-using namespace core;
+using namespace prototype::core;
 
 void PrototypeBuilding::updateColor(const osg::Vec4 &color) {
   for (auto drawable : m_drawables)

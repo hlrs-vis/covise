@@ -1,6 +1,6 @@
 #pragma once
 
-namespace core::simulation {
+namespace prototype::core::simulation {
 
 enum class ObjectType {
   Bus,

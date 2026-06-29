@@ -35,12 +35,15 @@ auto get_string = [](const auto &data)
 } // namespace
 
 InfoboardSensor::InfoboardSensor(osg::ref_ptr<osg::Group> parent,
-                                 std::unique_ptr<InfoboardImpl> &&infoboard,
-                                 const std::string &content)
-    : coPickSensor(parent), m_enabled(false), m_infoBoard(std::move(infoboard)) {
-  m_infoBoard->initInfoboard();
-  m_infoBoard->initDrawable();
-  m_infoBoard->updateInfo(content);
+    std::unique_ptr<InfoboardImpl> &&infoboard,
+    const std::string &content)
+    : coPickSensor(parent)
+    , m_enabled(false)
+    , m_infoBoard(std::move(infoboard))
+{
+    m_infoBoard->initInfoboard();
+    m_infoBoard->initDrawable();
+    m_infoBoard->updateInfo(content);
 
     parent->addChild(m_infoBoard->getDrawable());
 }
@@ -83,8 +86,9 @@ void InfoboardSensor::activate()
     coPickSensor::activate();
 }
 
-void InfoboardSensor::update() {
-  coPickSensor::update();
+void InfoboardSensor::update()
+{
+    coPickSensor::update();
 }
 
 EnergyGrid::EnergyGrid(const EnergyGridConfig &data, bool ignoreOverlap)
@@ -271,8 +275,10 @@ void EnergyGrid::initDrawableConnections()
     m_config.parent->addChild(connections);
 }
 
-void EnergyGrid::initDrawable() {
-  switch (m_config.connectionType) {
+void EnergyGrid::initDrawable()
+{
+    switch (m_config.connectionType)
+    {
     case EnergyGridConnectionType::Index:
         initDrawableConnections();
         break;
@@ -315,8 +321,10 @@ void EnergyGrid::updateTime(int timestep)
 }
 
 void EnergyGrid::setColorMap(const opencover::ColorMap &colorMap,
-                             const opencover::ColorMap &vm_pu_colormap) {
-  for (auto &point : m_config.points) point->updateColorMapInShader(colorMap);
+    const opencover::ColorMap &vm_pu_colormap)
+{
+    for (auto &point : m_config.points)
+        point->updateColorMapInShader(colorMap);
 
     for (auto &[_, point] : m_config.pointsMap)
         point->updateColorMapInShader(vm_pu_colormap);
@@ -331,47 +339,39 @@ void EnergyGrid::setColorMap(const opencover::ColorMap &colorMap,
             conn->updateColorMapInShader(colorMap);
 }
 
-void EnergyGrid::setData(const core::simulation::Simulation &sim,
-                         const std::string &species, bool interpolate) {
-  for (auto &point : m_config.points) {
-    auto data = sim.getTimedependentScalar(species, point->getName());
-    auto [min, max] = sim.getScalarProperties().getMinMax(species);
-    if (data) {
-      point->updateDataInShader(*data, min, max);
-    } else {
-      std::cerr << "No data found for point: " << point->getName() << "\n";
-    }
-  }
-  for (auto &[_, point] : m_config.pointsMap) {
-    // TODO: remove this later => workaround for workshop
-    // Make selector a buttongroupd which allows to select multiple species
-    auto data = sim.getTimedependentScalar("vm_pu", point->getName());
-    auto [min, max] = sim.getScalarProperties().getMinMax("vm_pu");
-    // auto data = sim.getTimedependentScalar(species, point->getName());
-    // auto [min, max] = sim.getMinMax(species);
-    if (data) {
-      point->updateDataInShader(*data, min, max);
-    } else {
-      std::cerr << "No data found for point: " << point->getName() << "\n";
-    }
-    for (auto &conn : m_connections)
+void EnergyGrid::setData(const prototype::core::simulation::Simulation &sim,
+    const std::string &species, bool interpolate)
+{
+    for (auto &point : m_config.points)
     {
-        auto fromData = sim.getTimedependentScalar(species, conn->getStart()->getName());
-        auto toData = fromData;
-        if (interpolate)
-            toData = sim.getTimedependentScalar(species, conn->getEnd()->getName());
-        if (fromData && toData)
+        auto data = sim.getTimedependentScalar(species, point->getName());
+        auto [min, max] = sim.getScalarProperties().getMinMax(species);
+        if (data)
         {
-            conn->setDataInShader(*fromData, *toData);
+            point->updateDataInShader(*data, min, max);
         }
         else
         {
-            std::cerr << "No data found for connection: " << conn->getName() << "\n";
+            std::cerr << "No data found for point: " << point->getName() << "\n";
         }
     }
-    for (auto &line : m_lines)
+    for (auto &[_, point] : m_config.pointsMap)
     {
-        for (auto &[_, conn] : line->getConnections())
+        // TODO: remove this later => workaround for workshop
+        // Make selector a buttongroupd which allows to select multiple species
+        auto data = sim.getTimedependentScalar("vm_pu", point->getName());
+        auto [min, max] = sim.getScalarProperties().getMinMax("vm_pu");
+        // auto data = sim.getTimedependentScalar(species, point->getName());
+        // auto [min, max] = sim.getMinMax(species);
+        if (data)
+        {
+            point->updateDataInShader(*data, min, max);
+        }
+        else
+        {
+            std::cerr << "No data found for point: " << point->getName() << "\n";
+        }
+        for (auto &conn : m_connections)
         {
             auto fromData = sim.getTimedependentScalar(species, conn->getStart()->getName());
             auto toData = fromData;
@@ -386,15 +386,14 @@ void EnergyGrid::setData(const core::simulation::Simulation &sim,
                 std::cerr << "No data found for connection: " << conn->getName() << "\n";
             }
         }
-    }
-    for (auto &line : m_config.lines)
-    {
-        if (interpolate)
+        for (auto &line : m_lines)
         {
             for (auto &[_, conn] : line->getConnections())
             {
                 auto fromData = sim.getTimedependentScalar(species, conn->getStart()->getName());
-                auto toData = sim.getTimedependentScalar(species, conn->getEnd()->getName());
+                auto toData = fromData;
+                if (interpolate)
+                    toData = sim.getTimedependentScalar(species, conn->getEnd()->getName());
                 if (fromData && toData)
                 {
                     conn->setDataInShader(*fromData, *toData);
@@ -405,37 +404,41 @@ void EnergyGrid::setData(const core::simulation::Simulation &sim,
                 }
             }
         }
-        else
+        for (auto &line : m_config.lines)
         {
-            // TODO: If not interpolating, use the line name to get the data => pls rework
-            // later this is a workaround for the current data structure
-            auto lineName = line->getName();
-            std::replace(lineName.begin(), lineName.end(), ' ', '_');
-            auto data = sim.getTimedependentScalar(species, lineName);
-            const auto [min, max] = sim.getScalarProperties().getMinMax(species);
-            std::cout << "Min: " << min << ", Max: " << max << "\n";
-            if (!data)
+            if (interpolate)
             {
-                std::cerr << "No data found for line: " << lineName << "\n";
-                continue;
+                for (auto &[_, conn] : line->getConnections())
+                {
+                    auto fromData = sim.getTimedependentScalar(species, conn->getStart()->getName());
+                    auto toData = sim.getTimedependentScalar(species, conn->getEnd()->getName());
+                    if (fromData && toData)
+                    {
+                        conn->setDataInShader(*fromData, *toData);
+                    }
+                    else
+                    {
+                        std::cerr << "No data found for connection: " << conn->getName() << "\n";
+                    }
+                }
             }
-            for (auto &[_, conn] : line->getConnections())
-                conn->setData1DInShader(*data, min, max);
+            else
+            {
+                // TODO: If not interpolating, use the line name to get the data => pls rework
+                // later this is a workaround for the current data structure
+                auto lineName = line->getName();
+                std::replace(lineName.begin(), lineName.end(), ' ', '_');
+                auto data = sim.getTimedependentScalar(species, lineName);
+                const auto [min, max] = sim.getScalarProperties().getMinMax(species);
+                std::cout << "Min: " << min << ", Max: " << max << "\n";
+                if (!data)
+                {
+                    std::cerr << "No data found for line: " << lineName << "\n";
+                    continue;
+                }
+                for (auto &[_, conn] : line->getConnections())
+                    conn->setData1DInShader(*data, min, max);
+            }
         }
-    //   }
-    // } else {
-    //   // TODO: If not interpolating, use the line name to get the data => pls rework
-    //   // later this is a workaround for the current data structure
-    //   auto lineName = line->getName();
-    //   std::replace(lineName.begin(), lineName.end(), ' ', '_');
-    //   auto data = sim.getTimedependentScalar(species, lineName);
-    //   const auto [min, max] = sim.getScalarProperties().getMinMax(species);
-    //   std::cout << "Min: " << min << ", Max: " << max << "\n";
-    //   if (!data) {
-    //     std::cerr << "No data found for line: " << lineName << "\n";
-    //     continue;
-    //   }
-    //   for (auto &[_, conn] : line->getConnections())
-    //     conn->setData1DInShader(*data, min, max);
     }
 }

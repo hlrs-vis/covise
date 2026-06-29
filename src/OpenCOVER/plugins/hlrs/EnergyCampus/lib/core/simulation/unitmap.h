@@ -5,7 +5,7 @@
 #include <vector>
 #include "type.h"
 
-namespace core::simulation {
+namespace prototype::core::simulation {
 
 constexpr auto INVALID_UNIT = "unknown";
 struct UnitPair {

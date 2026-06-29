@@ -30,7 +30,7 @@
  * This typedef defines a container for managing multiple solar panel objects,
  * ensuring unique ownership semantics for each ISolarPanel instance.
  */
-typedef std::vector<std::unique_ptr<core::interface::ISolarPanel>> SolarPanelList;
+typedef std::vector<std::unique_ptr<prototype::core::interface::ISolarPanel>> SolarPanelList;
 
 /**
  * @class CityGMLSystem
@@ -44,9 +44,9 @@ typedef std::vector<std::unique_ptr<core::interface::ISolarPanel>> SolarPanelLis
  *
  * @note Instances of this class are non-copyable and non-movable.
  *
- * @see core::interface::ISystem
+ * @see prototype::core::interface::ISystem
  */
-class CityGMLSystem final : public core::interface::ISystem
+class CityGMLSystem final : public prototype::core::interface::ISystem
 {
 public:
     CityGMLSystem(opencover::coVRPlugin *plugin, opencover::ui::Menu *parentMenu,
@@ -65,41 +65,41 @@ public:
 
     void updateInfluxColorMaps(
         float min, float max,
-        std::shared_ptr<core::simulation::Simulation> powerSimulation,
+        std::shared_ptr<prototype::core::simulation::Simulation> powerSimulation,
         const std::string &colormapName, const std::string &species = "Residuallast",
         const std::string &unit = "MW");
 
 private:
     void initPV(
         osg::ref_ptr<osg::Node> masterPanel,
-        const std::map<std::string, core::simulation::power::PVData> &pvDataMap,
+        const std::map<std::string, prototype::core::simulation::power::PVData> &pvDataMap,
         float maxPVIntensity);
     void initCityGMLUI(opencover::ui::Menu *parentMenu);
     void initCityGMLColorMap();
 
-    std::pair<std::map<std::string, core::simulation::power::PVData>, float>
+    std::pair<std::map<std::string, prototype::core::simulation::power::PVData>, float>
     loadPVData(opencover::utils::read::CSVStream &pvStream);
 
   std::unique_ptr<SolarPanel> createSolarPanel(
       const std::string &name, osg::ref_ptr<osg::Group> parent,
-      const std::vector<core::utils::osgUtils::instancing::GeometryData>
+      const std::vector<prototype::core::utils::osgUtils::instancing::GeometryData>
           &masterGeometryData,
       const osg::Matrix &matrix, const osg::Vec4 &colorIntensity);
 
     void processPVRow(
         const opencover::utils::read::CSVStream::CSVRow &row,
-        std::map<std::string, core::simulation::power::PVData> &pvDataMap,
+        std::map<std::string, prototype::core::simulation::power::PVData> &pvDataMap,
         float &maxPVIntensity);
     void processSolarPanelDrawable(SolarPanelList &solarPanels,
         const SolarPanelConfig &config);
     void processSolarPanelDrawables(
-        const core::simulation::power::PVData &data,
+        const prototype::core::simulation::power::PVData &data,
         const std::vector<osg::ref_ptr<osg::Node>> drawables,
         SolarPanelList &solarPanels, SolarPanelConfig &config);
     void processPVDataMap(
-        const std::vector<core::utils::osgUtils::instancing::GeometryData>
+        const std::vector<prototype::core::utils::osgUtils::instancing::GeometryData>
             &masterGeometryData,
-        const std::map<std::string, core::simulation::power::PVData> &pvDataMap,
+        const std::map<std::string, prototype::core::simulation::power::PVData> &pvDataMap,
         float maxPVIntensity);
 
     void transform(const osg::Vec3 &translation, const osg::Quat &rotation,
@@ -134,14 +134,14 @@ private:
         const std::string &nameInModelDir);
 
     void saveCityGMLObjectDefaultStateSet(
-        const std::string &name, const core::utils::osgUtils::Geodes &citygmlGeodes);
+        const std::string &name, const prototype::core::utils::osgUtils::Geodes &citygmlGeodes);
 
     void restoreGeodesStatesets(CityGMLDeviceSensor &sensor, const std::string &name,
-        const core::utils::osgUtils::Geodes &citygmlGeodes);
+        const prototype::core::utils::osgUtils::Geodes &citygmlGeodes);
     void restoreCityGMLDefaultStatesets();
 
     std::map<std::string, std::unique_ptr<CityGMLDeviceSensor>> m_sensorMap;
-    std::map<std::string, core::utils::osgUtils::Geodes> m_defaultStatesets;
+    std::map<std::string, prototype::core::utils::osgUtils::Geodes> m_defaultStatesets;
     SolarPanelList m_panels;
 
     osg::ref_ptr<osg::Switch> m_parent;

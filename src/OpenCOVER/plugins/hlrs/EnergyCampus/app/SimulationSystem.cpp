@@ -45,9 +45,10 @@
 
 // app
 #include "CityGMLSystem.h"
+#include "utils/read/csv/csv.h"
 
 using namespace opencover;
-using namespace core::interface;
+using namespace prototype::core::interface;
 namespace fs = boost::filesystem;
 
 namespace {
@@ -69,7 +70,7 @@ void printObjectContainerDistribution(
     const ObjectMap &map, float min, float max, int numBins = 20,
     const std::string &species = "loading_percent") {
   static_assert(std::is_base_of_v<Object, T>,
-                "T must be derived from core::simulation::Object");
+                "T must be derived from prototype::core::simulation::Object");
   std::vector<int> histogram(numBins, 0);
   int total = 0;
 
@@ -178,7 +179,7 @@ void SimulationSystem::updateEnergyGridColorMapInShader(
     const opencover::ColorMap &map, EnergyGridType type) {
   auto gridTypeIndex = getEnergyGridTypeIndex(type);
   auto &grid = m_energyGrids[gridTypeIndex];
-  if (grid.group && core::utils::osgUtils::isActive(m_gridSwitch, grid.group) &&
+  if (grid.group && prototype::core::utils::osgUtils::isActive(m_gridSwitch, grid.group) &&
       grid.simUI) {
     auto gridPtr = dynamic_cast<EnergyGrid *>(grid.grid.get());
     if (!gridPtr) return;
@@ -247,7 +248,7 @@ void SimulationSystem::initSimMenu(opencover::ui::Menu *parent) {
                      getScenarioIndex(Scenario::optimized_bigger_awz));
 
   m_scenarios->setCallback([this](int value) {
-    core::utils::osgUtils::switchTo(
+    prototype::core::utils::osgUtils::switchTo(
         m_energyGrids[getEnergyGridTypeIndex(EnergyGridType::PowerGrid)].group,
         m_gridSwitch);
     // auto scenarioIndex = getScenarioIndex(Scenario(value));
@@ -305,7 +306,7 @@ void SimulationSystem::switchEnergyGrid(EnergyGridType grid) {
     auto &colorMapMenu = defaultGrid.colorMapRegistry[selected];
     colorMapMenu.selector->show(showHud);
   }
-  core::utils::osgUtils::switchTo(switch_to, m_gridSwitch);
+  prototype::core::utils::osgUtils::switchTo(switch_to, m_gridSwitch);
 }
 
 void SimulationSystem::initEnergyGridUI() {
@@ -343,7 +344,7 @@ void SimulationSystem::initPowerGridStreams() {
       m_plugin->configString("Simulation", "powerGridDir", "default")->value();
   fs::path dir_path(powerGridDir);
   if (!fs::exists(dir_path)) return;
-  m_powerGridStreams = getCSVStreams(dir_path);
+  m_powerGridStreams = opencover::utils::read::getCSVStreams(dir_path);
   if (m_powerGridStreams.empty()) {
     std::cout << "No csv files found in " << powerGridDir << std::endl;
     return;
@@ -415,7 +416,7 @@ void SimulationSystem::initPowerGridUI(
   m_updatePowerGridSelection->setCallback([this](bool enable) {
     updatePowerGridSelection(enable);
     auto idx = getEnergyGridTypeIndex(EnergyGridType::PowerGrid);
-    core::utils::osgUtils::switchTo(m_energyGrids[idx].group, m_gridSwitch);
+    prototype::core::utils::osgUtils::switchTo(m_energyGrids[idx].group, m_gridSwitch);
   });
 
   m_powerGridSelectionPtr = m_plugin->configBoolArray(
@@ -636,7 +637,7 @@ void SimulationSystem::initEnergyGridColorMaps() {
       auto steps = cms->colorMap().steps();
 
       auto colormapName = scalarProperty.preferredColorMap;
-      if (colormapName == core::simulation::INVALID_UNIT)
+      if (colormapName == prototype::core::simulation::INVALID_UNIT)
         colormapName = cms->colorMap().name();
 
       cms->setColorMap(colormapName);
@@ -713,7 +714,8 @@ void SimulationSystem::initGrid() {
 }
 
 std::vector<SimulationSystem::IDLookupTable>
-SimulationSystem::retrieveBusNameIdMapping(CSVStream &stream) {
+SimulationSystem::retrieveBusNameIdMapping(opencover::utils::read::CSVStream &stream) {
+  using namespace opencover::utils::read;
   auto busNames = IDLookupTable();
   auto busNamesSonder = IDLookupTable();
   CSVStream::CSVRow bus;
@@ -758,6 +760,7 @@ void SimulationSystem::helper_getAdditionalPowerGridPointData_handleDuplicate(
 std::unique_ptr<grid::PointDataList>
 SimulationSystem::getAdditionalPowerGridPointData(const std::size_t &numOfBus) {
   using PDL = grid::PointDataList;
+  using namespace opencover::utils::read;
 
   // additional bus data
   PDL additionalData;
@@ -798,9 +801,10 @@ SimulationSystem::getAdditionalPowerGridPointData(const std::size_t &numOfBus) {
 }
 
 std::vector<grid::PointsMap> SimulationSystem::createPowerGridPoints(
-    CSVStream &stream, size_t &numPoints, const float &sphereRadius,
+    opencover::utils::read::CSVStream &stream, size_t &numPoints, const float &sphereRadius,
     const std::vector<IDLookupTable> &busNames) {
   using PointsMap = grid::PointsMap;
+  using namespace opencover::utils::read;
 
   CSVStream::CSVRow point;
   float lat = 0, lon = 0;
@@ -936,10 +940,11 @@ osg::ref_ptr<grid::Line> SimulationSystem::createLine(
 }
 
 std::pair<std::vector<grid::Lines>, std::vector<grid::ConnectionDataList>>
-SimulationSystem::getPowerGridLines(CSVStream &stream,
+SimulationSystem::getPowerGridLines(opencover::utils::read::CSVStream &stream,
                                     const std::vector<grid::PointsMap> &points) {
   using Lines = grid::Lines;
   using CDL = grid::ConnectionDataList;
+  using namespace opencover::utils::read;
   Lines lines;
   CDL additionalData(points[0].size());
   Lines linesSonder;
@@ -984,10 +989,11 @@ SimulationSystem::getPowerGridLines(CSVStream &stream,
 }
 
 std::pair<std::unique_ptr<grid::Indices>, std::unique_ptr<grid::ConnectionDataList>>
-SimulationSystem::getPowerGridIndicesAndOptionalData(CSVStream &stream,
+SimulationSystem::getPowerGridIndicesAndOptionalData(opencover::utils::read::CSVStream &stream,
                                                      const size_t &numPoints) {
   using Indices = grid::Indices;
   using CDL = grid::ConnectionDataList;
+  using namespace opencover::utils::read;
   Indices indices(numPoints);
   CDL additionalData(numPoints);
   CSVStream::CSVRow line;
@@ -1099,33 +1105,33 @@ void SimulationSystem::initHeatingGridStreams() {
       m_plugin->configString("Simulation", "heatingGridDir", "default")->value();
   fs::path dir_path(heatingGridDir);
   if (!fs::exists(dir_path)) return;
-  m_heatingGridStreams = getCSVStreams(dir_path);
+  m_heatingGridStreams = opencover::utils::read::getCSVStreams(dir_path);
   if (m_heatingGridStreams.empty()) {
     std::cout << "No csv files found in " << heatingGridDir << std::endl;
     return;
   }
 }
 
-ObjectMap * getObjMapByType(core::simulation::ObjectType type, 
-                     std::shared_ptr<core::simulation::heating::HeatingSimulation> sim) {
-  if (type == core::simulation::ObjectType::Consumer)
+ObjectMap * getObjMapByType(prototype::core::simulation::ObjectType type, 
+                     std::shared_ptr<prototype::core::simulation::heating::HeatingSimulation> sim) {
+  if (type == prototype::core::simulation::ObjectType::Consumer)
     return &sim->Consumers();
-  else if (type == core::simulation::ObjectType::Producer)
+  else if (type == prototype::core::simulation::ObjectType::Producer)
     return &sim->Producers();
   return nullptr;
 };
 
-void createObjAndAddToMap(core::simulation::ObjectType type, const std::string &name,
-                          std::shared_ptr<core::simulation::heating::HeatingSimulation> sim) {
+void createObjAndAddToMap(prototype::core::simulation::ObjectType type, const std::string &name,
+                          std::shared_ptr<prototype::core::simulation::heating::HeatingSimulation> sim) {
   auto obj =
-      core::simulation::createObject(type, name, {{std::string("value"), {}}});
+      prototype::core::simulation::createObject(type, name, {{std::string("value"), {}}});
   auto map = getObjMapByType(type, sim);
   if (map == nullptr) return;
   map->emplace(name, std::move(obj));
 };
 
-core::simulation::Object* getObjPtr(core::simulation::ObjectType type, const std::string &name,
-         std::shared_ptr<core::simulation::heating::HeatingSimulation> sim) {
+prototype::core::simulation::Object* getObjPtr(prototype::core::simulation::ObjectType type, const std::string &name,
+         std::shared_ptr<prototype::core::simulation::heating::HeatingSimulation> sim) {
   auto map = getObjMapByType(type, sim);
   auto it = map->find(name);
   if (it != map->end()) return it->second.get();
@@ -1133,9 +1139,9 @@ core::simulation::Object* getObjPtr(core::simulation::ObjectType type, const std
   return map->at(name).get();
 };
 
-void addDataToMap(core::simulation::ObjectType type, const std::string &name,
+void addDataToMap(prototype::core::simulation::ObjectType type, const std::string &name,
                   const std::string &valName, double value,
-                  std::shared_ptr<core::simulation::heating::HeatingSimulation> sim) {
+                  std::shared_ptr<prototype::core::simulation::heating::HeatingSimulation> sim) {
   auto objPtr = getObjPtr(type, name, sim);
   objPtr->addData(valName, value);
 };
@@ -1264,7 +1270,7 @@ void SimulationSystem::interpolateDataForNode(int nodeId,
         interpolatedValue += dataValues[i] * weightFactors[nd.get().neighboringNodesIds.back()];
       }
 
-      addDataToMap(core::simulation::ObjectType::Consumer, name, dataKey, interpolatedValue, sim);
+      addDataToMap(prototype::core::simulation::ObjectType::Consumer, name, dataKey, interpolatedValue, sim);
     }
   }
 }
@@ -1310,7 +1316,7 @@ std::pair<int, int> SimulationSystem::getFromAndToIdsFromConnectionName(const st
   return {fromId, toId};
 }
 
-core::simulation::Data SimulationSystem::getNodeDataFromSimulation(int nodeId) {
+prototype::core::simulation::Data SimulationSystem::getNodeDataFromSimulation(int nodeId) {
   auto idx = getEnergyGridTypeIndex(EnergyGridType::HeatingGrid);
   auto sim = std::dynamic_pointer_cast<heating::HeatingSimulation>(m_energyGrids[idx].sim);
 
@@ -1327,7 +1333,7 @@ core::simulation::Data SimulationSystem::getNodeDataFromSimulation(int nodeId) {
   }
 
   std::cout << "No data found for node ID: " << nodeId << std::endl;
-  return core::simulation::Data();
+  return prototype::core::simulation::Data();
 }
 
 std::vector<SimulationSystem::NodeData> SimulationSystem::getDataOfFromNode(int fromId,
@@ -1348,7 +1354,7 @@ std::vector<SimulationSystem::NodeData> SimulationSystem::getDataOfFromNode(int 
 
   if (fromNode == nullptr)
   {
-    core::simulation::Data nodeData = getNodeDataFromSimulation(fromId);
+    prototype::core::simulation::Data nodeData = getNodeDataFromSimulation(fromId);
 
     for (auto& [key, values] : nodeData) {
       fromNodeDataPtr->neighboringNodesDataMap[key] = values;
@@ -1398,7 +1404,7 @@ std::vector<SimulationSystem::NodeData> SimulationSystem::getDataOfToNode(int to
 
   if (toNode == nullptr)
   {
-   core::simulation::Data nodeData = getNodeDataFromSimulation(toId);
+   prototype::core::simulation::Data nodeData = getNodeDataFromSimulation(toId);
 
     for (auto& [key, values] : nodeData) {
       toNodeDataPtr->neighboringNodesDataMap[key] = values;
@@ -1459,7 +1465,7 @@ std::vector<int> SimulationSystem::createHeatingGridIndices(
   std::string connection("");
 
   while (std::getline(ss, connection, ' ')) {
-    if (connection.empty() || connection == INVALID_CELL_VALUE) continue;
+    if (connection.empty() || connection == opencover::utils::read::INVALID_CELL_VALUE) continue;
     grid::Data connectionData{{"name", pointName + "_" + connection}};
     additionalConnectionData.emplace_back(std::vector{connectionData});
     connectivityList.push_back(std::stoi(connection));
@@ -1489,7 +1495,7 @@ osg::ref_ptr<grid::Line> SimulationSystem::createHeatingGridLine(
   std::string lineName{pointName};
   auto connections = split(connectionsStrWithCommaDelimiter, ' ');
   for (const auto &connection : connections) {
-    if (connection.empty() || connection == INVALID_CELL_VALUE) continue;
+    if (connection.empty() || connection == opencover::utils::read::INVALID_CELL_VALUE) continue;
     grid::Data connectionData{{"name", pointName + "_" + connection}};
     additionalData.emplace_back(std::vector{connectionData});
     int toID(-1);
@@ -1520,7 +1526,9 @@ osg::ref_ptr<grid::Line> SimulationSystem::createHeatingGridLine(
 }
 
 void SimulationSystem::readSimulationDataStream(
-  CSVStream &heatingSimStream) {
+  opencover::utils::read::CSVStream &heatingSimStream) {
+  
+  using namespace opencover::utils::read;
 
   auto idx = getEnergyGridTypeIndex(EnergyGridType::HeatingGrid);
   if (m_energyGrids[idx].grid == nullptr) return;
@@ -1543,11 +1551,11 @@ void SimulationSystem::readSimulationDataStream(
       if (std::regex_search(col, match, consumer_value_split_regex)) {
         name = match[1];
         valName = match[2];
-        addDataToMap(core::simulation::ObjectType::Consumer, name, valName, val, sim);
+        addDataToMap(prototype::core::simulation::ObjectType::Consumer, name, valName, val, sim);
       } else if (std::regex_search(col, match, producer_value_split_regex)) {
         name = match[1];
         valName = match[2];
-        addDataToMap(core::simulation::ObjectType::Producer, name, valName, val, sim);
+        addDataToMap(prototype::core::simulation::ObjectType::Producer, name, valName, val, sim);
       } else {
         if (val == 0) continue;
         sim->getDataStorage().addData(col, val);
@@ -1580,7 +1588,7 @@ void SimulationSystem::applySimulationDataToHeatingGrid() {
   if (m_energyGrids[idx].grid == nullptr) return;
   auto &heatingGrid = m_energyGrids[idx];
 
-  auto timesteps = heatingGrid.sim->getTimesteps("mass_flow");
+  auto timesteps = heatingGrid.sim->getScalarProperties().getTimesteps("mass_flow");
   std::cout << "Number of timesteps: " << timesteps << std::endl;
   setAnimationTimesteps(timesteps, heatingGrid.group);
 }
@@ -1592,7 +1600,7 @@ grid::Lines SimulationSystem::createHeatingGridLines(
   for (auto it = connectionStrings.begin(); it != connectionStrings.end(); ++it) {
     int id = it->first;
     const std::string &connectionsStr = it->second;
-    if (connectionsStr.empty() || connectionsStr == INVALID_CELL_VALUE) continue;
+    if (connectionsStr.empty() || connectionsStr == opencover::utils::read::INVALID_CELL_VALUE) continue;
     // TODO: Really bad solution to find the point by id, but the id is not
     // necessarily the index in the points vector, so we need to find it by name =>
     // refactor the Points structure to use std::map later
@@ -1613,7 +1621,8 @@ grid::Lines SimulationSystem::createHeatingGridLines(
 }
 
 std::pair<grid::Points, grid::Data> SimulationSystem::createHeatingGridPointsAndData(
-    CSVStream &heatingStream, std::map<int, std::string> &connectionStrings) {
+    opencover::utils::read::CSVStream &heatingStream, std::map<int, std::string> &connectionStrings) {
+  using namespace opencover::utils::read;
   grid::Points points{};
   grid::Data pointData{};
   CSVStream::CSVRow row;
@@ -1688,7 +1697,8 @@ std::pair<grid::Points, grid::Data> SimulationSystem::createHeatingGridPointsAnd
   return std::make_pair(points, pointData);
 }
 
-void SimulationSystem::readHeatingGridStream(CSVStream &heatingStream) {
+void SimulationSystem::readHeatingGridStream(opencover::utils::read::CSVStream &heatingStream) {
+  using namespace opencover::utils::read;
   CSVStream::CSVRow row;
   grid::ConnectionDataList additionalConnectionData{};
   auto egridIdx = getEnergyGridTypeIndex(EnergyGridType::HeatingGrid);
@@ -1725,7 +1735,7 @@ void SimulationSystem::addEnergyGridToGridSwitch(
     osg::ref_ptr<osg::Group> energyGridGroup) {
   assert(energyGridGroup && "EnergyGridGroup is nullptr");
   m_gridSwitch->addChild(energyGridGroup);
-  core::utils::osgUtils::switchTo(energyGridGroup, m_gridSwitch);
+  prototype::core::utils::osgUtils::switchTo(energyGridGroup, m_gridSwitch);
 }
 
 void SimulationSystem::buildHeatingGrid() {

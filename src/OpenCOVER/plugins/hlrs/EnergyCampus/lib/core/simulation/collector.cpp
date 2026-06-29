@@ -1,7 +1,7 @@
 #include "collector.h"
 #include <iostream>
 
-namespace core::simulation {
+namespace prototype::core::simulation {
 
 ScalarMap ScalarMapCollector::collect() {
   ScalarMap scalarValues;

@@ -2,7 +2,7 @@
 #include "IInformable.h"
 #include "IMovable.h"
 
-namespace core::interface {
+namespace prototype::core::interface {
 template <typename InfoType, typename DrawableType>
 class IInfoboard : public IInformable<InfoType>,
                    public IMoveable {
