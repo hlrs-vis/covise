@@ -20,6 +20,7 @@
 #include <utility>
 #include <variant>
 
+#include "PluginUtil/coSensor.h"
 #include "cover/VRViewer.h"
 
 namespace
