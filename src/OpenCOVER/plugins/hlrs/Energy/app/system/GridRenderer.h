@@ -2,7 +2,7 @@
 #include "EnergyType.h"
 #include "DataLoadManager.h"
 #include "app/typedefs.h"
-#include <PluginUtil/colors/coColorMap.h>
+#include <PluginUtil/coColorMap.h>
 #include <cover/coVRAnimationManager.h>
 #include <lib/core/interfaces/IEnergyGrid.h>
 #include <lib/core/simulation/simulationresult.h>

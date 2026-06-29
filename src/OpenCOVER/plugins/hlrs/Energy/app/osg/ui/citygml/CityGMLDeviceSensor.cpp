@@ -2,7 +2,7 @@
 
 #include <PluginUtil/coSensor.h>
 #include <PluginUtil/coShaderUtil.h>
-#include <PluginUtil/colors/coColorMap.h>
+#include <PluginUtil/coColorMap.h>
 #include <app/osg/presentation/CityGMLBuilding.h>
 #include <app/osg/presentation/OsgTxtInfoboard.h>
 
