@@ -20,7 +20,7 @@ geometryTransform = {x = 0, y = -700, z = -100, h = 90, p = 180, r = 90, scale =
 geometry = "share/covise/jsbsim/geometry/Hansajet/Hansajet.ac"
 systemsDir = "Hansajet/Systems"
 enginesDir = "Hansajet/Engines"
-geometryTransform = {x = 0, y = -7800, z = -2400, h = 90, p = 180, r = 90, scale = 1000}
+geometryTransform = {x = 400, y = -7800, z = -2600, h = 90, p = 180, r = 90, scale = 1000}
 
 
 [[joysticks]]
