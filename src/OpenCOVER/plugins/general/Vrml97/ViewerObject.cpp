@@ -259,7 +259,6 @@ void osgViewerObject::deref()
 osgViewerObject::osgViewerObject(VrmlNode *n)
 {
     viewer = NULL;
-    MyDoc =NULL;
     node = n;
     refcount = 0;
     level = 0;
