@@ -412,6 +412,10 @@ void VrmlNodeTUIButton::tabletPressEvent(coTUIElement *)
     double timeStamp = System::the->time();
     d_touchTime.set(timeStamp);
     eventOut(timeStamp, "touchTime", d_touchTime);
+    if(d_shared.get())
+    {
+        sharedTouch->push();
+    }
 }
 
 void VrmlNodeTUIButton::tabletReleaseEvent(coTUIElement *)
@@ -419,6 +423,10 @@ void VrmlNodeTUIButton::tabletReleaseEvent(coTUIElement *)
     double timeStamp = System::the->time();
     d_releaseTime.set(timeStamp);
     eventOut(timeStamp, "releaseTime", d_releaseTime);
+    if(d_shared.get())
+    {
+        sharedRelease->push();
+    }
 }
 
 void VrmlNodeTUIButton::render(Viewer *viewer)
@@ -434,6 +442,30 @@ void VrmlNodeTUIButton::render(Viewer *viewer)
         }
         VrmlNodeTUIElement::render(viewer);
         clearModified();
+    }
+    if (strcmp(d_elementName.get(), "") != 0 && strcmp(d_parent.get(), "") != 0 && sharedTouch == nullptr)
+    {
+        std::string sName = d_parent.get();
+        sName = sName + ".";
+        sName = sName + d_elementName.get();
+        sharedTouch.reset(new vrb::SharedCallback(sName + "_touch"));
+        sharedTouch->setUpdateFunction([this]() {
+            if (d_shared.get())
+            {
+                double timeStamp = System::the->time();
+                d_touchTime.set(timeStamp);
+                eventOut(timeStamp, "touchTime", d_touchTime);
+            }
+        });
+        sharedRelease.reset(new vrb::SharedCallback(sName + "_release"));
+        sharedRelease->setUpdateFunction([this]() {
+            if (d_shared.get())
+            {
+                double timeStamp = System::the->time();
+                d_releaseTime.set(timeStamp);
+                eventOut(timeStamp, "releaseTime", d_releaseTime);
+            }
+        });
     }
     // the elements are created in subclasses
 }
@@ -528,29 +560,29 @@ void VrmlNodeTUIToggleButton::render(Viewer *viewer)
             d_TUIElement = (coTUIElement *)new coTUIToggleButton(d_elementName.get(), getID(d_parent.get()));
             d_TUIElement->setEventListener(this);
             VrmlTUIElements.push_back(d_TUIElement);
-        d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
-		if (strcmp(d_elementName.get(), "") != 0 && strcmp(d_parent.get(), "") != 0 && sharedState == nullptr)
-		{
-			std::string sName = d_parent.get();
-			sName = sName + ".";
-			sName = sName + d_elementName.get();
-			sharedState.reset(new vrb::SharedState<bool>(sName, d_state.get()));
-			sharedState->setUpdateFunction([this]() {
-				if (d_shared.get())
-				{
-					coTUIToggleButton* tb = (coTUIToggleButton*)d_TUIElement;
-					tb->setState(*sharedState);
-					d_state.set(tb->getState());
-					double timeStamp = System::the->time();
-					eventOut(timeStamp, "state", d_state);
-					if (tb->getState())
-						d_choice.set(0);
-					else
-						d_choice.set(-1);
-					eventOut(timeStamp, "choice", d_choice);
-				}
-				});
-		}
+            d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
+            if (strcmp(d_elementName.get(), "") != 0 && strcmp(d_parent.get(), "") != 0 && sharedState == nullptr)
+            {
+                std::string sName = d_parent.get();
+                sName = sName + ".";
+                sName = sName + d_elementName.get();
+                sharedState.reset(new vrb::SharedState<bool>(sName, d_state.get()));
+                sharedState->setUpdateFunction([this]() {
+                    if (d_shared.get())
+                    {
+                        coTUIToggleButton* tb = (coTUIToggleButton*)d_TUIElement;
+                        tb->setState(*sharedState);
+                        d_state.set(tb->getState());
+                        double timeStamp = System::the->time();
+                        eventOut(timeStamp, "state", d_state);
+                        if (tb->getState())
+                            d_choice.set(0);
+                        else
+                            d_choice.set(-1);
+                        eventOut(timeStamp, "choice", d_choice);
+                    }
+                    });
+            }
         }
         VrmlNodeTUIElement::render(viewer);
         coTUIToggleButton *tb = (coTUIToggleButton *)d_TUIElement;
