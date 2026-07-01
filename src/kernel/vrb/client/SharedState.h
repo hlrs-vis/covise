@@ -136,6 +136,21 @@ private:
 
 };
 
+class SharedCallback : public SharedStateBase {
+public:
+    SharedCallback(std::string name, SharedStateType mode = USE_COUPLING_MODE)
+        : SharedStateBase(name, mode) {
+        covise::TokenBuffer tb;
+        subscribe(tb.getData());
+    }
+    void push() {
+        covise::TokenBuffer data;
+        setVar(data.getData());
+    }
+private:
+    void deserializeValue(const regVar* data) override {}
+};
+
 }
 #endif
 

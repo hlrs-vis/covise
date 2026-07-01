@@ -51,6 +51,10 @@ TokenBufferDataType getTokenBufferDataType<double>(const double &type) {
 
 std::string tokenBufferToString(covise::TokenBuffer &&tb, TokenBufferDataType typeID) {
     static bool abbort = true;
+    if(tb.getData().length() == 0)
+    {
+        return "empty";
+    }
     if (typeID == TokenBufferDataType::TODETERMINE)
     {
         tb >> typeID;
