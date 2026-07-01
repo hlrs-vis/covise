@@ -112,8 +112,8 @@ run_stuttgart_ditens() {
 run_stuttgart() {
     bash /data/campus/Sumo/CampusReduced/startSumo.sh &
     SUMO=$!
-    #vistle -e /data/StuttgartForecast/feinstaub_stadtmodell_LGL_tracerNewVistle.vsl
-    vistle /data/StuttgartForecast/feinstaub_stadtmodell_LGL_tracerNewVistle.vsl
+    vistle -e /data/StuttgartForecast/feinstaub_stadtmodell_LGL_tracerNewVistle.vsl
+    #vistle /data/StuttgartForecast/feinstaub_stadtmodell_LGL_tracerNewVistle.vsl
     kill $SUMO
 }
 demo 37 "Stuttgart with Sumo" run_stuttgart
