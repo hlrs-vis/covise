@@ -69,11 +69,11 @@ void CustomTransformInteractor::createGeometry()
     m_debugTarget = new osg::MatrixTransform;
     cover->getObjectsRoot()->addChild(m_debugTarget);
 
-    osg::Sphere *mySphere = new osg::Sphere(osg::Vec3(0, 0, 0), 0.1);
+    osg::Sphere *mySphere = new osg::Sphere(osg::Vec3(0, 0, 0), 0.05);
     osg::TessellationHints *hint = new osg::TessellationHints();
     hint->setDetailRatio(0.5);
     auto sphereDrawable = new osg::ShapeDrawable(mySphere, hint);
-    sphereDrawable->setColor(osg::Vec4(1, 0, 1, 1));
+    sphereDrawable->setColor(osg::Vec4(1, 0, 1, 0.5));
     auto sphereGeode = new osg::Geode();
     sphereGeode->addDrawable(sphereDrawable);
     sphereGeode->setStateSet(VRSceneGraph::instance()->loadDefaultGeostate(osg::Material::AMBIENT_AND_DIFFUSE));
@@ -167,7 +167,7 @@ void CustomTransformInteractor::doInteraction()
     }
     else if (m_translateOnlyAxis)
     {
-        auto relativeMovement = osg::Matrix::inverse(m_startMatrix) * target;
+        auto relativeMovement = (osg::Matrix::inverse(m_objectToTarget) * target) * osg::Matrix::inverse(m_startMatrix);
 
         auto translation = relativeMovement.getTrans();
         translation.x() *= m_translateOnlyAxis == 1;
