@@ -151,6 +151,7 @@ public:
 private:
     VrmlSFTime d_touchTime;
     VrmlSFTime d_releaseTime;
+    std::unique_ptr<vrb::SharedCallback> sharedTouch, sharedRelease;
 };
 
 class VRML97COVEREXPORT VrmlNodeTUIToggleButton : public VrmlNodeTUIElement

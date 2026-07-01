@@ -518,7 +518,7 @@ void ClipPlanePlugin::preFrame()
         //update textedits
         osg::Vec4d eq = plane[i].get();
         char buf[100];
-        sprintf(buf,"%f %f %f %f", eq[0], eq[1], eq[2], eq[3]);
+        snprintf(buf, sizeof(buf), "%.6g %.6g %.6g %.6g", eq[0], eq[1], eq[2], eq[3]);
         plane[i].ClipEditField->setValue(std::string(buf));
     }
 }

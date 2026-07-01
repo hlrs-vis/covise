@@ -3969,10 +3969,11 @@ void ViewerOsg::applyShader(const char *shaderNameAndValues,osg::Geode *pGeode, 
     coVRShader *shader = coVRShaderList::instance()->get(shaderName);
     if (shader == NULL)
     { // try to find a local shader definition
-        if (d_currentObject->MyDoc)
+        auto docLength = d_currentObject->MyDoc.length();
+        if (docLength == 0 )
         {
-            char *dirName = new char[strlen(d_currentObject->MyDoc) + 1];
-            strcpy(dirName, d_currentObject->MyDoc);
+            char *dirName = new char[docLength + 1];
+            strcpy(dirName, d_currentObject->MyDoc.c_str());
             char *pos = strrchr(dirName, '/');
 #ifdef _WIN32
             char *pos2 = strrchr(dirName, '\\');

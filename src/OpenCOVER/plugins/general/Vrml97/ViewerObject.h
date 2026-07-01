@@ -130,7 +130,7 @@ public:
             return pNode.get();
     };
     coSensiveSensor *sensor;
-    const char *MyDoc;
+    std::string MyDoc;
     osg::ref_ptr<coBillboard> billBoard;
     int whichChoice; // if this is != -2 (the default) than this is a switch node
     // and whichChoice is the number of the node to display
