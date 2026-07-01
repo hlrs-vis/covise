@@ -13,6 +13,7 @@
 #include <cover/coVRPlugin.h>
 #include <cover/ui/Owner.h>
 #include <osg/MatrixTransform>
+#include <osg/ShapeDrawable>
 #include <map>
 #include <memory>
 #include <string>
@@ -60,7 +61,7 @@ public:
 
 protected:
     virtual void updateSelection() { };
-    bool m_isSelected;
+    bool m_isSelected = false;
 };
 
 class Selection
@@ -129,7 +130,7 @@ private:
 
 public:
     SelectableSensor(Selection *s, Selectable *s2, osg::Node *n)
-        : coPickSensor(n)
+        : coPickSensor(n, false, vrui::coInteraction::ButtonA, vrui::coInteraction::Medium)
         , selection(s)
         , selectable(s2)
     {
@@ -141,8 +142,7 @@ public:
     }
     void activate() override
     {
-        std::cout << "ACTIVATE!" << std::endl;
-        selection->toggleSelection(selectable);
+        selection->addToSelection(selectable);
     }
 
     void disactivate() override
@@ -209,10 +209,117 @@ private:
     SelectableSensor *sensor;
 };
 
+class Trajectory;
+class TrajectoryPoint : public Selectable
+{
+    friend class Trajectory;
+
+public:
+    TrajectoryPoint(Trajectory *trajectory_);
+    ~TrajectoryPoint();
+    void preFrame();
+
+    void setTransforms(const osg::Matrix &anchor_, const osg::Vec3 &controlPointIn_, const osg::Vec3 &controlPointOut_)
+    {
+        anchor = anchor_;
+        controlPointIn = controlPointIn_;
+        controlPointOut = controlPointOut_;
+
+        anchorNode->setMatrix(anchor);
+        controlPointInNode->setMatrix(osg::Matrix::translate(controlPointIn));
+        controlPointOutNode->setMatrix(osg::Matrix::translate(controlPointOut));
+
+        anchorInteractor.updateTransform(anchorNode->getMatrix());
+        controlPointInInteractor.updateTransform(controlPointInNode->getMatrix());
+        controlPointOutInteractor.updateTransform(controlPointOutNode->getMatrix());
+    }
+
+protected:
+    virtual void updateSelection()
+    {
+        if (isSelected())
+        {
+            anchorInteractor.show();
+            anchorInteractor.enableIntersection();
+
+            controlPointInInteractor.show();
+            controlPointInInteractor.enableIntersection();
+
+            controlPointOutInteractor.show();
+            controlPointOutInteractor.enableIntersection();
+        }
+        else
+        {
+            anchorInteractor.hide();
+            anchorInteractor.disableIntersection();
+
+            controlPointInInteractor.hide();
+            controlPointInInteractor.disableIntersection();
+
+            controlPointOutInteractor.hide();
+            controlPointOutInteractor.disableIntersection();
+        }
+    }
+
+private:
+    Trajectory *trajectory;
+
+    osg::ref_ptr<osg::Group> groupNode;
+    osg::ref_ptr<osg::MatrixTransform> anchorNode;
+    osg::ref_ptr<osg::MatrixTransform> controlPointInNode;
+    osg::ref_ptr<osg::MatrixTransform> controlPointOutNode;
+
+    CustomTransformInteractor anchorInteractor;
+    CustomTransformInteractor controlPointInInteractor;
+    CustomTransformInteractor controlPointOutInteractor;
+
+    osg::Matrix anchor;
+    osg::Vec3 controlPointIn;
+    osg::Vec3 controlPointOut;
+
+    SelectableSensor *sensor;
+};
+
+class Trajectory : public Selectable
+{
+
+public:
+    Trajectory();
+    ~Trajectory();
+    void preFrame()
+    {
+        for (auto &p : points)
+        {
+            p->preFrame();
+        }
+    }
+
+    virtual void updateSelection()
+    {
+        for (auto &p : points)
+        {
+            if (isSelected())
+                p->select();
+            else
+                p->deselect();
+        }
+    }
+
+    void pointChanged();
+    void rebuildGeometry();
+
+    std::vector<std::shared_ptr<TrajectoryPoint>> points;
+    osg::ref_ptr<osg::Geode> linesGeode;
+    osg::ref_ptr<osg::Geometry> linesGeometry;
+    osg::ref_ptr<osg::Geometry> bezierGeometry;
+};
+
 class AuralRealityPlugin : public opencover::coVRPlugin,
                            public opencover::ui::Owner
 {
     friend class Speaker;
+    friend class Trajectory;
+    friend class TrajectoryPoint;
 
 public:
     AuralRealityPlugin();
@@ -232,6 +339,7 @@ private:
     void createSpeaker();
 
     std::map<std::string, std::shared_ptr<Speaker>> speakers;
+    std::map<std::string, std::shared_ptr<Trajectory>> trajectories;
 
     std::shared_ptr<grpc::Channel> channel;
     std::unique_ptr<auralreality::TMTService::Stub> service;
