@@ -2138,7 +2138,7 @@ void VRSceneGraph::setColor(osg::Geode *geode, int *color, float transparency)
             drawable->asGeometry()->setColorBinding(Geometry::BIND_OFF);
 
             drawable->getStateSet()->setNestRenderBins(false);
-            if (transparency < 1.0)
+            if (transparency > 0.0 && transparency < 1.0)
             {
                 drawable->getStateSet()->setRenderingHint(StateSet::TRANSPARENT_BIN);
 
@@ -2316,7 +2316,7 @@ void VRSceneGraph::setTransparency(osg::Geode *geode, float transparency)
                 drawable->dirtyBound(); // trigger display list generation
             }
             drawable->getOrCreateStateSet()->setNestRenderBins(false);
-            if (transparency < 1.0)
+            if (transparency > 0.0 && transparency < 1.0)
             {
                 drawable->getOrCreateStateSet()->setRenderingHint(StateSet::TRANSPARENT_BIN);
 
@@ -2415,7 +2415,7 @@ void VRSceneGraph::setMaterial(osg::Geode *geode, const int *ambient, const int 
             ref_ptr<StateSet> gstate = geoset->getOrCreateStateSet();
             gstate->setAttributeAndModes(mtl.get(), StateAttribute::ON);
             gstate->setNestRenderBins(false);
-            if (transparency < 1.0)
+            if (transparency > 0.0 && transparency < 1.0)
             {
                 gstate->setRenderingHint(StateSet::TRANSPARENT_BIN);
 
