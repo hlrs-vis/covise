@@ -141,23 +141,22 @@ public:
     void updateDrawables() override;
     void updateTime(int timestep) override;
 
-    void setColorMap(const opencover::ColorMap &colorMap, const opencover::ColorMap &vm_pu_Colormap);
-    void setData(const core::simulation::Simulation &sim, const std::string &species, bool interpolate = false);
-    osg::ref_ptr<grid::DirectedConnection> getConnectionByName(
-        const std::string &name);
-    osg::ref_ptr<grid::DirectedConnection> getConnectionByIdx(int idx)
-    {
-        if (idx < 0 || idx >= m_connections.size())
-            return nullptr;
-        return m_connections[idx];
-    }
-    const osg::ref_ptr<grid::Point> getPointByName(const std::string &name) const;
-    osg::ref_ptr<grid::Point> getPointByIdx(int idx)
-    {
-        if (idx < 0 || idx >= m_config.points.size())
-            return nullptr;
-        return m_config.points[idx];
-    }
+  void setColorMap(const opencover::ColorMap &colorMap, const opencover::ColorMap &vm_pu_Colormap);
+  void setData(const core::simulation::Simulation& sim, const std::string & species, bool interpolate = false);
+  osg::ref_ptr<grid::DirectedConnection> getConnectionByName(
+      const std::string &name);
+  osg::ref_ptr<grid::DirectedConnection> getConnectionByIdx(int idx) {
+    if (idx < 0 || idx >= m_connections.size()) return nullptr;
+    return m_connections[idx];
+  }
+  const osg::ref_ptr<grid::Point> getPointByName(const std::string &name) const;
+  osg::ref_ptr<grid::Point> getPointByIdx(int idx) {
+    if (idx < 0 || idx >= m_config.points.size()) return nullptr;
+    return m_config.points[idx];
+  }
+  const auto &getPoints() const { return m_config.points; }
+  const auto &getLines() const { return m_config.lines; }
+  const auto &getName() const { return m_config.name; }
 
 private:
     template <typename T>

@@ -358,11 +358,11 @@ std::vector<osg::Vec3> calculatePointsAlongLine(const osg::Vec3 &start,
                                                 int lengthSegments) {
   std::vector<osg::Vec3> basePoints;
   basePoints.push_back(start);
-  osg::Vec3 direction = start - end;
+  osg::Vec3 v = end - start;
+  osg::Vec3 direction = v;
   direction.normalize();
-  direction = -direction;
   float height;
-  height = (start - end).length();
+  height = v.length();
   for (int i = 1; i <= lengthSegments; ++i) {
     float segment = static_cast<float>(i) / lengthSegments;
     osg::Vec3 p = start + (direction * segment * height);
@@ -442,9 +442,8 @@ osg::ref_ptr<osg::Geometry> createCylinderBetweenPoints(
     int lengthSegments, osg::ref_ptr<osg::TessellationHints> hints,
     bool colorInterpolation) {
   osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry;
-  osg::Vec3 direction = start - end;
+  osg::Vec3 direction = end - start;
   direction.normalize();
-  direction = -direction;
 
   auto basePoints = calculatePointsAlongLine(start, end, lengthSegments);
 
@@ -460,13 +459,9 @@ osg::ref_ptr<osg::Geometry> createCylinderBetweenPoints(
 
   // shader attribute mapping from vertices to data value in texture
   osg::IntArray *intArray = new osg::IntArray;
-  for (size_t i = 0; i < lengthSegments + 1; i++) {
-    for (size_t j = 0; j < circleSegments; j++) {
-      //   intArray->push_back(i);
-      //   intArray->push_back(colorInterpolation ? i : 0);
+  for (size_t i = 0; i < lengthSegments + 1; ++i) {
+    for (size_t j = 0; j <= circleSegments; ++j) {
       int val = (colorInterpolation ? i : 0);
-      //   std::cout << "[DEBUG] indexAttrib[" << (i * circleSegments + j)
-      //             << "] = " << val << std::endl;
       intArray->push_back(val);
     }
   }
