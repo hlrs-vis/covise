@@ -1457,7 +1457,13 @@ void MEUserInterface::activateTabletUI()
         {
             if (ierr != 0)
             {
-                printMessage("Can't open socket connection for TabletUI");
+                static bool errorPrinted = false;
+                if (!errorPrinted)
+                {
+                    printMessage("Can't open socket connection for TabletUI");
+                    errorPrinted = true;
+                }
+                delete m_tablet;
                 m_tablet = NULL;
                 m_showTabletUI_a->setEnabled(false);
             }
