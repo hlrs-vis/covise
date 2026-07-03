@@ -224,8 +224,9 @@ Source: {#COVISEDIR}\config\config?ar.xml; DestDir: {app}\config; Components: co
 Source: {#COVISEDIR}\config\config?colormaps.xml; DestDir: {app}\config; Components: core   
 Source: {#COVISEDIR}\config\config-midi.xml; DestDir: {app}\config; Components: core
 Source: {#COVISEDIR}\config\config-sumo.xml; DestDir: {app}\config; Components: core
-Source: {#COVISEDIR}\config\filetypes.toml; DestDir: {app}\config; Components: core
-Source: {#COVISEDIR}\config\config-spray.xml; DestDir: {app}\config; Components: core
+Source: {#COVISEDIR}\config\filetypes.toml; DestDir: {app}\config; Components: core   
+Source: {#COVISEDIR}\config\config-spray.xml; DestDir: {app}\config; Components: core     
+Source: {#COVISEDIR}\config\plugin\*.toml; DestDir: {app}\config\plugin; Components: core
 Source: {#COVISEDIR}\config\*.xml; DestDir: {app}\config\examples; Excludes: config.xml config-*.xml; Components: core
 ;Source: {#COVISEDIR}\mkspecs\*; DestDir: {app}\covise\mkspecs; Components: core
 Source: {#COVISEDIR}\share\*; DestDir: {app}\share; Excludes: .svn\*; Flags: recursesubdirs; Components: core
@@ -316,20 +317,47 @@ Source: {#BIN}\Simulation\*.exe; DestDir: {#DBIN}\Simulation; Flags: recursesubd
 
 Source: {#COVISEDIR}\scripts\windowsEnv.bat; DestDir: {app}; Components: core
 Source: {#COVISEDIR}\bin\*.bat; DestDir: {app}\bin; Components: core
-Source: {#COVISEDIR}\scripts\*; DestDir: {app}\scripts; Components: core
+Source: {#COVISEDIR}\scripts\*; Excludes: "*.BIN,*.pdb"; DestDir: {app}\scripts; Components: core
 
 
-Source: {#EXTERNLIBS}\python\*; DestDir: {app}\extern_libs\python; Flags: recursesubdirs skipifsourcedoesntexist; Components: python
+Source: {#EXTERNLIBS}\python\*; Excludes: "*.BIN,*.pdb"; DestDir: {app}\extern_libs\python; Flags: recursesubdirs skipifsourcedoesntexist; Components: python
 
 ; we are using Qt version >= 4.5.0 LGPL
-Source: {#QT}\bin\*.dll; DestDir: {#DLIB}; Components: core
+Source: {#QT}\bin\*a.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#QT}\bin\*b.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#QT}\bin\*c.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#QT}\bin\*e.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#QT}\bin\*f.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#QT}\bin\*g.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#QT}\bin\*h.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#QT}\bin\*i.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#QT}\bin\*j.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#QT}\bin\*k.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#QT}\bin\*l.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#QT}\bin\*m.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#QT}\bin\*n.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#QT}\bin\*o.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#QT}\bin\*p.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#QT}\bin\*q.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#QT}\bin\*r.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#QT}\bin\*s.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#QT}\bin\*t.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#QT}\bin\*u.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#QT}\bin\*v.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#QT}\bin\*w.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#QT}\bin\*x.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#QT}\bin\*y.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#QT}\bin\*z.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core  
+Source: {#QT}\bin\Qt6VirtualKeyboard.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core    
+Source: {#QT}\bin\Qt63DQuickScene2D.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#QT}\bin\*3D.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#QT}\bin\QtWebEngineProcess*.exe; DestDir: {#DBIN}; Components: core
-Source: {#QT}\plugins\*.dll; DestDir: {#DLIB}\plugins; Flags: recursesubdirs; Components: core
-Source: {#QT}\resources\*; DestDir: {#DLIB}\resources; Flags: recursesubdirs; Components: core
-Source: {#QT}\translations\*; DestDir: {#DLIB}\translations; Flags: recursesubdirs; Components: core
-Source: {#EXTERNLIBS}\icu\bin64\*.dll; DestDir: {#DBIN}; Components: core                             
-Source: {#EXTERNLIBS}\all\archive.dll; DestDir: {#DBIN}; Components: core                   
-Source: {#EXTERNLIBS}\glfw\bin\*.dll; DestDir: {#DBIN}; Components: core
+Source: {#QT}\plugins\*.dll; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}\plugins; Flags: recursesubdirs; Components: core
+Source: {#QT}\resources\*; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}\resources; Flags: recursesubdirs; Components: core
+Source: {#QT}\translations\*; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}\translations; Flags: recursesubdirs; Components: core
+Source: {#EXTERNLIBS}\icu\bin\*.dll; DestDir: {#DLIB}; Components: core                             
+Source: {#EXTERNLIBS}\all\archive.dll; DestDir: {#DLIB}; Components: core                   
+Source: {#EXTERNLIBS}\glfw\bin\*.dll; DestDir: {#DLIB}; Components: core  
 Source: {#EXTERNLIBS}\tbb\bin\intel64\vc11\*.dll; DestDir: {#DBIN}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#EXTERNLIBS}\tbb\bin\intel64\vc14\*.dll; DestDir: {#DBIN}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#PTHREAD}\lib\*.dll; DestDir: {#DLIB}; Components: core
@@ -372,7 +400,7 @@ Source: {#XERCES}\lib\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; C
 
 Source: {#COVISEDOCU}\doc\html\*; DestDir: {app}\doc\html; Excludes: .svn\*,*.tex,*.aux,*.log,*.pl,WARNINGS; Flags: recursesubdirs; Components: help
 Source: {#COVISEDOCU}\doc\pdf\*; DestDir: {app}\doc\pdf; Excludes: .svn\*; Flags: skipifsourcedoesntexist; Components: help
-Source: {#COVISEDIR}\net\tutorial\*; DestDir: {app}\net\tutorial; Excludes: .svn\*; Flags: recursesubdirs; Components: help
+Source: {#COVISEDIR}\net\tutorial\*;  DestDir: {app}\net\tutorial; Excludes: .svn\*; Flags: recursesubdirs; Components: help
 Source: c:\data\cal3d\*; DestDir: {#COVISEDATA}\; Excludes: .svn\*; Flags: recursesubdirs; Components: help
 
 Source: {#COVISEDIR}\net\examples\*; DestDir: {app}\net\examples; Excludes: .svn\*; Flags: recursesubdirs; Components: example
@@ -380,58 +408,66 @@ Source: {#COVISEDIR}\net\examples\*; DestDir: {app}\net\examples; Excludes: .svn
 Source: {#BIN}\Renderer\OpenCOVER.exe; DestDir: {#DBIN}\Renderer; Flags: recursesubdirs; Components: opencover
 Source: {#BIN}\Renderer\SurfaceCOVER.exe; DestDir: {#DBIN}\Renderer; Flags: recursesubdirs skipifsourcedoesntexist; Components: surfacecover
 Source: {#BIN}\Renderer\VRMLRenderer.exe; DestDir: {#DBIN}\Renderer; Flags: recursesubdirs; Components: core
-Source: {#OPENSCENEGRAPH}\bin\osg{#OSG_SO_NUM}*.dll; DestDir: {#DLIB}; Components: opencover
-Source: {#OPENSCENEGRAPH}\bin\ot{#OSG_OT_SO_NUM}*.dll; DestDir: {#DLIB}; Components: opencover
-Source: {#OPENSCENEGRAPH}\bin\osgPlugins-{#OSG_VER_NUM}\*; DestDir: {#DLIB}; Components: opencover
+Source: {#OPENSCENEGRAPH}\bin\osg{#OSG_SO_NUM}*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover
+Source: {#OPENSCENEGRAPH}\bin\ot{#OSG_OT_SO_NUM}*.dll; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover 
+Source: {#OPENSCENEGRAPH}\bin\osgPlugins-{#OSG_VER_NUM}\*; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover
+Source: {#OPENSCENEGRAPH}\bin\osgPlugins-{#OSG_VER_NUM}\*3d.dll; DestDir: {#DLIB}; Components: opencover
 ; now using VideoInput Source: {#EXTERNLIBS}\DSVL\bin\*.dll; DestDir: {#DLIB}; Components: opencover
-Source: {#EXTERNLIBS}\OpenAL\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
-Source: {#EXTERNLIBS}\Cal3d\bin\*.dll; DestDir: {#DLIB}; Components: opencover               
-Source: {#EXTERNLIBS}\gdcm\bin\*.dll; DestDir: {#DLIB}; Components: core
-Source: {#EXTERNLIBS}\osgCal\bin\*.dll; DestDir: {#DLIB}; Components: opencover
-Source: {#EXTERNLIBS}\osgEphemeris\bin\*.dll; DestDir: {#DLIB}; Components: opencover      
-Source: C:\src\externlibs\zebu\PhysX\bin\win.x86_64.vc142.md\release\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core    
-Source: C:\Program Files\NVIDIA Corporation\NVSMI\nvml.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
-Source: {#EXTERNLIBS}\Proj\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
-Source: {#EXTERNLIBS}\embree\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
-Source: {#EXTERNLIBS}\ALVAR\bin\*.dll; DestDir: {#DLIB}; Components: opencover
-Source: {#EXTERNLIBS}\ALVAR\bin\alvarplugins\*.dll; DestDir: {#DLIB}\alvarplugins; Components: opencover
+Source: {#EXTERNLIBS}\OpenAL\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
+Source: {#EXTERNLIBS}\Cal3d\bin\*.dll; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover               
+Source: {#EXTERNLIBS}\gdcm\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Components: core
+Source: {#EXTERNLIBS}\osgCal\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover
+Source: {#EXTERNLIBS}\osgEphemeris\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover      
+Source: C:\src\externlibs\zebu\PhysX\bin\win.x86_64.vc142.md\release\*d.dll, *.dll; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core    
+Source: C:\Program Files\NVIDIA Corporation\NVSMI\nvml.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
+Source: {#EXTERNLIBS}\Proj\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
+Source: {#EXTERNLIBS}\embree\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover  
+Source: {#EXTERNLIBS}\exiv2\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover 
+Source: {#EXTERNLIBS}\expat\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover    
+Source: {#EXTERNLIBS}\grpc\bin\*.dll; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover   
+Source: {#EXTERNLIBS}\geotiff\bin\*.dll; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover
+Source: {#EXTERNLIBS}\protobuf\bin\*.dll; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover    
+Source: {#EXTERNLIBS}\brotli\bin\*.dll; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover
+Source: {#EXTERNLIBS}\PDAL\bin\*.dll; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover
+Source: {#EXTERNLIBS}\ALVAR\bin\*.dll; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover
+Source: {#EXTERNLIBS}\ALVAR\bin\alvarplugins\*.dll; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}\alvarplugins; Components: opencover
 ;Source: {#EXTERNLIBS}\opencv\build\x64\vc10\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
 ;Source: {#EXTERNLIBS}\opencv3\x64\vc11\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
-Source: {#EXTERNLIBS}\OpenCV2\x64\vc14\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover  
-Source: {#EXTERNLIBS}\opencv4\x64\vc17\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover  
-Source: {#EXTERNLIBS}\ifcpp\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover 
-Source: {#EXTERNLIBS}\u3d\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
-Source: c:\Program Files\Point Grey Research\FlyCapture2\bin64\*v110.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
-Source: c:\Program Files\Point Grey Research\FlyCapture2\bin64\vs2015\*v140.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
+Source: {#EXTERNLIBS}\OpenCV2\x64\vc14\bin\*.dll;  Excludes: "*d.dll, *.BIN,*.pdb"; Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover  
+Source: {#EXTERNLIBS}\opencv4\x64\vc17\bin\*.dll;  Excludes: "*d.dll, *.BIN,*.pdb"; Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover  
+Source: {#EXTERNLIBS}\ifcpp\bin\*.dll;  Excludes: "*d.dll, *.BIN,*.pdb"; Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover 
+Source: {#EXTERNLIBS}\u3d\bin\*.dll;  Excludes: "*d.dll, *.BIN,*.pdb"; Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
+Source: c:\Program Files\Point Grey Research\FlyCapture2\bin64\*v110.dll;  Excludes: "*d.dll, *.BIN,*.pdb"; Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
+Source: c:\Program Files\Point Grey Research\FlyCapture2\bin64\vs2015\*v140.dll;  Excludes: "*d.dll, *.BIN,*.pdb"; Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
 
 
 ;Source: {#EXTERNLIBS}\opencv\build\x64\vc11\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
 
-Source: {#EXTERNLIBS}\collada\lib\*.dll; DestDir: {#DLIB};  Flags: skipifsourcedoesntexist; Components: opencover
-Source: {#EXTERNLIBS}\cudpp\bin\*.dll; DestDir: {#DLIB};  Flags: skipifsourcedoesntexist; Components: core
-Source: {#EXTERNLIBS}\vtk\bin\*.dll; DestDir: {#DLIB}; Components: core
-Source: {#AUDIOFILE}\lib\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
-Source: {#FFTW}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
-Source: {#GDAL}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
-Source: {#TIFF}\bin\*.dll; DestDir: {#DLIB}; Components: opencover
-Source: {#JPEG}\lib\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
-Source: {#ZLIB}\bin\*.dll; DestDir: {#DLIB}; Components: opencover
+Source: {#EXTERNLIBS}\collada\lib\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB};  Flags: skipifsourcedoesntexist; Components: opencover
+Source: {#EXTERNLIBS}\cudpp\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB};  Flags: skipifsourcedoesntexist; Components: core
+Source: {#EXTERNLIBS}\vtk\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Components: core
+Source: {#AUDIOFILE}\lib\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
+Source: {#FFTW}\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
+Source: {#GDAL}\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
+Source: {#TIFF}\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover
+Source: {#JPEG}\lib\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
+Source: {#ZLIB}\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover
 ;Source: {#OIV}\lib\*.dll; DestDir: {#DLIB}; Components: opencover
-Source: {#EXTERNLIBS}\OpenSSL\bin\*.dll; DestDir: {#DLIB}; Components: core
-Source: {#EXTERNLIBS}\osgEarth\bin\*.dll; Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
-Source: {#EXTERNLIBS}\osgEarth\bin\osgPlugins-{#OSG_VER_NUM}\*.dll; Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
+Source: {#EXTERNLIBS}\OpenSSL\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Components: core
+Source: {#EXTERNLIBS}\osgEarth\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
+Source: {#EXTERNLIBS}\osgEarth\bin\osgPlugins-{#OSG_VER_NUM}\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
 
-Source: {#EXTERNLIBS}\curl\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
-Source: {#EXTERNLIBS}\Xerces\lib\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
-Source: {#EXTERNLIBS}\Xerces\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
+Source: {#EXTERNLIBS}\curl\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
+Source: {#EXTERNLIBS}\Xerces\lib\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
+Source: {#EXTERNLIBS}\Xerces\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
 
-Source: {#LIB}\OpenCOVER\plugins\*.dll; DestDir: {#DLIB}\OpenCOVER\plugins; Flags: recursesubdirs; Components: opencover
-Source: {#LIB}\OpenCOVER\plugins\*.lib; DestDir: {#DLIB}\OpenCOVER\plugins; Flags: recursesubdirs; Components: opencover
-Source: {#EXTERNLIBS}\PtGrey\bin\*.dll; DestDir: {#DLIB};Flags: skipifsourcedoesntexist; Components: opencover
+Source: {#LIB}\OpenCOVER\plugins\*.dll; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}\OpenCOVER\plugins; Flags: recursesubdirs; Components: opencover
+Source: {#LIB}\OpenCOVER\plugins\*.lib; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}\OpenCOVER\plugins; Flags: recursesubdirs; Components: opencover
+Source: {#EXTERNLIBS}\PtGrey\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB};Flags: skipifsourcedoesntexist; Components: opencover
 #if (ARCHSUFFIX == "vista") || (ARCHSUFFIX == "vistaopt")
-Source: {#EXTERNLIBS}\PCAN-Light\*.dll; DestDir: {#DLIB}; Components: opencover
+Source: {#EXTERNLIBS}\PCAN-Light\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover
 #endif
-Source: {#OIV}\lib\*.dll; DestDir: {#DLIB};Flags: skipifsourcedoesntexist; Components: opencover
+Source: {#OIV}\lib\*.dll; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB};Flags: skipifsourcedoesntexist; Components: opencover
 
 
 
@@ -445,7 +481,7 @@ Source: {#SIMDATA}\gate\flow.stf; DestDir: {#SIMDATAOUT}\gate; Components: appli
 Source: {#SIMDATA}\gate\press.rb; DestDir: {#SIMDATAOUT}\gate; Components: application/simulation
 
 Source: {#SIMDATA}\domdec\zerno.stf; DestDir: {#SIMDATAOUT}\domdec; Components: application/simulation
-Source: {#SIMDATA}\domdec\zer\*; DestDir: {#SIMDATAOUT}\domdec\zer; Components: application/simulation
+Source: {#SIMDATA}\domdec\zer\*; Excludes: "*.BIN,*.pdb"; DestDir: {#SIMDATAOUT}\domdec\zer; Components: application/simulation
 
 Source: {#SIMDATA}\example_data\gate_low.cfg; DestDir: {#SIMDATAOUT}\example_data; Components: application/simulation
 Source: {#SIMDATA}\example_data\gate_kieb.cfg DestDir: {#SIMDATAOUT}\example_data; Components: application/simulation

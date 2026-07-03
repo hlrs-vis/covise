@@ -121,7 +121,7 @@ macroScript mergeSameMaterial category:"Optimize"
 (
 sel = selection as array
 	count = 1
-
+setCommandPanelTaskMode #create
 	if sel.count > 0 then
 	(
 		undo on
@@ -157,18 +157,21 @@ sel = selection as array
 						print x.name
 						merged = false
 						for y in $ do
-						(
-							if x != y and x.material == y.material do
-						   (
-							   
-								merged = true
-								s = "merge "+y.name+" to "+x.name
-								print s
-								meshop.attach x y attachMat:#IDToMat condenseMat:true
-							   
-								mergeddObjects=true
-						   )
-						)
+(
+    if x != y and x.material == y.material do
+    (
+        merged = true
+
+        format "merge % to %\n" y.name x.name
+
+        if not (isKindOf x Editable_Poly) do convertToPoly x
+        if not (isKindOf y Editable_Poly) do convertToPoly y
+
+        polyop.attach x y attachMat:#IDToMat condenseMat:true
+
+        mergeddObjects = true
+    )
+)
 						if merged == true do
 						(
 							print x.name
