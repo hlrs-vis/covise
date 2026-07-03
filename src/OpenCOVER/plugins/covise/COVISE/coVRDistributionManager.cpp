@@ -468,7 +468,7 @@ int opencover::coVRDistributionManager::RenderNode::getSlaveIndex() const
     return this->slaveIndex;
 }
 
-bool opencover::coVRDistributionManager::RenderNode::operator==(const RenderNode &other)
+bool opencover::coVRDistributionManager::RenderNode::operator==(const RenderNode &other) const
 {
     return this->nodename == other.nodename;
 }

@@ -114,7 +114,7 @@ public:
         result.rpy.rz = rpy.rz - p.rpy.rz;
         return result;
     }
-    bool operator==(const Pose& p)
+    bool operator==(const Pose& p) const
     {
         if (tran.x == p.tran.x && tran.y == p.tran.y && tran.z == p.tran.z && rpy.rx == p.rpy.rx && rpy.ry == p.rpy.ry && rpy.rz == p.rpy.rz)
             return true;

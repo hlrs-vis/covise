@@ -52,7 +52,7 @@ public:
 
         void applyScreens();
 
-        bool operator==(const RenderNode &);
+        bool operator==(const RenderNode &) const;
 
     private:
         void setNodename(const std::string &name);
