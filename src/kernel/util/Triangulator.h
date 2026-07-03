@@ -60,11 +60,11 @@ public:
         this->x = 0.0;
         this->y = 0.0;
     }
-    double LENGTH()
+    double LENGTH() const
     {
         return (sqrt(x * x + y * y));
     }
-    bool operator>(const _point_t &v1)
+    bool operator>(const _point_t &v1) const
     {
         if (y > v1.y + C_EPS)
             return true;
@@ -76,11 +76,11 @@ public:
     {
         return _point_t(v0.x - v1.x, v0.y - v1.y);
     }
-    bool operator==(const _point_t &v1)
+    bool operator==(const _point_t &v1) const
     {
         return (FP_EQUAL(y, v1.y) && FP_EQUAL(x, v1.x));
     }
-    bool operator>=(const _point_t &v1)
+    bool operator>=(const _point_t &v1) const
     {
         if (y > v1.y + C_EPS)
             return true;
@@ -88,7 +88,7 @@ public:
             return false;
         return (x >= v1.x);
     }
-    bool operator<(const _point_t &v1)
+    bool operator<(const _point_t &v1) const
     {
         if (y < v1.y - C_EPS)
             return true;
