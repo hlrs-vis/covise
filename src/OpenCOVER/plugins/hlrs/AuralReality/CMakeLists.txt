@@ -35,11 +35,17 @@ set(PROTO_FILES
 SET(HEADERS
     AuralRealityPlugin.h
     CustomTransformInteractor.h
+    Speaker.h
+    Selection.h
+    Trajectory.h
 )
 
 SET(SOURCES
     AuralRealityPlugin.cpp
     CustomTransformInteractor.cpp
+    Speaker.cpp
+    Selection.cpp
+    Trajectory.cpp
 )
 
 cover_add_plugin(AuralReality ${HEADERS} ${SOURCES})
