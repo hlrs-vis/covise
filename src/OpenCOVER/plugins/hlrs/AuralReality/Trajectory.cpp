@@ -17,12 +17,19 @@
 
 using namespace opencover;
 
+osg::Matrix scale_offset = osg::Matrix::translate(osg::Vec3(1, 1, 1) * 0.2);
+
 TrajectoryPoint::TrajectoryPoint(Trajectory *trajectory_)
     : trajectory(trajectory_)
     , anchorInteractor(osg::Matrix::identity(), 1000, vrui::coInteraction::ButtonA, "hand", "speakerInteractor", vrui::coInteraction::Medium)
-    , controlPointInInteractor(osg::Matrix::identity(), 500, vrui::coInteraction::ButtonA, "hand", "speakerInteractor", vrui::coInteraction::Medium)
-    , controlPointOutInteractor(osg::Matrix::identity(), 500, vrui::coInteraction::ButtonA, "hand", "speakerInteractor", vrui::coInteraction::Medium)
+    , controlPointInInteractor(osg::Matrix::identity(), 100, vrui::coInteraction::ButtonA, "hand", "speakerInteractor", vrui::coInteraction::Medium)
+    , controlPointOutInteractor(osg::Matrix::identity(), 100, vrui::coInteraction::ButtonA, "hand", "speakerInteractor", vrui::coInteraction::Medium)
+    , scaleInteractor(osg::Matrix::identity(), 100, vrui::coInteraction::ButtonA, "hand", "speakerInteractor", vrui::coInteraction::Medium)
 {
+    controlPointInInteractor.setModes(CustomTransformInteractor::TRANSLATE);
+    controlPointOutInteractor.setModes(CustomTransformInteractor::TRANSLATE);
+    scaleInteractor.setModes(CustomTransformInteractor::TRANSLATE);
+
     groupNode = new osg::Group;
     cover->getObjectsRoot()->addChild(groupNode);
 
@@ -97,9 +104,40 @@ void TrajectoryPoint::preFrame()
         changed = true;
     }
 
+    scaleInteractor.preFrame();
+    if (scaleInteractor.wasStarted())
+    {
+        scaleInteractorDistance = (scaleInteractor.getMatrix().getTrans() - anchor.getTrans()).length();
+    }
+    else if (scaleInteractor.isRunning())
+    {
+        float distance = (scaleInteractor.getMatrix().getTrans() - anchor.getTrans()).length();
+        float scaleFactor = distance / scaleInteractorDistance;
+        scaleInteractorDistance = distance;
+
+        controlPointIn = anchor.getTrans() + (controlPointIn - anchor.getTrans()) * scaleFactor;
+        controlPointInNode->setMatrix(osg::Matrix::translate(controlPointIn));
+        controlPointInInteractor.updateTransform(osg::Matrix::translate(controlPointIn));
+
+        controlPointOut = anchor.getTrans() + (controlPointOut - anchor.getTrans()) * scaleFactor;
+        controlPointOutNode->setMatrix(osg::Matrix::translate(controlPointOut));
+        controlPointOutInteractor.updateTransform(osg::Matrix::translate(controlPointOut));
+
+        changed = true;
+    }
+    else if (scaleInteractor.wasStopped())
+    {
+        scaleInteractor.updateTransform(anchor * scale_offset);
+    }
+
     if (changed)
     {
         trajectory->pointChanged();
+
+        if (!scaleInteractor.isRunning())
+        {
+            scaleInteractor.updateTransform(anchor * scale_offset);
+        }
     }
 }
 
@@ -116,6 +154,8 @@ void TrajectoryPoint::setTransforms(const osg::Matrix &anchor_, const osg::Vec3 
     anchorInteractor.updateTransform(anchorNode->getMatrix());
     controlPointInInteractor.updateTransform(controlPointInNode->getMatrix());
     controlPointOutInteractor.updateTransform(controlPointOutNode->getMatrix());
+
+    scaleInteractor.updateTransform(anchor * scale_offset);
 }
 
 void TrajectoryPoint::updateSelection()
@@ -130,6 +170,9 @@ void TrajectoryPoint::updateSelection()
 
         controlPointOutInteractor.show();
         controlPointOutInteractor.enableIntersection();
+
+        scaleInteractor.show();
+        scaleInteractor.enableIntersection();
     }
     else
     {
@@ -141,6 +184,9 @@ void TrajectoryPoint::updateSelection()
 
         controlPointOutInteractor.hide();
         controlPointOutInteractor.disableIntersection();
+
+        scaleInteractor.hide();
+        scaleInteractor.disableIntersection();
     }
 }
 

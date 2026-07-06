@@ -50,6 +50,29 @@ CustomTransformInteractor::~CustomTransformInteractor()
         fprintf(stderr, "\ndelete ~CustomTransformInteractor\n");
 }
 
+void CustomTransformInteractor::setModes(unsigned int modes)
+{
+    auto icon = dynamic_cast<osg::Group *>(axisTransform->getChild(0));
+    if (!icon)
+    {
+        return;
+    }
+
+    for (int i = icon->getNumChildren() - 1; i >= 0; i--)
+    {
+        auto child = icon->getChild(i);
+
+        if ((child->getName() == "XArrow" && (modes & AXIS_TRANSLATE) == 0)
+            || (child->getName() == "YArrow" && (modes & AXIS_TRANSLATE) == 0)
+            || (child->getName() == "ZArrow" && (modes & AXIS_TRANSLATE) == 0)
+            || (child->getName() == "Center" && (modes & TRANSLATE) == 0)
+            || (child->getName() == "Rotate" && (modes & ROTATE) == 0))
+        {
+            icon->removeChild(child);
+        }
+    }
+}
+
 void CustomTransformInteractor::createGeometry()
 {
     if (cover->debugLevel(4))

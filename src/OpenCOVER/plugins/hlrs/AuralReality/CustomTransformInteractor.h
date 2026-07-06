@@ -9,13 +9,22 @@
 #define _CUSTOM_TRANSFORM_INTERACTOR_H
 
 #include <OpenVRUI/coRelativeInputInteraction.h>
-#include <cover/coVRIntersectionInteractor.h>
-#include <net/tokenbuffer_serializer.h>
 #include <cover/MatrixSerializer.h>
+#include <cover/coVRIntersectionInteractor.h>
 #include <net/tokenbuffer.h>
+#include <net/tokenbuffer_serializer.h>
 
 class PLUGIN_UTILEXPORT CustomTransformInteractor : public opencover::coVRIntersectionInteractor
+
 {
+public:
+    enum Modes
+    {
+        TRANSLATE = 0x1,
+        AXIS_TRANSLATE = 0x2,
+        ROTATE = 0x4,
+        ALL = 0xFF,
+    };
 
 private:
     bool m_rotateOnly = false;
@@ -39,7 +48,15 @@ protected:
     typedef vrb::SharedState<osg::Matrix> SharedMatrix;
 
 public:
-    CustomTransformInteractor(osg::Matrix m, float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, coInteraction::InteractionPriority priority);
+    CustomTransformInteractor(
+        osg::Matrix m,
+        float s,
+        coInteraction::InteractionType type,
+        const char *iconName,
+        const char *interactorName,
+        coInteraction::InteractionPriority priority);
+
+    void setModes(unsigned int modes);
 
     // delete scene graph
     virtual ~CustomTransformInteractor();

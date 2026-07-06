@@ -50,10 +50,12 @@ private:
     CustomTransformInteractor anchorInteractor;
     CustomTransformInteractor controlPointInInteractor;
     CustomTransformInteractor controlPointOutInteractor;
+    CustomTransformInteractor scaleInteractor;
 
     osg::Matrix anchor;
     osg::Vec3 controlPointIn;
     osg::Vec3 controlPointOut;
+    float scaleInteractorDistance;
 
     SelectableSensor *sensor;
 };
