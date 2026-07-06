@@ -1,6 +1,5 @@
 SET(HEADERS
  Profiling.h
- Helper.h
  openGA.h
  SensorPlacement.h
  Zone.h
@@ -11,6 +10,7 @@ SET(HEADERS
  GA.h
  Camera.h
  UDP.h
+ GridPoint.h
 )
 
 SET(SOURCES
@@ -23,6 +23,7 @@ SET(SOURCES
   GA.cpp
   Camera.cpp
   UDP.cpp
+  GridPoint.cpp
 )
 
 

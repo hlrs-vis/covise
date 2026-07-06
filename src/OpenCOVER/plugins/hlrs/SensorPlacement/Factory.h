@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Helper.h"
 #include "Camera.h"
 #include "Zone.h"
 

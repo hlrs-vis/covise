@@ -1,6 +1,5 @@
 
 #include "UI.h"
-#include "Helper.h"
 
 #include "DataManager.h"
 #include "Factory.h"

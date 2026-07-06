@@ -1,5 +1,4 @@
 #include "Camera.h"
-#include "Helper.h"
 #include "DataManager.h"
 #include "UI.h"
 #include "Profiling.h"

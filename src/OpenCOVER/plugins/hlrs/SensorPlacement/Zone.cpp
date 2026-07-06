@@ -10,7 +10,6 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/VRSceneGraph.h>
 
-#include "Helper.h"
 #include "Zone.h"
 #include "UI.h"
 #include "Sensor.h"
@@ -62,12 +61,12 @@ ZoneRectangle::ZoneRectangle(osg::Matrix matrix, float length, float width, floa
     float _interSize = cover->getSceneSize() / 50;
 
     osg::Matrix startPosInterator= osg::Matrix::translate(m_Verts->at(2)) *matrix;
-    m_Interactor= myHelpers::make_unique<coVR3DTransRotInteractor>(startPosInterator, _interSize, vrui::coInteraction::ButtonA, "hand", "Interactor", vrui::coInteraction::Medium);
+    m_Interactor= std::make_unique<coVR3DTransRotInteractor>(startPosInterator, _interSize, vrui::coInteraction::ButtonA, "hand", "Interactor", vrui::coInteraction::Medium);
     m_Interactor->show();
     m_Interactor->enableIntersection();
 
     osg::Vec3 startPosSizeInteractor= m_Verts->at(4)*matrix;
-    m_SizeInteractor = myHelpers::make_unique<coVR3DTransInteractor>(startPosSizeInteractor, _interSize, vrui::coInteraction::ButtonA, "hand", "SizeInteractor", vrui::coInteraction::Medium);
+    m_SizeInteractor = std::make_unique<coVR3DTransInteractor>(startPosSizeInteractor, _interSize, vrui::coInteraction::ButtonA, "hand", "SizeInteractor", vrui::coInteraction::Medium);
     m_SizeInteractor->show();
     m_SizeInteractor->enableIntersection();
 
@@ -84,7 +83,7 @@ ZoneRectangle::ZoneRectangle(osg::Matrix matrix, float length, float width, floa
     // m_Distance = findLargestVectorComponent(findLongestSide()) / 5;
     // std::cout << "Constructor:" <<m_Distance <<std::endl;
     osg::Vec3 startPosDistanceInteractor= (m_Verts->at(2)+pos)*matrix;
-    m_DistanceInteractor = myHelpers::make_unique<coVR3DTransInteractor>(startPosDistanceInteractor, _interSize, vrui::coInteraction::ButtonA, "hand", "DistanceInteractor", vrui::coInteraction::Medium);
+    m_DistanceInteractor = std::make_unique<coVR3DTransInteractor>(startPosDistanceInteractor, _interSize, vrui::coInteraction::ButtonA, "hand", "DistanceInteractor", vrui::coInteraction::Medium);
     m_DistanceInteractor->show();
     m_DistanceInteractor->enableIntersection();
 
@@ -905,7 +904,7 @@ std::vector<osg::Vec3> Zone::getWorldPositionOfPoints()
 SafetyZone::SafetyZone(osg::Matrix matrix, Priority prio, float length, float width , float height):
 m_Priority(prio),Zone(matrix,calcColor(prio),length, width, height)
 {   
-    m_Shape = myHelpers::make_unique<ZoneRectangle>(matrix, length, width, height,calcColor(prio),this); 
+    m_Shape = std::make_unique<ZoneRectangle>(matrix, length, width, height,calcColor(prio),this); 
     m_Group->addChild(m_Shape->getMatrixTransform());
 
 
@@ -926,7 +925,7 @@ m_Priority(prio),Zone(matrix,calcColor(prio),length, width, height)
 SafetyZone::SafetyZone(osg::Matrix matrix, Priority prio, float radius):
     m_Priority(prio),Zone(matrix,calcColor(prio), radius)
 { 
-    m_Shape = myHelpers::make_unique<ZoneSphere>(matrix, radius, calcColor(prio), this); 
+    m_Shape = std::make_unique<ZoneSphere>(matrix, radius, calcColor(prio), this); 
     m_Group->addChild(m_Shape->getMatrixTransform());
 
   
@@ -1002,7 +1001,7 @@ void SafetyZone::setPreviousZoneColor()
 SensorZone::SensorZone(SensorType type, osg::Matrix matrix,float length, float width , float height)
     :Zone(matrix,osg::Vec4{1,0,1,1},length,width,height), m_SensorType(type)
 {
-    m_Shape = myHelpers::make_unique<ZoneRectangle>(matrix, length, width, height,osg::Vec4{1,0,1,1},this); 
+    m_Shape = std::make_unique<ZoneRectangle>(matrix, length, width, height,osg::Vec4{1,0,1,1},this); 
     m_Group->addChild(m_Shape->getMatrixTransform());
 
 
@@ -1014,7 +1013,7 @@ SensorZone::SensorZone(SensorType type, osg::Matrix matrix,float length, float w
 SensorZone::SensorZone(SensorType type, osg::Matrix matrix, float radius)
     :Zone(matrix,osg::Vec4{1.0,0.0f,1.0f,0.4f},radius), m_SensorType(type)
 {
-    m_Shape = myHelpers::make_unique<ZoneSphere>(matrix, radius,osg::Vec4{1.0,0.0f,1.0f,0.4f}, this); 
+    m_Shape = std::make_unique<ZoneSphere>(matrix, radius,osg::Vec4{1.0,0.0f,1.0f,0.4f}, this); 
     m_Group->addChild(m_Shape->getMatrixTransform());
 
 

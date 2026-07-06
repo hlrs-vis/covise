@@ -1,5 +1,4 @@
 #include "UDP.h"
-#include "Helper.h"
 #include <string>
 #include <config/CoviseConfig.h>
 #include <cover/coVRMSController.h>
@@ -64,7 +63,7 @@ void UDP::initUDP()
     if(coVRMSController::instance()->isMaster())
     {
         _doRun = true;
-        _udp = myHelpers::make_unique<UDPComm>(host.c_str(), _serverPort, _localPort);
+        _udp = std::make_unique<UDPComm>(host.c_str(), _serverPort, _localPort);
         startThread();
         std::cout <<" start thread" <<std::endl;
     }

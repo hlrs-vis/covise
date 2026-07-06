@@ -1,5 +1,4 @@
 #include "Sensor.h"
-#include "Helper.h"
 #include "UI.h"
 #include "DataManager.h"
 #include "Profiling.h"
@@ -148,7 +147,8 @@ SensorPosition::SensorPosition(osg::Matrix matrix, bool visible = true):m_Curren
     m_SensorGroup->addChild(m_SensorMatrix.get());
 
     float _interSize = cover->getSceneSize() / 50 ;
-    m_Interactor = myHelpers::make_unique<coVR3DTransRotInteractor>(matrix, _interSize, vrui::coInteraction::ButtonA, "hand", "CamInteractor", vrui::coInteraction::Medium);
+    m_Interactor = std::make_unique<coVR3DTransRotInteractor>(matrix, _interSize, vrui::coInteraction::ButtonA, "hand", "CamInteractor", vrui::coInteraction::Medium);
+    // m_Interactor = myHelpers::make_unique<coVR3DTransRotInteractor>(matrix, _interSize, vrui::coInteraction::ButtonA, "hand", "CamInteractor", vrui::coInteraction::Medium);
     m_Interactor->enableIntersection();
 
 }

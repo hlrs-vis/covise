@@ -6,14 +6,13 @@
 #include <cover/coVRMSController.h>
 
 #include "SensorPlacement.h"
-#include "Helper.h"
 #include "Profiling.h"
 #include "UI.h"
 #include "DataManager.h"
 #include "GA.h"
 
 using namespace opencover;
-std::unique_ptr<UI>SensorPlacementPlugin::s_UI = myHelpers::make_unique<UI>();
+std::unique_ptr<UI>SensorPlacementPlugin::s_UI = std::make_unique<UI>();
 
 int calcNumberOfSensors()
 {
@@ -88,7 +87,7 @@ void optimize(FitnessFunctionType fitnessFunction)
   // Optimization is only done on master. Problem with random generator and multithreading on Slaves -> results are different on each slave!
   // if(coVRMSController::instance()->isMaster())
   // {
-    auto ga(myHelpers::make_unique<GA>(fitnessFunction));
+    auto ga(std::make_unique<GA>(fitnessFunction));
     finalSensorOrientations = ga->getFinalOrientations();
     SensorPlacementPlugin::s_UI->updateOptimizationResults(ga->getTotalCoverage(), ga->getPrio1Coverage(),  ga->getPrio2Coverage(), ga->getFinalFitness(), ga->getOptimizationTime()  );
   // }
