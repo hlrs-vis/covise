@@ -47,6 +47,9 @@ protected:
     void updateSharedState() override;
     typedef vrb::SharedState<osg::Matrix> SharedMatrix;
 
+    osg::ref_ptr<osg::Node> attachedNode;
+    osg::ref_ptr<osg::Group> attachedNodeOriginalParent;
+
 public:
     CustomTransformInteractor(
         osg::Matrix m,
@@ -69,6 +72,9 @@ public:
     virtual void updateTransform(osg::Matrix m);
 
     void setShared(bool state) override;
+
+    void attach(osg::ref_ptr<osg::Node> node);
+    void detach();
 };
 
 #endif

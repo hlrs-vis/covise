@@ -37,15 +37,7 @@ Speaker::Speaker(const std::string &id)
     transform->addChild(transform2);
 
     // Attach the speaker icon to the transform
-    auto icon = coVRFileManager::instance()->loadFile("share/covise/icons/speaker.glb", nullptr, transform2, "", true);
-
-    // osg::StateSet *ss = icon->getOrCreateStateSet();
-    // ss->setMode(GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::OVERRIDE);
-    //
-    // osg::ref_ptr<osg::Material> mat = new osg::Material;
-    // mat->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    // ss->setAttributeAndModes(mat, osg::StateAttribute::ON);
-
+    icon = coVRFileManager::instance()->loadFile("share/covise/icons/speaker.glb", nullptr, transform2, "", true);
     icon->setStateSet(VRSceneGraph::instance()->loadDefaultGeostate(osg::Material::AMBIENT_AND_DIFFUSE));
 
     sensor = new SelectableSensor(&(AuralRealityPlugin::instance()->selection()), this, transform.get());
@@ -100,10 +92,12 @@ void Speaker::updateSelection()
     {
         interactor.show();
         interactor.enableIntersection();
+        interactor.attach(icon);
     }
     else
     {
         interactor.hide();
         interactor.disableIntersection();
+        interactor.detach();
     }
 }

@@ -50,6 +50,24 @@ CustomTransformInteractor::~CustomTransformInteractor()
         fprintf(stderr, "\ndelete ~CustomTransformInteractor\n");
 }
 
+void CustomTransformInteractor::attach(osg::ref_ptr<osg::Node> node)
+{
+    attachedNode = node;
+    attachedNodeOriginalParent = node->getParent(0);
+
+    attachedNodeOriginalParent->removeChild(node);
+    axisTransform->addChild(node);
+}
+
+void CustomTransformInteractor::detach()
+{
+    axisTransform->removeChild(attachedNode);
+    attachedNodeOriginalParent->addChild(attachedNode);
+
+    attachedNodeOriginalParent = nullptr;
+    attachedNode = nullptr;
+}
+
 void CustomTransformInteractor::setModes(unsigned int modes)
 {
     auto icon = dynamic_cast<osg::Group *>(axisTransform->getChild(0));

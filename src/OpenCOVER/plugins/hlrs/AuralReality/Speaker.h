@@ -50,6 +50,7 @@ private:
     std::string id;
     CustomTransformInteractor interactor;
     osg::ref_ptr<osg::MatrixTransform> transform;
+    osg::ref_ptr<osg::Node> icon;
     SpeakerProperties properties;
 
     osg::Matrix offset;
