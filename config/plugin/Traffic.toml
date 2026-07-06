@@ -1,0 +1,140 @@
+[models]
+
+pedestrian = [
+    {name = "CH02_01", scale = 0.04},
+    {name = "CH02_02", scale = 0.04},
+    {name = "CH02_03", scale = 0.04},
+    {name = "CH02_04", scale = 0.04},
+    {name = "CH02_05", scale = 0.04},
+    {name = "CH02_06", scale = 0.04},
+    {name = "CH02_07", scale = 0.04},
+    {name = "CH02_08", scale = 0.04},
+    {name = "CH02_09", scale = 0.04},
+    {name = "CH02_10", scale = 0.04},
+    {name = "CP01_01", scale = 0.02},
+    {name = "CP01_02", scale = 0.04},
+    {name = "CP01_03", scale = 0.04},
+    {name = "CP01_04", scale = 0.04},
+    {name = "CP01_05", scale = 0.04},
+    {name = "CP01_06", scale = 0.04},
+    {name = "CP01_07", scale = 0.04},
+    {name = "CP01_08", scale = 0.04},
+    {name = "CP01_09", scale = 0.04},
+    {name = "CP01_10", scale = 0.04},
+    {name = "CW_01", scale = 0.04},
+    {name = "CW_02", scale = 0.04},
+    {name = "CW_03", scale = 0.04},
+    {name = "CW_04", scale = 0.04},
+    {name = "CW_05", scale = 0.04},
+    {name = "CW_06", scale = 0.04},
+    {name = "CW_07", scale = 0.04},
+    {name = "CW_08", scale = 0.04},
+    {name = "CW_09", scale = 0.04},
+    {name = "CW_10", scale = 0.04},
+    {name = "ST01_01", scale = 0.04},
+    {name = "ST01_02", scale = 0.04},
+    {name = "ST01_03", scale = 0.04},
+    {name = "ST01_04", scale = 0.04},
+    {name = "ST01_05", scale = 0.04},
+    {name = "ST01_06", scale = 0.04},
+    {name = "ST01_07", scale = 0.04},
+    {name = "ST01_08", scale = 0.04},
+    {name = "ST01_09", scale = 0.04},
+    {name = "ST01_10", scale = 0.04},
+]
+
+[[models.passenger]]
+name="Audi_TT" 
+path="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge/audi/tt_white_nrm_s_h_p.wrl"
+
+[[models.passenger]]
+name = "Audi_A4" 
+path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge/audi/a4_red_nrm_s_h_p.wrl"
+
+[[models.passenger]]
+name = "BMW_Z3" 
+path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/bmw/z3_black_big_s_h_p.wrl"
+
+[[models.passenger]]
+name = "Renault_Clio" 
+path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/renault/clio_grey_nrm_s_h_p.wrl"
+
+[[models.passenger]]
+name = "Seat_Ibiza" 
+path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/seat/ibiza_orange_nrm_s_h_p.wrl"
+
+[[models.passenger]]
+name = "Smart" 
+path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/smart/smart_pink_sml_s_h_p.wrl"
+
+[[models.passenger]]
+name = "Honda_Civic" 
+path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/honda/civic_green_nrm_s_h_p.wrl"
+
+[[models.passenger]]
+name = "Landcruiser" 
+path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/toyota/landcruiser_brown_nrm_s_h_p.wrl"
+
+[[models.passenger]]
+name = "Volvo" 
+path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/volvo/volvo_blue_nrm_s_h_p.wrl"
+
+[[models.passenger]]
+name = "Ford_Ka" 
+path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/ford/ka_yellow_sml_s_h_p.wrl"
+
+[[models.passenger]]
+name = "BmW_Z3green" 
+path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/bmw/z3_green_big_s_h_p.wrl"
+
+[[models.passenger]]
+name = "VW_Golf" 
+path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/vw/golf3_grey_sml_s_h_p.wrl"
+
+[[models.passenger]]
+name = "Audi_R8" 
+path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/audi/r8/Audi_R8_s_h_p.wrl"
+
+[[models.passenger]]
+name = "car_bmw_i3" 
+path = "/data/OpenPass/cars/bmw/i3.WRL"
+
+[[models.passenger]]
+name = "car_bmw_7_1" 
+path = "/data/OpenPass/cars/bmw/7_1.wrl"
+
+[[models.passenger]]
+name = "car_bmw_7_2" 
+path = "/data/OpenPass/cars/bmw/7_2.wrl"
+
+[[models.passenger]]
+name = "car_bmw_3" 
+path = "/data/OpenPass/cars/bmw/3.wrl"
+
+[[models.passenger]]
+name = "car_mini_cooper" 
+path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/mini/mini_red_s_h_p.wrl"
+
+[[models.truck]]
+name = "DAF_white" 
+path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/daf/DAF_white_s_h_p.wrl"
+
+[[models.truck]]
+name = "DAF_blue" 
+path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/daf/DAF_blue_s_h_p.wrl"
+
+[[models.truck]]
+name = "bus" 
+path = "/data/OpenPass/cars/bus/Citaro.wrl"
+
+[[models.bus]]
+name = "Shuttle" 
+path = "/data/campus/Shuttle/Shuttle.wrl"
+
+[[models.bicycle]]
+name = "ElectricScooter" 
+path = "/data/campus/Scooter/scooterOnly.WRL"
+
+[[models.bicycle]]
+name = "ElectricScooter_ST01_09" 
+path = "/data/campus/Scooter/scooterFemaleRiderScaleNew.WRL"

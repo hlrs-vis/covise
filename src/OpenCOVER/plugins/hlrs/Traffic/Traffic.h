@@ -20,8 +20,8 @@
 #include <vector>
 
 #include "Geometry.h"
-#include "ConnectorZmq.h"
-// #include "sumo/ConnectorSumo.h"
+// #include "ConnectorZmq.h"
+#include "sumo/ConnectorSumo.h"
 
 struct VehicleState
 {
@@ -104,7 +104,7 @@ private:
     SimulationState previousSimulationState;
     std::map<std::string, Vehicle> vehicles;
 
-    ConnectorZmq connector;
+    ConnectorSumo connector;
 
     // References to OSG nodes
     osg::ref_ptr<osg::Switch> trafficGroup;
