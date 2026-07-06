@@ -15,10 +15,10 @@
 
 using namespace opencover;
 
-inline double lerp(double a, double b, double f)
-{
-    return a + (b - a) * f;
-}
+// inline double lerp(double a, double b, double f)
+// {
+//     return a + (b - a) * f;
+// }
 inline double unlerp(double a, double b, double f)
 {
     return (f - a) / (b - a);

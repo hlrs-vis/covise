@@ -12,16 +12,20 @@ enum Status {
 
 message StatusCommand {
   Status status = 1;
-  float speed = 1;
+  float speed = 2;
 }
 
 
 message Command {
   oneof command {
     StatusCommand status_command = 1;
-    SpeedCommand speed_command = 2;
-    RestartCommand restart_command = 3;
   }
+}
+
+message Vector {
+  double x = 1;
+  double y = 2;
+  double z = 3;
 }
 
 message VehicleState {
@@ -30,12 +34,11 @@ message VehicleState {
   double position_in_edge = 3;
   double speed = 4;
   double acceleration = 5;
-  double x = 6;
-  double y = 7;
-  double z = 8;
-  double angle = 9;
 
-  double status = 100;
+  Vector position = 6;
+  double angle = 7;
+
+  repeated Vector trajectory = 10;
 }
 
 message SimulationState {

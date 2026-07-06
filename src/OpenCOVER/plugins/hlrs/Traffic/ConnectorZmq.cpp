@@ -50,10 +50,11 @@ bool ConnectorZmq::update(double deltaTime, double simulationDeltaTime)
 
     for (auto v : state.vehicles())
     {
+        auto p = v.position();
         vehicles.push_back(VehicleState {
             v.id(),
             "passenger",
-            osg::Vec3d(v.x(), v.y(), v.z()),
+            osg::Vec3d(p.x(), p.y(), p.z()),
             v.angle(),
         });
     }
