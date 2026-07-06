@@ -66,8 +66,18 @@ void TrajectoryPoint::preFrame()
     anchorInteractor.preFrame();
     if (anchorInteractor.isRunning())
     {
+        osg::Matrix before = anchor;
         anchor = anchorInteractor.getMatrix();
         anchorNode->setMatrix(anchor);
+
+        controlPointIn = (osg::Matrix::translate(controlPointIn) * osg::Matrix::inverse(before) * anchor).getTrans();
+        controlPointInNode->setMatrix(osg::Matrix::translate(controlPointIn));
+        controlPointInInteractor.updateTransform(osg::Matrix::translate(controlPointIn));
+
+        controlPointOut = (osg::Matrix::translate(controlPointOut) * osg::Matrix::inverse(before) * anchor).getTrans();
+        controlPointOutNode->setMatrix(osg::Matrix::translate(controlPointOut));
+        controlPointOutInteractor.updateTransform(osg::Matrix::translate(controlPointOut));
+
         changed = true;
     }
 
