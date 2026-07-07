@@ -8,6 +8,7 @@
 #include "Traffic.h"
 
 #include <cmath>
+#include <cover/VRSceneGraph.h>
 #include <iostream>
 #include <random>
 
@@ -137,15 +138,12 @@ bool Traffic::update()
 
 void Traffic::preFrame()
 {
-    previousTime = currentTime;
-    currentTime = opencover::cover->frameTime();
+    double deltaTime = opencover::cover->frameDuration();
 
-    if (previousTime == 0.0)
+    if (deltaTime <= 0.0)
     {
         return;
     }
-
-    double deltaTime = currentTime - previousTime;
 
     const double simulationSpeed = pauseButton->state() ? 0.0 : simulationSpeedSlider->value();
 
@@ -155,7 +153,7 @@ void Traffic::preFrame()
         processNewResults();
     }
 
-    interpolateVehiclePosition(deltaTime);
+    interpolateVehiclePosition(deltaTime * simulationSpeed);
 }
 
 void Traffic::sendSimResults()
@@ -242,6 +240,12 @@ void Traffic::readSimResults()
     // }
 }
 
+osg::Vec2 toVec2(osg::Vec3 v) { return osg::Vec2(v.x(), v.y()); }
+float distanceRatio(osg::Vec2 x, osg::Vec2 y)
+{
+    return (x * y) / y.length2();
+}
+
 void Traffic::processNewResults()
 {
     for (auto &vehicleState : currentSimulationState.vehicles)
@@ -270,14 +274,52 @@ void Traffic::processNewResults()
             vehicle.position = vehicleState.position;
             vehicle.heading = vehicleState.angle;
 
-            vehicle.targetPosition = vehicle.position;
-            vehicle.targetHeading = vehicle.heading;
+            vehicle.targetPosition = vehicleState.position;
+            vehicle.targetHeading = vehicleState.angle;
+            vehicle.targetSpeed = vehicleState.speed;
+
+            vehicle.sourcePosition = vehicleState.position;
+            vehicle.sourceHeading = vehicleState.angle;
+            vehicle.sourceSpeed = vehicleState.speed;
+
+            vehicle.timeFromSourceToTarget = 1.0;
+            vehicle.timeSinceSource = 0.0;
         }
         else
         {
             Vehicle &vehicle = currentEntity->second;
+
+            vehicle.sourcePosition = vehicle.targetPosition;
+            vehicle.sourceHeading = vehicle.targetHeading;
+            vehicle.sourceSpeed = vehicle.targetSpeed;
+
             vehicle.targetPosition = vehicleState.position;
             vehicle.targetHeading = vehicleState.angle;
+            vehicle.targetSpeed = vehicleState.speed;
+
+            vehicle.timeSinceSource = 0.0;
+            vehicle.timeFromSourceToTarget = 0.2; // TODO: use simulation dt here
+
+            // Compute bezier points
+            osg::Vec3 forward0(cos(vehicle.sourceHeading), sin(vehicle.sourceHeading), 0);
+            vehicle.p0 = vehicle.sourcePosition;
+            vehicle.p1 = vehicle.p0 + forward0 * vehicle.sourceSpeed * 0.333 * vehicle.timeFromSourceToTarget;
+
+            osg::Vec3 forward3(cos(vehicle.targetHeading), sin(vehicle.targetHeading), 0);
+            vehicle.p3 = vehicle.targetPosition;
+            vehicle.p2 = vehicle.p3 - forward3 * vehicle.targetSpeed * 0.333 * vehicle.timeFromSourceToTarget;
+
+            // Fix interpolation points z height
+            vehicle.p1.z() = lerp(vehicle.p0.z(), vehicle.p3.z(),
+                distanceRatio(toVec2(vehicle.p1 - vehicle.p0), toVec2(vehicle.p3 - vehicle.p0)));
+
+            vehicle.p2.z() = lerp(vehicle.p0.z(), vehicle.p3.z(),
+                distanceRatio(toVec2(vehicle.p2 - vehicle.p0), toVec2(vehicle.p3 - vehicle.p0)));
+
+            vehicle.points[0]->setMatrix(osg::Matrix::translate(vehicle.p0));
+            vehicle.points[1]->setMatrix(osg::Matrix::translate(vehicle.p1));
+            vehicle.points[2]->setMatrix(osg::Matrix::translate(vehicle.p2));
+            vehicle.points[3]->setMatrix(osg::Matrix::translate(vehicle.p3));
         }
     }
 }
@@ -293,35 +335,38 @@ double lerp_angle(double a, double b, double f)
     return a + angle_difference(a, b) * f;
 }
 
+template <typename T>
+T cubic_bezier(T p0, T p1, T p2, T p3, float t)
+{
+    float t1 = 1.f - t;
+    return p0 * (t1 * t1 * t1) + p1 * (3 * t1 * t1 * t) + p2 * (3 * t1 * t * t) + p3 * (t * t * t);
+}
+
+template <typename T>
+T cubic_bezier_tangent(T p0, T p1, T p2, T p3, float t)
+{
+    float t1 = 1.f - t;
+    return p0 * (-3 * t1 * t1) + p1 * (3 * t1 * t1) - p1 * (6 * t * t1) - p2 * (3 * t * t) + p2 * (6 * t * t1) + p3 * (3 * t * t);
+}
+
 void Traffic::interpolateVehiclePosition(double deltaTime)
 {
-    // float timeToDest = 1 - (currentTime - lastResultTime);
-
-    // Drive a little slower so that if we have jitter in network
-    // communication, we don't see that in the car movement.
-    // TODO: Validate this methods works as intended.
-    // timeToDest *= 0.9;
-
     // Loop over all entities and compute their new position
     for (auto &[_, vehicle] : vehicles)
     {
-        // TODO: Interpolation instead of this immediate update
-        vehicle.position = vehicle.targetPosition;
-        vehicle.heading = vehicle.targetHeading;
+        vehicle.timeSinceSource += deltaTime;
 
-        // osg::Vec3 velocity();
-        // double angular_velocity = 0.0;
-        //
-        // if (timeToDest > 0.9999) {
-        //     velocity = (vehicle.targetPosition - vehicle.position) * timeToDest;
-        //     // TODO: check direction
-        //     angular_velocity = angle_difference(vehicle.targetAngle, vehicle.angle) * timeToDest;
-        // }
-        // vehicle.position += velocity * deltaTime;
-        // vehicle.angle = angular_velocity * deltaTime;
+        float t = std::clamp(vehicle.timeSinceSource / vehicle.timeFromSourceToTarget, 0.0, 1.05);
+
+        vehicle.position = cubic_bezier(vehicle.p0, vehicle.p1, vehicle.p2, vehicle.p3, t);
+        auto tan = cubic_bezier_tangent(vehicle.p0, vehicle.p1, vehicle.p2, vehicle.p3, t);
+        vehicle.heading = lerp_angle(vehicle.sourceHeading, vehicle.targetHeading, t);
+        // vehicle.heading = atan2(tan.y(), tan.x());
+        vehicle.pitch = -asin(tan.z() / tan.length());
+        vehicle.speed = tan.length() / vehicle.timeFromSourceToTarget;
 
         // Update position of the geometry
-        vehicle.geometry->setTransform(vehicle.position, vehicle.heading);
+        vehicle.geometry->setTransform(vehicle.position, vehicle.heading, vehicle.pitch);
         vehicle.geometry->update(deltaTime);
     }
 }
@@ -342,6 +387,26 @@ double Traffic::interpolateAngles(double lambda, double pastAngle, double future
     double interpolatedPosition = futureAngle + (1.0 - lambda) * (pastAngle - futureAngle);
     return interpolatedPosition;
 }
+
+osg::ref_ptr<osg::Geode> makeSphere(osg::Vec4 color)
+{
+    osg::Sphere *mySphere = new osg::Sphere(osg::Vec3(0, 0, 0), 0.3);
+    osg::TessellationHints *hint = new osg::TessellationHints();
+    hint->setDetailRatio(0.5);
+    osg::ShapeDrawable *mySphereDrawable = new osg::ShapeDrawable(mySphere, hint);
+    mySphereDrawable->setColor(color);
+    auto geode = new osg::Geode();
+    geode->addDrawable(mySphereDrawable);
+    geode->setStateSet(opencover::VRSceneGraph::instance()->loadDefaultGeostate(osg::Material::AMBIENT_AND_DIFFUSE));
+    return geode;
+}
+
+osg::Vec4 colors[] = {
+    { 1, 0, 0, 1 },
+    { 1, 1, 0, 1 },
+    { 0, 1, 0, 1 },
+    { 0, 1, 1, 1 },
+};
 
 Vehicle &Traffic::createVehicle(const std::string &id, const VehicleClass &vehicleClass)
 {
@@ -365,7 +430,16 @@ Vehicle &Traffic::createVehicle(const std::string &id, const VehicleClass &vehic
         geometry = std::make_unique<CarGeometry>(id, model.fileName, parent);
     }
 
-    return vehicles.emplace(id, Vehicle { std::move(geometry) }).first->second;
+    auto &v = vehicles.emplace(id, Vehicle { std::move(geometry), &model }).first->second;
+
+    for (int i = 0; i < 4; i++)
+    {
+        osg::ref_ptr<osg::MatrixTransform> t = new osg::MatrixTransform;
+        t->addChild(makeSphere(colors[i]));
+        opencover::cover->getObjectsRoot()->addChild(t);
+        v.points[i] = t;
+    }
+    return v;
 }
 
 void Traffic::loadVehicleClasses()

@@ -14,6 +14,7 @@
 #include <cover/ui/Owner.h>
 #include <cover/ui/Slider.h>
 
+#include <osg/MatrixTransform>
 #include <osg/ShapeDrawable>
 
 #include <random>
@@ -29,6 +30,7 @@ struct VehicleState
     std::string vehicleClass;
     osg::Vec3d position;
     double angle = 0.0;
+    double speed = 0.0;
 };
 
 struct SimulationState
@@ -41,6 +43,10 @@ struct VehicleModel
     std::string name;
     std::string fileName;
     double scale = 1;
+
+    double front_axis = 1.2;
+    double back_axis = -1.2;
+    double length = 3.2;
 };
 
 enum GeometryType : uint8_t
@@ -68,6 +74,7 @@ struct VehicleClass
 struct Vehicle
 {
     std::unique_ptr<Geometry> geometry;
+    const VehicleModel *model;
 
     osg::Vec3 position;
 
@@ -75,10 +82,25 @@ struct Vehicle
     // radians, from positive X, counter-clockwise around positive Z
     // (right hand rule).
     double heading;
+    double pitch;
 
+    double speed;
+
+    // This is where we want to be
     osg::Vec3 targetPosition;
     double targetHeading;
-    double timeToTarget = 0.0;
+    double targetSpeed;
+    double timeFromSourceToTarget = 0.0;
+
+    // This is where we were when a new target was set
+    osg::Vec3 sourcePosition;
+    double sourceHeading;
+    double sourceSpeed;
+    double timeSinceSource = 0.0;
+
+    osg::Vec3 p0, p1, p2, p3;
+
+    osg::ref_ptr<osg::MatrixTransform> points[4];
 };
 
 class Traffic : public opencover::coVRPlugin, public opencover::ui::Owner
@@ -120,8 +142,6 @@ private:
     void getVehiclesFromConfig();
     bool connected = false;
     double lastResultTime = 0.0;
-    double previousTime = 0.0;
-    double currentTime = 0.0;
     int timeStep = 0;
     std::vector<int> variables;
 

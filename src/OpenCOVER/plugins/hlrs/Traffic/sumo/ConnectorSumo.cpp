@@ -99,6 +99,13 @@ bool ConnectorSumo::update(double deltaTime, double simulationDeltaTime)
     return updated;
 }
 
+double sumoAngleToMath(double angle)
+{
+    // See https://github.com/eclipse-sumo/sumo/issues/1372
+    // Return a normal math angle that works with sin/cos, i.e. radians, counter-clockwise, from positive X-axis.
+    return ((90.0 - angle) / 180.0) * M_PI;
+}
+
 void ConnectorSumo::getSimulationState(SimulationState &state)
 {
     state.vehicles.clear();
@@ -110,13 +117,15 @@ void ConnectorSumo::getSimulationState(SimulationState &state)
     for (const auto &[key, item] : vehicles)
     {
         const auto &pos = std::dynamic_pointer_cast<const libsumo::TraCIPosition>(item.at(VAR_POSITION3D));
+        const double speed = std::dynamic_pointer_cast<const libsumo::TraCIDouble>(item.at(VAR_SPEED))->value;
         const double angle = std::dynamic_pointer_cast<const libsumo::TraCIDouble>(item.at(VAR_ANGLE))->value;
 
         state.vehicles.push_back(VehicleState {
             key,
             std::dynamic_pointer_cast<const libsumo::TraCIString>(item.at(VAR_VEHICLECLASS))->value,
             osg::Vec3d(pos->x, pos->y, pos->z),
-            M_PI_2 - osg::DegreesToRadians(angle),
+            sumoAngleToMath(angle),
+            speed,
         });
     }
     //

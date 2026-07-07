@@ -15,7 +15,7 @@ class Geometry
 {
 public:
     virtual void setTransform(osg::Matrix transform) = 0;
-    void setTransform(osg::Vec3 position, double heading);
+    void setTransform(osg::Vec3 position, double heading, double pitch = 0.0);
 
     // Called when the model was updated, can be used to track state,
     // derive current and past behaviour, and update graphis.

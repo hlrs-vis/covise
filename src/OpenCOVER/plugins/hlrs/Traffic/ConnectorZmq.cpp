@@ -56,6 +56,7 @@ bool ConnectorZmq::update(double deltaTime, double simulationDeltaTime)
             "passenger",
             osg::Vec3d(p.x(), p.y(), p.z()),
             v.angle(),
+            v.speed(),
         });
     }
 

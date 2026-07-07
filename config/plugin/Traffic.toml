@@ -46,95 +46,167 @@ pedestrian = [
 [[models.passenger]]
 name="Audi_TT" 
 path="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge/audi/tt_white_nrm_s_h_p.wrl"
+front_axis = 1.15765
+back_axis = -1.27835
+length = 4.041
 
 [[models.passenger]]
 name = "Audi_A4" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge/audi/a4_red_nrm_s_h_p.wrl"
+front_axis = 1.35341
+back_axis = -1.29659
+length = 4.55
 
 [[models.passenger]]
 name = "BMW_Z3" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/bmw/z3_black_big_s_h_p.wrl"
+front_axis = 1.29208
+back_axis = -1.19103
+length = 4.0431
 
 [[models.passenger]]
 name = "Renault_Clio" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/renault/clio_grey_nrm_s_h_p.wrl"
+front_axis = 1.12494
+back_axis = -1.22942
+length = 3.70764
 
 [[models.passenger]]
 name = "Seat_Ibiza" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/seat/ibiza_orange_nrm_s_h_p.wrl"
+front_axis = 1.12249
+back_axis = -1.36065
+length = 3.83686
 
 [[models.passenger]]
 name = "Smart" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/smart/smart_pink_sml_s_h_p.wrl"
+front_axis = 1.06592
+back_axis = -0.804076
+length = 2.28289
 
 [[models.passenger]]
 name = "Honda_Civic" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/honda/civic_green_nrm_s_h_p.wrl"
+front_axis = 1.20658
+back_axis = -1.3609
+length = 4.07815
 
 [[models.passenger]]
 name = "Landcruiser" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/toyota/landcruiser_brown_nrm_s_h_p.wrl"
+front_axis = 1.55956
+back_axis = -1.28604
+length = 4.80898
 
 [[models.passenger]]
 name = "Volvo" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/volvo/volvo_blue_nrm_s_h_p.wrl"
+front_axis = 1.38538
+back_axis = -1.25495
+length = 4.68527
 
 [[models.passenger]]
 name = "Ford_Ka" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/ford/ka_yellow_sml_s_h_p.wrl"
+front_axis = 1.201
+back_axis = -1.376
+length = 3.70341
 
 [[models.passenger]]
 name = "BmW_Z3green" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/bmw/z3_green_big_s_h_p.wrl"
+front_axis = 1.29208
+back_axis = -1.19103
+length = 4.0431
 
 [[models.passenger]]
 name = "VW_Golf" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/vw/golf3_grey_sml_s_h_p.wrl"
+front_axis = 1.17976
+back_axis = -1.33024
+length = 4.1411
 
 [[models.passenger]]
 name = "Audi_R8" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/audi/r8/Audi_R8_s_h_p.wrl"
+front_axis = 1.17923
+back_axis = -1.47584
+length = 4.43777
 
 [[models.passenger]]
 name = "car_bmw_i3" 
 path = "/data/OpenPass/cars/bmw/i3.WRL"
+front_axis = 1.35438
+back_axis = -1.21117
+length = 3.95949
 
 [[models.passenger]]
 name = "car_bmw_7_1" 
 path = "/data/OpenPass/cars/bmw/7_1.wrl"
+front_axis = 1.48156
+back_axis = -1.76327
+length = 5.44024
 
 [[models.passenger]]
 name = "car_bmw_7_2" 
 path = "/data/OpenPass/cars/bmw/7_2.wrl"
+front_axis = 1.44989
+back_axis = -1.80291
+length = 5.44024
 
 [[models.passenger]]
 name = "car_bmw_3" 
 path = "/data/OpenPass/cars/bmw/3.wrl"
+front_axis = 1.27455
+back_axis = -1.37377
+length = 4.36034
 
 [[models.passenger]]
 name = "car_mini_cooper" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/mini/mini_red_s_h_p.wrl"
+front_axis = 1.14035
+back_axis = -1.2942
+length = 3.59934
 
 [[models.truck]]
 name = "DAF_white" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/daf/DAF_white_s_h_p.wrl"
+front_axis = 2.03493
+back_axis = -1.50476
+length = 5.99275
 
 [[models.truck]]
 name = "DAF_blue" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/daf/DAF_blue_s_h_p.wrl"
+front_axis = 2.03493
+back_axis = -1.50476
+length = 5.99275
 
 [[models.truck]]
 name = "bus" 
 path = "/data/OpenPass/cars/bus/Citaro.wrl"
+front_axis = 6.4558
+back_axis = 0.5113
+length = 12.2194
 
 [[models.bus]]
 name = "Shuttle" 
 path = "/data/campus/Shuttle/Shuttle.wrl"
+front_axis = 1.62656
+back_axis = -1.62458
+length = 4.97729
 
 [[models.bicycle]]
 name = "ElectricScooter" 
 path = "/data/campus/Scooter/scooterOnly.WRL"
+front_axis = 0.487716
+back_axis = -0.368596
+length = 1.10676
 
 [[models.bicycle]]
 name = "ElectricScooter_ST01_09" 
 path = "/data/campus/Scooter/scooterFemaleRiderScaleNew.WRL"
+front_axis = 0.487716
+back_axis = -0.368596
+length = 1.10676
