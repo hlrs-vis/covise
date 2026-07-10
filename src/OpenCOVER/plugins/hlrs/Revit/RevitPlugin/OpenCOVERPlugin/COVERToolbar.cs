@@ -333,8 +333,6 @@ namespace OpenCOVERPlugin
             string assemblyname = typeof(COVERToolbar).Assembly.GetName().Name;
             string dllName = directoryName + @"\" + assemblyname + ".dll";
 
-            PushButtonData setupData = new PushButtonData("OpenFOAM Simulate", "Simulate", dllName, "BIM.OpenFOAMExport.OpenFOAMSimulateCommand");
-
             // create a button on the panel.
             RibbonPanel ribbonPanelPushButtons = application.CreateRibbonPanel(panelName);
 
