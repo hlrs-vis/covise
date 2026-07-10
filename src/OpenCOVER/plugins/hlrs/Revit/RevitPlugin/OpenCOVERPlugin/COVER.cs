@@ -331,6 +331,10 @@ namespace OpenCOVERPlugin
             if (connected)
             {
                 pushButtonConnectToOpenCOVER.LargeImage = connectedImage;
+                if (cApplication == null)
+                {
+                    return;
+                }
                 cApplication.Idling += idlingHandler;
             }
             else
@@ -2509,7 +2513,7 @@ namespace OpenCOVERPlugin
                 {
                     travel = pt[0].AsDouble();
                 }
-                //pt = fi.GetParameters("Öffnungsweite Schiebetüre in %");
+                //pt = fi.GetParameters("ï¿½ffnungsweite Schiebetï¿½re in %");
                 ParameterSet para = fi.Parameters;
                 foreach (Parameter p in para)
                 {
@@ -3190,7 +3194,7 @@ namespace OpenCOVERPlugin
                 string libraryPath = "";
                 doc.Application.GetLibraryPaths().TryGetValue("Metric Library", out libraryPath);
 
-                //string _family_folder = libraryPath + "/Außenbauteile/RPC 3D-Objekte/";
+                //string _family_folder = libraryPath + "/Auï¿½enbauteile/RPC 3D-Objekte/";
                 string _family_folder = libraryPath + "";
 
                 //string _family_path = _family_folder + "/RPC Mann.rfa";
@@ -4105,7 +4109,13 @@ namespace OpenCOVERPlugin
                     setConnected(false);
                 }
 
-                toCOVER = new TcpClient(host, port);
+                try
+                {
+                    toCOVER = new TcpClient(host, port);
+                } catch(Exception e) {
+                    System.Windows.Forms.MessageBox.Show("Could not connect to OpenCOVER on " + host + ", port " + port + "\n" + e.Message);
+                    return false;
+                }
                 if (toCOVER.Connected)
                 {
                     // Sends data immediately upon calling NetworkStream.Write.
