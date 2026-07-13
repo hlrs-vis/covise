@@ -117,7 +117,7 @@ void CarGeometry::update(double deltaTime)
     // vehicle.speed = tan.length() / vehicle.timeFromSourceToTarget;
 
     // Let the back axle follow the position
-    double backAxleLength = abs(vehicle.model->back_axis - vehicle.model->front_axis);
+    double backAxleLength = abs(vehicle.model->backAxle - vehicle.model->frontAxle);
     osg::Vec3 backAxleDir = backAxle - vehicle.position;
     backAxleDir.normalize();
     backAxle = vehicle.position + backAxleDir * backAxleLength;
@@ -126,7 +126,7 @@ void CarGeometry::update(double deltaTime)
     vehicle.pitch = asin(backAxleDir.z() / backAxleDir.length());
 
     // TODO: actually rotate from axle placement
-    auto matrix = (osg::Matrix::translate(osg::Vec3d(-vehicle.model->front_axis, 0, 0))
+    auto matrix = (osg::Matrix::translate(osg::Vec3d(-vehicle.model->frontAxle, 0, 0))
         * osg::Matrix::rotate(vehicle.pitch, osg::Vec3d(0, 1, 0))
         * osg::Matrix::rotate(vehicle.heading, osg::Vec3d(0, 0, 1))
         * osg::Matrix::translate(vehicle.position));

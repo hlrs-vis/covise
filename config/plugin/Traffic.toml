@@ -51,127 +51,127 @@ type = "vehicle"
 [[vehicleClasses.passenger.models]]
 name="Audi_TT" 
 path="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge/audi/tt_white_nrm_s_h_p.wrl"
-front_axis = 1.15765
-back_axis = -1.27835
+frontAxle = 1.15765
+backAxle = -1.27835
 length = 4.041
 
 [[vehicleClasses.passenger.models]]
 name = "Audi_A4" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge/audi/a4_red_nrm_s_h_p.wrl"
-front_axis = 1.35341
-back_axis = -1.29659
+frontAxle = 1.35341
+backAxle = -1.29659
 length = 4.55
 
 [[vehicleClasses.passenger.models]]
 name = "BMW_Z3" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/bmw/z3_black_big_s_h_p.wrl"
-front_axis = 1.29208
-back_axis = -1.19103
+frontAxle = 1.29208
+backAxle = -1.19103
 length = 4.0431
 
 [[vehicleClasses.passenger.models]]
 name = "Renault_Clio" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/renault/clio_grey_nrm_s_h_p.wrl"
-front_axis = 1.12494
-back_axis = -1.22942
+frontAxle = 1.12494
+backAxle = -1.22942
 length = 3.70764
 
 [[vehicleClasses.passenger.models]]
 name = "Seat_Ibiza" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/seat/ibiza_orange_nrm_s_h_p.wrl"
-front_axis = 1.12249
-back_axis = -1.36065
+frontAxle = 1.12249
+backAxle = -1.36065
 length = 3.83686
 
 [[vehicleClasses.passenger.models]]
 name = "Smart" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/smart/smart_pink_sml_s_h_p.wrl"
-front_axis = 1.06592
-back_axis = -0.804076
+frontAxle = 1.06592
+backAxle = -0.804076
 length = 2.28289
 
 [[vehicleClasses.passenger.models]]
 name = "Honda_Civic" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/honda/civic_green_nrm_s_h_p.wrl"
-front_axis = 1.20658
-back_axis = -1.3609
+frontAxle = 1.20658
+backAxle = -1.3609
 length = 4.07815
 
 [[vehicleClasses.passenger.models]]
 name = "Landcruiser" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/toyota/landcruiser_brown_nrm_s_h_p.wrl"
-front_axis = 1.55956
-back_axis = -1.28604
+frontAxle = 1.55956
+backAxle = -1.28604
 length = 4.80898
 
 [[vehicleClasses.passenger.models]]
 name = "Volvo" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/volvo/volvo_blue_nrm_s_h_p.wrl"
-front_axis = 1.38538
-back_axis = -1.25495
+frontAxle = 1.38538
+backAxle = -1.25495
 length = 4.68527
 
 [[vehicleClasses.passenger.models]]
 name = "Ford_Ka" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/ford/ka_yellow_sml_s_h_p.wrl"
-front_axis = 1.201
-back_axis = -1.376
+frontAxle = 1.201
+backAxle = -1.376
 length = 3.70341
 
 [[vehicleClasses.passenger.models]]
 name = "BmW_Z3green" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/bmw/z3_green_big_s_h_p.wrl"
-front_axis = 1.29208
-back_axis = -1.19103
+frontAxle = 1.29208
+backAxle = -1.19103
 length = 4.0431
 
 [[vehicleClasses.passenger.models]]
 name = "VW_Golf" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/vw/golf3_grey_sml_s_h_p.wrl"
-front_axis = 1.17976
-back_axis = -1.33024
+frontAxle = 1.17976
+backAxle = -1.33024
 length = 4.1411
 
 [[vehicleClasses.passenger.models]]
 name = "Audi_R8" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/audi/r8/Audi_R8_s_h_p.wrl"
-front_axis = 1.17923
-back_axis = -1.47584
+frontAxle = 1.17923
+backAxle = -1.47584
 length = 4.43777
 
 [[vehicleClasses.passenger.models]]
 name = "car_bmw_i3" 
 path = "/data/OpenPass/cars/bmw/i3.WRL"
-front_axis = 1.35438
-back_axis = -1.21117
+frontAxle = 1.35438
+backAxle = -1.21117
 length = 3.95949
 
 [[vehicleClasses.passenger.models]]
 name = "car_bmw_7_1" 
 path = "/data/OpenPass/cars/bmw/7_1.wrl"
-front_axis = 1.48156
-back_axis = -1.76327
+frontAxle = 1.48156
+backAxle = -1.76327
 length = 5.44024
 
 [[vehicleClasses.passenger.models]]
 name = "car_bmw_7_2" 
 path = "/data/OpenPass/cars/bmw/7_2.wrl"
-front_axis = 1.44989
-back_axis = -1.80291
+frontAxle = 1.44989
+backAxle = -1.80291
 length = 5.44024
 
 [[vehicleClasses.passenger.models]]
 name = "car_bmw_3" 
 path = "/data/OpenPass/cars/bmw/3.wrl"
-front_axis = 1.27455
-back_axis = -1.37377
+frontAxle = 1.27455
+backAxle = -1.37377
 length = 4.36034
 
 [[vehicleClasses.passenger.models]]
 name = "car_mini_cooper" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/mini/mini_red_s_h_p.wrl"
-front_axis = 1.14035
-back_axis = -1.2942
+frontAxle = 1.14035
+backAxle = -1.2942
 length = 3.59934
 
 [vehicleClasses.truck]
@@ -181,22 +181,22 @@ type = "vehicle"
 [[vehicleClasses.truck.models]]
 name = "DAF_white" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/daf/DAF_white_s_h_p.wrl"
-front_axis = 2.03493
-back_axis = -1.50476
+frontAxle = 2.03493
+backAxle = -1.50476
 length = 5.99275
 
 [[vehicleClasses.truck.models]]
 name = "DAF_blue" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/daf/DAF_blue_s_h_p.wrl"
-front_axis = 2.03493
-back_axis = -1.50476
+frontAxle = 2.03493
+backAxle = -1.50476
 length = 5.99275
 
 [[vehicleClasses.truck.models]]
 name = "bus" 
 path = "/data/OpenPass/cars/bus/Citaro.wrl"
-front_axis = 6.4558
-back_axis = 0.5113
+frontAxle = 6.4558
+backAxle = 0.5113
 length = 12.2194
 
 [vehicleClasses.bus]
@@ -206,8 +206,8 @@ type = "vehicle"
 [[vehicleClasses.bus.models]]
 name = "Shuttle" 
 path = "/data/campus/Shuttle/Shuttle.wrl"
-front_axis = 1.62656
-back_axis = -1.62458
+frontAxle = 1.62656
+backAxle = -1.62458
 length = 4.97729
 
 [vehicleClasses.scooter]
@@ -217,15 +217,15 @@ type = "vehicle"
 [[vehicleClasses.scooter.models]]
 name = "ElectricScooter" 
 path = "/data/campus/Scooter/scooterOnly.WRL"
-front_axis = 0.487716
-back_axis = -0.368596
+frontAxle = 0.487716
+backAxle = -0.368596
 length = 1.10676
 
 [[vehicleClasses.scooter.models]]
 name = "ElectricScooter_ST01_09" 
 path = "/data/campus/Scooter/scooterFemaleRiderScaleNew.WRL"
-front_axis = 0.487716
-back_axis = -0.368596
+frontAxle = 0.487716
+backAxle = -0.368596
 length = 1.10676
 
 [vehicleClasses.bicycle]

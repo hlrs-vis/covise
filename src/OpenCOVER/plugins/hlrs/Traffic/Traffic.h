@@ -46,8 +46,8 @@ struct VehicleModel
     std::string path;
     double scale = 1;
 
-    double front_axis = 1.2;
-    double back_axis = -1.2;
+    double frontAxle = 1.2;
+    double backAxle = -1.2;
     double length = 3.2;
 };
 

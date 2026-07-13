@@ -438,8 +438,8 @@ void Traffic::loadVehicleClasses()
                 modelSection.value<std::string>("", "name")->value(),
                 modelSection.value<std::string>("", "path")->value(),
                 modelSection.value<double>("", "scale", 1.0)->value(),
-                modelSection.value<double>("", "front_axis", 0.0)->value(),
-                modelSection.value<double>("", "back_axis", 0.0)->value(),
+                modelSection.value<double>("", "frontAxle", 0.0)->value(),
+                modelSection.value<double>("", "backAxle", 0.0)->value(),
                 modelSection.value<double>("", "length", 0.0)->value(),
             });
         }
