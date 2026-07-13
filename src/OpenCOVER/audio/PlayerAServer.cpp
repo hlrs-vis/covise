@@ -32,7 +32,8 @@ using namespace opencover::audio;
 
 #define MAX_BUFLEN 1024
 
-namespace {
+namespace
+{
 
 int errno_sys()
 {
@@ -53,7 +54,7 @@ int close(int fd)
 }
 
 PlayerAServer::PlayerAServer(const Listener *listener, const std::string &host, int port, bool isMaster)
-    : Player(listener,isMaster)
+    : Player(listener, isMaster)
     , asFd(-1)
     , asHost(host)
     , asPort(port)
@@ -72,7 +73,7 @@ void PlayerAServer::connect()
     if (!isMaster)
     {
         asFd = -1;
-    cerr << "AServer::connect() not Master" << endl;
+        cerr << "AServer::connect() not Master" << endl;
         return;
     }
     cerr << "AServer::connect()2" << endl;
@@ -151,7 +152,8 @@ void PlayerAServer::connect()
 
         getsockopt(asFd, SOL_SOCKET, SO_ERROR, &so_error, &len);
 
-        if (so_error != 0) {
+        if (so_error != 0)
+        {
             CERR << "connecting socket failed: " << strerror(errno_sys()) << endl;
             close(asFd);
             asFd = -1;
@@ -184,17 +186,14 @@ bool PlayerAServer::isConnected() const
     return asFd != -1;
 }
 
-int PlayerAServer::send_cmd(const char *cmd) const
+int PlayerAServer::sendCommand(std::string_view cmd) const
 {
-    // fprintf(stderr, "AudioServer: %s\n", cmd);
-    size_t len = strlen(cmd);
-    char *buf = new char[len + 1];
-    memcpy(buf, cmd, len);
-    buf[len] = '\n';
-    return send_data(buf, (int)len + 1, false);
+    std::string buf = std::string(cmd) + "\n";
+    std::cout << "OOOOO " << cmd << std::endl;
+    return sendData(buf.c_str(), buf.length());
 }
 
-int PlayerAServer::send_data(const char *data, int size, bool swapped) const
+int PlayerAServer::sendData(const char *data, int size) const
 {
     if (asFd == -1)
     {
@@ -202,21 +201,6 @@ int PlayerAServer::send_data(const char *data, int size, bool swapped) const
     }
 
     char *buf = NULL;
-    if (swapped)
-    {
-        if (size % 2)
-        {
-            CERR << "odd: odd number of bytes to swap" << endl;
-            return -1;
-        }
-        buf = new char[size];
-        for (int i = 0; i < size; i += 2)
-        {
-            buf[i] = data[i + 1];
-            buf[i + 1] = data[i];
-        }
-        data = buf;
-    }
 
     int written = 0;
     do
@@ -267,11 +251,6 @@ int PlayerAServer::send_data(const char *data, int size, bool swapped) const
         // fprintf(stderr, "n=%d\n", n);
         written += n;
     } while (written < size);
-
-    if (swapped)
-    {
-        delete[] buf;
-    }
 
     if (written < size)
     {
@@ -375,7 +354,7 @@ void PlayerAServer::Source::loadAudio(const Audio *audio)
 
     char msg[MAX_BUFLEN];
     snprintf(msg, sizeof(msg), "GHDL %s", path.filename().c_str());
-    if (player->send_cmd(msg) < 0)
+    if (player->sendCommand(msg) < 0)
     {
         CERR << "writing GHDL command failed" << endl;
         asHandle = -1;
@@ -400,7 +379,7 @@ void PlayerAServer::Source::loadAudio(const Audio *audio)
 
         size_t file_size = std::filesystem::file_size(path);
         snprintf(msg, sizeof(msg), "PTFI %s %lu\r", path.filename().c_str(), file_size);
-        if (player->send_cmd(msg) < 0)
+        if (player->sendCommand(msg) < 0)
         {
             CERR << "writing command failed" << endl;
         }
@@ -411,7 +390,7 @@ void PlayerAServer::Source::loadAudio(const Audio *audio)
         for (size_t i = 0; i < file_size; i += 4096)
         {
             size_t s = fread(buf, 1, 4096, fd);
-            if (player->send_data(buf, s) < 0)
+            if (player->sendData(buf, s) < 0)
             {
                 CERR << "writing data failed" << endl;
             }
@@ -419,7 +398,7 @@ void PlayerAServer::Source::loadAudio(const Audio *audio)
 
         // Try again to get handle
         snprintf(msg, sizeof(msg), "GHDL %s", path.filename().c_str());
-        if (player->send_cmd(msg) != 0)
+        if (player->sendCommand(msg) != 0)
         {
             CERR << "writing command failed" << endl;
             asHandle = -1;
@@ -438,10 +417,10 @@ void PlayerAServer::Source::loadAudio(const Audio *audio)
     if (asHandle >= 0)
     {
         snprintf(msg, sizeof(msg), "SSVO %d 0.0", asHandle);
-        player->send_cmd(msg);
+        player->sendCommand(msg);
 
         snprintf(msg, sizeof(msg), "SSPO %d 0.0 0.0 0.0", asHandle);
-        player->send_cmd(msg);
+        player->sendCommand(msg);
     }
 }
 
@@ -453,7 +432,7 @@ void PlayerAServer::Source::setAudio(const Audio *audio)
     {
         snprintf(msg, sizeof(msg), "RHDL %d", asHandle);
         const PlayerAServer *player = (PlayerAServer *)this->player;
-        player->send_cmd(msg);
+        player->sendCommand(msg);
     }
 
     loadAudio(audio);
@@ -471,7 +450,7 @@ PlayerAServer::Source::~Source()
     {
         snprintf(msg, sizeof(msg), "RHDL %d", asHandle);
         const PlayerAServer *player = (PlayerAServer *)this->player;
-        player->send_cmd(msg);
+        player->sendCommand(msg);
     }
 }
 
@@ -483,7 +462,7 @@ void PlayerAServer::Source::play(double start)
     {
         snprintf(msg, sizeof(msg), "PLAY %d %f", asHandle, start);
         const PlayerAServer *player = (PlayerAServer *)this->player;
-        if (player->send_cmd(msg) < 0)
+        if (player->sendCommand(msg) < 0)
         {
             CERR << "playing handle " << asHandle << " failed" << endl;
         }
@@ -507,7 +486,7 @@ void PlayerAServer::Source::stop()
     {
         snprintf(msg, sizeof(msg), "STOP %d", asHandle);
         const PlayerAServer *player = (PlayerAServer *)this->player;
-        player->send_cmd(msg);
+        player->sendCommand(msg);
     }
 }
 
@@ -534,7 +513,7 @@ void PlayerAServer::Source::update(const Player *genericPlayer)
         if (odirection != direction || ointensity != intensity)
         {
             snprintf(msg, sizeof(msg), "SSDV %d %f %f", asHandle, direction, intensity);
-            player->send_cmd(msg);
+            player->sendCommand(msg);
             ointensity = intensity;
             odirection = direction;
         }
@@ -544,7 +523,7 @@ void PlayerAServer::Source::update(const Player *genericPlayer)
         if (ointensity != intensity)
         {
             snprintf(msg, sizeof(msg), "SSVO %d %f", asHandle, intensity);
-            player->send_cmd(msg);
+            player->sendCommand(msg);
         }
     }
 
@@ -552,14 +531,14 @@ void PlayerAServer::Source::update(const Player *genericPlayer)
     {
         // snprintf(msg, sizeof(msg), "SSVE %d %f %f %f", asHandle, v.x, v.y, v.z);
         snprintf(msg, sizeof(msg), "SSVE %d %f", asHandle, glm::length(v));
-        player->send_cmd(msg);
+        player->sendCommand(msg);
         ov = v;
     }
 
     if (opitch != pitch)
     {
         snprintf(msg, sizeof(msg), "SSPI %d %f", asHandle, pitch);
-        player->send_cmd(msg);
+        player->sendCommand(msg);
         opitch = pitch;
     }
 }
@@ -574,7 +553,7 @@ void PlayerAServer::Source::setLoop(bool loop)
     {
         snprintf(msg, sizeof(msg), "SSLP %d %d", asHandle, loop ? 1 : 0);
         const PlayerAServer *player = (PlayerAServer *)this->player;
-        player->send_cmd(msg);
+        player->sendCommand(msg);
     }
 }
 

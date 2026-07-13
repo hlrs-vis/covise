@@ -22,8 +22,8 @@ public:
     virtual ~PlayerAServer();
     virtual std::unique_ptr<opencover::audio::Source> makeSource(const Audio *audio) override;
 
-    virtual int send_cmd(const char *cmd) const;
-    virtual int send_data(const char *data, int size, bool swapped = false) const;
+    virtual int sendCommand(std::string_view cmd) const;
+    virtual int sendData(const char *data, int size) const;
     virtual int read_answer(char *buf, int maxsize) const;
     bool isConnected() const;
 
