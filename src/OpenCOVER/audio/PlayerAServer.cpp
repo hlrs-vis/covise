@@ -537,7 +537,7 @@ void PlayerAServer::Source::update(const Player *genericPlayer)
 
     if (opitch != pitch)
     {
-        snprintf(msg, sizeof(msg), "SSPI %d %f", asHandle, pitch);
+        snprintf(msg, sizeof(msg), "SPIT %d %f", asHandle, pitch);
         player->sendCommand(msg);
         opitch = pitch;
     }
