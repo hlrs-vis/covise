@@ -315,10 +315,12 @@ void Traffic::processNewResults()
             vehicle.p2.z() = lerp(vehicle.p0.z(), vehicle.p3.z(),
                 distanceRatio(toVec2(vehicle.p2 - vehicle.p0), toVec2(vehicle.p3 - vehicle.p0)));
 
+#ifdef TRAFFIC_DEBUG_DRAW
             vehicle.points[0]->setMatrix(osg::Matrix::translate(vehicle.p0));
             vehicle.points[1]->setMatrix(osg::Matrix::translate(vehicle.p1));
             vehicle.points[2]->setMatrix(osg::Matrix::translate(vehicle.p2));
             vehicle.points[3]->setMatrix(osg::Matrix::translate(vehicle.p3));
+#endif
         }
     }
 }
@@ -434,6 +436,7 @@ Vehicle &Traffic::createVehicle(const std::string &id, const VehicleClass &vehic
 
     auto &v = vehicles.emplace(id, Vehicle { std::move(geometry), &model }).first->second;
 
+#ifdef TRAFFIC_DEBUG_DRAW
     for (int i = 0; i < 4; i++)
     {
         osg::ref_ptr<osg::MatrixTransform> t = new osg::MatrixTransform;
@@ -441,6 +444,8 @@ Vehicle &Traffic::createVehicle(const std::string &id, const VehicleClass &vehic
         opencover::cover->getObjectsRoot()->addChild(t);
         v.points[i] = t;
     }
+#endif
+
     return v;
 }
 

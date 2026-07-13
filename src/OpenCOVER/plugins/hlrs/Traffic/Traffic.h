@@ -24,6 +24,8 @@
 // #include "ConnectorZmq.h"
 #include "sumo/ConnectorSumo.h"
 
+// #define TRAFFIC_DEBUG_DRAW
+
 struct VehicleState
 {
     std::string id;
@@ -100,7 +102,9 @@ struct Vehicle
 
     osg::Vec3 p0, p1, p2, p3;
 
+#ifdef TRAFFIC_DEBUG_DRAW
     osg::ref_ptr<osg::MatrixTransform> points[4];
+#endif
 };
 
 class Traffic : public opencover::coVRPlugin, public opencover::ui::Owner
