@@ -26,8 +26,6 @@ public:
     void updateTrajectory();
     void update(double deltaTime);
 
-    void setTransform(osg::Matrix transform);
-
 protected:
     Vehicle &vehicle;
     static osg::Node *loadFile(const std::string &file);

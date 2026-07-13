@@ -112,9 +112,11 @@ void PedestrianGeometry::removeFromSceneGraph()
 
 void PedestrianGeometry::update(double deltaTime)
 {
-    osg::Vec3 position = transformNode->getMatrix().getTrans();
-    double distance = (previousPosition - position).length();
-    previousPosition = position;
+    auto matrix = osg::Matrix::rotate(vehicle.heading, osg::Vec3d(0, 0, 1)) * osg::Matrix::translate(vehicle.position);
+    transformNode->setMatrix(matrix);
+
+    double distance = (previousPosition - vehicle.position).length();
+    previousPosition = vehicle.position;
 
     if (deltaTime > 0)
     {
@@ -166,11 +168,6 @@ void PedestrianGeometry::setWalkingSpeed(double speed)
     //     }
     // }
     //
-}
-
-void PedestrianGeometry::setTransform(osg::Matrix transform)
-{
-    transformNode->setMatrix(transform);
 }
 
 /**

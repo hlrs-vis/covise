@@ -115,16 +115,15 @@ void CarGeometry::update(double deltaTime)
     // vehicle.heading = atan2(tan.y(), tan.x());
     vehicle.pitch = -asin(tan.z() / tan.length());
     vehicle.speed = tan.length() / vehicle.timeFromSourceToTarget;
+
+    // TODO: actually rotate from axle placement
+    auto matrix = osg::Matrix::rotate(vehicle.pitch, osg::Vec3d(0, 1, 0)) * osg::Matrix::rotate(vehicle.heading, osg::Vec3d(0, 0, 1)) * osg::Matrix::translate(vehicle.position);
+    transformNode->setMatrix(matrix);
 }
 
 CarGeometry::~CarGeometry()
 {
     removeFromSceneGraph();
-}
-
-void CarGeometry::setTransform(osg::Matrix transform)
-{
-    transformNode->setMatrix(transform);
 }
 
 void CarGeometry::removeFromSceneGraph()

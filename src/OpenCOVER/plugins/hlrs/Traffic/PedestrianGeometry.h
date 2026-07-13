@@ -40,8 +40,6 @@ public:
     PedestrianGeometry(Vehicle &vehicle, osg::Group *parentNode);
     ~PedestrianGeometry();
 
-    void setTransform(osg::Matrix transform);
-
     void update(double deltaTime);
 
 protected:

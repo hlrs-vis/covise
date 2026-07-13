@@ -312,7 +312,6 @@ void Traffic::interpolateVehiclePosition(double deltaTime)
     {
 
         // Update position of the geometry
-        vehicle.geometry->setTransform(vehicle.position, vehicle.heading, vehicle.pitch);
         vehicle.geometry->update(deltaTime);
     }
 }
