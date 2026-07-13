@@ -36,6 +36,7 @@ protected:
     osg::ref_ptr<osg::LOD> lodNode;
 
     osg::Vec3 p0, p1, p2, p3;
+    osg::Vec3 backAxle;
 };
 
 #endif

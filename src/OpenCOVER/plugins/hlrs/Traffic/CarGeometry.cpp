@@ -111,13 +111,25 @@ void CarGeometry::update(double deltaTime)
 
     vehicle.position = cubic_bezier(p0, p1, p2, p3, t);
     auto tan = cubic_bezier_tangent(p0, p1, p2, p3, t);
-    vehicle.heading = lerp_angle(vehicle.sourceHeading, vehicle.targetHeading, t);
+    // vehicle.heading = lerp_angle(vehicle.sourceHeading, vehicle.targetHeading, t);
     // vehicle.heading = atan2(tan.y(), tan.x());
-    vehicle.pitch = -asin(tan.z() / tan.length());
-    vehicle.speed = tan.length() / vehicle.timeFromSourceToTarget;
+    // vehicle.pitch = -asin(tan.z() / tan.length());
+    // vehicle.speed = tan.length() / vehicle.timeFromSourceToTarget;
+
+    // Let the back axle follow the position
+    double backAxleLength = abs(vehicle.model->back_axis - vehicle.model->front_axis);
+    osg::Vec3 backAxleDir = backAxle - vehicle.position;
+    backAxleDir.normalize();
+    backAxle = vehicle.position + backAxleDir * backAxleLength;
+
+    vehicle.heading = atan2(-backAxleDir.y(), -backAxleDir.x());
+    vehicle.pitch = asin(backAxleDir.z() / backAxleDir.length());
 
     // TODO: actually rotate from axle placement
-    auto matrix = osg::Matrix::rotate(vehicle.pitch, osg::Vec3d(0, 1, 0)) * osg::Matrix::rotate(vehicle.heading, osg::Vec3d(0, 0, 1)) * osg::Matrix::translate(vehicle.position);
+    auto matrix = (osg::Matrix::translate(osg::Vec3d(-vehicle.model->front_axis, 0, 0))
+        * osg::Matrix::rotate(vehicle.pitch, osg::Vec3d(0, 1, 0))
+        * osg::Matrix::rotate(vehicle.heading, osg::Vec3d(0, 0, 1))
+        * osg::Matrix::translate(vehicle.position));
     transformNode->setMatrix(matrix);
 }
 
