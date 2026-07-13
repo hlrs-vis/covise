@@ -15,10 +15,11 @@
 
 #include "Geometry.h"
 
+class VehicleModel;
 class CarGeometry : public Geometry
 {
 public:
-    CarGeometry(const std::string &name, const std::string &fileName, osg::Group *parentNode);
+    CarGeometry(const std::string &name, const VehicleModel &vehicleModel, osg::Group *parentNode);
     ~CarGeometry();
 
     void setTransform(osg::Matrix transform);

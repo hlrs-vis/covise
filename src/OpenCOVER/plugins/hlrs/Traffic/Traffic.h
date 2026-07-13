@@ -41,7 +41,7 @@ struct SimulationState
 struct VehicleModel
 {
     std::string name;
-    std::string fileName;
+    std::string path;
     double scale = 1;
 
     double front_axis = 1.2;
@@ -54,9 +54,9 @@ enum GeometryType : uint8_t
     // A simple static mesh, moving around.
     STATIC,
 
-    // A car geometry may have steerable and turning wheels and conditional
+    // A vehicle geometry may have steerable and turning wheels and conditional
     // lights like break lights and turn indicators.
-    CAR,
+    VEHICLE,
 
     // Using cal3d/osgcal for character rendering with
     // skeleton/skin animations.
@@ -67,7 +67,7 @@ enum GeometryType : uint8_t
 struct VehicleClass
 {
     std::string name;
-    GeometryType geometryType = GeometryType::CAR;
+    GeometryType geometryType = GeometryType::VEHICLE;
     std::vector<VehicleModel> models;
 };
 

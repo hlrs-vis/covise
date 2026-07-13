@@ -33,10 +33,11 @@ constexpr double SPEED_RUN = 3.0f;
 // Generally avoid abrupt motion changes
 constexpr double ANIMATION_BLEND_TIME = 0.1;
 
+class VehicleModel;
 class PedestrianGeometry : public Geometry
 {
 public:
-    PedestrianGeometry(const std::string &name, const std::string &fileName, double scale, osg::Group *parentNode);
+    PedestrianGeometry(const std::string &name, const VehicleModel &vehicleModel, osg::Group *parentNode);
     ~PedestrianGeometry();
 
     void setTransform(osg::Matrix transform);

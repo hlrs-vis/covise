@@ -14,7 +14,6 @@
 
 #include <PluginUtil/PluginMessageTypes.h>
 #include <boost/algorithm/string.hpp>
-#include <config/CoviseConfig.h>
 #include <cover/coVRFileManager.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRPluginSupport.h>
@@ -423,11 +422,14 @@ Vehicle &Traffic::createVehicle(const std::string &id, const VehicleClass &vehic
     switch (vehicleClass.geometryType)
     {
     case GeometryType::CHARACTER:
-        geometry = std::make_unique<PedestrianGeometry>(id, model.fileName, model.scale, parent);
+        geometry = std::make_unique<PedestrianGeometry>(id, model, parent);
+        break;
+
     // case GeometryType::STATIC:
-    case GeometryType::CAR:
+    case GeometryType::VEHICLE:
     default:
-        geometry = std::make_unique<CarGeometry>(id, model.fileName, parent);
+        geometry = std::make_unique<CarGeometry>(id, model, parent);
+        break;
     }
 
     auto &v = vehicles.emplace(id, Vehicle { std::move(geometry), &model }).first->second;
@@ -446,26 +448,31 @@ void Traffic::loadVehicleClasses()
 {
     vehicleClasses.clear();
 
-    const auto &entries = covise::coCoviseConfig::getScopeEntries("COVER.Plugin.Traffic.VehicleClasses");
+    auto configFile = config();
 
-    for (auto &it : entries)
+    auto vehicleClassesSection = configFile->value<opencover::config::Section>("", "vehicleClasses")->value();
+    auto vehicleClassNames = vehicleClassesSection.sections();
+
+    for (auto sectionName : vehicleClassNames)
     {
-        const std::string &vehicleClassName = it.first;
+        std::string vehicleClassName = sectionName;
+        vehicleClassName.replace(0, 15, "");
+
+        opencover::config::Section entry = vehicleClassesSection.value<opencover::config::Section>("", vehicleClassName)->value();
 
         auto &vehicleClass = vehicleClasses[vehicleClassName];
         vehicleClass.name = vehicleClassName;
 
-        std::string geometryType = covise::coCoviseConfig::getEntry(
-            "value", "COVER.Plugin.Traffic.VehicleClasses." + vehicleClassName + ".GeometryType", "car");
+        std::string geometryType = entry.value<std::string>("", "type", "vehicle")->value();
         boost::algorithm::to_lower(geometryType);
 
         if (geometryType == "static")
         {
             vehicleClass.geometryType = GeometryType::STATIC;
         }
-        else if (geometryType == "car")
+        else if (geometryType == "vehicle")
         {
-            vehicleClass.geometryType = GeometryType::CAR;
+            vehicleClass.geometryType = GeometryType::VEHICLE;
         }
         else if (geometryType == "character")
         {
@@ -476,22 +483,18 @@ void Traffic::loadVehicleClasses()
             std::cerr << "[Traffic] VehicleClass " << vehicleClassName << " has invalid GeometryType: " << geometryType << std::endl;
         }
 
-        const auto &entries = covise::coCoviseConfig::getScopeEntries("COVER.Plugin.Traffic.VehicleClasses." + vehicleClassName + ".Models");
+        auto modelSections = entry.array<opencover::config::Section>("", "models")->value();
 
-        for (auto &entry : entries)
+        for (auto modelSection : modelSections)
         {
-            // TODO: Character models are not scaled properly in the imported
-            // file. They use the key as name and fileName, and the value for a
-            // scaling factor. If we can, we should fix the scale in the model
-            // itself and remove the extra scaling here.
-            if (vehicleClass.geometryType == GeometryType::CHARACTER)
-            {
-                vehicleClass.models.push_back(VehicleModel { entry.first, entry.first, atof(entry.second.c_str()) });
-            }
-            else
-            {
-                vehicleClass.models.push_back(VehicleModel { entry.first, entry.second });
-            }
+            vehicleClass.models.push_back(VehicleModel {
+                modelSection.value<std::string>("", "name")->value(),
+                modelSection.value<std::string>("", "path")->value(),
+                modelSection.value<double>("", "scale", 1.0)->value(),
+                modelSection.value<double>("", "front_axis", 0.0)->value(),
+                modelSection.value<double>("", "back_axis", 0.0)->value(),
+                modelSection.value<double>("", "length", 0.0)->value(),
+            });
         }
 
         // construct temporary geometry objects to preload models
@@ -501,14 +504,16 @@ void Traffic::loadVehicleClasses()
             {
             case GeometryType::CHARACTER:
             {
-                PedestrianGeometry geo("dummy", model.fileName, model.scale, nullptr);
+                PedestrianGeometry geo("dummy", model, nullptr);
+                break;
             }
 
                 // case GeometryType::STATIC:
-            case GeometryType::CAR:
+            case GeometryType::VEHICLE:
             default:
             {
-                CarGeometry geo("dummy", model.fileName, nullptr);
+                CarGeometry geo("dummy", model, nullptr);
+                break;
             }
             }
         }

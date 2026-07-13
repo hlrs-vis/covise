@@ -1,212 +1,238 @@
-[models]
-
-pedestrian = [
-    {name = "CH02_01", scale = 0.04},
-    {name = "CH02_02", scale = 0.04},
-    {name = "CH02_03", scale = 0.04},
-    {name = "CH02_04", scale = 0.04},
-    {name = "CH02_05", scale = 0.04},
-    {name = "CH02_06", scale = 0.04},
-    {name = "CH02_07", scale = 0.04},
-    {name = "CH02_08", scale = 0.04},
-    {name = "CH02_09", scale = 0.04},
-    {name = "CH02_10", scale = 0.04},
-    {name = "CP01_01", scale = 0.02},
-    {name = "CP01_02", scale = 0.04},
-    {name = "CP01_03", scale = 0.04},
-    {name = "CP01_04", scale = 0.04},
-    {name = "CP01_05", scale = 0.04},
-    {name = "CP01_06", scale = 0.04},
-    {name = "CP01_07", scale = 0.04},
-    {name = "CP01_08", scale = 0.04},
-    {name = "CP01_09", scale = 0.04},
-    {name = "CP01_10", scale = 0.04},
-    {name = "CW_01", scale = 0.04},
-    {name = "CW_02", scale = 0.04},
-    {name = "CW_03", scale = 0.04},
-    {name = "CW_04", scale = 0.04},
-    {name = "CW_05", scale = 0.04},
-    {name = "CW_06", scale = 0.04},
-    {name = "CW_07", scale = 0.04},
-    {name = "CW_08", scale = 0.04},
-    {name = "CW_09", scale = 0.04},
-    {name = "CW_10", scale = 0.04},
-    {name = "ST01_01", scale = 0.04},
-    {name = "ST01_02", scale = 0.04},
-    {name = "ST01_03", scale = 0.04},
-    {name = "ST01_04", scale = 0.04},
-    {name = "ST01_05", scale = 0.04},
-    {name = "ST01_06", scale = 0.04},
-    {name = "ST01_07", scale = 0.04},
-    {name = "ST01_08", scale = 0.04},
-    {name = "ST01_09", scale = 0.04},
-    {name = "ST01_10", scale = 0.04},
+[vehicleClasses.pedestrian]
+name = "Pedestrians"
+type = "character"
+models = [
+    {name = "CH02_01", path="/data/cal3d/CH02_01/CH02_01.cfg", scale = 0.04},
+    {name = "CH02_02", path="/data/cal3d/CH02_02/CH02_02.cfg", scale = 0.04},
+    {name = "CH02_03", path="/data/cal3d/CH02_03/CH02_03.cfg", scale = 0.04},
+    {name = "CH02_04", path="/data/cal3d/CH02_04/CH02_04.cfg", scale = 0.04},
+    {name = "CH02_05", path="/data/cal3d/CH02_05/CH02_05.cfg", scale = 0.04},
+    {name = "CH02_06", path="/data/cal3d/CH02_06/CH02_06.cfg", scale = 0.04},
+    {name = "CH02_07", path="/data/cal3d/CH02_07/CH02_07.cfg", scale = 0.04},
+    {name = "CH02_08", path="/data/cal3d/CH02_08/CH02_08.cfg", scale = 0.04},
+    {name = "CH02_09", path="/data/cal3d/CH02_09/CH02_09.cfg", scale = 0.04},
+    {name = "CH02_10", path="/data/cal3d/CH02_10/CH02_10.cfg", scale = 0.04},
+    {name = "CP01_01", path="/data/cal3d/CP01_01/CP01_01.cfg", scale = 0.02},
+    {name = "CP01_02", path="/data/cal3d/CP01_02/CP01_02.cfg", scale = 0.04},
+    {name = "CP01_03", path="/data/cal3d/CP01_03/CP01_03.cfg", scale = 0.04},
+    {name = "CP01_04", path="/data/cal3d/CP01_04/CP01_04.cfg", scale = 0.04},
+    {name = "CP01_05", path="/data/cal3d/CP01_05/CP01_05.cfg", scale = 0.04},
+    {name = "CP01_06", path="/data/cal3d/CP01_06/CP01_06.cfg", scale = 0.04},
+    {name = "CP01_07", path="/data/cal3d/CP01_07/CP01_07.cfg", scale = 0.04},
+    {name = "CP01_08", path="/data/cal3d/CP01_08/CP01_08.cfg", scale = 0.04},
+    {name = "CP01_09", path="/data/cal3d/CP01_09/CP01_09.cfg", scale = 0.04},
+    {name = "CP01_10", path="/data/cal3d/CP01_10/CP01_10.cfg", scale = 0.04},
+    {name = "CW_01", path="/data/cal3d/CW_01/CW_01.cfg", scale = 0.04},
+    {name = "CW_02", path="/data/cal3d/CW_02/CW_02.cfg", scale = 0.04},
+    {name = "CW_03", path="/data/cal3d/CW_03/CW_03.cfg", scale = 0.04},
+    {name = "CW_04", path="/data/cal3d/CW_04/CW_04.cfg", scale = 0.04},
+    {name = "CW_05", path="/data/cal3d/CW_05/CW_05.cfg", scale = 0.04},
+    {name = "CW_06", path="/data/cal3d/CW_06/CW_06.cfg", scale = 0.04},
+    {name = "CW_07", path="/data/cal3d/CW_07/CW_07.cfg", scale = 0.04},
+    {name = "CW_08", path="/data/cal3d/CW_08/CW_08.cfg", scale = 0.04},
+    {name = "CW_09", path="/data/cal3d/CW_09/CW_09.cfg", scale = 0.04},
+    {name = "CW_10", path="/data/cal3d/CW_10/CW_10.cfg", scale = 0.04},
+    {name = "ST01_01", path="/data/cal3d/ST01_01/ST01_01.cfg", scale = 0.04},
+    {name = "ST01_02", path="/data/cal3d/ST01_02/ST01_02.cfg", scale = 0.04},
+    {name = "ST01_03", path="/data/cal3d/ST01_03/ST01_03.cfg", scale = 0.04},
+    {name = "ST01_04", path="/data/cal3d/ST01_04/ST01_04.cfg", scale = 0.04},
+    {name = "ST01_05", path="/data/cal3d/ST01_05/ST01_05.cfg", scale = 0.04},
+    {name = "ST01_06", path="/data/cal3d/ST01_06/ST01_06.cfg", scale = 0.04},
+    {name = "ST01_07", path="/data/cal3d/ST01_07/ST01_07.cfg", scale = 0.04},
+    {name = "ST01_08", path="/data/cal3d/ST01_08/ST01_08.cfg", scale = 0.04},
+    {name = "ST01_09", path="/data/cal3d/ST01_09/ST01_09.cfg", scale = 0.04},
+    {name = "ST01_10", path="/data/cal3d/ST01_10/ST01_10.cfg", scale = 0.04},
 ]
 
-[[models.passenger]]
+[vehicleClasses.passenger]
+name = "Passenger cars"
+type = "vehicle"
+
+[[vehicleClasses.passenger.models]]
 name="Audi_TT" 
 path="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge/audi/tt_white_nrm_s_h_p.wrl"
 front_axis = 1.15765
 back_axis = -1.27835
 length = 4.041
 
-[[models.passenger]]
+[[vehicleClasses.passenger.models]]
 name = "Audi_A4" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge/audi/a4_red_nrm_s_h_p.wrl"
 front_axis = 1.35341
 back_axis = -1.29659
 length = 4.55
 
-[[models.passenger]]
+[[vehicleClasses.passenger.models]]
 name = "BMW_Z3" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/bmw/z3_black_big_s_h_p.wrl"
 front_axis = 1.29208
 back_axis = -1.19103
 length = 4.0431
 
-[[models.passenger]]
+[[vehicleClasses.passenger.models]]
 name = "Renault_Clio" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/renault/clio_grey_nrm_s_h_p.wrl"
 front_axis = 1.12494
 back_axis = -1.22942
 length = 3.70764
 
-[[models.passenger]]
+[[vehicleClasses.passenger.models]]
 name = "Seat_Ibiza" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/seat/ibiza_orange_nrm_s_h_p.wrl"
 front_axis = 1.12249
 back_axis = -1.36065
 length = 3.83686
 
-[[models.passenger]]
+[[vehicleClasses.passenger.models]]
 name = "Smart" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/smart/smart_pink_sml_s_h_p.wrl"
 front_axis = 1.06592
 back_axis = -0.804076
 length = 2.28289
 
-[[models.passenger]]
+[[vehicleClasses.passenger.models]]
 name = "Honda_Civic" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/honda/civic_green_nrm_s_h_p.wrl"
 front_axis = 1.20658
 back_axis = -1.3609
 length = 4.07815
 
-[[models.passenger]]
+[[vehicleClasses.passenger.models]]
 name = "Landcruiser" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/toyota/landcruiser_brown_nrm_s_h_p.wrl"
 front_axis = 1.55956
 back_axis = -1.28604
 length = 4.80898
 
-[[models.passenger]]
+[[vehicleClasses.passenger.models]]
 name = "Volvo" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/volvo/volvo_blue_nrm_s_h_p.wrl"
 front_axis = 1.38538
 back_axis = -1.25495
 length = 4.68527
 
-[[models.passenger]]
+[[vehicleClasses.passenger.models]]
 name = "Ford_Ka" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/ford/ka_yellow_sml_s_h_p.wrl"
 front_axis = 1.201
 back_axis = -1.376
 length = 3.70341
 
-[[models.passenger]]
+[[vehicleClasses.passenger.models]]
 name = "BmW_Z3green" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/bmw/z3_green_big_s_h_p.wrl"
 front_axis = 1.29208
 back_axis = -1.19103
 length = 4.0431
 
-[[models.passenger]]
+[[vehicleClasses.passenger.models]]
 name = "VW_Golf" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/vw/golf3_grey_sml_s_h_p.wrl"
 front_axis = 1.17976
 back_axis = -1.33024
 length = 4.1411
 
-[[models.passenger]]
+[[vehicleClasses.passenger.models]]
 name = "Audi_R8" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/audi/r8/Audi_R8_s_h_p.wrl"
 front_axis = 1.17923
 back_axis = -1.47584
 length = 4.43777
 
-[[models.passenger]]
+[[vehicleClasses.passenger.models]]
 name = "car_bmw_i3" 
 path = "/data/OpenPass/cars/bmw/i3.WRL"
 front_axis = 1.35438
 back_axis = -1.21117
 length = 3.95949
 
-[[models.passenger]]
+[[vehicleClasses.passenger.models]]
 name = "car_bmw_7_1" 
 path = "/data/OpenPass/cars/bmw/7_1.wrl"
 front_axis = 1.48156
 back_axis = -1.76327
 length = 5.44024
 
-[[models.passenger]]
+[[vehicleClasses.passenger.models]]
 name = "car_bmw_7_2" 
 path = "/data/OpenPass/cars/bmw/7_2.wrl"
 front_axis = 1.44989
 back_axis = -1.80291
 length = 5.44024
 
-[[models.passenger]]
+[[vehicleClasses.passenger.models]]
 name = "car_bmw_3" 
 path = "/data/OpenPass/cars/bmw/3.wrl"
 front_axis = 1.27455
 back_axis = -1.37377
 length = 4.36034
 
-[[models.passenger]]
+[[vehicleClasses.passenger.models]]
 name = "car_mini_cooper" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/mini/mini_red_s_h_p.wrl"
 front_axis = 1.14035
 back_axis = -1.2942
 length = 3.59934
 
-[[models.truck]]
+[vehicleClasses.truck]
+name = "Trucks"
+type = "vehicle"
+
+[[vehicleClasses.truck.models]]
 name = "DAF_white" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/daf/DAF_white_s_h_p.wrl"
 front_axis = 2.03493
 back_axis = -1.50476
 length = 5.99275
 
-[[models.truck]]
+[[vehicleClasses.truck.models]]
 name = "DAF_blue" 
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/daf/DAF_blue_s_h_p.wrl"
 front_axis = 2.03493
 back_axis = -1.50476
 length = 5.99275
 
-[[models.truck]]
+[[vehicleClasses.truck.models]]
 name = "bus" 
 path = "/data/OpenPass/cars/bus/Citaro.wrl"
 front_axis = 6.4558
 back_axis = 0.5113
 length = 12.2194
 
-[[models.bus]]
+[vehicleClasses.bus]
+name = "Buses"
+type = "vehicle"
+
+[[vehicleClasses.bus.models]]
 name = "Shuttle" 
 path = "/data/campus/Shuttle/Shuttle.wrl"
 front_axis = 1.62656
 back_axis = -1.62458
 length = 4.97729
 
-[[models.bicycle]]
+[vehicleClasses.scooter]
+name = "Scooters"
+type = "vehicle"
+
+[[vehicleClasses.scooter.models]]
 name = "ElectricScooter" 
 path = "/data/campus/Scooter/scooterOnly.WRL"
 front_axis = 0.487716
 back_axis = -0.368596
 length = 1.10676
 
-[[models.bicycle]]
+[[vehicleClasses.scooter.models]]
 name = "ElectricScooter_ST01_09" 
 path = "/data/campus/Scooter/scooterFemaleRiderScaleNew.WRL"
 front_axis = 0.487716
 back_axis = -0.368596
 length = 1.10676
+
+[vehicleClasses.bicycle]
+name = "Bicycles"
+type = "character"
+
+[[vehicleClasses.bicycle.models]]
+name = "CH02_04_Bike"
+path = "/data/cal3d/CH02_04_Bike/CH02_04_Bike.cfg"
+scale = 0.04

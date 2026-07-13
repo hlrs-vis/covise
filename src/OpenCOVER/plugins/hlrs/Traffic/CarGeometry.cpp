@@ -22,6 +22,8 @@
 #include <osg/Transform>
 #include <osgDB/ReadFile>
 
+#include "Traffic.h"
+
 // #include <math.h>
 #define PI 3.141592653589793238
 
@@ -47,6 +49,10 @@ osg::Node *CarGeometry::loadFile(const std::string &file)
     if (cache.find(file) == cache.end())
     {
         osg::Node *node = opencover::coVRFileManager::instance()->loadFile(file.c_str(), nullptr, dummyParent);
+        if (!node)
+        {
+            return nullptr;
+        }
 
         // Create a safe(r) node name from the filename
         std::string name(file);
@@ -61,7 +67,7 @@ osg::Node *CarGeometry::loadFile(const std::string &file)
     return cache.at(file);
 }
 
-CarGeometry::CarGeometry(const std::string &name, const std::string &fileName, osg::Group *parentNode)
+CarGeometry::CarGeometry(const std::string &name, const VehicleModel &vehicleModel, osg::Group *parentNode)
 {
     transformNode = new osg::MatrixTransform();
     transformNode->setName(name);
@@ -75,7 +81,7 @@ CarGeometry::CarGeometry(const std::string &name, const std::string &fileName, o
     lodNode = new osg::LOD();
     transformNode->addChild(lodNode);
 
-    osg::Node *modelNode = loadFile(fileName);
+    osg::Node *modelNode = loadFile(vehicleModel.path);
     lodNode->addChild(modelNode, 0, 1000.0);
 }
 

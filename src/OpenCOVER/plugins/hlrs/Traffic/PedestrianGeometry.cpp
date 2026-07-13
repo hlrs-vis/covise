@@ -13,6 +13,8 @@
 #include <boost/format.hpp>
 #include <osg/Vec3>
 
+#include "Traffic.h"
+
 using namespace opencover;
 
 // inline double lerp(double a, double b, double f)
@@ -26,25 +28,26 @@ inline double unlerp(double a, double b, double f)
 
 osg::ref_ptr<osgCal::CoreModel> PedestrianGeometry::loadFile(const std::string &file)
 {
+    // TODO: resolve and normalize path for key lookup?
+
     static std::map<std::string, osg::ref_ptr<osgCal::CoreModel>> cache;
     static osg::ref_ptr<osg::Group> dummyParent = new osg::Group();
 
     if (cache.find(file) == cache.end())
     {
-        std::string modelFile = (boost::format { "/data/cal3d/%s/%s.cfg" } % file % file).str();
-
         // Load core model
         osg::ref_ptr<osgCal::CoreModel> model = new osgCal::CoreModel();
         osg::ref_ptr<osgCal::MeshParameters> meshParams = new osgCal::MeshParameters;
         meshParams->useDepthFirstMesh = false;
         meshParams->software = false;
+
         try
         {
-            model->load(modelFile, meshParams.get());
+            model->load(file, meshParams.get());
         }
         catch (std::exception &e)
         {
-            std::cerr << "CarGeometry::loadFile(" << modelFile << "): exception during load:" << std::endl
+            std::cerr << "PedestrianGeometry::loadFile(" << file << "): exception during load:" << std::endl
                       << e.what() << std::endl;
             return nullptr;
         }
@@ -58,7 +61,7 @@ osg::ref_ptr<osgCal::CoreModel> PedestrianGeometry::loadFile(const std::string &
 /**
  * Construct a new pedestrian geometry object
  */
-PedestrianGeometry::PedestrianGeometry(const std::string &name, const std::string &fileName, double scale, osg::Group *parentNode)
+PedestrianGeometry::PedestrianGeometry(const std::string &name, const VehicleModel &vehicleModel, osg::Group *parentNode)
 {
     // Create a new transform, add it to the group
     transformNode = new osg::MatrixTransform();
@@ -74,17 +77,16 @@ PedestrianGeometry::PedestrianGeometry(const std::string &name, const std::strin
     lodNode->setRange(0, 0.0, 500.0); // TODO: maybe randomize lod range a little to "fade" crowds in?
 
     // Create a new transform only for scaling the rendered model
+    double s = vehicleModel.scale;
     scaleNode = new osg::MatrixTransform();
     scaleNode->setName("scalePedestrian");
-    osg::Matrix scaleMatrix;
-    scaleMatrix.makeScale(scale, scale, scale);
-    scaleNode->setMatrix(scaleMatrix);
+    scaleNode->setMatrix(osg::Matrix::scale(s, s, s));
     lodNode->addChild(scaleNode);
 
     // Create a new instance of the core model, add it to the LOD
     model = new osgCal::Model();
     meshAdder = new osgCal::DefaultMeshAdder;
-    osg::ref_ptr<osgCal::CoreModel> coreModel = loadFile(fileName);
+    osg::ref_ptr<osgCal::CoreModel> coreModel = loadFile(vehicleModel.path);
     if (coreModel)
     {
         model->load(coreModel, meshAdder);
