@@ -239,12 +239,6 @@ void Traffic::readSimResults()
     // }
 }
 
-osg::Vec2 toVec2(osg::Vec3 v) { return osg::Vec2(v.x(), v.y()); }
-float distanceRatio(osg::Vec2 x, osg::Vec2 y)
-{
-    return (x * y) / y.length2();
-}
-
 void Traffic::processNewResults()
 {
     for (auto &vehicleState : currentSimulationState.vehicles)
@@ -299,21 +293,7 @@ void Traffic::processNewResults()
             vehicle.timeSinceSource = 0.0;
             vehicle.timeFromSourceToTarget = 0.2; // TODO: use simulation dt here
 
-            // Compute bezier points
-            osg::Vec3 forward0(cos(vehicle.sourceHeading), sin(vehicle.sourceHeading), 0);
-            vehicle.p0 = vehicle.sourcePosition;
-            vehicle.p1 = vehicle.p0 + forward0 * vehicle.sourceSpeed * 0.333 * vehicle.timeFromSourceToTarget;
-
-            osg::Vec3 forward3(cos(vehicle.targetHeading), sin(vehicle.targetHeading), 0);
-            vehicle.p3 = vehicle.targetPosition;
-            vehicle.p2 = vehicle.p3 - forward3 * vehicle.targetSpeed * 0.333 * vehicle.timeFromSourceToTarget;
-
-            // Fix interpolation points z height
-            vehicle.p1.z() = lerp(vehicle.p0.z(), vehicle.p3.z(),
-                distanceRatio(toVec2(vehicle.p1 - vehicle.p0), toVec2(vehicle.p3 - vehicle.p0)));
-
-            vehicle.p2.z() = lerp(vehicle.p0.z(), vehicle.p3.z(),
-                distanceRatio(toVec2(vehicle.p2 - vehicle.p0), toVec2(vehicle.p3 - vehicle.p0)));
+            vehicle.geometry->updateTrajectory();
 
 #ifdef TRAFFIC_DEBUG_DRAW
             vehicle.points[0]->setMatrix(osg::Matrix::translate(vehicle.p0));
@@ -325,46 +305,11 @@ void Traffic::processNewResults()
     }
 }
 
-/* utils for rotating angles the shortest way */
-double angle_difference(double a, double b)
-{
-    double difference = fmod(b - a, M_PI_2);
-    return fmod(2.0 * difference, M_PI_2) - difference;
-}
-double lerp_angle(double a, double b, double f)
-{
-    return a + angle_difference(a, b) * f;
-}
-
-template <typename T>
-T cubic_bezier(T p0, T p1, T p2, T p3, float t)
-{
-    float t1 = 1.f - t;
-    return p0 * (t1 * t1 * t1) + p1 * (3 * t1 * t1 * t) + p2 * (3 * t1 * t * t) + p3 * (t * t * t);
-}
-
-template <typename T>
-T cubic_bezier_tangent(T p0, T p1, T p2, T p3, float t)
-{
-    float t1 = 1.f - t;
-    return p0 * (-3 * t1 * t1) + p1 * (3 * t1 * t1) - p1 * (6 * t * t1) - p2 * (3 * t * t) + p2 * (6 * t * t1) + p3 * (3 * t * t);
-}
-
 void Traffic::interpolateVehiclePosition(double deltaTime)
 {
     // Loop over all entities and compute their new position
     for (auto &[_, vehicle] : vehicles)
     {
-        vehicle.timeSinceSource += deltaTime;
-
-        float t = std::clamp(vehicle.timeSinceSource / vehicle.timeFromSourceToTarget, 0.0, 1.05);
-
-        vehicle.position = cubic_bezier(vehicle.p0, vehicle.p1, vehicle.p2, vehicle.p3, t);
-        auto tan = cubic_bezier_tangent(vehicle.p0, vehicle.p1, vehicle.p2, vehicle.p3, t);
-        vehicle.heading = lerp_angle(vehicle.sourceHeading, vehicle.targetHeading, t);
-        // vehicle.heading = atan2(tan.y(), tan.x());
-        vehicle.pitch = -asin(tan.z() / tan.length());
-        vehicle.speed = tan.length() / vehicle.timeFromSourceToTarget;
 
         // Update position of the geometry
         vehicle.geometry->setTransform(vehicle.position, vehicle.heading, vehicle.pitch);
@@ -419,22 +364,20 @@ Vehicle &Traffic::createVehicle(const std::string &id, const VehicleClass &vehic
 
     osg::Group *parent = vehicleClassGroups.at(vehicleClass.name);
 
-    std::unique_ptr<Geometry> geometry;
+    auto &v = vehicles.emplace(id, Vehicle { id, nullptr, &model }).first->second;
 
     switch (vehicleClass.geometryType)
     {
     case GeometryType::CHARACTER:
-        geometry = std::make_unique<PedestrianGeometry>(id, model, parent);
+        v.geometry = std::make_unique<PedestrianGeometry>(v, parent);
         break;
 
     // case GeometryType::STATIC:
     case GeometryType::VEHICLE:
     default:
-        geometry = std::make_unique<CarGeometry>(id, model, parent);
+        v.geometry = std::make_unique<CarGeometry>(v, parent);
         break;
     }
-
-    auto &v = vehicles.emplace(id, Vehicle { std::move(geometry), &model }).first->second;
 
 #ifdef TRAFFIC_DEBUG_DRAW
     for (int i = 0; i < 4; i++)
@@ -505,11 +448,13 @@ void Traffic::loadVehicleClasses()
         // construct temporary geometry objects to preload models
         for (auto &model : vehicleClass.models)
         {
+            Vehicle dummy { "dummy", nullptr, &model };
+
             switch (vehicleClass.geometryType)
             {
             case GeometryType::CHARACTER:
             {
-                PedestrianGeometry geo("dummy", model, nullptr);
+                PedestrianGeometry geo(dummy, nullptr);
                 break;
             }
 
@@ -517,7 +462,7 @@ void Traffic::loadVehicleClasses()
             case GeometryType::VEHICLE:
             default:
             {
-                CarGeometry geo("dummy", model, nullptr);
+                CarGeometry geo(dummy, nullptr);
                 break;
             }
             }

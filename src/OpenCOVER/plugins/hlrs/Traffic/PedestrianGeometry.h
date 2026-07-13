@@ -37,7 +37,7 @@ class VehicleModel;
 class PedestrianGeometry : public Geometry
 {
 public:
-    PedestrianGeometry(const std::string &name, const VehicleModel &vehicleModel, osg::Group *parentNode);
+    PedestrianGeometry(Vehicle &vehicle, osg::Group *parentNode);
     ~PedestrianGeometry();
 
     void setTransform(osg::Matrix transform);
@@ -45,6 +45,8 @@ public:
     void update(double deltaTime);
 
 protected:
+    Vehicle &vehicle;
+
     osg::Vec3 previousPosition;
     double smoothedWalkSpeed = 0.0;
 

@@ -23,6 +23,7 @@
 #include <osgDB/ReadFile>
 
 #include "Traffic.h"
+#include "traffic_utils.h"
 
 // #include <math.h>
 #define PI 3.141592653589793238
@@ -67,10 +68,11 @@ osg::Node *CarGeometry::loadFile(const std::string &file)
     return cache.at(file);
 }
 
-CarGeometry::CarGeometry(const std::string &name, const VehicleModel &vehicleModel, osg::Group *parentNode)
+CarGeometry::CarGeometry(Vehicle &vehicle, osg::Group *parentNode)
+    : vehicle(vehicle)
 {
     transformNode = new osg::MatrixTransform();
-    transformNode->setName(name);
+    transformNode->setName(vehicle.id);
     transformNode->setNodeMask(transformNode->getNodeMask() & ~(opencover::Isect::Intersection | opencover::Isect::Collision | opencover::Isect::Walk));
 
     if (parentNode)
@@ -81,8 +83,38 @@ CarGeometry::CarGeometry(const std::string &name, const VehicleModel &vehicleMod
     lodNode = new osg::LOD();
     transformNode->addChild(lodNode);
 
-    osg::Node *modelNode = loadFile(vehicleModel.path);
+    osg::Node *modelNode = loadFile(vehicle.model->path);
     lodNode->addChild(modelNode, 0, 1000.0);
+}
+
+void CarGeometry::updateTrajectory()
+{
+    // Compute bezier points
+    osg::Vec3 forward0(cos(vehicle.sourceHeading), sin(vehicle.sourceHeading), 0);
+    p0 = vehicle.sourcePosition;
+    p1 = p0 + forward0 * vehicle.sourceSpeed * 0.333 * vehicle.timeFromSourceToTarget;
+
+    osg::Vec3 forward3(cos(vehicle.targetHeading), sin(vehicle.targetHeading), 0);
+    p3 = vehicle.targetPosition;
+    p2 = p3 - forward3 * vehicle.targetSpeed * 0.333 * vehicle.timeFromSourceToTarget;
+
+    // Fix interpolation points z height
+    p1.z() = lerp(p0.z(), p3.z(), distanceRatio(toVec2(p1 - p0), toVec2(p3 - p0)));
+    p2.z() = lerp(p0.z(), p3.z(), distanceRatio(toVec2(p2 - p0), toVec2(p3 - p0)));
+}
+
+void CarGeometry::update(double deltaTime)
+{
+    vehicle.timeSinceSource += deltaTime;
+
+    float t = std::clamp(vehicle.timeSinceSource / vehicle.timeFromSourceToTarget, 0.0, 1.05);
+
+    vehicle.position = cubic_bezier(p0, p1, p2, p3, t);
+    auto tan = cubic_bezier_tangent(p0, p1, p2, p3, t);
+    vehicle.heading = lerp_angle(vehicle.sourceHeading, vehicle.targetHeading, t);
+    // vehicle.heading = atan2(tan.y(), tan.x());
+    vehicle.pitch = -asin(tan.z() / tan.length());
+    vehicle.speed = tan.length() / vehicle.timeFromSourceToTarget;
 }
 
 CarGeometry::~CarGeometry()

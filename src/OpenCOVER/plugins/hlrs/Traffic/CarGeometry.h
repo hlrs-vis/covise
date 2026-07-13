@@ -16,21 +16,28 @@
 #include "Geometry.h"
 
 class VehicleModel;
+class Vehicle;
 class CarGeometry : public Geometry
 {
 public:
-    CarGeometry(const std::string &name, const VehicleModel &vehicleModel, osg::Group *parentNode);
+    CarGeometry(Vehicle &vehicle, osg::Group *parentNode);
     ~CarGeometry();
+
+    void updateTrajectory();
+    void update(double deltaTime);
 
     void setTransform(osg::Matrix transform);
 
 protected:
+    Vehicle &vehicle;
     static osg::Node *loadFile(const std::string &file);
 
     void removeFromSceneGraph();
 
     osg::ref_ptr<osg::MatrixTransform> transformNode;
     osg::ref_ptr<osg::LOD> lodNode;
+
+    osg::Vec3 p0, p1, p2, p3;
 };
 
 #endif

@@ -61,11 +61,12 @@ osg::ref_ptr<osgCal::CoreModel> PedestrianGeometry::loadFile(const std::string &
 /**
  * Construct a new pedestrian geometry object
  */
-PedestrianGeometry::PedestrianGeometry(const std::string &name, const VehicleModel &vehicleModel, osg::Group *parentNode)
+PedestrianGeometry::PedestrianGeometry(Vehicle &vehicle, osg::Group *parentNode)
+    : vehicle(vehicle)
 {
     // Create a new transform, add it to the group
     transformNode = new osg::MatrixTransform();
-    transformNode->setName(name);
+    transformNode->setName(vehicle.id);
     if (parentNode)
     {
         parentNode->addChild(transformNode);
@@ -77,7 +78,7 @@ PedestrianGeometry::PedestrianGeometry(const std::string &name, const VehicleMod
     lodNode->setRange(0, 0.0, 500.0); // TODO: maybe randomize lod range a little to "fade" crowds in?
 
     // Create a new transform only for scaling the rendered model
-    double s = vehicleModel.scale;
+    double s = vehicle.model->scale;
     scaleNode = new osg::MatrixTransform();
     scaleNode->setName("scalePedestrian");
     scaleNode->setMatrix(osg::Matrix::scale(s, s, s));
@@ -86,7 +87,7 @@ PedestrianGeometry::PedestrianGeometry(const std::string &name, const VehicleMod
     // Create a new instance of the core model, add it to the LOD
     model = new osgCal::Model();
     meshAdder = new osgCal::DefaultMeshAdder;
-    osg::ref_ptr<osgCal::CoreModel> coreModel = loadFile(vehicleModel.path);
+    osg::ref_ptr<osgCal::CoreModel> coreModel = loadFile(vehicle.model->path);
     if (coreModel)
     {
         model->load(coreModel, meshAdder);

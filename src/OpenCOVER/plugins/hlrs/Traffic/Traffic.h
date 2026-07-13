@@ -75,6 +75,7 @@ struct VehicleClass
 
 struct Vehicle
 {
+    std::string id;
     std::unique_ptr<Geometry> geometry;
     const VehicleModel *model;
 
@@ -99,8 +100,6 @@ struct Vehicle
     double sourceHeading;
     double sourceSpeed;
     double timeSinceSource = 0.0;
-
-    osg::Vec3 p0, p1, p2, p3;
 
 #ifdef TRAFFIC_DEBUG_DRAW
     osg::ref_ptr<osg::MatrixTransform> points[4];

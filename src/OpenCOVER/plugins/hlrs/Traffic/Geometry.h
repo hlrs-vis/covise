@@ -11,6 +11,7 @@
 #include <osg/Matrix>
 #include <osg/Vec3>
 
+class Vehicle;
 class Geometry
 {
 public:
@@ -20,6 +21,9 @@ public:
     // Called when the model was updated, can be used to track state,
     // derive current and past behaviour, and update graphis.
     virtual void update(double deltaTime) { }
+
+    // Called when the
+    virtual void updateTrajectory() { }
 };
 
 #endif
