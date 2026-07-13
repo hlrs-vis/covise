@@ -93,6 +93,10 @@ JSBSimPlugin::JSBSimPlugin()
         varioSource->setLoop(true);
         windSource->setLoop(true);
 
+        engineSource->setSpatialize(false);
+        varioSource->setSpatialize(false);
+        windSource->setSpatialize(false);
+
         varioSource->play();
         engineSource->play();
         windSource->play();
