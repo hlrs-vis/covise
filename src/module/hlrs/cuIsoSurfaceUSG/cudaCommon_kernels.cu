@@ -17,7 +17,7 @@ static __device__ float3 vertexInterp(float isolevel, float3 p0, float3 p1, floa
    }
 
    float t = (isolevel - f0) / diff;
-   return lerp(p0, p1, t);
+   return cuLerp(p0, p1, t);
 } 
 
 // compute interpolated vertex along an edge
@@ -45,7 +45,7 @@ static __device__ float3 interp(float isolevel, float3 p0, float3 p1, float f0, 
    float t = (isolevel - f0) / diff;
 
    *v = v0 + (t * (v1 - v0));
-   return lerp(p0, p1, t);
+   return cuLerp(p0, p1, t);
 } 
 
 // compute interpolated vertex along an edge
@@ -79,7 +79,7 @@ static __device__ float3 interp(float isolevel, float3 p0, float3 p1, float f0, 
    *v = v0 + (t * (v1 - v0));
    float3 a = l0 + (t * (l1 - l0));
    *l = make_float3(a.x, a.y, a.z);
-   return lerp(p0, p1, t);
+   return cuLerp(p0, p1, t);
 } 
 
 
