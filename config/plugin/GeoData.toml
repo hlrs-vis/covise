@@ -111,6 +111,12 @@ northing = 5405720
 altitude = 0
 
 [[datasets]]
+name = "Stuttgart"
+easting = 515000
+northing = 5405000
+altitude = 0
+
+[[datasets]]
 name = "Stuttgart Stadium"
 easting = 517045.2404890087
 northing = 5404388.2771713715
