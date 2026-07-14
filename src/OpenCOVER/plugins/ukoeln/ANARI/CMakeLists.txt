@@ -41,7 +41,7 @@ SET(SOURCES
 
 cover_add_plugin(ANARIPlugin ${HEADERS} ${SOURCES})
 target_link_libraries(ANARIPlugin stb::stb)
-if(CUDA_FOUND)
+if(CUDA_FOUND AND COVISE_USE_CUDA)
   target_compile_definitions(ANARIPlugin PUBLIC -DANARI_PLUGIN_HAVE_CUDA=1)
   target_link_libraries(ANARIPlugin CUDA::cudart)
   target_sources(ANARIPlugin PRIVATE Projection.cu)
