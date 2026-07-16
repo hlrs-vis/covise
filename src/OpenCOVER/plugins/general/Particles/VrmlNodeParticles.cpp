@@ -36,29 +36,29 @@ void VrmlNodeParticles::initFields(VrmlNodeParticles *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-        field("particlesColorMap", node->d_ParticlesColorMap, [node](auto f)
+        exposedField("particlesColorMap", node->d_ParticlesColorMap, [node](auto f)
             { ParticleViewer::instance()->setParticlesColorMap(node->d_ParticlesColorMap.get()); }),
-        field("particlesValue", node->d_ParticlesValue, [node](auto f)
+        exposedField("particlesValue", node->d_ParticlesValue, [node](auto f)
             { ParticleViewer::instance()->setParticlesValue(node->d_ParticlesValue.get()); }),
-        field("particlesMin", node->d_ParticlesMin, [node](auto f)
+        exposedField("particlesMin", node->d_ParticlesMin, [node](auto f)
             { ParticleViewer::instance()->setParticlesMin(node->d_ParticlesMin.get()); }),
-        field("particlesMax", node->d_ParticlesMax, [node](auto f)
+        exposedField("particlesMax", node->d_ParticlesMax, [node](auto f)
             { ParticleViewer::instance()->setParticlesMax(node->d_ParticlesMax.get()); }),
-        field("particlesRadius", node->d_ParticlesRadius, [node](auto f)
+        exposedField("particlesRadius", node->d_ParticlesRadius, [node](auto f)
             { ParticleViewer::instance()->setParticlesRadius(node->d_ParticlesRadius.get()); }),
-        field("particlesRadiusValue", node->d_ParticlesRadiusValue, [node](auto f)
+        exposedField("particlesRadiusValue", node->d_ParticlesRadiusValue, [node](auto f)
             { ParticleViewer::instance()->setParticlesRadiusValue(node->d_ParticlesRadiusValue.get()); }),
-        field("arrowsColorMap", node->d_ArrowsColorMap, [node](auto f)
+        exposedField("arrowsColorMap", node->d_ArrowsColorMap, [node](auto f)
             { ParticleViewer::instance()->setArrowsColorMap(node->d_ArrowsColorMap.get()); }),
-        field("arrowsValue", node->d_ArrowsValue, [node](auto f)
+        exposedField("arrowsValue", node->d_ArrowsValue, [node](auto f)
             { ParticleViewer::instance()->setArrowsValue(node->d_ArrowsValue.get()); }),
-        field("arrowsMin", node->d_ArrowsMin, [node](auto f)
+        exposedField("arrowsMin", node->d_ArrowsMin, [node](auto f)
             { ParticleViewer::instance()->setArrowsMin(node->d_ArrowsMin.get()); }),
-        field("arrowsMax", node->d_ArrowsMax, [node](auto f)
+        exposedField("arrowsMax", node->d_ArrowsMax, [node](auto f)
             { ParticleViewer::instance()->setArrowsMax(node->d_ArrowsMax.get()); }),
-        field("arrowsRadius", node->d_ArrowsRadius, [node](auto f)
+        exposedField("arrowsRadius", node->d_ArrowsRadius, [node](auto f)
             { ParticleViewer::instance()->setArrowsRadius(node->d_ArrowsRadius.get()); }),
-        field("arrowsRadiusValue", node->d_ArrowsRadiusValue, [node](auto f)
+        exposedField("arrowsRadiusValue", node->d_ArrowsRadiusValue, [node](auto f)
             { ParticleViewer::instance()->setArrowsRadiusValue(node->d_ArrowsRadiusValue.get()); }));
     if (t)
     {

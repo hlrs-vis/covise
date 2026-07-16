@@ -49,6 +49,8 @@
 #include <osg/MatrixTransform>
 #include <osg/Geode>
 #include <cover/VRSceneGraph.h>
+#include <VrmlNodeParticles.h>
+#include <vrml97/vrml/VrmlNamespace.h>
 
 ParticleViewer *ParticleViewer::plugin = NULL;
 
@@ -171,6 +173,8 @@ bool ParticleViewer::init()
     if (plugin)
         return false;
     readConfig();
+    
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeParticles>());
     coVRFileManager::instance()->registerFileHandler(&fileHandler[0]);
     coVRFileManager::instance()->registerFileHandler(&fileHandler[1]);
     coVRFileManager::instance()->registerFileHandler(&fileHandler[2]);

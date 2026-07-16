@@ -29,9 +29,9 @@ void VrmlNodeViewPoint::initFields(VrmlNodeViewPoint *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-        field("transitionDuration", node->d_transitionDuration, [node](auto f)
+        exposedField("transitionDuration", node->d_transitionDuration, [node](auto f)
             { ViewPoints::instance()->speedSlider->setValue(node->d_transitionDuration.get());  ViewPoints::instance()->flightTime = node->d_transitionDuration.get(); }),
-        field("viewPointName", node->d_viewPointName, [node](auto n)
+        exposedField("viewPointName", node->d_viewPointName, [node](auto n)
             { ViewPoints::instance()->setName(node->d_viewPointName.get()); }));
 }
 

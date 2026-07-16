@@ -46,6 +46,10 @@
 #include <util/unixcompat.h>
 #include <array>
 #include <string>
+
+#include <VrmlNodeViewPoint.h>
+#include <vrml97/vrml/VrmlNamespace.h>
+
 using namespace osg;
 using namespace opencover;
 using namespace grmsg;
@@ -84,6 +88,9 @@ bool ViewPoints::init()
     if (cover->debugLevel(3))
         fprintf(stderr, "ViewPoints::init\n");
     inst = this;
+    
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeViewPoint>());
+    
     //init VPData for clipplane
     actSharedVPData = new SharedActiveVPData();
     actSharedVPData->totNum = 0;
