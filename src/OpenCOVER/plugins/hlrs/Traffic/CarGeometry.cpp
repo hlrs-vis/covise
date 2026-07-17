@@ -99,8 +99,8 @@ void CarGeometry::updateTrajectory()
     p2 = p3 - forward3 * vehicle.targetSpeed * 0.333 * vehicle.timeFromSourceToTarget;
 
     // Fix interpolation points z height
-    p1.z() = lerp(p0.z(), p3.z(), distanceRatio(toVec2(p1 - p0), toVec2(p3 - p0)));
-    p2.z() = lerp(p0.z(), p3.z(), distanceRatio(toVec2(p2 - p0), toVec2(p3 - p0)));
+    p1.z() = std::lerp(p0.z(), p3.z(), distanceRatio(toVec2(p1 - p0), toVec2(p3 - p0)));
+    p2.z() = std::lerp(p0.z(), p3.z(), distanceRatio(toVec2(p2 - p0), toVec2(p3 - p0)));
 }
 
 void CarGeometry::update(double deltaTime)

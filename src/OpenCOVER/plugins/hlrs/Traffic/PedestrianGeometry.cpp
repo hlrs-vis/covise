@@ -121,7 +121,7 @@ void PedestrianGeometry::update(double deltaTime)
     if (deltaTime > 0)
     {
         double speed = distance / deltaTime;
-        smoothedWalkSpeed = lerp(smoothedWalkSpeed, speed, deltaTime * 5.0);
+        smoothedWalkSpeed = std::lerp(smoothedWalkSpeed, speed, deltaTime * 5.0);
         setWalkingSpeed(smoothedWalkSpeed);
     }
 
