@@ -39,6 +39,7 @@
 #include <cover/ui/Label.h>
 #include <cover/ui/SelectionList.h>
 #include <optional>
+#include <cover/coVRShader.h>
 
 #include <OpenVRUI/coCombinedButtonInteraction.h>
 #include <cover/coIntersection.h>
@@ -138,6 +139,7 @@ private:
     static GeoDataLoader *s_instance;
     PJ_CONTEXT *ProjContext;
     PJ *ProjInstance;
+    opencover::coVRShader *shader=nullptr;
 
     std::map<std::string, osg::ref_ptr<osg::Node>> loadedTerrains;
     std::map<std::string, osg::ref_ptr<osg::Node>> loadedBuildings;

@@ -382,6 +382,7 @@ bool GeoDataLoader::init()
 
     selectionName = new ui::Label(editGroup, "name");
     selectionName->setText("nothing is selected");
+    shader = coVRShaderList::instance()->get("Brightness");
 
     return true;
 }
@@ -420,6 +421,7 @@ void GeoDataLoader::setRegionEnabled(const std::string &region_name, bool enable
                 terrainRoot->addChild(terrainNode);
                 terrainNode->setName(region_name);
                 terrainNode->setNodeMask(showTerrain ? 0xffffffff : 0x0);
+		shader->apply(terrainNode);
             }
         }
 
