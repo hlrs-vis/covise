@@ -105,8 +105,10 @@ if [ -z "$COENVERROR" ]; then
 
    case "${ARCHSUFFIX}" in
       macos|macosopt)
-      export DYLD_FRAMEWORK_PATH="${EXTERNLIBS}/ALL"
-      export DYLD_LIBRARY_PATH="${EXTERNLIBS}/ALL/lib/osgPlugins:$DYLD_LIBRARY_PATH"
+      test -d "${EXTERNLIBS}/ALL" && export DYLD_FRAMEWORK_PATH="${EXTERNLIBS}/ALL"
+      for d in /opt/homebrew/opt/openscenegraph/lib/osgPlugins-3.6.5 "${EXTERNLIBS}/ALL/lib/osgPlugins" /opt/homebrew/opt/sdl2/lib /opt/homebrew/opt/sdl3/lib; do
+          test -d "$d" && export DYLD_LIBRARY_PATH="${d}:$DYLD_LIBRARY_PATH"
+      done
       ;;
       spack*)
       if [ "$(uname)" = "Darwin" ]; then
