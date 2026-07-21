@@ -45,7 +45,7 @@ SET(PLUGINUTIL_HEADERS
     coVR3DTransRotInteractor.h
     CudaGraphicsResource.h
     CudaSafeCall.h
-    CudaTextureRectangle.h
+    CudaTexture2D.h
     FeedbackManager.h
     FileReference.h
     GenericGuiObject.h
@@ -91,7 +91,7 @@ SET(SOURCES
   coVR3DTransInteractor.cpp
   coVR3DTransRotInteractor.cpp
   CudaGraphicsResource.cpp
-  CudaTextureRectangle.cpp
+  CudaTexture2D.cpp
   FeedbackManager.cpp
   FileReference.cpp
   GenericGuiObject.cpp

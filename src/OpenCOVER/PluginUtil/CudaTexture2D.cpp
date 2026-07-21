@@ -11,24 +11,26 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <osg/Version>
 
 #include "CudaSafeCall.h"
-#include "CudaTextureRectangle.h"
+#include "CudaTexture2D.h"
 
 
 namespace opencover
 {
 
-CudaTextureRectangle::CudaTextureRectangle() : resourceDataSize_(0)
+CudaTexture2D::CudaTexture2D() : resourceDataSize_(0)
 {
     resource_.map();
+    setFilter(osg::Texture::MIN_FILTER, osg::Texture::NEAREST);
+    setFilter(osg::Texture::MAG_FILTER, osg::Texture::NEAREST);
 }
 
-CudaTextureRectangle::~CudaTextureRectangle()
+CudaTexture2D::~CudaTexture2D()
 {
     resource_.unmap();
     glDeleteBuffers(1, &pbo_);
 }
 
-void CudaTextureRectangle::apply(osg::State& state) const
+void CudaTexture2D::apply(osg::State& state) const
 {
     const_cast<CudaGraphicsResource*>(&resource_)->unmap();
 
@@ -49,7 +51,7 @@ void CudaTextureRectangle::apply(osg::State& state) const
     GLenum internalFormat = getSourceFormat() ? getSourceFormat() : getInternalFormat();
     TextureObject* textureObject = generateAndAssignTextureObject(
         state.getContextID(),
-        GL_TEXTURE_RECTANGLE,
+        GL_TEXTURE_2D,
         0,
         internalFormat,
         getTextureWidth(),
@@ -61,12 +63,12 @@ void CudaTextureRectangle::apply(osg::State& state) const
 #else
     textureObject->bind();
 #endif
-    applyTexParameters(GL_TEXTURE_RECTANGLE, state);
-    glTexImage2D( GL_TEXTURE_RECTANGLE, 0, getInternalFormat(),
-             getTextureWidth(), getTextureHeight(), getBorderWidth(),
-             internalFormat,
-             getSourceType() ? getSourceType() : GL_UNSIGNED_BYTE,
-             0);
+    applyTexParameters(GL_TEXTURE_2D, state);
+    glTexImage2D(GL_TEXTURE_2D, 0, getInternalFormat(),
+                 getTextureWidth(), getTextureHeight(), getBorderWidth(),
+                 internalFormat,
+                 getSourceType() ? getSourceType() : GL_UNSIGNED_BYTE,
+                 0);
     textureObject->setAllocated(0, getInternalFormat(), getTextureWidth(), getTextureHeight(), 1, 0);
 
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
@@ -74,7 +76,7 @@ void CudaTextureRectangle::apply(osg::State& state) const
     const_cast<CudaGraphicsResource*>(&resource_)->map();
 }
 
-void CudaTextureRectangle::resize(osg::State* state, int w, int h, int dataTypeSize)
+void CudaTexture2D::resize(osg::State* state, int w, int h, int dataTypeSize)
 {
     if (!pbo_) {
         glGenBuffers(1, &pbo_);
@@ -93,17 +95,17 @@ void CudaTextureRectangle::resize(osg::State* state, int w, int h, int dataTypeS
     resource_.map();
 }
 
-void* CudaTextureRectangle::resourceData() const
+void* CudaTexture2D::resourceData() const
 {
     return resource_.dev_ptr();
 }
 
-size_t CudaTextureRectangle::getTotalSizeInBytes() const
+size_t CudaTexture2D::getTotalSizeInBytes() const
 {
     return resourceDataSize_;
 }
 
-void CudaTextureRectangle::clear()
+void CudaTexture2D::clear()
 {
     if (resourceData() == nullptr)
         return;

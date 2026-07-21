@@ -12,7 +12,7 @@
 #include <osg/Array>
 #include <osg/Geode>
 #include <osg/Camera>
-#include <osg/TextureRectangle>
+#include <osg/Texture2D>
 
 #include <util/coExport.h>
 
@@ -45,8 +45,8 @@ struct ViewData
     osg::Matrix newProj, newView, newModel;
 
     // geometry for mapping depth image
-    osg::ref_ptr<osg::TextureRectangle> colorTex;
-    osg::ref_ptr<osg::TextureRectangle> depthTex;
+    osg::ref_ptr<osg::Texture2D> colorTex;
+    osg::ref_ptr<osg::Texture2D> depthTex;
     osg::ref_ptr<osg::Image> colorImg;
     osg::ref_ptr<osg::Image> depthImg;
     osg::ref_ptr<osg::Vec2Array> texcoord;

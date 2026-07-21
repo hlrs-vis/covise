@@ -25,7 +25,7 @@
 #include <cuda.h>
 #include <cuda_gl_interop.h>
 #include <thrust/fill.h>
-#include "CudaTextureRectangle.h"
+#include "CudaTexture2D.h"
 #include "CudaGraphicsResource.h"
 #endif
 
@@ -231,16 +231,15 @@ const char reprojVert[] =
       "#extension GL_EXT_gpu_shader4: enable\n"
       "#extension GL_ARB_draw_instanced: enable\n"
 #endif
-      "#extension GL_ARB_texture_rectangle: enable\n"
       "\n"
-      "uniform sampler2DRect col;\n"
-      "uniform sampler2DRect dep;\n"
+      "uniform sampler2D col;\n"
+      "uniform sampler2D dep;\n"
       "uniform vec2 size;\n"
       "uniform mat4 ReprojectionMatrix;\n"
       "\n"
 
       "float depth(vec2 xy) {\n"
-      "   return texture2DRect(dep, xy).r;\n"
+      "   return texture2D(dep, xy/size).r;\n"
       "}\n"
 
       "vec4 pos(vec2 xy, float d) {\n"
@@ -254,7 +253,7 @@ const char reprojVert[] =
 #else
       "   vec2 xy = gl_Vertex.xy;\n"
 #endif
-      "   vec4 color = texture2DRect(col, xy);\n"
+      "   vec4 color = texture2D(col, xy/size);\n"
       "   gl_FrontColor = color;\n"
 
       "   gl_Position = pos(xy, depth(xy));\n"
@@ -271,10 +270,9 @@ const char reprojAdaptVert[] =
       // for round
       "#extension GL_EXT_gpu_shader4: enable\n"
 #endif
-      "#extension GL_ARB_texture_rectangle: enable\n"
       "\n"
-      "uniform sampler2DRect col;\n"
-      "uniform sampler2DRect dep;\n"
+      "uniform sampler2D col;\n"
+      "uniform sampler2D dep;\n"
       "uniform vec2 size;\n"
       "uniform mat4 ReprojectionMatrix;\n"
       "uniform vec2 offset;\n"
@@ -286,11 +284,11 @@ const char reprojAdaptVert[] =
       "}\n"
 
       "float depth(vec2 xy) {\n"
-      "   return texture2DRect(dep, xy).r;\n"
+      "   return texture2D(dep, xy).r;\n"
       "}\n"
 
-      "vec4 pos(vec2 xy, float d) {\n"
-      "   vec4 p = vec4(xy.x/size.x-0.5, 0.5-xy.y/size.y, d-0.5, 0.5)*2.;\n"
+      "vec4 pos(vec2 tc, float d) {\n"
+      "   vec4 p = vec4(tc.x-0.5, 0.5-tc.y, d-0.5, 0.5)*2.;\n"
       "   return ReprojectionMatrix * p;\n"
       "}\n"
 
@@ -310,21 +308,24 @@ const char reprojAdaptVert[] =
 #else
       "   vec2 xy = gl_Vertex.xy;\n"
 #endif
+      "   vec2 tc = vec2(xy.x/size.x, xy.y/size.y);\n"
       "   const vec4 Clip = vec4(2.,2.,2.,1.);\n"
 
-      "   float d = depth(xy);\n"
+      "   float d = depth(tc);\n"
       "   if (is_far(d)) { gl_Position = Clip; return; }\n"
-      "   gl_Position = pos(xy, d);\n"
+      "   gl_Position = pos(tc, d);\n"
       //"   if (is_far(d)) { gl_PointSize=1.; gl_FrontColor = vec4(1,0,0,1); return; }\n"
 
-      "   vec4 color = texture2DRect(col, xy);\n"
+      "   vec4 color = texture2D(col, tc);\n"
       "   gl_FrontColor = color;\n"
 
       "   vec2 spos = screenpos(gl_Position);\n"
-      "   vec2 dxp = sdiff(d, xy+vec2(1.,0.), spos);\n"
-      "   vec2 dyp = sdiff(d, xy+vec2(0.,1.), spos);\n"
-      "   vec2 dxm = sdiff(d, xy+vec2(-1.,0.), spos);\n"
-      "   vec2 dym = sdiff(d, xy+vec2(0.,-1.), spos);\n"
+      "   float dx = 1./size.x;\n"
+      "   float dy = 1./size.y;\n"
+      "   vec2 dxp = sdiff(d, tc+vec2(dx,0.), spos);\n"
+      "   vec2 dyp = sdiff(d, tc+vec2(0.,dy), spos);\n"
+      "   vec2 dxm = sdiff(d, tc+vec2(-dx,0.), spos);\n"
+      "   vec2 dym = sdiff(d, tc+vec2(0.,-dy), spos);\n"
       "   vec2 dmax = max(max(dxp,dxm),max(dyp,dym));\n"
       //"   vec2 dmax = max(dxp,dym);\n"
       "   float ps = max(dmax.x, dmax.y);\n"
@@ -348,10 +349,9 @@ const char reprojMeshVert[] =
 const char reprojMeshGeo[] =
       "#version 120\n"
       "#extension GL_EXT_geometry_shader4 : enable\n"
-      "#extension GL_ARB_texture_rectangle: enable\n"
       "\n"
-      "uniform sampler2DRect col;\n"
-      "uniform sampler2DRect dep;\n"
+      "uniform sampler2D col;\n"
+      "uniform sampler2D dep;\n"
       "uniform vec2 size;\n"
       "uniform mat4 ReprojectionMatrix;\n"
       "uniform bool withHoles;\n"
@@ -361,7 +361,7 @@ const char reprojMeshGeo[] =
       "\n"
 
       "float depth(vec2 xy) {\n"
-      "   return texture2DRect(dep, xy).r;\n"
+      "   return texture2D(dep, xy/size).r;\n"
       "}\n"
 
       "vec4 pos(vec2 xy, float d) {\n"
@@ -386,7 +386,7 @@ const char reprojMeshGeo[] =
       "   float d = depth(xy);\n"
       "   if (is_far(d)) return;\n"
 
-      "   vec4 color = texture2DRect(col, xy);\n"
+      "   vec4 color = texture2D(col, xy/size);\n"
       "   gl_FrontColor = color;\n"
       "   gl_Position = pos(xy, d);\n"
       "   EmitVertex();\n"
@@ -542,9 +542,9 @@ void MultiChannelDrawer::createGeometry(ViewData &vd)
 {
 
    vd.texcoord  = new osg::Vec2Array(4);
-   (*vd.texcoord)[0].set(0.0,480.0);
-   (*vd.texcoord)[1].set(640.0,480.0);
-   (*vd.texcoord)[2].set(640.0,0.0);
+   (*vd.texcoord)[0].set(0.0,1.0);
+   (*vd.texcoord)[1].set(1.0,1.0);
+   (*vd.texcoord)[2].set(1.0,0.0);
    (*vd.texcoord)[3].set(0.0,0.0);
 
    osg::Vec4Array *color = new osg::Vec4Array(1);
@@ -594,14 +594,13 @@ void MultiChannelDrawer::createGeometry(ViewData &vd)
       depthProgramObj->addShader(depthFragmentObj);
       depthFragmentObj->setShaderSource(
             "#version 120\n"
-            "#extension GL_ARB_texture_rectangle : enable\n"
             "\n"
-            "uniform sampler2DRect col;"
-            "uniform sampler2DRect dep;"
+            "uniform sampler2D col;"
+            "uniform sampler2D dep;"
             "void main(void) {"
-            "   vec4 color = texture2DRect(col, gl_TexCoord[0].xy);"
+            "   vec4 color = texture2D(col, gl_TexCoord[0].xy);"
             "   gl_FragColor = color;"
-            "   gl_FragDepth = texture2DRect(dep, gl_TexCoord[0].xy).x;"
+            "   gl_FragDepth = texture2D(dep, gl_TexCoord[0].xy).x;"
             "}"
             );
       stateSet->setAttributeAndModes(depthProgramObj, osg::StateAttribute::ON);
@@ -703,8 +702,8 @@ void MultiChannelDrawer::initViewData(ViewData &vd) {
 #ifdef HAVE_CUDA
    if (m_useCuda)
    {
-       vd.colorTex = new CudaTextureRectangle;
-       vd.depthTex = new CudaTextureRectangle;
+       vd.colorTex = new CudaTexture2D;
+       vd.depthTex = new CudaTexture2D;
    }
    else
 #endif
@@ -724,8 +723,8 @@ void MultiChannelDrawer::initViewData(ViewData &vd) {
        vd.depthImg->setPixelBufferObject(pbod);
 #endif
 
-       vd.colorTex = new osg::TextureRectangle;
-       vd.depthTex = new osg::TextureRectangle;
+       vd.colorTex = new osg::Texture2D;
+       vd.depthTex = new osg::Texture2D;
 
        vd.colorTex->setImage(vd.colorImg);
        vd.depthTex->setImage(vd.depthImg);
@@ -739,7 +738,6 @@ void MultiChannelDrawer::initViewData(ViewData &vd) {
        tex->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
        tex->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
    }
-
 
    vd.colorTex->setInternalFormat( GL_RGBA );
    vd.depthTex->setInternalFormat( GL_DEPTH_COMPONENT32F );
@@ -790,8 +788,8 @@ void MultiChannelDrawer::swapFrame() {
 #ifdef HAVE_CUDA
       if (m_useCuda)
       {
-          vd.colorTex->dirtyTextureObject();
-          vd.depthTex->dirtyTextureObject();
+          vd.colorTex->dirty();
+          vd.depthTex->dirty();
       }
       else
 #endif
@@ -847,7 +845,7 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
 
             osg::State* state = cd->camera->getGraphicsContext()->getState();
 
-            static_cast<CudaTextureRectangle*>(vd.colorTex.get())->resize(state, w, h, colorTypeSize);
+            static_cast<CudaTexture2D*>(vd.colorTex.get())->resize(state, w, h, colorTypeSize);
         }
         else
 #endif
@@ -891,7 +889,7 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
 
             osg::State* state = cd->camera->getGraphicsContext()->getState();
 
-            static_cast<CudaTextureRectangle*>(vd.depthTex.get())->resize(state, w, h, depthTypeSize);
+            static_cast<CudaTexture2D*>(vd.depthTex.get())->resize(state, w, h, depthTypeSize);
         }
         else
 #endif
@@ -931,16 +929,16 @@ void MultiChannelDrawer::updateGeoForView(ViewData &vd) {
     h = std::max(h, 1);
 
     if (m_flipped) {
-        (*vd.texcoord)[0].set(0., h);
-        (*vd.texcoord)[1].set(w, h);
-        (*vd.texcoord)[2].set(w, 0.);
+        (*vd.texcoord)[0].set(0., 1);
+        (*vd.texcoord)[1].set(1, 1);
+        (*vd.texcoord)[2].set(1, 0.);
         (*vd.texcoord)[3].set(0., 0.);
     }
     else {
         (*vd.texcoord)[0].set(0., 0.);
-        (*vd.texcoord)[1].set(w, 0.);
-        (*vd.texcoord)[2].set(w, h);
-        (*vd.texcoord)[3].set(0., h);
+        (*vd.texcoord)[1].set(1, 0.);
+        (*vd.texcoord)[2].set(1, 1);
+        (*vd.texcoord)[3].set(0., 1);
     }
     vd.fixedGeo->setTexCoordArray(0, vd.texcoord);
     for (auto &vcd: vd.viewChan) {
@@ -1015,7 +1013,7 @@ unsigned char *MultiChannelDrawer::rgba(int idx) const {
 #ifdef HAVE_CUDA
     if (m_useCuda)
     {
-        return static_cast<unsigned char*>(static_cast<CudaTextureRectangle*>(vd.colorTex.get())->resourceData());
+        return static_cast<unsigned char*>(static_cast<CudaTexture2D*>(vd.colorTex.get())->resourceData());
     }
     else
 #endif
@@ -1035,7 +1033,7 @@ unsigned char *MultiChannelDrawer::depth(int idx) const {
 #ifdef HAVE_CUDA
     if (m_useCuda)
     {
-        return static_cast<unsigned char*>(static_cast<CudaTextureRectangle*>(vd.depthTex.get())->resourceData());
+        return static_cast<unsigned char*>(static_cast<CudaTexture2D*>(vd.depthTex.get())->resourceData());
     }
     else
 #endif
@@ -1050,7 +1048,7 @@ void MultiChannelDrawer::clearColor(int idx) {
 #ifdef HAVE_CUDA
     if (m_useCuda)
     {
-        static_cast<CudaTextureRectangle*>(vd.colorTex.get())->clear();
+        static_cast<CudaTexture2D*>(vd.colorTex.get())->clear();
     }
     else
 #endif
@@ -1067,12 +1065,12 @@ void MultiChannelDrawer::clearDepth(int idx) {
 #ifdef HAVE_CUDA
     if (m_useCuda)
     {
-        auto texRect = static_cast<CudaTextureRectangle*>(vd.depthTex.get());
-    
-        float *depth = (float *)texRect->resourceData();
+        auto tex = static_cast<CudaTexture2D*>(vd.depthTex.get());
+
+        float *depth = (float *)tex->resourceData();
         if (vd.depthFormat == GL_FLOAT) {
-            thrust::fill(depth, 
-                         depth+texRect->getTotalSizeInBytes()/4,
+            thrust::fill(depth,
+                         depth+tex->getTotalSizeInBytes()/4,
                          1.f);
         } else {
             throw std::runtime_error("MultiChannelDrawer::clearDepth() unimplemented for format!");
