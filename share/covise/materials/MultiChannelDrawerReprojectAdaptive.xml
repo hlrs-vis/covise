@@ -1,0 +1,71 @@
+<MultiChannelDrawerReprojectAdaptive>
+
+  <uniform name="col" type="sampler2D" value="0"/>
+  <uniform name="dep" type="sampler2D" value="1"/>
+
+  <vertexProgram>
+#extension GL_EXT_gpu_shader4: enable
+
+uniform sampler2D col;
+uniform sampler2D dep;
+uniform vec2 size;
+uniform mat4 ReprojectionMatrix;
+uniform vec2 offset;
+uniform bool withNeighbors;
+
+bool is_far(float d) {
+   return d == 1.;
+}
+
+float depth(vec2 xy) {
+   return texture2D(dep, xy).r;
+}
+
+vec4 pos(vec2 tc, float d) {
+   vec4 p = vec4(tc.x-0.5, 0.5-tc.y, d-0.5, 0.5)*2.;
+   return ReprojectionMatrix * p;
+}
+
+vec2 screenpos(vec4 p) {
+   return round(p.xy/p.w*size.xy*0.5+offset);
+}
+
+vec2 sdiff(float dd, vec2 xy, vec2 ref) {
+   float d = withNeighbors ? depth(xy) : dd;
+   if (is_far(d)) return vec2(1.,1.);
+   return abs(screenpos(pos(xy, d))-ref);
+}
+
+void main(void) {
+   vec2 xy = gl_Vertex.xy;
+   vec2 tc = vec2(xy.x/size.x, xy.y/size.y);
+   const vec4 Clip = vec4(2.,2.,2.,1.);
+
+   float d = depth(tc);
+   if (is_far(d)) { gl_Position = Clip; return; }
+   gl_Position = pos(tc, d);
+
+   vec4 color = texture2D(col, tc);
+   gl_FrontColor = color;
+
+   vec2 spos = screenpos(gl_Position);
+   float dx = 1./size.x;
+   float dy = 1./size.y;
+   vec2 dxp = sdiff(d, tc+vec2(dx,0.), spos);
+   vec2 dyp = sdiff(d, tc+vec2(0.,dy), spos);
+   vec2 dxm = sdiff(d, tc+vec2(-dx,0.), spos);
+   vec2 dym = sdiff(d, tc+vec2(0.,-dy), spos);
+   vec2 dmax = max(max(dxp,dxm),max(dyp,dym));
+   float ps = max(dmax.x, dmax.y);
+
+   gl_PointSize = clamp(ps, 1., 3.);
+}
+  </vertexProgram>
+
+  <fragmentProgram>
+void main(void) {
+   gl_FragColor = gl_Color;
+}
+  </fragmentProgram>
+
+</MultiChannelDrawerReprojectAdaptive>

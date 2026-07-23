@@ -1,0 +1,36 @@
+<MultiChannelDrawerReproject>
+
+  <uniform name="col" type="sampler2D" value="0"/>
+  <uniform name="dep" type="sampler2D" value="1"/>
+
+  <vertexProgram>
+uniform sampler2D col;
+uniform sampler2D dep;
+uniform vec2 size;
+uniform mat4 ReprojectionMatrix;
+
+float depth(vec2 xy) {
+   return texture2D(dep, xy/size).r;
+}
+
+vec4 pos(vec2 xy, float d) {
+   vec4 p = vec4(xy.x/size.x-0.5, 0.5-xy.y/size.y, d-0.5, 0.5)*2.;
+   return ReprojectionMatrix * p;
+}
+
+void main(void) {
+   vec2 xy = gl_Vertex.xy;
+   vec4 color = texture2D(col, xy/size);
+   gl_FrontColor = color;
+
+   gl_Position = pos(xy, depth(xy));
+}
+  </vertexProgram>
+
+  <fragmentProgram>
+void main(void) {
+   gl_FragColor = gl_Color;
+}
+  </fragmentProgram>
+
+</MultiChannelDrawerReproject>

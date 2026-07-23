@@ -1,0 +1,18 @@
+<MultiChannelDrawerDepth>
+
+  <uniform name="col" type="sampler2D" value="0"/>
+  <uniform name="dep" type="sampler2D" value="1"/>
+
+  <fragmentProgram>
+#version 120
+
+uniform sampler2D col;
+uniform sampler2D dep;
+void main(void) {
+   vec4 color = texture2D(col, gl_TexCoord[0].xy);
+   gl_FragColor = color;
+   gl_FragDepth = texture2D(dep, gl_TexCoord[0].xy).x;
+}
+  </fragmentProgram>
+
+</MultiChannelDrawerDepth>

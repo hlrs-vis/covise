@@ -20,6 +20,7 @@
 
 #include <cover/coVRConfig.h>
 #include <cover/coVRPluginSupport.h>
+#include <cover/coVRShader.h>
 
 #ifdef HAVE_CUDA
 #include <cuda.h>
@@ -222,181 +223,9 @@ void ChannelData::updateViews() {
         vcd->update();
 }
 
-const char reprojVert[] =
-
-      "\n"
-      "uniform sampler2D col;\n"
-      "uniform sampler2D dep;\n"
-      "uniform vec2 size;\n"
-      "uniform mat4 ReprojectionMatrix;\n"
-      "\n"
-
-      "float depth(vec2 xy) {\n"
-      "   return texture2D(dep, xy/size).r;\n"
-      "}\n"
-
-      "vec4 pos(vec2 xy, float d) {\n"
-      "   vec4 p = vec4(xy.x/size.x-0.5, 0.5-xy.y/size.y, d-0.5, 0.5)*2.;\n"
-      "   return ReprojectionMatrix * p;\n"
-      "}\n"
-
-      "void main(void) {\n"
-      "   vec2 xy = gl_Vertex.xy;\n"
-      "   vec4 color = texture2D(col, xy/size);\n"
-      "   gl_FrontColor = color;\n"
-
-      "   gl_Position = pos(xy, depth(xy));\n"
-
-      "}\n";
-
-const char reprojAdaptVert[] =
-
-      // for round
-      "#extension GL_EXT_gpu_shader4: enable\n"
-      "\n"
-      "uniform sampler2D col;\n"
-      "uniform sampler2D dep;\n"
-      "uniform vec2 size;\n"
-      "uniform mat4 ReprojectionMatrix;\n"
-      "uniform vec2 offset;\n"
-      "uniform bool withNeighbors;\n"
-      "\n"
-
-      "bool is_far(float d) {\n"
-      "   return d == 1.;\n"
-      "}\n"
-
-      "float depth(vec2 xy) {\n"
-      "   return texture2D(dep, xy).r;\n"
-      "}\n"
-
-      "vec4 pos(vec2 tc, float d) {\n"
-      "   vec4 p = vec4(tc.x-0.5, 0.5-tc.y, d-0.5, 0.5)*2.;\n"
-      "   return ReprojectionMatrix * p;\n"
-      "}\n"
-
-      "vec2 screenpos(vec4 p) {\n"
-      "   return round(p.xy/p.w*size.xy*0.5+offset);\n"
-      "}\n"
-
-      "vec2 sdiff(float dd, vec2 xy, vec2 ref) {\n"
-      "   float d = withNeighbors ? depth(xy) : dd;\n"
-      "   if (is_far(d)) return vec2(1.,1.);\n"
-      "   return abs(screenpos(pos(xy, d))-ref);\n"
-      "}\n"
-
-      "void main(void) {\n"
-      "   vec2 xy = gl_Vertex.xy;\n"
-      "   vec2 tc = vec2(xy.x/size.x, xy.y/size.y);\n"
-      "   const vec4 Clip = vec4(2.,2.,2.,1.);\n"
-
-      "   float d = depth(tc);\n"
-      "   if (is_far(d)) { gl_Position = Clip; return; }\n"
-      "   gl_Position = pos(tc, d);\n"
-      //"   if (is_far(d)) { gl_PointSize=1.; gl_FrontColor = vec4(1,0,0,1); return; }\n"
-
-      "   vec4 color = texture2D(col, tc);\n"
-      "   gl_FrontColor = color;\n"
-
-      "   vec2 spos = screenpos(gl_Position);\n"
-      "   float dx = 1./size.x;\n"
-      "   float dy = 1./size.y;\n"
-      "   vec2 dxp = sdiff(d, tc+vec2(dx,0.), spos);\n"
-      "   vec2 dyp = sdiff(d, tc+vec2(0.,dy), spos);\n"
-      "   vec2 dxm = sdiff(d, tc+vec2(-dx,0.), spos);\n"
-      "   vec2 dym = sdiff(d, tc+vec2(0.,-dy), spos);\n"
-      "   vec2 dmax = max(max(dxp,dxm),max(dyp,dym));\n"
-      //"   vec2 dmax = max(dxp,dym);\n"
-      "   float ps = max(dmax.x, dmax.y);\n"
-      //"   if (ps > 1.00008 && ps < 2.) { ps=2.; }\n"
-      //"   if (ps > 1. && ps <= 2.) { ps=2.; gl_FrontColor=vec4(1,0,0,1); }\n"
-      //"   if (ps >= 4.) ps = 1.;\n"
-
-      "   gl_PointSize = clamp(ps, 1., 3.);\n"
-      "}\n";
-
-const char reprojFrag[] =
-        "void main(void) {\n"
-        "   gl_FragColor = gl_Color;\n"
-        "}\n";
-
-const char reprojMeshVert[] =
-      "void main(void) {\n"
-      "   gl_Position = vec4(gl_Vertex.xy, 0., 1.);\n"
-      "}\n";
-
-const char reprojMeshGeo[] =
-      "#version 120\n"
-      "#extension GL_EXT_geometry_shader4 : enable\n"
-      "\n"
-      "uniform sampler2D col;\n"
-      "uniform sampler2D dep;\n"
-      "uniform vec2 size;\n"
-      "uniform mat4 ReprojectionMatrix;\n"
-      "uniform bool withHoles;\n"
-      "uniform vec2 offset;\n"
-      "uniform vec2 off[] = vec2[4]( vec2(0,0), vec2(0,1), vec2(1,0), vec2(1,1) );\n"
-      "const float tolerance = 10.f;\n"
-      "\n"
-
-      "float depth(vec2 xy) {\n"
-      "   return texture2D(dep, xy/size).r;\n"
-      "}\n"
-
-      "vec4 pos(vec2 xy, float d) {\n"
-      "   vec4 p = vec4(xy.x/size.x-0.5, 0.5-xy.y/size.y, d-0.5, 0.5)*2.;\n"
-      "   return ReprojectionMatrix * p;\n"
-      "}\n"
-
-      "vec2 screenpos(vec4 p) {\n"
-      "   return p.xy/p.w*size.xy*0.5+offset;\n"
-      "}\n"
-
-      "vec2 pos2d(vec2 xy) {\n"
-      "   float d = depth(xy);\n"
-      "   return screenpos(pos(xy, d));\n"
-      "}\n"
-
-      "bool is_far(float d) {\n"
-      "   return d == 1.;\n"
-      "}\n"
-
-      "void createVertex(vec2 xy) {\n"
-      "   float d = depth(xy);\n"
-      "   if (is_far(d)) return;\n"
-
-      "   vec4 color = texture2D(col, xy/size);\n"
-      "   gl_FrontColor = color;\n"
-      "   gl_Position = pos(xy, d);\n"
-      "   EmitVertex();\n"
-      "}\n"
-
-      "void main() {\n"
-      "   vec2 xy = gl_PositionIn[0].xy;\n"
-      ""
-      "   bool render = true;\n"
-      "   if (withHoles) {\n"
-      "      vec2 p[4];\n"
-      "      for (int i=0; i<4; ++i)\n"
-      "         p[i] = pos2d(xy+off[i]);\n"
-      "      float mindist = distance(p[0],p[1]), maxdist=mindist;\n"
-      "      for (int i=1; i<4; ++i) {\n"
-      "          for (int j=0; j<i; ++j) {\n"
-      "              float dist = distance(p[i],p[j]);\n"
-      "              mindist = min(mindist, dist);\n"
-      "              maxdist = max(maxdist, dist);\n"
-      "          }\n"
-      "      }\n"
-      "      if (maxdist < 0.001 || mindist*tolerance < maxdist) {\n"
-      "         render = false;\n"
-      "      }\n"
-      "   }\n"
-      "   if (render) {\n"
-      "      for (int i=0; i<4; ++i)\n"
-      "         createVertex(xy+off[i]);\n"
-      "   }\n"
-      "   EndPrimitive();\n"
-      "}\n";
+// GLSL sources for the reprojection and depth-compositing shaders have been
+// extracted into share/covise/materials/MultiChannelDrawer*.xml and are loaded
+// through the coVRShader framework (see createGeometry(ViewData &)).
 
 MultiChannelDrawer::MultiChannelDrawer(bool flipped, bool useCuda)
 : m_flipped(flipped)
@@ -568,21 +397,9 @@ void MultiChannelDrawer::createGeometry(ViewData &vd)
       stateSet->setTextureAttribute(0, texEnv);
       stateSet->setTextureAttribute(1, texEnv);
 
-      osg::Program *depthProgramObj = new osg::Program;
-      osg::Shader *depthFragmentObj = new osg::Shader( osg::Shader::FRAGMENT );
-      depthProgramObj->addShader(depthFragmentObj);
-      depthFragmentObj->setShaderSource(
-            "#version 120\n"
-            "\n"
-            "uniform sampler2D col;"
-            "uniform sampler2D dep;"
-            "void main(void) {"
-            "   vec4 color = texture2D(col, gl_TexCoord[0].xy);"
-            "   gl_FragColor = color;"
-            "   gl_FragDepth = texture2D(dep, gl_TexCoord[0].xy).x;"
-            "}"
-            );
-      stateSet->setAttributeAndModes(depthProgramObj, osg::StateAttribute::ON);
+      coVRShader *depthShader = coVRShaderList::instance()->get("MultiChannelDrawerDepth");
+      if (depthShader)
+          depthShader->apply(stateSet);
       vd.fixedGeo->setStateSet(stateSet);
    }
 
@@ -622,43 +439,30 @@ void MultiChannelDrawer::createGeometry(ViewData &vd)
       stateSet->addUniform(vd.withHoles);
 
       {
-         vd.reprojConstProgram = new osg::Program;
-         osg::Shader *reprojVertexObj = new osg::Shader( osg::Shader::VERTEX );
-         reprojVertexObj->setShaderSource(reprojVert);
-         vd.reprojConstProgram->addShader(reprojVertexObj);
-
-         osg::Shader *reprojFragmentObj = new osg::Shader( osg::Shader::FRAGMENT );
-         reprojFragmentObj->setShaderSource(reprojFrag);
-         vd.reprojConstProgram->addShader(reprojFragmentObj);
+         coVRShader *shader = coVRShaderList::instance()->get("MultiChannelDrawerReproject");
+         if (shader)
+         {
+             shader->apply(stateSet);
+             vd.reprojConstProgram = shader->getProgram();
+         }
       }
 
       {
-         vd.reprojAdaptProgram = new osg::Program;
-         osg::Shader *reprojVertexObj = new osg::Shader( osg::Shader::VERTEX );
-         reprojVertexObj->setShaderSource(reprojAdaptVert);
-         vd.reprojAdaptProgram->addShader(reprojVertexObj);
-
-         osg::Shader *reprojFragmentObj = new osg::Shader( osg::Shader::FRAGMENT );
-         reprojFragmentObj->setShaderSource(reprojFrag);
-         vd.reprojAdaptProgram->addShader(reprojFragmentObj);
+         coVRShader *shader = coVRShaderList::instance()->get("MultiChannelDrawerReprojectAdaptive");
+         if (shader)
+         {
+             shader->apply(stateSet);
+             vd.reprojAdaptProgram = shader->getProgram();
+         }
       }
 
       {
-          vd.reprojMeshProgram = new osg::Program;
-          osg::Shader *reprojVertexObj = new osg::Shader( osg::Shader::VERTEX );
-          reprojVertexObj->setShaderSource(reprojMeshVert);
-          vd.reprojMeshProgram->addShader(reprojVertexObj);
-
-          osg::Shader *reprojGeoObj = new osg::Shader( osg::Shader::GEOMETRY );
-          reprojGeoObj->setShaderSource(reprojMeshGeo);
-          vd.reprojMeshProgram->addShader(reprojGeoObj);
-          vd.reprojMeshProgram->setParameter( GL_GEOMETRY_VERTICES_OUT_EXT, 4 );
-          vd.reprojMeshProgram->setParameter( GL_GEOMETRY_INPUT_TYPE_EXT, GL_POINTS );
-          vd.reprojMeshProgram->setParameter( GL_GEOMETRY_OUTPUT_TYPE_EXT, GL_TRIANGLE_STRIP );
-
-          osg::Shader *reprojFragmentObj = new osg::Shader( osg::Shader::FRAGMENT );
-          reprojFragmentObj->setShaderSource(reprojFrag);
-          vd.reprojMeshProgram->addShader(reprojFragmentObj);
+          coVRShader *shader = coVRShaderList::instance()->get("MultiChannelDrawerReprojectMesh");
+          if (shader)
+          {
+              shader->apply(stateSet);
+              vd.reprojMeshProgram = shader->getProgram();
+          }
       }
 
       vd.reprojGeo->setStateSet(stateSet);
