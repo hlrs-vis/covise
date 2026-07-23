@@ -31,8 +31,6 @@
 
 #include "MultiChannelDrawer.h"
 
-//#define INSTANCED // use instanced points instead of one vertex/pixel
-
 // requires GL 3.2
 #ifndef GL_PROGRAM_POINT_SIZE
 #define GL_PROGRAM_POINT_SIZE             0x8642
@@ -226,11 +224,6 @@ void ChannelData::updateViews() {
 
 const char reprojVert[] =
 
-#ifdef INSTANCED
-      // for % operator on integers
-      "#extension GL_EXT_gpu_shader4: enable\n"
-      "#extension GL_ARB_draw_instanced: enable\n"
-#endif
       "\n"
       "uniform sampler2D col;\n"
       "uniform sampler2D dep;\n"
@@ -248,11 +241,7 @@ const char reprojVert[] =
       "}\n"
 
       "void main(void) {\n"
-#ifdef INSTANCED
-      "   vec2 xy = vec2(float(gl_InstanceIDARB%int(size.x)), float(gl_InstanceIDARB/int(size.x)))+vec2(0.5,0.5);\n"
-#else
       "   vec2 xy = gl_Vertex.xy;\n"
-#endif
       "   vec4 color = texture2D(col, xy/size);\n"
       "   gl_FrontColor = color;\n"
 
@@ -262,14 +251,8 @@ const char reprojVert[] =
 
 const char reprojAdaptVert[] =
 
-#ifdef INSTANCED
-      // for % operator on integers
-      "#extension GL_EXT_gpu_shader4: enable\n"
-      "#extension GL_ARB_draw_instanced: enable\n"
-#else
       // for round
       "#extension GL_EXT_gpu_shader4: enable\n"
-#endif
       "\n"
       "uniform sampler2D col;\n"
       "uniform sampler2D dep;\n"
@@ -303,11 +286,7 @@ const char reprojAdaptVert[] =
       "}\n"
 
       "void main(void) {\n"
-#ifdef INSTANCED
-      "   vec2 xy = vec2(float(gl_InstanceIDARB%int(size.x)), float(gl_InstanceIDARB/int(size.x)))+vec2(0.5,0.5);\n"
-#else
       "   vec2 xy = gl_Vertex.xy;\n"
-#endif
       "   vec2 tc = vec2(xy.x/size.x, xy.y/size.y);\n"
       "   const vec4 Clip = vec4(2.,2.,2.,1.);\n"
 
@@ -612,11 +591,9 @@ void MultiChannelDrawer::createGeometry(ViewData &vd)
    {
       vd.reprojGeo->setUseDisplayList( false );
       vd.reprojGeo->setComputeBoundingBoxCallback(new EmptyBounding);
-#ifndef INSTANCED
       vd.pointCoord = new osg::Vec2Array(1);
       (*vd.pointCoord)[0].set(0., 0.);
       vd.reprojGeo->setVertexArray(vd.pointCoord);
-#endif
       vd.quadCoord = new osg::Vec2Array(0);
       vd.reprojGeo->setColorArray(color);
       vd.reprojGeo->setColorBinding(osg::Geometry::BIND_OVERALL);
@@ -947,7 +924,6 @@ void MultiChannelDrawer::updateGeoForView(ViewData &vd) {
     }
     vd.texcoord->dirty();
 
-#ifndef INSTANCED
     vd.pointCoord->resizeArray(w*h);
     for (int y = 0; y<h; ++y) {
         for (int x = 0; x<w; ++x) {
@@ -956,8 +932,6 @@ void MultiChannelDrawer::updateGeoForView(ViewData &vd) {
     }
     vd.pointCoord->dirty();
     vd.pointArr = new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, w*h);
-#endif
-
     vd.quadCoord->resizeArray((w - 1)*(h - 1));
     size_t idx = 0;
     for (int y = 0; y<h - 1; ++y) {
@@ -970,23 +944,13 @@ void MultiChannelDrawer::updateGeoForView(ViewData &vd) {
 
     osg::ref_ptr<osg::DrawArrays> arr = (m_mode == ReprojectMesh || m_mode == ReprojectMeshWithHoles) ? vd.quadArr : vd.pointArr;
 
-    auto updateGeo = [this, arr, w, h](osg::Geometry *geo){
-#ifdef INSTANCED
-        if (geo->getNumPrimitiveSets() > 0) {
-            geo->setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, 1, w*h));
-        }
-        else {
-            geo->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, 1, w*h));
-        }
-#else
-
+    auto updateGeo = [arr](osg::Geometry *geo){
         if (geo->getNumPrimitiveSets() > 0) {
             geo->setPrimitiveSet(0, arr);
         } else {
             geo->addPrimitiveSet(arr);
         }
         geo->dirtyDisplayList();
-#endif
     };
     updateGeo(vd.reprojGeo);
     for (auto &vcd: vd.viewChan) {
@@ -1122,15 +1086,6 @@ void MultiChannelDrawer::setMode(MultiChannelDrawer::Mode mode) {
             case Reproject:
             case ReprojectAdaptive:
             case ReprojectAdaptiveWithNeighbors: {
-#ifdef INSTANCED
-                int numpix = vd.width*vd.height;
-                if (geo->getNumPrimitiveSets() > 0) {
-                    geo->setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, 1, numpix));
-                }
-                else {
-                    geo->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, 1, numpix));
-                }
-#else
                 geo->setVertexArray(vd.pointCoord);
                 if (vd.pointArr) {
                     if (geo->getNumPrimitiveSets() > 0)
@@ -1138,7 +1093,6 @@ void MultiChannelDrawer::setMode(MultiChannelDrawer::Mode mode) {
                     else
                         geo->addPrimitiveSet(vd.pointArr);
                 }
-#endif
                 break;
             }
             case ReprojectMesh:
