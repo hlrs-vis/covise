@@ -714,11 +714,15 @@ void MultiChannelDrawer::initViewData(ViewData &vd) {
        auto pboc = new osg::PixelBufferObject(vd.colorImg);
        pboc->setUsage(GL_STREAM_DRAW);
        vd.colorImg->setPixelBufferObject(pboc);
+
        vd.depthImg = new osg::Image;
        vd.depthImg->setDataVariance(osg::Object::DYNAMIC);
+       // do not create a second PBO on macOS, in order to avoid mismatched color and depth frames
+#ifndef __APPLE__
        auto pbod = new osg::PixelBufferObject(vd.depthImg);
        pbod->setUsage(GL_STREAM_DRAW);
        vd.depthImg->setPixelBufferObject(pbod);
+#endif
 
        vd.colorTex = new osg::TextureRectangle;
        vd.depthTex = new osg::TextureRectangle;
