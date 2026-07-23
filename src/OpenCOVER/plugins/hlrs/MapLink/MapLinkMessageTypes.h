@@ -1,0 +1,8 @@
+#ifndef _MAPLINK_MESSAGE_TYPES_H
+#define _MAPLINK_ MESSAGE_TYPES_H
+enum MessageTypes
+    {
+        MSG_GetHeight = 500, // this must be the first Message
+        MSG_GetMap = 501,
+    };
+#endif
