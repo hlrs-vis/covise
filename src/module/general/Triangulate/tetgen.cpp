@@ -2947,7 +2947,7 @@ void tetgenio::save_nodes(char *filename)
     char outmtrfilename[FILENAMESIZE];
     int i, j;
 
-    sprintf(outnodefilename, "%s.node", filename);
+    snprintf(outnodefilename, sizeof(outnodefilename), "%s.node", filename);
     printf("Saving nodes to %s\n", outnodefilename);
     fout = fopen(outnodefilename, "w");
     fprintf(fout, "%d  %d  %d  %d\n", numberofpoints, mesh_dim,
@@ -2980,7 +2980,7 @@ void tetgenio::save_nodes(char *filename)
     // If the point metrics exist, output them to a .mtr file.
     if ((numberofpointmtrs > 0) && (pointmtrlist != (REAL *)NULL))
     {
-        sprintf(outmtrfilename, "%s.mtr", filename);
+        snprintf(outmtrfilename, sizeof(outmtrfilename), "%s.mtr", filename);
         printf("Saving metrics to %s\n", outmtrfilename);
         fout = fopen(outmtrfilename, "w");
         fprintf(fout, "%d  %d\n", numberofpoints, numberofpointmtrs);
@@ -3010,7 +3010,7 @@ void tetgenio::save_elements(char *filename)
     char outelefilename[FILENAMESIZE];
     int i, j;
 
-    sprintf(outelefilename, "%s.ele", filename);
+    snprintf(outelefilename, sizeof(outelefilename), "%s.ele", filename);
     printf("Saving elements to %s\n", outelefilename);
     fout = fopen(outelefilename, "w");
     fprintf(fout, "%d  %d  %d\n", numberoftetrahedra, numberofcorners,
@@ -3047,7 +3047,7 @@ void tetgenio::save_faces(char *filename)
     char outfacefilename[FILENAMESIZE];
     int i;
 
-    sprintf(outfacefilename, "%s.face", filename);
+    snprintf(outfacefilename, sizeof(outfacefilename), "%s.face", filename);
     printf("Saving faces to %s\n", outfacefilename);
     fout = fopen(outfacefilename, "w");
     fprintf(fout, "%d  %d\n", numberoftrifaces,
@@ -3080,7 +3080,7 @@ void tetgenio::save_edges(char *filename)
     char outedgefilename[FILENAMESIZE];
     int i;
 
-    sprintf(outedgefilename, "%s.edge", filename);
+    snprintf(outedgefilename, sizeof(outedgefilename), "%s.edge", filename);
     printf("Saving edges to %s\n", outedgefilename);
     fout = fopen(outedgefilename, "w");
     fprintf(fout, "%d  %d\n", numberofedges, edgemarkerlist != NULL ? 1 : 0);
@@ -3112,7 +3112,7 @@ void tetgenio::save_neighbors(char *filename)
     char outneighborfilename[FILENAMESIZE];
     int i;
 
-    sprintf(outneighborfilename, "%s.neigh", filename);
+    snprintf(outneighborfilename, sizeof(outneighborfilename), "%s.neigh", filename);
     printf("Saving neighbors to %s\n", outneighborfilename);
     fout = fopen(outneighborfilename, "w");
     fprintf(fout, "%d  %d\n", numberoftetrahedra, mesh_dim + 1);
@@ -3153,7 +3153,7 @@ void tetgenio::save_poly(char *filename)
     char outpolyfilename[FILENAMESIZE];
     int i, j, k;
 
-    sprintf(outpolyfilename, "%s.poly", filename);
+    snprintf(outpolyfilename, sizeof(outpolyfilename), "%s.poly", filename);
     printf("Saving poly to %s\n", outpolyfilename);
     fout = fopen(outpolyfilename, "w");
 
@@ -4070,7 +4070,7 @@ bool tetgenbehavior::parse_commandline(int argc, char **argv)
         workstring[increment] = '%';
         workstring[increment + 1] = 'd';
         workstring[increment + 2] = '\0';
-        sprintf(outfilename, workstring, meshnumber + 1);
+        snprintf(outfilename, sizeof(outfilename), workstring, meshnumber + 1);
     }
     // Additional input file name has the end ".a".
     strcpy(addinfilename, infilename);
@@ -39920,14 +39920,14 @@ void tetgenmesh::qualitystatistics()
            smallestvolume, biggestvolume);
     printf("  Shortest edge:   %16.5g   |  Longest edge:   %16.5g\n",
            shortest, longest);
-    sprintf(sbuf, "%.17g", biggestfaangle);
+    snprintf(sbuf, sizeof(sbuf), "%.17g", biggestfaangle);
     if (strlen(sbuf) > 8)
     {
         sbuf[8] = '\0';
     }
     printf("  Smallest facangle: %14.5g   |  Largest facangle:       %s\n",
            smallestfaangle, sbuf);
-    sprintf(sbuf, "%.17g", biggestdiangle);
+    snprintf(sbuf, sizeof(sbuf), "%.17g", biggestdiangle);
     if (strlen(sbuf) > 8)
     {
         sbuf[8] = '\0';

@@ -267,16 +267,16 @@ void Application::writeObject(const coDistributedObject *new_data,
             //  PrintInMesh(num_poly,num_vertices,el,cl) ;
             num_triangles = ToTriangulationForTriStrips(&vl, num_poly, num_vertices, el, cl);
         }
-        sprintf(buffer, "26       0       0       1%8d%8d       0       0       0\n",
+        snprintf(buffer, sizeof(buffer), "26       0       0       1%8d%8d       0       0       0\n",
                 num_points, num_triangles);
         fputs(buffer, file);
         fputs("15-APR-98   03:52:14     2.4\n", file);
 
         for (i = 0; i < num_points; i++) /* writing of coordinates */
         {
-            sprintf(buffer, " 1%8d       0       2       0       0       0       0       0\n", i + 1);
+            snprintf(buffer, sizeof(buffer), " 1%8d       0       2       0       0       0       0       0\n", i + 1);
             fputs(buffer, file);
-            sprintf(buffer, "% 16.9E% 16.9E% 16.9E\n", v[0][i], v[1][i], v[2][i]);
+            snprintf(buffer, sizeof(buffer), "% 16.9E% 16.9E% 16.9E\n", v[0][i], v[1][i], v[2][i]);
 #ifdef WIN32
             // Repair E+000 to E+00 on Win32
             size_t length = strlen(buffer);
@@ -303,10 +303,10 @@ void Application::writeObject(const coDistributedObject *new_data,
 
         for (i = 0; i < num_triangles; i++)
         {
-            sprintf(buffer, " 2 %7d       3       2       0       0       0       0       0\n", i + 1);
+            snprintf(buffer, sizeof(buffer), " 2 %7d       3       2       0       0       0       0       0\n", i + 1);
             fputs(buffer, file);
             fputs("       3       0       1       0 0.000000000E+00 0.000000000E+00 0.000000000E+00\n", file);
-            sprintf(buffer, " %7d %7d %7d \n", vl[i * 3] + 1, vl[i * 3 + 1] + 1, vl[i * 3 + 2] + 1);
+            snprintf(buffer, sizeof(buffer), " %7d %7d %7d \n", vl[i * 3] + 1, vl[i * 3 + 1] + 1, vl[i * 3 + 2] + 1);
             fputs(buffer, file);
         }
         fputs("99      0       0       1\n", file);

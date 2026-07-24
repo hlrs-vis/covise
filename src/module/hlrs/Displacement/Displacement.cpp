@@ -155,7 +155,7 @@ int Displacement::compute(const char *)
 
     coDoSet *DisplacementSet = new coDoSet(coObjInfo(m_portDisplacement->getObjName()), pdisplacement);
     char ts[100];
-    sprintf(ts, "1 %d", numberSteps);
+    snprintf(ts, sizeof(ts), "1 %d", numberSteps);
     DisplacementSet->addAttribute("TIMESTEP", ts);
 
     m_portDisplacement->setCurrentObject(DisplacementSet);

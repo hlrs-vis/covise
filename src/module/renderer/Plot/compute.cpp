@@ -116,7 +116,7 @@ void loadset(int gno, int selset, int toval, double startno, double stepno)
     {
         char stmp[60];
 
-        sprintf(stmp, "Length of set %d <= 0", selset);
+        snprintf(stmp, sizeof(stmp), "Length of set %d <= 0", selset);
         errwin(stmp);
         return;
     }
@@ -164,7 +164,7 @@ int formula(int gno, int selset, char *sscanstr)
 
     if ((lenset = getsetlength(gno, selset)) <= 0)
     {
-        sprintf(stmp, "Length of set %d = 0", selset);
+        snprintf(stmp, sizeof(stmp), "Length of set %d = 0", selset);
         errwin(stmp);
         return (0);
     }

@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
                 xVal = 0;
                 yVal = 0;
                 char sendbuffer[2048];
-                sprintf(sendbuffer, "VRC %d %3d [0.0 0.0 0.0] - [0 0 0 0 0 0 0 0 0] - [%d %d]",
+                snprintf(sendbuffer, sizeof(sendbuffer), "VRC %d %3d [0.0 0.0 0.0] - [0 0 0 0 0 0 0 0 0] - [%d %d]",
                         stationID, button1 | button2 | button3, xVal, yVal);
                 fprintf(stderr, "%s\n", sendbuffer);
                 sender.send(sendbuffer, strlen(sendbuffer) + 1);
@@ -205,7 +205,7 @@ void showbuffer(unsigned char *bytes, int n, UDP_Sender &sender, int stationID)
         yVal = -(256 - yVal);
 
     char sendbuffer[2048];
-    sprintf(sendbuffer, "VRC %d %3d [0.0 0.0 0.0] - [0 0 0 0 0 0 0 0 0] - [%d %d]",
+    snprintf(sendbuffer, sizeof(sendbuffer), "VRC %d %3d [0.0 0.0 0.0] - [0 0 0 0 0 0 0 0 0] - [%d %d]",
             stationID, button1 | button2 | button3, xVal, yVal);
     fprintf(stderr, "%s\n", sendbuffer);
     sender.send(sendbuffer, strlen(sendbuffer) + 1);

@@ -1030,7 +1030,7 @@ int ReadNastran::compute(const char *)
             char obj_name[256];
             for (i = 0; i < numDisplacementSets; i++)
             {
-                sprintf(obj_name, "%s_%d", name, i);
+                snprintf(obj_name, sizeof(obj_name), "%s_%d", name, i);
 
                 ougv_set[i] = new coDoVec3(obj_name,
                                            gridID.size(),
@@ -1041,7 +1041,7 @@ int ReadNastran::compute(const char *)
 
             coDoSet *ougv1 = new coDoSet(ougv1Out->getNewObjectInfo(), ougv_set);
 
-            sprintf(obj_name, "1 %d", numDisplacementSets);
+            snprintf(obj_name, sizeof(obj_name), "1 %d", numDisplacementSets);
             ougv1->addAttribute("TIMESTEP", obj_name);
 
             delete ougv1;

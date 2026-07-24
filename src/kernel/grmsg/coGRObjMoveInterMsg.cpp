@@ -29,13 +29,13 @@ GRMSGEXPORT coGRObjMoveInterMsg::coGRObjMoveInterMsg(Mtype type, const char *obj
 
         addToken(interName);
 
-        sprintf(str, "%f", x);
+        snprintf(str, sizeof(str), "%f", x);
         addToken(str);
 
-        sprintf(str, "%f", y);
+        snprintf(str, sizeof(str), "%f", y);
         addToken(str);
 
-        sprintf(str, "%f", z);
+        snprintf(str, sizeof(str), "%f", z);
         addToken(str);
 
         is_valid_ = 1;

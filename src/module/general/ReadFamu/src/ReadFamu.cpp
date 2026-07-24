@@ -142,7 +142,7 @@ ReadFamu::ReadFamu(int argc, char **argv)
     int i;
     for (i = 0; i < NUMRES; i++)
     {
-        sprintf(buf, "data%d", i);
+        snprintf(buf, sizeof(buf), "data%d", i);
         _dataPort[i] = addOutputPort(buf, "Float|Vec3", buf);
         _dataPort[i]->setInfo(buf);
     }

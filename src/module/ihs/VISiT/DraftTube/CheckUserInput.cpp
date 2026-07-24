@@ -133,6 +133,6 @@ int DraftTube::SplitPortname(const char *portname, char *name, int *index)
 char *DraftTube::IndexedParameterName(const char *name, int index)
 {
    char buf[255];
-   sprintf(buf, "%s_%d", name, index + 1);
+   snprintf(buf, sizeof(buf), "%s_%d", name, index + 1);
    return strdup(buf);
 }

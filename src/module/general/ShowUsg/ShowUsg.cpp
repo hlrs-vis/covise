@@ -305,7 +305,7 @@ int ShowUSG::compute(const char *)
         }
         color_sets_2 = new coDistributedObject *[4];
         color_sets_2_num = 0;
-        sprintf(buf, "%s_s", GeometryN);
+        snprintf(buf, sizeof(buf), "%s_s", GeometryN);
         genpolygons(buf);
         color_sets_2[color_sets_2_num] = NULL;
         strcpy(buf, GeometryN);
@@ -473,7 +473,7 @@ int ShowUSG::compute(const char *)
                         else
                             Covise::sendError("Wrong number of colors");
                     }
-                    sprintf(buf, "%s_ts%d_%d", GeometryN, n, i);
+                    snprintf(buf, sizeof(buf), "%s_ts%d_%d", GeometryN, n, i);
                     genpolygons(buf);
                     if (gennormals)
                     {
@@ -483,7 +483,7 @@ int ShowUSG::compute(const char *)
                         color_set_2 = new coDoSet(buf, normal_sets_2);
                     }
                     color_sets_2[color_sets_2_num] = NULL;
-                    sprintf(buf, "%s_ts%d_%dc2", GeometryN, n, i);
+                    snprintf(buf, sizeof(buf), "%s_ts%d_%dc2", GeometryN, n, i);
                     color_set_2 = new coDoSet(buf, color_sets_2);
                     for (u = 0; u < color_sets_2_num; u++)
                         delete color_sets_2[u];
@@ -504,9 +504,9 @@ int ShowUSG::compute(const char *)
                 }
                 Geometrys_set_set[num_set_elem] = NULL;
                 Colors_set[num_set_elem] = NULL;
-                sprintf(buf, "%s_ts%d", GeometryN, n);
+                snprintf(buf, sizeof(buf), "%s_ts%d", GeometryN, n);
                 Geometry_set_set = new coDoSet(buf, (coDistributedObject **)Geometrys_set_set);
-                sprintf(buf, "%s_ts%d_c", GeometryN, n);
+                snprintf(buf, sizeof(buf), "%s_ts%d_c", GeometryN, n);
                 color_set = new coDoSet(buf, (coDistributedObject **)Colors_set);
                 for (i = 0; i < num_set_elem; i++)
                 {
@@ -612,7 +612,7 @@ int ShowUSG::compute(const char *)
                     transparency = 1.0f - transparency;
                 }
                 isflat = uns_grid_in->getAttribute("FLAT");
-                sprintf(buf, "%s_%dc2", GeometryN, i);
+                snprintf(buf, sizeof(buf), "%s_%dc2", GeometryN, i);
                 color_sets_2 = new coDistributedObject *[4];
                 color_sets_2_num = 0;
                 //color_set->addElement(color_set_2);
@@ -651,10 +651,10 @@ int ShowUSG::compute(const char *)
                     else
                         Covise::sendError("Wrong number of colors");
                 }
-                sprintf(buf, "%s_%d", GeometryN, i);
+                snprintf(buf, sizeof(buf), "%s_%d", GeometryN, i);
                 genpolygons(buf);
                 color_sets_2[color_sets_2_num] = NULL;
-                sprintf(buf, "%s_ts%d_%dc2", GeometryN, n, i);
+                snprintf(buf, sizeof(buf), "%s_ts%d_%dc2", GeometryN, n, i);
                 color_set_2 = new coDoSet(buf, color_sets_2);
                 for (u = 0; u < color_sets_2_num; u++)
                     delete color_sets_2[u];
@@ -676,12 +676,12 @@ int ShowUSG::compute(const char *)
             } // end of for(i=0;i<num_set_elem;i++)...
             Geometrys_set_set[num_set_elem] = NULL;
             Colors_set[num_set_elem] = NULL;
-            sprintf(buf, "%s_ts%d", GeometryN, n);
+            snprintf(buf, sizeof(buf), "%s_ts%d", GeometryN, n);
             Geometry_set_set = new coDoSet(buf, (coDistributedObject **)Geometrys_set_set);
             //TODO: istimesteps is never initialized. Unoptimized builds won't call this code anyway.
             if (istimesteps)
                 Geometry_set_set->addAttribute("TIMESTEP", min_max);
-            sprintf(buf, "%s_ts%d_c", GeometryN, n);
+            snprintf(buf, sizeof(buf), "%s_ts%d_c", GeometryN, n);
             color_set = new coDoSet(buf, (coDistributedObject **)Colors_set);
             if (iscolormap)
                 color_set->addAttribute("COLORMAP", colmap);
@@ -894,14 +894,14 @@ void ShowUSG::genpolygons(char *GeometryN)
                 g = 1.;
                 b = 0.;
             }
-            sprintf(buf, "%s_co", GeometryN);
+            snprintf(buf, sizeof(buf), "%s_co", GeometryN);
             p_colors = new coDoRGBA(buf, 1);
             p_colors->setFloatRGBA(0, r, g, b, transparency);
             p_colors->addAttribute("COLOR_BINDING", "OVERALL");
         }
         if (numpoints > 0)
         {
-            sprintf(buf, "%s_%d", GeometryN, setnum++);
+            snprintf(buf, sizeof(buf), "%s_%d", GeometryN, setnum++);
             Points = new coDoPoints(buf, numpoints);
             if (Points->objectOk())
             {
@@ -915,7 +915,7 @@ void ShowUSG::genpolygons(char *GeometryN)
             }
             if (ColorIn != NULL)
             {
-                sprintf(buf, "%s_cp", GeometryN);
+                snprintf(buf, sizeof(buf), "%s_cp", GeometryN);
                 // u_colors_p = new coDoVec3(buf,numpoints);
                 // u_colors_p->getAddresses(&rp_out, &gp_out, &bp_out);
                 // u_colors_p->addAttribute("COLOR_BINDING", "PER_VERTEX");
@@ -931,7 +931,7 @@ void ShowUSG::genpolygons(char *GeometryN)
         }
         if (numlines > 0)
         {
-            sprintf(buf, "%s_%d", GeometryN, setnum++);
+            snprintf(buf, sizeof(buf), "%s_%d", GeometryN, setnum++);
             Lines = new coDoLines(buf, linecoords, numlines * 2, numlines);
             if (Lines->objectOk())
             {
@@ -947,7 +947,7 @@ void ShowUSG::genpolygons(char *GeometryN)
             }
             if (ColorIn != NULL)
             {
-                sprintf(buf, "%s_cl", GeometryN);
+                snprintf(buf, sizeof(buf), "%s_cl", GeometryN);
                 // u_colors_l = new coDoVec3(buf,linecoords);
                 // u_colors_l->getAddresses(&rl_out, &gl_out, &bl_out);
                 // u_colors_l->addAttribute("COLOR_BINDING", "PER_VERTEX");
@@ -971,7 +971,7 @@ void ShowUSG::genpolygons(char *GeometryN)
         }
         if (numtriangles > 0)
         {
-            sprintf(buf, "%s_%d", GeometryN, setnum++);
+            snprintf(buf, sizeof(buf), "%s_%d", GeometryN, setnum++);
             Strips = new coDoTriangleStrips(buf, trianglecoords, numtriangles + 2 * numstrips, numstrips);
             if (Strips->objectOk())
             {
@@ -986,7 +986,7 @@ void ShowUSG::genpolygons(char *GeometryN)
             }
             if (ColorIn != NULL)
             {
-                sprintf(buf, "%s_cs", GeometryN);
+                snprintf(buf, sizeof(buf), "%s_cs", GeometryN);
                 // u_colors_s = new coDoVec3(buf,trianglecoords);
                 // u_colors_s->getAddresses(&rs_out, &gs_out, &bs_out);
                 // u_colors_s->addAttribute("COLOR_BINDING", "PER_VERTEX");

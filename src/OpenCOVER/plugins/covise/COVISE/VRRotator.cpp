@@ -85,7 +85,7 @@ void Rotator::removeTransform()
         {
             fprintf(stdout, "\a");
             fflush(stdout);
-            sprintf(buf, "scalar\nFloatScalar\n%f\n", angle);
+            snprintf(buf, sizeof(buf), "scalar\nFloatScalar\n%f\n", angle);
             CoviseRender::send_feedback_message("PARAM", buf);
             buf[0] = '\0';
             CoviseRender::send_feedback_message("EXEC", buf);

@@ -49,14 +49,14 @@ CGVTrack::CGVTrack(const char *host, int portnumber)
 {
     port = portnumber;
     char portStr[100];
-    sprintf(portStr, "%d", port);
+    snprintf(portStr, sizeof(portStr), "%d", port);
 
     stationData = new stationDataType[CGVMAXSENSORS];
     for (int i = 0; i < CGVMAXSENSORS; i++)
     {
         stationData[i].name = NULL;
         char key[1024];
-        sprintf(key, "COVER.Input.CGV.StationName:%d", i);
+        snprintf(key, sizeof(key), "COVER.Input.CGV.StationName:%d", i);
         std::string name = coCoviseConfig::getEntry(key);
         if (!name.empty())
         {

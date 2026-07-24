@@ -432,11 +432,11 @@ int open_lv(bglv *bgp, char *p, int flag)
 
     ep = getenv("FBPORT");
     if (ep)
-        sprintf(pt, "%s", ep);
+        snprintf(pt, sizeof(pt), "%s", ep);
     else if (p == NULL)
-        sprintf(pt, "%s", PORT);
+        snprintf(pt, sizeof(pt), "%s", PORT);
     else
-        sprintf(pt, "%s", p);
+        snprintf(pt, sizeof(pt), "%s", p);
 
     port[0] = pt[strlen(pt) - 1];
     bgp->port = atoi(port);

@@ -713,12 +713,12 @@ int WritePATRAN_SESfile(int nnum, int elnum, int ge_num, int nstart,
 
 	// session files for elements + nodes
 	for(i = 0; i < ge_num-1; i++) {
-		sprintf(fn,"%s_%02d.ses",efile,i);
+		snprintf(fn, sizeof(fn),"%s_%02d.ses",efile,i);
 		if( (fp = fopen(fn,"w+")) == NULL) {
 			fprintf(stderr," Can not open file '%s'!\n",fn);
 			exit(-1);
 		}
-		sprintf(meridian,"%s%02d",egroup,i);
+		snprintf(meridian, sizeof(meridian),"%s%02d",egroup,i);
 		fprintf(fp,"uil_list_a.clear()\n");
 		fprintf(fp,"list_create_target_list(\"lista\",\"elm %d:%d\")\n",
 				elstart+1+i*elstep, elstart+(i+1)*elstep);
@@ -732,12 +732,12 @@ int WritePATRAN_SESfile(int nnum, int elnum, int ge_num, int nstart,
 
 	// session files, one meridian plane's nodes
 	for(i = 0; i < ge_num; i++) {
-		sprintf(fn,"%s_%02d.ses",nfile, i);
+		snprintf(fn, sizeof(fn),"%s_%02d.ses",nfile, i);
 		if( (fp = fopen(fn,"w+")) == NULL) {
 			fprintf(stderr," Can not open file '%s'!\n",fn);
 			exit(-1);
 		}
-		sprintf(meridian,"%s%02d",ngroup, i);
+		snprintf(meridian, sizeof(meridian),"%s%02d",ngroup, i);
 		fprintf(fp,"uil_list_a.clear()\n");
 		fprintf(fp,"list_create_target_list(\"lista\",\"node %d:%d\")\n",
 				nstart+1+i*nstep, nstart+(i+1)*nstep);

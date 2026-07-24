@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
             mat[2][1] = (-cos(rotX) * sin(rotY) * sin(rotZ)) + (sin(rotX) * cos(rotZ));
             mat[2][2] = cos(rotX) * cos(rotY);
 
-            sprintf(sendbuffer, "VRC %d %d [%5.0f %5.0f %5.0f] - [%5.2f %5.2f %5.2f %5.2f %5.2f %5.2f %5.2f %5.2f %5.2f] - [%5.2f %5.2f %5.2f]",
+            snprintf(sendbuffer, sizeof(sendbuffer), "VRC %d %d [%5.0f %5.0f %5.0f] - [%5.2f %5.2f %5.2f %5.2f %5.2f %5.2f %5.2f %5.2f %5.2f] - [%5.2f %5.2f %5.2f]",
                     TrackerID, 0, 0.0, 10.0, 0.0,
                     mat[0][0], mat[0][1], mat[0][2],
                     mat[1][0], mat[1][1], mat[1][2],

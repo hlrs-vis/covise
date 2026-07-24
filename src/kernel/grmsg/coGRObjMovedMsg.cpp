@@ -122,19 +122,19 @@ GRMSGEXPORT void coGRObjMovedMsg::initClass(float transX, float transY, float tr
 
     char str[1024];
 
-    sprintf(str, "%f", transX_);
+    snprintf(str, sizeof(str), "%f", transX_);
     addToken(str);
-    sprintf(str, "%f", transY_);
+    snprintf(str, sizeof(str), "%f", transY_);
     addToken(str);
-    sprintf(str, "%f", transZ_);
+    snprintf(str, sizeof(str), "%f", transZ_);
     addToken(str);
-    sprintf(str, "%f", rotX_);
+    snprintf(str, sizeof(str), "%f", rotX_);
     addToken(str);
-    sprintf(str, "%f", rotY_);
+    snprintf(str, sizeof(str), "%f", rotY_);
     addToken(str);
-    sprintf(str, "%f", rotZ_);
+    snprintf(str, sizeof(str), "%f", rotZ_);
     addToken(str);
-    sprintf(str, "%f", rotAngle_);
+    snprintf(str, sizeof(str), "%f", rotAngle_);
     addToken(str);
 
     is_valid_ = 1;

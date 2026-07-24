@@ -203,7 +203,7 @@ int Animate::compute(const char *)
     delete[] set_list;
 
     char buf[16];
-    sprintf(buf, "1 %d", numTimesteps);
+    snprintf(buf, sizeof(buf), "1 %d", numTimesteps);
     setOut->addAttribute("TIMESTEP", buf);
     p_outGrid->setCurrentObject(setOut);
 

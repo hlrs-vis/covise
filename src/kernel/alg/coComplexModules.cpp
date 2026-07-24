@@ -216,7 +216,7 @@ ComplexModules::Spheres(const char *name, const coDistributedObject *points, flo
             string name_i = name;
             string name_norm_i = name_norm;
             char buf[16];
-            sprintf(buf, "_%d", i);
+            snprintf(buf, sizeof(buf), "_%d", i);
             name_i += buf;
             name_norm_i += buf;
             outList[i] = ComplexModules::Spheres(name_i.c_str(), setList[i], radius,
@@ -340,7 +340,7 @@ ComplexModules::Tubelines(const char *name, const coDistributedObject *lines, co
         {
             string name_i = name;
             char buf[16];
-            sprintf(buf, "_%d", currentSetEle);
+            snprintf(buf, sizeof(buf), "_%d", currentSetEle);
             name_i += buf;
             if (!setListTangents[currentSetEle]->isType("USTVDT"))
             {
@@ -857,7 +857,7 @@ ComplexModules::ThickStreamlines(const char *name, const coDistributedObject *li
     {
         //       string name_i = name;
         //       char buf[16];
-        //       sprintf(buf,"_%d",currentSetEle);
+        //       snprintf(buf, sizeof(buf),"_%d",currentSetEle);
         //       name_i += buf;
 
         if (!tangents->isType("USTVDT"))
@@ -1048,7 +1048,7 @@ ComplexModules::Bars(const char *name, coDistributedObject *points, float radius
             string name_i = name;
             string name_norm_i = name_norm;
             char buf[16];
-            sprintf(buf, "_%d", currentSetEle);
+            snprintf(buf, sizeof(buf), "_%d", currentSetEle);
             name_i += buf;
             name_norm_i += buf;
 
@@ -1263,7 +1263,7 @@ ComplexModules::Compass(const char *name, const coDistributedObject *points, flo
             string name_norm_i = name_norm;
             string name_colors_i = "CompassColors";
             char buf[16];
-            sprintf(buf, "_%d", currentSetEle);
+            snprintf(buf, sizeof(buf), "_%d", currentSetEle);
             name_i += buf;
             name_norm_i += buf;
             name_colors_i += buf;
@@ -1530,7 +1530,7 @@ ComplexModules::BarMagnets(const char *name, const coDistributedObject *points, 
             string name_norm_i = name_norm;
             string name_colors_i = "BarMagnetColors";
             char buf[16];
-            sprintf(buf, "_%d", currentSetEle);
+            snprintf(buf, sizeof(buf), "_%d", currentSetEle);
             name_i += buf;
             name_norm_i += buf;
             name_colors_i += buf;

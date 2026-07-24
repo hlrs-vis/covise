@@ -86,7 +86,7 @@ Pathlines::gatherTimeStep()
         fprintf(stderr, "\n");
         name = name_line_;
         char buf[64];
-        sprintf(buf, "_%d", covise_time_);
+        snprintf(buf, sizeof(buf), "_%d", covise_time_);
         name += buf;
         if (lines_.size() <= covise_time_)
             lines_.resize(covise_time_ + 1);
@@ -107,7 +107,7 @@ Pathlines::gatherTimeStep()
         if (magnitude_.size() <= covise_time_)
             magnitude_.resize(covise_time_ + 1);
         name = name_magnitude_;
-        sprintf(buf, "_%d", covise_time_);
+        snprintf(buf, sizeof(buf), "_%d", covise_time_);
         name += buf;
         if (Whatout != PTask::V_VEC)
         {

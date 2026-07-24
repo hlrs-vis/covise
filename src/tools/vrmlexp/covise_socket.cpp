@@ -665,14 +665,14 @@ int Socket::write(const void *buf, unsigned nbyte)
     if (no_of_bytes <= 0)
     {
 #ifdef _WIN32
-        sprintf(tmp_str, "Socket send error = %d", WSAGetLastError());
+        snprintf(tmp_str, sizeof(tmp_str), "Socket send error = %d", WSAGetLastError());
 //print_error(__LINE__, __FILE__, tmp_str);
 #else
         if (errno == EPIPE)
             return COVISE_SOCKET_INVALID;
         if (errno == ECONNRESET)
             return COVISE_SOCKET_INVALID;
-        sprintf(tmp_str, "Socket write error = %d: %s, no_of_bytes = %d", errno, strerror(errno), no_of_bytes);
+        snprintf(tmp_str, sizeof(tmp_str), "Socket write error = %d: %s, no_of_bytes = %d", errno, strerror(errno), no_of_bytes);
 //print_error(__LINE__, __FILE__, tmp_str);
 #endif
 #ifdef _DEBUG
@@ -702,10 +702,10 @@ int Socket::read(void *buf, unsigned nbyte)
     if (no_of_bytes <= 0)
     {
 #ifdef _WIN32
-        sprintf(tmp_str, "Socket recv error = %d", WSAGetLastError());
+        snprintf(tmp_str, sizeof(tmp_str), "Socket recv error = %d", WSAGetLastError());
 //print_comment(__LINE__, __FILE__, tmp_str);
 #else
-        sprintf(tmp_str, "Socket read error = %d", errno);
+        snprintf(tmp_str, sizeof(tmp_str), "Socket read error = %d", errno);
 //print_comment(__LINE__, __FILE__, tmp_str);
 #endif
         //    perror("Socket read error");
@@ -787,10 +787,10 @@ int Socket::Read(void *buf, unsigned nbyte)
       char tmp_str[255];
 
       #ifdef _WIN32
-      sprintf(tmp_str,"Socket recv error = %d", WSAGetLastError());
+      snprintf(tmp_str, sizeof(tmp_str),"Socket recv error = %d", WSAGetLastError());
       //print_comment(__LINE__, __FILE__, tmp_str);
       #else
-      sprintf(tmp_str,"Socket read error = %d", errno);
+      snprintf(tmp_str, sizeof(tmp_str),"Socket read error = %d", errno);
       //print_comment(__LINE__, __FILE__, tmp_str);
       #endif
       if(errno != EAGAIN) { // sollte spaeter nochmal ueberprueft werden

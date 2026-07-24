@@ -822,7 +822,7 @@ void coRawDeviceManager::setupDevices()
             rawDevices[i].buttonpressed[j] = 0;
 
             // Create the name for this button
-            sprintf(buffer, "Button %i", j);
+            snprintf(buffer, sizeof(buffer), "Button %i", j);
             rawDevices[i].button_name[j] = new char[strlen(buffer) + 1];
             strcpy(rawDevices[i].button_name[j], buffer);
         }

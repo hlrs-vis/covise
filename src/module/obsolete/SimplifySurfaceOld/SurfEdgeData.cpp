@@ -725,11 +725,11 @@ void ScalarDataEdgeCollapse::Reduce(int &red_tri, int &red_pnt)
     time = (endtime - starttime) / (double)CLOCKS_PER_SEC;
 
     if (heap->getSize() == TERMINATE)
-        sprintf(buf, "Reduction capacity exceeded: Removed %d triangles of %d, i.e. %.2f %% are left", num_triangles - red_tri, num_triangles, cur_percent);
+        snprintf(buf, sizeof(buf), "Reduction capacity exceeded: Removed %d triangles of %d, i.e. %.2f %% are left", num_triangles - red_tri, num_triangles, cur_percent);
     else
-        sprintf(buf, "Removed %d triangles of %d, i.e. %.2f %% are left\n", num_triangles - red_tri, num_triangles, percent);
+        snprintf(buf, sizeof(buf), "Removed %d triangles of %d, i.e. %.2f %% are left\n", num_triangles - red_tri, num_triangles, percent);
     Covise::sendInfo(buf);
-    sprintf(buf, "Time: %.2f seconds\n", time);
+    snprintf(buf, sizeof(buf), "Time: %.2f seconds\n", time);
     Covise::sendInfo(buf);
 
     delete heap;
@@ -1135,11 +1135,11 @@ void VectorDataEdgeCollapse::Reduce(int &red_tri, int &red_pnt)
     time = (endtime - starttime) / (double)CLOCKS_PER_SEC;
 
     if (heap->getSize() == TERMINATE)
-        sprintf(buf, "Reduction capacity exceeded: Removed %d triangles of %d, i.e. %.2f %% are left", num_triangles - red_tri, num_triangles, cur_percent);
+        snprintf(buf, sizeof(buf), "Reduction capacity exceeded: Removed %d triangles of %d, i.e. %.2f %% are left", num_triangles - red_tri, num_triangles, cur_percent);
     else
-        sprintf(buf, "Removed %d triangles of %d, i.e. %.2f %% are left\n", num_triangles - red_tri, num_triangles, percent);
+        snprintf(buf, sizeof(buf), "Removed %d triangles of %d, i.e. %.2f %% are left\n", num_triangles - red_tri, num_triangles, percent);
     Covise::sendInfo(buf);
-    sprintf(buf, "Time: %.2f seconds\n", time);
+    snprintf(buf, sizeof(buf), "Time: %.2f seconds\n", time);
     Covise::sendInfo(buf);
 
     delete heap;

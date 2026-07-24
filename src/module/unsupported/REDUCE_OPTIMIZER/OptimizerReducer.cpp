@@ -310,12 +310,12 @@ coDistributedObject **Application::HandleObjects(coDistributedObject *mesh_objec
     red_points = ((csCoordSet3f *)(surf->gset->getCoordSet()))->point()->getCount();
 
     time = (endtime - starttime) / (double)CLOCKS_PER_SEC;
-    sprintf(buf, "Removed %d triangles of %d, i.e. %.2f %% are left (%d)",
+    snprintf(buf, sizeof(buf), "Removed %d triangles of %d, i.e. %.2f %% are left (%d)",
             new_no_triangles - red_tri, new_no_triangles, 100. * red_tri / new_no_triangles, red_tri);
     Covise::sendInfo(buf);
-    sprintf(buf, "#points old: %d, #points new %d", numpoints, red_points);
+    snprintf(buf, sizeof(buf), "#points old: %d, #points new %d", numpoints, red_points);
     Covise::sendInfo(buf);
-    sprintf(buf, "Time needed %.2f seconds", time);
+    snprintf(buf, sizeof(buf), "Time needed %.2f seconds", time);
     Covise::sendInfo(buf);
 
     DO_return = surf->createcoDistributedObjects(red_tri, red_points, Mesh_out_name, Data_out_name);

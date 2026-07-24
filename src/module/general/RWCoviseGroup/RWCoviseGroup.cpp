@@ -48,21 +48,21 @@ RWCoviseGroup::RWCoviseGroup(int argc, char *argv[])
     for (int i = 0; i < NUMPORTS; i++)
     {
         char buf[400];
-        sprintf(buf, "file_%d", i);
+        snprintf(buf, sizeof(buf), "file_%d", i);
         p_file[i] = addChoiceParam(buf, "COVISE file");
         p_file[i]->setValue(1, deffileVal, 0);
 
-        sprintf(buf, "DataIn_%d", i);
+        snprintf(buf, sizeof(buf), "DataIn_%d", i);
         p_data_in[i] = addInputPort(buf, PossibleTypes, "Input");
         p_data_in[i]->setRequired(0);
 
-        sprintf(buf, "DataOut_%d", i);
+        snprintf(buf, sizeof(buf), "DataOut_%d", i);
         p_data_out[i] = addOutputPort(buf, PossibleTypes, "Output");
     }
     for (int i = 0; i < NUMPORTS; i++)
     {
         char buf[400];
-        sprintf(buf, "description_%d", i);
+        snprintf(buf, sizeof(buf), "description_%d", i);
         p_desc[i] = addStringParam(buf, "COVISE file description");
         p_desc[i]->setValue("no description yet");
     }
@@ -248,7 +248,7 @@ void RWCoviseGroup::parse_name(const char *filename)
     if (add_ending)
     {
         char buf[1000];
-        sprintf(buf, "RWGroup:%s", GroupFileName);
+        snprintf(buf, sizeof(buf), "RWGroup:%s", GroupFileName);
         setTitle(buf);
         strcat(GroupFileName, ".covgrp");
     }
@@ -528,7 +528,7 @@ int RWCoviseGroup::compute(const char *)
     static int instance = 0;
     int pid = getpid();
     char filename[50];
-    sprintf(filename, "Data.%d.%03d", pid, instance);
+    snprintf(filename, sizeof(filename), "Data.%d.%03d", pid, instance);
     FILE *dataFile = fopen(filename, "w");
     instance++;
 #endif

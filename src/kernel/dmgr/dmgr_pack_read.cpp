@@ -109,7 +109,7 @@ void PackBuffer::receive()
 #endif
     intbuffer_ptr += 2;
 #ifdef DEBUG
-    sprintf(tmp_str, "PackBuffer::read_int %d", rd);
+    snprintf(tmp_str, sizeof(tmp_str), "PackBuffer::read_int %d", rd);
     print_comment(__LINE__, __FILE__, tmp_str);
 #endif
 }
@@ -134,7 +134,7 @@ char *PackBuffer::get_current_pointer_for_n_bytes(int &n)
 
 #ifdef DEBUG
     print_comment(__LINE__, __FILE__, "PackBuffer::get_current_pointer_for_n_bytes");
-    sprintf(tmp_str, "intbuffer_ptr: %d  intbuffer_size: %d",
+    snprintf(tmp_str, sizeof(tmp_str), "intbuffer_ptr: %d  intbuffer_size: %d",
             intbuffer_ptr, intbuffer_size());
     print_comment(__LINE__, __FILE__, tmp_str);
 #endif
@@ -149,7 +149,7 @@ char *PackBuffer::get_current_pointer_for_n_bytes(int &n)
     if ((intbuffer_size() - intbuffer_ptr) * (int)sizeof(int) < n)
     {
 #ifdef DEBUG
-        sprintf(tmp_str, "only returning partial data: %d bytes of %d",
+        snprintf(tmp_str, sizeof(tmp_str), "only returning partial data: %d bytes of %d",
                 (intbuffer_size() - intbuffer_ptr) * sizeof(int), n);
         print_comment(__LINE__, __FILE__, tmp_str);
 #endif
@@ -165,12 +165,12 @@ char *PackBuffer::get_current_pointer_for_n_bytes(int &n)
         if (intbuffer_ptr % (SIZEOF_ALIGNMENT / sizeof(int)))
             intbuffer_ptr++;
 #ifdef DEBUG
-        sprintf(tmp_str, "returning complete data: %d bytes", n);
+        snprintf(tmp_str, sizeof(tmp_str), "returning complete data: %d bytes", n);
         print_comment(__LINE__, __FILE__, tmp_str);
 #endif
     }
 #ifdef DEBUG
-    sprintf(tmp_str, "end: intbuffer_ptr: %d  intbuffer_size: %d",
+    snprintf(tmp_str, sizeof(tmp_str), "end: intbuffer_ptr: %d  intbuffer_size: %d",
             intbuffer_ptr, intbuffer_size);
     print_comment(__LINE__, __FILE__, tmp_str);
 #endif
@@ -512,7 +512,7 @@ int Packer::read_short_array()
 
     buffer->read_int(length);
 #ifdef DEBUG
-    sprintf(tmp_str, "short array with %d elements", length);
+    snprintf(tmp_str, sizeof(tmp_str), "short array with %d elements", length);
     print_comment(__LINE__, __FILE__, tmp_str);
 #endif
     shm_ptr = datamgr->shm_alloc(SHORTSHMARRAY, length);
@@ -551,7 +551,7 @@ int Packer::read_int_array()
 
     buffer->read_int(length);
 #ifdef DEBUG
-    sprintf(tmp_str, "int array with %d elements", length);
+    snprintf(tmp_str, sizeof(tmp_str), "int array with %d elements", length);
     print_comment(__LINE__, __FILE__, tmp_str);
 #endif
     shm_ptr = datamgr->shm_alloc(INTSHMARRAY, length);
@@ -590,7 +590,7 @@ int Packer::read_long_array()
 
     buffer->read_int(length);
 #ifdef DEBUG
-    sprintf(tmp_str, "long array with %d elements", length);
+    snprintf(tmp_str, sizeof(tmp_str), "long array with %d elements", length);
     print_comment(__LINE__, __FILE__, tmp_str);
 #endif
     shm_ptr = datamgr->shm_alloc(LONGSHMARRAY, length);
@@ -629,7 +629,7 @@ int Packer::read_float_array()
 
     buffer->read_int(length);
 #ifdef DEBUG
-    sprintf(tmp_str, "float array with %d elements", length);
+    snprintf(tmp_str, sizeof(tmp_str), "float array with %d elements", length);
     print_comment(__LINE__, __FILE__, tmp_str);
 #endif
     shm_ptr = datamgr->shm_alloc(FLOATSHMARRAY, length);
@@ -668,7 +668,7 @@ int Packer::read_double_array()
 
     buffer->read_int(length);
 #ifdef DEBUG
-    sprintf(tmp_str, "double array with %d elements", length);
+    snprintf(tmp_str, sizeof(tmp_str), "double array with %d elements", length);
     print_comment(__LINE__, __FILE__, tmp_str);
 #endif
     shm_ptr = datamgr->shm_alloc(DOUBLESHMARRAY, length);

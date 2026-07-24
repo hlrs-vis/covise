@@ -133,7 +133,7 @@ bool coVRMenuList::add(RenderObject *dobj, osg::Node *n)
 
     int i = 0;
     char buf[1000];
-    sprintf(buf, "MENU_TEXTURE");
+    snprintf(buf, sizeof(buf), "MENU_TEXTURE");
     bool foundAttrib = false;
     while (const char *attrib = dobj->getAttribute(buf))
     {
@@ -155,7 +155,7 @@ bool coVRMenuList::add(RenderObject *dobj, osg::Node *n)
             menuImage = new coVRMenuImage(attrib, n);
             push_back(std::unique_ptr<coVRMenuImage>(menuImage));
         }
-        sprintf(buf, "MENU_IMAGE%d", i++);
+        snprintf(buf, sizeof(buf), "MENU_IMAGE%d", i++);
     }
     if (foundAttrib)
         return false; // do not add this node to the scenegraph

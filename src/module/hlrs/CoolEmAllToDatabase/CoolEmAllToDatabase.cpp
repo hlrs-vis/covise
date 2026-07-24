@@ -258,13 +258,13 @@ int CoolEmAllToDatabase::compute(const char *port)
     {
         char pathName[1000];
         char value[1000];
-        sprintf(pathName, "%s/%s", p_databasePrefix->getValue(), (*it)->name.c_str());
-        sprintf(value, "%f", (*it)->averageTemperature - 273.15);
+        snprintf(pathName, sizeof(pathName), "%s/%s", p_databasePrefix->getValue(), (*it)->name.c_str());
+        snprintf(value, sizeof(value), "%f", (*it)->averageTemperature - 273.15);
         //cc->setValue(pathName,"temperature",value);
-        sprintf(value, "%f", (*it)->averagePressure);
+        snprintf(value, sizeof(value), "%f", (*it)->averagePressure);
         //cc->setValue(pathName,"pressure",value);
         float vol = sqrt((*it)->averageVelo[0] * (*it)->averageVelo[0] + (*it)->averageVelo[1] * (*it)->averageVelo[1] + (*it)->averageVelo[2] * (*it)->averageVelo[2]) / (*it)->area;
-        sprintf(value, "%f", vol);
+        snprintf(value, sizeof(value), "%f", vol);
         //cc->setValue(pathName,"airflow_velocity",value);
     }
 
@@ -304,25 +304,25 @@ BoundaryPatch::BoundaryPatch(CoolEmAllToDatabase *c, int t, int balanceNumber)
     if (type >= 100 && type < 150)
     {
         char tmpName[1000];
-        sprintf(tmpName, "Rack_%02d/Inlet_01", type - 100);
+        snprintf(tmpName, sizeof(tmpName), "Rack_%02d/Inlet_01", type - 100);
         name = tmpName;
     }
     if (type >= 150 && type < 200)
     {
         char tmpName[1000];
-        sprintf(tmpName, "Inlet%02d", type - 150);
+        snprintf(tmpName, sizeof(tmpName), "Inlet%02d", type - 150);
         name = tmpName;
     }
     if (type >= 300 && type < 400)
     {
         char tmpName[1000];
-        sprintf(tmpName, "Outlet%02d_%02d", type - 300, instance);
+        snprintf(tmpName, sizeof(tmpName), "Outlet%02d_%02d", type - 300, instance);
         name = tmpName;
     }
     if (type >= 200 && type < 300)
     {
         char tmpName[1000];
-        sprintf(tmpName, "Rack_%02d/Outlet_01", type - 200);
+        snprintf(tmpName, sizeof(tmpName), "Rack_%02d/Outlet_01", type - 200);
         name = tmpName;
     }
     for (int i = balanceNumber; i < cd->numBalance; i++)

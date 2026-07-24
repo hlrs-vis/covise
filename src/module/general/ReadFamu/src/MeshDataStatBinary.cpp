@@ -41,7 +41,7 @@ MeshDataStatBinary::MeshDataStatBinary(ObjectInputStream *archive,
         _collectorNumbers.push_back((int)archive->readINT());
         _collectorNames.push_back(archive->readString());
         char buf[1000];
-        sprintf(buf, "component %d %s\n", _collectorNumbers[i], _collectorNames[i].c_str());
+        snprintf(buf, sizeof(buf), "component %d %s\n", _collectorNumbers[i], _collectorNames[i].c_str());
         _outputHandler->displayString(buf);
     }
 

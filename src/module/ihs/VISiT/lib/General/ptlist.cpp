@@ -11,7 +11,7 @@ struct ptlist *AllocPtListStruct(void)
 	struct ptlist *ptlist;
 
 	if( (ptlist = (struct ptlist*)calloc(1,sizeof(struct ptlist))) == NULL) {
-		sprintf(buf,"No memory for sizeof(struct ptlist)!");
+		snprintf(buf, sizeof(buf),"No memory for sizeof(struct ptlist)!");
 		fatal(buf);
 	}
 	ptlist->portion = 10;
@@ -34,7 +34,7 @@ int Add2PtList(struct ptlist *ptlist, void *pt)
 		ptlist->max += ptlist->portion;
 		if( (ptlist->pt = (void **)realloc(ptlist->pt, 
 									 ptlist->max*sizeof(void*))) == NULL) {
-			sprintf(buf,"Memory for %d*sizeof(void*)",ptlist->max);
+			snprintf(buf, sizeof(buf),"Memory for %d*sizeof(void*)",ptlist->max);
 			fatal(buf);
 		}
 	}

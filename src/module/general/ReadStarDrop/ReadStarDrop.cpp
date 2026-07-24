@@ -61,9 +61,9 @@ ReadStarDrop::ReadStarDrop(int argc, char *argv[])
     char buf[16];
     for (i = 0; i < NUM_DATA_PORTS; i++)
     {
-        sprintf(buf, "dataOut_%d", i);
+        snprintf(buf, sizeof(buf), "dataOut_%d", i);
         p_dataOut[i] = addOutputPort(buf, "Vec3|Float|Polygons|Lines|IntArr|Geometry", "data set to multiplex");
-        sprintf(buf, "dataIn_%d", i);
+        snprintf(buf, sizeof(buf), "dataIn_%d", i);
         p_dataIn[i] = addInputPort(buf, "Vec3|Float|Polygons|Lines|IntArr|Geometry", "data set to multiplex");
         p_dataIn[i]->setRequired(0);
         p_dataOut[i]->setDependencyPort(p_dataIn[i]);
@@ -601,7 +601,7 @@ int ReadStarDrop::createLoopThrough(const coDistributedObject *const *meshSet, i
 
     // make the output grid set
     char timestepAtt[64];
-    sprintf(timestepAtt, "0 %d", numSteps - 1);
+    snprintf(timestepAtt, sizeof(timestepAtt), "0 %d", numSteps - 1);
 
     // make the grid: we MUST NOT copy the old 'TIMESTEP' attribute, because we might have a different
     coDoSet *outSet = new coDoSet(p_grid_out->getObjName(), newMeshArr);
@@ -980,29 +980,29 @@ int ReadStarDrop::createDropletObj(int numSteps, float *timeFrame)
 #endif
         // alocate output objects : create 0-sized objects as well !!!
 
-        sprintf(buf, nameMask[LOCA], step);
+        snprintf(buf, sizeof(buf), nameMask[LOCA], step);
         coDoPoints *locaObj = new coDoPoints(buf, numDrops);
         outObj[LOCA][step] = locaObj;
         if (!pointSize.empty())
             locaObj->addAttribute("POINTSIZE", pointSize.c_str());
 
-        sprintf(buf, nameMask[VELO], step);
+        snprintf(buf, sizeof(buf), nameMask[VELO], step);
         coDoVec3 *veloObj = new coDoVec3(buf, numDrops);
         outObj[VELO][step] = veloObj;
 
-        sprintf(buf, nameMask[TEMP], step);
+        snprintf(buf, sizeof(buf), nameMask[TEMP], step);
         coDoFloat *tempObj = new coDoFloat(buf, numDrops);
         outObj[TEMP][step] = tempObj;
 
-        sprintf(buf, nameMask[DIAM], step);
+        snprintf(buf, sizeof(buf), nameMask[DIAM], step);
         coDoFloat *diamObj = new coDoFloat(buf, numDrops);
         outObj[DIAM][step] = diamObj;
 
-        sprintf(buf, nameMask[MASS], step);
+        snprintf(buf, sizeof(buf), nameMask[MASS], step);
         coDoFloat *massObj = new coDoFloat(buf, numDrops);
         outObj[MASS][step] = massObj;
 
-        sprintf(buf, nameMask[COUN], step);
+        snprintf(buf, sizeof(buf), nameMask[COUN], step);
         coDoFloat *counObj = new coDoFloat(buf, numDrops);
         outObj[COUN][step] = counObj;
 
@@ -1068,7 +1068,7 @@ int ReadStarDrop::createDropletObj(int numSteps, float *timeFrame)
     }
 
     // content for timestep attrib
-    sprintf(buf, "0 %d", numSteps - 1);
+    snprintf(buf, sizeof(buf), "0 %d", numSteps - 1);
 
     // Create all Sets
     for (portNo = 0; portNo < 6; portNo++)

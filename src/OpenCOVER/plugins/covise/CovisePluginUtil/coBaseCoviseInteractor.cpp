@@ -323,7 +323,7 @@ void coBaseCoviseInteractor::setVectorParam(const char *name, int numElem, float
     {
         if (i > 0)
             strcat(buf, " ");
-        sprintf(elemBuf, "%f", field[i]);
+        snprintf(elemBuf, sizeof(elemBuf), "%f", field[i]);
         strcat(buf, elemBuf);
     }
     sendFeedback(d_feedbackInfo, "PARAM", buf);
@@ -352,7 +352,7 @@ void coBaseCoviseInteractor::setVectorParam(const char *name, int numElem, int *
     {
         if (i > 0)
             strcat(buf, " ");
-        sprintf(elemBuf, "%d", field[i]);
+        snprintf(elemBuf, sizeof(elemBuf), "%d", field[i]);
         strcat(buf, elemBuf);
     }
 

@@ -114,11 +114,11 @@ GRMSGEXPORT void coGRObjSetConnectionMsg::initClass(const char *connPoint1, cons
 
     connected_ = connected;
     char str[1024];
-    sprintf(str, "%d", connected_);
+    snprintf(str, sizeof(str), "%d", connected_);
     addToken(str);
 
     enabled_ = enabled;
-    sprintf(str, "%d", enabled_);
+    snprintf(str, sizeof(str), "%d", enabled_);
     addToken(str);
 
     obj_name2_ = new char[strlen(obj_name2) + 1];

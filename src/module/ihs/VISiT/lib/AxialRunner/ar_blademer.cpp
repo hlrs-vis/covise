@@ -39,7 +39,7 @@ int BladeMeridianIntersection(struct curve *bl, struct axial *ar, struct Point *
 
    inter[0] = inter[1] = inter[2] = 0.0;
    mvec[0] = mvec[1] = mvec[2] = 0.0;
-   sprintf(fname, "ar_blmerint_%02d.txt", ncall++);
+   snprintf(fname, sizeof(fname), "ar_blmerint_%02d.txt", ncall++);
    fn = DebugFilename(fname);
    if (!fn || !*fn || (fm = fopen(fn, "w")) == NULL)
       dprintf(0, "cannot open file %s\n", fname);
@@ -59,7 +59,7 @@ int BladeMeridianIntersection(struct curve *bl, struct axial *ar, struct Point *
    {
       loopstop = 0;
 #ifdef DEBUG_BLMER_INTERSECTION
-      sprintf(fname, "ar_intersect%02d_%02d.txt", nedge++, (ncall-1));
+      snprintf(fname, sizeof(fname), "ar_intersect%02d_%02d.txt", nedge++, (ncall-1));
       fn = DebugFilename(fname);
       if (!fn || !*fn || (fp = fopen(fn, "w")) == NULL)
          dprintf(0, "cannot open file %s\n", fname);

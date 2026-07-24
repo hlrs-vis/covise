@@ -54,7 +54,7 @@ int main(int argc, char **argv)
     if (projector->is_connected())
     {
         char filename[1000];
-        sprintf(filename, "eOps/%s", argv[2]);
+        snprintf(filename, sizeof(filename), "eOps/%s", argv[2]);
         int file = open(filename, O_RDONLY);
         char commandBuffer[1000];
         if (file > 0)
@@ -74,7 +74,7 @@ int main(int argc, char **argv)
         {
             //cerr << "could not open file eOps/" <<  argv[2]  << endl;
             //assume ascii command
-            sprintf(commandBuffer, ": %s\r", argv[2]);
+            snprintf(commandBuffer, sizeof(commandBuffer), ": %s\r", argv[2]);
             int commandLength = strlen(commandBuffer);
             if (commandLength > 0)
             {

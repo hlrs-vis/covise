@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
             buttons = byte & chrMask;
 
         char sendbuffer[2048];
-        sprintf(sendbuffer, "VRC %d %3d [0.0 0.0 0.0] - [0 0 0 0 0 0 0 0 0] - [0 0]",
+        snprintf(sendbuffer, sizeof(sendbuffer), "VRC %d %3d [0.0 0.0 0.0] - [0 0 0 0 0 0 0 0 0] - [0 0]",
                 stationID, buttons);
         fprintf(stderr, "%s\n", sendbuffer);
         sender.send(sendbuffer, strlen(sendbuffer) + 1);

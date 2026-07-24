@@ -594,7 +594,7 @@ int ReadDyna3D::readDyna3D()
         break;
 
     default:
-        sprintf(buf, "ERROR: Incorrect file format selected");
+        snprintf(buf, sizeof(buf), "ERROR: Incorrect file format selected");
         sendError("%s", buf);
         cerr << "ReadDyna3D::readDyna3D " << buf << endl;
         break;
@@ -667,7 +667,7 @@ int ReadDyna3D::readDyna3D()
         Scalar_sets_out[(State - MinState) + 1] = NULL;
 
         grid_timesteps = new coDoSet(Grid, (coDistributedObject **)(void *)grid_sets_out);
-        sprintf(buf, "%d %d", MinState, State);
+        snprintf(buf, sizeof(buf), "%d %d", MinState, State);
         grid_timesteps->addAttribute("TIMESTEP", buf);
         p_grid->setCurrentObject(grid_timesteps);
 
@@ -1698,7 +1698,7 @@ int ReadDyna3D::rdstate_(int *istate)
                 // This line has been commented out and modified because in case that
                 // the files contain more than 1 time step, it may produce wrong
                 // informations.
-                // sprintf(buf, "Timestep =  %2d \t with time = %6.3f \n", *istate, TimestepTime);
+                // snprintf(buf, sizeof(buf), "Timestep =  %2d \t with time = %6.3f \n", *istate, TimestepTime);
                 sendInfo("Timestep with time = %6.3f \n", TimestepTime);
 
                 if (NumShellInterpol < 0)
@@ -2044,7 +2044,7 @@ int ReadDyna3D::otaurusr_()
             tauio_1.nrin = 0;
             tauio_1.nrzin = 0;
             tauio_1.itrecin = 0;
-            sprintf(ctaun, "%s%s%02d", CTauin, tauio_1.adapt, tauio_1.ifilin);
+            snprintf(ctaun, sizeof(ctaun), "%s%s%02d", CTauin, tauio_1.adapt, tauio_1.ifilin);
 // infile=Covise::open(ctaun,O_RDONLY);
 #ifndef _AIRBUS
 #ifdef WIN32
@@ -2083,7 +2083,7 @@ int ReadDyna3D::otaurusr_()
         tauio_1.nrin = 0;
         tauio_1.nrzin = 0;
         tauio_1.itrecin = 0;
-        sprintf(ctaun, "%s%s", CTauin, tauio_1.adapt);
+        snprintf(ctaun, sizeof(ctaun), "%s%s", CTauin, tauio_1.adapt);
 // infile=Covise::open(ctaun,O_RDONLY);
 #ifdef WIN32
         infile = open(ctaun, O_RDONLY | O_BINARY);
@@ -2730,7 +2730,7 @@ void ReadDyna3D::createGeometry()
             float *x_c, *y_c, *z_c;
 
             // mesh
-            sprintf(name, "%s_%d_ID%d", Grid, 0, ID);
+            snprintf(name, sizeof(name), "%s_%d_ID%d", Grid, 0, ID);
             grid_out = new coDoUnstructuredGrid(name,
                                                 numelem[ID],
                                                 numcon[ID],
@@ -2741,7 +2741,7 @@ void ReadDyna3D::createGeometry()
             // COLOR attribute
             grid_out->addAttribute("COLOR", colornames[ID % 10]);
             // PART attribute
-            sprintf(part_buf, "%d", ID + 1);
+            snprintf(part_buf, sizeof(part_buf), "%d", ID + 1);
             grid_out->addAttribute("PART", part_buf);
 
             // initialize element numbering
@@ -2872,7 +2872,7 @@ void ReadDyna3D::createGeometry()
     // mark end of set array
     grids_out[IDcount] = NULL;
 
-    sprintf(name, "%s_%d", Grid, 0);
+    snprintf(name, sizeof(name), "%s_%d", Grid, 0);
     grid_set_out = new coDoSet(name, (coDistributedObject **)grids_out);
 
     // free
@@ -2987,7 +2987,7 @@ void ReadDyna3D::createStateObjects(int timestep)
             float *s_el = NULL;
 
             // mesh
-            sprintf(name, "%s_%d_ID%d", Grid, timestep, ID);
+            snprintf(name, sizeof(name), "%s_%d_ID%d", Grid, timestep, ID);
             grid_out = new coDoUnstructuredGrid(name,
                                                 numelem[ID] - delElem[ID],
                                                 numcon[ID] - delCon[ID],
@@ -2998,14 +2998,14 @@ void ReadDyna3D::createStateObjects(int timestep)
             // COLOR attribute
             grid_out->addAttribute("COLOR", colornames[ID % 10]);
             // PART attribute
-            sprintf(part_buf, "%d", ID + 1);
+            snprintf(part_buf, sizeof(part_buf), "%d", ID + 1);
             grid_out->addAttribute("PART", part_buf);
 
             // nodal vector data
             if (nodalDataType > 0)
             {
 
-                sprintf(name, "%s_%d_ID%d", Vertex, timestep, ID);
+                snprintf(name, sizeof(name), "%s_%d_ID%d", Vertex, timestep, ID);
                 Vertex_out = new coDoVec3(name, numcoo[ID]);
                 Vertex_out->addAttribute("PART", part_buf);
                 Vertex_out->getAddresses(&vx_out, &vy_out, &vz_out);
@@ -3017,7 +3017,7 @@ void ReadDyna3D::createStateObjects(int timestep)
             // element scalar data
             if (elementDataType > 0)
             {
-                sprintf(name, "%s_%d_ID%d", Scalar, timestep, ID);
+                snprintf(name, sizeof(name), "%s_%d_ID%d", Scalar, timestep, ID);
                 // @@@ This only works if rigid shells are not mixed
                 //     in a "part" with other element types!!!!!!
                 if (NumDim == 5
@@ -3362,13 +3362,13 @@ void ReadDyna3D::createStateObjects(int timestep)
     Vertexs_out[IDcount] = NULL;
     Scalars_out[IDcount] = NULL;
 
-    sprintf(name, "%s_%d", Grid, timestep);
+    snprintf(name, sizeof(name), "%s_%d", Grid, timestep);
     grid_set_out = new coDoSet(name, (coDistributedObject **)grids_out);
 
     // aw: only creates sets when creating data at the port at all
     if (nodalDataType > 0)
     {
-        sprintf(name, "%s_%d", Vertex, timestep);
+        snprintf(name, sizeof(name), "%s_%d", Vertex, timestep);
         Vertex_set_out = new coDoSet(name, (coDistributedObject **)Vertexs_out);
     }
     else
@@ -3376,7 +3376,7 @@ void ReadDyna3D::createStateObjects(int timestep)
 
     if (elementDataType > 0)
     {
-        sprintf(name, "%s_%d", Scalar, timestep);
+        snprintf(name, sizeof(name), "%s_%d", Scalar, timestep);
         Scalar_set_out = new coDoSet(name, (coDistributedObject **)Scalars_out);
     }
     else

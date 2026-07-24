@@ -21,7 +21,7 @@ FILE *InitPlotfile(char *fn)
 
    if ((fp = fopen(fn, "w")) == NULL)
    {
-      sprintf(buf, "Error opening plot file %s\n", fn);
+      snprintf(buf, sizeof(buf), "Error opening plot file %s\n", fn);
       fatal(buf);
    }
    fprintf(fp, "reset\n");
@@ -36,12 +36,12 @@ void setrange(const char *axis, float min, float max, int intvl, FILE *fp)
    char range[100], tics[100];
    float inkr;
 
-   sprintf(range, RANGE_LINE, axis, min, max);
+   snprintf(range, sizeof(range), RANGE_LINE, axis, min, max);
    fprintf(fp, "%s\n", range);
    if (intvl)
    {
       inkr = (max - min)/(intvl - 1);
-      sprintf(tics, TICS_LINE, axis, min, inkr, max);
+      snprintf(tics, sizeof(tics), TICS_LINE, axis, min, inkr, max);
       fprintf(fp, "%s\n", tics);
    }
    return;
@@ -52,7 +52,7 @@ void setlabel(const char *axis, const char *text, FILE *fp)
 {
    char label[200];
 
-   sprintf(label, LABEL_LINE, axis, text);
+   snprintf(label, sizeof(label), LABEL_LINE, axis, text);
    fprintf(fp, "%s\n", label);
    return;
 }
@@ -67,14 +67,14 @@ void setplot(const char *dat, struct Isofield *isof, FILE *fp)
    {
       if (!i)
          fprintf(fp, "pl ");
-      sprintf(plot, PLOT_LINE1, dat, i);
+      snprintf(plot, sizeof(plot), PLOT_LINE1, dat, i);
       strcpy(line, plot);
-      sprintf(plot, TITLE_LINE, isof->ic[i]->isoval);
+      snprintf(plot, sizeof(plot), TITLE_LINE, isof->ic[i]->isoval);
       strcat(line, plot);
       if (isof->ic[i]->measured)
-         sprintf(plot, LINEPOINTS, isof->ic[i]->calc+1);
+         snprintf(plot, sizeof(plot), LINEPOINTS, isof->ic[i]->calc+1);
       else
-         sprintf(plot, LINE, isof->ic[i]->calc+1);
+         snprintf(plot, sizeof(plot), LINE, isof->ic[i]->calc+1);
       strcat(line, plot);
       fprintf(fp, "%s", line);
       if (i != isof->num-1)
@@ -86,14 +86,14 @@ void setplot(const char *dat, struct Isofield *isof, FILE *fp)
    {
       if (!i)
          fprintf(fp, "pl ");
-      sprintf(plot, PLOT_LINE2, dat, i);
+      snprintf(plot, sizeof(plot), PLOT_LINE2, dat, i);
       strcpy(line, plot);
-      sprintf(plot, TITLE_LINE, isof->ic[i]->isoval);
+      snprintf(plot, sizeof(plot), TITLE_LINE, isof->ic[i]->isoval);
       strcat(line, plot);
       if (isof->ic[i]->measured)
-         sprintf(plot, LINEPOINTS, isof->ic[i]->calc+1);
+         snprintf(plot, sizeof(plot), LINEPOINTS, isof->ic[i]->calc+1);
       else
-         sprintf(plot, LINE, isof->ic[i]->calc+1);
+         snprintf(plot, sizeof(plot), LINE, isof->ic[i]->calc+1);
       strcat(line, plot);
       fprintf(fp, "%s", line);
       if (i != isof->num-1)
@@ -130,7 +130,7 @@ void PlotIsofield(struct Isofield *isof)
    // write plot data file
    if ((fp_dat = fopen (fdat, "w")) == NULL)
    {
-      sprintf(buf, "Error writing plot data file %s\n", fdat);
+      snprintf(buf, sizeof(buf), "Error writing plot data file %s\n", fdat);
       fatal(buf);
    }
    for (i = 0; i < isof->num; i++)

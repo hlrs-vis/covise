@@ -4476,7 +4476,7 @@ void yyerror(const char *s)
 {
     int i;
     char buf[256];
-    sprintf(buf, "%s: %s", s, f_string);
+    snprintf(buf, sizeof(buf), "%s: %s", s, f_string);
     i = strlen(buf);
     buf[i - 1] = 0;
     errwin(buf);

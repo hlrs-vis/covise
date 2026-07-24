@@ -317,7 +317,7 @@ void CuttingSurfaceInteraction::createMenu(bool invertClip)
     });
 
     char title[100];
-    sprintf(title, "%s_ClipPlane", menu_->name().c_str());
+    snprintf(title, sizeof(title), "%s_ClipPlane", menu_->name().c_str());
     clipPlaneMenu_ = new ui::Menu(menu_, title);
     clipPlaneMenu_->setText("Attached clip plane");
 
@@ -329,9 +329,9 @@ void CuttingSurfaceInteraction::createMenu(bool invertClip)
     for (int i = 0; i < 3; i++)
     {
         char name[100];
-        sprintf(name, "ClipPlane%d", i);
+        snprintf(name, sizeof(name), "ClipPlane%d", i);
         clipPlaneIndexCheckbox_[i] = new ui::Button(clipPlaneMenu_, name, clipPlaneIndexGroup_, i);
-        sprintf(name, "Clip plane %d", i);
+        snprintf(name, sizeof(name), "Clip plane %d", i);
         clipPlaneIndexCheckbox_[i]->setText(name);
         clipPlaneIndexCheckbox_[i]->setState(i == activeClipPlane_);
     }
@@ -544,7 +544,7 @@ CuttingSurfaceInteraction::sendClipPlaneVisibilityMsg(int index, bool enabled)
     if (index >= 0)
     {
         char msg[100];
-        sprintf(msg, "%s %d", (enabled ? "enable" : "disable"), index);
+        snprintf(msg, sizeof(msg), "%s %d", (enabled ? "enable" : "disable"), index);
         cover->sendMessage(NULL, "ClipPlane", PluginMessageTypes::ClipPlaneMessage, strlen(msg), msg);
     }
 }
@@ -568,7 +568,7 @@ CuttingSurfaceInteraction::sendClipPlanePositionMsg(int index)
         distance += clipPlaneOffsetSlider_->value();
 
         char msg[255];
-        sprintf(msg, "set %d %f %f %f %f", index, normal[0], normal[1], normal[2], distance);
+        snprintf(msg, sizeof(msg), "set %d %f %f %f %f", index, normal[0], normal[1], normal[2], distance);
         cover->sendMessage(NULL, "ClipPlane", PluginMessageTypes::ClipPlaneMessage, strlen(msg), msg);
     }
 }

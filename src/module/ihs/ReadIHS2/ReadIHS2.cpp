@@ -31,9 +31,9 @@ ReadIHS2::ReadIHS2(int argc, char *argv[])
    const char *defaultDir = getenv("HOME");
 #endif
    if(defaultDir)
-      sprintf(buf,"%s/",defaultDir);
+      snprintf(buf, sizeof(buf),"%s/",defaultDir);
    else
-      sprintf(buf,"/data/");
+      snprintf(buf, sizeof(buf),"/data/");
    p_geoFile = addFileBrowserParam("geoFile","Geometry File");
    p_geoFile->setValue(buf,"*.geo;*.GEO");
 
@@ -505,7 +505,7 @@ int ReadIHS2::ReadGeoSimRB(struct geometry *geo)
    strcpy(datei, geo->geofile);
    if( (stream = fopen( &datei[0], "r" )) == NULL )
    {
-	   sprintf(errbuf,"Could not open %s\n",datei);
+	   snprintf(errbuf, sizeof(errbuf),"Could not open %s\n",datei);
 	   sendError("%s",errbuf);
 	   return FAIL ;
    }
@@ -517,7 +517,7 @@ int ReadIHS2::ReadGeoSimRB(struct geometry *geo)
    {
       if (fgets(buf,200,stream)!=buf)
       {
-		  sprintf(errbuf,"fgets failed for %s\n",datei);
+		  snprintf(errbuf, sizeof(errbuf),"fgets failed for %s\n",datei);
 		  sendError("%s",errbuf);
 		  return FAIL ;
       }
@@ -537,7 +537,7 @@ int ReadIHS2::ReadGeoSimRB(struct geometry *geo)
 	  }
 	  i++;
 	  if (i > 100) {
-		  sprintf(errbuf,"corrupted file %s! To many comment lines!\n",datei);
+		  snprintf(errbuf, sizeof(errbuf),"corrupted file %s! To many comment lines!\n",datei);
 		  return FAIL;
 	  }
    }
@@ -548,7 +548,7 @@ int ReadIHS2::ReadGeoSimRB(struct geometry *geo)
    }
 //   fprintf(stderr,"dimension=%d\n",dimension);
    if (dimension!=2 && dimension!=3) {
-	   sprintf(errbuf,"Failed to determine dimension from %s\n and ctrl panel\n",datei);
+	   snprintf(errbuf, sizeof(errbuf),"Failed to determine dimension from %s\n and ctrl panel\n",datei);
 	   sendError("%s",errbuf);
 	   return FAIL;
    }
@@ -570,7 +570,7 @@ int ReadIHS2::ReadGeoSimRB(struct geometry *geo)
 	   geo->n_elem_2d = n_elem;
    }
    else {
-	   sprintf(errbuf,"invalid dimension=%d !\n",dimension);
+	   snprintf(errbuf, sizeof(errbuf),"invalid dimension=%d !\n",dimension);
 	   return FAIL;
    }
 
@@ -657,7 +657,7 @@ int ReadIHS2::ReadGeoSimRB(struct geometry *geo)
             if (fgets(buf,200,stream)!=buf)
             {
 				if (i < geo->n_elem_3d-1) {
-					sprintf(errbuf,"Unexpected eof in %s\n",datei);
+					snprintf(errbuf, sizeof(errbuf),"Unexpected eof in %s\n",datei);
 					sendError("%s",errbuf);
 					return FAIL;
 				}
@@ -1469,7 +1469,7 @@ cerr << "geo->n_bcperiodic2 = " << geo->n_bcperiodic2 << endl;
          if ((fgets(buf,200,stream)!=buf) && (i < geo->n_elem_3d-1))
          {
 	     char buf[200];
-	     sprintf(buf," unexpected end of erg-file\n src: %s (%d)\n",
+	     snprintf(buf, sizeof(buf)," unexpected end of erg-file\n src: %s (%d)\n",
 		     __FILE__,__LINE__);
             sendError("%s",buf);
          }
@@ -1613,36 +1613,36 @@ int ReadIHS2::Data2Covise(struct geometry *geo, coDoVec3 *velocity, coDoFloat *p
       memcpy(yp, geo->y, (geo->knmaxnr)*sizeof(float));
       memcpy(zp, geo->z, (geo->knmaxnr)*sizeof(float));
 
-      sprintf(buf, "Anzahl Flaechenelemente mit Markierung(en)");
+      snprintf(buf, sizeof(buf), "Anzahl Flaechenelemente mit Markierung(en)");
       if (geo->bilanr1 != 0)
       {
          n_mark++;
-         sprintf(buf2, " %d", geo->bilanr1); strcat(buf, buf2);
+         snprintf(buf2, sizeof(buf2), " %d", geo->bilanr1); strcat(buf, buf2);
       }
       if (geo->bilanr2 != 0)
       {
          n_mark++;
-         sprintf(buf2, " %d", geo->bilanr2); strcat(buf, buf2);
+         snprintf(buf2, sizeof(buf2), " %d", geo->bilanr2); strcat(buf, buf2);
       }
       if (geo->bilanr3 != 0)
       {
          n_mark++;
-         sprintf(buf2, " %d", geo->bilanr3); strcat(buf, buf2);
+         snprintf(buf2, sizeof(buf2), " %d", geo->bilanr3); strcat(buf, buf2);
       }
       if (geo->bilanr4 != 0)
       {
          n_mark++;
-         sprintf(buf2, " %d", geo->bilanr4); strcat(buf, buf2);
+         snprintf(buf2, sizeof(buf2), " %d", geo->bilanr4); strcat(buf, buf2);
       }
       if (geo->bilanr5 != 0)
       {
          n_mark++;
-         sprintf(buf2, " %d", geo->bilanr5); strcat(buf, buf2);
+         snprintf(buf2, sizeof(buf2), " %d", geo->bilanr5); strcat(buf, buf2);
       }
 
       if (n_mark > 0)
       {
-         sprintf(buf2, " : %d\n", geo->n_special_mark); strcat(buf, buf2);
+         snprintf(buf2, sizeof(buf2), " : %d\n", geo->n_special_mark); strcat(buf, buf2);
          printf("%s", buf);
       }
 
@@ -1805,36 +1805,36 @@ int ReadIHS2::Data2Covise(struct geometry *geo, coDoVec3 *velocity, coDoFloat *p
 
     	  n_mark=0;
 
-    	  sprintf(buf, "Anzahl Wandelemente mit Markierung(en)");
+    	  snprintf(buf, sizeof(buf), "Anzahl Wandelemente mit Markierung(en)");
     	  if (geo->wallnr1 != 0)
     	  {
         	 n_mark++;
-        	 sprintf(buf2, " %d", geo->wallnr1); strcat(buf, buf2);
+        	 snprintf(buf2, sizeof(buf2), " %d", geo->wallnr1); strcat(buf, buf2);
     	  }
     	  if (geo->wallnr2 != 0)
     	  {
         	 n_mark++;
-        	 sprintf(buf2, " %d", geo->wallnr2); strcat(buf, buf2);
+        	 snprintf(buf2, sizeof(buf2), " %d", geo->wallnr2); strcat(buf, buf2);
     	  }
     	  if (geo->wallnr3 != 0)
     	  {
         	 n_mark++;
-        	 sprintf(buf2, " %d", geo->wallnr3); strcat(buf, buf2);
+        	 snprintf(buf2, sizeof(buf2), " %d", geo->wallnr3); strcat(buf, buf2);
     	  }
     	  if (geo->wallnr4 != 0)
     	  {
         	 n_mark++;
-        	 sprintf(buf2, " %d", geo->wallnr4); strcat(buf, buf2);
+        	 snprintf(buf2, sizeof(buf2), " %d", geo->wallnr4); strcat(buf, buf2);
     	  }
     	  if (geo->wallnr5 != 0)
     	  {
         	 n_mark++;
-        	 sprintf(buf2, " %d", geo->wallnr5); strcat(buf, buf2);
+        	 snprintf(buf2, sizeof(buf2), " %d", geo->wallnr5); strcat(buf, buf2);
     	  }
 
     	  if (n_mark > 0)
     	  {
-        	 sprintf(buf2, " : %d\n", geo->n_special_wall); strcat(buf, buf2);
+        	 snprintf(buf2, sizeof(buf2), " : %d\n", geo->n_special_wall); strcat(buf, buf2);
         	 printf("%s", buf);
     	  }
 
@@ -2060,7 +2060,7 @@ int ReadIHS2::CreateBocoObject(coDistributedObject **partObj, struct geometry *g
    }
 
    //   0. number of columns per info
-   sprintf(name,"%s_colinfo",basename);
+   snprintf(name, sizeof(name),"%s_colinfo",basename);
    size[0] = 6;
    size[1] = 0;
    coDoIntArr *colInfo = new coDoIntArr(name,1,size);
@@ -2074,7 +2074,7 @@ int ReadIHS2::CreateBocoObject(coDistributedObject **partObj, struct geometry *g
    partObj[0]=colInfo;
 
    //   1. type of node
-   sprintf(name,"%s_nodeinfo",basename);
+   snprintf(name, sizeof(name),"%s_nodeinfo",basename);
    size[0] = COL_NODE;
    size[1] = geo->n_nodes;
    coDoIntArr *nodeInfo = new coDoIntArr(name,2,size);
@@ -2087,7 +2087,7 @@ int ReadIHS2::CreateBocoObject(coDistributedObject **partObj, struct geometry *g
    partObj[1]=nodeInfo;
 
    //   2. type of element
-   sprintf(name,"%s_eleminfo",basename);
+   snprintf(name, sizeof(name),"%s_eleminfo",basename);
    size[0] = 2;
    size[1] = geo->n_elem_3d*COL_ELEM;
    coDoIntArr *elemInfo = new coDoIntArr(name, 2, size);
@@ -2101,14 +2101,14 @@ int ReadIHS2::CreateBocoObject(coDistributedObject **partObj, struct geometry *g
 
    //   3. list of nodes with bc (a node may appear more than one time)
    //      and its types
-   sprintf(name,"%s_diricletNodes",basename);
+   snprintf(name, sizeof(name),"%s_diricletNodes",basename);
    size [0] = COL_DIRICLET;
    size [1] = 5*(geo->n_in_rb/5);
    coDoIntArr *diricletNodes = new coDoIntArr(name, 2, size);
    data = diricletNodes->getAddress();
 
    //   4. corresponding value to 3.
-   sprintf(name,"%s_diricletValue",basename);
+   snprintf(name, sizeof(name),"%s_diricletValue",basename);
    coDoFloat *diricletValues
       = new coDoFloat(name, 5*(geo->n_in_rb/5) );
    diricletValues->getAddress(&bPtr);
@@ -2237,7 +2237,7 @@ int ReadIHS2::CreateBocoObject(coDistributedObject **partObj, struct geometry *g
    partObj[4] = diricletValues;
 
    //   5. wall
-   sprintf(name,"%s_wall",basename);
+   snprintf(name, sizeof(name),"%s_wall",basename);
    size[0] = COL_WALL;
    size[1] = geo->n_wall;
    coDoIntArr *faces = new coDoIntArr(name, 2, size );
@@ -2279,7 +2279,7 @@ int ReadIHS2::CreateBocoObject(coDistributedObject **partObj, struct geometry *g
    partObj[5]=faces;
 
    //   6. balance
-   sprintf(name,"%s_balance",basename);
+   snprintf(name, sizeof(name),"%s_balance",basename);
    size[0] = COL_BALANCE;
    size[1] =   geo->n_bcin +
       geo->n_bcout +
@@ -2329,7 +2329,7 @@ int ReadIHS2::CreateBocoObject(coDistributedObject **partObj, struct geometry *g
    partObj[6] = balance;
 
    //  7. pressure bc
-   sprintf(name,"%s_pressElems",basename);
+   snprintf(name, sizeof(name),"%s_pressElems",basename);
    size[0] = COL_PRESS;
    if (geo->n_press_rb>0)
    {
@@ -2339,7 +2339,7 @@ int ReadIHS2::CreateBocoObject(coDistributedObject **partObj, struct geometry *g
       data=pressElems->getAddress();
 
       //  8. pressure bc: value
-      sprintf(name,"%s_pressVal",basename);
+      snprintf(name, sizeof(name),"%s_pressVal",basename);
 //      coDoFloat *pressValues  = new coDoFloat(name, geo->n_press_rb);
 //      pressValues->getAddress(&bPtr);
 
@@ -2382,7 +2382,7 @@ int ReadIHS2::CreateBocoObject(coDistributedObject **partObj, struct geometry *g
       data=pressElems->getAddress();
 
       //  8. pressure bc: value for outlet elements
-      sprintf(name,"%s_pressVal",basename);
+      snprintf(name, sizeof(name),"%s_pressVal",basename);
 //      coDoFloat *pressValues = new coDoFloat(name, geo->n_bcout);
 //      pressValues->getAddress(&bPtr);
       for (i = 0; i < geo->n_bcout; i++)

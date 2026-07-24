@@ -956,7 +956,7 @@ ReadANSYS::nodalData()
 
         // realtime attribute
         char realTime[128];
-        sprintf(realTime, "%g", readRST_.GetTime(CovTime));
+        snprintf(realTime, sizeof(realTime), "%g", readRST_.GetTime(CovTime));
 
         // now use nodeindex_, elemindex_, ety_, node_, element_
         int numVertices = 0;
@@ -1147,7 +1147,7 @@ ReadANSYS::nodalData()
 
         // make grid name
         char buf[64];
-        sprintf(buf, "_%d", CovTime);
+        snprintf(buf, sizeof(buf), "_%d", CovTime);
         std::string gridName(p_grid_->getObjName());
         gridName += buf;
         // find requested DOF AQUI

@@ -284,7 +284,7 @@ int InterpolMeridianPlanes(struct meridian**be,int be_num,struct rr_grid *grid)
 
 #ifdef DEBUG_INTERPOL
 	for(i = 0; i < grid->ge_num; i++) {
-		sprintf(fn,"rr_meridintpol_%02d.txt",i);
+		snprintf(fn, sizeof(fn),"rr_meridintpol_%02d.txt",i);
 		if( (fp = fopen(fn,"w+")) == NULL) {
 			fprintf(stderr,"file '%s'!\n",fn);
 			exit(-1);
@@ -360,7 +360,7 @@ int TranslateBladeProfiles(struct rr_grid *grid)
 
 #ifdef DEBUG_REGIONS
 	for(i = 0; i < grid->ge_num; i++) {			   // loop over merid. planes
-		sprintf(fn,"rr_blademerid_%02d.txt",i);
+		snprintf(fn, sizeof(fn),"rr_blademerid_%02d.txt",i);
 		if( (fp = fopen(fn,"w+")) == NULL) {
 			fprintf(stderr, "Shit happenend opening file '%s'!\n",fn);
 			exit(-1);

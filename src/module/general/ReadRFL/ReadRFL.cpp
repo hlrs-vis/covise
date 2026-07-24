@@ -51,11 +51,11 @@ ReadRFL::ReadRFL(int argc, char *argv[])
     char buffer[500];
     for (i = 0; i < NUMPORTS; i++)
     {
-        sprintf(buffer, "dof_%d", i);
+        snprintf(buffer, sizeof(buffer), "dof_%d", i);
         dofs[i] = addChoiceParam(buffer, "DOF to read for output");
         dofs[i]->setValue(1, defFieldVal, 0);
 
-        sprintf(buffer, "data_%d", i);
+        snprintf(buffer, sizeof(buffer), "data_%d", i);
         data[i] = addOutputPort(buffer,
                                 "Float|Vec3", "Data Output");
     }

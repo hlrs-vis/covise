@@ -28,12 +28,12 @@ bool ShowTrackerObjectsPlugin::init()
     for (int i = 0; i <= checkStationNumbers; i++)
     {
         char stationEntry[255];
-        sprintf(stationEntry, "COVER.Plugin.ShowTrackerObjects.Icon%i", i);
+        snprintf(stationEntry, sizeof(stationEntry), "COVER.Plugin.ShowTrackerObjects.Icon%i", i);
         std::string stationIcon = coCoviseConfig::getEntry(stationEntry);
         if (!stationIcon.empty())
         {
             char sizeEntry[255];
-            sprintf(sizeEntry, "IconSize%i", i);
+            snprintf(sizeEntry, sizeof(sizeEntry), "IconSize%i", i);
             float size = coCoviseConfig::getFloat(sizeEntry, "COVER.Plugin.ShowTrackerObjects", 1.0);
             trackerPosIcon[i] = loadTrackerPosIcon(stationIcon.c_str(), size);
             trackerPosIcon[i]->setNodeMask(trackerPosIcon[i]->getNodeMask() & ~Isect::Intersection);

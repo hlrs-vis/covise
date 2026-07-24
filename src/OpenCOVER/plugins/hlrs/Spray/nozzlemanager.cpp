@@ -9,7 +9,7 @@ nozzle* nozzleManager::createNozzle(std::string nozzleName)
     if(nozzleName.empty())
     {
         char ptr[33];
-        sprintf(ptr, "coNozzle%i", nextNozzleID);
+        snprintf(ptr, sizeof(ptr), "coNozzle%i", nextNozzleID);
         newNozzleName.clear();
         newNozzleName.append(ptr);
     }
@@ -46,7 +46,7 @@ nozzle* nozzleManager::createImageNozzle(std::string nozzleName, std::string pat
     if(nozzleName.empty())
     {
         char ptr[33];
-        sprintf(ptr, "coNozzle%i", nextNozzleID);
+        snprintf(ptr, sizeof(ptr), "coNozzle%i", nextNozzleID);
         newNozzleName.clear();
         newNozzleName.append(ptr);
     }
@@ -84,7 +84,7 @@ nozzle* nozzleManager::createStandardNozzle(std::string nozzleName, float sprayA
     if(nozzleName.empty())
     {
         char ptr[33];
-        sprintf(ptr, "coNozzle%i", nextNozzleID);
+        snprintf(ptr, sizeof(ptr), "coNozzle%i", nextNozzleID);
         newNozzleName.clear();
         newNozzleName.append(ptr);
     }
@@ -157,7 +157,7 @@ void nozzleManager::saveNozzle(std::string pathName, std::string fileName)
     if(saving != NULL)
     {
         fputs("Nozzlecount: ", saving);
-        sprintf(ptr, "%i", nozzleCount);
+        snprintf(ptr, sizeof(ptr), "%i", nozzleCount);
         fputs(ptr, saving);
         fputs("\n\n", saving);
         fclose(saving);

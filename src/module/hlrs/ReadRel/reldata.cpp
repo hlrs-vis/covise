@@ -5133,7 +5133,7 @@ int RELDATA::GetDataNameOrder(char *line, int **tabelle)
 
     int num_data = 0; // Anzahl der Properties in Zeile
     int i = 0;
-    sprintf(zeile, "%s", line);
+    snprintf(zeile, sizeof(zeile), "%s", line);
     while ((zeile[i] != '\n') && (zeile[i] != '\r'))
     {
         if (isdigit(*(zeile + i)))
@@ -5858,9 +5858,9 @@ int RELDATA::ReadData(char *filename)
     // test
     int *used, cnt, index;
 
-    sprintf(nodename, "%s.nodes", filename);
-    sprintf(edgename, "%s.edge2node", filename);
-    sprintf(facename, "%s.face2edge", filename);
+    snprintf(nodename, sizeof(nodename), "%s.nodes", filename);
+    snprintf(edgename, sizeof(edgename), "%s.edge2node", filename);
+    snprintf(facename, sizeof(facename), "%s.face2edge", filename);
 
     // Elemente Top->Down einlesen
     // Flaechen einlesen
@@ -6486,7 +6486,7 @@ int RELDATA::WriteGAMBIT(char *project)
 char filename[256];
 FILE *fp;
 
-sprintf(filename,"%s.neu",project);
+snprintf(filename, sizeof(filename),"%s.neu",project);
 if ((fp=fopen(filename,"wt"))==NULL)
 {
 if (Globals.verbose!=VER_NONE)
@@ -6572,7 +6572,7 @@ int dreiecke=0,vierecke=0;
 char filename[256];
 FILE *fp;
 
-sprintf(filename,"%s.cdb",project);
+snprintf(filename, sizeof(filename),"%s.cdb",project);
 if ((fp=fopen(filename,"wt"))==NULL)
 {
 if (Globals.verbose!=VER_NONE)
@@ -6722,7 +6722,7 @@ int RELDATA::WritePOVRAY(char *project)
   ELEMENT *actnode;
   double min[3],max[3],off[3],loc[3]={0,0,0};;
 
-sprintf(filename,"%s.pov",project);
+snprintf(filename, sizeof(filename),"%s.pov",project);
 if ((fp=fopen(filename,"wt"))==NULL)
 {
 if (Globals.verbose!=VER_NONE)

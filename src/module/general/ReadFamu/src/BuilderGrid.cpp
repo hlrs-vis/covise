@@ -86,7 +86,7 @@ coDoSet *BuilderGrid::constructSingleMesh(
 
     // create grid of time step 0
     char buf[1000];
-    sprintf(buf, "%s_Grid", meshName);
+    snprintf(buf, sizeof(buf), "%s_Grid", meshName);
     coDoUnstructuredGrid *gridOfTimeStep0 = NULL;
     gridOfTimeStep0 = new coDoUnstructuredGrid(buf, noOfElements, noOfVertices, noOfPoints, elementsArr, verticesArr, xPointsArr, yPointsArr, zPointsArr, typesArr);
 
@@ -124,7 +124,7 @@ coDoSet *BuilderGrid::constructSingleMesh(
                     dz[n] += zPointsArr[n];
                 }
             }
-            sprintf(buf, "%s_%d_Grid", meshName, i);
+            snprintf(buf, sizeof(buf), "%s_%d_Grid", meshName, i);
             gridOfTimeStep = new coDoUnstructuredGrid(buf, noOfElements, noOfVertices, noOfPoints, elementsArr, verticesArr, dx, dy, dz, typesArr);
         }
         else
@@ -144,7 +144,7 @@ coDoSet *BuilderGrid::constructSingleMesh(
         {
             int num = static_cast<int>(360.0 / symmAngle);
             char attrValue[200];
-            sprintf(attrValue, "%d %f", num - 1, symmAngle);
+            snprintf(attrValue, sizeof(attrValue), "%d %f", num - 1, symmAngle);
             gridSet->addAttribute("MULTIROT", attrValue);
         }
     }
@@ -165,7 +165,7 @@ coDoSet *BuilderGrid::constructMultipleMeshes(
     int noOfSymmTimeSteps)
 {
     char buf[1000];
-    sprintf(buf, "%s_Grid", meshName);
+    snprintf(buf, sizeof(buf), "%s_Grid", meshName);
 
     int noOfTimeStepsRes = resFileData->getNoOfTimeSteps();
     int noOfTimeStepsMesh = meshDataTrans->getNoOfMeshes();
@@ -191,7 +191,7 @@ coDoSet *BuilderGrid::constructMultipleMeshes(
                                   &xPointsArr, &yPointsArr, &zPointsArr,
                                   &typesArr);
 
-        sprintf(buf, "%s_%d_Grid", meshName, i);
+        snprintf(buf, sizeof(buf), "%s_%d_Grid", meshName, i);
         gridsOfTimestepsArr[i] = new coDoUnstructuredGrid(buf, noOfElements, noOfVertices, noOfPoints,
                                                           elementsArr, verticesArr,
                                                           xPointsArr, yPointsArr, zPointsArr, typesArr);
@@ -206,7 +206,7 @@ coDoSet *BuilderGrid::constructMultipleMeshes(
         {
             int num = static_cast<int>(360.0 / symmAngle);
             char attrValue[200];
-            sprintf(attrValue, "%d %f", num - 1, symmAngle);
+            snprintf(attrValue, sizeof(attrValue), "%d %f", num - 1, symmAngle);
             gridSet->addAttribute("MULTIROT", attrValue);
         }
     }

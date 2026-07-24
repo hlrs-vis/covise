@@ -179,13 +179,13 @@ void Application::paramChange(void *)
         return;
     }
     fclose(fp);
-    sprintf(msg, "TITLE: \"%s\"", Title);
+    snprintf(msg, sizeof(msg), "TITLE: \"%s\"", Title);
     Covise::sendInfo(msg);
-    sprintf(msg, "%i VARIABLES", nVars);
+    snprintf(msg, sizeof(msg), "%i VARIABLES", nVars);
     Covise::sendInfo(msg);
     /*
      for(int i = 0; i < nVars;i++) {
-      sprintf(msg, "[%d] %s",i,VarNames[i]);
+      snprintf(msg, sizeof(msg), "[%d] %s",i,VarNames[i]);
       Covise::sendInfo (msg);
      }
    */
@@ -265,18 +265,18 @@ void Application::execute(void *)
         filesets = 0;
         int temp_timestep = timestep;
         char temp_filename[256];
-        sprintf(temp_filename, "%s%d%s", rumpf, temp_timestep, tail);
+        snprintf(temp_filename, sizeof(temp_filename), "%s%d%s", rumpf, temp_timestep, tail);
         while (dummy = Covise::fopen(temp_filename, "r"))
         {
             filesets++;
             fclose(dummy);
             temp_timestep++;
-            sprintf(temp_filename, "%s%d%s", rumpf, temp_timestep, tail);
+            snprintf(temp_filename, sizeof(temp_filename), "%s%d%s", rumpf, temp_timestep, tail);
         }
         //initialize sets for timedependent output
 
         char attr_str[32];
-        sprintf(attr_str, "%d %d", timestep, temp_timestep - 1);
+        snprintf(attr_str, sizeof(attr_str), "%d %d", timestep, temp_timestep - 1);
 
         GRID_sets = new coDistributedObject *[filesets + 1];
         GRID_sets[0] = NULL;
@@ -303,7 +303,7 @@ void Application::execute(void *)
         while (dummy = Covise::fopen(filename, "r"))
         {
             char msg[256];
-            sprintf(msg, "Reading %s", filename);
+            snprintf(msg, sizeof(msg), "Reading %s", filename);
             Covise::sendInfo(msg);
 
             fclose(dummy);
@@ -518,7 +518,7 @@ void Application::fileformaterror(char *msg)
 {
     char hstr[1000];
 
-    sprintf(hstr, "error in '%s' in line %i: %s.", filename, line, msg);
+    snprintf(hstr, sizeof(hstr), "error in '%s' in line %i: %s.", filename, line, msg);
     Covise::sendError(hstr);
 }
 
@@ -665,7 +665,7 @@ int Application::getOutputObjectNames()
 
     for (i = 0; i < 3; i++)
     {
-        sprintf(name, "dataout%i", i + 1);
+        snprintf(name, sizeof(name), "dataout%i", i + 1);
         data_name[i] = Covise::get_object_name(name);
         if (data_name[i] == NULL)
         {
@@ -676,7 +676,7 @@ int Application::getOutputObjectNames()
 
     for (i = 0; i < 3; i++)
     {
-        sprintf(name, "udataout%i", i + 1);
+        snprintf(name, sizeof(name), "udataout%i", i + 1);
         udata_name[i] = Covise::get_object_name(name);
         if (udata_name[i] == NULL)
         {
@@ -782,7 +782,7 @@ int Application::readFile()
         else
         {
             // Fehler, falls ALLE Records von Routinen bedient werden
-            // sprintf (msg, "unknown record type >>%s<<", hstr);
+            // snprintf(msg, sizeof(msg), "unknown record type >>%s<<", hstr);
             // fileformaterror (msg);
             // return (FALSE);
         }
@@ -851,7 +851,7 @@ int Application::readZoneHeader(DynZoneDescr **curDescrP)
                 curDescr->Format = FEBLOCK;
             else
             {
-                sprintf(msg, "unknown zone format >>%s<<", hstr);
+                snprintf(msg, sizeof(msg), "unknown zone format >>%s<<", hstr);
                 fileformaterror(msg);
                 return (FALSE);
             }
@@ -1040,9 +1040,9 @@ void Application::create_time_OutputObjects()
 
     curDescr = zone;
     char dummy[128];
-    sprintf(dummy, "%s_%d", grid_name, timestep);
+    snprintf(dummy, sizeof(dummy), "%s_%d", grid_name, timestep);
     GRID_Set = new coDoSet(dummy, SET_CREATE);
-    sprintf(dummy, "%s_%d", ugrid_name, timestep);
+    snprintf(dummy, sizeof(dummy), "%s_%d", ugrid_name, timestep);
     uGRID_Set = new coDoSet(dummy, SET_CREATE);
     coDoStructuredGrid **grid_array;
     grid_array = new coDoStructuredGrid *[nZones];
@@ -1071,7 +1071,7 @@ void Application::create_time_OutputObjects()
             cerr << "shifting b\n";
         }
 
-        sprintf(hstr, "%s_grid%i_%d", grid_name, z, timestep);
+        snprintf(hstr, sizeof(hstr), "%s_grid%i_%d", grid_name, z, timestep);
         GRID = new coDoStructuredGrid(hstr, curDescr->k,
                                       curDescr->j,
                                       curDescr->i,
@@ -1103,7 +1103,7 @@ void Application::create_time_OutputObjects()
     cerr << "num_coord: " << num_coord << endl;
     cerr << "num_conn:  " << num_conn << endl;
 
-    sprintf(hstr, "%s_ugrid_%d", ugrid_name, timestep);
+    snprintf(hstr, sizeof(hstr), "%s_ugrid_%d", ugrid_name, timestep);
 
     //	uGRID = new coDoUnstructuredGrid(hstr, 8, 64, 27, 8);
     uGRID = new coDoUnstructuredGrid(hstr, num_elem, num_conn,
@@ -1244,7 +1244,7 @@ void Application::create_time_OutputObjects()
     {
         curDescr = zone;
         char dummy[128];
-        sprintf(dummy, "%s_%d", data_name[0], timestep);
+        snprintf(dummy, sizeof(dummy), "%s_%d", data_name[0], timestep);
         VECTOR_Set = new coDoSet(dummy, SET_CREATE);
         VECTOR_Set->addAttribute("DATA_NAME", VarNames[usedVars[3]]);
         for (z = 0; z < nZones; z++)
@@ -1253,7 +1253,7 @@ void Application::create_time_OutputObjects()
             curZone[4] = curZone[4]->next;
             curZone[5] = curZone[5]->next;
             curDescr = curDescr->next;
-            sprintf(hstr, "%s_zone%i_%d", data_name[0], z, timestep);
+            snprintf(hstr, sizeof(hstr), "%s_zone%i_%d", data_name[0], z, timestep);
             vector_array[z] = new coDoVec3(hstr, curDescr->k,
                                            curDescr->j,
                                            curDescr->i,
@@ -1275,7 +1275,7 @@ void Application::create_time_OutputObjects()
         float *us, *vs, *ws;
         int no_of_points;
 
-        sprintf(dummy, "%s_%d", udata_name[0], timestep);
+        snprintf(dummy, sizeof(dummy), "%s_%d", udata_name[0], timestep);
         uVECTOR = new coDoVec3(dummy, num_coord);
         uVECTOR->getAddresses(&uu, &vu, &wu);
         uVECTOR->addAttribute("DATA_NAME", VarNames[usedVars[3]]);
@@ -1300,14 +1300,14 @@ void Application::create_time_OutputObjects()
         {
             curDescr = zone;
             char dummy[128];
-            sprintf(dummy, "%s_%d", data_name[v + 1], timestep);
+            snprintf(dummy, sizeof(dummy), "%s_%d", data_name[v + 1], timestep);
             DATA_Set[v] = new coDoSet(dummy, SET_CREATE);
             DATA_Set[v]->addAttribute("DATA_NAME", VarNames[usedVars[v + 6]]);
             for (z = 0; z < nZones; z++)
             {
                 curZone[v + 6] = curZone[v + 6]->next;
                 curDescr = curDescr->next;
-                sprintf(hstr, "%s_zone%i_%d", data_name[v + 1], z, timestep);
+                snprintf(hstr, sizeof(hstr), "%s_zone%i_%d", data_name[v + 1], z, timestep);
                 scalar_array[z] = new coDoFloat(hstr, curDescr->k,
                                                 curDescr->j,
                                                 curDescr->i,
@@ -1326,7 +1326,7 @@ void Application::create_time_OutputObjects()
             float *ss;
             int no_of_points;
 
-            sprintf(dummy, "%s_%d", udata_name[v + 1], timestep);
+            snprintf(dummy, sizeof(dummy), "%s_%d", udata_name[v + 1], timestep);
             uSCALAR = new coDoFloat(dummy, num_coord);
             uSCALAR->getAddress(&su);
             uSCALAR->addAttribute("DATA_NAME", VarNames[usedVars[v + 6]]);
@@ -1392,7 +1392,7 @@ void Application::createOutputObjects()
             curDescr->j = 1;
         }
 
-        sprintf(hstr, "%s_grid%i", grid_name, z);
+        snprintf(hstr, sizeof(hstr), "%s_grid%i", grid_name, z);
         GRID = new coDoStructuredGrid(hstr, curDescr->k,
                                       curDescr->j,
                                       curDescr->i,
@@ -1415,7 +1415,7 @@ void Application::createOutputObjects()
             curZone[4] = curZone[4]->next;
             curZone[5] = curZone[5]->next;
             curDescr = curDescr->next;
-            sprintf(hstr, "%s_zone%i", data_name[0], z);
+            snprintf(hstr, sizeof(hstr), "%s_zone%i", data_name[0], z);
             VECTOR = new coDoVec3(hstr, curDescr->k,
                                   curDescr->j,
                                   curDescr->i,
@@ -1439,7 +1439,7 @@ void Application::createOutputObjects()
             {
                 curZone[v + 6] = curZone[v + 6]->next;
                 curDescr = curDescr->next;
-                sprintf(hstr, "%s_zone%i", data_name[v + 1], z);
+                snprintf(hstr, sizeof(hstr), "%s_zone%i", data_name[v + 1], z);
                 DATA = new coDoFloat(hstr, curDescr->k,
                                      curDescr->j,
                                      curDescr->i,

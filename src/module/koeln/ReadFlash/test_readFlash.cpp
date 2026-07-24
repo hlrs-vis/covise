@@ -6,7 +6,7 @@ int main() {
   const char *pathtemplate = "/home/nuernberger/sim_tmp/5e8/DwarfGal_hdf5_plt_cnt_0012";
   char path_fname[1024];
 
-  sprintf(path_fname, "%s", pathtemplate);
+  snprintf(path_fname, sizeof(path_fname), "%s", pathtemplate);
   // Init data field
   AMRField data;
   ParticleField particles;

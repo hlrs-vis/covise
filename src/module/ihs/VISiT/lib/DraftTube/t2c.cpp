@@ -291,7 +291,7 @@ void Tube2CoviseDump(struct covise_info *ci)
       fn = DebugFilename(buf);
       if(fn)
       fp = fopen(fn, "w");
-      sprintf(buf, "cross-section_%04d", i);
+      snprintf(buf, sizeof(buf), "cross-section_%04d", i);
       if(fp)
       {
       CiCsDump(fp, ci->ci_cs[i]);

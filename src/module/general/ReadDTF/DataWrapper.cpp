@@ -249,7 +249,7 @@ coDoSet *DataWrapper::getGridSet(string name, int begin, int end)
     if (!gridError)
     {
         gridSet = new coDoSet(name.c_str(), numSteps - begin, gridObj);
-        sprintf(steps, "1_%d", numSteps - begin);
+        snprintf(steps, sizeof(steps), "1_%d", numSteps - begin);
         gridSet->addAttribute("TIMESTEP", steps);
     }
 
@@ -308,7 +308,7 @@ coDoSet *DataWrapper::getDataSet(string name, string dataName,
     if (!dataError)
     {
         dataSet = new coDoSet(name.c_str(), numSteps - begin, dataObj);
-        sprintf(steps, "1_%d", numSteps - begin);
+        snprintf(steps, sizeof(steps), "1_%d", numSteps - begin);
         dataSet->addAttribute("TIMESTEP", steps);
     }
 
@@ -334,7 +334,7 @@ coDistributedObject *DataWrapper::getGrid(int timeStepNr)
 
         if (timeStep != NULL)
         {
-            sprintf(gridName, "grid_%d", timeStepNr);
+            snprintf(gridName, sizeof(gridName), "grid_%d", timeStepNr);
             grid = timeStep->getGrid(gridName);
         }
     }
@@ -356,7 +356,7 @@ coDistributedObject *DataWrapper::getData(int timeStepNr, string name)
         {
             if (timeStep->hasData())
             {
-                sprintf(dataName, "data_%d", timeStepNr);
+                snprintf(dataName, sizeof(dataName), "data_%d", timeStepNr);
                 dataObject = timeStep->getData(dataName, name);
             }
         }

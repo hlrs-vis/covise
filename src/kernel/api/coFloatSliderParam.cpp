@@ -181,7 +181,7 @@ const char *coFloatSliderParam::getTypeString() const
 const char *coFloatSliderParam::getValString() const
 {
     static char valString[192];
-    sprintf(valString, "%f %f %f", d_min, d_max, d_value);
+    snprintf(valString, sizeof(valString), "%f %f %f", d_min, d_max, d_value);
     return valString;
 }
 

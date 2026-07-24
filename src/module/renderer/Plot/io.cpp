@@ -31,7 +31,7 @@ int ibounds(int x, int lower, int upper, char *name)
     test = ((x >= lower) && (x <= upper));
     if (!test)
     {
-        sprintf(readbuf, " in %s : parameter must be in (%d , %d)", name, lower, upper);
+        snprintf(readbuf, sizeof(readbuf), " in %s : parameter must be in (%d , %d)", name, lower, upper);
         errwin(readbuf);
     }
     return (test);
@@ -44,7 +44,7 @@ int fbounds(double x, double lower, double upper, char *name)
     test = ((x >= lower) && (x <= upper));
     if (!test)
     {
-        sprintf(readbuf, "In %s : parameter must be in [%lf, %lf]", name, lower, upper);
+        snprintf(readbuf, sizeof(readbuf), "In %s : parameter must be in [%lf, %lf]", name, lower, upper);
         errwin(readbuf);
     }
     return (test);
@@ -57,7 +57,7 @@ int fexists(char *to)
 
     if (stat(to, &stto) == 0)
     {
-        sprintf(tbuf, "Overwrite %s?", to);
+        snprintf(tbuf, sizeof(tbuf), "Overwrite %s?", to);
         if (!yesno(tbuf, NULL, NULL, NULL))
         {
             return (1);

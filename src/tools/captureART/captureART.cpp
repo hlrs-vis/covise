@@ -46,7 +46,7 @@ int main(int argc, char **argv)
 	int dtrack_port = 5000;
 	char filename[1000];
 	sscanf(argv[1], "%d", &dtrack_port);
-	sprintf(filename, "%s%d.csv",argv[2], dtrack_port);
+	snprintf(filename, sizeof(filename), "%s%d.csv",argv[2], dtrack_port);
 
 	FILE *fp = fopen(filename, "w");
 

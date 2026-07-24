@@ -1177,7 +1177,7 @@ void ViewPoints::saveViewPoint(const char *suggestedName)
     Vec3 tangentIn;
     tangentIn = Vec3(0, -500, 0);
 
-    sprintf(guiString, "%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
+    snprintf(guiString, sizeof(guiString), "%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
             cover->getScale(),
             m(0, 0), m(0, 1), m(0, 2), m(0, 3),
             m(1, 0), m(1, 1), m(1, 2), m(1, 3),
@@ -1198,12 +1198,12 @@ void ViewPoints::saveViewPoint(const char *suggestedName)
     {
         // if suggestedName is empty save new viewpoint
         //  with default name (if it doesnt already exist)
-        sprintf(newName, "NewViewpoint%d", vpnum);
+        snprintf(newName, sizeof(newName), "NewViewpoint%d", vpnum);
 
         for (vector<ViewDesc *>::iterator it = viewpoints.begin(); it < viewpoints.end(); ++it)
         {
             if (!strcmp((*it)->getName(), newName))
-                sprintf(newName, "NewViewpoint%d", ++vpnum);
+                snprintf(newName, sizeof(newName), "NewViewpoint%d", ++vpnum);
         }
         //viewDesc = new ViewDesc(newName, id_, cover->getScale(), m, viewPointMenu_,flightMenu_,editVPMenu_,this,true);
         viewDesc = new ViewDesc(newName, id_, guiString, viewPointMenu_, flightMenu_, editVPMenu_, this, true);
@@ -1543,7 +1543,7 @@ void ViewPoints::changeViewDesc(ViewDesc *viewDesc)
     }
     //fprintf(stderr, "PLANE: %s\n", ssplanes_final.str().c_str());
 
-    sprintf(guiString, "%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
+    snprintf(guiString, sizeof(guiString), "%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
             scale,
             m(0, 0), m(0, 1), m(0, 2), m(0, 3),
             m(1, 0), m(1, 1), m(1, 2), m(1, 3),
@@ -1605,7 +1605,7 @@ void ViewPoints::changeViewDesc(Matrix newMatrix, float newScale, Vec3 newTanIn,
     }
     //fprintf(stderr, "PLANE: %s\n", ssplanes_final.str().c_str());
 
-    sprintf(guiString, "%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
+    snprintf(guiString, sizeof(guiString), "%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
             scale,
             m(0, 0), m(0, 1), m(0, 2), m(0, 3),
             m(1, 0), m(1, 1), m(1, 2), m(1, 3),
@@ -2190,7 +2190,7 @@ void ViewPoints::startRecord()
         stopRecord();
 
     char fileName[100];
-    sprintf(fileName, "Animation.wrl");
+    snprintf(fileName, sizeof(fileName), "Animation.wrl");
     fileNumber++;
     frameNumber = 0;
     fp = fopen(fileName, "a+");

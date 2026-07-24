@@ -316,7 +316,7 @@ int leafsetmode(int mode)
         fclose(leafout);
         if (!ptofile)
         {
-            sprintf(sysbuf, "%s %s", leaf_prstr, fname);
+            snprintf(sysbuf, sizeof(sysbuf), "%s %s", leaf_prstr, fname);
             system(sysbuf);
             unlink(fname);
         }

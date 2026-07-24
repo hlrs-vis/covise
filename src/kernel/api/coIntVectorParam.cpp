@@ -96,7 +96,7 @@ void coIntVectorParam::initialize()
     int i;
     for (i = 0; i < d_length; i++)
     {
-        sprintf(buffer, "%ld ", d_data[i]);
+        snprintf(buffer, sizeof(buffer), "%ld ", d_data[i]);
         strcat(d_defString, buffer);
     }
 

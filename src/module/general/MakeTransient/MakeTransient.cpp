@@ -90,7 +90,7 @@ int MakeTransient::compute(const char *)
     delete[] set_list;
 
     char buf[16];
-    sprintf(buf, "1 %d", numSteps);
+    snprintf(buf, sizeof(buf), "1 %d", numSteps);
     ret_set->addAttribute("TIMESTEP", buf);
     p_outport->setCurrentObject(ret_set);
     return SUCCESS;

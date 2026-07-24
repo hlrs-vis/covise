@@ -48,7 +48,7 @@ int CreateRR_ConduitAreas(struct radial *rr)
 	}
 
 #ifdef DEBUG_AREAS
-	sprintf(fn,"rr_area.txt");
+	snprintf(fn, sizeof(fn),"rr_area.txt");
 	if( (fp = fopen(fn,"w+")) == NULL ) {
 		fprintf(stderr," error opening file '%s'\n",fn);
 		exit(1);

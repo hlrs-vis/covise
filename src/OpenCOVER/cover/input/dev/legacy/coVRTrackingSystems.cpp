@@ -1340,7 +1340,7 @@ coVRTrackingSystems::coVRTrackingSystems(int numStations, int stylusStation, int
             bgdata.dig_out = 0;
             for (i = 0; i < 3; i++)
             {
-                sprintf(varname, "COVER.Input.CerealConfig.IO:%d", i + 1);
+                snprintf(varname, sizeof(varname), "COVER.Input.CerealConfig.IO:%d", i + 1);
                 string config = coCoviseConfig::getEntry(varname);
                 if (config.empty())
                     config = defaultCereal[i];
@@ -1427,7 +1427,7 @@ coVRTrackingSystems::coVRTrackingSystems(int numStations, int stylusStation, int
         //HANDLE handle;
         HANDLE filemap;
         char tmp_str[512];
-        /*     sprintf(tmp_str,"%s\\%d",getenv("tmp"), key);
+        /*     snprintf(tmp_str, sizeof(tmp_str),"%s\\%d",getenv("tmp"), key);
    while((handle = CreateFile(tmp_str, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
       NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL)) == INVALID_HANDLE_VALUE)
    {
@@ -1437,7 +1437,7 @@ coVRTrackingSystems::coVRTrackingSystems(int numStations, int stylusStation, int
    } 
    filemap = CreateFileMapping(handle, NULL, PAGE_READWRITE, 0, sizeof(struct TRACKD_WAND), NULL);*/
 
-        sprintf(tmp_str, "Global\\%d", key);
+        snprintf(tmp_str, sizeof(tmp_str), "Global\\%d", key);
 
         filemap = OpenFileMapping(FILE_MAP_READ, FALSE, tmp_str);
         if (!(CaveLibWand = (TRACKD_WAND *)MapViewOfFile(filemap, FILE_MAP_READ, 0, 0, sizeof(struct TRACKD_WAND))))
@@ -1564,7 +1564,7 @@ coVRTrackingSystems::coVRTrackingSystems(int numStations, int stylusStation, int
         for (int i = 0; i <= numStations; i++)
         {
             char key[1024];
-            sprintf(key, "COVER.Input.Tarsus.StationName:%d", i);
+            snprintf(key, sizeof(key), "COVER.Input.Tarsus.StationName:%d", i);
             std::string name = coCoviseConfig::getEntry(key);
             if (!name.empty())
             {
@@ -1679,7 +1679,7 @@ coVRTrackingSystems::coVRTrackingSystems(int numStations, int stylusStation, int
         //HANDLE handle;
         HANDLE filemap;
         char tmp_str[512];
-        sprintf(tmp_str, "Global\\%d", key);
+        snprintf(tmp_str, sizeof(tmp_str), "Global\\%d", key);
         /* while((handle = CreateFile(tmp_str, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
       NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL)) == INVALID_HANDLE_VALUE)
    {
@@ -2495,25 +2495,25 @@ coVRTrackingSystems::getMatrix(int station, osg::Matrix &mat)
             calib_j = (int)fmod(floor((float)w_line / (float)(w_nk)), w_nj);
             calib_i = (int)fmod(floor((float)w_line / (float)(w_nk * w_nj)), w_ni);
 
-            sprintf(calib_output_line_x,
+            snprintf(calib_output_line_x, sizeof(calib_output_line_x),
                     "%lf\t%lf\t%lf\t    %lf\t%lf\t%lf\t    %d\t",
                     mat(3, 0), mat(3, 1), mat(3, 2),
                     mat(0, 0), mat(0, 1), mat(0, 2),
                     w_line);
 
-            sprintf(calib_output_line_y,
+            snprintf(calib_output_line_y, sizeof(calib_output_line_y),
                     "%lf\t%lf\t%lf\t    %lf\t%lf\t%lf\t    %d\t",
                     mat(3, 0), mat(3, 1), mat(3, 2),
                     mat(1, 0), mat(1, 1), mat(1, 2),
                     w_line);
 
-            sprintf(calib_output_line_z,
+            snprintf(calib_output_line_z, sizeof(calib_output_line_z),
                     "%lf\t%lf\t%lf\t    %lf\t%lf\t%lf\t    %d\t",
                     mat(3, 0), mat(3, 1), mat(3, 2),
                     mat(2, 0), mat(2, 1), mat(2, 2),
                     w_line);
 
-            sprintf(calib_output_line_p,
+            snprintf(calib_output_line_p, sizeof(calib_output_line_p),
                     "%lf\t%lf\t%lf\t    %lf\t%lf\t%lf\t    %d\t",
                     mat(3, 0), mat(3, 1), mat(3, 2),
                     calib_pos_i[calib_i], calib_pos_j[calib_j], calib_pos_k[calib_k],

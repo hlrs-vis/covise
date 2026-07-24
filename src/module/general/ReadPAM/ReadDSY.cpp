@@ -246,7 +246,7 @@ coDoSet **ReadDSY::cellObj(int no_objects, std::string *objName, int *req_label)
     }
 
     char timeAttr[16];
-    sprintf(timeAttr, "1 %d", noTimeReq_);
+    snprintf(timeAttr, sizeof(timeAttr), "1 %d", noTimeReq_);
 
     for (i = 0; i < no_objects; ++i)
     {
@@ -280,7 +280,7 @@ coDoSet **ReadDSY::tensorObj(const TensDescriptions &tdesc)
     }
 
     char timeAttr[16];
-    sprintf(timeAttr, "1 %d", noTimeReq_);
+    snprintf(timeAttr, sizeof(timeAttr), "1 %d", noTimeReq_);
 
     for (i = 0; i < tdesc.no_request; ++i)
     {
@@ -375,7 +375,7 @@ coDoSet **ReadDSY::nodalObj(int no_objects, std::string *objName, int *req_label
 
         // names
         char obj_name_app[32];
-        sprintf(obj_name_app, "_%d", i);
+        snprintf(obj_name_app, sizeof(obj_name_app), "_%d", i);
         for (j = 0; j < no_objects; ++j)
         {
             obj_name[j] = objName[j];
@@ -433,7 +433,7 @@ coDoSet **ReadDSY::nodalObj(int no_objects, std::string *objName, int *req_label
     // now make the sets with time steps
     coDoSet **theObjects = new coDoSet *[no_objects];
     char timeAttr[16];
-    sprintf(timeAttr, "1 %d", noTimeReq_);
+    snprintf(timeAttr, sizeof(timeAttr), "1 %d", noTimeReq_);
     for (i = 0; i < no_objects; ++i)
     {
         //      obj_name[i] = objName[i];
@@ -603,7 +603,7 @@ coDoSet *ReadDSY::grid(const char *objName, const char *matName,
 #endif
 
     char timeAttr[16];
-    sprintf(timeAttr, "1 %d", noTimeReq_);
+    snprintf(timeAttr, sizeof(timeAttr), "1 %d", noTimeReq_);
     theGrid->addAttribute("TIMESTEP", timeAttr);
     // in almost all occasions the time steps will be "copies"
     // of the same. But it would be too risky to exploit this
@@ -850,7 +850,7 @@ whichContents ReadDSY::scanGlobalContents(const char *gloPath)
             if (globalVarNotInFile(ind))
                 continue;
             mnemonic = GlobalMnemonics;
-            sprintf(tail, "%d", var);
+            snprintf(tail, sizeof(tail), "%d", var);
             mnemonic += tail;
             // provisional
             global_contents_.add(mnemonic.c_str(), coStringObj::SCALAR,
@@ -1016,7 +1016,7 @@ whichContents ReadDSY::scanCellContents()
                     if (cellVarNotInFile(cell_type, ind))
                         continue;
                     mnemonic = CellMnemonics[ind_type];
-                    sprintf(tail, "%d", var);
+                    snprintf(tail, sizeof(tail), "%d", var);
                     mnemonic += tail;
                     // provisional
                     cell_contents_.add(mnemonic.c_str(), coStringObj::SCALAR,

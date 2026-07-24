@@ -412,7 +412,7 @@ Host::Host(unsigned long a)
     char_address[3] = tmpaddr[3];
 
     char tmpName[256];
-    sprintf(tmpName, "%d.%d.%d.%d",
+    snprintf(tmpName, sizeof(tmpName), "%d.%d.%d.%d",
             char_address[0],
             char_address[1],
             char_address[2],

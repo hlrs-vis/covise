@@ -55,7 +55,7 @@ int UpdateAR_Meridians(struct axial *ar)
    fn = DebugFilename("ar_meridianup_ss.txt");
    if(fn)
    fp_ss = fopen(fn, "w");
-   sprintf(tmp, "ar_bl_check_%d.txt", check_index);
+   snprintf(tmp, sizeof(tmp), "ar_bl_check_%d.txt", check_index);
    fn = DebugFilename(tmp);
    if(fn)
    fp = fopen(fn, "w");

@@ -324,10 +324,10 @@ int coSimLib::startSim()
    // build the CO_SIMLIB_CONN variable
    char envVar[64];
    if (modIsServer)
-      sprintf(envVar,"C:%s/%d,%f,%d",inet_ntoa(*(in_addr*)&d_localIP),
+      snprintf(envVar, sizeof(envVar),"C:%s/%d,%f,%d",inet_ntoa(*(in_addr*)&d_localIP),
          d_usePort,timeout,d_verbose);
    else
-      sprintf(envVar,"S:%d-%d,%f,%d",d_minPort,d_maxPort,timeout,d_verbose);
+      snprintf(envVar, sizeof(envVar),"S:%d-%d,%f,%d",d_minPort,d_maxPort,timeout,d_verbose);
 
    //cerr << "Env var: " << envVar << endl;
 
@@ -1349,7 +1349,7 @@ int coSimLib::handleCommand(int fromWhere)
          // whether this is a valid node number
          if ( data.node>d_numNodes || data.node<0)
          {
-            sprintf(buffer,"%s: illegal node number: %d",d_name,data.node);
+            snprintf(buffer, sizeof(buffer),"%s: illegal node number: %d",d_name,data.node);
             Covise::sendError(buffer);                               return -1;
          }
 
@@ -1383,7 +1383,7 @@ int coSimLib::handleCommand(int fromWhere)
          // check
          if (d_actNode<0 || d_actNode>=d_numNodes)
          {
-            sprintf(buffer,"%s: illegal node number: %d",d_name,d_actNode);
+            snprintf(buffer, sizeof(buffer),"%s: illegal node number: %d",d_name,d_actNode);
             Covise::sendError(buffer);                               return -1;
          }
 
@@ -1515,7 +1515,7 @@ int32 *nodeMap)
    // write Mappings to files
    if (d_verbose>1)
    {
-      sprintf(buffer,"coSimlib.%d.Map",nodeNo);
+      snprintf(buffer, sizeof(buffer),"coSimlib.%d.Map",nodeNo);
       FILE *outFile = fopen(buffer,"w");
 
       fprintf(outFile,"Node mapping file for %s(%d) for Proc #%d\n\n",
@@ -1535,7 +1535,7 @@ int32 *nodeMap)
    // whether this is a valid node number
    if ( nodeNo>d_numNodes || nodeNo<0)
    {
-      sprintf(buffer,"%s: illegal node number: %d",d_name,nodeNo);
+      snprintf(buffer, sizeof(buffer),"%s: illegal node number: %d",d_name,nodeNo);
       Covise::sendError(buffer);                               return -1;
    }
 

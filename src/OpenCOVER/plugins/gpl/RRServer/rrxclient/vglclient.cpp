@@ -262,9 +262,9 @@ void killproc(bool useronly)
                 if (pid == getpid())
                     continue;
 #ifdef sun
-                sprintf(temps, "/proc/%s/psinfo", dent->d_name);
+                snprintf(temps, sizeof(temps), "/proc/%s/psinfo", dent->d_name);
 #else
-                sprintf(temps, "/proc/%s/stat", dent->d_name);
+                snprintf(temps, sizeof(temps), "/proc/%s/stat", dent->d_name);
 #endif
                 if ((fd = open(temps, O_RDONLY)) == -1)
                     continue;

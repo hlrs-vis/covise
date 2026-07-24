@@ -518,7 +518,7 @@ void Triangles::prCoord()
     int j = 0;
     for (; j < 3; j++)
     {
-        sprintf(buffer, "%6.3f %6.3f\n", coord[0][j], coord[1][j]);
+        snprintf(buffer, sizeof(buffer), "%6.3f %6.3f\n", coord[0][j], coord[1][j]);
         cout << buffer << flush;
     }
     cout << '\n' << flush;
@@ -536,7 +536,7 @@ void Triangles::prC2d()
     int j = 0;
     for (; j < 4; j++)
     {
-        sprintf(buffer, "%6.3f %6.3f\n", c2d[0][j], c2d[1][j]);
+        snprintf(buffer, sizeof(buffer), "%6.3f %6.3f\n", c2d[0][j], c2d[1][j]);
         cout << buffer << flush;
     }
     cout << '\n' << flush;

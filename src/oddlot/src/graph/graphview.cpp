@@ -586,7 +586,7 @@ GraphView::loadGoogleMap()
     form.addRow(label3, lineEdit3);
     fields << lineEdit3;
     char buf[500];
-    sprintf(buf, "%lf,%lf", y / M_PI * 180.0, x / M_PI * 180.0);
+    snprintf(buf, sizeof(buf), "%lf,%lf", y / M_PI * 180.0, x / M_PI * 180.0);
     lineEdit1->setText(buf);
     QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
         Qt::Horizontal, &dialog);
@@ -807,7 +807,7 @@ GraphView::loadBingMap()
     form.addRow(label3, lineEdit3);
     fields << lineEdit3;
     char buf[500];
-    sprintf(buf, "%lf,%lf", y / M_PI * 180.0, x / M_PI * 180.0);
+    snprintf(buf, sizeof(buf), "%lf,%lf", y / M_PI * 180.0, x / M_PI * 180.0);
     lineEdit1->setText(buf);
 
     QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,

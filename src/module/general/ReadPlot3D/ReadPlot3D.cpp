@@ -348,7 +348,7 @@ void Application::compute(const char *)
     // prepare
 
     char timestepAttribute[20];
-    sprintf(timestepAttribute, "0 %d", (int)data_paths.size());
+    snprintf(timestepAttribute, sizeof(timestepAttribute), "0 %d", (int)data_paths.size());
 
     // READ GRID
 
@@ -358,11 +358,11 @@ void Application::compute(const char *)
     char bfr[500];
     if (data_paths.size() > 1)
     {
-        sprintf(bfr, "%s_%s", grid_name, "timestep");
+        snprintf(bfr, sizeof(bfr), "%s_%s", grid_name, "timestep");
     }
     else
     {
-        sprintf(bfr, "%s", grid_name);
+        snprintf(bfr, sizeof(bfr), "%s", grid_name);
     }
     coDistributedObject **obj = ReadPlot3D(fGrid, _READ_GRID, bfr, "", "");
     if ((obj == NULL) || (obj[0] == NULL))
@@ -420,9 +420,9 @@ void Application::compute(const char *)
         char bfr3[500];
         for (int i = 0; i < data_paths.size(); ++i)
         {
-            sprintf(bfr1, "%s_%d", name1, i);
-            sprintf(bfr2, "%s_%d", name2, i);
-            sprintf(bfr3, "%s_%d", name3, i);
+            snprintf(bfr1, sizeof(bfr1), "%s_%d", name1, i);
+            snprintf(bfr2, sizeof(bfr2), "%s_%d", name2, i);
+            snprintf(bfr3, sizeof(bfr3), "%s_%d", name3, i);
             fData = Covise::fopen(data_paths[i].c_str(), "r");
             if (fData)
             {
@@ -607,7 +607,7 @@ coDistributedObject **Application::ReadPlot3D(FILE *fFile, int read_flag, const 
                 Covise::sendInfo("Zone: %d  IDIM: %d  JDIM: %d  KDIM: %d  NPOINTS: %d", i + 1, x_dim, y_dim, z_dim, npoints);
 
                 // compute object name
-                sprintf(bfr, "%s_%d", name1, i);
+                snprintf(bfr, sizeof(bfr), "%s_%d", name1, i);
 
                 // create object and get pointers
                 str_grid = new coDoStructuredGrid(bfr, x_dim, y_dim, z_dim);
@@ -617,7 +617,7 @@ coDistributedObject **Application::ReadPlot3D(FILE *fFile, int read_flag, const 
                 int *iblank = NULL;
                 if (gridtype == _FILE_IBLANKED)
                 {
-                    sprintf(bfr, "%s_%d", ibl_name, i);
+                    snprintf(bfr, sizeof(bfr), "%s_%d", ibl_name, i);
                     int size[1];
                     size[0] = npoints;
                     coDoIntArr *celltab = new coDoIntArr(bfr, 1, size);
@@ -774,7 +774,7 @@ coDistributedObject **Application::ReadPlot3D(FILE *fFile, int read_flag, const 
                 Covise::sendInfo("Zone: %d  num_coord: %d  num_triang: %d  num_tetra: %d", i, num_coord, num_triang, num_tetra);
 
                 // compute object name and get pointers
-                sprintf(bfr, "%s_%d", name1, i);
+                snprintf(bfr, sizeof(bfr), "%s_%d", name1, i);
                 unstr_grid = new coDoUnstructuredGrid(bfr, num_triang + num_tetra,
                                                       (num_triang * 3) + (num_tetra * 4), num_coord, 1);
                 unstr_grid->getAddresses(&el_out, &vl_out, &x_coord, &y_coord, &z_coord);
@@ -965,7 +965,7 @@ coDistributedObject **Application::ReadPlot3D(FILE *fFile, int read_flag, const 
 
                 // read values
 
-                sprintf(bfr, "%s_%d", name1, i);
+                snprintf(bfr, sizeof(bfr), "%s_%d", name1, i);
                 if (gridtype == _FILE_UNSTRUCTURED_GRID)
                 {
                     unstr_s3d_out = new coDoFloat(bfr, npoints);
@@ -986,7 +986,7 @@ coDistributedObject **Application::ReadPlot3D(FILE *fFile, int read_flag, const 
 
                 read_solution_record(fFile, data_out[0], x_dim, y_dim, z_dim, npoints);
 
-                sprintf(bfr, "%s_%d", name2, i);
+                snprintf(bfr, sizeof(bfr), "%s_%d", name2, i);
                 if (gridtype == _FILE_UNSTRUCTURED_GRID)
                 {
                     unstr_v3d_out = new coDoVec3(bfr, npoints);
@@ -1005,7 +1005,7 @@ coDistributedObject **Application::ReadPlot3D(FILE *fFile, int read_flag, const 
                 read_solution_record(fFile, data_out[1], x_dim, y_dim, z_dim, npoints);
                 read_solution_record(fFile, data_out[2], x_dim, y_dim, z_dim, npoints);
 
-                sprintf(bfr, "%s_%d", name3, i);
+                snprintf(bfr, sizeof(bfr), "%s_%d", name3, i);
                 if (gridtype == _FILE_UNSTRUCTURED_GRID)
                 {
                     unstr_s3d_out = new coDoFloat(bfr, npoints);
@@ -1183,7 +1183,7 @@ coDistributedObject **Application::ReadPlot3D(FILE *fFile, int read_flag, const 
                 Covise::sendInfo("Zone: %d  IDIM: %d  JDIM: %d  KDIM: %d  NPOINTS: %d", i, x_dim, y_dim, z_dim, npoints);
 
                 // compute object name and create it
-                sprintf(bfr, "%s_%d", name1, i);
+                snprintf(bfr, sizeof(bfr), "%s_%d", name1, i);
                 if (numComp == 3)
                 {
                     if (gridtype == _FILE_STRUCTURED_GRID || gridtype == _FILE_IBLANKED)
@@ -1334,7 +1334,7 @@ coDistributedObject **Application::ReadPlot3D(FILE *fFile, int read_flag, const 
                 for (k = 0; k < numComp; k++)
                 {
                     float *data_array;
-                    sprintf(bfr, "%s_%d", out_obj_names[k], i);
+                    snprintf(bfr, sizeof(bfr), "%s_%d", out_obj_names[k], i);
                     coDoFloat *s_data = new coDoFloat(bfr, x_dim * y_dim * z_dim);
                     if (!s_data->objectOk())
                         Covise::sendError("Failed to create the structure grid");
@@ -2084,16 +2084,16 @@ void Application::set_solution_attributes(coDistributedObject *r, float mach, fl
     char bfr[100];
 
     // set attributes
-    sprintf(bfr, "%f", mach);
+    snprintf(bfr, sizeof(bfr), "%f", mach);
     r->addAttribute("MACH", bfr);
 
-    sprintf(bfr, "%f", alpha);
+    snprintf(bfr, sizeof(bfr), "%f", alpha);
     r->addAttribute("ALPHA", bfr);
 
-    sprintf(bfr, "%f", re);
+    snprintf(bfr, sizeof(bfr), "%f", re);
     r->addAttribute("RE", bfr);
 
-    sprintf(bfr, "%f", time);
+    snprintf(bfr, sizeof(bfr), "%f", time);
     r->addAttribute("TIME", bfr);
 
     // done

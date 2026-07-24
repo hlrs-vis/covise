@@ -201,7 +201,7 @@ void coHSVSelector::sendLockMessageLocal()
     static char context[100];
     if (myFunctionEditor->getCurrentPin())
     {
-        sprintf(context, "%d", myFunctionEditor->getCurrentPin()->getID());
+        snprintf(context, sizeof(context), "%d", myFunctionEditor->getCurrentPin()->getID());
         sendLockMessage(context);
     }
 }
@@ -251,7 +251,7 @@ int coHSVSelector::hit(vruiHit *hit)
             setCross(x, y);
             myFunctionEditor->setColor(h, s, brightness);
             static char textColor[100];
-            sprintf(textColor, "%f %f %f", h, s, brightness);
+            snprintf(textColor, sizeof(textColor), "%f %f %f", h, s, brightness);
             sendOngoingMessage(textColor);
         }
     }
@@ -301,7 +301,7 @@ void coHSVSelector::update()
                 vvToolshed::convertXY2HS(crossX, crossY, &h, &s);
                 myFunctionEditor->setColor(h, s, brightness);
                 static char textColor[100];
-                sprintf(textColor, "%f %f %f", h, s, brightness);
+                snprintf(textColor, sizeof(textColor), "%f %f %f", h, s, brightness);
                 sendOngoingMessage(textColor);
             }
         }

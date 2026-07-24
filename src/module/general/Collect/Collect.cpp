@@ -119,7 +119,7 @@ coDistributedObject *recCopyObject(const coDistributedObject *obj, const char *o
 
         for (i = 0; i < numObj; i++)
         {
-            sprintf(buf, "%s_%d", obj_name, i + 1);
+            snprintf(buf, sizeof(buf), "%s_%d", obj_name, i + 1);
             output_parts[i] = recCopyObject(parts[i], buf);
         }
 
@@ -178,7 +178,7 @@ int Collect::compute(const char *)
         return FAIL; // should never get here...
 
     char buf[128];
-    sprintf(buf, "%s_1", p_outPort->getObjName());
+    snprintf(buf, sizeof(buf), "%s_1", p_outPort->getObjName());
     coDistributedObject *copied_grid = recCopyObject(grid, buf);
     grid = copied_grid;
 

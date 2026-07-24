@@ -114,11 +114,11 @@ void AxialRunner::CreateGrid(void)
          snprintf(paramtext, 80, "%d",1);
          unsGrd->addAttribute("rotating", paramtext);
          
-         sprintf(paramtext,"115,wand_omega,%d,0.0,0.0,%.4f",11,
+         snprintf(paramtext, sizeof(paramtext),"115,wand_omega,%d,0.0,0.0,%.4f",11,
                  rotdir*p_DRevolut->getValue()*M_PI/30.);
          unsGrd->addAttribute("walltext",paramtext);
          
-         sprintf(paramtext,"111,nomatch,110,120,perio_rota,%ld,3", p_NumberOfBlades->getValue());
+         snprintf(paramtext, sizeof(paramtext),"111,nomatch,110,120,perio_rota,%ld,3", p_NumberOfBlades->getValue());
          unsGrd->addAttribute("periotext",paramtext);
 
 // **************************************************
@@ -281,7 +281,7 @@ void AxialRunner::CreateGrid(void)
 		const char *basename = boco->getObjName();
 
 		//   0. number of columns per info
-		sprintf(name,"%s_colinfo",basename);
+		snprintf(name, sizeof(name),"%s_colinfo",basename);
 		size[0] = 6;
 		size[1] = 0;
 		coDoIntArr *colInfo = new coDoIntArr(name,1,size);
@@ -297,7 +297,7 @@ void AxialRunner::CreateGrid(void)
 		//   1. type of node
 		//   this is the model number of the part!
 		//   it has to be introduced as a parametre to be set != 0
-		sprintf(name,"%s_nodeinfo",basename);
+		snprintf(name, sizeof(name),"%s_nodeinfo",basename);
 		size[0] = RG_COL_NODE;
 		size[1] = rrg->n->num;
 		coDoIntArr *nodeInfo = new coDoIntArr(name,2,size);
@@ -311,7 +311,7 @@ void AxialRunner::CreateGrid(void)
 		//   2. type of element
 		//   elements are supposed to be numbered according to their
 		//   generation index (id = index+1)!
-		sprintf(name,"%s_eleminfo",basename);
+		snprintf(name, sizeof(name),"%s_eleminfo",basename);
 		size[0] = RG_COL_ELEM;
 		size[1] = rrg->e->nume;
 		coDoIntArr *elemInfo = new coDoIntArr(name, 2, size);
@@ -323,7 +323,7 @@ void AxialRunner::CreateGrid(void)
 		partObj[2]=elemInfo;
 
 		// maybe there are no inlet bcs
-		sprintf(name,"%s_diricletNodes",basename);
+		snprintf(name, sizeof(name),"%s_diricletNodes",basename);
 		if(rrg->bcval) {
 			//   3. list of nodes with bc
 			//      and its types
@@ -333,7 +333,7 @@ void AxialRunner::CreateGrid(void)
 			data = diricletNodes->getAddress();
 
 			//   4. corresponding value to 3.
-			sprintf(name,"%s_diricletValue",basename);
+			snprintf(name, sizeof(name),"%s_diricletValue",basename);
 			coDoFloat *diricletValues
 				= new coDoFloat(name, 5*rrg->inlet->num);
 			diricletValues->getAddress(&bPtr);
@@ -355,7 +355,7 @@ void AxialRunner::CreateGrid(void)
 			coDoIntArr *diricletNodes = new coDoIntArr(name, 2, size);
 			data = diricletNodes->getAddress();
 
-			sprintf(name,"%s_diricletValue",basename);
+			snprintf(name, sizeof(name),"%s_diricletValue",basename);
 			coDoFloat *diricletValues
 				= new coDoFloat(name, 1);
 			diricletValues->getAddress(&bPtr);
@@ -372,7 +372,7 @@ void AxialRunner::CreateGrid(void)
 		num =  rrg->shroudext->nume + rrg->wall->nume +
 			   rrg->frictless->nume + rrg->shroud->nume;
 	
-		sprintf(name,"%s_wall",basename);
+		snprintf(name, sizeof(name),"%s_wall",basename);
 		size[0] = RG_COL_WALL;
 		size[1] = num;
 		coDoIntArr *faces = new coDoIntArr(name, 2, size);
@@ -394,7 +394,7 @@ void AxialRunner::CreateGrid(void)
 		partObj[5]=faces;
 
 		//   6. balance
-		sprintf(name,"%s_balance",basename);
+		snprintf(name, sizeof(name),"%s_balance",basename);
 		num = rrg->einlet->nume + rrg->eoutlet->nume +
 			  rrg->psleperiodic->nume + rrg->ssleperiodic->nume +
 			  rrg->psteperiodic->nume + rrg->ssteperiodic->nume +
@@ -426,7 +426,7 @@ void AxialRunner::CreateGrid(void)
 		partObj[6] = balance;
 
       //  7. pressure bc: outlet elements
-		sprintf(name,"%s_pressElems",basename);
+		snprintf(name, sizeof(name),"%s_pressElems",basename);
 		size[0] = RG_COL_PRESS;
 		size[1] = rrg->eoutlet->nume;
 		coDoIntArr *pressElems = new coDoIntArr(name, 2, size );

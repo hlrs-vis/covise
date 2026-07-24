@@ -48,7 +48,7 @@ char buf[256], buf1[256], buf2[256], buf3[256];
 
 void ModifyHeadBox::selfExec()
 {
-    sprintf(buf, "T%s\n%s\n%s\n", Covise::get_module(),
+    snprintf(buf, sizeof(buf), "T%s\n%s\n%s\n", Covise::get_module(),
             Covise::get_instance(),
             Covise::get_host());
     Covise::set_feedback_info(buf);
@@ -310,7 +310,7 @@ int ModifyHeadBox::compute()
             hexa_run = "ssh -l %s %s 'cd %s ; %s %d %f %f %f %f %f %f %f %f %f %f %f %f'; scp %s@%s:%s/surface.msh .";
         //hexa_run = "ssh -l %s %s 'cd %s ; %s %d %f %f %f %f %f %f %f %f %f %f %f %f'";
 
-        sprintf(runtext, hexa_run, user, host, dir, run, mode, -trn1 / 1000.0, -trn2 / 1000.0, -trn3 / 1000.0, -trn4 / 1000.0, -trn5 / 1000.0, -trn6 / 1000.0, -trn7 / 1000.0, -trn8 / 1000.0, -trn9 / 1000.0, -trn10 / 1000.0, -trn11 / 1000.0, -trn12 / 1000.0, user, host, dir);
+        snprintf(runtext, sizeof(runtext), hexa_run, user, host, dir, run, mode, -trn1 / 1000.0, -trn2 / 1000.0, -trn3 / 1000.0, -trn4 / 1000.0, -trn5 / 1000.0, -trn6 / 1000.0, -trn7 / 1000.0, -trn8 / 1000.0, -trn9 / 1000.0, -trn10 / 1000.0, -trn11 / 1000.0, -trn12 / 1000.0, user, host, dir);
 
         fprintf(stderr, "\truntext=[%s]\n", runtext);
 
@@ -363,7 +363,7 @@ int ModifyHeadBox::compute()
 
     ocmode = cmode;
 
-    sprintf(comtext, "%d\n", flag * runmode);
+    snprintf(comtext, sizeof(comtext), "%d\n", flag * runmode);
 
     fprintf(stderr, "\t output command text = [%s]\n", comtext);
     oname = p_command->getObjName();

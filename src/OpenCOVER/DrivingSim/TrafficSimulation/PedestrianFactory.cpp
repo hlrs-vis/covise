@@ -144,22 +144,22 @@ Pedestrian *PedestrianFactory::createPedestrian(const std::string &name, const s
     // Override starting position values
     pedSettings.startRoadId = r;
     char laneBuf[8];
-    sprintf(laneBuf, "%d", l);
+    snprintf(laneBuf, sizeof(laneBuf), "%d", l);
     pedSettings.startLane = std::string(laneBuf);
     char dirBuf[8];
-    sprintf(dirBuf, "%d", dir);
+    snprintf(dirBuf, sizeof(dirBuf), "%d", dir);
     pedSettings.startDir = std::string(dirBuf);
     char sOffBuf[16];
-    sprintf(sOffBuf, "%.2f", sOff);
+    snprintf(sOffBuf, sizeof(sOffBuf), "%.2f", sOff);
     pedSettings.startSOff = std::string(sOffBuf);
     char vOffBuf[16];
-    sprintf(vOffBuf, "%.2f", vOff);
+    snprintf(vOffBuf, sizeof(vOffBuf), "%.2f", vOff);
     pedSettings.startVOff = std::string(vOffBuf);
     char velBuf[16];
-    sprintf(velBuf, "%.2f", vel);
+    snprintf(velBuf, sizeof(velBuf), "%.2f", vel);
     pedSettings.startVel = std::string(velBuf);
     char accBuf[16];
-    sprintf(accBuf, "%.2f", acc);
+    snprintf(accBuf, sizeof(accBuf), "%.2f", acc);
     pedSettings.startAcc = std::string(accBuf);
 
     // Create a new pedestrian with these settings

@@ -33,14 +33,14 @@ ReadVTF::ReadVTF(int argc, char *argv[])
     // out port for scalar or vector data
     for (i = 0; i < NUMPORTS; i++)
     {
-        sprintf(name, "dataout%d", i + 1);
+        snprintf(name, sizeof(name), "dataout%d", i + 1);
         pt_outResults[i] = addOutputPort(name, "Float|Vec3", "S3D or V3D results");
     }
 
     // choice parameter
     for (i = 0; i < NUMPORTS; i++)
     {
-        sprintf(name, "port_%d", i + 2);
+        snprintf(name, sizeof(name), "port_%d", i + 2);
         pt_choice[i] = addChoiceParam(name, "select typ of data");
         const char *noneChoice[] = { "---" };
         pt_choice[i]->setValue(1, noneChoice, 0);
@@ -907,7 +907,7 @@ void ReadVTF::drawPolygons()
         if (m_iNumTimeSteps > 1)
         {
 
-            sprintf(objname, "%s_timestep_%d", (is_poly) ? pt_outPoly->getObjName() : pt_outPort->getObjName(), timestep);
+            snprintf(objname, sizeof(objname), "%s_timestep_%d", (is_poly) ? pt_outPoly->getObjName() : pt_outPort->getObjName(), timestep);
             if (!is_poly)
             {
                 poly = new coDoUnstructuredGrid(objname, num_polygons, num_corners, num_points, polygonlist,
@@ -960,7 +960,7 @@ void ReadVTF::drawPolygons()
     }
     if (m_iNumTimeSteps > 1)
     {
-        sprintf(objname, "1 %d", m_iNumTimeSteps);
+        snprintf(objname, sizeof(objname), "1 %d", m_iNumTimeSteps);
         coDoSet *set = new coDoSet((is_poly) ? pt_outPoly->getObjName() : pt_outPort->getObjName(), obj);
         set->addAttribute("TIMESTEP", objname);
         (is_poly) ? pt_outPoly->setCurrentObject(set) : pt_outPort->setCurrentObject(set);
@@ -1437,7 +1437,7 @@ void ReadVTF::drawResults()
             {
                 //cout<<"scalar data per node and element:"<<endl;
                 //cout<<"timestep "<<n<<endl;
-                sprintf(objname, "%s_A_%d", pt_outResults[i]->getObjName(), n);
+                snprintf(objname, sizeof(objname), "%s_A_%d", pt_outResults[i]->getObjName(), n);
                 coDoFloat *scal = (coDoFloat *)cellToVert.interpolate(obj[n], 1,
                                                                       iNumPointsScalarElem[i][n],
                                                                       Elem_scalar_data[n], NULL,
@@ -1476,7 +1476,7 @@ void ReadVTF::drawResults()
             {
                 //cout<<"scalar data per element:"<<endl;
                 //cout<<"timestep "<<n<<endl;
-                sprintf(objname, "%s_B_%d", pt_outResults[i]->getObjName(), n);
+                snprintf(objname, sizeof(objname), "%s_B_%d", pt_outResults[i]->getObjName(), n);
                 coDoFloat *scal = (coDoFloat *)cellToVert.interpolate(obj[n], 1,
                                                                       iNumPointsScalar[i][n],
                                                                       Elem_scalar_data[n], NULL,
@@ -1565,7 +1565,7 @@ void ReadVTF::drawResults()
             {
                 //cout<<"vetro data per node and element:"<<endl;
                 //cout<<"timestep "<<n<<endl;
-                sprintf(objname, "%s_C_%d", pt_outResults[i]->getObjName(), n);
+                snprintf(objname, sizeof(objname), "%s_C_%d", pt_outResults[i]->getObjName(), n);
                 V3DResNew[i] = (coDoVec3 *)cellToVert.interpolate(obj[n], 3,
                                                                   iNumPointsVecElem[i],
                                                                   Elem_Coord_data[n][0],
@@ -1607,7 +1607,7 @@ void ReadVTF::drawResults()
             {
                 //cout<<"vector data per element:"<<endl;
                 //cout<<"timestep "<<n<<endl;
-                sprintf(objname, "%s_D_%d", pt_outResults[i]->getObjName(), n);
+                snprintf(objname, sizeof(objname), "%s_D_%d", pt_outResults[i]->getObjName(), n);
                 V3DResNew[i] = (coDoVec3 *)cellToVert.interpolate(obj[n], 3,
                                                                   iNumPointsVec[i],
                                                                   Elem_Coord_data[n][0],
@@ -1632,9 +1632,9 @@ void ReadVTF::drawResults()
             objects[n] = NULL;
 
             if (m_iNumTimeSteps > 1)
-                sprintf(objname, "%s_E_%d", pt_outResults[i]->getObjName(), n);
+                snprintf(objname, sizeof(objname), "%s_E_%d", pt_outResults[i]->getObjName(), n);
             else
-                sprintf(objname, "%s", pt_outResults[i]->getObjName());
+                snprintf(objname, sizeof(objname), "%s", pt_outResults[i]->getObjName());
             S3DRes[i] = NULL;
             V3DRes[i] = NULL;
             if (tReadData->m_iPort[iChoice] == 0) // scalar data

@@ -102,7 +102,7 @@ coDoSet *replicate(const coDistributedObject *p_grid,
         {
             std::string elemObjName(objName);
             char buf[16];
-            sprintf(buf, "_%d", i);
+            snprintf(buf, sizeof(buf), "_%d", i);
             elemObjName += buf;
             // it is hardly thinkable that we have sets in sets if the
             // input mesh is a UNSGRD and the data is a set, but OK let us go on...
@@ -168,7 +168,7 @@ void DisplaceUSG::preHandleObjects(coInputPort **inPorts)
                 p_original_grid_ = p_grid;
                 objName = p_grid->getName();
                 char buf[16];
-                sprintf(buf, "_%d_", run_count);
+                snprintf(buf, sizeof(buf), "_%d_", run_count);
                 objName += buf;
                 objName += Covise::get_host();
                 objName += "_";

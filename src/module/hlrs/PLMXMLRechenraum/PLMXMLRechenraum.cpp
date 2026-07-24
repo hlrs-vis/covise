@@ -408,7 +408,7 @@ int PLMXMLRechenraum::compute(const char *)
         const char *basename = boco->getObjName();
 
         //   0. number of columns per info
-        sprintf(name, "%s_colinfo", basename);
+        snprintf(name, sizeof(name), "%s_colinfo", basename);
         size[0] = 6;
         size[1] = 0;
         coDoIntArr *colInfo = new coDoIntArr(name, 1, size);
@@ -422,7 +422,7 @@ int PLMXMLRechenraum::compute(const char *)
         partObj[0] = colInfo;
 
         //   1. type of node
-        sprintf(name, "%s_nodeinfo", basename);
+        snprintf(name, sizeof(name), "%s_nodeinfo", basename);
         size[0] = RG_COL_NODE;
         size[1] = rg->p->nump;
         coDoIntArr *nodeInfo = new coDoIntArr(name, 2, size);
@@ -435,7 +435,7 @@ int PLMXMLRechenraum::compute(const char *)
         partObj[1] = nodeInfo;
 
         //   2. type of element
-        sprintf(name, "%s_eleminfo", basename);
+        snprintf(name, sizeof(name), "%s_eleminfo", basename);
         size[0] = 2;
         size[1] = rg->e->nume * RG_COL_ELEM; // uwe: hier wird 4*nume allociert aber nur 2*nume mit Werten gefuellt
         coDoIntArr *elemInfo = new coDoIntArr(name, 2, size);
@@ -449,7 +449,7 @@ int PLMXMLRechenraum::compute(const char *)
 
         //   3. list of nodes with bc (a node may appear more than one time)
         //      and its types
-        sprintf(name, "%s_diricletNodes", basename);
+        snprintf(name, sizeof(name), "%s_diricletNodes", basename);
         int num_diriclet = (int)rg->bcin_nodes.size();
 
         size[0] = RG_COL_DIRICLET;
@@ -458,7 +458,7 @@ int PLMXMLRechenraum::compute(const char *)
         data = diricletNodes->getAddress();
 
         //   4. corresponding value to 3.
-        sprintf(name, "%s_diricletValue", basename);
+        snprintf(name, sizeof(name), "%s_diricletValue", basename);
         coDoFloat *diricletValues = new coDoFloat(name, 5 * num_diriclet);
         diricletValues->getAddress(&bPtr);
 
@@ -493,12 +493,12 @@ int PLMXMLRechenraum::compute(const char *)
         partObj[4] = diricletValues;
 
         //   5. wall
-        sprintf(name, "%s_wallValue", basename);
+        snprintf(name, sizeof(name), "%s_wallValue", basename);
         coDoFloat *wallValues = new coDoFloat(name, rg->bcwallvol->num);
         wallValues->getAddress(&bPtr);
         size[0] = RG_COL_WALL;
         size[1] = rg->bcwallpol->num;
-        sprintf(name, "%s_wall", basename);
+        snprintf(name, sizeof(name), "%s_wall", basename);
         coDoIntArr *faces = new coDoIntArr(name, 2, size);
         data = faces->getAddress();
         for (i = 0; i < rg->bcwallpol->num; i++) // Achtung bcwall->pol->num != bcwall->vol->num
@@ -514,7 +514,7 @@ int PLMXMLRechenraum::compute(const char *)
         partObj[5] = faces;
 
         //   6. balance
-        sprintf(name, "%s_balance", basename);
+        snprintf(name, sizeof(name), "%s_balance", basename);
         size[0] = RG_COL_BALANCE;
         size[1] = (int)rg->bcinvol.size() + rg->bcoutvol->num;
 
@@ -552,14 +552,14 @@ int PLMXMLRechenraum::compute(const char *)
         partObj[6] = balance;
 
         //  7. pressure bc: outlet elements
-        sprintf(name, "%s_pressElems", basename);
+        snprintf(name, sizeof(name), "%s_pressElems", basename);
         size[0] = 6;
         size[1] = 0;
         coDoIntArr *pressElems = new coDoIntArr(name, 2, size);
         data = pressElems->getAddress();
 
         //  8. pressure bc: value for outlet elements
-        sprintf(name, "%s_pressVal", basename);
+        snprintf(name, sizeof(name), "%s_pressVal", basename);
         coDoFloat *pressValues = new coDoFloat(name, 0);
         pressValues->getAddress(&bPtr);
 
@@ -683,19 +683,19 @@ void PLMXMLRechenraum::CreateUserMenu(void)
     p_Q_total = addFloatParam("Q_inlet_m3_h", "total flow rate in m3/h");
     p_Q_total->setValue(50000.);
 
-    //  sprintf(path, "%s/racks.txt",
+    //  snprintf(path, sizeof(path), "%s/racks.txt",
     //      coCoviseConfig::getEntry("value", "Module.Rechenraum.GeorbPath",
     //          "/data/SurfaceDemo").c_str());
     //  p_BCFile = addStringParam("BCFile", "BCFile");
     //  p_BCFile->setValue(path);
 
-    sprintf(path, "%s/geofile.geo",
+    snprintf(path, sizeof(path), "%s/geofile.geo",
             coCoviseConfig::getEntry("value", "Module.Rechenraum.GeorbPath",
                                      "/data/rechenraum").c_str());
     p_geofile = addStringParam("GeofilePath", "geofile path");
     p_geofile->setValue(path);
 
-    sprintf(path, "%s/rbfile.geo",
+    snprintf(path, sizeof(path), "%s/rbfile.geo",
             coCoviseConfig::getEntry("value", "Module.Rechenraum.GeorbPath",
                                      "/data/rechenraum").c_str());
     p_rbfile = addStringParam("RbfilePath", "rbfile path");
@@ -790,7 +790,7 @@ char *
 PLMXMLRechenraum::IndexedParameterName(const char *name, int index)
 {
     char buf[255];
-    sprintf(buf, "%s_%d", name, index + 1);
+    snprintf(buf, sizeof(buf), "%s_%d", name, index + 1);
     return strdup(buf);
 }
 

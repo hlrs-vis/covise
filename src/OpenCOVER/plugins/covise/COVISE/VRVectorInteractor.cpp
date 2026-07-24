@@ -226,11 +226,11 @@ void VectorInteractor::updateParameter()
         {
             fprintf(stdout, "\a");
             fflush(stdout);
-            sprintf(buf, "%s\nFloatVector\n%.3f %.3f %.3f\n", parameterName, x1 / scaleFactor, y1 / scaleFactor, z1 / scaleFactor);
+            snprintf(buf, sizeof(buf), "%s\nFloatVector\n%.3f %.3f %.3f\n", parameterName, x1 / scaleFactor, y1 / scaleFactor, z1 / scaleFactor);
             CoviseRender::send_feedback_message("PARAM", buf);
             if (!rotOnly)
             {
-                sprintf(buf, "%s\nFloatVector\n%.3f %.3f %.3f\n", parameterName2, x2, y2, z2);
+                snprintf(buf, sizeof(buf), "%s\nFloatVector\n%.3f %.3f %.3f\n", parameterName2, x2, y2, z2);
                 CoviseRender::send_feedback_message("PARAM", buf);
             }
             buf[0] = '\0';
@@ -276,7 +276,7 @@ void VectorInteractorList::add( coDistributedObject *dobj, osg::Node *n )
    int i=0;
    char *attrib;
    char buf[100];
-   sprintf(buf,"VECTOR%d",i);
+   snprintf(buf, sizeof(buf),"VECTOR%d",i);
    while((attrib=dobj->getAttribute(buf)))
    {
       char *sattrib=new char[strlen(attrib)+1];
@@ -312,7 +312,7 @@ void VectorInteractorList::add( coDistributedObject *dobj, osg::Node *n )
          append(sl);
       }
       i++;
-      sprintf(buf,"VECTOR%d",i);
+      snprintf(buf, sizeof(buf),"VECTOR%d",i);
    }
 
 }
@@ -322,7 +322,7 @@ void VectorInteractorList::add(RenderObject *dobj, osg::Node *n)
 {
     int i = 0;
     char buf[100];
-    sprintf(buf, "VECTOR%d", i);
+    snprintf(buf, sizeof(buf), "VECTOR%d", i);
     while (const char *attrib = dobj->getAttribute(buf))
     {
         char *sattrib = new char[strlen(attrib) + 1];
@@ -358,7 +358,7 @@ void VectorInteractorList::add(RenderObject *dobj, osg::Node *n)
             append(sl);
         }
         i++;
-        sprintf(buf, "VECTOR%d", i);
+        snprintf(buf, sizeof(buf), "VECTOR%d", i);
     }
 }
 

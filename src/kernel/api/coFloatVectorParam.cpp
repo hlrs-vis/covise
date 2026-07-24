@@ -96,7 +96,7 @@ void coFloatVectorParam::initialize()
     int i;
     for (i = 0; i < d_length; i++)
     {
-        sprintf(buffer, "%g ", d_data[i]);
+        snprintf(buffer, sizeof(buffer), "%g ", d_data[i]);
         strcat(d_defString, buffer);
     }
 

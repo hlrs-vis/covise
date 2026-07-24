@@ -121,7 +121,7 @@ int ReadSIM2::compute(const char *)
     timeOutputGrid[timesteps] = NULL;
 
     char gridName[255];
-    sprintf(gridName, "%s%i", gridSetName, 0);
+    snprintf(gridName, sizeof(gridName), "%s%i", gridSetName, 0);
 
     gridObject = new coDoUnstructuredGrid(gridName, elements, corners, points,
                                           types);
@@ -179,7 +179,7 @@ int ReadSIM2::compute(const char *)
     {
 
         char scalarName[255];
-        sprintf(scalarName, "%s%i", scalarSetName, t);
+        snprintf(scalarName, sizeof(scalarName), "%s%i", scalarSetName, t);
 
         //		printf("%s\n", scalarName);
 
@@ -200,7 +200,7 @@ int ReadSIM2::compute(const char *)
         = new coDoSet(scalarSetName, (coDistributedObject **)scalarObject);
 
     char attribValue[32];
-    sprintf(attribValue, "1 %d", timesteps);
+    snprintf(attribValue, sizeof(attribValue), "1 %d", timesteps);
 
     gridSet->addAttribute("TIMESTEP", attribValue);
     scalarSet->addAttribute("TIMESTEP", attribValue);

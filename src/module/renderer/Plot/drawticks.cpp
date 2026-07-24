@@ -271,24 +271,24 @@ void create_ticklabel(int form, int prec, double loc, char *s)
     switch (form)
     {
     case DECIMAL:
-        sprintf(s, format, prec, loc);
+        snprintf(s, sizeof(s), format, prec, loc);
         tmp = atof(s); /* fix reverse axes problem when loc == -0.0 */
         if (tmp == 0.0)
         {
             strcpy(format, "%.*lf");
             loc = 0.0;
-            sprintf(s, format, prec, loc);
+            snprintf(s, sizeof(s), format, prec, loc);
         }
         break;
     case EXPONENTIAL:
         strcpy(format, "%.*le");
-        sprintf(s, format, prec, loc);
+        snprintf(s, sizeof(s), format, prec, loc);
         tmp = atof(s); /* fix reverse axes problem when loc == -0.0 */
         if (tmp == 0.0)
         {
             strcpy(format, "%.*le");
             loc = 0.0;
-            sprintf(s, format, prec, loc);
+            snprintf(s, sizeof(s), format, prec, loc);
         }
         break;
     case POWER:
@@ -300,24 +300,24 @@ void create_ticklabel(int form, int prec, double loc, char *s)
         }
         else if (loc == 0.0)
         {
-            sprintf(format, "%.*lf", prec, 0.0);
+            snprintf(format, sizeof(format), "%.*lf", prec, 0.0);
         }
         else
         {
             loc = log10(loc);
             strcpy(format, "10\\S%.*lf\\N");
         }
-        sprintf(s, format, prec, loc);
+        snprintf(s, sizeof(s), format, prec, loc);
         break;
     case GENERAL:
         strcpy(format, "%.*lg");
-        sprintf(s, format, prec, loc);
+        snprintf(s, sizeof(s), format, prec, loc);
         tmp = atof(s);
         if (tmp == 0.0)
         {
             strcpy(format, "%lg");
             loc = 0.0;
-            sprintf(s, format, loc);
+            snprintf(s, sizeof(s), format, loc);
         }
         break;
     case DDMMYY:
@@ -327,7 +327,7 @@ void create_ticklabel(int form, int prec, double loc, char *s)
         {
             y -= 1900;
         }
-        sprintf(s, format, d, m, y);
+        snprintf(s, sizeof(s), format, d, m, y);
         break;
     case MMDDYY:
         strcpy(format, "%d-%d-%d");
@@ -336,7 +336,7 @@ void create_ticklabel(int form, int prec, double loc, char *s)
         {
             y -= 1900;
         }
-        sprintf(s, format, m, d, y);
+        snprintf(s, sizeof(s), format, m, d, y);
         break;
     case YYMMDD:
         strcpy(format, "%d-%d-%d");
@@ -345,7 +345,7 @@ void create_ticklabel(int form, int prec, double loc, char *s)
         {
             y -= 1900;
         }
-        sprintf(s, format, y, m, d);
+        snprintf(s, sizeof(s), format, y, m, d);
         break;
     case MMYY:
         strcpy(format, "%d-%d");
@@ -354,49 +354,49 @@ void create_ticklabel(int form, int prec, double loc, char *s)
         {
             y -= 1900;
         }
-        sprintf(s, format, m, y);
+        snprintf(s, sizeof(s), format, m, y);
         break;
     case MMDD:
         strcpy(format, "%d-%d");
         calcdate(loc, &m, &d, &y, &h, &mm, &sec);
-        sprintf(s, format, m, d);
+        snprintf(s, sizeof(s), format, m, d);
         break;
     case MONTHDAY:
         strcpy(format, "%s-%d");
         calcdate(loc, &m, &d, &y, &h, &mm, &sec);
-        sprintf(s, format, months[m - 1], d);
+        snprintf(s, sizeof(s), format, months[m - 1], d);
         break;
     case DAYMONTH:
         strcpy(format, "%d-%s");
         calcdate(loc, &m, &d, &y, &h, &mm, &sec);
-        sprintf(s, format, d, months[m - 1]);
+        snprintf(s, sizeof(s), format, d, months[m - 1]);
         break;
     case MONTHS:
         strcpy(format, "%s");
         calcdate(loc, &m, &d, &y, &h, &mm, &sec);
-        sprintf(s, format, months[m - 1]);
+        snprintf(s, sizeof(s), format, months[m - 1]);
         break;
     case MONTHL:
         strcpy(format, "%s");
         calcdate(loc, &m, &d, &y, &h, &mm, &sec);
-        sprintf(s, format, monthl[m - 1]);
+        snprintf(s, sizeof(s), format, monthl[m - 1]);
         break;
     case DAYOFWEEKS:
         strcpy(format, "%s");
-        sprintf(s, format, dayofweekstrs[dayofweek(loc)]);
+        snprintf(s, sizeof(s), format, dayofweekstrs[dayofweek(loc)]);
         break;
     case DAYOFWEEKL:
         strcpy(format, "%s");
-        sprintf(s, format, dayofweekstrl[dayofweek(loc)]);
+        snprintf(s, sizeof(s), format, dayofweekstrl[dayofweek(loc)]);
         break;
     case DAYOFYEAR:
         strcpy(format, "%d");
-        sprintf(s, format, getndays(loc));
+        snprintf(s, sizeof(s), format, getndays(loc));
         break;
     case HMS:
         strcpy(format, "%02d:%02d:%02d");
         calcdate(loc, &m, &d, &y, &h, &mm, &sec);
-        sprintf(s, format, h, mm, (int)sec);
+        snprintf(s, sizeof(s), format, h, mm, (int)sec);
         break;
     case MMDDHMS:
         strcpy(format, "%d-%d %02d:%02d:%02d");
@@ -405,7 +405,7 @@ void create_ticklabel(int form, int prec, double loc, char *s)
         {
             y -= 1900;
         }
-        sprintf(s, format, m, d, h, mm, (int)sec);
+        snprintf(s, sizeof(s), format, m, d, h, mm, (int)sec);
         break;
     case MMDDYYHMS:
         strcpy(format, "%d-%d-%d %02d:%02d:%02d");
@@ -414,7 +414,7 @@ void create_ticklabel(int form, int prec, double loc, char *s)
         {
             y -= 1900;
         }
-        sprintf(s, format, m, d, y, h, mm, (int)sec);
+        snprintf(s, sizeof(s), format, m, d, y, h, mm, (int)sec);
         break;
     case YYMMDDHMS:
         strcpy(format, "%d-%d-%d %02d:%02d:%02d");
@@ -423,7 +423,7 @@ void create_ticklabel(int form, int prec, double loc, char *s)
         {
             y -= 1900;
         }
-        sprintf(s, format, y, m, d, h, mm, (int)sec);
+        snprintf(s, sizeof(s), format, y, m, d, h, mm, (int)sec);
         break;
     case DEGREESLON:
         if (loc < 0.0)
@@ -439,7 +439,7 @@ void create_ticklabel(int form, int prec, double loc, char *s)
         {
             strcpy(format, "0");
         }
-        sprintf(s, format, prec, loc);
+        snprintf(s, sizeof(s), format, prec, loc);
         break;
     case DEGREESMMLON:
         if (loc < 0.0)
@@ -457,7 +457,7 @@ void create_ticklabel(int form, int prec, double loc, char *s)
         }
         y = (int)loc;
         sec = (loc - y) * 60.0;
-        sprintf(s, format, y, prec, sec);
+        snprintf(s, sizeof(s), format, y, prec, sec);
         break;
     case DEGREESMMSSLON:
         if (loc < 0.0)
@@ -477,7 +477,7 @@ void create_ticklabel(int form, int prec, double loc, char *s)
         sec = (loc - y) * 3600.0;
         m = (int)(sec / 60.0);
         sec = (sec - m * 60);
-        sprintf(s, format, y, m, prec, sec);
+        snprintf(s, sizeof(s), format, y, m, prec, sec);
         break;
     case MMSSLON:
         if (loc < 0.0)
@@ -497,7 +497,7 @@ void create_ticklabel(int form, int prec, double loc, char *s)
         sec = (loc - y) * 3600.0;
         m = (int)(sec / 60.0);
         sec = (sec - m * 60);
-        sprintf(s, format, m, prec, sec);
+        snprintf(s, sizeof(s), format, m, prec, sec);
         break;
     case DEGREESLAT:
         if (loc < 0.0)
@@ -513,7 +513,7 @@ void create_ticklabel(int form, int prec, double loc, char *s)
         {
             strcpy(format, "0");
         }
-        sprintf(s, format, prec, loc);
+        snprintf(s, sizeof(s), format, prec, loc);
         break;
     case DEGREESMMLAT:
         if (loc < 0.0)
@@ -531,7 +531,7 @@ void create_ticklabel(int form, int prec, double loc, char *s)
         }
         y = (int)loc;
         sec = (loc - y) * 60.0;
-        sprintf(s, format, y, prec, sec);
+        snprintf(s, sizeof(s), format, y, prec, sec);
         break;
     case DEGREESMMSSLAT:
         if (loc < 0.0)
@@ -551,7 +551,7 @@ void create_ticklabel(int form, int prec, double loc, char *s)
         sec = (loc - y) * 3600.0;
         m = (int)(sec / 60.0);
         sec = (sec - m * 60);
-        sprintf(s, format, y, m, prec, sec);
+        snprintf(s, sizeof(s), format, y, m, prec, sec);
         break;
     case MMSSLAT:
         if (loc < 0.0)
@@ -571,10 +571,10 @@ void create_ticklabel(int form, int prec, double loc, char *s)
         sec = (loc - y) * 3600.0;
         m = (int)(sec / 60.0);
         sec = (sec - m * 60);
-        sprintf(s, format, m, prec, sec);
+        snprintf(s, sizeof(s), format, m, prec, sec);
         break;
     default:
-        sprintf(s, format, prec, loc);
+        snprintf(s, sizeof(s), format, prec, loc);
         break;
     }
 }

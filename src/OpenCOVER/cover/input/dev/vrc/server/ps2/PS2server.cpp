@@ -209,7 +209,7 @@ void showbuffer(unsigned char *bytes, UDP_Sender &sender, int stationID)
     //   int button1;
     char sendbuffer[2048];
     bytes[3] = '\0';
-    sprintf(sendbuffer, "VRC %d %3d [0.0 0.0 0.0] - [0 0 0 0 0 0 0 0 0] - [0 0]",
+    snprintf(sendbuffer, sizeof(sendbuffer), "VRC %d %3d [0.0 0.0 0.0] - [0 0 0 0 0 0 0 0 0] - [0 0]",
             stationID, 7 & bytes[0]);
 
     fprintf(stderr, "%s\n", sendbuffer);

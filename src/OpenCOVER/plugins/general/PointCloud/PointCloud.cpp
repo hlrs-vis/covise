@@ -120,9 +120,9 @@ bool PointCloudPlugin::init()
     // Create menu
 #if 0
     char name[100];
-    sprintf(name, "PointCloudFiles");
+    snprintf(name, sizeof(name), "PointCloudFiles");
     fileGroup = new ui::Group(pointCloudMenu, name);
-    sprintf(name, "Files");
+    snprintf(name, sizeof(name), "Files");
     fileGroup->setText(name);
 #endif
 

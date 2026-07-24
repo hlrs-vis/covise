@@ -115,10 +115,10 @@ Tracelines::linesForATime()
         name = name_line_;
         if (hasTimeSteps())
         {
-            sprintf(buf, "_%d", covise_time_);
+            snprintf(buf, sizeof(buf), "_%d", covise_time_);
             name += buf;
         }
-        sprintf(buf, "_%d", i);
+        snprintf(buf, sizeof(buf), "_%d", i);
         name += buf;
         set_list[i] = new coDoLines(name, p_traceline->num_points(),
                                     p_traceline->x_c(), p_traceline->y_c(), p_traceline->z_c(),
@@ -138,7 +138,7 @@ Tracelines::linesForATime()
     name = name_line_;
     if (hasTimeSteps())
     {
-        sprintf(buf, "_%d", covise_time_);
+        snprintf(buf, sizeof(buf), "_%d", covise_time_);
         name += buf;
     }
     if (lines_.size() <= covise_time_)
@@ -168,10 +168,10 @@ Tracelines::magForATime()
         name = name_magnitude_;
         if (hasTimeSteps())
         {
-            sprintf(buf, "_%d", covise_time_);
+            snprintf(buf, sizeof(buf), "_%d", covise_time_);
             name += buf;
         }
-        sprintf(buf, "_%d", i);
+        snprintf(buf, sizeof(buf), "_%d", i);
         name += buf;
         set_list[i] = new coDoFloat(name,
                                     p_traceline->num_points(), p_traceline->m_c());
@@ -179,7 +179,7 @@ Tracelines::magForATime()
     name = name_magnitude_;
     if (hasTimeSteps())
     {
-        sprintf(buf, "_%d", covise_time_);
+        snprintf(buf, sizeof(buf), "_%d", covise_time_);
         name += buf;
     }
     if (magnitude_.size() <= covise_time_)
@@ -222,7 +222,7 @@ Tracelines::linesForATime()
     if (hasTimeSteps())
     {
         char buf[64];
-        sprintf(buf, "_%d", covise_time_);
+        snprintf(buf, sizeof(buf), "_%d", covise_time_);
         name += buf;
     }
     lines_[covise_time_] = new coDoLines(name, no_of_points, no_of_points, no_ptasks_ - numEmpty);
@@ -343,7 +343,7 @@ Tracelines::magForATime()
     if (hasTimeSteps())
     {
         char buf[64];
-        sprintf(buf, "_%d", covise_time_);
+        snprintf(buf, sizeof(buf), "_%d", covise_time_);
         name += buf;
     }
     if (Whatout != PTask::V_VEC)
@@ -420,7 +420,7 @@ Tracelines::gatherAll(coOutputPort *p_line,
     // use the std::vector's lines_ and magnitude_...
     if (hasTimeSteps())
     {
-        sprintf(buf, "1 %lu", (unsigned long)lines_.size());
+        snprintf(buf, sizeof(buf), "1 %lu", (unsigned long)lines_.size());
         coDistributedObject **set_list;
         set_list = new coDistributedObject *[lines_.size() + 1];
         set_list[lines_.size()] = 0;
@@ -480,12 +480,12 @@ Tracelines::Tracelines(
 
     if (startStyle == Tracer::SQUARE)
     {
-        sprintf(interaction, "P%s\n%s\n%s\n", Covise::get_module(),
+        snprintf(interaction, sizeof(interaction), "P%s\n%s\n%s\n", Covise::get_module(),
                 Covise::get_instance(), Covise::get_host());
     }
     else if (startStyle == Tracer::LINE)
     {
-        sprintf(interaction, "T%s\n%s\n%s\n", Covise::get_module(),
+        snprintf(interaction, sizeof(interaction), "T%s\n%s\n%s\n", Covise::get_module(),
                 Covise::get_instance(), Covise::get_host());
     }
     else

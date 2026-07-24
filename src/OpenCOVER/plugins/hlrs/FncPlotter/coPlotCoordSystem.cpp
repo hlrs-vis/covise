@@ -114,7 +114,7 @@ osg::ref_ptr<osgText::Text> CoordSystem::createText(float value, const osg::Vec3
     formatString += "f";
     //FIXME OUCH!!!!
     char c[10];
-    sprintf(c, formatString.c_str(), value);
+    snprintf(c, sizeof(c), formatString.c_str(), value);
     t->setText(c, osgText::String::ENCODING_UTF8);
     t->setAxisAlignment(osgText::Text::REVERSED_XZ_PLANE);
     t->setPosition(pos);
@@ -198,8 +198,8 @@ osg::ref_ptr<osg::Group> CoordSystem::createWithLinearScaling(void)
     // This makes enough space so we can see the numbers without any problems
     //FIXME Ouch again....
     char n1[10], n2[10];
-    sprintf(n1, "%.1f", m_xMax);
-    sprintf(n2, "%.1f", m_xMin);
+    snprintf(n1, sizeof(n1), "%.1f", m_xMax);
+    snprintf(n2, sizeof(n2), "%.1f", m_xMin);
     unsigned int n = 1;
     if (strlen(n1) > strlen(n2))
         n = strlen(n1);

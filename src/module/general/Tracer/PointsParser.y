@@ -112,7 +112,7 @@ PointsParser::yyerror( char *szErrMsg )
     isOK_ = false;
     string mssg(szErrMsg);
     char buf[256];
-    sprintf(buf,", %d points had been read when an error was detected.",coordinates_.size()/3);
+    snprintf(buf, sizeof(buf),", %d points had been read when an error was detected.",coordinates_.size()/3);
     mssg += buf;
     Covise::send_error(mssg.c_str());
 }

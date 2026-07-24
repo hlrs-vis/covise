@@ -27,14 +27,14 @@ PartSelect::PartSelect(int argc, char *argv[])
 
     for (i = 1; i < MAX_INPUT_PORTS; i++)
     {
-        sprintf(buffer, "inport_%d", i + 1);
+        snprintf(buffer, sizeof(buffer), "inport_%d", i + 1);
         p_inPort[i] = addInputPort(buffer, "StructuredGrid|Float|Vec3|UnstructuredGrid|Float|Vec3|Geometry|Polygons|Lines|Points|TriangleStrips|IntArr", "input object");
         p_inPort[i]->setRequired(0);
     }
 
     for (i = 0; i < MAX_INPUT_PORTS; i++)
     {
-        sprintf(buffer, "outport_%d", i + 1);
+        snprintf(buffer, sizeof(buffer), "outport_%d", i + 1);
         p_outPort[i] = addOutputPort(buffer, "StructuredGrid|Float|Vec3|UnstructuredGrid|Float|Vec3|Geometry|Polygons|Lines|Points|TriangleStrips|IntArr", "output object");
         if (i > 0)
             p_outPort[i]->setDependencyPort(p_inPort[i]);

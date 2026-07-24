@@ -56,11 +56,11 @@ coVRIntersectionInteractor::coVRIntersectionInteractor(float s, coInteraction::I
 
     moveTransform = new osg::MatrixTransform();
     char nodeName[256];
-    sprintf(nodeName, "coVRIntersectionInteractor-moveTransform-%s)", interactorName);
+    snprintf(nodeName, sizeof(nodeName), "coVRIntersectionInteractor-moveTransform-%s)", interactorName);
     moveTransform->setName(nodeName);
 
     scaleTransform = new osg::MatrixTransform();
-    sprintf(nodeName, "coVRIntersectionInteractor-scaleTransform-%s)", interactorName);
+    snprintf(nodeName, sizeof(nodeName), "coVRIntersectionInteractor-scaleTransform-%s)", interactorName);
     m.makeScale(interScale, interScale, interScale);
     _scale = interScale;
     scaleTransform->setMatrix(m);

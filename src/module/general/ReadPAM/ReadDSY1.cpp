@@ -179,7 +179,7 @@ coDoSet *ReadDSY::cellObjAtTime(std::string name, int time, int req_ind)
 {
     std::string obj_name(name);
     char obj_name_app[32];
-    sprintf(obj_name_app, "_%d", time);
+    snprintf(obj_name_app, sizeof(obj_name_app), "_%d", time);
     obj_name += obj_name_app;
 
     int cell_type;
@@ -194,7 +194,7 @@ coDoSet *ReadDSY::cellObjAtTime(std::string name, int time, int req_ind)
     int element = 0;
     int this_state = fromIntToDSY(time);
     char realtime[32];
-    sprintf(realtime, "%.5e", zeit_[this_state - 1]);
+    snprintf(realtime, sizeof(realtime), "%.5e", zeit_[this_state - 1]);
 
     for (cell_type = 0; cell_type < noTypes; ++cell_type)
         if (no_entities_[cell_type])
@@ -237,7 +237,7 @@ coDoSet *ReadDSY::tensorObjAtTime(const TensDescriptions &tdesc, int time, int r
 {
     std::string obj_name(tdesc.requests[req_ind]);
     char obj_name_app[32];
-    sprintf(obj_name_app, "_%d", time);
+    snprintf(obj_name_app, sizeof(obj_name_app), "_%d", time);
     obj_name += obj_name_app;
 
     int cell_type;
@@ -341,7 +341,7 @@ coDoSet *ReadDSY::gridAtTime(std::string objName, std::string matName,
     std::string reference_name(refName);
 #endif
     char grid_name_app[32];
-    sprintf(grid_name_app, "_%d", time);
+    snprintf(grid_name_app, sizeof(grid_name_app), "_%d", time);
     grid_name += grid_name_app;
     material_name += grid_name_app;
     elabel_name += grid_name_app;
@@ -595,7 +595,7 @@ coDoSet *ReadDSY::gridAtTime(std::string objName, std::string matName,
 #endif
     // REALTIME and COLOR attributes for grids
     char realtime[32];
-    sprintf(realtime, "%.5e", zeit_[this_state - 1]);
+    snprintf(realtime, sizeof(realtime), "%.5e", zeit_[this_state - 1]);
     for (element = 0; setList[element]; ++element)
     {
         setList[element]->addAttribute("REALTIME", realtime);
@@ -635,7 +635,7 @@ coDoSet *ReadDSY::scalarNodal(const char *name, const char *species,
                               int this_state, float *node_vars, int offset, int num_vars)
 {
     char realtime[32];
-    sprintf(realtime, "%.5e", zeit_[this_state - 1]);
+    snprintf(realtime, sizeof(realtime), "%.5e", zeit_[this_state - 1]);
 
     int no_elements = 0;
     int cell_type;
@@ -683,7 +683,7 @@ coDoSet *ReadDSY::vectorNodal(const char *name, const char *species,
                               int offset3, int num_vars)
 {
     char realtime[32];
-    sprintf(realtime, "%.5e", zeit_[this_state - 1]);
+    snprintf(realtime, sizeof(realtime), "%.5e", zeit_[this_state - 1]);
 
     int no_elements = 0;
     int cell_type;

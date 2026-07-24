@@ -138,15 +138,15 @@ int main(int argc, char *argv[])
     cerr << "3333333333" << endl;
     //Initialize the device
     char buf[4];
-    sprintf(buf, "d");
+    snprintf(buf, sizeof(buf), "d");
     serial.write(buf, 1);
     unsigned char bytes[6];
     bytes[5] = '\0';
     serial.read(bytes, 5);
     cerr << "SSSSSSSSSSSSSStatus: " << bytes << endl;
-    sprintf(buf, "D00");
+    snprintf(buf, sizeof(buf), "D00");
     serial.write(buf, 3);
-    sprintf(buf, "O7F");
+    snprintf(buf, sizeof(buf), "O7F");
     serial.write(buf, 3);
     serial.read(bytes, 5);
     cerr << "Status: " << bytes << endl;
@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
         bytes[0] = bytes[1] = bytes[2] = bytes[3] = 0;
         bytes[4] = 0;
         bytes[5] = 0;
-        sprintf(buf, "i");
+        snprintf(buf, sizeof(buf), "i");
         serial.write(buf, 1);
         serial.read(bytes, 5);
         showbuffer(bytes, sender, stationID);
@@ -178,7 +178,7 @@ void showbuffer(unsigned char *bytes, UDP_Sender &sender, int stationID)
 {
     char sendbuffer[2048];
     bytes[3] = '\0';
-    sprintf(sendbuffer, "VRC %d %3ld [0.0 0.0 0.0] - [0 0 0 0 0 0 0 0 0] - [0 0]",
+    snprintf(sendbuffer, sizeof(sendbuffer), "VRC %d %3ld [0.0 0.0 0.0] - [0 0 0 0 0 0 0 0 0] - [0 0]",
             stationID, 0x7fL & ~strtol((const char *)bytes + 1, NULL, 16));
     fprintf(stderr, "%s\n", sendbuffer);
     sender.send(sendbuffer, strlen(sendbuffer) + 1);

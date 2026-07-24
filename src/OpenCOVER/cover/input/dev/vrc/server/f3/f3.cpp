@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     const char *second = arg.getOpt("-s", "--second", "192.168.0.223:1025");
     const char *command = arg.getOpt("-c", "--command", ":ivga");
     char commandBuf[1024];
-    sprintf(commandBuf, command);
+    snprintf(commandBuf, sizeof(commandBuf), command);
     strcat(commandBuf, "\n");
     UDP_Sender senderFirst(first);
     if (senderFirst.isBad())

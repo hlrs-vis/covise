@@ -66,7 +66,7 @@ void showbuffer(unsigned char *bytes, UDP_Sender &sender, int stationID)
 {
     char sendbuffer[2048];
     bytes[3] = '\0';
-    sprintf(sendbuffer, "VRC %d %3ld [0.0 0.0 0.0] - [0 0 0 0 0 0 0 0 0] - [0 0]",
+    snprintf(sendbuffer, sizeof(sendbuffer), "VRC %d %3ld [0.0 0.0 0.0] - [0 0 0 0 0 0 0 0 0] - [0 0]",
             stationID, 0x7fL & ~strtol((const char *)bytes + 1, NULL, 16));
     cerr << sendbuffer << endl;
     //   fprintf(stderr,"%s\n",sendbuffer);
@@ -655,7 +655,7 @@ int main(int argc, char *argv[])
                         y = 0.00001;
                         z = 0.00001;
                     }
-                    sprintf(sendbuffer, "VRC %d 0 [%6.1f %6.1f %6.1f] - [%6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f] - [0 0]", statID,
+                    snprintf(sendbuffer, sizeof(sendbuffer), "VRC %d 0 [%6.1f %6.1f %6.1f] - [%6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f] - [0 0]", statID,
                             x, y, z,
                             rot[0][0], rot[0][1], rot[0][2],
                             rot[1][0], rot[1][1], rot[1][2],

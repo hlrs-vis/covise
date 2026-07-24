@@ -96,7 +96,7 @@ ReadN3s::ReadN3s(int argc, char **argv)
 
     for (i = 0; i < MAX_PORTS_N3S; i++)
     {
-        sprintf(buf, "dataport%d", i + 1);
+        snprintf(buf, sizeof(buf), "dataport%d", i + 1);
         dataPort[i] = addOutputPort(buf, "Vec3|Float", buf);
     }
     // select the OBJ file name with a file browser
@@ -124,8 +124,8 @@ ReadN3s::ReadN3s(int argc, char **argv)
     strcpy(choice_of_data[0], "(none)");
     for (i = 0; i < MAX_PORTS_N3S; i++)
     {
-        sprintf(buf1, "data%d", i);
-        sprintf(buf2, "select data%d", i);
+        snprintf(buf1, sizeof(buf1), "data%d", i);
+        snprintf(buf2, sizeof(buf2), "select data%d", i);
         choiceData[i] = addChoiceParam(buf1, buf2);
         choiceData[i]->setValue(1, choice_of_data, 1);
     }

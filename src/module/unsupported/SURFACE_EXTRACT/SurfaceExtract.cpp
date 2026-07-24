@@ -385,9 +385,9 @@ void Application::HandleObjects(coDistributedObject *grid_object,
         }
         for (i = 0; i < set_num_elem; i++)
         {
-            sprintf(buf1, "%s_%d", Triangle_out_name, i);
-            sprintf(buf2, "%s_%d", Normal_out_name, i);
-            sprintf(buf3, "%s_%d", Data_out_name, i);
+            snprintf(buf1, sizeof(buf1), "%s_%d", Triangle_out_name, i);
+            snprintf(buf2, sizeof(buf2), "%s_%d", Normal_out_name, i);
+            snprintf(buf3, sizeof(buf3), "%s_%d", Data_out_name, i);
             if (D_set)
             {
                 HandleObjects(grid_objs[i], data_objs[i], idata_objs[i],
@@ -3197,7 +3197,7 @@ void Plane::createcoDistributedObjects(char *Data_name, char *Normal_name,
             strips_out->addAttribute("vertexOrder", "2");
             strips_out->addAttribute("COLOR", colorn);
             char buf[100];
-            sprintf(buf, "%f", isovalue);
+            snprintf(buf, sizeof(buf), "%f", isovalue);
             Covise::addInteractor(strips_out, "InteractorTest", buf);
         }
         else
@@ -3238,7 +3238,7 @@ void Plane::createcoDistributedObjects(char *Data_name, char *Normal_name,
             polygons_out->addAttribute("vertexOrder", "2");
             polygons_out->addAttribute("COLOR", colorn);
             char buf[100];
-            sprintf(buf, "%f", isovalue);
+            snprintf(buf, sizeof(buf), "%f", isovalue);
             Covise::addInteractor(polygons_out, "InteractorTest", buf);
         }
         else

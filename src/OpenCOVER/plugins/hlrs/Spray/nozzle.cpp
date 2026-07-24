@@ -172,7 +172,7 @@ void nozzle::save(std::string pathName, std::string fileName)
     fputs("position = \n", saving);
     osg::Matrix nozzleMatrix = this->getMatrix();
 
-    sprintf(ptr, "%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n",
+    snprintf(ptr, sizeof(ptr), "%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n",
             nozzleMatrix.ptr()[0],nozzleMatrix.ptr()[1],nozzleMatrix.ptr()[2],nozzleMatrix.ptr()[3],
             nozzleMatrix.ptr()[4],nozzleMatrix.ptr()[5],nozzleMatrix.ptr()[6],nozzleMatrix.ptr()[7],
             nozzleMatrix.ptr()[8],nozzleMatrix.ptr()[9],nozzleMatrix.ptr()[10],nozzleMatrix.ptr()[11],
@@ -185,10 +185,10 @@ void nozzle::save(std::string pathName, std::string fileName)
     fputs("\n",saving);
 
     fputs("minimum = ", saving);
-    sprintf(ptr, "%f\n", minimum);
+    snprintf(ptr, sizeof(ptr), "%f\n", minimum);
 
     fputs("deviation = ", saving);
-    sprintf(ptr, "%f\n", deviation);
+    snprintf(ptr, sizeof(ptr), "%f\n", deviation);
     fputs(ptr,saving);
     fputs("\n",saving);
 
@@ -369,7 +369,7 @@ void standardNozzle::save(std::string pathName, std::string fileName)
     fputs("position = \n", saving);
     osg::Matrix nozzleMatrix = this->getMatrix();
 
-    sprintf(matrixPtr, "%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n",  nozzleMatrix.ptr()[0],nozzleMatrix.ptr()[1],nozzleMatrix.ptr()[2],nozzleMatrix.ptr()[3],
+    snprintf(matrixPtr, sizeof(matrixPtr), "%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n",  nozzleMatrix.ptr()[0],nozzleMatrix.ptr()[1],nozzleMatrix.ptr()[2],nozzleMatrix.ptr()[3],
             nozzleMatrix.ptr()[4],nozzleMatrix.ptr()[5],nozzleMatrix.ptr()[6],nozzleMatrix.ptr()[7],
             nozzleMatrix.ptr()[8],nozzleMatrix.ptr()[9],nozzleMatrix.ptr()[10],nozzleMatrix.ptr()[11],
             nozzleMatrix.ptr()[12],nozzleMatrix.ptr()[13],nozzleMatrix.ptr()[14],nozzleMatrix.ptr()[15]);
@@ -388,11 +388,11 @@ void standardNozzle::save(std::string pathName, std::string fileName)
     fputs("\n",saving);
 
     fputs("minimum = ", saving);
-    sprintf(ptr, "%f\n", getMinimum());
+    snprintf(ptr, sizeof(ptr), "%f\n", getMinimum());
     fputs(ptr,saving);
 
     fputs("deviation = ", saving);
-    sprintf(ptr, "%f\n", getDeviation());
+    snprintf(ptr, sizeof(ptr), "%f\n", getDeviation());
     fputs(ptr,saving);
 
     fputs("\n",saving);
@@ -471,7 +471,7 @@ void imageNozzle::save(std::string pathName, std::string fileName)
     fputs("position = \n", saving);
     osg::Matrix nozzleMatrix = this->getMatrix();
 
-    sprintf(matrixPtr, "%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n",  nozzleMatrix.ptr()[0],nozzleMatrix.ptr()[1],nozzleMatrix.ptr()[2],nozzleMatrix.ptr()[3],
+    snprintf(matrixPtr, sizeof(matrixPtr), "%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n",  nozzleMatrix.ptr()[0],nozzleMatrix.ptr()[1],nozzleMatrix.ptr()[2],nozzleMatrix.ptr()[3],
             nozzleMatrix.ptr()[4],nozzleMatrix.ptr()[5],nozzleMatrix.ptr()[6],nozzleMatrix.ptr()[7],
             nozzleMatrix.ptr()[8],nozzleMatrix.ptr()[9],nozzleMatrix.ptr()[10],nozzleMatrix.ptr()[11],
             nozzleMatrix.ptr()[12],nozzleMatrix.ptr()[13],nozzleMatrix.ptr()[14],nozzleMatrix.ptr()[15]);
@@ -488,11 +488,11 @@ void imageNozzle::save(std::string pathName, std::string fileName)
     fputs("\n", saving);
 
     fputs("minimum = ", saving);
-    sprintf(ptr, "%f\n", getMinimum());
+    snprintf(ptr, sizeof(ptr), "%f\n", getMinimum());
     fputs(ptr,saving);
 
     fputs("deviation = ", saving);
-    sprintf(ptr, "%f\n", getDeviation());
+    snprintf(ptr, sizeof(ptr), "%f\n", getDeviation());
     fputs(ptr,saving);
     fputs("\n",saving);
 

@@ -74,7 +74,7 @@ if ((pfn = CreateFileNameParam(coCoviseConfig::getEntry("value","Module.IHS.DebP
       defaultDir = "/data/IHS";
 
    dataPath=coCoviseConfig::getEntry("value","Module.IHS.DataPath",defaultDir);
-   sprintf(buf,"%s/covise/src/application/ihs/VISiT/example_data/",defaultDir);
+   snprintf(buf, sizeof(buf),"%s/covise/src/application/ihs/VISiT/example_data/",defaultDir);
 
 	startFile = addFileBrowserParam("startFile","Start file");
         if ((pfn = CreateFileNameParam(dataPath.c_str(), "IHS_DATAPATH", "nofile", CFNP_NORM)) != NULL)
@@ -128,7 +128,7 @@ if ((pfn = CreateFileNameParam(coCoviseConfig::getEntry("value","Module.IHS.DebP
 #endif
 	for(i = 0; i < NUM_PLOT_PORTS; i++)
 	{
-		sprintf(buf,"XMGR%s_%d",M_2DPLOT,i+1);
+		snprintf(buf, sizeof(buf),"XMGR%s_%d",M_2DPLOT,i+1);
 		plot2d[i] =addOutputPort(buf,"Vec2","XMGR-plot data");
 	}
 
@@ -270,7 +270,7 @@ int AxialRunner::compute(const char *)
 			dprintf(3, "WriteEuler(%s) finished\n", pfn);
 			if (sh && *sh)
 			{
-				sprintf(pfn, "%s/%s %s %s %f %f %f %f %f %f %f &", p.c_str(), sh.c_str(),
+				snprintf(pfn, sizeof(pfn), "%s/%s %s %s %f %f %f %f %f %f %f &", p.c_str(), sh.c_str(),
 						fifofilein, fifofileout,
 						p_Head->getValue(), p_Discharge->getValue(),
 						p_ProtoDiam->getValue(), p_ProtoSpeed->getValue(),
@@ -337,7 +337,7 @@ int AxialRunner::compute(const char *)
 		Covise::getname(name,startFile->getValue());
 		strcat(name, ".new");
 		p_RunFENFLOSS->setValue(0);   
-				sprintf(runsh, "%s %.2f %.2f %.2f %d ", "runFEN.pl",
+				snprintf(runsh, sizeof(runsh), "%s %.2f %.2f %.2f %d ", "runFEN.pl",
 				vnorm,lnorm,omega,geo->ar->nob);              // push off button
 		std::string runstr(runsh);
 		runstr += name;

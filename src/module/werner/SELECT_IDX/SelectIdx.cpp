@@ -41,9 +41,9 @@ SelectIdx::SelectIdx()
     char buffer[64];
     for (i = 0; i < NUM_PORTS; i++)
     {
-        sprintf(buffer, "In_%d", i);
+        snprintf(buffer, sizeof(buffer), "In_%d", i);
         p_in[i] = addInputPort(buffer, "DO_Rectilinar_Grid|coDoUnstructuredGrid|coDoFloat|coDoVec3", "Input fields");
-        sprintf(buffer, "OUT_%d", i);
+        snprintf(buffer, sizeof(buffer), "OUT_%d", i);
         p_out[i] = addOutputPort(buffer, "coDoUnstructuredGrid|coDoFloat|coDoVec3", "Output fields");
         p_in[i]->setRequired(0);
         p_out[i]->setDependency(p_in[i]);
@@ -52,7 +52,7 @@ SelectIdx::SelectIdx()
 
     // parameter
     p_selection = addStringParam("select", "Value selection");
-    sprintf(buffer, "%d-%d", -MAXINT, MAXINT);
+    snprintf(buffer, sizeof(buffer), "%d-%d", -MAXINT, MAXINT);
     p_selection->setValue(buffer);
 }
 
@@ -80,7 +80,7 @@ int SelectIdx::compute()
     for (i = 0; i < numElem; i++)
         if (selArr[i])
             numSelected++;
-    sprintf(buffer, "Selected %d elements of %d", numSelected, numElem);
+    snprintf(buffer, sizeof(buffer), "Selected %d elements of %d", numSelected, numElem);
     sendInfo(buffer);
 
     /// now select at all points
@@ -165,7 +165,7 @@ coDistributedObject *SelectIdx::selectObj(coDistributedObject *inObj,
             coDistributedObject **outObject = new coDistributedObject *[numSetElem + 1];
             for (i = 0; i < numSetElem; i++)
             {
-                sprintf(buffer, "%s_%d", outName, i);
+                snprintf(buffer, sizeof(buffer), "%s_%d", outName, i);
                 outObject[i] = selectObj(inObject[i], buffer, numElem, numSelected, selArr);
             }
             outObject[numSetElem] = NULL;
@@ -388,7 +388,7 @@ coDistributedObject *SelectIdx::selectObj(coDistributedObject *inObj,
 #undef VERT
 
     /////////////////// unknown so far
-    sprintf(buffer, "Type `%s` not yet implemented", inObj->getType());
+    snprintf(buffer, sizeof(buffer), "Type `%s` not yet implemented", inObj->getType());
     sendError(buffer);
 
     return NULL;

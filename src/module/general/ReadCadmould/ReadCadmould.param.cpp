@@ -40,11 +40,11 @@ void ReadCadmould::createParam()
     const char *defaultChoice[] = { "---" };
     for (int i = 0; i < NUM_PORTS; i++)
     {
-        sprintf(name, "Choice_%d", i);
+        snprintf(name, sizeof(name), "Choice_%d", i);
         p_choice[i] = addChoiceParam(name, "Select data for port");
         p_choice[i]->setValue(1, defaultChoice, 0);
 
-        sprintf(name, "Data_%d", i);
+        snprintf(name, sizeof(name), "Data_%d", i);
         p_data[i] = addOutputPort(name, "Float|IntArr", name);
     }
 
@@ -253,7 +253,7 @@ ReadCadmould::openFiles()
     {
         // check, whether we have a E0 file = Rheologie-File
         {
-            sprintf(filename, "%sE0", basename);
+            snprintf(filename, sizeof(filename), "%sE0", basename);
             static const char *labelsE0[] = {
                 "Fliessfront-Temperatur",
                 "Fliessfront-Druckbedarf",
@@ -275,7 +275,7 @@ ReadCadmould::openFiles()
 
         // check, whether we have E## files = Zwischenergebnisse
         {
-            sprintf(filename, "%sE", basename);
+            snprintf(filename, sizeof(filename), "%sE", basename);
             static const char *labelsExx[] = {
                 "Momentan-Temperatur(t)",
                 "Momentan-Druck(t)",
@@ -297,7 +297,7 @@ ReadCadmould::openFiles()
 
         // check, whether we have S## files = Schichtergebnisse
         {
-            sprintf(filename, "%sS", basename);
+            snprintf(filename, sizeof(filename), "%sS", basename);
             static const char *labelsSxx[] = { "Randschichtddicke(t)" };
             MultiFuellData *data = new MultiFuellData(filename, 1, labelsSxx, byteswap_);
             if (data)

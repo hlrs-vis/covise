@@ -220,7 +220,7 @@ if (fieldNo[i] > 1)
 int field = fieldNo[i]-1;
 // output field name
 char objName[16];
-sprintf(objName,"data%i",i+1);
+snprintf(objName, sizeof(objName),"data%i",i+1);
 
 char *Name = Covise::get_object_name(objName);
 ERR1((Name==NULL),"Error getting name '%s'",objName,return;)
@@ -287,7 +287,7 @@ if (fieldNo[i] > 1)
 int field = fieldNo[i]-1;
 // output field name
 char objName[16];
-sprintf(objName,"data%i",i+1);
+snprintf(objName, sizeof(objName),"data%i",i+1);
 
 char *Name = Covise::get_object_name(objName);
 ERR1((Name==NULL),"Error getting name '%s'",objName,return;)

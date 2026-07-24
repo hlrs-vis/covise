@@ -293,7 +293,7 @@ void updatesymbols(int gno, int value)
                 SetChoice(toggle_symset_item, value);
          */
         }
-        sprintf(val, "%d", g[gno].p[value].symskip);
+        snprintf(val, sizeof(val), "%d", g[gno].p[value].symskip);
         xv_setstr(symskip_item, val);
         SetChoice(symfill_item, g[gno].p[value].symfill);
         if (g[gno].p[value].symchar > ' ' && g[gno].p[value].symchar < 127)
@@ -663,9 +663,9 @@ void updatelegends(int gno)
         XtSetArg(a, XmNvalue, iv);
         XtSetValues(legend_charsize_item, &a, 1);
         XmToggleButtonSetState(toggle_legends_item, g[gno].l.active == ON, False);
-        sprintf(buf, "%.9lg", g[gno].l.legx);
+        snprintf(buf, sizeof(buf), "%.9lg", g[gno].l.legx);
         xv_setstr(legend_x_panel, buf);
-        sprintf(buf, "%.9lg", g[gno].l.legy);
+        snprintf(buf, sizeof(buf), "%.9lg", g[gno].l.legy);
         xv_setstr(legend_y_panel, buf);
         SetChoice(legends_gap_item, g[gno].l.vgap - 1);
         SetChoice(legends_len_item, g[gno].l.len - 1);
@@ -1182,7 +1182,7 @@ static void create_ledit_frame(Widget, XtPointer, XtPointer)
                       NULL);
         for (i = 0; i < maxplot; i++)
         {
-            sprintf(buf, "%2d:", i);
+            snprintf(buf, sizeof(buf), "%2d:", i);
             leglabel[i] = CreateTextItem2(rc, 20, buf);
         }
         XtManageChild(rc);

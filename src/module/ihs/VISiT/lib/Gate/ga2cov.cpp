@@ -131,7 +131,7 @@ struct covise_info *Gate2Covise(struct gate *ga)
 
 #ifdef DEBUG_POLYGONS
    int i;
-   sprintf(fname, "ga_polygons_%02d.txt", fcount++);
+   snprintf(fname, sizeof(fname), "ga_polygons_%02d.txt", fcount++);
    ferr = fopen(fname, "w");
    if (ferr)
    {

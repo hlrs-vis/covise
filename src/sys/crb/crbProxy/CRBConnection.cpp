@@ -144,7 +144,7 @@ int CRBConnection::execCRB(char* instance)
         command = "crb";
     }
     char co[2000];
-    sprintf(co, "%s %d %s %d&", command.c_str(), serverPort, myHost->getAddress(), id);
+    snprintf(co, sizeof(co), "%s %d %s %d&", command.c_str(), serverPort, myHost->getAddress(), id);
     cerr << "starting: " << co << endl;
     int retval;
     retval = system(co);

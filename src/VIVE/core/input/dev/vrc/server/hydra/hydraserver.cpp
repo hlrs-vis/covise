@@ -261,7 +261,7 @@ int main(int argc, char **argv)
         {
 
             char sendbuffer[2048];
-            sprintf(sendbuffer, "VRC %d %3d [%5.1f %5.1f %5.1f] - [%6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f] - [ %d %d %s]",
+            snprintf(sendbuffer, sizeof(sendbuffer), "VRC %d %3d [%5.1f %5.1f %5.1f] - [%6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f] - [ %d %d %s]",
                     coverID[i], acd.controllers[i].buttons, acd.controllers[i].pos[0], acd.controllers[i].pos[1], acd.controllers[i].pos[2],
                     acd.controllers[i].rot_mat[0][0], acd.controllers[i].rot_mat[0][1], acd.controllers[i].rot_mat[0][2],
                     acd.controllers[i].rot_mat[1][0], acd.controllers[i].rot_mat[1][1], acd.controllers[i].rot_mat[1][2],

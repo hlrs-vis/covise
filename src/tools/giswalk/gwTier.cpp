@@ -570,9 +570,9 @@ void gwTier::writeShape(FILE *fp)
         for (int i = 0; i < numSteps; i++)
         {
             if (i == (numSteps - 1))
-                sprintf(buf, "%d\t%d\t%f\t%f\t1\t%d\t%d\n", id, i, path[i][0] + app->XLLCorner, path[i][1] + app->YLLCorner, (int)type, (int)origType);
+                snprintf(buf, sizeof(buf), "%d\t%d\t%f\t%f\t1\t%d\t%d\n", id, i, path[i][0] + app->XLLCorner, path[i][1] + app->YLLCorner, (int)type, (int)origType);
             else
-                sprintf(buf, "%d\t%d\t%f\t%f\t0\t%d\t%d\n", id, i, path[i][0] + app->XLLCorner, path[i][1] + app->YLLCorner, (int)type, (int)origType);
+                snprintf(buf, sizeof(buf), "%d\t%d\t%f\t%f\t0\t%d\t%d\n", id, i, path[i][0] + app->XLLCorner, path[i][1] + app->YLLCorner, (int)type, (int)origType);
             char *c = buf;
             while (*c != '\0')
             {

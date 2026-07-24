@@ -473,7 +473,7 @@ InfoURI *WebSrv::get_infoURI(HMessage *p_Msg)
         if (p_info->m_conn != NULL)
         {
             char reg_id[50];
-            sprintf(reg_id, "app%s", p_info->m_URI);
+            snprintf(reg_id, sizeof(reg_id), "app%s", p_info->m_URI);
             p_Msg->m_conn->set_connid(reg_id); //registering the user of rnd
 
             return p_info;
@@ -621,7 +621,7 @@ void WebSrv::head_get(HMessage *p_Msg, HConnection *p_conn, int get_flag)
                 {
                     p_info->m_URI[0] = '+';
                 }
-                sprintf(wget_string, "wget -a .quit-log -t 1 -T 1 -b \"http://%s:8000/launch/%s\" ", master_host + 1, p_info->m_URI);
+                snprintf(wget_string, sizeof(wget_string), "wget -a .quit-log -t 1 -T 1 -b \"http://%s:8000/launch/%s\" ", master_host + 1, p_info->m_URI);
                 cout << "Calling " << wget_string << endl;
 
                 system(wget_string);
@@ -974,7 +974,7 @@ WebSrv::contactWeb_partner(const char *uri)
 
     for (i = 0; i < num_partners; i++)
     {
-        sprintf(wget_string, "wget -a .quit-log -t 1 -T 1 -b \"http://%s:8000/%s\" ", partner_hosts[i], uri);
+        snprintf(wget_string, sizeof(wget_string), "wget -a .quit-log -t 1 -T 1 -b \"http://%s:8000/%s\" ", partner_hosts[i], uri);
         system(wget_string);
         delete[] partner_hosts[i];
     }
@@ -1076,7 +1076,7 @@ void WebSrv::register_vrml(CMessage *msg)
         WHost *host = get_host(hostname);
         if (host != NULL)
             host->set_ports(cport, wport);
-        sprintf(buff, "%s(%s).cgi-rnd", name, hostname);
+        snprintf(buff, sizeof(buff), "%s(%s).cgi-rnd", name, hostname);
         msg->m_conn->set_connid(buff);
         //new vrml - update
         m_connList->broadcast_usr(" 3 /", msg->m_data);
@@ -1191,7 +1191,7 @@ void WebSrv::mainLoop(void)
             { // already started aws
                 wport = host->get_wport();
                 p_msg = new CMessage;
-                sprintf(buff, "%d %d", cport, wport);
+                snprintf(buff, sizeof(buff), "%d %d", cport, wport);
                 p_msg->m_type = C_COMPLETE_DATA_CONNECTION;
                 p_msg->m_data = &buff[0];
                 p_msg->m_length = strlen(p_msg->m_data) + 1;
@@ -1292,7 +1292,7 @@ int main(int argc, char **argv)
             exit(0);
         }
 
-        sprintf(buff, "%d %d", covise_port, http_port);
+        snprintf(buff, sizeof(buff), "%d %d", covise_port, http_port);
 
         CMessage *p_msg = new CMessage;
         p_msg->m_type = C_PORT;

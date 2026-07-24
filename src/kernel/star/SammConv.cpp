@@ -712,7 +712,7 @@ int *SammConv::convertSamm(StarModelFile::CellTabEntry *&cellTab,
         if (cell % 500000 == 499999)
         {
             char tick[512];
-            sprintf(tick, "processed %d cells", cell + 1);
+            snprintf(tick, sizeof(tick), "processed %d cells", cell + 1);
             dumper(tick);
         }
     }

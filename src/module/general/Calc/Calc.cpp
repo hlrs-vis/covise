@@ -227,14 +227,14 @@ int Calc::compute(const char *)
     // get object names for scalar input data
     for (i = 0; i < NUMSCALAR; i++)
     {
-        sprintf(buf, "s_indata%d", i + 1);
+        snprintf(buf, sizeof(buf), "s_indata%d", i + 1);
         SDataIn[i] = Covise::get_object_name(buf);
     }
 
     // get object names for vector input data
     for (i = 0; i < NUMVECTOR; i++)
     {
-        sprintf(buf, "v_indata%d", i + 1);
+        snprintf(buf, sizeof(buf), "v_indata%d", i + 1);
         VDataIn[i] = Covise::get_object_name(buf);
     }
 
@@ -1466,7 +1466,7 @@ int CCalc::InfixToPostfix(Calc *module)
             Temp = new char[1 + strlen(Ausdruck)];
             strcpy(Temp, "man"); //write man<number> into list
 
-            sprintf(buffer, "%d", (Count_Man_Vektors - 1));
+            snprintf(buffer, sizeof(buffer), "%d", (Count_Man_Vektors - 1));
 
             strcat(Temp, buffer);
             pListPostfix[CountPostfix].Item = Temp;
@@ -1727,14 +1727,14 @@ int CCalc::Evaluate(Calc *module, int *Result_Type, float **Vektor_Res,
         {
         case SKALAR:
             strcpy(buf, "Result (scalar): ");
-            sprintf(value, "%f", Skalar_Res);
+            snprintf(value, sizeof(value), "%f", Skalar_Res);
             strcat(buf, value);
             module->sendInfo(buf);
             break;
 
         case VEKTOR:
             strcpy(buf, "Result (vector): [");
-            sprintf(value, "%f,%f,%f]", ((*Vektor_Res)[0]), ((*Vektor_Res)[1]), ((*Vektor_Res)[2]));
+            snprintf(value, sizeof(value), "%f,%f,%f]", ((*Vektor_Res)[0]), ((*Vektor_Res)[1]), ((*Vektor_Res)[2]));
             strcat(buf, value);
             module->sendInfo(buf);
             break;
@@ -1948,10 +1948,10 @@ int CCalc::PerformOperation(Calc *module, float Op_1, float Op_2, float *V_1, fl
                 if (!minmax)
                 {
                     strcpy(buf, "maximum length of v1: ");
-                    sprintf(value, "%f", puffer);
+                    snprintf(value, sizeof(value), "%f", puffer);
                     strcat(buf, value);
                     strcat(buf, " (Pos.: ");
-                    sprintf(pos, "%d", position);
+                    snprintf(pos, sizeof(pos), "%d", position);
                     strcat(buf, pos);
                     strcat(buf, ")");
                     module->sendInfo(buf);
@@ -1981,10 +1981,10 @@ int CCalc::PerformOperation(Calc *module, float Op_1, float Op_2, float *V_1, fl
                 if (!minmax)
                 {
                     strcpy(buf, "maximum length of v2: ");
-                    sprintf(value, "%f", puffer);
+                    snprintf(value, sizeof(value), "%f", puffer);
                     strcat(buf, value);
                     strcat(buf, " (Pos.: ");
-                    sprintf(pos, "%d", position);
+                    snprintf(pos, sizeof(pos), "%d", position);
                     strcat(buf, pos);
                     strcat(buf, ")");
                     module->sendInfo(buf);
@@ -2017,10 +2017,10 @@ int CCalc::PerformOperation(Calc *module, float Op_1, float Op_2, float *V_1, fl
                 if (!minmax)
                 {
                     strcpy(buf, "minimum length of v1: ");
-                    sprintf(value, "%f", puffer);
+                    snprintf(value, sizeof(value), "%f", puffer);
                     strcat(buf, value);
                     strcat(buf, " (Pos.: ");
-                    sprintf(pos, "%d", position);
+                    snprintf(pos, sizeof(pos), "%d", position);
                     strcat(buf, pos);
                     strcat(buf, ")");
                     module->sendInfo(buf);
@@ -2050,10 +2050,10 @@ int CCalc::PerformOperation(Calc *module, float Op_1, float Op_2, float *V_1, fl
                 if (!minmax)
                 {
                     strcpy(buf, "minimum length of v2: ");
-                    sprintf(value, "%f", puffer);
+                    snprintf(value, sizeof(value), "%f", puffer);
                     strcat(buf, value);
                     strcat(buf, " (Pos.: ");
-                    sprintf(pos, "%d", position);
+                    snprintf(pos, sizeof(pos), "%d", position);
                     strcat(buf, pos);
                     strcat(buf, ")");
                     module->sendInfo(buf);
@@ -2123,10 +2123,10 @@ int CCalc::PerformOperation(Calc *module, float Op_1, float Op_2, float *V_1, fl
                 if (!minmax)
                 {
                     strcpy(buf, "maximum value of s1: ");
-                    sprintf(value, "%f", puffer);
+                    snprintf(value, sizeof(value), "%f", puffer);
                     strcat(buf, value);
                     strcat(buf, " (Pos.: ");
-                    sprintf(pos, "%d", position);
+                    snprintf(pos, sizeof(pos), "%d", position);
                     strcat(buf, pos);
                     strcat(buf, ")");
                     module->sendInfo(buf);
@@ -2154,10 +2154,10 @@ int CCalc::PerformOperation(Calc *module, float Op_1, float Op_2, float *V_1, fl
                 if (!minmax)
                 {
                     strcpy(buf, "maximum value of s2: ");
-                    sprintf(value, "%f", puffer);
+                    snprintf(value, sizeof(value), "%f", puffer);
                     strcat(buf, value);
                     strcat(buf, " (Pos.: ");
-                    sprintf(pos, "%d", position);
+                    snprintf(pos, sizeof(pos), "%d", position);
                     strcat(buf, pos);
                     strcat(buf, ")");
                     module->sendInfo(buf);
@@ -2188,10 +2188,10 @@ int CCalc::PerformOperation(Calc *module, float Op_1, float Op_2, float *V_1, fl
                 if (!minmax)
                 {
                     strcpy(buf, "minimum value of s1: ");
-                    sprintf(value, "%f", puffer);
+                    snprintf(value, sizeof(value), "%f", puffer);
                     strcat(buf, value);
                     strcat(buf, " (Pos.: ");
-                    sprintf(pos, "%d", position);
+                    snprintf(pos, sizeof(pos), "%d", position);
                     strcat(buf, pos);
                     strcat(buf, ")");
                     module->sendInfo(buf);
@@ -2219,10 +2219,10 @@ int CCalc::PerformOperation(Calc *module, float Op_1, float Op_2, float *V_1, fl
                 if (!minmax)
                 {
                     strcpy(buf, "minimum value of s2: ");
-                    sprintf(value, "%f", puffer);
+                    snprintf(value, sizeof(value), "%f", puffer);
                     strcat(buf, value);
                     strcat(buf, " (Pos.: ");
-                    sprintf(pos, "%d", position);
+                    snprintf(pos, sizeof(pos), "%d", position);
                     strcat(buf, pos);
                     strcat(buf, ")");
                     module->sendInfo(buf);

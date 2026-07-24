@@ -409,9 +409,9 @@ void Application::HandleObjects(coDistributedObject *grid_object,
             D_set = new coDoSet(Data_out_name, SET_CREATE);
         for (i = 0; i < set_num_elem; i++)
         {
-            sprintf(buf1, "%s_%d", Triangle_out_name, i);
-            sprintf(buf2, "%s_%d", Normal_out_name, i);
-            sprintf(buf3, "%s_%d", Data_out_name, i);
+            snprintf(buf1, sizeof(buf1), "%s_%d", Triangle_out_name, i);
+            snprintf(buf2, sizeof(buf2), "%s_%d", Normal_out_name, i);
+            snprintf(buf3, sizeof(buf3), "%s_%d", Data_out_name, i);
             if (D_set)
             {
                 if (kd_objs)

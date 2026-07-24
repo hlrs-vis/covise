@@ -435,7 +435,7 @@ int main(int argc, char **argv)
             flystick.loc[2] /= 10.0;
 
             char sendbuffer[2048];
-            sprintf(sendbuffer, "VRC %d %3d [%5.1f %5.1f %5.1f] - [%6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f] - [ %6.3f %6.3f %s]",
+            snprintf(sendbuffer, sizeof(sendbuffer), "VRC %d %3d [%5.1f %5.1f %5.1f] - [%6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f] - [ %6.3f %6.3f %s]",
                     flystickID2coverID[i + 1] /*flystickID2coverID[i]*/,
                     button,
                     flystick.loc[0], flystick.loc[1], flystick.loc[2],
@@ -487,7 +487,7 @@ int main(int argc, char **argv)
             }
 
             char sendbuffer[2048];
-            sprintf(sendbuffer, "VRC %d %3d [%5.1f %5.1f %5.1f] - [%6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f] - [ 0 0 %s]",
+            snprintf(sendbuffer, sizeof(sendbuffer), "VRC %d %3d [%5.1f %5.1f %5.1f] - [%6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f] - [ 0 0 %s]",
                     bodyID2coverID[i + 1] /*bodyID2coverID[i]*/,
                     0 /* button */,
                     body.loc[0], body.loc[1], body.loc[2],

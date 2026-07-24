@@ -1553,11 +1553,11 @@ void PropertyDialog::sliderChanged(int ival)
     P = sliderP->value() / 1000.0 * 360.0;
     R = sliderR->value() / 1000.0 * 360.0;
     char buf[1000];
-    sprintf(buf,"%f",H);
+    snprintf(buf, sizeof(buf),"%f",H);
     stringH->setText(buf);
-    sprintf(buf,"%f",P);
+    snprintf(buf, sizeof(buf),"%f",P);
     stringP->setText(buf);
-    sprintf(buf,"%f",R);
+    snprintf(buf, sizeof(buf),"%f",R);
     stringR->setText(buf);
     QMatrix4x4 mH,mP,mR,mT,rotMat;
     mH.rotate(H,0,0,1);
@@ -1912,11 +1912,11 @@ void PropertyDialog::updateTransformSliders()
     getEulerAngles(quat,&p,&h,&r);
 
     char buf[1000];
-    sprintf(buf,"%f",h);
+    snprintf(buf, sizeof(buf),"%f",h);
     stringH->setText(buf);
-    sprintf(buf,"%f",p);
+    snprintf(buf, sizeof(buf),"%f",p);
     stringP->setText(buf);
-    sprintf(buf,"%f",r);
+    snprintf(buf, sizeof(buf),"%f",r);
     stringR->setText(buf);
     if(h<0)
         h = 360 + h;

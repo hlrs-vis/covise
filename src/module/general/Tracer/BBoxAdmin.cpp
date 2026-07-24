@@ -172,7 +172,7 @@ BBoxAdmin::pload(const coDistributedObject *grid, const coDistributedObject *otr
         const coDoUnstructuredGrid *unsgrd = dynamic_cast<const coDoUnstructuredGrid *>(grid);
         std::string effectiveSurname_ = octSurname_;
         char buf[256];
-        sprintf(buf, "_%d", creationCounter_);
+        snprintf(buf, sizeof(buf), "_%d", creationCounter_);
         effectiveSurname_ += buf;
         const coDistributedObject *usedOctTree = getUsedOctTree(unsgrd);
         if (usedOctTree == NULL)
@@ -205,7 +205,7 @@ BBoxAdmin::pload(const coDistributedObject *grid, const coDistributedObject *otr
         const coDoPolygons *polgrd = dynamic_cast<const coDoPolygons *>(grid);
         std::string effectiveSurname_ = octSurname_;
         char buf[256];
-        sprintf(buf, "_%d", creationCounter_);
+        snprintf(buf, sizeof(buf), "_%d", creationCounter_);
         effectiveSurname_ += buf;
         const coDistributedObject *usedOctTree = getUsedOctTree(polgrd);
         if (usedOctTree == NULL)

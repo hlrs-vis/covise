@@ -111,7 +111,7 @@ RadialRunner::RadialRunner(int argc, char *argv[])
   boundaryElementFaces = addOutputPort("boundary_element_faces", "coDoSet", "boundary element faces");
 
 	for(i = 0; i < NUM_PLOT_PORTS; i++) {
-		sprintf(buf,"XMGR%s_%d",M_2DPLOT,i+1);
+		snprintf(buf, sizeof(buf),"XMGR%s_%d",M_2DPLOT,i+1);
 		plot2d[i] = addOutputPort(buf,"Vec2","plot data");
 	}
 

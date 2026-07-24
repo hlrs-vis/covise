@@ -18,7 +18,7 @@ BlockCollect::BlockCollect(int argc, char *argv[])
     char portname[20];
     for (i = 0; i < NUM_PORTS; i++)
     {
-        sprintf(portname, "inport_%d", i);
+        snprintf(portname, sizeof(portname), "inport_%d", i);
         p_inport[i] = addInputPort(portname, "coDistributedObject", "input object");
         if (i > 0)
             p_inport[i]->setRequired(0);
@@ -201,7 +201,7 @@ int BlockCollect::compute(const char *)
                 }
             }
             //in ein set packen
-            sprintf(name, "%s_%d", p_outport->getObjName(), step);
+            snprintf(name, sizeof(name), "%s_%d", p_outport->getObjName(), step);
             tmp_set = new coDoSet(name, tmp_blocks);
             //set in outobjs an stelle step
             outobjs[step] = tmp_set;
@@ -356,7 +356,7 @@ int BlockCollect::compute(const char *)
                     }
                 }
                 char objname[512];
-                sprintf(objname, "%s_%d", p_outport->getObjName(), j);
+                snprintf(objname, sizeof(objname), "%s_%d", p_outport->getObjName(), j);
                 outobjs[nume++] = new coDoSet(objname, parts);
             }
             if ((p_inport[0]->getCurrentObject())->getAttribute("TIMESTEP"))
@@ -379,7 +379,7 @@ int BlockCollect::compute(const char *)
     {
         // put timestep attribute
         char buf[16];
-        sprintf(buf, "1 %d", time_steps);
+        snprintf(buf, sizeof(buf), "1 %d", time_steps);
         set_output->addAttribute("TIMESTEP", buf);
 
         // use p_ForAttributes to add additional attibutes

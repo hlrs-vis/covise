@@ -97,22 +97,22 @@ int LoadCadData::compute(const char * /* port */)
         }
         else
         {
-            sprintf(buf, "%f", scale);
+            snprintf(buf, sizeof(buf), "%f", scale);
             point->addAttribute("SCALE", buf);
         }
 
         point->addAttribute("OBJECTNAME", this->getTitle());
 
-        sprintf(buf, "%f %f %f", p_tansvec->getValue(0), p_tansvec->getValue(1), p_tansvec->getValue(2));
+        snprintf(buf, sizeof(buf), "%f %f %f", p_tansvec->getValue(0), p_tansvec->getValue(1), p_tansvec->getValue(2));
         point->addAttribute("TRANSLATE_OBJECT", buf);
 
-        sprintf(buf, "%f", p_rotangle->getValue() * M_PI / 180.);
+        snprintf(buf, sizeof(buf), "%f", p_rotangle->getValue() * M_PI / 180.);
         point->addAttribute("ROTANGLE_OBJECT", buf);
 
-        sprintf(buf, "%f %f %f", p_rotvec->getValue(0), p_rotvec->getValue(1), p_rotvec->getValue(2));
+        snprintf(buf, sizeof(buf), "%f %f %f", p_rotvec->getValue(0), p_rotvec->getValue(1), p_rotvec->getValue(2));
         point->addAttribute("ROTATE_OBJECT", buf);
 
-        sprintf(buf, "%f %f %f", p_resize->getValue(0), p_resize->getValue(1), p_resize->getValue(2));
+        snprintf(buf, sizeof(buf), "%f %f %f", p_resize->getValue(0), p_resize->getValue(1), p_resize->getValue(2));
         point->addAttribute("RESIZE_OBJECT", buf);
 
         p_pointName->setCurrentObject(point);

@@ -1184,7 +1184,7 @@ File16::File16(int fd, void (*dumpFunct)(const char *))
             maxcp = 0; // ignore Couples in future
             input.skipBlocks(blocks);
             char buffer[1024];
-            sprintf(buffer, "Unable to read CP matches: NCPDMF=%d too high", ncpdmf);
+            snprintf(buffer, sizeof(buffer), "Unable to read CP matches: NCPDMF=%d too high", ncpdmf);
             dumper(buffer);
         }
 

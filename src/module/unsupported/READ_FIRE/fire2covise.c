@@ -309,7 +309,7 @@ void fire2covise(int *nelem, int *nconn, int *ncoord,
     argv[0] = "fire2covise";
     argv[1] = fn;
     argv[2] = qu;
-    sprintf(ctimestep, "%d", ts);
+    snprintf(ctimestep, sizeof(ctimestep), "%d", ts);
     argv[3] = ctimestep;
     /* decode and check arguments */
 
@@ -445,7 +445,7 @@ and store values in files */
     if (flo)
     {
 
-        sprintf(filename, "EnSight_%s.res", dataname);
+        snprintf(filename, sizeof(filename), "EnSight_%s.res", dataname);
         resfile = myfopen(filename, "w");
         if (resfile == NULL)
             FOPEN_ERR
@@ -479,7 +479,7 @@ and store values in files */
     if (spray)
     {
 
-        sprintf(filename, "EnSight_p_%s.res", dataname);
+        snprintf(filename, sizeof(filename), "EnSight_p_%s.res", dataname);
         resfile = myfopen(filename, "w");
         if (resfile == NULL)
             FOPEN_ERR
@@ -610,7 +610,7 @@ valid and whether geometry changed */
 
         /* open EnSight geo file */
 
-        sprintf(filename, "EnSight_%s_geom.%04d", dataname,
+        snprintf(filename, sizeof(filename), "EnSight_%s_geom.%04d", dataname,
                 *nSteps);
         geofile = myfopen(filename, "w");
         if (geofile == NULL)
@@ -660,7 +660,7 @@ FSV_RESULT *read_fire_timesteps(
 
     /* set up command text */
 
-    sprintf(command_text, "%s %s %f", "get_time_steps", dataset);
+    snprintf(command_text, sizeof(command_text), "%s %s %f", "get_time_steps", dataset);
 
     /* call fire_server_slave */
 
@@ -676,7 +676,7 @@ FSV_RESULT *read_fire_geom(
     /* set up command text */
 
     printf("Reading FIRE geometry...\n");
-    sprintf(command_text, "%s %s %f", "get_geom6",
+    snprintf(command_text, sizeof(command_text), "%s %s %f", "get_geom6",
             dataset, timestep);
 
     /* call fire_server_slave */
@@ -694,7 +694,7 @@ FSV_RESULT *read_fire_data(
     /* set up command text */
 
     printf("Reading FIRE data...\n");
-    sprintf(command_text, "%s %s %f %s", "get_result",
+    snprintf(command_text, sizeof(command_text), "%s %s %f %s", "get_result",
             dataset, timestep, quantities);
 
     /* call fire_server_slave */
@@ -914,7 +914,7 @@ void write_data(
 
         /* open variable file */
 
-        sprintf(filename, "EnSight_%s_scl%02d.%04d",
+        snprintf(filename, sizeof(filename), "EnSight_%s_scl%02d.%04d",
                 dataname, i, nSteps);
         varfile = myfopen(filename, "w");
         if (varfile == NULL)
@@ -999,12 +999,12 @@ void write_data(
 
         if (!strcmp(vectorName[i], "drp_loc"))
         {
-            sprintf(filename, "EnSight_p_%s_geom.%04d",
+            snprintf(filename, sizeof(filename), "EnSight_p_%s_geom.%04d",
                     dataname, nSteps);
         }
         else
         {
-            sprintf(filename, "EnSight_%s_vec%02d.%04d",
+            snprintf(filename, sizeof(filename), "EnSight_%s_vec%02d.%04d",
                     dataname, i, nSteps);
         }
 
@@ -1099,7 +1099,7 @@ FSV_RESULT *fire_call_slave(
 
     /* complete command to call slave */
 
-    sprintf(cmd, "/mnt/raid/cc/users/awi_te/covise/sgi/bin/IO/fire_server_slave %d %s",
+    snprintf(cmd, sizeof(cmd), "/mnt/raid/cc/users/awi_te/covise/sgi/bin/IO/fire_server_slave %d %s",
             -getpid(), command_text);
     /*printf("starting slave:%s\n", cmd);*/
 

@@ -459,7 +459,7 @@ int Socket::write(const void *buf, unsigned nbyte)
         no_written = ::write(sock_id, ptr, no_left);
         if (no_written <= 0)
         {
-            sprintf(tmp_str, "Socket write error = %d, no_of_bytes = %d", errno, no_written);
+            snprintf(tmp_str, sizeof(tmp_str), "Socket write error = %d, no_of_bytes = %d", errno, no_written);
             print_error(__LINE__, __FILE__, tmp_str);
             if (errno == EINTR)
             {
@@ -492,10 +492,10 @@ int Socket::read(void *buf, unsigned nbyte)
     if (no_of_bytes <= 0)
     {
 #ifdef _WIN32
-        sprintf(tmp_str, "Socket recv error = %d", WSAGetLastError());
+        snprintf(tmp_str, sizeof(tmp_str), "Socket recv error = %d", WSAGetLastError());
         print_comment(__LINE__, __FILE__, tmp_str);
 #else
-        sprintf(tmp_str, "Socket read error = %d", errno);
+        snprintf(tmp_str, sizeof(tmp_str), "Socket read error = %d", errno);
         print_comment(__LINE__, __FILE__, tmp_str);
 #endif
         //    perror("Socket read error");

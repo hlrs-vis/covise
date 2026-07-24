@@ -267,7 +267,7 @@ int Application::ReadData(int skip)
                                                 data_type[count]);
             if (cont)
             {
-                sprintf(buffer, "%s", data_name[count]);
+                snprintf(buffer, sizeof(buffer), "%s", data_name[count]);
                 Covise::sendInfo(buffer);
                 count++;
             }
@@ -275,7 +275,7 @@ int Application::ReadData(int skip)
         }
         if (count == MAX_NO_OF_DATA_SETS)
         {
-            sprintf(buffer, "data sets exceed maximum no, allowed: %d", MAX_NO_OF_DATA_SETS);
+            snprintf(buffer, sizeof(buffer), "data sets exceed maximum no, allowed: %d", MAX_NO_OF_DATA_SETS);
             Covise::sendInfo(buffer);
         }
         no_of_data_sets = count;
@@ -375,10 +375,10 @@ int Application::ReadGrid(int skip)
     {
         firegridfile->skip_block();
         firegridfile->read_nodes(no_of_grid_points);
-        sprintf(buffer, "Reading %d grid points", no_of_grid_points);
+        snprintf(buffer, sizeof(buffer), "Reading %d grid points", no_of_grid_points);
         Covise::sendInfo(buffer);
         firegridfile->read_elements(no_of_elements);
-        sprintf(buffer, "Reading %d elements", no_of_elements);
+        snprintf(buffer, sizeof(buffer), "Reading %d elements", no_of_elements);
         Covise::sendInfo(buffer);
         return no_of_elements;
     }

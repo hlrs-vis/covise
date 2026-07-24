@@ -377,7 +377,7 @@ void starDust::preFrame()
         oldYears = years;
         fprintf(stderr, "SimTime: %d\n", years);
         char label[1000];
-        sprintf(label, "Year: %d", years);
+        snprintf(label, sizeof(label), "Year: %d", years);
         starDust::instance()->tuiSimTime->setLabel(label);
     }
 

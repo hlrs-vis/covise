@@ -75,7 +75,7 @@ int CSurfacesRR_BladeElement(struct be *be, float lepar, float tepar,
 	char fn[222];
 	FILE *fp;
 
-	sprintf(fn,"rr_debugcsurf_%02d.txt",call++);
+	snprintf(fn, sizeof(fn),"rr_debugcsurf_%02d.txt",call++);
 	if( (fp = fopen(fn,"w+")) == NULL) {
 		fprintf(stderr," Could not open file '%s'\n");
 		exit(1);
@@ -339,7 +339,7 @@ int CSurfacesRR_BladeElement(struct be *be, float lepar, float tepar,
 	FreePointStruct(beclmerid);
 
 #ifdef DEBUG_CSURF
-	sprintf(fn,"rr_debugccamb_%02d.txt",call-1);
+	snprintf(fn, sizeof(fn),"rr_debugccamb_%02d.txt",call-1);
 	if( (fp = fopen(fn,"w+")) == NULL) {
 		fprintf(stderr," Could not open file '%s'\n");
 		exit(1);

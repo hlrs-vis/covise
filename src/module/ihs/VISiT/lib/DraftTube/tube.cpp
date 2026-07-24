@@ -91,7 +91,7 @@ int WriteTube(struct tube *tu, FILE *fp)
       (tu->pe_orient == PE_VERTICAL ? G_PEER_VERTICAL : G_PEER_HORIZONTAL));
    for (i = 0; i < tu->pe_num; i++)
    {
-      sprintf(section, T_PEER, i);
+      snprintf(section, sizeof(section), T_PEER, i);
       fprintf(fp, "\n%s\n", section);
       fprintf(fp, "%*s = %d\n", P_LEN, P_START_SEC, tu->pe[i]->p_start_cs);
       fprintf(fp, "%*s = %d\n", P_LEN, P_END_SEC, tu->pe[i]->p_end_cs);
@@ -111,7 +111,7 @@ int WriteTube(struct tube *tu, FILE *fp)
    fprintf(fp, "%*s = %d\n", P_LEN, G_ELEMS_O,  tu->c_el_o);
    for (i = 0; i < tu->cs_num; i++)
    {
-      sprintf(section, T_SECTION, i);
+      snprintf(section, sizeof(section), T_SECTION, i);
       fprintf(fp, "\n%s\n", section);
       fprintf(fp, "%*s = %f, %f, %f\n", P_LEN, T_MIDDLE, tu->cs[i]->c_m_x, tu->cs[i]->c_m_y, tu->cs[i]->c_m_z);
       fprintf(fp, "%*s = %f\n", P_LEN, T_HEIGHT,    tu->cs[i]->c_height);
@@ -121,7 +121,7 @@ int WriteTube(struct tube *tu, FILE *fp)
       fprintf(fp, "%*s = %d\n", P_LEN, G_ELEMS,     tu->cs[i]->c_nume);
       for (j = 0; j < 8; j++)
       {
-         sprintf(buf, G_PART, sectornames[j]);
+         snprintf(buf, sizeof(buf), G_PART, sectornames[j]);
          fprintf(fp, "%*s = %f\n", P_LEN, buf, tu->cs[i]->c_part[j]);
       }
       fprintf(fp, "%*s = %f\n", P_LEN, G_LINFACT, tu->cs[i]->c_linfact);
@@ -172,7 +172,7 @@ struct tube *ReadTube(const char *fn)
    {
       int start_cs, end_cs;
 
-      sprintf(buf, T_PEER, i);
+      snprintf(buf, sizeof(buf), T_PEER, i);
       dprintf(3, "Scanning for %s in %s", buf, fn);
 
       if ((tmp = IHS_GetCFGValue(fn, buf, P_START_SEC)) != NULL)
@@ -282,7 +282,7 @@ struct tube *ReadTube(const char *fn)
    for (i = 0; ; i++)
    {
       x = y = z = height = width = 0.0;
-      sprintf(buf, T_SECTION, i);
+      snprintf(buf, sizeof(buf), T_SECTION, i);
       dprintf(2, "Scanning for %s in %s", buf, fn);
 
       if ((tmp = IHS_GetCFGValue(fn, buf, T_MIDDLE)) != NULL)
@@ -295,7 +295,7 @@ struct tube *ReadTube(const char *fn)
          for (j = 0; j < 8; j++)
          {
             tu->cs[i]->d_part[j] = 0.8f;
-            sprintf(sector, G_PART, sectornames[j]);
+            snprintf(sector, sizeof(sector), G_PART, sectornames[j]);
             if ((tmp = IHS_GetCFGValue(fn, buf, sector)) != NULL)
             {
                sscanf(tmp, "%f", &part);
@@ -705,7 +705,7 @@ void DumpTube(struct tube *t)
    for (i = 0; i < t->cs_num; i++)
    {
       dprintf(4, "\tSection %d:\n", i);
-      sprintf(fn, "cs_%03d.gp", i);
+      snprintf(fn, sizeof(fn), "cs_%03d.gp", i);
       DumpT_CS(t->cs[i], fn);
    }
 }

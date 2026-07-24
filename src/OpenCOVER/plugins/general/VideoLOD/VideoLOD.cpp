@@ -235,7 +235,7 @@ void VideoLOD::setDataSet(string path, string prefix, string suffix, int start, 
 
     char fmt[15];
 
-    sprintf(fmt, "%d", file.vnums);
+    snprintf(fmt, sizeof(fmt), "%d", file.vnums);
 
     file.numFormat = string("%0") + string(fmt) + string("d");
     sprintf(number, (const char *)(file.numFormat).c_str(), frameNum);

@@ -60,7 +60,7 @@ int ReadParameterSet(struct parameter *para, const char *sec, const char *fn)
 
    for (i = 0; ; i++)
    {
-      sprintf(key, STAT, i);
+      snprintf(key, sizeof(key), STAT, i);
       if ((tmp = IHS_GetCFGValue(fn, sec, key)) != NULL)
       {
          sscanf(tmp, "%f, %f", &loc, &val);
@@ -233,12 +233,12 @@ int ReadParameterField(struct parafield *paraf, char *sec, char *subsec, const c
          if ((paraf->para = (struct parameter **)realloc(paraf->para, paraf->max*sizeof(struct parameter *))) == NULL)
             fatal("memory in parafield for realloc struct parameter*");
       }
-      sprintf(seckey, FSTAT, j);
+      snprintf(seckey, sizeof(seckey), FSTAT, j);
       if ((tmp = IHS_GetCFGValue(fn, sec, seckey)) != NULL)
       {
          sscanf(tmp, "%f", &paraf->loc[j]);
          free(tmp);
-         sprintf(subkey, subsec, j);
+         snprintf(subkey, sizeof(subkey), subsec, j);
          paraf->para[paraf->num] = AllocParameterStruct(30);
          ReadParameterSet(paraf->para[paraf->num++], subkey, fn);
       }

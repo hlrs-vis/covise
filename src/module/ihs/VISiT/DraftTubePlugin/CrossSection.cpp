@@ -90,7 +90,7 @@ CrossSection::buildInteractors(struct tube *dt, int index)
    widthInteractor->disable();
    widthInteractor->hide();
 
-   sprintf(buf, "%s_height", polyObj->getName());
+   snprintf(buf, sizeof(buf), "%s_height", polyObj->getName());
    heightIName      = strdup(buf);
    heightDir        = heightPoint-middlePoint;
    heightS0         = 0.5*dt->cs[index]->c_height;
@@ -99,7 +99,7 @@ CrossSection::buildInteractors(struct tube *dt, int index)
    heightInteractor->hide();
 
 #ifdef   IA_AREA
-   sprintf(buf, "%s_area", polyObj->getName());
+   snprintf(buf, sizeof(buf), "%s_area", polyObj->getName());
    areaIName      = strdup(buf);
    areaDir        = areaPoint-middlePoint;
    areaS0         = 0.5*CalcOneCSArea(dt->cs[index]);
@@ -109,7 +109,7 @@ CrossSection::buildInteractors(struct tube *dt, int index)
 #endif
 
 #ifdef   IA_AB
-   sprintf(buf, "%s_a", polyObj->getName());
+   snprintf(buf, sizeof(buf), "%s_a", polyObj->getName());
    aIName      = strdup(buf);
    aDir        = aPoint-aDirPoint;
    aS0         = aSC;
@@ -117,7 +117,7 @@ CrossSection::buildInteractors(struct tube *dt, int index)
    aInteractor->disable();
    aInteractor->hide();
 
-   sprintf(buf, "%s_b", polyObj->getName());
+   snprintf(buf, sizeof(buf), "%s_b", polyObj->getName());
    bIName      = strdup(buf);
    bDir        = bPoint-bDirPoint;
    bS0         = bSC;

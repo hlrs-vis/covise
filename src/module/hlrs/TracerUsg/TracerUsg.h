@@ -409,9 +409,9 @@ public:
         char buffer1[128];
         char *cov_path = getenv("COVISEDIR");
         if (cov_path)
-            sprintf(buffer1, "%s/data/ *", cov_path);
+            snprintf(buffer1, sizeof(buffer1), "%s/data/ *", cov_path);
         else
-            sprintf(buffer1, "/ *");
+            snprintf(buffer1, sizeof(buffer1), "/ *");
         Covise::add_port(PARIN, "amesh_path", "Browser", "Amesh path");
         Covise::set_port_default("amesh_path", buffer1);
         Covise::add_port(PARIN, "option", "Choice", "Method of interpolation");

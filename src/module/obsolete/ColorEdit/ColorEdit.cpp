@@ -137,7 +137,7 @@ void Application::param(const char *paramName, bool inMapLoading)
         {
             if (!inMapLoading)
             {
-                sprintf(puffer, "%s is not a valid colormap file.", filename);
+                snprintf(puffer, sizeof(puffer), "%s is not a valid colormap file.", filename);
                 Covise::sendError(puffer);
             }
         }
@@ -167,7 +167,7 @@ void Application::param(const char *paramName, bool inMapLoading)
         else
         {
             char buf[255];
-            sprintf(buf, "Colormap > %d is too long for me.", COLORMAP_WIDTH);
+            snprintf(buf, sizeof(buf), "Colormap > %d is too long for me.", COLORMAP_WIDTH);
             Covise::sendWarning(buf);
         }
     }
@@ -337,12 +337,12 @@ void Application::handle_objects(coDistributedObject *data_obj, char *Outname, c
     {
         // prepare colormap attribute for attachment
         strcpy(colormap_as_an_attribute, "");
-        sprintf(colormap_buf, "%s\n%s\n%g\n%g\n%ld\n%d", Outname, annotation, min, max, (steps > 0) ? steps : ncolor, 0);
+        snprintf(colormap_buf, sizeof(colormap_buf), "%s\n%s\n%g\n%g\n%ld\n%d", Outname, annotation, min, max, (steps > 0) ? steps : ncolor, 0);
         strcat(colormap_as_an_attribute, colormap_buf);
 
         for (i = 0; i < ncolor; i++)
         {
-            sprintf(colormap_buf, "\n%f\n%f\n%f", colormap[0][i], colormap[1][i], colormap[2][i]);
+            snprintf(colormap_buf, sizeof(colormap_buf), "\n%f\n%f\n%f", colormap[0][i], colormap[1][i], colormap[2][i]);
             strcat(colormap_as_an_attribute, colormap_buf);
         }
 
@@ -373,7 +373,7 @@ void Application::handle_objects(coDistributedObject *data_obj, char *Outname, c
 
             for (i = 0; i < set_num_elem; i++)
             {
-                sprintf(buf, "%s_%d", Outname, i);
+                snprintf(buf, sizeof(buf), "%s_%d", Outname, i);
                 handle_objects(data_objs[i], buf, set_objs);
             }
 

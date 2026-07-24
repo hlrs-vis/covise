@@ -327,10 +327,10 @@ int  zeilennummer                                 /* Dateiname, Zeilennummer ..*
    char meldung[200];
 
    if (fehlernummer == 0)
-      sprintf(meldung, "\n%s, Zeile %d: %s!\n",
+      snprintf(meldung, sizeof(meldung), "\n%s, Zeile %d: %s!\n",
          dateiname, zeilennummer, text);
    else
-      sprintf(meldung, "\n%s, Zeile %d: Fehler %d in %s!\n",
+      snprintf(meldung, sizeof(meldung), "\n%s, Zeile %d: Fehler %d in %s!\n",
          dateiname, zeilennummer, fehlernummer, text);
 
    fprintf(stderr, "%s", meldung);

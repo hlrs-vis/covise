@@ -61,7 +61,7 @@ void HlExprList::postfix()
 #ifdef WIN32
 		sprintf_s( h, "%f", getDoubleVal() );
 #else
-        sprintf( h, "%f", getDoubleVal() );
+        snprintf( h, sizeof(h), "%f", getDoubleVal() );
 #endif
 		for( i=strlen(h)-1; h[i]=='0'; i-- )
 			h[i] = '\0';
@@ -101,7 +101,7 @@ void HlExprList::infix()
 #ifdef WIN32
 			sprintf_s( h, "%f", getDoubleVal() );
 #else
-            sprintf( h, "%f", getDoubleVal() );
+            snprintf( h, sizeof(h), "%f", getDoubleVal() );
 #endif 
 			for( i=strlen(h)-1; h[i]=='0'; i-- )
 				h[i] = '\0';

@@ -392,7 +392,7 @@ Design::compute(const char *port)
     }
     // params for cutX and cutY
     char buf[128];
-    sprintf(buf, "distance %g\nnormal ", -grundZellenBreite_);
+    snprintf(buf, sizeof(buf), "distance %g\nnormal ", -grundZellenBreite_);
     strcat(buf, "-1.0 0.0 0.0");
     coDoText *doTextX = new coDoText(p_cutX_->getObjName(), strlen(buf) + 1);
     char *addr;
@@ -400,7 +400,7 @@ Design::compute(const char *port)
     strcpy(addr, buf);
     p_cutX_->setCurrentObject(doTextX);
 
-    sprintf(buf, "distance %g \nnormal 0.0 -1.0 0.0", -grundZellenHoehe_);
+    snprintf(buf, sizeof(buf), "distance %g \nnormal 0.0 -1.0 0.0", -grundZellenHoehe_);
     coDoText *doTextY = new coDoText(p_cutY_->getObjName(), strlen(buf) + 1);
     doTextY->getAddress(&addr);
     strcpy(addr, buf);
@@ -936,22 +936,22 @@ Design::setTransformAttribute(std::string &Transform)
 {
     char buf[64];
     Transform = "Transform: ";
-    sprintf(buf, "%d\n", 7); // tile
+    snprintf(buf, sizeof(buf), "%d\n", 7); // tile
     Transform += buf;
 
     Transform += "TilingPlane ";
-    sprintf(buf, "%d\n", 1); // XY
+    snprintf(buf, sizeof(buf), "%d\n", 1); // XY
     Transform += buf;
 
     Transform += "flipTile ";
-    sprintf(buf, "%d\n", 1); // flip
+    snprintf(buf, sizeof(buf), "%d\n", 1); // flip
     Transform += buf;
 
     Transform += "TilingMin ";
-    sprintf(buf, "%d %d\n", 0, 0); // min. repl.
+    snprintf(buf, sizeof(buf), "%d %d\n", 0, 0); // min. repl.
     Transform += buf;
     Transform += "TilingMax ";
-    sprintf(buf, "%d %d\n", DanzahlReplikationenX_, DanzahlReplikationenY_);
+    snprintf(buf, sizeof(buf), "%d %d\n", DanzahlReplikationenX_, DanzahlReplikationenY_);
     Transform += buf;
 }
 

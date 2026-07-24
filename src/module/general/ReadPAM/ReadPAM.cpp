@@ -31,7 +31,7 @@ ReadPam::ReadPam(int argc, char *argv[])
         std::string param_name("Nodal_Var");
         std::string param_descr("Choose nodal variable ");
         char tail[16];
-        sprintf(tail, "%d", i + 1);
+        snprintf(tail, sizeof(tail), "%d", i + 1);
         param_name += tail;
         param_descr += tail;
         p_nodal_ch[i] = addChoiceParam(param_name.c_str(), param_descr.c_str());
@@ -43,7 +43,7 @@ ReadPam::ReadPam(int argc, char *argv[])
         std::string param_name("Cell_Var");
         std::string param_descr("Choose cell variable ");
         char tail[16];
-        sprintf(tail, "%d", i + 1);
+        snprintf(tail, sizeof(tail), "%d", i + 1);
         param_name += tail;
         param_descr += tail;
         p_cell_ch[i] = addChoiceParam(param_name.c_str(), param_descr.c_str());
@@ -58,7 +58,7 @@ ReadPam::ReadPam(int argc, char *argv[])
         std::string param_name("Global_Var");
         std::string param_descr("Choose global variable ");
         char tail[16];
-        sprintf(tail, "%d", i + 1);
+        snprintf(tail, sizeof(tail), "%d", i + 1);
         param_name += tail;
         param_descr += tail;
         p_global_ch[i] = addChoiceParam(param_name.c_str(), param_descr.c_str());
@@ -72,7 +72,7 @@ ReadPam::ReadPam(int argc, char *argv[])
     for (TportNo = 0; TportNo < TENSOR_PORTS; ++TportNo)
     {
         std::string TportTitle("Tensor port ");
-        sprintf(tail, "%d", TportNo + 1);
+        snprintf(tail, sizeof(tail), "%d", TportNo + 1);
         TportTitle += tail;
         std::string param_pre_name("T");
         param_pre_name += tail;
@@ -99,7 +99,7 @@ ReadPam::ReadPam(int argc, char *argv[])
         std::string port_name("nodalData");
         std::string port_descr("nodal data ");
         char tail[16];
-        sprintf(tail, "%d", i + 1);
+        snprintf(tail, sizeof(tail), "%d", i + 1);
         port_name += tail;
         port_descr += tail;
         p_nodal_obj[i] = addOutputPort(port_name.c_str(), "Float|Vec3", port_descr.c_str());
@@ -109,7 +109,7 @@ ReadPam::ReadPam(int argc, char *argv[])
         std::string port_name("cellData");
         std::string port_descr("cell data ");
         char tail[16];
-        sprintf(tail, "%d", i + 1);
+        snprintf(tail, sizeof(tail), "%d", i + 1);
         port_name += tail;
         port_descr += tail;
         p_cell_obj[i] = addOutputPort(port_name.c_str(), "Float|Vec3", port_descr.c_str());
@@ -119,7 +119,7 @@ ReadPam::ReadPam(int argc, char *argv[])
         std::string port_name("globalData");
         std::string port_descr("global data ");
         char tail[16];
-        sprintf(tail, "%d", i + 1);
+        snprintf(tail, sizeof(tail), "%d", i + 1);
         port_name += tail;
         port_descr += tail;
         p_global_obj[i] = addOutputPort(port_name.c_str(), "Float|Vec3", port_descr.c_str());
@@ -129,7 +129,7 @@ ReadPam::ReadPam(int argc, char *argv[])
         std::string port_name("tensorData");
         std::string port_descr("tensor data ");
         char tail[16];
-        sprintf(tail, "%d", i + 1);
+        snprintf(tail, sizeof(tail), "%d", i + 1);
         port_name += tail;
         port_descr += tail;
         p_tensor_obj[i] = addOutputPort(port_name.c_str(), "Tensor", port_descr.c_str());
@@ -457,7 +457,7 @@ void ReadPam::param(const char *paramName, bool in_map_loading)
                 char buffer[32];
                 for (i = 0; i < NODAL_PORTS; ++i)
                 {
-                    sprintf(buffer, "%d: none", i + 1);
+                    snprintf(buffer, sizeof(buffer), "%d: none", i + 1);
                     p_nodal_ch[i]->setValue(contents.no_options(),
                                             theOptions, 0);
                     none = "nodalData";
@@ -473,7 +473,7 @@ void ReadPam::param(const char *paramName, bool in_map_loading)
                 }
                 for (i = 0; i < CELL_PORTS; ++i)
                 {
-                    sprintf(buffer, "%d: none", i + 1);
+                    snprintf(buffer, sizeof(buffer), "%d: none", i + 1);
                     none = "cellData";
                     none += buffer;
                     p_cell_ch[i]->setValue(cell_contents.no_options(),
@@ -551,7 +551,7 @@ void ReadPam::param(const char *paramName, bool in_map_loading)
                     char buffer[32];
                     for (i = 0; i < GLOBAL_PORTS; ++i)
                     {
-                        sprintf(buffer, "%d: none", i + 1);
+                        snprintf(buffer, sizeof(buffer), "%d: none", i + 1);
                         p_global_ch[i]->setValue(global_contents.no_options(),
                                                  theOptions, 0);
                         none = "globalData";

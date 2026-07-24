@@ -141,7 +141,7 @@ void Calibrate::readFile()
             numSet++;
     }
 
-    sprintf(buf, "%3d of %3d positions captured", numSet, num);
+    snprintf(buf, sizeof(buf), "%3d of %3d positions captured", numSet, num);
     statusLine->setLabel(buf);
     fclose(fp);
 }
@@ -155,11 +155,11 @@ void Calibrate::preFrame()
     osg::Vec3 pos;
     pos = m.getTrans();
     char buf[1000];
-    sprintf(buf, "Index: %d,%d,%d", cI, cJ, cK);
+    snprintf(buf, sizeof(buf), "Index: %d,%d,%d", cI, cJ, cK);
     currentIndex->setLabel(buf);
-    sprintf(buf, "Soll: %6.2f,%6.2f,%6.2f", getX(cI), getY(cJ), getZ(cK));
+    snprintf(buf, sizeof(buf), "Soll: %6.2f,%6.2f,%6.2f", getX(cI), getY(cJ), getZ(cK));
     currentSoll->setLabel(buf);
-    sprintf(buf, "Ist: %6.2f,%6.2f,%6.2f", pos[0], pos[1], pos[2]);
+    snprintf(buf, sizeof(buf), "Ist: %6.2f,%6.2f,%6.2f", pos[0], pos[1], pos[2]);
     currentIst->setLabel(buf);
     if (cover->getPointerButton()->wasPressed())
     {
@@ -210,7 +210,7 @@ void Calibrate::updateDisplay()
             numSet++;
     }
     char buf[1000];
-    sprintf(buf, "%d of %d positions captured)", numSet, num);
+    snprintf(buf, sizeof(buf), "%d of %d positions captured)", numSet, num);
     statusLine->setLabel(buf);
     fprintf(stderr, "%s\n", buf);
     /* string = new pfString();

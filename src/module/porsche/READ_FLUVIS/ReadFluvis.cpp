@@ -289,19 +289,19 @@ Application::createScalarObject(int n)
     float *s; // scalar values
 
     // create the appropriate parameter name
-    sprintf(parameterName, "scalar%dPath", n);
+    snprintf(parameterName, sizeof(parameterName), "scalar%dPath", n);
 
     // open scalar file
     Covise::get_browser_param(parameterName, &scalarPath);
     if ((scalarFp = Covise::fopen(scalarPath, "r")) == NULL)
     {
-        sprintf(buf, "No valid file for port scalar%dPath", n);
+        snprintf(buf, sizeof(buf), "No valid file for port scalar%dPath", n);
         Covise::sendInfo(buf);
         return;
     }
 
     // create the appropriate port name
-    sprintf(portName, "scalar%d", n);
+    snprintf(portName, sizeof(portName), "scalar%d", n);
 
     // get the ouput object name
     scalarObjName = Covise::get_object_name(portName);

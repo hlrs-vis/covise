@@ -592,7 +592,7 @@ NodesAnimationResult::writeCovFile(int cov_id)
     char last_step[64];
 
     timestep_val[0] = last_step;
-    sprintf(last_step, "1 %d", num_steps_);
+    snprintf(last_step, sizeof(last_step), "1 %d", num_steps_);
 
     covWriteSetBegin(cov_id, num_steps_);
     for (int i = 0; i < num_steps_; i++)
@@ -684,7 +684,7 @@ VectorAnimationResult::writeCovFileValues(int cov_id)
     char last_step[64];
 
     timestep_val[0] = last_step;
-    sprintf(last_step, "1 %d", num_steps_);
+    snprintf(last_step, sizeof(last_step), "1 %d", num_steps_);
 
     covWriteSetBegin(cov_id, num_steps_);
     for (int i = 0; i < num_steps_; i++)
@@ -703,7 +703,7 @@ VectorAnimationResult::writeCovFilePoints(int cov_id)
     char last_step[64];
 
     timestep_val[0] = last_step;
-    sprintf(last_step, "1 %d", num_steps_);
+    snprintf(last_step, sizeof(last_step), "1 %d", num_steps_);
 
     covWriteSetBegin(cov_id, num_steps_);
     for (int i = 0; i < num_steps_; i++)

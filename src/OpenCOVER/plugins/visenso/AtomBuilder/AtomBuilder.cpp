@@ -987,7 +987,7 @@ void AtomBuilder::updateDescription(const std::string &heading, int numP, int nu
 {
 
     char t[1024];
-    sprintf(t, coTranslator::coTranslate("%s\nProtonen: %d\nNeutronen: %d\nElektronen: %d\n").c_str(), heading.c_str(), numP, numN, numE);
+    snprintf(t, sizeof(t), coTranslator::coTranslate("%s\nProtonen: %d\nNeutronen: %d\nElektronen: %d\n").c_str(), heading.c_str(), numP, numN, numE);
     osgText::String ot(std::string(t), osgText::String::ENCODING_UTF8);
     descrText_->setText(ot);
 }

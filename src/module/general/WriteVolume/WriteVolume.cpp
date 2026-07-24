@@ -50,8 +50,8 @@ coWriteVolume::coWriteVolume(int argc, char *argv[])
     {
         char name[1024];
         char desc[1024];
-        sprintf(name, "channel%d", i);
-        sprintf(desc, "Scalar volume data channel %d", i);
+        snprintf(name, sizeof(name), "channel%d", i);
+        snprintf(desc, sizeof(desc), "Scalar volume data channel %d", i);
         piChan[i] = addInputPort(name, "Byte|Float", desc);
         piChan[i]->setRequired(0);
     }

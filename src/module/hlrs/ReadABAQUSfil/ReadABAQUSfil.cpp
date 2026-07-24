@@ -1121,7 +1121,7 @@ int ReadABAQUSfil::compute(const char* port)
     if (vsteps.size() > 1) {
 
         char ts[100];
-        sprintf(ts, "1 %lu", (unsigned long)vsteps.size());
+        snprintf(ts, sizeof(ts), "1 %lu", (unsigned long)vsteps.size());
         outERes->addAttribute("TIMESTEP", ts);
         outTRes->addAttribute("TIMESTEP", ts);
         outNRes->addAttribute("TIMESTEP", ts);
@@ -1656,7 +1656,7 @@ int ReadABAQUSfil::compute(const char* port)
         // Add TIMESTEP attribute to GridSets ***************************
         if (vsteps.size() > 1) {
             char ts[100];
-            sprintf(ts, "1 %lu", (unsigned long)vsteps.size());
+            snprintf(ts, sizeof(ts), "1 %lu", (unsigned long)vsteps.size());
             incSet->addAttribute("TIMESTEP", ts);
         }
 
@@ -1711,7 +1711,7 @@ int ReadABAQUSfil::compute(const char* port)
         if (vsteps.size() > 1) {
 
             char ts[100];
-            sprintf(ts, "1 %lu", (unsigned long)vsteps.size());
+            snprintf(ts, sizeof(ts), "1 %lu", (unsigned long)vsteps.size());
             outStepTResSet->addAttribute("TIMESTEP", ts);
             outStepEResSet->addAttribute("TIMESTEP", ts);
             outStepNResSet->addAttribute("TIMESTEP", ts);
@@ -1865,7 +1865,7 @@ int ReadABAQUSfil::compute(const char* port)
     // Add TIMESTEP attribute to Global GridSet *********************
     if (vsteps.size() > 1) {
         char ts[100];
-        sprintf(ts, "1 %lu", (unsigned long)vsteps.size());
+        snprintf(ts, sizeof(ts), "1 %lu", (unsigned long)vsteps.size());
         incGrid->addAttribute("TIMESTEP", ts);
     }
 

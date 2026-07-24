@@ -291,23 +291,23 @@ void TUIParam::updateParameter(bool force)
         {
             if (type == TUI_FLOAT_SLIDER)
             {
-                sprintf(buf, "%s\nFloatSlider\n%.3f %.3f %.3f\n", parameterName, min, max, value);
+                snprintf(buf, sizeof(buf), "%s\nFloatSlider\n%.3f %.3f %.3f\n", parameterName, min, max, value);
             }
             else if (type == TUI_INT_SLIDER)
             {
-                sprintf(buf, "%s\nIntSlider\n%d %d %d\n", parameterName, (int)min, (int)max, (int)value);
+                snprintf(buf, sizeof(buf), "%s\nIntSlider\n%d %d %d\n", parameterName, (int)min, (int)max, (int)value);
             }
             else if (type == TUI_INT)
             {
-                sprintf(buf, "%s\nIntScalar\n%d\n", parameterName, (int)value);
+                snprintf(buf, sizeof(buf), "%s\nIntScalar\n%d\n", parameterName, (int)value);
             }
             else if (type == TUI_FLOAT)
             {
-                sprintf(buf, "%s\nFloatScalar\n%f\n", parameterName, value);
+                snprintf(buf, sizeof(buf), "%s\nFloatScalar\n%f\n", parameterName, value);
             }
             else if (type == TUI_BOOL)
             {
-                sprintf(buf, "%s\nBool\n%d\n", parameterName, (int)state);
+                snprintf(buf, sizeof(buf), "%s\nBool\n%d\n", parameterName, (int)state);
             }
             CoviseRender::send_feedback_message("PARAM", buf);
         }
@@ -338,7 +338,7 @@ void TUIParamList::add( coDistributedObject *dobj, osg::Node *n )
    int i=0;
    char *attrib;
    char buf[100];
-   sprintf(buf,"TUI%d",i);
+   snprintf(buf, sizeof(buf),"TUI%d",i);
    while((attrib=dobj->getAttribute(buf)))
    {
       char *sattrib=new char[strlen(attrib)+1];
@@ -374,7 +374,7 @@ void TUIParamList::add( coDistributedObject *dobj, osg::Node *n )
          append(sl);
       }
       i++;
-      sprintf(buf,"TUI%d",i);
+      snprintf(buf, sizeof(buf),"TUI%d",i);
    }
 
 }
@@ -384,7 +384,7 @@ void TUIParamList::add(RenderObject *dobj, osg::Node *n)
 {
     int i = 0;
     char buf[100];
-    sprintf(buf, "TUI%d", i);
+    snprintf(buf, sizeof(buf), "TUI%d", i);
     while (const char *attrib = dobj->getAttribute(buf))
     {
         char *sattrib = new char[strlen(attrib) + 1];
@@ -423,7 +423,7 @@ void TUIParamList::add(RenderObject *dobj, osg::Node *n)
             append(sl);
         }
         i++;
-        sprintf(buf, "TUI%d", i);
+        snprintf(buf, sizeof(buf), "TUI%d", i);
     }
 }
 

@@ -32,12 +32,12 @@ WriteNetCDF::WriteNetCDF(int argc, char *argv[])
 
     char buf[20];
     for (int i = 0; i < numVars; ++i) {
-        sprintf(buf,"nameVar%d",i);
+        snprintf(buf, sizeof(buf),"nameVar%d",i);
         p_varName[i] = addStringParam(buf, "Name for variable");
-        sprintf(buf,"var%d",i);
+        snprintf(buf, sizeof(buf),"var%d",i);
         p_varName[i]->setValue(buf);
 
-        sprintf(buf,"dataIn%d",i);
+        snprintf(buf, sizeof(buf),"dataIn%d",i);
         p_dataIn[i] = addInputPort(buf,"Float","data values matching the grid");
         p_dataIn[i]->setRequired(0);
 
@@ -114,7 +114,7 @@ int WriteNetCDF::compute(const char *)
     for (int i = 0; i < numVars; ++i) {
         if (varUsed[i] > 0)
         {
-            sprintf(buf, "%s", p_varName[i]->getValue());
+            snprintf(buf, sizeof(buf), "%s", p_varName[i]->getValue());
             std::vector<NcDim> dims{ dimTime, dimSN, dimEW };
             var[i] = ncOutFile->addVar(buf, ncFloat, dims);
         }

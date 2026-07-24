@@ -598,7 +598,7 @@ void update_netcdfs(void)
             if ((var_id = ncvarid(cdfid, varname)) == -1)
             {
                 char ebuf[256];
-                sprintf(ebuf, "update_netcdfs(): No such variable %s", varname);
+                snprintf(ebuf, sizeof(ebuf), "update_netcdfs(): No such variable %s", varname);
                 errwin(ebuf);
                 continue;
             }
@@ -607,7 +607,7 @@ void update_netcdfs(void)
                 continue;
             }
             ncdiminq(cdfid, dim[0], (char *)NULL, &len);
-            sprintf(buf, "%s", varname);
+            snprintf(buf, sizeof(buf), "%s", varname);
             xms = XmStringCreateLtoR(buf, charset);
             XmListAddItemUnselected(netcdf_listx_item, xms, 0);
             XmListAddItemUnselected(netcdf_listy_item, xms, 0);
@@ -884,15 +884,15 @@ static void do_netcdfquery_proc(Widget, XtPointer, XtPointer)
         if ((x_id = ncvarid(cdfid, xvar)) == -1)
         {
             char ebuf[256];
-            sprintf(ebuf, "do_query(): No such variable %s for X", xvar);
+            snprintf(ebuf, sizeof(ebuf), "do_query(): No such variable %s for X", xvar);
             errwin(ebuf);
             goto out1;
         }
         ncvarinq(cdfid, x_id, NULL, &xdatatype, &xndims, xdim, &xnatts);
         ncdiminq(cdfid, xdim[0], NULL, &nx);
-        sprintf(buf, "X is %s, data type %s \t length [%d]\n", xvar, getcdf_type(xdatatype), nx);
+        snprintf(buf, sizeof(buf), "X is %s, data type %s \t length [%d]\n", xvar, getcdf_type(xdatatype), nx);
         stufftext(buf, STUFF_TEXT);
-        sprintf(buf, "\t%d Attributes:\n", xnatts);
+        snprintf(buf, sizeof(buf), "\t%d Attributes:\n", xnatts);
         stufftext(buf, STUFF_TEXT);
         for (i = 0; i < xnatts; i++)
         {
@@ -905,22 +905,22 @@ static void do_netcdfquery_proc(Widget, XtPointer, XtPointer)
                 ncattget(cdfid, x_id, attname, (void *)atcharval);
                 break;
             }
-            sprintf(buf, "\t\t%s: %s\n", attname, atcharval);
+            snprintf(buf, sizeof(buf), "\t\t%s: %s\n", attname, atcharval);
             stufftext(buf, STUFF_TEXT);
         }
     }
     if ((y_id = ncvarid(cdfid, yvar)) == -1)
     {
         char ebuf[256];
-        sprintf(ebuf, "do_query(): No such variable %s for Y", yvar);
+        snprintf(ebuf, sizeof(ebuf), "do_query(): No such variable %s for Y", yvar);
         errwin(ebuf);
         goto out1;
     }
     ncvarinq(cdfid, y_id, NULL, &ydatatype, &yndims, ydim, &ynatts);
     ncdiminq(cdfid, ydim[0], NULL, &ny);
-    sprintf(buf, "Y is %s, data type %s \t length [%d]\n", yvar, getcdf_type(ydatatype), ny);
+    snprintf(buf, sizeof(buf), "Y is %s, data type %s \t length [%d]\n", yvar, getcdf_type(ydatatype), ny);
     stufftext(buf, STUFF_TEXT);
-    sprintf(buf, "\t%d Attributes:\n", ynatts);
+    snprintf(buf, sizeof(buf), "\t%d Attributes:\n", ynatts);
     stufftext(buf, STUFF_TEXT);
     for (i = 0; i < ynatts; i++)
     {
@@ -933,7 +933,7 @@ static void do_netcdfquery_proc(Widget, XtPointer, XtPointer)
             ncattget(cdfid, y_id, attname, (void *)atcharval);
             break;
         }
-        sprintf(buf, "\t\t%s: %s\n", attname, atcharval);
+        snprintf(buf, sizeof(buf), "\t\t%s: %s\n", attname, atcharval);
         stufftext(buf, STUFF_TEXT);
     }
 

@@ -51,7 +51,7 @@ public:
     {
         _message[0] = 0;
         if (line >= 1)
-            sprintf(_message, "%d: ", line);
+            snprintf(_message, sizeof(_message), "%d: ", line);
         if (!method)
             method = "(Unknown error location)";
         _method = method;

@@ -1497,7 +1497,7 @@ void ViewDesc::preFrame(FlightPathVisualizer *vpVis)
     if(VRCoviseConnection::covconn && coVRMSController::msController->isMaster())
     {
     char newString[1000];
-    sprintf(newString, "%f %f %f %f %f %f %f %f %f %f %f %f %f", scale, coord.xyz[0],
+    snprintf(newString, sizeof(newString), "%f %f %f %f %f %f %f %f %f %f %f %f %f", scale, coord.xyz[0],
     coord.xyz[1], coord.xyz[2], coord.hpr[0], coord.hpr[1],
     coord.hpr[2], tangentOut[0], tangentOut[1], tangentOut[2], tangentIn[0],
     tangentIn[1], tangentIn[2]);

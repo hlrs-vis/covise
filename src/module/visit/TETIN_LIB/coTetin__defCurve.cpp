@@ -711,7 +711,7 @@ void coTetin__param_curve::addSizes(int &numInt, int &numFloat, int &numChar) co
 {
     if (spl)
     {
-        sprintf(cov_tmp_array, "bspline");
+        snprintf(cov_tmp_array, sizeof(cov_tmp_array), "bspline");
         numChar += strlen(cov_tmp_array) + 1;
         numInt += 3; // ncps, ord, rat
         int rat = spl->rat;
@@ -739,14 +739,14 @@ void coTetin__unstruct_curve::addSizes(int &numInt, int &numFloat, int &numChar)
 {
     if (path)
     {
-        sprintf(cov_tmp_array, "unstruct_curve %s", path);
+        snprintf(cov_tmp_array, sizeof(cov_tmp_array), "unstruct_curve %s", path);
         numChar += strlen(cov_tmp_array) + 1;
     }
 }
 
 void coTetin__mesh_curve::addSizes(int &numInt, int &numFloat, int &numChar) const
 {
-    sprintf(cov_tmp_array, "unstruct_curve n_points %d n_edges %d",
+    snprintf(cov_tmp_array, sizeof(cov_tmp_array), "unstruct_curve n_points %d n_edges %d",
             n_pnts, n_edges);
     numChar += strlen(cov_tmp_array) + 1;
     if (pnts)
@@ -989,7 +989,7 @@ void coTetin__mesh_curve::internal_write(ostream &str,
     }
     if (write_bin)
     {
-        sprintf(cov_tmp_array, "unstruct_curve n_points %d n_edges %d",
+        snprintf(cov_tmp_array, sizeof(cov_tmp_array), "unstruct_curve n_points %d n_edges %d",
                 n_pnts, n_edges);
         strcpy(charDat, cov_tmp_array);
         charDat += strlen(cov_tmp_array) + 1;
@@ -1047,7 +1047,7 @@ void coTetin__param_curve::internal_write(ostream &str,
         }
         if (write_bin)
         {
-            sprintf(cov_tmp_array, "bspline");
+            snprintf(cov_tmp_array, sizeof(cov_tmp_array), "bspline");
             strcpy(charDat, cov_tmp_array);
             charDat += strlen(cov_tmp_array) + 1;
         }
@@ -1151,7 +1151,7 @@ void coTetin__unstruct_curve::internal_write(ostream &str,
         }
         if (write_bin)
         {
-            sprintf(cov_tmp_array, "unstruct_curve %s", path);
+            snprintf(cov_tmp_array, sizeof(cov_tmp_array), "unstruct_curve %s", path);
             strcpy(charDat, cov_tmp_array);
             charDat += strlen(cov_tmp_array) + 1;
         }

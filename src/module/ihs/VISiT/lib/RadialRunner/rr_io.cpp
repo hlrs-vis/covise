@@ -600,77 +600,77 @@ int WriteRadialRunner(struct radial *rr, FILE *fp)
 
 	fprintf(fp, "\n%s\n",RR_MOD_IANGLE);
 	for(i = 0; i < rr->be_num; i++) {
-		sprintf(buf, STAT, i);
+		snprintf(buf, sizeof(buf), STAT, i);
 		fprintf(fp, "%*s = %6.4f, %9.4f\n", L_LEN, buf,
 				rr->be[i]->para, GRAD(rr->be[i]->mod_angle[0]) );
 	}
 
 	fprintf(fp, "\n%s\n",RR_MOD_OANGLE);
 	for(i = 0; i < rr->be_num; i++) {
-		sprintf(buf, STAT, i);
+		snprintf(buf, sizeof(buf), STAT, i);
 		fprintf(fp, "%*s = %6.4f, %9.4f\n", L_LEN, buf,
 				rr->be[i]->para, GRAD(rr->be[i]->mod_angle[1]) );
 	}
 
 	fprintf(fp, "\n%s\n",RR_OROT_ABS);
 	for(i = 0; i < rr->be_num; i++) {
-		sprintf(buf, STAT, i);
+		snprintf(buf, sizeof(buf), STAT, i);
 		fprintf(fp, "%*s = %6.4f, %9.4f\n", L_LEN, buf,
 				rr->be[i]->para, rr->be[i]->rot_abs[1]);
 	}
 
 	fprintf(fp, "\n%s\n",RR_PTHICK);
 	for(i = 0; i < rr->be_num; i++) {
-		sprintf(buf, STAT, i);
+		snprintf(buf, sizeof(buf), STAT, i);
 		fprintf(fp, "%*s = %6.4f, %9.4f\n", L_LEN, buf,
 				rr->be[i]->para, rr->be[i]->p_thick);
 	}
 
 	fprintf(fp, "\n%s\n",RR_TETHICK);
 	for(i = 0; i < rr->be_num; i++) {
-		sprintf(buf, STAT, i);
+		snprintf(buf, sizeof(buf), STAT, i);
 		fprintf(fp, "%*s = %6.4f, %9.4f\n", L_LEN, buf,
 				rr->be[i]->para, rr->be[i]->te_thick);
 	}
 
 	fprintf(fp, "\n%s\n",RR_CAMBPARA);
 	for(i = 0; i < rr->be_num; i++) {
-		sprintf(buf, STAT, i);
+		snprintf(buf, sizeof(buf), STAT, i);
 		fprintf(fp, "%*s = %6.4f, %9.4f\n", L_LEN, buf, 
 				rr->be[i]->para, rr->be[i]->camb_para);
 	}
 
 	fprintf(fp, "\n%s\n",RR_CAMB);
 	for(i = 0; i < rr->be_num; i++) {
-		sprintf(buf, STAT, i);
+		snprintf(buf, sizeof(buf), STAT, i);
 		fprintf(fp, "%*s = %6.4f, %9.4f\n", L_LEN, buf,
 				rr->be[i]->para, rr->be[i]->camb);
 	}
 
 	fprintf(fp, "\n%s\n",RR_CAMBPOS);
 	for(i = 0; i < rr->be_num; i++) {
-		sprintf(buf, STAT, i);
+		snprintf(buf, sizeof(buf), STAT, i);
 		fprintf(fp, "%*s = %6.4f, %9.4f\n", L_LEN, buf,
 				rr->be[i]->para, rr->be[i]->camb_pos);
 	}
 
 	fprintf(fp, "\n%s\n",RR_BLLENPARA);
 	for(i = 0; i < rr->be_num; i++) {
-		sprintf(buf, STAT, i);
+		snprintf(buf, sizeof(buf), STAT, i);
 		fprintf(fp, "%*s = %6.4f, %9.4f\n", L_LEN, buf, 
 				rr->be[i]->para, rr->be[i]->bl_lenpara);
 	}
 
 	fprintf(fp, "\n%s\n",RR_TEWRAP);
 	for(i = 0; i < rr->be_num; i++) {
-		sprintf(buf, STAT, i);
+		snprintf(buf, sizeof(buf), STAT, i);
 		fprintf(fp, "%*s = %6.4f, %9.4f\n", L_LEN, buf,
 				rr->be[i]->para, GRAD(rr->be[i]->te_wrap) );
 	}
 
 	fprintf(fp, "\n%s\n",RR_BLWRAP);
 	for(i = 0; i < rr->be_num; i++) {
-		sprintf(buf, STAT, i);
+		snprintf(buf, sizeof(buf), STAT, i);
 		fprintf(fp, "%*s = %6.4f, %9.4f\n", L_LEN, buf,
 				rr->be[i]->para, GRAD(rr->be[i]->bl_wrap) );
 	}
@@ -678,26 +678,26 @@ int WriteRadialRunner(struct radial *rr, FILE *fp)
 	fprintf(fp, "\n%s\n",RR_PROF);
 	fprintf(fp, "%*s = %d\n", L_LEN, "naca style", rr->bp->naca);
 	for(i = 0; i < rr->bp->num; i++) {
-		sprintf(buf, STAT, i);
+		snprintf(buf, sizeof(buf), STAT, i);
 		fprintf(fp, "%*s = %6.4f, %9.4f\n", L_LEN, buf,
 				rr->bp->c[i], rr->bp->t[i]);
 	}
 
 	fprintf(fp, "\n%s\n",RR_BPSHIFT);
 	for(i = 0; i < rr->be_num; i++) {
-		sprintf(buf, STAT, i);
+		snprintf(buf, sizeof(buf), STAT, i);
 		fprintf(fp, "%*s = %6.4f, %9.4f\n", L_LEN, buf,
 				rr->be[i]->para, rr->be[i]->bp_shift);
 	}
 	fprintf(fp, "\n%s\n",RR_BLADE_LESPLINE_PARA);
 	for(i = 0; i < rr->be_num; i++) {
-		sprintf(buf, STAT, i);
+		snprintf(buf, sizeof(buf), STAT, i);
 		fprintf(fp, "%*s = %6.4f, %9.4f\n", L_LEN, buf,
 				rr->be[i]->para, rr->be[i]->le_para);
 	}
 	fprintf(fp, "\n%s\n",RR_BLADE_TESPLINE_PARA);
 	for(i = 0; i < rr->be_num; i++) {
-		sprintf(buf, STAT, i);
+		snprintf(buf, sizeof(buf), STAT, i);
 		fprintf(fp, "%*s = %6.4f, %9.4f\n", L_LEN, buf,
 				rr->be[i]->para, rr->be[i]->te_para);
 	}
@@ -709,14 +709,14 @@ int WriteRadialRunner(struct radial *rr, FILE *fp)
 
 	fprintf(fp, "\n%s\n",RR_IANGLE);
 	for(i = 0; i < rr->be_num; i++) {
-		sprintf(buf, STAT, i);
+		snprintf(buf, sizeof(buf), STAT, i);
 		fprintf(fp, "%*s = %6.4f, %9.4f\n", L_LEN, buf,
 				rr->be[i]->para, GRAD(rr->be[i]->angle[0]) );
 	}
 
 	fprintf(fp, "\n%s\n",RR_OANGLE);
 	for(i = 0; i < rr->be_num; i++) {
-		sprintf(buf, STAT, i);
+		snprintf(buf, sizeof(buf), STAT, i);
 		fprintf(fp, "%*s = %6.4f, %9.4f\n", L_LEN, buf,
 				rr->be[i]->para, GRAD(rr->be[i]->angle[1]) );
 	}
@@ -733,7 +733,7 @@ void DumpRR(struct radial *rr)
 	char fname[255];
 	FILE *ferr;
 
-	sprintf(fname, "rr_struct_%02d.txt", fcount++);
+	snprintf(fname, sizeof(fname), "rr_struct_%02d.txt", fcount++);
 	ferr = fopen(fname, "w");
 	if (ferr) {
 		fprintf(ferr, "global runner data:\n");
@@ -808,7 +808,7 @@ void WriteGNU_RR(struct radial *rr)
 	FILE *fp = NULL;
 	char fn[255];
 
-	sprintf(fn, "rr_blade3d_%02d.txt", ncall++);
+	snprintf(fn, sizeof(fn), "rr_blade3d_%02d.txt", ncall++);
 	if( (fp = fopen(fn, "w")) == NULL) {
 		fprintf(stderr,"Could NOT open file '%s'!\n src: %s, line: %d\n",
 				fn, __FILE__, __LINE__);
@@ -852,7 +852,7 @@ void WriteGNU_RR(struct radial *rr)
 	fclose(fp);
 
 	// write stations to file
-	sprintf(fn,"%s","rr_stations.txt");
+	snprintf(fn, sizeof(fn),"%s","rr_stations.txt");
 	if( (fp = fopen(fn, "w+")) == NULL) {
 		fprintf(stderr,"could not open file '%s'!\n",fn);
 		exit(-1);

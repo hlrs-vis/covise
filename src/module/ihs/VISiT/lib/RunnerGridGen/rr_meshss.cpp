@@ -40,7 +40,7 @@ int MeshRR_SSRegion(struct Nodelist *n, struct curve *ml, struct Ilist *ssnod,
 	FILE *fp;
 	static int count = 0;
 
-	sprintf(fn,"rr_debugss_%02d.txt", count++);
+	snprintf(fn, sizeof(fn),"rr_debugss_%02d.txt", count++);
 	if( (fp = fopen(fn,"w+")) == NULL) {
 		fprintf(stderr,"Shit happened opening file '%s'!\n",fn);
 		exit(-1);

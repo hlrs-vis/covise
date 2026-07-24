@@ -577,7 +577,7 @@ sort_node_table()
     covise_message(ENSIGHT_INFO, "Calculating scalar cell nodes \n");
 
     /* Sort the node table. */
-    sprintf(message, "sorting (%d nodes) \n", node_table_count);
+    snprintf(message, sizeof(message), "sorting (%d nodes) \n", node_table_count);
     covise_message(ENSIGHT_INFO, message);
 
     qsort(node_table, node_table_count, sizeof(node), node_comparison_function);
@@ -772,7 +772,7 @@ write_patches(FILE *of)
     FILE *fq, *ft;
     char message[MAXLINE];
 
-    sprintf(message, "Writing %d patches \n", nbpatch);
+    snprintf(message, sizeof(message), "Writing %d patches \n", nbpatch);
     covise_message(ENSIGHT_INFO, message);
 
     /* Write out the part header */
@@ -923,7 +923,7 @@ write_binary_patches()
     char coRTval[256];
     char coRTattr[80];
 
-    sprintf(message, "Writing %d patches \n", nbpatch);
+    snprintf(message, sizeof(message), "Writing %d patches \n", nbpatch);
     covise_message(ENSIGHT_INFO, message);
 
     x = (float *)RU_allocMem(nnode * sizeof(float), "x");
@@ -1118,10 +1118,10 @@ write_binary_patches()
 
     /* add vertex order and REALTIME attribute */
     strcpy(buffer, "vertexOrder");
-    sprintf(value, "%d", 2);
+    snprintf(value, sizeof(value), "%d", 2);
 
     strcpy(coRTattr, "REALTIME");
-    sprintf(coRTval, "%30.15f", steptime);
+    snprintf(coRTval, sizeof(coRTval), "%30.15f", steptime);
 
     coAttrSize = sizeof(int) + 2 + strlen(buffer) + strlen(value);
     coAttrSize += 2 + strlen(coRTattr) + strlen(coRTval);
@@ -1182,7 +1182,7 @@ write_binary_boundaries()
     char coPRTattr[80];
     char value[64];
 
-    sprintf(message, "Writing %d patches on %d boundaries \n", nbpatch, nbound);
+    snprintf(message, sizeof(message), "Writing %d patches on %d boundaries \n", nbpatch, nbound);
     covise_message(ENSIGHT_INFO, message);
 
     /* temporary boundary arrays */
@@ -1226,12 +1226,12 @@ write_binary_boundaries()
         {
 
             bdCnt++;
-            sprintf(message, "Writing %d patches on boundary %d \n", numpatchs[bdy], bdy + 1);
+            snprintf(message, sizeof(message), "Writing %d patches on boundary %d \n", numpatchs[bdy], bdy + 1);
             covise_message(ENSIGHT_INFO, message);
 
             part_number++;
 
-            sprintf(message, "Boundary %d Patches", bdy + 1);
+            snprintf(message, sizeof(message), "Boundary %d Patches", bdy + 1);
             strcpy(buffer, message);
 
             /* Set the array of nodes used to zero */
@@ -1398,7 +1398,7 @@ write_binary_boundaries()
 
             } /* nbpatch */
 
-            sprintf(message, "Writing %d nodes on boundary %d\n", numnodes[bdy], bdy + 1);
+            snprintf(message, sizeof(message), "Writing %d nodes on boundary %d\n", numnodes[bdy], bdy + 1);
             covise_message(ENSIGHT_INFO, message);
 
             /* write out COVISE file */
@@ -1428,10 +1428,10 @@ write_binary_boundaries()
 
             /* add vertex order and REALTIME attribute */
             strcpy(buffer, "vertexOrder");
-            sprintf(value, "%d", 2);
+            snprintf(value, sizeof(value), "%d", 2);
 
             strcpy(coPRTattr, "PART");
-            sprintf(coPRTval, "%d", bdCnt);
+            snprintf(coPRTval, sizeof(coPRTval), "%d", bdCnt);
 
             coAttrSize = sizeof(int) + 2 + strlen(buffer) + strlen(value);
             coAttrSize += 2 + strlen(coPRTattr) + strlen(coPRTval);
@@ -1456,7 +1456,7 @@ write_binary_boundaries()
     } /* nbound */
 
     strcpy(coRTattr, "REALTIME");
-    sprintf(coRTval, "%30.15f", steptime);
+    snprintf(coRTval, sizeof(coRTval), "%30.15f", steptime);
 
     coAttrSize = sizeof(int) + 2 + strlen(coRTattr) + strlen(coRTval);
 
@@ -1827,7 +1827,7 @@ calculate_scalar_cell_connectivity(void)
 #ifdef WARN_NUM_OF_NODES
                         if (remain)
                         {
-                            sprintf(message, "warning: polygon/patch %d on cell %d "
+                            snprintf(message, sizeof(message), "warning: polygon/patch %d on cell %d "
                                              "(num %d) only has %d nodes\n",
                                     j, i, pol, remain);
                             covise_message(ENSIGHT_WARNING, message);
@@ -2303,7 +2303,7 @@ generate_binary_node_connectivity(FILE *fo, FILE *fe)
 
     append_file(fo, fh);
 
-    sprintf(message, "Writing %d tetras, %d pyras and %d hexas \n", totaltetra, totalpyra, totalhexa);
+    snprintf(message, sizeof(message), "Writing %d tetras, %d pyras and %d hexas \n", totaltetra, totalpyra, totalhexa);
     covise_message(ENSIGHT_INFO, message);
 
     /* Close and unlink the temporary files. */
@@ -2340,7 +2340,7 @@ write_scalar_cells(FILE *of, FILE *fc)
     fprintf(of, "coordinates\n");
     fprintf(of, "%10d\n", node_table_to_write);
 
-    sprintf(message, "Writing %d nodes of %d total\n",
+    snprintf(message, sizeof(message), "Writing %d nodes of %d total\n",
             node_table_to_write, node_table_count);
     covise_message(ENSIGHT_INFO, message);
 
@@ -2436,7 +2436,7 @@ write_droplets(FILE *of)
     if ((!have_var[v_ndrops]) || !ndrops)
         return;
 
-    sprintf(message, "Writing %d droplets \n", ndrops);
+    snprintf(message, sizeof(message), "Writing %d droplets \n", ndrops);
     covise_message(ENSIGHT_INFO, message);
 
     /* Write out the part header. */
@@ -2544,7 +2544,7 @@ write_binary_droplets()
     /* add vertex order and REALTIME attribute */
 
     strcpy(coRTattr, "REALTIME");
-    sprintf(coRTval, "%30.15f", steptime);
+    snprintf(coRTval, sizeof(coRTval), "%30.15f", steptime);
 
     coAttrSize = sizeof(int);
     coAttrSize += 2 + strlen(coRTattr) + strlen(coRTval);
@@ -2593,7 +2593,7 @@ write_result_vars()
             }
 
             /* Open the variable file for this variable. */
-            sprintf(filename, "var%d.%04d",
+            snprintf(filename, sizeof(filename), "var%d.%04d",
                     ensightvars[i].data->number, numresultsets);
             f = open_ensight_file(filename, "w");
 
@@ -2907,7 +2907,7 @@ write_binary_result_vars()
             }
 
             /* Open COVISE file for scal data */
-            sprintf(filename, "_var%d",
+            snprintf(filename, sizeof(filename), "_var%d",
                     ensightvars[i].data->number);
             fCov = fopen(filename, "ab+");
 
@@ -3510,7 +3510,7 @@ write_binary_result_vars()
             /* add SPECIES and REALTIME attribute */
             strcpy(buffer, "SPECIES");
             strcpy(coRTattr, "REALTIME");
-            sprintf(coRTval, "%30.15f", steptime);
+            snprintf(coRTval, sizeof(coRTval), "%30.15f", steptime);
 
             coAttrSize = sizeof(int) + 2 + strlen(buffer) + strlen(name);
             coAttrSize += 2 + strlen(coRTattr) + strlen(coRTval);
@@ -3647,7 +3647,7 @@ write_result_set()
 
             /* add REALTIME attribute */
             strcpy(buffer, "REALTIME");
-            sprintf(coRTval, "%30.15f", steptime);
+            snprintf(coRTval, sizeof(coRTval), "%30.15f", steptime);
 
             coAttrSize = sizeof(int) + 2 + strlen(buffer) + strlen(coRTval);
             coNumAttr = 1;
@@ -3833,7 +3833,7 @@ read_record_header()
     /* Check the two values for a match, and complain if they don't */
     if (h1 != h2)
     {
-        sprintf(message, "Fortran binary headers do not match at "
+        snprintf(message, sizeof(message), "Fortran binary headers do not match at "
                          "position %ld\n",
                 pos - sizeof(fortran_header));
         covise_message(ENSIGHT_WARNING, message);
@@ -3855,7 +3855,7 @@ long newpos, temppos;
 #define ENDRECORD                                                                                                                                                         \
     if (sizeof(fortran_header) + ftell(input_file) != newpos)                                                                                                             \
     {                                                                                                                                                                     \
-        sprintf(message, "Position mismatch while reading " "from Fortran binary file (is %ld, " "should be %ld)\n", ftell(input_file), newpos - sizeof(fortran_header)); \
+        snprintf(message, sizeof(message), "Position mismatch while reading " "from Fortran binary file (is %ld, " "should be %ld)\n", ftell(input_file), newpos - sizeof(fortran_header)); \
         covise_message(ENSIGHT_FATAL_ERROR, message);                                                                                                                     \
     }                                                                                                                                                                     \
     fseek(input_file, newpos, SEEK_SET)
@@ -4155,7 +4155,7 @@ slurp_general()
             break;
 
         default:
-            sprintf(message, "unknown block %d \n", ident);
+            snprintf(message, sizeof(message), "unknown block %d \n", ident);
             covise_message(ENSIGHT_FATAL_ERROR, message);
             break;
         } /* matches switch (ident)... */
@@ -4280,7 +4280,7 @@ slurp_result_set()
     else
     {
 
-        sprintf(message, "unexpected block %d \n", ident);
+        snprintf(message, sizeof(message), "unexpected block %d \n", ident);
         covise_message(ENSIGHT_FATAL_ERROR, message);
     }
 
@@ -4843,7 +4843,7 @@ slurp_result_set()
         }
         else
         {
-            sprintf(message, "Unknown variable '%s'; ignoring.\n", name);
+            snprintf(message, sizeof(message), "Unknown variable '%s'; ignoring.\n", name);
             covise_message(ENSIGHT_WARNING, message);
             SKIPCONTENT;
         }
@@ -5125,7 +5125,7 @@ main(int argc, char **argv)
 
         default:
 
-            sprintf(message, "Bad option %s\n", argv[1]);
+            snprintf(message, sizeof(message), "Bad option %s\n", argv[1]);
             covise_message(ENSIGHT_WARNING, message);
             usage();
         }
@@ -5146,7 +5146,7 @@ main(int argc, char **argv)
 
         /* header */
 
-        sprintf(message, "COVISE V5.0 Translator for VECTIS Phase 5 : Version %s\n", VERSION);
+        snprintf(message, sizeof(message), "COVISE V5.0 Translator for VECTIS Phase 5 : Version %s\n", VERSION);
         covise_message(ENSIGHT_INFO, message);
 
         while (argc > 1)
@@ -5175,7 +5175,7 @@ usage(void)
     char message[MAXLINE];
 
     fprintf(stdout, "\n");
-    sprintf(message, " COVISE V5.0 Translator for VECTIS Phase 5 : Version %s\n", VERSION);
+    snprintf(message, sizeof(message), " COVISE V5.0 Translator for VECTIS Phase 5 : Version %s\n", VERSION);
     fprintf(stdout, message);
     fprintf(stdout, "\n");
     fprintf(stdout, "    Usage: v2e [-a|-b|-v|-h] <POST filename(s)>\n");
@@ -5316,8 +5316,8 @@ translate_file(char *post_filename)
     for (i = 0; i < nbound; i++)
         numpatchs[i] = 0;
 
-    sprintf(varName, "_v2c_boundaries");
-    sprintf(varOutName, "boundaries.covise");
+    snprintf(varName, sizeof(varName), "_v2c_boundaries");
+    snprintf(varOutName, sizeof(varOutName), "boundaries.covise");
 
     coF = fopen(varName, "rb+");
 
@@ -5352,8 +5352,8 @@ translate_file(char *post_filename)
     /*     for (i=0; i<nbound;++i) { */
     /* 	if ( numpatchs[i] > 0 ) {  */
     /* 	    fprintf(stderr,"    .....writing boundary output boundary%d.covise\n",i ); */
-    /* 	    sprintf(varName,"_v2c_boundaries%d",i); */
-    /* 	    sprintf(varOutName,"boundary%d.covise",i); */
+    /* 	    snprintf(varName, sizeof(varName),"_v2c_boundaries%d",i); */
+    /* 	    snprintf(varOutName, sizeof(varOutName),"boundary%d.covise",i); */
 
     /* 	    coF = fopen(varName,"rb+"); */
 
@@ -5398,8 +5398,8 @@ translate_file(char *post_filename)
         if (have_var[ensightvars[i].ident])
         {
             fprintf(stderr, "    .....writing variable output %s.covise\n", name);
-            sprintf(varName, "_var%d", varCnt);
-            sprintf(varOutName, "%s.covise", name);
+            snprintf(varName, sizeof(varName), "_var%d", varCnt);
+            snprintf(varOutName, sizeof(varOutName), "%s.covise", name);
 
             coF = fopen(varName, "rb+");
             if (!coF)

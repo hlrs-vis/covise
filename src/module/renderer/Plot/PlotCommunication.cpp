@@ -154,7 +154,7 @@ int PlotCommunication::parseMessage(char *line, char *token[], int tmax, char *s
 void PlotCommunication::sendCommandMessage(plot_command_type command, int data1, int data2)
 {
     char DataBuffer[MAXDATALEN];
-    sprintf(DataBuffer, "COMMAND\n%d %d %d\n", (int)command, data1, data2);
+    snprintf(DataBuffer, sizeof(DataBuffer), "COMMAND\n%d %d %d\n", (int)command, data1, data2);
     Message msg{ COVISE_MESSAGE_RENDER , DataHandle{DataBuffer, strlen(DataBuffer) + 1, false} };
     appmod->send_ctl_msg(&msg);
 
@@ -166,7 +166,7 @@ void PlotCommunication::sendCommandMessage(plot_command_type command, int data1,
 void PlotCommunication::sendCommand_FloatMessage(plot_command_type command, double data1, double data2, double data3, double data4, double data5, double data6, double data7, double data8, double data9, double data10)
 {
     char DataBuffer[MAXDATALEN];
-    sprintf(DataBuffer, "COMMAND_F\n%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n", (int)command, data1, data2, data3, data4, data5, data6, data7, data8, data9, data10);
+    snprintf(DataBuffer, sizeof(DataBuffer), "COMMAND_F\n%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n", (int)command, data1, data2, data3, data4, data5, data6, data7, data8, data9, data10);
     Message msg{ COVISE_MESSAGE_RENDER , DataHandle{DataBuffer, strlen(DataBuffer) + 1, false} };
     appmod->send_ctl_msg(&msg);
 }
@@ -177,7 +177,7 @@ void PlotCommunication::sendCommand_FloatMessage(plot_command_type command, doub
 void PlotCommunication::sendCommand_StringMessage(plot_command_type command, char *string)
 {
     char DataBuffer[MAXDATALEN];
-    sprintf(DataBuffer, "COMMAND_S\n%d %d %s\n", (int)command, (int)strlen(string), string);
+    snprintf(DataBuffer, sizeof(DataBuffer), "COMMAND_S\n%d %d %s\n", (int)command, (int)strlen(string), string);
     Message msg{ COVISE_MESSAGE_RENDER , DataHandle{DataBuffer, strlen(DataBuffer) + 1, false} };
     appmod->send_ctl_msg(&msg);
 }
@@ -188,7 +188,7 @@ void PlotCommunication::sendCommand_StringMessage(plot_command_type command, cha
 void PlotCommunication::sendCommand_ValuesMessage(plot_command_type command, int data1, int data2, int data3, int data4, int data5, int data6, int data7, int data8, int data9, int data10)
 {
     char DataBuffer[MAXDATALEN];
-    sprintf(DataBuffer, "COMMAND_V\n%d %d %d %d %d %d %d %d %d %d %d\n", (int)command, data1, data2, data3, data4, data5, data6, data7, data8, data9, data10);
+    snprintf(DataBuffer, sizeof(DataBuffer), "COMMAND_V\n%d %d %d %d %d %d %d %d %d %d %d\n", (int)command, data1, data2, data3, data4, data5, data6, data7, data8, data9, data10);
     Message msg{ COVISE_MESSAGE_RENDER , DataHandle{DataBuffer, strlen(DataBuffer) + 1, false} };
     appmod->send_ctl_msg(&msg);
 }

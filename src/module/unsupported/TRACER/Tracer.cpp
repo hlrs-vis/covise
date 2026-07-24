@@ -327,7 +327,7 @@ void tracer()
                        &istep, &dl, &npmax, &delta, &nismax, &np, &irtn);
                 if (irtn != 0)
                 {
-                    sprintf(buf, "WARNING: Error no. %d in particle tracer \n", irtn);
+                    snprintf(buf, sizeof(buf), "WARNING: Error no. %d in particle tracer \n", irtn);
                     Covise::sendWarning(buf);
                 }
 
@@ -349,9 +349,9 @@ void tracer()
             }
 
     //	Prepare data to fill a coDoLines object
-    sprintf(buf, "INFORMATION: No. of lines : %d \n", nptot);
+    snprintf(buf, sizeof(buf), "INFORMATION: No. of lines : %d \n", nptot);
     Covise::sendWarning(buf);
-    sprintf(buf, "INFORMATION: No. of points : %d \n", npoints);
+    snprintf(buf, sizeof(buf), "INFORMATION: No. of points : %d \n", npoints);
     Covise::sendWarning(buf);
 
     if (currp == 0)

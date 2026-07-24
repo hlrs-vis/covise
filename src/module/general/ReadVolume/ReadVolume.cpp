@@ -273,9 +273,9 @@ coReadVolume::coReadVolume(int argc, char *argv[])
     for (int c = 0; c < MAX_CHANNELS; c++)
     {
         char buf[1024];
-        sprintf(buf, "channel%d", c);
+        snprintf(buf, sizeof(buf), "channel%d", c);
         char buf2[1024];
-        sprintf(buf2, "Scalar volume data channel %d", c);
+        snprintf(buf2, sizeof(buf2), "Scalar volume data channel %d", c);
         poVolume[c] = addOutputPort(buf, "Float|Byte", buf2);
         poVolume[c]->setInfo(buf2);
     }
@@ -493,7 +493,7 @@ int coReadVolume::compute(const char *)
             if (vd->frames > 1)
             {
                 char buf[1024];
-                sprintf(buf, "%s_%d", poGrid->getObjName(), t);
+                snprintf(buf, sizeof(buf), "%s_%d", poGrid->getObjName(), t);
                 gridData[t] = new coDoUniformGrid(buf, vox[0], vox[1], vox[2], minX, maxX, minY, maxY, minZ, maxZ);
             }
             else
@@ -509,7 +509,7 @@ int coReadVolume::compute(const char *)
         if (vd->frames > 1)
         {
             char buf[1024];
-            sprintf(buf, "0 %d", (int)vd->frames - 1);
+            snprintf(buf, sizeof(buf), "0 %d", (int)vd->frames - 1);
             gridSet = new coDoSet(poGrid->getObjName(), (coDistributedObject **)gridData);
             gridSet->addAttribute("TIMESTEP", buf);
             browserFeedback.apply(gridSet);
@@ -642,7 +642,7 @@ int coReadVolume::compute(const char *)
 
                     // Set timestep attribute:
                     char buf[1024];
-                    sprintf(buf, "%d %d", 0, (int)vd->frames - 1);
+                    snprintf(buf, sizeof(buf), "%d %d", 0, (int)vd->frames - 1);
                     volumeSet->addAttribute("TIMESTEP", buf);
 
                     // Assign sets to output ports:

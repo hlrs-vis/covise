@@ -815,7 +815,7 @@ struct region *AddMeshLines(struct region *reg, int start, int end, int first,
 	FILE *fp;
 	static int call = 0;
 
-	sprintf(fn,"rr_debugaddmeshlines_%02d.txt",call++);
+	snprintf(fn, sizeof(fn),"rr_debugaddmeshlines_%02d.txt",call++);
 	if( (fp = fopen(fn,"w+")) == NULL)
 	{
 		fprintf(stderr, "Shit happened opening file '%s'!\n",fn);
@@ -1044,7 +1044,7 @@ int GetRR_GridParams(struct rr_grid *grid)
 	input	  = (char*)calloc(MAX_LEN,sizeof(char));
 
 #ifdef GRID_IN_DEFAULT
-	sprintf(fn,"rr_gridparams.dat");
+	snprintf(fn, sizeof(fn),"rr_gridparams.dat");
 #else
 	fprintf(stdout,"\n grid parameter input file:");fflush(stdout);
 	fscanf(stdin,"%s",fn);
@@ -1202,7 +1202,7 @@ int DumpCGridElement(struct cgrid *cge, struct ge *ge, float dphi,
 	char fn[111];
 	FILE *fp;
 
-	sprintf(fn,"rr_gridreg_%02d.txt", cnum++);
+	snprintf(fn, sizeof(fn),"rr_gridreg_%02d.txt", cnum++);
 	if( (fp = fopen(fn,"w+")) == NULL)
 	{
 		fprintf(stderr, "Shit happened opening file '%s'!\n",fn);
@@ -1515,7 +1515,7 @@ int DumpGapRegions(struct cgrid *cge, int n)
 	char fn[100];
 	FILE *fp;
 
-	sprintf(fn,"rr_gridreg_%02d.txt", n);
+	snprintf(fn, sizeof(fn),"rr_gridreg_%02d.txt", n);
 	if( (fp = fopen(fn,"a")) == NULL)
 	{
 		fprintf(stderr, "Shit happened opening file '%s'!\n",fn);

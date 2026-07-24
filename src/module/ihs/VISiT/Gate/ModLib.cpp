@@ -12,7 +12,7 @@ float min, float max, float *dest)
       {
          char errtext[255];
 
-         sprintf(errtext, "The input value for %s is out of range: min=%f,max=%f (--> reset to old value)", f->getName(), min, max);
+         snprintf(errtext, sizeof(errtext), "The input value for %s is out of range: min=%f,max=%f (--> reset to old value)", f->getName(), min, max);
          coModule::sendError(errtext);
          *dest = old;
          f->setValue(GRAD(old));

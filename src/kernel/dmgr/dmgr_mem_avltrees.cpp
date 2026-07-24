@@ -818,7 +818,7 @@ MemChunk *CO_MemAddAVLTree::search_node(MemChunk *data, int search)
 #ifdef DEBUG
     char tmp_str[255];
 
-    sprintf(tmp_str, "AVLTree<T>::search_node, mode %d", search);
+    snprintf(tmp_str, sizeof(tmp_str), "AVLTree<T>::search_node, mode %d", search);
     print(tmp_str);
     print_comment(__LINE__, __FILE__, "searching node:");
     data->print();
@@ -935,7 +935,7 @@ MemChunk *CO_MemAddAVLTree::search_and_remove_node(MemChunk *data, int search)
 #ifdef DEBUG
     char tmp_str[255];
 
-    sprintf(tmp_str, "AVLTree<T>::search_node, mode %d", search);
+    snprintf(tmp_str, sizeof(tmp_str), "AVLTree<T>::search_node, mode %d", search);
     print(tmp_str);
     print_comment(__LINE__, __FILE__, "searching node:");
     data->print();
@@ -1321,7 +1321,7 @@ void CO_MemAVLTree::show_tree(CO_MemAVLNode *curr_node)
     //    printf("\n ");
     //    for (i=0; i<depth; i++)
     //	printf("-");
-    sprintf(tmp_str, " Node %4d @@%p: bal=%2d  data=%p",
+    snprintf(tmp_str, sizeof(tmp_str), " Node %4d @@%p: bal=%2d  data=%p",
             n_node, curr_node, curr_node->balance,
             (void *)curr_node->data);
     //    printf(tmp_str);
@@ -1605,7 +1605,7 @@ MemChunk *CO_MemSizeAVLTree::search_and_remove_node(shmSizeType chunk_size, int 
 #ifdef DEBUG
     char tmp_str[255];
 
-    sprintf(tmp_str, "AVLTree<T>::search_node, mode %d", search);
+    snprintf(tmp_str, sizeof(tmp_str), "AVLTree<T>::search_node, mode %d", search);
     print(tmp_str);
     print_comment(__LINE__, __FILE__, "searching node:");
     data->print();
@@ -1915,7 +1915,7 @@ MemChunk *CO_MemSizeAVLTree::remove_node(MemChunk *data)
 #ifdef DEBUG
     char tmp_str[255];
 
-    sprintf(tmp_str, "AVLTree<T>::search_node, mode %d", search);
+    snprintf(tmp_str, sizeof(tmp_str), "AVLTree<T>::search_node, mode %d", search);
     print(tmp_str);
     print_comment(__LINE__, __FILE__, "searching node:");
     data->print();

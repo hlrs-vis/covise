@@ -106,7 +106,7 @@ int ReadNek::compute(const char* port) {
     }
     cerr << std::endl;
     char ts[100];
-    sprintf(ts, "1 %lu", (unsigned long)iNumTimesteps);
+    snprintf(ts, sizeof(ts), "1 %lu", (unsigned long)iNumTimesteps);
     coDoSet* gridsOut = new coDoSet(p_grid->getObjName(), 0);
     gridsOut->addAttribute("TIMESTEP", ts);
     for (size_t i = 0; i < iNumTimesteps; i++) {

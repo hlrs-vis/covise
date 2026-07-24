@@ -329,7 +329,7 @@ bool FeatureTrackingPlugin::init()
         ARToolKitMarker *objMarker = NULL;
         do
         {
-            sprintf(configName, "ObjectMarker%d", (int)objectMarkers.size());
+            snprintf(configName, sizeof(configName), "ObjectMarker%d", (int)objectMarkers.size());
             std::string entry = std::string("COVER.Plugin.NFT.Marker:") + configName + std::string(".Pattern");
             pattern = coCoviseConfig::getEntry(entry);
             if (!pattern.empty())
@@ -926,37 +926,37 @@ void FeatureTrackingPlugin::updateTUI()
 {
     char buf[32];
 
-    sprintf(buf, "%i", siftApp.getNumberOfMatches());
+    snprintf(buf, sizeof(buf), "%i", siftApp.getNumberOfMatches());
     noOfMatchesValue->setLabel(buf);
-    sprintf(buf, "%i", epiGeo.getRateOfCorrectMatches());
+    snprintf(buf, sizeof(buf), "%i", epiGeo.getRateOfCorrectMatches());
     noOfCorrectMatchesValue->setLabel(buf);
 
     // feature tracking
-    sprintf(buf, "%f", trackObj_C->getCameraPose().getRotate().x());
+    snprintf(buf, sizeof(buf), "%f", trackObj_C->getCameraPose().getRotate().x());
     rotValue[0]->setLabel(buf);
-    sprintf(buf, "%f", trackObj_C->getCameraPose().getRotate().y());
+    snprintf(buf, sizeof(buf), "%f", trackObj_C->getCameraPose().getRotate().y());
     rotValue[1]->setLabel(buf);
-    sprintf(buf, "%f", trackObj_C->getCameraPose().getRotate().z());
+    snprintf(buf, sizeof(buf), "%f", trackObj_C->getCameraPose().getRotate().z());
     rotValue[2]->setLabel(buf);
-    sprintf(buf, "%f", trackObj_C->getCameraPose().getTrans().x());
+    snprintf(buf, sizeof(buf), "%f", trackObj_C->getCameraPose().getTrans().x());
     trlValue[0]->setLabel(buf);
-    sprintf(buf, "%f", trackObj_C->getCameraPose().getTrans().y());
+    snprintf(buf, sizeof(buf), "%f", trackObj_C->getCameraPose().getTrans().y());
     trlValue[1]->setLabel(buf);
-    sprintf(buf, "%f", trackObj_C->getCameraPose().getTrans().z());
+    snprintf(buf, sizeof(buf), "%f", trackObj_C->getCameraPose().getTrans().z());
     trlValue[2]->setLabel(buf);
 
     // ARToolKit
-    sprintf(buf, "%f", camMarkerMat.getRotate().x());
+    snprintf(buf, sizeof(buf), "%f", camMarkerMat.getRotate().x());
     rotARTKValue[0]->setLabel(buf);
-    sprintf(buf, "%f", camMarkerMat.getRotate().y());
+    snprintf(buf, sizeof(buf), "%f", camMarkerMat.getRotate().y());
     rotARTKValue[1]->setLabel(buf);
-    sprintf(buf, "%f", camMarkerMat.getRotate().z());
+    snprintf(buf, sizeof(buf), "%f", camMarkerMat.getRotate().z());
     rotARTKValue[2]->setLabel(buf);
-    sprintf(buf, "%f", camMarkerMat.getTrans().x());
+    snprintf(buf, sizeof(buf), "%f", camMarkerMat.getTrans().x());
     trlARTKValue[0]->setLabel(buf);
-    sprintf(buf, "%f", camMarkerMat.getTrans().y());
+    snprintf(buf, sizeof(buf), "%f", camMarkerMat.getTrans().y());
     trlARTKValue[1]->setLabel(buf);
-    sprintf(buf, "%f", camMarkerMat.getTrans().z());
+    snprintf(buf, sizeof(buf), "%f", camMarkerMat.getTrans().z());
     trlARTKValue[2]->setLabel(buf);
 }
 

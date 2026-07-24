@@ -225,11 +225,11 @@ ref_ptr<Geode> OSGVruiSlider::createText(float xPos)
 
     if (slider->isInteger())
     {
-        sprintf(number, "%d", (int)value);
+        snprintf(number, sizeof(number), "%d", (int)value);
     }
     else
     {
-        sprintf(number, "%.*f", precision, value);
+        snprintf(number, sizeof(number), "%.*f", precision, value);
     }
 
     numberText->setText(number, String::ENCODING_UTF8);

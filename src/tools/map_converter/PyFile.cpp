@@ -180,7 +180,7 @@ operator<<(ostream &s, const PyFile &f)
         std::string modName(f.modules_[i].getName());
         int instance(f.modules_[i].getNetIndex());
         char nn[32];
-        sprintf(nn, "%d", instance);
+        snprintf(nn, sizeof(nn), "%d", instance);
         std::string varName(modName + std::string("_") + std::string(nn));
         s << "#" << endl;
         s << "# MODULE: " << modName << endl;
@@ -190,9 +190,9 @@ operator<<(ostream &s, const PyFile &f)
         s << "theNet.add( " << varName << " )" << endl;
         // add also the position
         s << varName + std::string(".setPos( ");
-        sprintf(nn, "%d", f.modules_[i].getXPos());
+        snprintf(nn, sizeof(nn), "%d", f.modules_[i].getXPos());
         s << nn + std::string(",");
-        sprintf(nn, "%d", f.modules_[i].getYPos());
+        snprintf(nn, sizeof(nn), "%d", f.modules_[i].getYPos());
         s << nn + std::string(" )") << endl;
         // the parameters of Renderer should stay invisible
         if (modName != std::string("Renderer"))

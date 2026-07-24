@@ -35,19 +35,19 @@ coGRObjSetAppearanceMsg::coGRObjSetAppearanceMsg(const char *obj_name, const cha
     }
 
     r_ = r;
-    sprintf(str, "%f", r);
+    snprintf(str, sizeof(str), "%f", r);
     addToken(str);
 
     g_ = g;
-    sprintf(str, "%f", g);
+    snprintf(str, sizeof(str), "%f", g);
     addToken(str);
 
     b_ = b;
-    sprintf(str, "%f", b);
+    snprintf(str, sizeof(str), "%f", b);
     addToken(str);
 
     a_ = a;
-    sprintf(str, "%f", a);
+    snprintf(str, sizeof(str), "%f", a);
     addToken(str);
 }
 

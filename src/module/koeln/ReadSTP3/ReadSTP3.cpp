@@ -46,13 +46,13 @@ coReadSTP3::coReadSTP3(int argc, char *argv[])
     for (int i = 0; i < NO_VOIS; i++)
     {
         char buf1[1024], buf2[1024];
-        sprintf(buf1, "Volume%dFromVoi", i + 1);
-        sprintf(buf2, "Number of volume of interest to use for volume %d", i + 1);
+        snprintf(buf1, sizeof(buf1), "Volume%dFromVoi", i + 1);
+        snprintf(buf2, sizeof(buf2), "Number of volume of interest to use for volume %d", i + 1);
         pisVolumeFromVoi[i] = addInt32Param(buf1, buf2);
         pisVolumeFromVoi[i]->setValue(i + 2);
 
-        sprintf(buf1, "voi%d", i + 1);
-        sprintf(buf2, "Volume of interest no. %d", i + 1);
+        snprintf(buf1, sizeof(buf1), "voi%d", i + 1);
+        snprintf(buf2, sizeof(buf2), "Volume of interest no. %d", i + 1);
         poVoi[i] = addOutputPort(buf1, "Float", buf2);
     }
 }
@@ -66,7 +66,7 @@ int coReadSTP3::compute(const char *)
     FILE *fp = fopen(path, "rb");
     if (!fp)
     {
-        sprintf(buf, "Failed to open file %s", path);
+        snprintf(buf, sizeof(buf), "Failed to open file %s", path);
         sendInfo(buf);
 
         return STOP_PIPELINE;
@@ -160,14 +160,14 @@ int coReadSTP3::compute(const char *)
         break;
     }
 
-    sprintf(buf, "Reading %s: %s image, %dx%d pixels, %d slices, %d byte/voxel",
+    snprintf(buf, sizeof(buf), "Reading %s: %s image, %dx%d pixels, %d slices, %d byte/voxel",
             path, image_type_desc, (int)resolution, (int)resolution, (int)num_slices, (int)byte_per_voxel);
     sendInfo(buf);
-    sprintf(buf, "Patient: %s", patient_name);
+    snprintf(buf, sizeof(buf), "Patient: %s", patient_name);
     sendInfo(buf);
-    sprintf(buf, "Comment: %s", comment);
+    snprintf(buf, sizeof(buf), "Comment: %s", comment);
     sendInfo(buf);
-    //sprintf(buf, "Date:    %s", date);
+    //snprintf(buf, sizeof(buf), "Date:    %s", date);
     //sendInfo(buf);
 
     slice_z = new float[num_slices];
@@ -193,7 +193,7 @@ int coReadSTP3::compute(const char *)
         vfp = fopen(voiPath, "rb");
         if (!vfp)
         {
-            sprintf(buf, "Failed to open voi file %s", voiPath);
+            snprintf(buf, sizeof(buf), "Failed to open voi file %s", voiPath);
             sendInfo(buf);
 
             read_voi = false;
@@ -239,10 +239,10 @@ int coReadSTP3::compute(const char *)
             }
             byteSwap(voi_slices);
 
-            sprintf(buf, "VOI Patient: %s", voi_patient_name);
+            snprintf(buf, sizeof(buf), "VOI Patient: %s", voi_patient_name);
             sendInfo(buf);
 
-            sprintf(buf, "No. of vois: %d, no. of slices for vois: %d",
+            snprintf(buf, sizeof(buf), "No. of vois: %d, no. of slices for vois: %d",
                     voi_total_no, voi_slices);
             sendInfo(buf);
         }
@@ -537,14 +537,14 @@ int coReadSTP3::compute(const char *)
     else
     {
         char buf[1024];
-        sprintf(buf, "failed to read transformation data from %s", matPath);
+        snprintf(buf, sizeof(buf), "failed to read transformation data from %s", matPath);
         sendInfo(matPath);
     }
 
     poGrid->setCurrentObject(gridOut);
     poVolume->setCurrentObject(dataOut);
 
-    sprintf(buf, "Volume data loaded: (%f, %f, %f) - (%f, %f %f)",
+    snprintf(buf, sizeof(buf), "Volume data loaded: (%f, %f, %f) - (%f, %f %f)",
             minX, minY, minZ, maxX, maxY, maxZ);
     sendInfo(buf);
 

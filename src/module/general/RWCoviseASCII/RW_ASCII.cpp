@@ -781,7 +781,7 @@ RW_ASCII::readSETELE(const char *name, char *command, istream &str)
             {
                 char namebuf[100000];
 
-                sprintf(namebuf, "%s_%d", name, i);
+                snprintf(namebuf, sizeof(namebuf), "%s_%d", name, i);
                 objs[i] = readObj(namebuf, str);
 
                 if (!objs[i] && i > 0)
@@ -2954,7 +2954,7 @@ RW_ASCII::compute(const char *)
             const char *format = "1 %z";
 #endif
 
-            sprintf(buf, format, files.size());
+            snprintf(buf, sizeof(buf), format, files.size());
 
             if (p_dirsAsTimesteps->getValue())
             {

@@ -412,7 +412,7 @@ int TascFlow::compute(const char *)
     num_corners = num_polygons * 4;
     num_points = num_corners;
 
-    //sprintf(buf, "%s", p_outPort9->getObjName());
+    //snprintf(buf, sizeof(buf), "%s", p_outPort9->getObjName());
     coDoPolygons *pol_out = new coDoPolygons(p_outPort9->getObjName(), num_points, num_corners, num_polygons);
 
     pol_out->getAddresses(&x_coord, &y_coord, &z_coord, &corner_list, &polygon_list);
@@ -543,7 +543,7 @@ int TascFlow::compute(const char *)
 
             dimg = dimx * dimy * dimz;
 
-            sprintf(buf, "%s_%d", p_outPort1->getObjName(), i);
+            snprintf(buf, sizeof(buf), "%s_%d", p_outPort1->getObjName(), i);
             grid_out = new coDoStructuredGrid(buf, dimx, dimy, dimz);
             grid_out->getAddresses(&x, &y, &z);
 
@@ -610,7 +610,7 @@ int TascFlow::compute(const char *)
 
             // create the first block_off object
 
-            sprintf(buf, "%s_0_%d", p_outPort2->getObjName(), i);
+            snprintf(buf, sizeof(buf), "%s_0_%d", p_outPort2->getObjName(), i);
             int dim[1];
             dim[0] = (dimx - 1) * (dimy - 1) * (dimz - 1);
             block_out = new coDoIntArr(buf, 1, dim);
@@ -652,7 +652,7 @@ int TascFlow::compute(const char *)
                 {
                     //sendInfo("num_subreg");
                     int i_u, j_u, k_u;
-                    //  sprintf(buf, "%s_%d_%d", p_outPort3->getObjName(),i, j );
+                    //  snprintf(buf, sizeof(buf), "%s_%d_%d", p_outPort3->getObjName(),i, j );
                     int ng = i;
                     region_(All_Regions[reg - 1], &i_l, &j_l, &k_l, &i_u, &j_u, &k_u, &ng, &j, &tascflowError, len_reg);
 
@@ -698,7 +698,7 @@ int TascFlow::compute(const char *)
 
                             num_line_points = num_line_corners;
 
-                            sprintf(buf, "%s_%d", p_outPort3->getObjName(), n_sreg + 1);
+                            snprintf(buf, sizeof(buf), "%s_%d", p_outPort3->getObjName(), n_sreg + 1);
 
                             region_out = new coDoLines(buf, num_line_points, num_line_corners, num_lines);
                             region_out->getAddresses(&x_start, &y_start, &z_start, &line_corner_list, &line_list);
@@ -945,8 +945,8 @@ int TascFlow::compute(const char *)
                         {
                             //Show complete region
                             //n_sreg = 1;
-                            //sprintf(buf, "%s", p_outPort3->getObjName());
-                            sprintf(buf, "%s_%d", p_outPort3->getObjName(), n_sreg + 1);
+                            //snprintf(buf, sizeof(buf), "%s", p_outPort3->getObjName());
+                            snprintf(buf, sizeof(buf), "%s_%d", p_outPort3->getObjName(), n_sreg + 1);
                             region_grid_out = new coDoStructuredGrid(buf, n_x, n_y, n_z);
                             region_grid_out->getAddresses(&x_start, &y_start, &z_start);
 
@@ -969,7 +969,7 @@ int TascFlow::compute(const char *)
                             if (data3 > 0)
                             {
                                 float *field_temp = new float[dimg];
-                                sprintf(buf, "%s_0_%d", p_outPort8->getObjName(), n_sreg + 1);
+                                snprintf(buf, sizeof(buf), "%s_0_%d", p_outPort8->getObjName(), n_sreg + 1);
                                 reg_data_out = new coDoFloat(buf, n_x, n_y, n_z);
                                 if (!reg_data_out->objectOk())
                                 {
@@ -1001,7 +1001,7 @@ int TascFlow::compute(const char *)
             //scalar data 1
             if (data1 > 1)
             {
-                sprintf(buf, "%s_0_%d", p_outPort6->getObjName(), i);
+                snprintf(buf, sizeof(buf), "%s_0_%d", p_outPort6->getObjName(), i);
                 data_out = new coDoFloat(buf, dimx, dimy, dimz);
                 if (!data_out->objectOk())
                 {
@@ -1030,7 +1030,7 @@ int TascFlow::compute(const char *)
             //scalar data 2
             if (data2 > 0)
             {
-                sprintf(buf, "%s_0_%d", p_outPort7->getObjName(), i);
+                snprintf(buf, sizeof(buf), "%s_0_%d", p_outPort7->getObjName(), i);
                 data_out = new coDoFloat(buf, dimx, dimy, dimz);
                 if (!data_out->objectOk())
                 {
@@ -1062,7 +1062,7 @@ int TascFlow::compute(const char *)
                 float *field_temp = new float[dimg];
                 if (col > 1 || (col == 1 && reg == 1))
                 {
-                    sprintf(buf, "%s_0_%d", p_outPort8->getObjName(), i);
+                    snprintf(buf, sizeof(buf), "%s_0_%d", p_outPort8->getObjName(), i);
                     data_out = new coDoFloat(buf, dimx, dimy, dimz);
                     if (!data_out->objectOk())
                     {
@@ -1091,7 +1091,7 @@ int TascFlow::compute(const char *)
             if (vector1 > 0)
             {
                 int index;
-                sprintf(buf, "%s_0_%d", p_outPort4->getObjName(), i);
+                snprintf(buf, sizeof(buf), "%s_0_%d", p_outPort4->getObjName(), i);
                 vector_out = new coDoVec3(buf, dimx, dimy, dimz);
                 if (!vector_out->objectOk())
                 {
@@ -1145,7 +1145,7 @@ int TascFlow::compute(const char *)
             if (vector2 > 0)
             {
                 int index;
-                sprintf(buf, "%s_0_%d", p_outPort5->getObjName(), i);
+                snprintf(buf, sizeof(buf), "%s_0_%d", p_outPort5->getObjName(), i);
                 vector_out = new coDoVec3(buf, dimx, dimy, dimz);
                 if (!vector_out->objectOk())
                 {
@@ -1205,13 +1205,13 @@ int TascFlow::compute(const char *)
         //create first object for every timesteps array
         if (timesteps > 1 && has_step_rso_file)
         {
-            sprintf(buf, "%s_0", p_outPort1->getObjName());
+            snprintf(buf, sizeof(buf), "%s_0", p_outPort1->getObjName());
             outputgrid = new coDoSet(buf, outgrd);
             time_outputgrid[0] = outputgrid;
         }
         else
         {
-            sprintf(buf, "%s", p_outPort1->getObjName());
+            snprintf(buf, sizeof(buf), "%s", p_outPort1->getObjName());
             outputgrid = new coDoSet(buf, outgrd);
             p_outPort1->setCurrentObject(outputgrid);
         }
@@ -1222,13 +1222,13 @@ int TascFlow::compute(const char *)
 
         if (timesteps > 1 && has_step_rso_file)
         {
-            sprintf(buf, "%s_0", p_outPort2->getObjName());
+            snprintf(buf, sizeof(buf), "%s_0", p_outPort2->getObjName());
             outputblock = new coDoSet(buf, outblock);
             time_outputblock[0] = outputblock;
         }
         else
         {
-            sprintf(buf, "%s", p_outPort2->getObjName());
+            snprintf(buf, sizeof(buf), "%s", p_outPort2->getObjName());
             outputblock = new coDoSet(buf, outblock);
             p_outPort2->setCurrentObject(outputblock);
         }
@@ -1242,13 +1242,13 @@ int TascFlow::compute(const char *)
         {
             if (timesteps > 1 && has_step_rso_file)
             {
-                sprintf(buf, "%s_0", p_outPort4->getObjName());
+                snprintf(buf, sizeof(buf), "%s_0", p_outPort4->getObjName());
                 outputvector1 = new coDoSet(buf, outvector1);
                 time_outputvector1[0] = outputvector1;
             }
             else
             {
-                sprintf(buf, "%s", p_outPort4->getObjName());
+                snprintf(buf, sizeof(buf), "%s", p_outPort4->getObjName());
                 outputvector1 = new coDoSet(buf, outvector1);
                 p_outPort4->setCurrentObject(outputvector1);
             }
@@ -1260,13 +1260,13 @@ int TascFlow::compute(const char *)
         {
             if (timesteps > 1 && has_step_rso_file)
             {
-                sprintf(buf, "%s_0", p_outPort5->getObjName());
+                snprintf(buf, sizeof(buf), "%s_0", p_outPort5->getObjName());
                 outputvector2 = new coDoSet(buf, outvector2);
                 time_outputvector2[0] = outputvector2;
             }
             else
             {
-                sprintf(buf, "%s", p_outPort5->getObjName());
+                snprintf(buf, sizeof(buf), "%s", p_outPort5->getObjName());
                 outputvector2 = new coDoSet(buf, outvector2);
                 p_outPort5->setCurrentObject(outputvector2);
             }
@@ -1278,13 +1278,13 @@ int TascFlow::compute(const char *)
         {
             if (timesteps > 1 && has_step_rso_file)
             {
-                sprintf(buf, "%s_0", p_outPort6->getObjName());
+                snprintf(buf, sizeof(buf), "%s_0", p_outPort6->getObjName());
                 outputdata1 = new coDoSet(buf, outdata1);
                 time_outputdata1[0] = outputdata1;
             }
             else
             {
-                sprintf(buf, "%s", p_outPort6->getObjName());
+                snprintf(buf, sizeof(buf), "%s", p_outPort6->getObjName());
                 outputdata1 = new coDoSet(buf, outdata1);
                 p_outPort6->setCurrentObject(outputdata1);
             }
@@ -1296,13 +1296,13 @@ int TascFlow::compute(const char *)
         {
             if (timesteps > 1 && has_step_rso_file)
             {
-                sprintf(buf, "%s_0", p_outPort7->getObjName());
+                snprintf(buf, sizeof(buf), "%s_0", p_outPort7->getObjName());
                 outputdata2 = new coDoSet(buf, outdata2);
                 time_outputdata2[0] = outputdata2;
             }
             else
             {
-                sprintf(buf, "%s", p_outPort7->getObjName());
+                snprintf(buf, sizeof(buf), "%s", p_outPort7->getObjName());
                 outputdata2 = new coDoSet(buf, outdata2);
                 p_outPort7->setCurrentObject(outputdata2);
             }
@@ -1314,13 +1314,13 @@ int TascFlow::compute(const char *)
         {
             if (timesteps > 1 && has_step_rso_file)
             {
-                sprintf(buf, "%s_0", p_outPort8->getObjName());
+                snprintf(buf, sizeof(buf), "%s_0", p_outPort8->getObjName());
                 outputdata3 = new coDoSet(buf, outdata3);
                 time_outputdata3[0] = outputdata3;
             }
             else
             {
-                sprintf(buf, "%s", p_outPort8->getObjName());
+                snprintf(buf, sizeof(buf), "%s", p_outPort8->getObjName());
                 outputdata3 = new coDoSet(buf, outdata3);
                 p_outPort8->setCurrentObject(outputdata3);
                 int n_elem;
@@ -1414,7 +1414,7 @@ int TascFlow::compute(const char *)
 
                             //next block-off objects
 
-                            sprintf(buf, "%s_%d_%d", p_outPort2->getObjName(), numSteps, i);
+                            snprintf(buf, sizeof(buf), "%s_%d_%d", p_outPort2->getObjName(), numSteps, i);
                             int dim[1];
                             dim[0] = (dimx - 1) * (dimy - 1) * (dimz - 1);
                             block_out = new coDoIntArr(buf, 1, dim);
@@ -1450,7 +1450,7 @@ int TascFlow::compute(const char *)
                             if ((data1 > 1) && has_data1_field)
                             {
 
-                                sprintf(buf, "%s_%d_%d", p_outPort6->getObjName(), numSteps, i);
+                                snprintf(buf, sizeof(buf), "%s_%d_%d", p_outPort6->getObjName(), numSteps, i);
                                 data_out = new coDoFloat(buf, dimx, dimy, dimz);
                                 if (!data_out->objectOk())
                                 {
@@ -1481,7 +1481,7 @@ int TascFlow::compute(const char *)
                             if ((data2 > 1) && has_data2_field)
                             {
 
-                                sprintf(buf, "%s_%d_%d", p_outPort7->getObjName(), numSteps, i);
+                                snprintf(buf, sizeof(buf), "%s_%d_%d", p_outPort7->getObjName(), numSteps, i);
                                 data_out = new coDoFloat(buf, dimx, dimy, dimz);
                                 if (!data_out->objectOk())
                                 {
@@ -1510,7 +1510,7 @@ int TascFlow::compute(const char *)
                             if ((data3 > 1) && has_data3_field)
                             {
 
-                                sprintf(buf, "%s_%d_%d", p_outPort8->getObjName(), numSteps, i);
+                                snprintf(buf, sizeof(buf), "%s_%d_%d", p_outPort8->getObjName(), numSteps, i);
                                 data_out = new coDoFloat(buf, dimx, dimy, dimz);
                                 if (!data_out->objectOk())
                                 {
@@ -1538,7 +1538,7 @@ int TascFlow::compute(const char *)
                             //vector data 1
                             if ((vector1 > 1) && has_vector1_field)
                             {
-                                sprintf(buf, "%s_%d_%d", p_outPort4->getObjName(), numSteps, i);
+                                snprintf(buf, sizeof(buf), "%s_%d_%d", p_outPort4->getObjName(), numSteps, i);
                                 vector_out = new coDoVec3(buf, dimx, dimy, dimz);
                                 if (!vector_out->objectOk())
                                 {
@@ -1594,7 +1594,7 @@ int TascFlow::compute(const char *)
                             if ((vector2 > 1) && has_vector2_field)
                             {
 
-                                sprintf(buf, "%s_%d_%d", p_outPort5->getObjName(), numSteps, i);
+                                snprintf(buf, sizeof(buf), "%s_%d_%d", p_outPort5->getObjName(), numSteps, i);
                                 vector_out = new coDoVec3(buf, dimx, dimy, dimz);
                                 if (!vector_out->objectOk())
                                 {
@@ -1648,7 +1648,7 @@ int TascFlow::compute(const char *)
                             } //if vector2
                         } //for i=1 to ngrids
 
-                        sprintf(buf, "%s_%d", p_outPort2->getObjName(), numSteps);
+                        snprintf(buf, sizeof(buf), "%s_%d", p_outPort2->getObjName(), numSteps);
                         outputblock = new coDoSet(buf, outblock);
                         for (i = 0; i < ngrids; i++)
                             if (outblock[i] != NULL)
@@ -1661,7 +1661,7 @@ int TascFlow::compute(const char *)
                         {
                             if (has_data1_field)
                             {
-                                sprintf(buf, "%s_%d", p_outPort6->getObjName(), numSteps);
+                                snprintf(buf, sizeof(buf), "%s_%d", p_outPort6->getObjName(), numSteps);
                                 outputdata1 = new coDoSet(buf, outdata1);
                                 for (i = 0; i < ngrids; i++)
                                     delete outdata1[i];
@@ -1678,7 +1678,7 @@ int TascFlow::compute(const char *)
                         {
                             if (has_data2_field)
                             {
-                                sprintf(buf, "%s_%d", p_outPort7->getObjName(), numSteps);
+                                snprintf(buf, sizeof(buf), "%s_%d", p_outPort7->getObjName(), numSteps);
                                 outputdata2 = new coDoSet(buf, outdata2);
                                 for (i = 0; i < ngrids; i++)
                                     delete outdata2[i];
@@ -1695,7 +1695,7 @@ int TascFlow::compute(const char *)
                         {
                             if (has_data3_field)
                             {
-                                sprintf(buf, "%s_%d", p_outPort8->getObjName(), numSteps);
+                                snprintf(buf, sizeof(buf), "%s_%d", p_outPort8->getObjName(), numSteps);
                                 outputdata3 = new coDoSet(buf, outdata3);
                                 for (i = 0; i < ngrids; i++)
                                     delete outdata3[i];
@@ -1712,7 +1712,7 @@ int TascFlow::compute(const char *)
                         {
                             if (has_vector1_field)
                             {
-                                sprintf(buf, "%s_%d", p_outPort4->getObjName(), numSteps);
+                                snprintf(buf, sizeof(buf), "%s_%d", p_outPort4->getObjName(), numSteps);
                                 outputvector1 = new coDoSet(buf, outvector1);
                                 for (i = 0; i < ngrids; i++)
                                     delete outvector1[i];
@@ -1729,7 +1729,7 @@ int TascFlow::compute(const char *)
                         {
                             if (has_vector2_field)
                             {
-                                sprintf(buf, "%s_%d", p_outPort5->getObjName(), numSteps);
+                                snprintf(buf, sizeof(buf), "%s_%d", p_outPort5->getObjName(), numSteps);
                                 outputvector2 = new coDoSet(buf, outvector2);
                                 for (i = 0; i < ngrids; i++)
                                     delete outvector2[i];
@@ -1768,7 +1768,7 @@ int TascFlow::compute(const char *)
         if (numSteps > 1 && has_step_rso_file)
         {
             coDoSet *time_grd = new coDoSet(p_outPort1->getObjName(), time_outputgrid);
-            sprintf(buf, "1 %d", numSteps);
+            snprintf(buf, sizeof(buf), "1 %d", numSteps);
             time_grd->addAttribute("TIMESTEP", buf);
 
             for (i = 0; i < numSteps; i++)
@@ -1778,7 +1778,7 @@ int TascFlow::compute(const char *)
             p_outPort1->setCurrentObject(time_grd);
 
             coDoSet *time_block = new coDoSet(p_outPort2->getObjName(), time_outputblock);
-            sprintf(buf, "1 %d", numSteps);
+            snprintf(buf, sizeof(buf), "1 %d", numSteps);
             time_block->addAttribute("TIMESTEP", buf);
             for (i = 0; i < numSteps; i++)
                 delete time_outputblock[i];

@@ -218,9 +218,9 @@ ObjectManager::update(void)
                 {
                     fprintf(stdout, "\a");
                     fflush(stdout);
-                    sprintf(buf, "vertex\nFloatVector\n%f %f %f", normal[0], normal[1], normal[2]);
+                    snprintf(buf, sizeof(buf), "vertex\nFloatVector\n%f %f %f", normal[0], normal[1], normal[2]);
                     CoviseRender::send_feedback_message("PARAM", buf);
-                    sprintf(buf, "scalar\nFloatScalar\n%f", c);
+                    snprintf(buf, sizeof(buf), "scalar\nFloatScalar\n%f", c);
                     CoviseRender::send_feedback_message("PARAM", buf);
                     buf[0] = '\0';
                     CoviseRender::send_feedback_message("EXEC", buf);
@@ -235,9 +235,9 @@ ObjectManager::update(void)
                 {
                     fprintf(stdout, "\a");
                     fflush(stdout);
-                    sprintf(buf, "normal\nFloatVector\n%f %f %f", normal[0], normal[1], normal[2]);
+                    snprintf(buf, sizeof(buf), "normal\nFloatVector\n%f %f %f", normal[0], normal[1], normal[2]);
                     CoviseRender::send_feedback_message("PARAM", buf);
-                    sprintf(buf, "distance\nFloatScalar\n%f", c);
+                    snprintf(buf, sizeof(buf), "distance\nFloatScalar\n%f", c);
                     CoviseRender::send_feedback_message("PARAM", buf);
                     buf[0] = '\0';
                     CoviseRender::send_feedback_message("EXEC", buf);
@@ -252,7 +252,7 @@ ObjectManager::update(void)
                 {
                     fprintf(stdout, "\a");
                     fflush(stdout);
-                    sprintf(buf, "vertex\nFloatVector\n%f %f %f", position[0], position[1], position[2]);
+                    snprintf(buf, sizeof(buf), "vertex\nFloatVector\n%f %f %f", position[0], position[1], position[2]);
                     CoviseRender::send_feedback_message("PARAM", buf);
                     CoviseRender::send_feedback_message("EXEC", buf);
                 }
@@ -267,11 +267,11 @@ ObjectManager::update(void)
                 {
                     fprintf(stdout, "\a");
                     fflush(stdout);
-                    sprintf(buf, "position\nFloatVector\n%f %f %f", position[0], position[1], position[2]);
+                    snprintf(buf, sizeof(buf), "position\nFloatVector\n%f %f %f", position[0], position[1], position[2]);
                     CoviseRender::send_feedback_message("PARAM", buf);
-                    sprintf(buf, "normal\nFloatVector\n%f %f %f", normal[0], normal[1], normal[2]);
+                    snprintf(buf, sizeof(buf), "normal\nFloatVector\n%f %f %f", normal[0], normal[1], normal[2]);
                     CoviseRender::send_feedback_message("PARAM", buf);
-                    sprintf(buf, "normal2\nFloatVector\n%f %f %f", normal2[0], normal2[1], normal2[2]);
+                    snprintf(buf, sizeof(buf), "normal2\nFloatVector\n%f %f %f", normal2[0], normal2[1], normal2[2]);
                     CoviseRender::send_feedback_message("PARAM", buf);
                     buf[0] = '\0';
                     CoviseRender::send_feedback_message("EXEC", buf);
@@ -287,9 +287,9 @@ ObjectManager::update(void)
                 {
                     fprintf(stdout, "\a");
                     fflush(stdout);
-                    sprintf(buf, "position\nFloatVector\n%f %f %f", position[0], position[1], position[2]);
+                    snprintf(buf, sizeof(buf), "position\nFloatVector\n%f %f %f", position[0], position[1], position[2]);
                     CoviseRender::send_feedback_message("PARAM", buf);
-                    sprintf(buf, "direction\nFloatVector\n%f %f %f", normal[0], normal[1], normal[2]);
+                    snprintf(buf, sizeof(buf), "direction\nFloatVector\n%f %f %f", normal[0], normal[1], normal[2]);
                     CoviseRender::send_feedback_message("PARAM", buf);
 
                     int frame_no = 0;
@@ -298,7 +298,7 @@ ObjectManager::update(void)
                     // anderes Problem: wie dem Renderer sagen, wo er
                     // die Kameraposition setzen soll ?
 
-                    sprintf(buf, "timestep\nIntScalar\n%d", frame_no);
+                    snprintf(buf, sizeof(buf), "timestep\nIntScalar\n%d", frame_no);
                     CoviseRender::send_feedback_message("PARAM", buf);
                     buf[0] = '\0';
                     CoviseRender::send_feedback_message("EXEC", buf);
@@ -314,7 +314,7 @@ ObjectManager::update(void)
                 {
                     fprintf(stdout, "\a");
                     fflush(stdout);
-                    sprintf(buf, "startpoint1\nFloatVector\n%f %f %f", position[0], position[1], position[2]);
+                    snprintf(buf, sizeof(buf), "startpoint1\nFloatVector\n%f %f %f", position[0], position[1], position[2]);
                     CoviseRender::send_feedback_message("PARAM", buf);
                 }
             }
@@ -325,7 +325,7 @@ ObjectManager::update(void)
                 {
                     fprintf(stdout, "\a");
                     fflush(stdout);
-                    sprintf(buf, "startpoint2\nFloatVector\n%f %f %f", position[0], position[1], position[2]);
+                    snprintf(buf, sizeof(buf), "startpoint2\nFloatVector\n%f %f %f", position[0], position[1], position[2]);
                     CoviseRender::send_feedback_message("PARAM", buf);
                     buf[0] = '\0';
                     CoviseRender::send_feedback_message("EXEC", buf);
@@ -340,7 +340,7 @@ ObjectManager::update(void)
                 {
                     fprintf(stdout, "\a");
                     fflush(stdout);
-                    sprintf(buf, "startpoint1\nFloatVector\n%f %f %f", position[0], position[1], position[2]);
+                    snprintf(buf, sizeof(buf), "startpoint1\nFloatVector\n%f %f %f", position[0], position[1], position[2]);
                     CoviseRender::send_feedback_message("PARAM", buf);
                 }
             }
@@ -351,17 +351,17 @@ ObjectManager::update(void)
                 {
                     fprintf(stdout, "\a");
                     fflush(stdout);
-                    sprintf(buf, "startpoint2\nFloatVector\n%f %f %f", position[0], position[1], position[2]);
+                    snprintf(buf, sizeof(buf), "startpoint2\nFloatVector\n%f %f %f", position[0], position[1], position[2]);
                     CoviseRender::send_feedback_message("PARAM", buf);
                     // TracerUsg has no normal parameter (nor Tracer)...
                     /* && strcmp(currentFeedbackInfo+1,"Tracer")!= 0 */
                     if (strncmp(currentFeedbackInfo + 1, "Tracer", strlen("Tracer")) != 0)
                     {
-                        sprintf(buf, "normal\nFloatVector\n%f %f %f", normal[0], normal[1], normal[2]);
+                        snprintf(buf, sizeof(buf), "normal\nFloatVector\n%f %f %f", normal[0], normal[1], normal[2]);
                         CoviseRender::send_feedback_message("PARAM", buf);
                     }
                     // ... but has direction
-                    sprintf(buf, "direction\nFloatVector\n%f %f %f", normal2[0], normal2[1], normal2[2]);
+                    snprintf(buf, sizeof(buf), "direction\nFloatVector\n%f %f %f", normal2[0], normal2[1], normal2[2]);
                     CoviseRender::send_feedback_message("PARAM", buf);
                     buf[0] = '\0';
                     CoviseRender::send_feedback_message("EXEC", buf);
@@ -377,7 +377,7 @@ ObjectManager::update(void)
                 {
                     fprintf(stdout, "\a");
                     fflush(stdout);
-                    sprintf(buf, "isopoint\nFloatVector\n%f %f %f", position[0], position[1], position[2]);
+                    snprintf(buf, sizeof(buf), "isopoint\nFloatVector\n%f %f %f", position[0], position[1], position[2]);
                     CoviseRender::send_feedback_message("PARAM", buf);
                     buf[0] = '\0';
                     CoviseRender::send_feedback_message("EXEC", buf);
@@ -1866,7 +1866,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                 string CAD_F(CAD_FILE);
                 int numchild = cover->getObjectsRoot()->getNumChildren();
                 char buf[1024];
-                sprintf(buf, "_%i", numchild);
+                snprintf(buf, sizeof(buf), "_%i", numchild);
                 string objName(CAD_F.substr(CAD_F.rfind("/") + 1, CAD_F.size() - CAD_F.rfind("/")));
                 //if the Name is already used append numbering
                 int a = 0;
@@ -1886,7 +1886,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                 }
                 else
                 {
-                    sprintf(buf, "%i", a);
+                    snprintf(buf, sizeof(buf), "%i", a);
                     mt->setName(objName += buf);
                 }
                 // new Node <mt> under ObjectRoot

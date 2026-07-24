@@ -147,7 +147,7 @@ std::string
 Connection::frmModIdx() const
 {
     char nc[32];
-    sprintf(nc, "%d", frmNetIdx_);
+    snprintf(nc, sizeof(nc), "%d", frmNetIdx_);
     std::string ret(nc);
     return ret;
 }
@@ -156,7 +156,7 @@ std::string
 Connection::toModIdx() const
 {
     char nc[32];
-    sprintf(nc, "%d", toNetIdx_);
+    snprintf(nc, sizeof(nc), "%d", toNetIdx_);
     std::string ret(nc);
     return ret;
 }

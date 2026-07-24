@@ -65,7 +65,7 @@ GetSetElem::GetSetElem(int argc, char *argv[])
     for (int i = 0; i < maxDataPortNm_; ++i)
     {
         char cNm[3];
-        sprintf(cNm, "%i", i);
+        snprintf(cNm, sizeof(cNm), "%i", i);
         // input port
         std::string portName(pInBaseNm + std::string(cNm));
         pInPorts_[i] = addInputPort(portName.c_str(), "coDistributedObject", "data set");
@@ -242,7 +242,7 @@ GetSetElem::compute(const char *)
                     outObj->addAttribute("NEXT_STEP_PARAM", "stepNo\nIntScalar\n");
                     // increase stepNo by 1
                     char stepNr[32];
-                    sprintf(stepNr, "%d", thisElem + 2);
+                    snprintf(stepNr, sizeof(stepNr), "%d", thisElem + 2);
                     outObj->addAttribute("NEXT_STEP", stepNr);
 
                     // show last elem
@@ -281,7 +281,7 @@ GetSetElem::compute(const char *)
                 if (timestep)
                 {
                     char steps[32];
-                    sprintf(steps, "0 %i", n_el);
+                    snprintf(steps, sizeof(steps), "0 %i", n_el);
                     outObj->addAttribute("TIMESTEP", steps);
                 }
 
@@ -314,7 +314,7 @@ GetSetElem::adjustIndex(const int &idx, const coDoSet *obj)
         // if the given number is too big we use the number of sets
         retIdx = numElem - 1;
         char chNum[8];
-        sprintf(chNum, "%i", numElem);
+        snprintf(chNum, sizeof(chNum), "%i", numElem);
         sendInfo("The number of the set-element to extract is too big. We use %s instead.", chNum);
 #ifdef GET_SETELEM
         pIndex_->setValue(numElem);

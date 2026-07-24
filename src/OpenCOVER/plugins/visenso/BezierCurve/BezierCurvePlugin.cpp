@@ -263,7 +263,7 @@ void BezierCurvePlugin::casteljauAnimation()
     curve->setT(parameterValueAnimation);
 
     char buffer[50];
-    sprintf(buffer, "t = %.2f", parameterValueAnimation);
+    snprintf(buffer, sizeof(buffer), "t = %.2f", parameterValueAnimation);
 
     Vec3 casteljauPoint = curve->computePointOnCurve(parameterValueAnimation);
     casteljauLabel->setString(buffer);
@@ -281,7 +281,7 @@ void BezierCurvePlugin::casteljauStep()
     curve->setT(parameterValueStep);
 
     char buffer[50];
-    sprintf(buffer, "t = %.2f", parameterValueStep);
+    snprintf(buffer, sizeof(buffer), "t = %.2f", parameterValueStep);
 
     Vec3 casteljauPoint = curve->computePointOnCurve(parameterValueStep);
     casteljauLabel->setString(buffer);

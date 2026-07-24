@@ -109,7 +109,7 @@ void coStepFile::get_nextpath(char **resultpath)
             while (j < delta && !found)
             {
                 strcpy(buffer, prefix);
-                sprintf(file_index_string, "%d", file_index++);
+                snprintf(file_index_string, sizeof(file_index_string), "%d", file_index++);
                 len_file_index = (int)strlen(file_index_string);
                 for (k = 0; k < len_nb - len_file_index; k++)
                     strcat(buffer, "0");

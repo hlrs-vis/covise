@@ -874,7 +874,7 @@ const char *VrmlScene::getName() { return "LibVRML97"; }
 const char *VrmlScene::getVersion()
 {
     static char vs[32];
-    sprintf(vs, "%d.%d.%d", LIBVRML_MAJOR_VERSION, LIBVRML_MINOR_VERSION, LIBVRML_MICRO_VERSION);
+    snprintf(vs, sizeof(vs), "%d.%d.%d", LIBVRML_MAJOR_VERSION, LIBVRML_MINOR_VERSION, LIBVRML_MICRO_VERSION);
     return vs;
 }
 

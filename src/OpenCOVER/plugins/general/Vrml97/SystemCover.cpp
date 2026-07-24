@@ -372,7 +372,7 @@ void SystemCover::startCapture()
         stopCapture();
     }
     char fileName[100];
-    sprintf(fileName, "Animation.wrl");
+    snprintf(fileName, sizeof(fileName), "Animation.wrl");
     fileNumber++;
     frameNumber = 0;
     fp = fopen(fileName, "a+");

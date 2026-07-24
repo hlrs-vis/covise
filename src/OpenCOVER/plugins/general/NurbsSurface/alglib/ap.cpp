@@ -5690,15 +5690,15 @@ std::string alglib::complex::tostring(int _dps) const
         return "INF";
 
     // generate mask
-    if (sprintf(mask, "%%.%d%s", dps, _dps >= 0 ? "f" : "e") >= (int)sizeof(mask))
+    if (snprintf(mask, sizeof(mask), "%%.%d%s", dps, _dps >= 0 ? "f" : "e") >= (int)sizeof(mask))
         _ALGLIB_CPP_EXCEPTION("complex::tostring(): buffer overflow");
 
     // print |x|, |y| and zero with same mask and compare
-    if (sprintf(buf_x, mask, (double)(fabs(x))) >= (int)sizeof(buf_x))
+    if (snprintf(buf_x, sizeof(buf_x), mask, (double)(fabs(x))) >= (int)sizeof(buf_x))
         _ALGLIB_CPP_EXCEPTION("complex::tostring(): buffer overflow");
-    if (sprintf(buf_y, mask, (double)(fabs(y))) >= (int)sizeof(buf_y))
+    if (snprintf(buf_y, sizeof(buf_y), mask, (double)(fabs(y))) >= (int)sizeof(buf_y))
         _ALGLIB_CPP_EXCEPTION("complex::tostring(): buffer overflow");
-    if (sprintf(buf_zero, mask, (double)0) >= (int)sizeof(buf_zero))
+    if (snprintf(buf_zero, sizeof(buf_zero), mask, (double)0) >= (int)sizeof(buf_zero))
         _ALGLIB_CPP_EXCEPTION("complex::tostring(): buffer overflow");
 
     // different zero/nonzero patterns
@@ -8305,7 +8305,7 @@ std::string alglib::arraytostring(const ae_int_t *ptr, ae_int_t n)
     result = "[";
     for (i = 0; i < n; i++)
     {
-        if (sprintf(buf, i == 0 ? "%ld" : ",%ld", long(ptr[i])) >= (int)sizeof(buf))
+        if (snprintf(buf, sizeof(buf), i == 0 ? "%ld" : ",%ld", long(ptr[i])) >= (int)sizeof(buf))
             _ALGLIB_CPP_EXCEPTION("arraytostring(): buffer overflow");
         result += buf;
     }
@@ -8322,16 +8322,16 @@ std::string alglib::arraytostring(const double *ptr, ae_int_t n, int _dps)
     char mask2[80];
     int dps = _dps >= 0 ? _dps : -_dps;
     result = "[";
-    if (sprintf(mask1, "%%.%d%s", dps, _dps >= 0 ? "f" : "e") >= (int)sizeof(mask1))
+    if (snprintf(mask1, sizeof(mask1), "%%.%d%s", dps, _dps >= 0 ? "f" : "e") >= (int)sizeof(mask1))
         _ALGLIB_CPP_EXCEPTION("arraytostring(): buffer overflow");
-    if (sprintf(mask2, ",%s", mask1) >= (int)sizeof(mask2))
+    if (snprintf(mask2, sizeof(mask2), ",%s", mask1) >= (int)sizeof(mask2))
         _ALGLIB_CPP_EXCEPTION("arraytostring(): buffer overflow");
     for (i = 0; i < n; i++)
     {
         buf[0] = 0;
         if (fp_isfinite(ptr[i]))
         {
-            if (sprintf(buf, i == 0 ? mask1 : mask2, double(ptr[i])) >= (int)sizeof(buf))
+            if (snprintf(buf, sizeof(buf), i == 0 ? mask1 : mask2, double(ptr[i])) >= (int)sizeof(buf))
                 _ALGLIB_CPP_EXCEPTION("arraytostring(): buffer overflow");
         }
         else if (fp_isnan(ptr[i]))

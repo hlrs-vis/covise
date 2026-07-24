@@ -373,7 +373,7 @@ ChoiceParamSkel::checkValue(const std::string &val)
         if (actChoice <= numDefChoices)
         {
             char num[55];
-            sprintf(num, "%d", actChoice);
+            snprintf(num, sizeof(num), "%d", actChoice);
             value_ = std::string(num) + std::string(" ") + defTail;
             cerr << "           using choice # " << actChoice << " instead! " << endl;
         }
@@ -387,7 +387,7 @@ ChoiceParamSkel::checkValue(const std::string &val)
     else
     {
         char num[55];
-        sprintf(num, "%d", (int)pos);
+        snprintf(num, sizeof(num), "%d", (int)pos);
         value_ = std::string(num) + std::string(" ") + defTail;
     }
     return;

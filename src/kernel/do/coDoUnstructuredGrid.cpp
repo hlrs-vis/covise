@@ -116,7 +116,7 @@ coDoUnstructuredGrid::coDoUnstructuredGrid(const coObjInfo &info,
     neighborindex.set_length(0);
     /*
       char octname[64];
-      sprintf(octname,"%s_OctTree",n);
+      snprintf(octname, sizeof(octname),"%s_OctTree",n);
       oct_tree = new coDoOctTree(octname,nelem,nconn,ncoord,el,cl,xc,yc,zc);
    */
     dl[0].type = INTSHM;
@@ -189,7 +189,7 @@ coDoUnstructuredGrid::coDoUnstructuredGrid(const coObjInfo &info,
     neighborindex.set_length(ncoord);
     /*
       char octname[64];
-      sprintf(octname,"%s_OctTree",n);
+      snprintf(octname, sizeof(octname),"%s_OctTree",n);
       oct_tree = new coDoOctTree(octname,nelem,nconn,ncoord,el,cl,xc,yc,zc);
    */
     dl[0].type = INTSHM;
@@ -1807,7 +1807,7 @@ void coDoUnstructuredGrid::MakeOctTree(const char *octtreeSurname) const
         float *x_l, *y_l, *z_l;
         getAddresses(&e_l, &c_l, &x_l, &y_l, &z_l);
         char octname[256];
-        sprintf(octname, "%s_OctTree_%s", name, octtreeSurname);
+        snprintf(octname, sizeof(octname), "%s_OctTree_%s", name, octtreeSurname);
         oct_tree = new coDoOctTree(coObjInfo(octname), numelem, numconn, numcoord,
                                    e_l, c_l, x_l, y_l, z_l);
     }

@@ -191,7 +191,7 @@ struct covise_info *Axial2Covise(struct axial *ar)
       return ci = NULL;
    }
 
-   sprintf(fname, "ar_polygons_%02d.txt", fcount++);
+   snprintf(fname, sizeof(fname), "ar_polygons_%02d.txt", fcount++);
    fn = DebugFilename(fname);
    if (fn && *fn && (ferr = fopen(fn, "w")) != NULL)
    {
@@ -580,7 +580,7 @@ int PutBladeData(struct axial *ar)
 
    // **************************************************
    // blades in cartesian coords.
-   sprintf(fn,"blade.data");
+   snprintf(fn, sizeof(fn),"blade.data");
    if( (fp = fopen(fn,"w+")) == NULL)
    {
       last_err = PUT_BLADEDATA_ERR;
@@ -664,7 +664,7 @@ int PutBladeData(struct axial *ar)
    fclose(fp);
    // **************************************************
    // blades for proE.
-   sprintf(fn,"blade.ibl");
+   snprintf(fn, sizeof(fn),"blade.ibl");
    if( (fp = fopen(fn,"w+")) == NULL)
    {
       last_err = PUT_BLADEDATA_ERR;
@@ -708,7 +708,7 @@ int PutBladeData(struct axial *ar)
          ar->mshroud->ss_int->z[j]);
    fclose(fp);
    // center line
-   sprintf(fn,"centerline.ibl");
+   snprintf(fn, sizeof(fn),"centerline.ibl");
    if( (fp = fopen(fn,"w+")) == NULL)
    {
       last_err = PUT_BLADEDATA_ERR;
@@ -740,7 +740,7 @@ int PutBladeData(struct axial *ar)
 
 
 	// hub contour
-	sprintf(fn,"hub.ibl");
+	snprintf(fn, sizeof(fn),"hub.ibl");
 	if( (fp = fopen(fn,"w+")) == NULL) {
 		last_err = PUT_BLADEDATA_ERR;
 		return 1;
@@ -757,7 +757,7 @@ int PutBladeData(struct axial *ar)
 
 	// shroud contour
 	ibe_max = ar->be_num-1;
-	sprintf(fn,"shroud.ibl");
+	snprintf(fn, sizeof(fn),"shroud.ibl");
 	if( (fp = fopen(fn,"w+")) == NULL) {
 		last_err = PUT_BLADEDATA_ERR;
 		return 1;
@@ -894,21 +894,21 @@ void GetXMGRCommands(char *plbuf, float *xy, const char *title, const char *xlab
    {
       xy_min = MIN(xy[0], xy[1]);
       xy_max = MAX(xy[2], xy[3]);
-      sprintf(buf, "WORLD %f,%f,%f,%f\n", xy_min, xy_min, xy_max, xy_max);
+      snprintf(buf, sizeof(buf), "WORLD %f,%f,%f,%f\n", xy_min, xy_min, xy_max, xy_max);
    }
    else
    {
-      sprintf(buf, "WORLD %f,%f,%f,%f\n", xy[0], xy[1], xy[2], xy[3]);
+      snprintf(buf, sizeof(buf), "WORLD %f,%f,%f,%f\n", xy[0], xy[1], xy[2], xy[3]);
    }
    sprintf(plbuf,"AUTOSCALE\n");
    strcat(plbuf, buf);
    strcat(plbuf, "SETS SYMBOL 27\n");
    strcat(plbuf, "SETS LINESTYLE 0\n");
-   sprintf(buf,"title \"%s\"\n", title);
+   snprintf(buf, sizeof(buf),"title \"%s\"\n", title);
    strcat(plbuf, buf);
-   sprintf(buf, "xaxis  label \"%s\"\n", xlabel);
+   snprintf(buf, sizeof(buf), "xaxis  label \"%s\"\n", xlabel);
    strcat(plbuf, buf);
-   sprintf(buf, "yaxis  label \"%s\"\n", ylabel);
+   snprintf(buf, sizeof(buf), "yaxis  label \"%s\"\n", ylabel);
    strcat(plbuf, buf);
    factor = 10.0;
    ytic = (float)(((int)(((xy[3]-xy[1])*factor)))/(9.0*factor));
@@ -917,7 +917,7 @@ void GetXMGRCommands(char *plbuf, float *xy, const char *title, const char *xlab
       factor *= 10.0;
       ytic = (float)(((int)(((xy[3]-xy[1])*factor)))/(9.0*factor));
    }
-   sprintf(buf, "yaxis  tick major %f\nyaxis  tick minor %f\n",
+   snprintf(buf, sizeof(buf), "yaxis  tick major %f\nyaxis  tick minor %f\n",
       ytic,ytic/2.0);
    strcat(plbuf, buf);
 

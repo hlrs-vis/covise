@@ -204,13 +204,13 @@ void update_graph_status(int gno)
             }
             if (gno == cg)
             {
-                sprintf(buf, "  %2d    %3s    %3s    %6s    %d    %d  [Current graph]",
+                snprintf(buf, sizeof(buf), "  %2d    %3s    %3s    %6s    %d    %d  [Current graph]",
                         gno, on_or_off(g[gno].active), yes_or_no((!g[gno].hidden)),
                         graph_types(g[gno].type, 0), g[gno].maxplot, nactive);
             }
             else
             {
-                sprintf(buf, "  %2d    %3s    %3s    %6s    %d    %d",
+                snprintf(buf, sizeof(buf), "  %2d    %3s    %3s    %6s    %d    %d",
                         gno, on_or_off(g[gno].active), yes_or_no((!g[gno].hidden)),
                         graph_types(g[gno].type, 0), g[gno].maxplot, nactive);
             }
@@ -225,7 +225,7 @@ void update_region_status(int rno)
     {
         if (status_frame && cur_statusitem == REGIONS)
         {
-            sprintf(buf, "  %2d    %3s   %6s", rno, on_or_off(rg[rno].active),
+            snprintf(buf, sizeof(buf), "  %2d    %3s   %6s", rno, on_or_off(rg[rno].active),
                     region_types(rg[rno].type, 0));
             set_status_label(labx[rno], buf);
         }
@@ -317,22 +317,22 @@ void update_set_status(int gno, int setno)
                     strcpy(st, "Rawspice");
                     break;
                 }
-                sprintf(buf1, " %2d %4d %3s  %7s | X %8.5g %5d %8.5g %5d %8.5g %8.5g   %s",
+                snprintf(buf1, sizeof(buf1), " %2d %4d %3s  %7s | X %8.5g %5d %8.5g %5d %8.5g %8.5g   %s",
                         setno, getsetlength(gno, setno),
                         on_or_off(g[gno].p[setno].active),
                         st, x1, ix1, x2, ix2,
                         xbar, xsd, getcomment(gno, setno));
-                sprintf(buf2, "                      | Y %8.5g %5d %8.5g %5d %8.5g %8.5g",
+                snprintf(buf2, sizeof(buf2), "                      | Y %8.5g %5d %8.5g %5d %8.5g %8.5g",
                         y1, iy1, y2, iy2, ybar, ysd);
             }
             else if (g[gno].p[setno].deact)
             {
-                sprintf(buf1, " %2d    De-activated", setno);
+                snprintf(buf1, sizeof(buf1), " %2d    De-activated", setno);
                 strcpy(buf2, " ");
             }
             else
             {
-                sprintf(buf1, " %2d    Undefined", setno);
+                snprintf(buf1, sizeof(buf1), " %2d    Undefined", setno);
                 strcpy(buf2, " ");
             }
             set_status_label(labx[setno - curpage * SPAGESIZE], buf1);
@@ -413,7 +413,7 @@ static void status_item_proc(Widget, XtPointer, XtPointer)
             }
             curpage = 0;
             cur_statusitem = SETS;
-            sprintf(header, " set# n  stat  type   | X/Y   min    at      max    at     mean    std. dev.  comment");
+            snprintf(header, sizeof(header), " set# n  stat  type   | X/Y   min    at      max    at     mean    std. dev.  comment");
             XtUnmanageChild(rc5);
             XtUnmanageChild(rc6);
             XtManageChild(rc4);
@@ -427,7 +427,7 @@ static void status_item_proc(Widget, XtPointer, XtPointer)
             curpage = 0;
             cur_statusitem = GRAPHS;
             clear_status();
-            sprintf(header, " Graph # Active  Show  Type  Max sets  # Active sets");
+            snprintf(header, sizeof(header), " Graph # Active  Show  Type  Max sets  # Active sets");
             XtUnmanageChild(rc4);
             XtUnmanageChild(rc6);
             XtManageChild(rc5);
@@ -441,7 +441,7 @@ static void status_item_proc(Widget, XtPointer, XtPointer)
             curpage = 0;
             cur_statusitem = REGIONS;
             clear_status();
-            sprintf(header, " Region # Active  Type");
+            snprintf(header, sizeof(header), " Region # Active  Type");
             XtUnmanageChild(rc4);
             XtUnmanageChild(rc5);
             /*XtManageChild(rc6);*/
@@ -461,9 +461,9 @@ static void update_stuff_status(void)
     double x1, y1, x2, y2, xbar, ybar, xsd, ysd;
     int i;
 
-    sprintf(buf, "\nStatus of sets for graph %d (current)\n", cg);
+    snprintf(buf, sizeof(buf), "\nStatus of sets for graph %d (current)\n", cg);
     stufftext(buf, 1);
-    sprintf(buf, " set# n  stat  type   | X/Y   min    max   mean    std. dev.  comment");
+    snprintf(buf, sizeof(buf), " set# n  stat  type   | X/Y   min    max   mean    std. dev.  comment");
     stufftext(buf, 0);
     for (i = 0; i < g[cg].maxplot; i++)
     {
@@ -472,15 +472,15 @@ static void update_stuff_status(void)
         {
             stasum(getx(cg, i), getsetlength(cg, i), &xbar, &xsd, 0);
             stasum(gety(cg, i), getsetlength(cg, i), &ybar, &ysd, 0);
-            sprintf(buf, " %2d %4d  ON  X  %8.5g %8.5g %8.5g %8.5g   %s\n",
+            snprintf(buf, sizeof(buf), " %2d %4d  ON  X  %8.5g %8.5g %8.5g %8.5g   %s\n",
                     i, getsetlength(cg, i),
                     x1, x2, xbar, xsd, getcomment(cg, i));
             stufftext(buf, 0);
-            sprintf(buf, "              Y  %8.5g %8.5g %8.5g %8.5g\n", y1, y2, ybar, ysd);
+            snprintf(buf, sizeof(buf), "              Y  %8.5g %8.5g %8.5g %8.5g\n", y1, y2, ybar, ysd);
             stufftext(buf, 0);
         }
     }
-    sprintf(buf, "\n");
+    snprintf(buf, sizeof(buf), "\n");
     stufftext(buf, 2);
     for (i = 0; i < MAXGRAPH; i++)
     {
@@ -510,125 +510,125 @@ static void set_status_action(int cd)
     switch (cd)
     {
     case STATUS_KILL:
-        sprintf(buf, "Click on the set index number to kill the set");
+        snprintf(buf, sizeof(buf), "Click on the set index number to kill the set");
         set_window_cursor(rcwin, 3);
         break;
     case STATUS_DEACTIVATE:
-        sprintf(buf, "Click on the set index number to deactivate the set");
+        snprintf(buf, sizeof(buf), "Click on the set index number to deactivate the set");
         set_window_cursor(rcwin, 0);
         break;
     case STATUS_REACTIVATE:
-        sprintf(buf, "Click on the set index number to reactivate the set");
+        snprintf(buf, sizeof(buf), "Click on the set index number to reactivate the set");
         set_window_cursor(rcwin, 0);
         break;
     case STATUS_COPY1ST:
-        sprintf(buf, "Click on the set index number to copy from");
+        snprintf(buf, sizeof(buf), "Click on the set index number to copy from");
         set_window_cursor(rcwin, 0);
         break;
     case STATUS_MOVE1ST:
-        sprintf(buf, "Click on the set index number to move from");
+        snprintf(buf, sizeof(buf), "Click on the set index number to move from");
         set_window_cursor(rcwin, 4);
         break;
     case STATUS_COPY2ND:
-        sprintf(buf, "Copy set %d in graph %d to...", status_set1, status_g1);
+        snprintf(buf, sizeof(buf), "Copy set %d in graph %d to...", status_set1, status_g1);
         set_window_cursor(rcwin, 0);
         break;
     case STATUS_MOVE2ND:
-        sprintf(buf, "Move set %d in graph %d to...", status_set1, status_g1);
+        snprintf(buf, sizeof(buf), "Move set %d in graph %d to...", status_set1, status_g1);
         set_window_cursor(rcwin, 4);
         break;
     case STATUS_REVERSE:
-        sprintf(buf, "Click on the set index number to reverse");
+        snprintf(buf, sizeof(buf), "Click on the set index number to reverse");
         set_window_cursor(rcwin, 0);
         break;
     case STATUS_JOIN1ST:
-        sprintf(buf, "Click on the set index number to join to");
+        snprintf(buf, sizeof(buf), "Click on the set index number to join to");
         set_window_cursor(rcwin, 0);
         break;
     case STATUS_JOIN2ND:
-        sprintf(buf, "Join set %d in graph %d to...", status_set1, status_g1);
+        snprintf(buf, sizeof(buf), "Join set %d in graph %d to...", status_set1, status_g1);
         set_window_cursor(rcwin, 0);
         break;
     case STATUS_AUTOSCALE:
-        sprintf(buf, "Click on the set index number to autoscale");
+        snprintf(buf, sizeof(buf), "Click on the set index number to autoscale");
         set_window_cursor(rcwin, 0);
         break;
     /* graphs */
     case STATUS_GRAPH_ACTIVATE:
-        sprintf(buf, "Click on the graph index number to activate");
+        snprintf(buf, sizeof(buf), "Click on the graph index number to activate");
         set_window_cursor(rcwin, 0);
         break;
     case STATUS_GRAPH_TYPE:
-        sprintf(buf, "Click on the graph index number to set the graph type");
+        snprintf(buf, sizeof(buf), "Click on the graph index number to set the graph type");
         set_window_cursor(rcwin, 0);
         break;
     case STATUS_GRAPH_HIDE:
-        sprintf(buf, "Click on the graph index number to hide");
+        snprintf(buf, sizeof(buf), "Click on the graph index number to hide");
         set_window_cursor(rcwin, 0);
         break;
     case STATUS_GRAPH_SHOW:
-        sprintf(buf, "Click on the graph index number to show");
+        snprintf(buf, sizeof(buf), "Click on the graph index number to show");
         set_window_cursor(rcwin, 0);
         break;
     case STATUS_GRAPH_FOCUS:
-        sprintf(buf, "Click on the graph index number to set the current graph");
+        snprintf(buf, sizeof(buf), "Click on the graph index number to set the current graph");
         set_window_cursor(rcwin, 0);
         break;
     case STATUS_GRAPH_KILL:
-        sprintf(buf, "Click on the graph index number to kill");
+        snprintf(buf, sizeof(buf), "Click on the graph index number to kill");
         set_window_cursor(rcwin, 3);
         break;
     case STATUS_GRAPH_AUTO:
-        sprintf(buf, "Click on the graph index number to autoscale");
+        snprintf(buf, sizeof(buf), "Click on the graph index number to autoscale");
         set_window_cursor(rcwin, 0);
         break;
     case STATUS_GRAPH_COPY1ST:
-        sprintf(buf, "Click on the graph index number to copy from");
+        snprintf(buf, sizeof(buf), "Click on the graph index number to copy from");
         set_window_cursor(rcwin, 0);
         break;
     case STATUS_GRAPH_COPY2ND:
-        sprintf(buf, "Copy graph %d to...", status_g1);
+        snprintf(buf, sizeof(buf), "Copy graph %d to...", status_g1);
         set_window_cursor(rcwin, 0);
         break;
     case STATUS_GRAPH_MOVE1ST:
-        sprintf(buf, "Click on the graph index number to move from");
+        snprintf(buf, sizeof(buf), "Click on the graph index number to move from");
         set_window_cursor(rcwin, 0);
         break;
     case STATUS_GRAPH_MOVE2ND:
-        sprintf(buf, "Move graph %d to...", status_g1);
+        snprintf(buf, sizeof(buf), "Move graph %d to...", status_g1);
         set_window_cursor(rcwin, 0);
         break;
     case STATUS_GRAPH_SWAP1ST:
-        sprintf(buf, "Click on the graph index number to move from");
+        snprintf(buf, sizeof(buf), "Click on the graph index number to move from");
         set_window_cursor(rcwin, 0);
         break;
     case STATUS_GRAPH_SWAP2ND:
-        sprintf(buf, "Swap graph %d with...", status_g1);
+        snprintf(buf, sizeof(buf), "Swap graph %d with...", status_g1);
         set_window_cursor(rcwin, 0);
         break;
     /* regions */
     case STATUS_REGION_DEFINE:
-        sprintf(buf, "Click on a region number to define");
+        snprintf(buf, sizeof(buf), "Click on a region number to define");
         set_window_cursor(rcwin, 0);
         break;
     case STATUS_REGION_KILL:
-        sprintf(buf, "Click on a region number to kill");
+        snprintf(buf, sizeof(buf), "Click on a region number to kill");
         set_window_cursor(rcwin, 3);
         break;
     case STATUS_REGION_EXTRACT:
-        sprintf(buf, "Click on a region number to extract points to the next available set");
+        snprintf(buf, sizeof(buf), "Click on a region number to extract points to the next available set");
         set_window_cursor(rcwin, 0);
         break;
     case STATUS_REGION_EVAL:
-        sprintf(buf, "Click on a region number to evaluate");
+        snprintf(buf, sizeof(buf), "Click on a region number to evaluate");
         set_window_cursor(rcwin, 0);
         break;
     case STATUS_REGION_DEL:
-        sprintf(buf, "Click on a region number in which to kill all points");
+        snprintf(buf, sizeof(buf), "Click on a region number in which to kill all points");
         set_window_cursor(rcwin, 3);
         break;
     case STATUS_NULL:
-        sprintf(buf, "Idle...");
+        snprintf(buf, sizeof(buf), "Idle...");
         set_window_cursor(rcwin, -1);
         break;
     }
@@ -1249,23 +1249,23 @@ void create_about_grtool(Widget, XtPointer, XtPointer)
         XtVaSetValues(about_frame, XmNx, x, XmNy, y, NULL);
         about_panel = XmCreateRowColumn(about_frame, (char *)"about_rc", NULL, 0);
 
-        sprintf(buf, "%s - Patch level %d\n", version, PATCHLEVEL);
+        snprintf(buf, sizeof(buf), "%s - Patch level %d\n", version, PATCHLEVEL);
         XtVaCreateManagedWidget(buf, xmLabelWidgetClass, about_panel, NULL);
-        sprintf(buf, "Max number of sets per graph = %d\n", maxplot);
+        snprintf(buf, sizeof(buf), "Max number of sets per graph = %d\n", maxplot);
         XtVaCreateManagedWidget(buf, xmLabelWidgetClass, about_panel, NULL);
-        sprintf(buf, "Max scratch array length = %d\n", MAXARR);
+        snprintf(buf, sizeof(buf), "Max scratch array length = %d\n", MAXARR);
         XtVaCreateManagedWidget(buf, xmLabelWidgetClass, about_panel, NULL);
-        sprintf(buf, "Max number of graphs = %d\n", maxgraph);
+        snprintf(buf, sizeof(buf), "Max number of graphs = %d\n", maxgraph);
         XtVaCreateManagedWidget(buf, xmLabelWidgetClass, about_panel, NULL);
-        sprintf(buf, "Max number of lines = %d\n", maxlines);
+        snprintf(buf, sizeof(buf), "Max number of lines = %d\n", maxlines);
         XtVaCreateManagedWidget(buf, xmLabelWidgetClass, about_panel, NULL);
-        sprintf(buf, "Max number of boxes = %d\n", maxboxes);
+        snprintf(buf, sizeof(buf), "Max number of boxes = %d\n", maxboxes);
         XtVaCreateManagedWidget(buf, xmLabelWidgetClass, about_panel, NULL);
-        sprintf(buf, "Max number of strings = %d\n", maxstr);
+        snprintf(buf, sizeof(buf), "Max number of strings = %d\n", maxstr);
         XtVaCreateManagedWidget(buf, xmLabelWidgetClass, about_panel, NULL);
-        sprintf(buf, "The home of ACE/gr is ftp.ccalmr.ogi.edu [129.95.72.34]\n");
+        snprintf(buf, sizeof(buf), "The home of ACE/gr is ftp.ccalmr.ogi.edu [129.95.72.34]\n");
         XtVaCreateManagedWidget(buf, xmLabelWidgetClass, about_panel, NULL);
-        sprintf(buf, "acegr@admin.ogi.edu for comments or bug reports");
+        snprintf(buf, sizeof(buf), "acegr@admin.ogi.edu for comments or bug reports");
         XtVaCreateManagedWidget(buf, xmLabelWidgetClass, about_panel, NULL);
 
         rc = XmCreateRowColumn(about_panel, (char *)"rc", NULL, 0);

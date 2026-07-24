@@ -451,7 +451,7 @@ int coSimpleModule::handleObjects(coInputPort **inPorts, coOutputPort **outPorts
             }
             for (i = 0; i < numOutPorts; i++)
             {
-                sprintf(newObjName, "%s_%d", outPorts[i]->getObjName(), t);
+                snprintf(newObjName, sizeof(newObjName), "%s_%d", outPorts[i]->getObjName(), t);
                 newOutPorts[i]->setObjName(newObjName);
                 newOutPorts[i]->setCurrentObject(NULL);
             }

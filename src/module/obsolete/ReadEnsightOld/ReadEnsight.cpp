@@ -344,7 +344,7 @@ ReadEnsight::computeGold()
                     for (i = 0; i < intNumberOfTimeSteps; i++)
                     {
                         strcpy(strSetElementName, polygonOutPort->getObjName());
-                        sprintf(buf, "%d", i);
+                        snprintf(buf, sizeof(buf), "%d", i);
                         strcat(strSetElementName, buf);
                         objects[i] = new coDoPolygons(strSetElementName,
                                                       intCoordsNumber,
@@ -375,7 +375,7 @@ ReadEnsight::computeGold()
                         sendInfo(buf);
                         return FAIL;
                     }
-                    sprintf(buf, "%d %d", 1, intNumberOfTimeSteps);
+                    snprintf(buf, sizeof(buf), "%d %d", 1, intNumberOfTimeSteps);
                     polygonSet->addAttribute("TIMESTEP", buf);
                     polygonSet->addAttribute("vertexOrder", "2");
                     polygonOutPort->setCurrentObject(polygonSet);
@@ -430,7 +430,7 @@ ReadEnsight::computeGold()
                     for (i = 0; i < intNumberOfTimeSteps; i++)
                     {
                         strcpy(strSetElementName, gridOutPort->getObjName());
-                        sprintf(buf, "%d", i);
+                        snprintf(buf, sizeof(buf), "%d", i);
                         strcat(strSetElementName, buf);
                         objects[i] = new coDoUnstructuredGrid(strSetElementName,
                                                               intElementNumber,
@@ -460,7 +460,7 @@ ReadEnsight::computeGold()
                         sendInfo(buf);
                         return FAIL;
                     }
-                    sprintf(buf, "%d %d", 1, intNumberOfTimeSteps);
+                    snprintf(buf, sizeof(buf), "%d %d", 1, intNumberOfTimeSteps);
                     gridOutPort->setCurrentObject(gridSet);
                     gridSet->addAttribute("TIMESTEP", buf);
                     sendInfoSuccess(gridOutPort->getName());
@@ -556,7 +556,7 @@ ReadEnsight::computeGold()
                 if (readScalarValuesParallel(TFN, fltData, size))
                 {
                     strcpy(strSetElementName, polygonScalarOutPort->getObjName());
-                    sprintf(buf, "%d", i);
+                    snprintf(buf, sizeof(buf), "%d", i);
                     strcat(strSetElementName, buf);
                     objects[i] = new coDoFloat(strSetElementName, size, fltData);
                     if (objects[i] == NULL)
@@ -578,7 +578,7 @@ ReadEnsight::computeGold()
                 return FAIL;
             }
 
-            sprintf(buf, "%d %d", 1, intNumberOfTimeSteps);
+            snprintf(buf, sizeof(buf), "%d %d", 1, intNumberOfTimeSteps);
             polygonScalarSet->addAttribute("TIMESTEP", buf);
             polygonScalarOutPort->setCurrentObject(polygonScalarSet);
             for (i = 0; i < intNumberOfTimeSteps; i++)
@@ -647,7 +647,7 @@ ReadEnsight::computeGold()
                 if (readVectorValuesParallel(TFN, fltXData, fltYData, fltZData, size))
                 {
                     strcpy(strSetElementName, polygonVectorOutPort->getObjName());
-                    sprintf(buf, "%d", i);
+                    snprintf(buf, sizeof(buf), "%d", i);
                     strcat(strSetElementName, buf);
                     objects[i] = new coDoVec3(strSetElementName, size, fltXData, fltYData, fltZData);
 
@@ -670,7 +670,7 @@ ReadEnsight::computeGold()
                 return FAIL;
             }
 
-            sprintf(buf, "%d %d", 1, intNumberOfTimeSteps);
+            snprintf(buf, sizeof(buf), "%d %d", 1, intNumberOfTimeSteps);
             polygonVectorSet->addAttribute("TIMESTEP", buf);
             polygonVectorOutPort->setCurrentObject(polygonVectorSet);
 
@@ -734,7 +734,7 @@ ReadEnsight::computeGold()
                 if (readScalarValuesParallel(TFN, fltData, size))
                 {
                     strcpy(strSetElementName, gridScalarOutPort->getObjName());
-                    sprintf(buf, "%d", i);
+                    snprintf(buf, sizeof(buf), "%d", i);
                     strcat(strSetElementName, buf);
                     objects[i] = new coDoFloat(strSetElementName, size, fltData);
                     if (objects[i] == NULL)
@@ -756,7 +756,7 @@ ReadEnsight::computeGold()
                 return FAIL;
             }
 
-            sprintf(buf, "%d %d", 1, intNumberOfTimeSteps);
+            snprintf(buf, sizeof(buf), "%d %d", 1, intNumberOfTimeSteps);
             gridScalarSet->addAttribute("TIMESTEP", buf);
             gridScalarOutPort->setCurrentObject(gridScalarSet);
             for (i = 0; i < intNumberOfTimeSteps; i++)
@@ -823,7 +823,7 @@ ReadEnsight::computeGold()
                 if (readVectorValuesParallel(TFN, fltXData, fltYData, fltZData, size))
                 {
                     strcpy(strSetElementName, gridVectorOutPort->getObjName());
-                    sprintf(buf, "%d", i);
+                    snprintf(buf, sizeof(buf), "%d", i);
                     strcat(strSetElementName, buf);
                     objects[i] = new coDoVec3(strSetElementName, size, fltXData, fltYData, fltZData);
                     if (objects[i] == NULL)
@@ -844,7 +844,7 @@ ReadEnsight::computeGold()
                 sendInfo(buf);
                 return FAIL;
             }
-            sprintf(buf, "%d %d", 1, intNumberOfTimeSteps);
+            snprintf(buf, sizeof(buf), "%d %d", 1, intNumberOfTimeSteps);
             gridVectorSet->addAttribute("TIMESTEP", buf);
             gridVectorOutPort->setCurrentObject(gridVectorSet);
             for (i = 0; i < intNumberOfTimeSteps; i++)
@@ -942,16 +942,16 @@ ReadEnsight::compute5()
         intGridCoordsNumber = atoi(strLine); //number of coords for all grid elements
         strcpy(buf, "Found ");
         char temp[20];
-        sprintf(temp, "%d", intGridCoordsNumber);
+        snprintf(temp, sizeof(temp), "%d", intGridCoordsNumber);
         strcat(buf, temp);
         strcat(buf, " coordinates, line ");
-        sprintf(temp, "%d", intLineCounter);
+        snprintf(temp, sizeof(temp), "%d", intLineCounter);
         strcat(buf, temp);
         sendInfo(buf);
 
         if (!intGridCoordsNumber)
         {
-            sprintf(temp, "%d", intLineCounter);
+            snprintf(temp, sizeof(temp), "%d", intLineCounter);
             sendError("failed to read in the number of grid coordinates, line '%s'.", temp);
             return FAIL;
         }
@@ -1010,22 +1010,22 @@ ReadEnsight::compute5()
             return FAIL;
         }
         strcpy(buf, "Number of all grid elements: ");
-        sprintf(temp, "%d", intGridNumber);
+        snprintf(temp, sizeof(temp), "%d", intGridNumber);
         strcat(buf, temp);
         sendInfo(buf);
 
         strcpy(buf, "Number of all grid corners: ");
-        sprintf(temp, "%d", intGridCornerNumber);
+        snprintf(temp, sizeof(temp), "%d", intGridCornerNumber);
         strcat(buf, temp);
         sendInfo(buf);
 
         strcpy(buf, "Number of all polygon elements: ");
-        sprintf(temp, "%d", intPolygonNumber);
+        snprintf(temp, sizeof(temp), "%d", intPolygonNumber);
         strcat(buf, temp);
         sendInfo(buf);
 
         strcpy(buf, "Number of all polygon corners: ");
-        sprintf(temp, "%d", intPolygonCornerNumber);
+        snprintf(temp, sizeof(temp), "%d", intPolygonCornerNumber);
         strcat(buf, temp);
         sendInfo(buf);
         /******************************************************************************
@@ -1144,7 +1144,7 @@ ReadEnsight::compute5()
     for (i = 0; i < intNumberOfTimeSteps; i++)
     {
         strcpy(strSetElementName, gridOutPort->getObjName());
-        sprintf(buf, "%d", i);
+        snprintf(buf, sizeof(buf), "%d", i);
         strcat(strSetElementName, buf);
         objects[i] = new coDoUnstructuredGrid(strSetElementName,
                                               intGridNumber,
@@ -1173,7 +1173,7 @@ ReadEnsight::compute5()
         sendInfo(buf);
         return FAIL;
     }
-    sprintf(buf, "%d %d", 1, intNumberOfTimeSteps);
+    snprintf(buf, sizeof(buf), "%d %d", 1, intNumberOfTimeSteps);
     gridSet->addAttribute("TIMESTEP", buf);
     gridOutPort->setCurrentObject(gridSet);
     sendInfoSuccess(gridOutPort->getName());
@@ -1181,7 +1181,7 @@ ReadEnsight::compute5()
     for (i = 0; i < intNumberOfTimeSteps; i++)
     {
         strcpy(strSetElementName, polygonOutPort->getObjName());
-        sprintf(buf, "%d", i);
+        snprintf(buf, sizeof(buf), "%d", i);
         strcat(strSetElementName, buf);
         objects[i] = new coDoPolygons(strSetElementName,
                                       intGridCoordsNumber,
@@ -1210,7 +1210,7 @@ ReadEnsight::compute5()
         sendInfo(buf);
         return FAIL;
     }
-    sprintf(buf, "%d %d", 1, intNumberOfTimeSteps);
+    snprintf(buf, sizeof(buf), "%d %d", 1, intNumberOfTimeSteps);
     polygonSet->addAttribute("TIMESTEP", buf);
     polygonOutPort->setCurrentObject(polygonSet);
     sendInfoSuccess(polygonOutPort->getName());
@@ -1253,7 +1253,7 @@ ReadEnsight::compute5()
                     if (readScalarValuesV6(TFN, fltData, size))
                     {
                         strcpy(strSetElementName, gridScalarOutPort->getObjName());
-                        sprintf(buf, "%d", i);
+                        snprintf(buf, sizeof(buf), "%d", i);
                         strcat(strSetElementName, buf);
                         objects[i] = new coDoFloat(strSetElementName, size, fltData);
                         if (objects[i] == NULL)
@@ -1275,7 +1275,7 @@ ReadEnsight::compute5()
                     return FAIL;
                 }
 
-                sprintf(buf, "%d %d", 1, intNumberOfTimeSteps);
+                snprintf(buf, sizeof(buf), "%d %d", 1, intNumberOfTimeSteps);
                 gridScalarSet->addAttribute("TIMESTEP", buf);
                 gridScalarOutPort->setCurrentObject(gridScalarSet);
                 // 	       for (i=0;i<intNumberOfTimeSteps;i++) {
@@ -1327,7 +1327,7 @@ ReadEnsight::compute5()
                     if (readVectorValuesV6(TFN, fltXData, fltYData, fltZData, size))
                     {
                         strcpy(strSetElementName, gridVectorOutPort->getObjName());
-                        sprintf(buf, "%d", i);
+                        snprintf(buf, sizeof(buf), "%d", i);
                         strcat(strSetElementName, buf);
                         objects[i] = new coDoVec3(strSetElementName, size, fltXData, fltYData, fltZData);
                         if (objects[i] == NULL)
@@ -1348,7 +1348,7 @@ ReadEnsight::compute5()
                     sendInfo(buf);
                     return FAIL;
                 }
-                sprintf(buf, "%d %d", 1, intNumberOfTimeSteps);
+                snprintf(buf, sizeof(buf), "%d %d", 1, intNumberOfTimeSteps);
                 gridVectorSet->addAttribute("TIMESTEP", buf);
                 gridVectorOutPort->setCurrentObject(gridVectorSet);
                 // 	       for (i=0;i<intNumberOfTimeSteps;i++) {
@@ -2289,7 +2289,7 @@ ReadEnsight::read3DCoordsParallel(ifstream &iFile,
         }
 
         strcpy(buf, "Done. ");
-        sprintf(strTemp, "%d", i);
+        snprintf(strTemp, sizeof(strTemp), "%d", i);
         strcat(buf, strTemp);
         strcat(buf, " coordinates read.");
         sendInfo(buf);
@@ -2322,7 +2322,7 @@ ReadEnsight::read3DCoordsParallel(ifstream &iFile,
             fltZCoords[i] = atof(strTemp);
         }
         strcpy(buf, "Done. ");
-        sprintf(strTemp, "%d", i);
+        snprintf(strTemp, sizeof(strTemp), "%d", i);
         strcat(buf, strTemp);
         strcat(buf, " coordinates read.");
         sendInfo(buf);
@@ -2387,7 +2387,7 @@ int ReadEnsight::read3DCoordsSequent(ifstream &iFile, int intCoordsNumber, float
     }
 
     strcpy(buf, "Done. ");
-    sprintf(strTemp, "%d", i);
+    snprintf(strTemp, sizeof(strTemp), "%d", i);
     strcat(buf, strTemp);
     strcat(buf, " coordinates read.");
     sendInfo(buf);
@@ -2424,7 +2424,7 @@ int ReadEnsight::lookForHeader(ifstream &iFile, char *strHeader)
             strcpy(buf, "Header *");
             strcat(buf, strHeader);
             strcat(buf, "* found at the line ");
-            sprintf(strTemp, "%d", intLineCounter);
+            snprintf(strTemp, sizeof(strTemp), "%d", intLineCounter);
             strcat(buf, strTemp);
             sendInfo(buf);
             return 1;
@@ -2474,7 +2474,7 @@ ReadEnsight::getNumberOfElements(ifstream &iFile,
             strcpy(buf, "Element ");
             strcat(buf, strLine);
             strcat(buf, " not recognized as begin of a part (line ");
-            sprintf(temp, "%d", intLineCounter);
+            snprintf(temp, sizeof(temp), "%d", intLineCounter);
             strcat(buf, temp);
             strcat(buf, ") in the geometry file.");
             sendInfo(buf);
@@ -2496,7 +2496,7 @@ ReadEnsight::getNumberOfElements(ifstream &iFile,
                 strcpy(buf, "Geometry element ");
                 strcat(buf, strLine);
                 strcat(buf, " recognized as a polygon, line ");
-                sprintf(temp, "%d", intLineCounter);
+                snprintf(temp, sizeof(temp), "%d", intLineCounter);
                 strcat(buf, temp);
                 sendInfo(buf);
                 isPoly = 1;
@@ -2506,7 +2506,7 @@ ReadEnsight::getNumberOfElements(ifstream &iFile,
                 strcpy(buf, "Geometry element ");
                 strcat(buf, strLine);
                 strcat(buf, " recognized as a grid, line ");
-                sprintf(temp, "%d", intLineCounter);
+                snprintf(temp, sizeof(temp), "%d", intLineCounter);
                 strcat(buf, temp);
                 sendInfo(buf);
                 isGri = 1;
@@ -2523,7 +2523,7 @@ ReadEnsight::getNumberOfElements(ifstream &iFile,
 
             if (!atoi(strLine)) //if number of polygons of this type not recognized
             {
-                sprintf(temp, "%d", intLineCounter);
+                snprintf(temp, sizeof(temp), "%d", intLineCounter);
                 strcpy(buf, "Failed to read in the number of elements at the line  ");
                 strcat(buf, temp);
                 sendInfo(buf);
@@ -2562,7 +2562,7 @@ ReadEnsight::getNumberOfElements(ifstream &iFile,
                 if (iFile.bad())
                 {
                     strcpy(buf, "unexpected end of file by getting number of elements, line ");
-                    sprintf(temp, "%d", intLineCounter);
+                    snprintf(temp, sizeof(temp), "%d", intLineCounter);
                     strcat(buf, temp);
                     sendInfo(buf);
                     return 0;
@@ -2574,19 +2574,19 @@ ReadEnsight::getNumberOfElements(ifstream &iFile,
     strcpy(buf, "Searchig results: ");
     strcat(buf, "\n");
     strcat(buf, "Full number of polygons: ");
-    sprintf(temp, "%d", intPolygonNumber);
+    snprintf(temp, sizeof(temp), "%d", intPolygonNumber);
     strcat(buf, temp);
     strcat(buf, "\n");
     strcat(buf, "Full number of polygon corners: ");
-    sprintf(temp, "%d", intPolygonCornerNumber);
+    snprintf(temp, sizeof(temp), "%d", intPolygonCornerNumber);
     strcat(buf, temp);
     strcat(buf, "\n");
     strcat(buf, "Full number of grid elements: ");
-    sprintf(temp, "%d", intGridNumber);
+    snprintf(temp, sizeof(temp), "%d", intGridNumber);
     strcat(buf, temp);
     strcat(buf, "\n");
     strcat(buf, "Full number of grid element corners: ");
-    sprintf(temp, "%d", intGridCornerNumber);
+    snprintf(temp, sizeof(temp), "%d", intGridCornerNumber);
     strcat(buf, temp);
     sendInfo(buf);
 
@@ -2886,10 +2886,10 @@ int ReadEnsight::readResultFile(const char *strResultFileName)
         }
 
         strcpy(buf, "Line 1: ");
-        sprintf(ctmp, "%d", intNumberOfScalarVariables);
+        snprintf(ctmp, sizeof(ctmp), "%d", intNumberOfScalarVariables);
         strcat(buf, ctmp);
         strcat(buf, " scalar and ");
-        sprintf(ctmp, "%d", intNumberOfVectorVariables);
+        snprintf(ctmp, sizeof(ctmp), "%d", intNumberOfVectorVariables);
         strcat(buf, ctmp);
         strcat(buf, " vector variables are to be processed.");
         sendInfo(buf);
@@ -2954,7 +2954,7 @@ int ReadEnsight::readResultFile(const char *strResultFileName)
                 return 0;
             }
 
-            sprintf(buf, "%d %d", 1, intNumberOfTimeSteps);
+            snprintf(buf, sizeof(buf), "%d %d", 1, intNumberOfTimeSteps);
             scalarSet->addAttribute("TIMESTEP", buf);
             gridScalarOutPort->setCurrentObject(scalarSet);
             for (int i = 0; i < intNumberOfTimeSteps; i++)
@@ -2980,7 +2980,7 @@ int ReadEnsight::readResultFile(const char *strResultFileName)
                 return 0;
             }
 
-            sprintf(buf, "%d %d", 1, intNumberOfTimeSteps);
+            snprintf(buf, sizeof(buf), "%d %d", 1, intNumberOfTimeSteps);
             vectorSet->addAttribute("TIMESTEP", buf);
             gridVectorOutPort->setCurrentObject(vectorSet);
             for (int i = 0; i < intNumberOfTimeSteps; i++)
@@ -3064,7 +3064,7 @@ ReadEnsight::readVarFiles(ifstream &iFile, int intNumberOfValues, int intNumberO
 
         //GET NUMBER OF ASTERISKS AND SELECT THE ROOT OF THE FILENAME
 
-        sprintf(buf, "%d", intNumberOfTimeSteps);
+        snprintf(buf, sizeof(buf), "%d", intNumberOfTimeSteps);
         intNumberOfAsterisks = strlen(buf) + 1; //if 21 timestep, then plastic***, 1 asterisk more
         if (intNumberOfTimeSteps == 1) //special case - for 1 we have no asterisks
         {
@@ -3083,7 +3083,7 @@ ReadEnsight::readVarFiles(ifstream &iFile, int intNumberOfValues, int intNumberO
             for (int i = 0; i < intNumberOfTimeSteps; i++)
             {
                 strTimestepFileName[strlen(strRoot)] = '\0';
-                sprintf(buf, "%d", i);
+                snprintf(buf, sizeof(buf), "%d", i);
                 //number of nulls to be added to the root, plastic00
                 intNumberOfNulls = intNumberOfAsterisks - strlen(buf);
                 if (intNumberOfTimeSteps == 1) //special case - for 1 we have no asterisks
@@ -3133,7 +3133,7 @@ ReadEnsight::readVarFiles(ifstream &iFile, int intNumberOfValues, int intNumberO
 
                     char *setElemName = new char[10 + strlen(strTimestepFileName) + strlen(gridScalarOutPort->getObjName())];
                     char num[3];
-                    sprintf(num, "%d%d", i, nVal);
+                    snprintf(num, sizeof(num), "%d%d", i, nVal);
                     strcpy(setElemName, gridScalarOutPort->getObjName());
                     strcat(setElemName, strTimestepFileName);
                     strcat(setElemName, "S");
@@ -3198,7 +3198,7 @@ ReadEnsight::readVarFiles(ifstream &iFile, int intNumberOfValues, int intNumberO
                     // create unique name of setelem
                     char *setElemName = new char[10 + strlen(strTimestepFileName) + strlen(gridVectorOutPort->getObjName())];
                     char num[3];
-                    sprintf(num, "%d", i);
+                    snprintf(num, sizeof(num), "%d", i);
                     strcpy(setElemName, gridVectorOutPort->getObjName());
                     strcat(setElemName, strTimestepFileName);
                     strcat(setElemName, "V");
@@ -3510,7 +3510,7 @@ char *ReadEnsight::buildTimestepFileName(char *strFileName, int intNumberOfTimeS
     char strRoot[100];
     int j;
 
-    sprintf(buf, "%d", intNumberOfTimeSteps);
+    snprintf(buf, sizeof(buf), "%d", intNumberOfTimeSteps);
     intNumberOfAsterisks = strlen(buf) + 1; //if 21 timestep, then plastic***, 1 asterisk more
     if (intNumberOfTimeSteps == 1) //special case - for 1 we have no asterisks
     {
@@ -3521,7 +3521,7 @@ char *ReadEnsight::buildTimestepFileName(char *strFileName, int intNumberOfTimeS
     strRoot[strlen(strTimestepFileName) - intNumberOfAsterisks] = '\0';
     strcpy(strTimestepFileName, strRoot);
     strTimestepFileName[strlen(strRoot)] = '\0';
-    sprintf(buf, "%d", intStep);
+    snprintf(buf, sizeof(buf), "%d", intStep);
     //number of nulls to be added to the root, plastic00
     intNumberOfNulls = intNumberOfAsterisks - strlen(buf);
     if (intNumberOfTimeSteps == 1) //special case - for 1 we have no asterisks

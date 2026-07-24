@@ -478,7 +478,7 @@ void DumpGA(struct gate *ga)
    FILE *ferr;
    int j;
 
-   sprintf(fname, "ga_struct_%02d.txt", fcount++);
+   snprintf(fname, sizeof(fname), "ga_struct_%02d.txt", fcount++);
    ferr = fopen(fname, "w");
    if (ferr)
    {
@@ -525,7 +525,7 @@ void WriteGNU_GA(struct gate *ga)
    FILE *fp;
    char fname[255];
 
-   sprintf(fname, "ga_blade3d_%02d.txt", ncall++);
+   snprintf(fname, sizeof(fname), "ga_blade3d_%02d.txt", ncall++);
    fp = fopen(fname, "w");
 #ifdef CENTRE_LINE
    fprintf(fp, "# cetre line\n");
@@ -613,7 +613,7 @@ int WriteGate(struct gate *ga, FILE *fp)
    int i;
    char section[100];
 
-   sprintf(section, GA);
+   snprintf(section, sizeof(section), GA);
    fprintf(fp, "\n%s\n", section);
    fprintf(fp, "%*s = %6.2f\n", P_LEN, GA_Q, ga->Q);
    fprintf(fp, "%*s = %6.2f\n", P_LEN, GA_H, ga->H);
@@ -624,7 +624,7 @@ int WriteGate(struct gate *ga, FILE *fp)
    fprintf(fp, "%*s = %6.2f\n", P_LEN, GA_BANGLE, ga->bangle*180/M_PI);
    fprintf(fp, "%*s = %6.2f\n", P_LEN, BL_PIVOTRAD, ga->pivot_rad);
 
-   sprintf(section, BL);
+   snprintf(section, sizeof(section), BL);
    fprintf(fp, "\n%s\n", section);
    fprintf(fp, "%*s = %5.2f\n", P_LEN, BL_CHORD, ga->chord);
    fprintf(fp, "%*s = %5.2f\n", P_LEN, BL_PIVOT, ga->pivot);
@@ -633,7 +633,7 @@ int WriteGate(struct gate *ga, FILE *fp)
    fprintf(fp, "%*s = %5.2f\n", P_LEN, BL_CAMBER, ga->maxcamb);
    fprintf(fp, "%*s = %5.2f\n", P_LEN, BL_SHIFT, ga->bp_shift);
 
-   sprintf(section, CO);
+   snprintf(section, sizeof(section), CO);
    fprintf(fp, "\n%s\n", section);
    fprintf(fp, "%*s = %5.2f\n", P_LEN, CO_INHEIGHT, ga->in_height);
    fprintf(fp, "%*s = %5.2f\n", P_LEN, CO_INRAD, ga->in_rad);
@@ -647,21 +647,21 @@ int WriteGate(struct gate *ga, FILE *fp)
    fprintf(fp, "%*s = %5.2f\n", P_LEN, CO_HUBB, ga->hub_ab[1]);
    fprintf(fp, "%*s = %5d\n", P_LEN, CO_NPHUBARC, ga->num_hub_arc);
 
-   sprintf(section, CAMBER);
+   snprintf(section, sizeof(section), CAMBER);
    fprintf(fp, "\n%s\n", section);
    for (i = 0; i < ga->camb->num; i++)
    {
       fprintf(fp, "%*s%d = %6.3f, %6.3lf\n", P_LEN, "stat", i, ga->camb->loc[i], ga->camb->val[i]);
    }
 
-   sprintf(section, PROFILE);
+   snprintf(section, sizeof(section), PROFILE);
    fprintf(fp, "\n%s\n", section);
    for (i = 0; i < ga->prof->num; i++)
    {
       fprintf(fp, "%*s%d = %6.3f, %6.3lf\n", P_LEN, "stat", i, ga->prof->loc[i], ga->prof->val[i]);
    }
 
-   sprintf(section, GR);
+   snprintf(section, sizeof(section), GR);
    fprintf(fp, "\n%s\n", section);
 
    fprintf(fp, "%*s = %d\n", P_LEN, GR_SAVE_GRID, ga->gr->savegrid);
@@ -695,22 +695,22 @@ int WriteGate(struct gate *ga, FILE *fp)
 
    fprintf(fp, "\n");
    fprintf(fp, "#these parameters are only used if 'read geometry from file = 1'\n");
-   sprintf(section, HC);
+   snprintf(section, sizeof(section), HC);
    fprintf(fp, "%s\n", section);
 
-   sprintf(section, SC);
+   snprintf(section, sizeof(section), SC);
    fprintf(fp, "\n%s\n", section);
 
-   sprintf(section, BP);
+   snprintf(section, sizeof(section), BP);
    fprintf(fp, "\n%s\n", section);
 
-   sprintf(section, BSS);
+   snprintf(section, sizeof(section), BSS);
    fprintf(fp, "\n%s\n", section);
 
-   sprintf(section, BPS);
+   snprintf(section, sizeof(section), BPS);
    fprintf(fp, "\n%s\n", section);
 
-   sprintf(section, BCL);
+   snprintf(section, sizeof(section), BCL);
    fprintf(fp, "\n%s\n", section);
 
    return 1;
@@ -727,7 +727,7 @@ int ReadPointStruct(struct Point *p, const char *sec, const char *fn)
    num = 0;
    for (i = 0; ; i++)
    {
-      sprintf(key, POINT, i);
+      snprintf(key, sizeof(key), POINT, i);
       if ((tmp = IHS_GetCFGValue(fn, sec, key)) != NULL)
       {
          sscanf(tmp, "%f, %f, %f", &x, &y, &z);

@@ -229,7 +229,7 @@ void addPixelTexture(coDoTexture* texture, NewCharBuffer& buf)
 			const char* magfm = texture->getAttribute("MAG_FILTER");
 			buf += "<PixelTexture ";
 			buf += "image=";
-			sprintf(line, "'%d,%d,%d ", sizeu, sizev, sizew);
+			snprintf(line, sizeof(line), "'%d,%d,%d ", sizeu, sizev, sizew);
 			buf += line;
             int uv = 0;
             for (int i = 0; i < sizeu; i++)
@@ -240,7 +240,7 @@ void addPixelTexture(coDoTexture* texture, NewCharBuffer& buf)
                     buf += " 0x";
                     for (int k = 0; k < sizew; k++)
                     {
-                        sprintf(line, "%02x", imageData[uv+k]);
+                        snprintf(line, sizeof(line), "%02x", imageData[uv+k]);
                         buf += line;
                     }
                 }
@@ -288,7 +288,7 @@ void addTexture(coDoTexture* texture, NewCharBuffer& buf)
 
             for (int i = 0; i < numTC; i++)
             {
-                sprintf(line, "%1g %1g,", textureCoords[0][i], textureCoords[1][i]);
+                snprintf(line, sizeof(line), "%1g %1g,", textureCoords[0][i], textureCoords[1][i]);
                 buf += line;
                 if ((i % 10) == 0)
                     buf += '\n';
@@ -301,7 +301,7 @@ void addTexture(coDoTexture* texture, NewCharBuffer& buf)
             buf += "<TextureCoordinate point = '";
             for (int i = 0; i < numTC; i++)
             {
-                sprintf(line, "%1g %1g ", textureCoords[0][i], textureCoords[1][i]);
+                snprintf(line, sizeof(line), "%1g %1g ", textureCoords[0][i], textureCoords[1][i]);
                 buf += line;
             }
             buf += "'>\n</TextureCoordinate>\n ";
@@ -343,7 +343,7 @@ void addCoordinates(float *x_c, float *y_c, float *z_c, int numCoords, NewCharBu
         
         for (int i = 0; i < numCoords; i++)
         {
-            sprintf(line, "%1g %1g %1g,", x_c[i], y_c[i], z_c[i]);
+            snprintf(line, sizeof(line), "%1g %1g %1g,", x_c[i], y_c[i], z_c[i]);
             buf += line;
             if ((i % 10) == 0)
                 buf += '\n';
@@ -356,7 +356,7 @@ void addCoordinates(float *x_c, float *y_c, float *z_c, int numCoords, NewCharBu
         buf += "<coordinate point = '";
         for (int i = 0; i < numCoords; i++)
         {
-            sprintf(line, "%1g %1g %1g ", x_c[i], y_c[i], z_c[i]);
+            snprintf(line, sizeof(line), "%1g %1g %1g ", x_c[i], y_c[i], z_c[i]);
             buf += line;
         }
         buf += "'>\n</coordinate>\n ";
@@ -373,7 +373,7 @@ void addNormals(float* nx, float* ny, float* nz, int numNormals, NewCharBuffer& 
 			buf += "\n normal Normal {\nvector[";
 			for (int i = 0; i < numNormals; i++)
 			{
-				sprintf(line, "%1g %1g %1g,", nx[i], ny[i], nz[i]);
+				snprintf(line, sizeof(line), "%1g %1g %1g,", nx[i], ny[i], nz[i]);
 				buf += line;
 				if ((i % 10) == 0)
 					buf += '\n';
@@ -385,7 +385,7 @@ void addNormals(float* nx, float* ny, float* nz, int numNormals, NewCharBuffer& 
 			buf += "\n <Normal vector='";
 			for (int i = 0; i < numNormals; i++)
 			{
-				sprintf(line, "%1g %1g %1g ", nx[i], ny[i], nz[i]);
+				snprintf(line, sizeof(line), "%1g %1g %1g ", nx[i], ny[i], nz[i]);
 				buf += line;
 			}
 			buf += "'\n";
@@ -408,7 +408,7 @@ void addColors(float* r, float* g, float* b, int *pc, int numColors, int colorpa
 				for (int i = 0; i < numColors; i++)
 				{
 					unpackRGBA(pc, i, &r, &g, &b, &a);
-					sprintf(line, "%1g %1g %1g,", r, g, b);
+					snprintf(line, sizeof(line), "%1g %1g %1g,", r, g, b);
 					buf += line;
 					if ((i % 10) == 0)
 						buf += '\n';
@@ -418,7 +418,7 @@ void addColors(float* r, float* g, float* b, int *pc, int numColors, int colorpa
 			{
 				for (int i = 0; i < numColors; i++)
 				{
-					sprintf(line, "%1g %1g %1g,", r[i], g[i], b[i]);
+					snprintf(line, sizeof(line), "%1g %1g %1g,", r[i], g[i], b[i]);
 					buf += line;
 					if ((i % 10) == 0)
 						buf += '\n';
@@ -436,7 +436,7 @@ void addColors(float* r, float* g, float* b, int *pc, int numColors, int colorpa
 				for (int i = 0; i < numColors; i++)
 				{
 					unpackRGBA(pc, i, &r, &g, &b, &a);
-					sprintf(line, "%1g %1g %1g ", r, g, b);
+					snprintf(line, sizeof(line), "%1g %1g %1g ", r, g, b);
 					buf += line;
 				}
 			}
@@ -444,7 +444,7 @@ void addColors(float* r, float* g, float* b, int *pc, int numColors, int colorpa
 			{
 				for (int i = 0; i < numColors; i++)
 				{
-					sprintf(line, "%1g %1g %1g,", r[i], g[i], b[i]);
+					snprintf(line, sizeof(line), "%1g %1g %1g,", r[i], g[i], b[i]);
 					buf += line;
 					if ((i % 10) == 0)
 						buf += '\n';
@@ -466,7 +466,7 @@ void GeometryManager::addMaterial(coMaterial* material, int colorbinding, int co
     {
         buf += "<shape>\n<appearance>\n<CommonSurfaceShader ";
         buf += "id='";
-        sprintf(line, "%s'", object);
+        snprintf(line, sizeof(line), "%s'", object);
         buf += line;
         buf += " alphaFactor='1'></CommonSurfaceShader>\n<material";
     }
@@ -476,43 +476,43 @@ void GeometryManager::addMaterial(coMaterial* material, int colorbinding, int co
         if (objlist->outputMode == OutputMode::VRML97)
         {
             buf += "diffuseColor ";
-            sprintf(line, " %1g %1g %1g ", material->diffuseColor[0], material->diffuseColor[1], material->diffuseColor[2]);
+            snprintf(line, sizeof(line), " %1g %1g %1g ", material->diffuseColor[0], material->diffuseColor[1], material->diffuseColor[2]);
             buf += line;
             buf += "emissiveColor ";
-            sprintf(line, " %1g %1g %1g ", material->emissiveColor[0], material->emissiveColor[1], material->emissiveColor[2]);
+            snprintf(line, sizeof(line), " %1g %1g %1g ", material->emissiveColor[0], material->emissiveColor[1], material->emissiveColor[2]);
             buf += line;
             buf += "ambientIntensity ";
-            sprintf(line, " %1g ", (material->ambientColor[0] + material->ambientColor[1] + material->ambientColor[2]) / 3.0);
+            snprintf(line, sizeof(line), " %1g ", (material->ambientColor[0] + material->ambientColor[1] + material->ambientColor[2]) / 3.0);
             buf += line;
             buf += "specularColor ";
-            sprintf(line, " %1g %1g %1g ", material->specularColor[0], material->specularColor[1], material->specularColor[2]);
+            snprintf(line, sizeof(line), " %1g %1g %1g ", material->specularColor[0], material->specularColor[1], material->specularColor[2]);
             buf += line;
             buf += "transparency ";
-            sprintf(line, " %1g ", material->transparency);
+            snprintf(line, sizeof(line), " %1g ", material->transparency);
             buf += line;
             buf += "shininess ";
-            sprintf(line, " %1g ", material->shininess);
+            snprintf(line, sizeof(line), " %1g ", material->shininess);
             buf += line;
         }
         else
         {
             buf += "diffuseColor='";
-            sprintf(line, "%1g %1g %1g'", material->diffuseColor[0], material->diffuseColor[1], material->diffuseColor[2]);
+            snprintf(line, sizeof(line), "%1g %1g %1g'", material->diffuseColor[0], material->diffuseColor[1], material->diffuseColor[2]);
             buf += line;
             buf += " emissiveColor='";
-            sprintf(line, "%1g %1g %1g'", material->emissiveColor[0], material->emissiveColor[1], material->emissiveColor[2]);
+            snprintf(line, sizeof(line), "%1g %1g %1g'", material->emissiveColor[0], material->emissiveColor[1], material->emissiveColor[2]);
             buf += line;
             buf += " ambientIntensity='";
-            sprintf(line, "%1g'", (material->ambientColor[0] + material->ambientColor[1] + material->ambientColor[2]) / 3.0);
+            snprintf(line, sizeof(line), "%1g'", (material->ambientColor[0] + material->ambientColor[1] + material->ambientColor[2]) / 3.0);
             buf += line;
             buf += " specularColor='";
-            sprintf(line, "%1g %1g %1g'", material->specularColor[0], material->specularColor[1], material->specularColor[2]);
+            snprintf(line, sizeof(line), "%1g %1g %1g'", material->specularColor[0], material->specularColor[1], material->specularColor[2]);
             buf += line;
             buf += " transparency='";
-            sprintf(line, "%1g'", material->transparency);
+            snprintf(line, sizeof(line), "%1g'", material->transparency);
             buf += line;
             buf += " shininess='";
-            sprintf(line, "%1g'", material->shininess);
+            snprintf(line, sizeof(line), "%1g'", material->shininess);
             buf += line;
         }
     }
@@ -529,15 +529,15 @@ void GeometryManager::addMaterial(coMaterial* material, int colorbinding, int co
                 float r, g, b, a;
 
                 unpackRGBA(pc, 0, &r, &g, &b, &a);
-                sprintf(line, " %1g %1g %1g ", r, g, b);
+                snprintf(line, sizeof(line), " %1g %1g %1g ", r, g, b);
             }
             else if (colorbinding != CO_NONE && r)
             {
-                sprintf(line, " %1g %1g %1g ", r[0], g[0], b[0]);
+                snprintf(line, sizeof(line), " %1g %1g %1g ", r[0], g[0], b[0]);
             }
             else
             {
-                sprintf(line, " 1 1 1 ");
+                snprintf(line, sizeof(line), " 1 1 1 ");
             }
             buf += line;
         }
@@ -549,15 +549,15 @@ void GeometryManager::addMaterial(coMaterial* material, int colorbinding, int co
                 float r, g, b, a;
 
                 unpackRGBA(pc, 0, &r, &g, &b, &a);
-                sprintf(line, "%1g %1g %1g'", r, g, b);
+                snprintf(line, sizeof(line), "%1g %1g %1g'", r, g, b);
             }
             else if (colorbinding != CO_NONE && r)
             {
-                sprintf(line, "%1g %1g %1g'", r[0], g[0], b[0]);
+                snprintf(line, sizeof(line), "%1g %1g %1g'", r[0], g[0], b[0]);
             }
             else
             {
-                sprintf(line, "1 1 1'");
+                snprintf(line, sizeof(line), "1 1 1'");
             }
             buf += line;
         }
@@ -629,7 +629,7 @@ void GeometryManager::addPolygon(const char *object, const char *rootName, int n
                 buf += "-1 ";
                 n++;
             }
-            sprintf(line, "%d ", v_l[i]);
+            snprintf(line, sizeof(line), "%d ", v_l[i]);
             buf += line;
             if ((i % 10) == 0)
                 buf += '\n';
@@ -647,7 +647,7 @@ void GeometryManager::addPolygon(const char *object, const char *rootName, int n
                 buf += "-1 ";
                 n++;
             }
-            sprintf(line, "%d ", v_l[i]);
+            snprintf(line, sizeof(line), "%d ", v_l[i]);
             buf += line;
         }
         buf += "'\n";
@@ -731,9 +731,9 @@ void GeometryManager::addTriangleStrip(const char *object, const char *rootName,
                 for (n = 2; n < (no_of_vertices - s_l[i]); n++)
                 {
                     if (n % 2)
-                        sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 1], v_l[s_l[i] + n - 2], v_l[s_l[i] + n]);
+                        snprintf(line, sizeof(line), "%d %d %d -1 ", v_l[s_l[i] + n - 1], v_l[s_l[i] + n - 2], v_l[s_l[i] + n]);
                     else
-                        sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 2], v_l[s_l[i] + n - 1], v_l[s_l[i] + n]);
+                        snprintf(line, sizeof(line), "%d %d %d -1 ", v_l[s_l[i] + n - 2], v_l[s_l[i] + n - 1], v_l[s_l[i] + n]);
                     buf += line;
                 }
             }
@@ -742,9 +742,9 @@ void GeometryManager::addTriangleStrip(const char *object, const char *rootName,
                 for (n = 2; n < (s_l[i + 1] - s_l[i]); n++)
                 {
                     if (n % 2)
-                        sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 1], v_l[s_l[i] + n - 2], v_l[s_l[i] + n]);
+                        snprintf(line, sizeof(line), "%d %d %d -1 ", v_l[s_l[i] + n - 1], v_l[s_l[i] + n - 2], v_l[s_l[i] + n]);
                     else
-                        sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 2], v_l[s_l[i] + n - 1], v_l[s_l[i] + n]);
+                        snprintf(line, sizeof(line), "%d %d %d -1 ", v_l[s_l[i] + n - 2], v_l[s_l[i] + n - 1], v_l[s_l[i] + n]);
                     buf += line;
                 }
             }
@@ -765,9 +765,9 @@ void GeometryManager::addTriangleStrip(const char *object, const char *rootName,
                 for (n = 2; n < (no_of_vertices - s_l[i]); n++)
                 {
                     if (n % 2)
-                        sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 1], v_l[s_l[i] + n - 2], v_l[s_l[i] + n]);
+                        snprintf(line, sizeof(line), "%d %d %d -1 ", v_l[s_l[i] + n - 1], v_l[s_l[i] + n - 2], v_l[s_l[i] + n]);
                     else
-                        sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 2], v_l[s_l[i] + n - 1], v_l[s_l[i] + n]);
+                        snprintf(line, sizeof(line), "%d %d %d -1 ", v_l[s_l[i] + n - 2], v_l[s_l[i] + n - 1], v_l[s_l[i] + n]);
                     buf += line;
                 }
             }
@@ -776,9 +776,9 @@ void GeometryManager::addTriangleStrip(const char *object, const char *rootName,
                 for (n = 2; n < (s_l[i + 1] - s_l[i]); n++)
                 {
                     if (n % 2)
-                        sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 1], v_l[s_l[i] + n - 2], v_l[s_l[i] + n]);
+                        snprintf(line, sizeof(line), "%d %d %d -1 ", v_l[s_l[i] + n - 1], v_l[s_l[i] + n - 2], v_l[s_l[i] + n]);
                     else
-                        sprintf(line, "%d %d %d -1 ", v_l[s_l[i] + n - 2], v_l[s_l[i] + n - 1], v_l[s_l[i] + n]);
+                        snprintf(line, sizeof(line), "%d %d %d -1 ", v_l[s_l[i] + n - 2], v_l[s_l[i] + n - 1], v_l[s_l[i] + n]);
                     buf += line;
                 }
             }
@@ -866,7 +866,7 @@ void GeometryManager::addLine(const char *object, const char *rootName, int no_o
                 buf += "-1 ";
                 n++;
             }
-            sprintf(line, "%d ", v_l[i]);
+            snprintf(line, sizeof(line), "%d ", v_l[i]);
             buf += line;
             if ((i % 10) == 0)
                 buf += '\n';
@@ -884,7 +884,7 @@ void GeometryManager::addLine(const char *object, const char *rootName, int no_o
                 buf += "-1 ";
                 n++;
             }
-            sprintf(line, "%d ", v_l[i]);
+            snprintf(line, sizeof(line), "%d ", v_l[i]);
             buf += line;
         }
         buf += "'\n";
@@ -999,14 +999,14 @@ void GeometryManager::addSphere(const char *object, const char *rootName, int no
         if (objlist->outputMode == OutputMode::VRML97)
         {
             buf += "Transform { translation ";
-            sprintf(line, "%g %g %g", x_c[i], y_c[i], z_c[i]);
+            snprintf(line, sizeof(line), "%g %g %g", x_c[i], y_c[i], z_c[i]);
             buf += line;
             buf += " children [";
         }
         else
         {
             buf += "<transform translation='\n";
-            sprintf(line, "%g %g %g '>", x_c[i], y_c[i], z_c[i]);
+            snprintf(line, sizeof(line), "%g %g %g '>", x_c[i], y_c[i], z_c[i]);
             buf += line;
         }
 
@@ -1017,7 +1017,7 @@ void GeometryManager::addSphere(const char *object, const char *rootName, int no
         if (objlist->outputMode == OutputMode::VRML97)
         {
             buf += " geometry Sphere { radius ";
-            sprintf(line, "%g", r_c[i]);
+            snprintf(line, sizeof(line), "%g", r_c[i]);
             buf += line;
             buf += " }";
             buf += "} ] }\n"; // Shape + Transform
@@ -1025,7 +1025,7 @@ void GeometryManager::addSphere(const char *object, const char *rootName, int no
         else
         {
             buf += "<sphere radius='";
-            sprintf(line, "%g'>", r_c[i]);
+            snprintf(line, sizeof(line), "%g'>", r_c[i]);
             buf += line;
             buf += "</shape> </transform>";
         }

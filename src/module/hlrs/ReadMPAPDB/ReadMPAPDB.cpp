@@ -200,7 +200,7 @@ int ReadMPAPDB::compute(const char *)
         {
             char *number = new char[ndigits + 1];
             char format[100];
-            sprintf(format, "%%0%dd", ndigits);
+            snprintf(format, sizeof(format), "%%0%dd", ndigits);
             sprintf(number, format, i + firstnumber);
             //cerr << "number=" << number << endl;
 
@@ -275,15 +275,15 @@ int ReadMPAPDB::compute(const char *)
             char idname[100];
             if (nTimestepsToRead > 1)
             {
-                sprintf(pointsname, "%s_%d", m_portPoints->getObjName(), readTimesteps);
-                sprintf(typesname, "%s_%d", m_portAtomType->getObjName(), readTimesteps);
-                sprintf(idname, "%s_%d", m_portAtomID->getObjName(), readTimesteps);
+                snprintf(pointsname, sizeof(pointsname), "%s_%d", m_portPoints->getObjName(), readTimesteps);
+                snprintf(typesname, sizeof(typesname), "%s_%d", m_portAtomType->getObjName(), readTimesteps);
+                snprintf(idname, sizeof(idname), "%s_%d", m_portAtomID->getObjName(), readTimesteps);
             }
             else
             {
-                sprintf(pointsname, "%s", m_portPoints->getObjName());
-                sprintf(typesname, "%s", m_portAtomType->getObjName());
-                sprintf(idname, "%s", m_portAtomID->getObjName());
+                snprintf(pointsname, sizeof(pointsname), "%s", m_portPoints->getObjName());
+                snprintf(typesname, sizeof(typesname), "%s", m_portAtomType->getObjName());
+                snprintf(idname, sizeof(idname), "%s", m_portAtomID->getObjName());
             }
             coDoPoints *pCovisePoints = new coDoPoints(pointsname, numAtoms[readTimesteps]);
             coDoInt *pCoviseAtomType = new coDoInt(typesname, numAtoms[readTimesteps]);
@@ -372,7 +372,7 @@ int ReadMPAPDB::compute(const char *)
         coDoSet *AtomIDSet = new coDoSet(coObjInfo(m_portAtomID->getObjName()), pAtomID);
 
         char ts[100];
-        sprintf(ts, "1 %d", (int)m_pNTimesteps->getValue());
+        snprintf(ts, sizeof(ts), "1 %d", (int)m_pNTimesteps->getValue());
         AtomPointSet->addAttribute("TIMESTEP", ts);
         AtomTypeSet->addAttribute("TIMESTEP", ts);
         AtomIDSet->addAttribute("TIMESTEP", ts);

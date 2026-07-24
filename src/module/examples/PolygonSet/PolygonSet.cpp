@@ -77,7 +77,7 @@ int PolygonSet::compute(const char *port)
         if (p_timeSteps->getValue())
         {
             char attribValue[32];
-            sprintf(attribValue, "1 %d", numObj);
+            snprintf(attribValue, sizeof(attribValue), "1 %d", numObj);
             setObject->addAttribute("TIMESTEP", attribValue);
         }
 

@@ -78,7 +78,7 @@ int LSurfRR_BladeElement(struct be *be, float lepar, float rle, float hle,
 	char fn[222];
 	FILE *fp;
 
-	sprintf(fn,"rr_debuglsurf_%02d.txt",call++);
+	snprintf(fn, sizeof(fn),"rr_debuglsurf_%02d.txt",call++);
 	if( (fp = fopen(fn,"w+")) == NULL) {
 		fprintf(stderr," Could not open file '%s'\n");
 		exit(1);
@@ -366,7 +366,7 @@ int LSurfRR_BladeElement(struct be *be, float lepar, float rle, float hle,
 	FreePointStruct(beclmerid);
 
 #ifdef DEBUG_LSURF
-	sprintf(fn,"rr_debuglcamb_%02d.txt",call-1);
+	snprintf(fn, sizeof(fn),"rr_debuglcamb_%02d.txt",call-1);
 	if( (fp = fopen(fn,"w+")) == NULL) {
 		fprintf(stderr," Could not open file '%s'\n");
 		exit(1);

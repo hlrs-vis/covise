@@ -114,8 +114,8 @@ Transform::Transform(int argc, char *argv[])
         std::string dataPortDesc("Input data type");
         char buf[64];
         char buf_desc[64];
-        sprintf(buf, "_%d", data_port);
-        sprintf(buf_desc, " %d", data_port);
+        snprintf(buf, sizeof(buf), "_%d", data_port);
+        snprintf(buf_desc, sizeof(buf_desc), " %d", data_port);
         dataPortName += buf;
         dataPortDesc += buf;
         p_dataType_[data_port] = addChoiceParam(dataPortName.c_str(), dataPortDesc.c_str());
@@ -131,9 +131,9 @@ Transform::Transform(int argc, char *argv[])
     for (data_port = 0; data_port < NUM_DATA_IN_PORTS; data_port++)
     {
         char portname[64];
-        sprintf(portname, "data_out%d", data_port);
+        snprintf(portname, sizeof(portname), "data_out%d", data_port);
         p_data_out_[data_port] = addOutputPort(portname, "Float|Vec3", "data output");
-        sprintf(portname, "data_in%d", data_port);
+        snprintf(portname, sizeof(portname), "data_in%d", data_port);
         p_data_in_[data_port] = addInputPort(portname, "Float|Vec3", "data output");
         p_data_in_[data_port]->setRequired(0);
         p_data_out_[data_port]->setDependencyPort(p_data_in_[data_port]);
@@ -796,7 +796,7 @@ Transform::compute(const char *)
         for (trans = 0; trans < numTransformations; ++trans)
         {
             char bufname[64];
-            sprintf(bufname, "%s_%d", outGeoName.c_str(), trans);
+            snprintf(bufname, sizeof(bufname), "%s_%d", outGeoName.c_str(), trans);
             setGeoList[trans] = OutputGeometry(bufname, geometry[trans],
                                                p_geo_in_->getCurrentObject(),
                                                transformations[trans], 1);
@@ -881,7 +881,7 @@ Transform::compute(const char *)
             for (trans = 0; trans < numTransformations; ++trans)
             {
                 char bufname[64];
-                sprintf(bufname, "%s_%d", outDataName.c_str(), trans);
+                snprintf(bufname, sizeof(bufname), "%s_%d", outDataName.c_str(), trans);
                 if (displacementsPort == data_port
                     && h_type_->getIValue() == TYPE_TILE)
                 {

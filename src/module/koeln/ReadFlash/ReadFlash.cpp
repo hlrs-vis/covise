@@ -280,10 +280,10 @@ coReadFlash::coReadFlash(int argc, char *argv[])
   {
     // Create name of channel
     char buf[1024];
-    sprintf(buf, "channel%d", c);
+    snprintf(buf, sizeof(buf), "channel%d", c);
     // Create description of channel
     char buf2[1024];
-    sprintf(buf2, "Scalar volume data channel %d", c);
+    snprintf(buf2, sizeof(buf2), "Scalar volume data channel %d", c);
     // Add port with name, data type and description
     // poVolume declared in header
     poVolume[c] = addOutputPort(buf, "Float|Byte", buf2);
@@ -339,7 +339,7 @@ coReadFlash::coReadFlash(int argc, char *argv[])
   for (int i = 0; i < MAX_CHANNELS; ++i)
   {
     char buf[1024];
-    sprintf(buf, "%s_%d", "var_name", i);
+    snprintf(buf, sizeof(buf), "%s_%d", "var_name", i);
     var_names[i] = addStringParam(buf, "variable name");
     if (i == 0) {
       var_names[i]->setValue("dens");
@@ -348,11 +348,11 @@ coReadFlash::coReadFlash(int argc, char *argv[])
       var_names[i]->setValue("");
     }
     // Custom range
-    sprintf(buf, "%s_%d", "Options", i);
+    snprintf(buf, sizeof(buf), "%s_%d", "Options", i);
     pfDataOpt[i] = addInt32VectorParam(buf, "use log(0/1), use vmin/vmax(0/1), return Float(0/1)", 3);
     pfDataOpt[i]->setValue(0, 0, 0);
 
-    sprintf(buf, "%s_%d", "vmin_vmax", i);
+    snprintf(buf, sizeof(buf), "%s_%d", "vmin_vmax", i);
     pfRange[i] = addFloatVectorParam(buf, "limits of value range", 2);
     pfRange[i]->setValue(0, 0.0);
     pfRange[i]->setValue(1, 1.0);
@@ -408,12 +408,12 @@ int coReadFlash::compute(const char *)
     // Create name of current file
     if (niter > 1)
     {
-      sprintf(path_fname, "%s_%04d", path_temp.c_str(), it);
+      snprintf(path_fname, sizeof(path_fname), "%s_%04d", path_temp.c_str(), it);
       std::cout << path_fname << "\n";
     }
     else
     {
-      sprintf(path_fname, "%s", pathtemplate);
+      snprintf(path_fname, sizeof(path_fname), "%s", pathtemplate);
     }
     
     // Init data field
@@ -546,7 +546,7 @@ int coReadFlash::compute(const char *)
       if (numFiles > 1)
       {
         char buf[1024];
-        sprintf(buf, "%s_%d", poGrid->getObjName(), t);
+        snprintf(buf, sizeof(buf), "%s_%d", poGrid->getObjName(), t);
         gridData[t] = new coDoUniformGrid(buf, npixx, npixy, npixz, minX, maxX, minY, maxY, minZ, maxZ);
       }
       else
@@ -567,7 +567,7 @@ int coReadFlash::compute(const char *)
     if (numFiles > 1)
     {
       char buf[1024];
-      sprintf(buf, "0 %d", (int)numFiles - 1);
+      snprintf(buf, sizeof(buf), "0 %d", (int)numFiles - 1);
 
       gridSet = new coDoSet(poGrid->getObjName(), (coDistributedObject **)gridData);
       gridSet->addAttribute("TIMESTEP", buf);
@@ -792,7 +792,7 @@ int coReadFlash::compute(const char *)
 
         // Set timestep attribute:
         char buf[1024];
-        sprintf(buf, "0 %d", (int)numFiles - 1);
+        snprintf(buf, sizeof(buf), "0 %d", (int)numFiles - 1);
         volumeSet->addAttribute("TIMESTEP", buf);
 
         // Assign sets to output ports:
@@ -851,7 +851,7 @@ int coReadFlash::compute(const char *)
         if (numFiles > 1)
         {
           char buf[1024];
-          sprintf(buf, "%s_%d", poVolume[MAX_CHANNELS-1]->getObjName(), (int) t);
+          snprintf(buf, sizeof(buf), "%s_%d", poVolume[MAX_CHANNELS-1]->getObjName(), (int) t);
           particleData[t] = new coDoPoints(buf, npart, ppx, ppy, ppz);
         }
         else
@@ -872,7 +872,7 @@ int coReadFlash::compute(const char *)
       if (numFiles > 1)
       {
         char buf[1024];
-        sprintf(buf, "0 %d", (int)numFiles - 1);
+        snprintf(buf, sizeof(buf), "0 %d", (int)numFiles - 1);
 
         particleSet = new coDoSet(poVolume[MAX_CHANNELS-1]->getObjName(), (coDistributedObject **)particleData);
         particleSet->addAttribute("TIMESTEP", buf);

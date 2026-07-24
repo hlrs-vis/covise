@@ -507,7 +507,7 @@ void GiswalkPlugin::tabletPressEvent(coTUIElement *tUIItem)
     else if (tUIItem == viewPath)
     {
         char label[100];
-        sprintf(label, "numSamples: %d", frameNumber);
+        snprintf(label, sizeof(label), "numSamples: %d", frameNumber);
         numSamples->setLabel(label);
         if (viewPath->getState())
         {
@@ -544,7 +544,7 @@ void GiswalkPlugin::straightFeed(double x, double y, double z, double a, double 
     {
         oldUpdateTime = time;
         char label[100];
-        sprintf(label, "numSamples: %d", frameNumber);
+        snprintf(label, sizeof(label), "numSamples: %d", frameNumber);
         numSamples->setLabel(label);
     }
 }

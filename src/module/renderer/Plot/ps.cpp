@@ -284,7 +284,7 @@ int pssetmode(int mode)
         fclose(psout);
         if (!ptofile)
         {
-            sprintf(sysbuf, "%s %s", ps_prstr, fname);
+            snprintf(sysbuf, sizeof(sysbuf), "%s %s", ps_prstr, fname);
             system(sysbuf);
             unlink(fname);
         }

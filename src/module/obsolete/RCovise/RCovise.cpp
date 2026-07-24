@@ -164,10 +164,10 @@ void Application::compute(void * /*callbackData*/)
         if (num_timesteps)
         {
             char buf[300];
-            sprintf(buf, "%ld %ld", timestep, num_timesteps);
+            snprintf(buf, sizeof(buf), "%ld %ld", timestep, num_timesteps);
             tmp_obj->addAttribute("BLOCKINFO", buf);
 
-            sprintf(buf, "T%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+            snprintf(buf, sizeof(buf), "T%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
             tmp_obj->addAttribute("READ_MODULE", buf);
         }
         delete tmp_obj;
@@ -467,7 +467,7 @@ coDistributedObject *Application::readData(char *Name)
             {
                 for (i = 0; i < numsets; i++)
                 {
-                    sprintf(buf, "%s_%d", Name, i);
+                    snprintf(buf, sizeof(buf), "%s_%d", Name, i);
                     tmp_objs[i] = readData(buf);
                 }
                 tmp_objs[i] = NULL;
@@ -496,17 +496,17 @@ coDistributedObject *Application::readData(char *Name)
             read(fp, &t3, sizeof(int));
             if (do1)
             {
-                sprintf(buf, "%s_Geo", Name);
+                snprintf(buf, sizeof(buf), "%s_Geo", Name);
                 do1 = readData(buf);
             }
             if (do2)
             {
-                sprintf(buf, "%s_Col", Name);
+                snprintf(buf, sizeof(buf), "%s_Col", Name);
                 do2 = readData(buf);
             }
             if (do3)
             {
-                sprintf(buf, "%s_Norm", Name);
+                snprintf(buf, sizeof(buf), "%s_Norm", Name);
                 do3 = readData(buf);
             }
 

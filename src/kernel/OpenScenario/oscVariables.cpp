@@ -386,7 +386,7 @@ template<>
 OPENSCENARIOEXPORT bool oscValue<int>::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *, const char *name)
 {
     char buf[100];
-    sprintf(buf, "%d", value);
+    snprintf(buf, sizeof(buf), "%d", value);
 	XMLCh *t1 = NULL, *t2 = NULL;
     currentElement->setAttribute(t1 = XMLChTranscodeUtf(name), t2 = XMLChTranscodeUtf(buf)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
     return true;
@@ -395,7 +395,7 @@ template<>
 OPENSCENARIOEXPORT bool oscValue<unsigned int>::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *, const char *name)
 {
     char buf[100];
-    sprintf(buf, "%u", value);
+    snprintf(buf, sizeof(buf), "%u", value);
 	XMLCh *t1 = NULL, *t2 = NULL;
 	currentElement->setAttribute(t1 = XMLChTranscodeUtf(name), t2 = XMLChTranscodeUtf(buf)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
     return true;
@@ -404,7 +404,7 @@ template<>
 OPENSCENARIOEXPORT bool oscValue<short>::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *, const char *name)
 {
     char buf[100];
-    sprintf(buf, "%hd",value);
+    snprintf(buf, sizeof(buf), "%hd",value);
 	XMLCh *t1 = NULL, *t2 = NULL;
 	currentElement->setAttribute(t1 = XMLChTranscodeUtf(name), t2 = XMLChTranscodeUtf(buf)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
     return true;
@@ -413,7 +413,7 @@ template<>
 OPENSCENARIOEXPORT bool oscValue<unsigned short>::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *, const char *name)
 {
     char buf[100];
-    sprintf(buf, "%hu", value);
+    snprintf(buf, sizeof(buf), "%hu", value);
 	XMLCh *t1 = NULL, *t2 = NULL;
 	currentElement->setAttribute(t1 = XMLChTranscodeUtf(name), t2 = XMLChTranscodeUtf(buf)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
     return true;

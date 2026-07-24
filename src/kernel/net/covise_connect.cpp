@@ -1056,7 +1056,7 @@ int Connection::recv_msg(Message *msg, char* ip) const
 //	        LOGINFO( retstr);
 
 #ifdef SHOWMSG
-        sprintf(tmp_str, "recv: s: %d st: %d mt: %s l: %d",
+        snprintf(tmp_str, sizeof(tmp_str), "recv: s: %d st: %d mt: %s l: %d",
                 msg->sender, msg->send_type,
                 (msg->type < 0 || msg->type > COVISE_MESSAGE_LAST_DUMMY_MESSAGE) ? (msg->type == -1 ? "EMPTY" : "(invalid)") : covise_msg_types_array[msg->type],
                 msg->data.length());

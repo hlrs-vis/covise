@@ -125,7 +125,7 @@ DmnaFiles::DmnaFiles(const char *firstFile, const char *zFile, const char *o_nam
                         if (!dig)
                         {
                             char buf[400];
-                            sprintf(buf, "error at %d in %s", j, filename);
+                            snprintf(buf, sizeof(buf), "error at %d in %s", j, filename);
                             coModule::sendError(buf);
                         }
                         else

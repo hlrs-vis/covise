@@ -92,7 +92,7 @@ void WindowTypeMesaPlugin::windowUpdateContents(int num)
     }
     auto &win = it->second;
     char filename[100];
-    sprintf(filename,"test%d.png",frameCounter);
+    snprintf(filename, sizeof(filename),"test%d.png",frameCounter);
     frameCounter++;
     if((frameCounter % writeRate) == 0)
 {

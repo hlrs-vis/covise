@@ -88,7 +88,7 @@ ReadSim::ReadSim(int argc, char *argv[])
 
     for (i = 0; i < max; i++)
     {
-        sprintf(buf, "data%d", i);
+        snprintf(buf, sizeof(buf), "data%d", i);
         dataPort[i] = addOutputPort(buf, "Float", buf);
         dataPort[i]->setInfo(buf);
     }
@@ -204,8 +204,8 @@ void ReadSim::PrepareSimStart()
 
     if (!strcmp(s_ConnectionMethod[connMeth], "rdaemon"))
     {
-        sprintf(simStart, "\"%s start %s \" \" \" \"%s\" \" %s \"", SimBatchString(), caseString, p_Hostname->getValue(), p_User->getValue());
-        //sprintf(simStart, "\"%s start %s %d\" \" \" \"%s\" \" %s \"",  SimBatchString(), caseString, p_Hostname->getValue(), p_User->getValue());
+        snprintf(simStart, sizeof(simStart), "\"%s start %s \" \" \" \"%s\" \" %s \"", SimBatchString(), caseString, p_Hostname->getValue(), p_User->getValue());
+        //snprintf(simStart, sizeof(simStart), "\"%s start %s %d\" \" \" \"%s\" \" %s \"",  SimBatchString(), caseString, p_Hostname->getValue(), p_User->getValue());
     }
     else if (!strcmp(s_ConnectionMethod[connMeth], "reattach"))
     {
@@ -214,7 +214,7 @@ void ReadSim::PrepareSimStart()
     }
     else
     {
-        sprintf(simStart, "%s start %s ", SimBatchString(), caseString);
+        snprintf(simStart, sizeof(simStart), "%s start %s ", SimBatchString(), caseString);
     }
 
     setUserArg(1, simStart);
@@ -256,12 +256,12 @@ char *ReadSim::ConnectionString()
 
         memset(user, 0, sizeof(user));
         if (p_User->getValue() && *p_User->getValue())
-            sprintf(user, "-l %s", p_User->getValue());
-        sprintf(connStr, "%s %s %s", s_ConnectionMethod[connMeth],
+            snprintf(user, sizeof(user), "-l %s", p_User->getValue());
+        snprintf(connStr, sizeof(connStr), "%s %s %s", s_ConnectionMethod[connMeth],
                 user, p_Hostname->getValue());
     }
 #else
-    sprintf(connStr, "%s", s_ConnectionMethod[connMeth]);
+    snprintf(connStr, sizeof(connStr), "%s", s_ConnectionMethod[connMeth]);
 #endif
 
     return strdup(connStr);

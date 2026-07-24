@@ -26,7 +26,7 @@
     {                                  \
         if (cond)                      \
         {                              \
-            sprintf(buf, text, arg1);  \
+            snprintf(buf, sizeof(buf), text, arg1);  \
             Covise::sendError(buf);    \
             {                          \
                 action                 \
@@ -38,7 +38,7 @@
     {                                        \
         if (cond)                            \
         {                                    \
-            sprintf(buf, text, arg1, arg2);  \
+            snprintf(buf, sizeof(buf), text, arg1, arg2);  \
             Covise::sendError(buf);          \
             {                                \
                 action                       \
@@ -219,7 +219,7 @@ void ReadVectis::compute(void *)
 
     for (i = 0; i < NDATA; i++)
     {
-        sprintf(buf, "field%i", i + 1);
+        snprintf(buf, sizeof(buf), "field%i", i + 1);
         Covise::get_choice_param(buf, fieldNo + i);
     }
     no1 = choicelist->get_orig_num(fieldNo[0]);
@@ -240,7 +240,7 @@ int ReadVectis::ReadLinkageData()
     //int i, *iptr, len;
     //float *fptr;
 
-    sprintf(buf, "Reading linkage data for %s", vectisfile->get_filename());
+    snprintf(buf, sizeof(buf), "Reading linkage data for %s", vectisfile->get_filename());
     Covise::sendInfo(buf);
 
     //     int ende = 0;
@@ -819,7 +819,7 @@ int ReadVectis::ReadTimeStepData(int skip)
         }
         else
         {
-            sprintf(buf, "Unknown variable %s in Vectis file", tmp_text);
+            snprintf(buf, sizeof(buf), "Unknown variable %s in Vectis file", tmp_text);
             ERR0((1), buf, return (0););
         }
 
@@ -1258,7 +1258,7 @@ int ReadVectis::WriteVectisData(int no1, int no2, int no3)
         if (no_list[i] > 0)
         {
             field = no_list[i];
-            sprintf(objName, "data%i", i + 1);
+            snprintf(objName, sizeof(objName), "data%i", i + 1);
             Name = Covise::get_object_name(objName);
             ERR1((Name == NULL), "Error getting name '%s'", objName, return 0;)
 

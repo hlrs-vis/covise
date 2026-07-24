@@ -84,7 +84,7 @@ coDoSet *ReadCadmould::readField(const std::string &objName, CadmouldData *data,
         const int *map = d_grid->globalVertex(grp);
 
         // create object
-        sprintf(partName, "%s_%d", objName.c_str(), grp);
+        snprintf(partName, sizeof(partName), "%s_%d", objName.c_str(), grp);
         if (fglobal)
         {
             coDoFloat *s3d = new coDoFloat(partName, numVert);
@@ -185,12 +185,12 @@ ReadCadmould::readData(coOutputPort *port, int useDataSet, int useField)
         char partName[1024];
         for (int i = 0; i < numTimesteps; i++)
         {
-            sprintf(partName, "%s_%d", objName, i);
+            snprintf(partName, sizeof(partName), "%s_%d", objName, i);
             setElem[i] = readField(partName, d_data[useDataSet], useField, i);
         }
 
         coDoSet *set = new coDoSet(objName, setElem);
-        sprintf(partName, "0 %d", numTimesteps);
+        snprintf(partName, sizeof(partName), "0 %d", numTimesteps);
         set->addAttribute("TIMESTEP", partName);
         set->addAttribute("NO_DATA_COLOR", p_no_data_color->getValue());
         port->setCurrentObject(set);
@@ -202,12 +202,12 @@ ReadCadmould::readData(coOutputPort *port, int useDataSet, int useField)
             objName = p_stepMesh->getObjName();
             for (int i = 0; i < numTimesteps; i++)
             {
-                sprintf(partName, "%s_%d", objName, i);
+                snprintf(partName, sizeof(partName), "%s_%d", objName, i);
                 setElem[i] = mesh;
                 mesh->incRefCount();
             }
             coDoSet *set = new coDoSet(objName, setElem);
-            sprintf(partName, "0 %d", numTimesteps);
+            snprintf(partName, sizeof(partName), "0 %d", numTimesteps);
             set->addAttribute("TIMESTEP", partName);
             p_stepMesh->setCurrentObject(set);
         }
@@ -244,7 +244,7 @@ void ReadCadmould::readGrid()
     {
 
         // prepare object name
-        sprintf(buffer, "%s_%d", basename, grp);
+        snprintf(buffer, sizeof(buffer), "%s_%d", basename, grp);
 
         // get grid sizes and create object for it
         int numElem, numConn, numVert;
@@ -260,7 +260,7 @@ void ReadCadmould::readGrid()
         d_grid->copyTables(grp, elemList, typeList, connList, x, y, z);
 
         // attach part-ID
-        sprintf(buffer, "%d", d_grid->getGroupID(grp));
+        snprintf(buffer, sizeof(buffer), "%d", d_grid->getGroupID(grp));
         usg->addAttribute("PART", buffer);
 
         setElem[grp] = usg;
@@ -299,7 +299,7 @@ void ReadCadmould::readThick()
     for (int grp = 0; grp < numGroups; ++grp)
     {
         // prepare object name
-        sprintf(buffer, "%s_%d", basename, grp);
+        snprintf(buffer, sizeof(buffer), "%s_%d", basename, grp);
 
         // get grid sizes and create object for it
         int numElem, numConn, numVert;
@@ -313,7 +313,7 @@ void ReadCadmould::readThick()
         d_grid->copyThickness(grp, thick);
 
         // attach part-ID
-        sprintf(buffer, "%d", d_grid->getGroupID(grp));
+        snprintf(buffer, sizeof(buffer), "%d", d_grid->getGroupID(grp));
         scal->addAttribute("PART", buffer);
 
         setElem[grp] = scal;
@@ -438,7 +438,7 @@ ReadCadmould::fillingAnimation()
         // calculate real time
         std::string stepName(objName);
         char buf[64];
-        sprintf(buf, "_%d", time);
+        snprintf(buf, sizeof(buf), "_%d", time);
         stepName += buf;
         float realtime = min + ((max - min) * time) / (numTimesteps - 1);
         coDistributedObject *ogrid = p_mesh->getCurrentObject();
@@ -455,7 +455,7 @@ ReadCadmould::fillingAnimation()
 
     // set object and set time attribute
     char buf[64];
-    sprintf(buf, "%d %d", 1, numTimesteps);
+    snprintf(buf, sizeof(buf), "%d %d", 1, numTimesteps);
     fillingProcess->addAttribute("TIMESTEP", buf);
     fillingProcess->addAttribute("SPECIES", "Animated Filling");
     p_fillData->setCurrentObject(fillingProcess);
@@ -504,7 +504,7 @@ ReadCadmould::FillStep(const std::string &stepName, float realtime, float max,
         for (elem = 0; elem < no_elems; ++elem)
         {
             std::string elemName(stepName);
-            sprintf(buf, "_%d", elem);
+            snprintf(buf, sizeof(buf), "_%d", elem);
             elemName += buf;
             outlist[elem] = FillStep(elemName, realtime, max, glist[elem], dlist[elem]);
         }

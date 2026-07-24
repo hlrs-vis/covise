@@ -222,7 +222,7 @@ int mifsetmode(int mode)
         fclose(mifout);
         if (!ptofile)
         {
-            sprintf(sysbuf, "%s %s", mif_prstr, fname);
+            snprintf(sysbuf, sizeof(sysbuf), "%s %s", mif_prstr, fname);
             system(sysbuf);
             unlink(fname);
         }

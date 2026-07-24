@@ -529,7 +529,7 @@ Vrml97Plugin::key(int type, int keySym, int mod)
     else if (keySym >= osgGA::GUIEventAdapter::KEY_F1 && keySym <= osgGA::GUIEventAdapter::KEY_F35)
     {
         char buf[10];
-        sprintf(buf, "F%d", keySym - (osgGA::GUIEventAdapter::KEY_F1 - 1));
+        snprintf(buf, sizeof(buf), "F%d", keySym - (osgGA::GUIEventAdapter::KEY_F1 - 1));
         strcat(keyString, buf);
     }
     else if (keySym >= osgGA::GUIEventAdapter::KEY_KP_0 && keySym <= osgGA::GUIEventAdapter::KEY_KP_9)

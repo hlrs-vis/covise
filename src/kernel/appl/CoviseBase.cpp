@@ -496,7 +496,7 @@ FILE *CoviseBase::fopen(const char *file, const char *mode, char **returnPath)
 
     while (dirname != NULL)
     {
-        sprintf(buf, "%s/%s", dirname, file);
+        snprintf(buf, sizeof(buf), "%s/%s", dirname, file);
         if (is_file(buf) || *mode == 'a' || *mode == 'w')
             fp = ::fopen(buf, mode);
 
@@ -515,7 +515,7 @@ FILE *CoviseBase::fopen(const char *file, const char *mode, char **returnPath)
                 break;
             }
         }
-        sprintf(buf, "%s/%s", dirname, file);
+        snprintf(buf, sizeof(buf), "%s/%s", dirname, file);
         if (is_file(buf) || *mode == 'a' || *mode == 'w')
             fp = ::fopen(buf, mode);
         if (fp != NULL)
@@ -569,7 +569,7 @@ int CoviseBase::open(const char *file, int mode)
 #endif
     while (dirname != NULL)
     {
-        sprintf(buf, "%s/%s", dirname, file);
+        snprintf(buf, sizeof(buf), "%s/%s", dirname, file);
         fd = ::open(buf, mode, 0660);
         if (fd >= 0)
         {
@@ -589,7 +589,7 @@ int CoviseBase::open(const char *file, int mode)
                 break;
             }
         }
-        sprintf(buf, "%s/%s", dirname, file);
+        snprintf(buf, sizeof(buf), "%s/%s", dirname, file);
         fd = ::open(buf, mode, 0660);
         if (fd >= 0)
         {
@@ -640,7 +640,7 @@ DIR *CoviseBase::opendir(const char *file)
 #endif
     while (dirname != NULL)
     {
-        sprintf(buf, "%s/%s", dirname, file);
+        snprintf(buf, sizeof(buf), "%s/%s", dirname, file);
         fp = ::opendir(buf);
         if (fp != NULL)
         {
@@ -656,7 +656,7 @@ DIR *CoviseBase::opendir(const char *file)
                 break;
             }
         }
-        sprintf(buf, "%s/%s", dirname, file);
+        snprintf(buf, sizeof(buf), "%s/%s", dirname, file);
         fp = ::opendir(buf);
         if (fp != NULL)
         {
@@ -713,7 +713,7 @@ bool CoviseBase::getnameinpath(char *buf, const char *file, const char *path)
 #endif
     while (dirname != NULL)
     {
-        sprintf(buf, "%s/%s", dirname, file);
+        snprintf(buf, sizeof(buf), "%s/%s", dirname, file);
         FILE *fp = ::fopen(buf, "r");
         if (fp != NULL)
         {
@@ -730,7 +730,7 @@ bool CoviseBase::getnameinpath(char *buf, const char *file, const char *path)
                 break;
             }
         }
-        sprintf(buf, "%s/%s", dirname, file);
+        snprintf(buf, sizeof(buf), "%s/%s", dirname, file);
         fp = ::fopen(buf, "r");
         if (fp != NULL)
         {
@@ -2336,13 +2336,13 @@ int CoviseBase::update_timer_param(const char *pname, long start, long delta, lo
         strcat(data, "\n");
         strcat(data, "Timer");
         strcat(data, "\n");
-        sprintf(numbuf, "%d\n", no_of_tokens);
+        snprintf(numbuf, sizeof(numbuf), "%d\n", no_of_tokens);
         strcat(data, numbuf);
-        sprintf(numbuf, "%ld\n", start);
+        snprintf(numbuf, sizeof(numbuf), "%ld\n", start);
         strcat(data, numbuf);
-        sprintf(numbuf, "%ld\n", delta);
+        snprintf(numbuf, sizeof(numbuf), "%ld\n", delta);
         strcat(data, numbuf);
-        sprintf(numbuf, "%ld\n", state);
+        snprintf(numbuf, sizeof(numbuf), "%ld\n", state);
         strcat(data, numbuf);
 
         // build and send message

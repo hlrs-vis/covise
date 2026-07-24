@@ -123,7 +123,7 @@ int SelectUsg::compute(const char *)
         }
 
         char objName[256];
-        sprintf(objName, "%s-%s", p_inPort2->getName(), p_outPort1->getObjName());
+        snprintf(objName, sizeof(objName), "%s-%s", p_inPort2->getName(), p_outPort1->getObjName());
         index_obj = new coDoIntArr(objName, 1, &num_elem, elemNumbs);
         delete[] elemNumbs;
 

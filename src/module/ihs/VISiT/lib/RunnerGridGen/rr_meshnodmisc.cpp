@@ -42,7 +42,7 @@ int PutBladeNodes(struct Nodelist *n, struct Ilist *ssnod,
 	char  fn[200];
 	FILE *fp;
 
-	sprintf(fn,"rr_blnodes_%02d.dat",i);
+	snprintf(fn, sizeof(fn),"rr_blnodes_%02d.dat",i);
 	if( (fp = fopen(fn,"w+")) == NULL) {
 		fprintf(stderr,"could not open file '%s'!\n", fn);
 		exit(-1);
@@ -283,7 +283,7 @@ int EquivCheck(struct node **n, int offset)
 	char fn[111];
 	FILE *fp;
 
-	sprintf(fn,"rr_equiv_%02d.txt",count++);
+	snprintf(fn, sizeof(fn),"rr_equiv_%02d.txt",count++);
 	if( (fp = fopen(fn,"w+")) == NULL) {
 		fprintf(stderr,"Shit happened opening file '%s'!\n",fn);
 		exit(-1);
@@ -333,7 +333,7 @@ int DumpBoundaries(struct Nodelist *n, struct Ilist *inlet, struct Ilist *psle,
 	FILE *fp;
 
 	for(i = 0; i < ge_num; i++) {
-		sprintf(fn,"rr_debugbc_%02d.txt", i);
+		snprintf(fn, sizeof(fn),"rr_debugbc_%02d.txt", i);
 		if( (fp = fopen(fn,"w+")) == NULL) {
 			fprintf(stderr,"Shit happened opening file '%s'!\n",fn);
 			exit(-1);

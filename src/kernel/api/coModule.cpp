@@ -100,7 +100,7 @@ coModule::coModule(int argc, char *argv[], const char *desc, bool propagate)
     const char *debug = getenv("CO_DEBUGGER");
     if (debug)
     {
-        sprintf(buffer, debug, getpid());
+        snprintf(buffer, sizeof(buffer), debug, getpid());
         if (!strchr(buffer, '&')) // if the command isn't sent to background
         {
             int pos = (int)strlen(buffer);
@@ -413,7 +413,7 @@ void coModule::handleMessages(float time)
         {
             // build feedback string
             char buf[256];
-            sprintf(buf, "T%s\n%s\n%s\n", Covise::get_module(),
+            snprintf(buf, sizeof(buf), "T%s\n%s\n%s\n", Covise::get_module(),
                     Covise::get_instance(),
                     Covise::get_host());
             Covise::set_feedback_info(buf);
@@ -504,7 +504,7 @@ void coModule::handleMessages(float time)
 
                     // build feedback string
                     char buf[256];
-                    sprintf(buf, "T%s\n%s\n%s\n", Covise::get_module(),
+                    snprintf(buf, sizeof(buf), "T%s\n%s\n%s\n", Covise::get_module(),
                             Covise::get_instance(),
                             Covise::get_host());
                     Covise::set_feedback_info(buf);

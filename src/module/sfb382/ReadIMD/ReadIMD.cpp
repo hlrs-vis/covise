@@ -116,7 +116,7 @@ bool coCheckpointFile::parseHeader()
     {
         if (strcmp(tokenizer->sval, "#") == 0)
         {
-            sprintf(buf, "Warning: invalid checkpoint header type in line %d.", tokenizer->getLineNumber());
+            snprintf(buf, sizeof(buf), "Warning: invalid checkpoint header type in line %d.", tokenizer->getLineNumber());
             module->sendInfo(buf);
         }
         else if ((strcmp(tokenizer->sval, "#c") == 0 || strcmp(tokenizer->sval, "contents") == 0))
@@ -181,7 +181,7 @@ bool coCheckpointFile::parseHeader()
             {
                 if (((coReadIMD *)module)->displayWarnings())
                 {
-                    sprintf(buf, "Ignoring non-zero bounding box parameter not on diagonal: %f", boxSize[i][j]);
+                    snprintf(buf, sizeof(buf), "Ignoring non-zero bounding box parameter not on diagonal: %f", boxSize[i][j]);
                     module->sendInfo(buf);
                 }
             }
@@ -189,7 +189,7 @@ bool coCheckpointFile::parseHeader()
             {
                 if (((coReadIMD *)module)->displayWarnings())
                 {
-                    sprintf(buf, "Non-positive bounding box parameter on diagonal set to 1.0: %f", boxSize[i][j]);
+                    snprintf(buf, sizeof(buf), "Non-positive bounding box parameter on diagonal set to 1.0: %f", boxSize[i][j]);
                     module->sendInfo(buf);
                 }
                 boxSize[i][j] = 1.0f;
@@ -287,7 +287,7 @@ void coReadIMD::readParameters()
     fp = fopen(pbrCheckpointFile->getValue(), "rb");
     if (fp == NULL)
     {
-        sprintf(buf, "Cannot open source file: %s", pbrCheckpointFile->getValue());
+        snprintf(buf, sizeof(buf), "Cannot open source file: %s", pbrCheckpointFile->getValue());
         sendError(buf);
         return;
     }
@@ -406,7 +406,7 @@ int coReadIMD::compute(const char *)
 
     if (!vvToolshed::isFile(path))
     {
-        sprintf(buf, "Checkpoint file %s not found.", path);
+        snprintf(buf, sizeof(buf), "Checkpoint file %s not found.", path);
         sendError(buf);
         return STOP_PIPELINE;
     }
@@ -479,7 +479,7 @@ int coReadIMD::compute(const char *)
             }
             if (ttype != vvTokenizer::VV_NUMBER)
             {
-                sprintf(buf, "Error: cannot parse line %d of file %s.", tokenizer->getLineNumber(), filename);
+                snprintf(buf, sizeof(buf), "Error: cannot parse line %d of file %s.", tokenizer->getLineNumber(), filename);
                 sendInfo(buf);
                 break;
             }
@@ -501,7 +501,7 @@ int coReadIMD::compute(const char *)
                 {
                     if (warnings)
                     {
-                        sprintf(buf, "Warning: x coordinate %f out of range in line %d of file %s.",
+                        snprintf(buf, sizeof(buf), "Warning: x coordinate %f out of range in line %d of file %s.",
                                 tokenizer->nval, tokenizer->getLineNumber(), filename);
                         sendInfo(buf);
                     }
@@ -517,7 +517,7 @@ int coReadIMD::compute(const char *)
                 {
                     if (warnings)
                     {
-                        sprintf(buf, "Warning: y coordinate %f out of range in line %d of file %s.",
+                        snprintf(buf, sizeof(buf), "Warning: y coordinate %f out of range in line %d of file %s.",
                                 tokenizer->nval, tokenizer->getLineNumber(), filename);
                         sendInfo(buf);
                     }
@@ -533,7 +533,7 @@ int coReadIMD::compute(const char *)
                 {
                     if (warnings)
                     {
-                        sprintf(buf, "Warning: z coordinate %f out of range in line %d of file %s.", tokenizer->nval, tokenizer->getLineNumber(), filename);
+                        snprintf(buf, sizeof(buf), "Warning: z coordinate %f out of range in line %d of file %s.", tokenizer->nval, tokenizer->getLineNumber(), filename);
                         sendInfo(buf);
                     }
                 }
@@ -563,19 +563,19 @@ int coReadIMD::compute(const char *)
         }
         ++timesteps;
 
-        sprintf(buf, "%s_%d", poPoints->getObjName(), timesteps);
+        snprintf(buf, sizeof(buf), "%s_%d", poPoints->getObjName(), timesteps);
         doPoints = new coDoPoints(buf, atoms, x.getArrayPtr(), y.getArrayPtr(), z.getArrayPtr());
         aPoints.append(doPoints);
 
-        sprintf(buf, "%s_%d", poSpeed->getObjName(), timesteps);
+        snprintf(buf, sizeof(buf), "%s_%d", poSpeed->getObjName(), timesteps);
         doSpeed = new coDoVec3(buf, atoms, vx.getArrayPtr(), vy.getArrayPtr(), vz.getArrayPtr());
         aSpeed.append(doSpeed);
 
-        sprintf(buf, "%s_%d", poScalar1->getObjName(), timesteps);
+        snprintf(buf, sizeof(buf), "%s_%d", poScalar1->getObjName(), timesteps);
         doScalar1 = new coDoFloat(buf, atoms, scalar1.getArrayPtr());
         aScalar1.append(doScalar1);
 
-        sprintf(buf, "%s_%d", poScalar2->getObjName(), timesteps);
+        snprintf(buf, sizeof(buf), "%s_%d", poScalar2->getObjName(), timesteps);
         doScalar2 = new coDoFloat(buf, atoms, scalar2.getArrayPtr());
         aScalar2.append(doScalar2);
 
@@ -590,14 +590,14 @@ int coReadIMD::compute(const char *)
         scalar2.clear();
 
         // Print info message:
-        sprintf(buf, "%d atoms loaded from checkpoint file %s.", atoms, filename);
+        snprintf(buf, sizeof(buf), "%d atoms loaded from checkpoint file %s.", atoms, filename);
         sendInfo(buf);
         if (constrainSpeed)
         {
-            sprintf(buf, "%d atoms discarded due to speed constraints.", discarded);
+            snprintf(buf, sizeof(buf), "%d atoms discarded due to speed constraints.", discarded);
             sendInfo(buf);
         }
-        sprintf(buf, "Size of simulation box: %f x %f x %f",
+        snprintf(buf, sizeof(buf), "Size of simulation box: %f x %f x %f",
                 cpFile->boxSize[0][0], cpFile->boxSize[1][1], cpFile->boxSize[2][2]);
         sendInfo(buf);
 
@@ -617,7 +617,7 @@ int coReadIMD::compute(const char *)
 
     if (constrainSpeed)
     {
-        sprintf(buf, "Minimum speed: %f, Maximum speed: %f", speedFound[0], speedFound[1]);
+        snprintf(buf, sizeof(buf), "Minimum speed: %f, Maximum speed: %f", speedFound[0], speedFound[1]);
         sendInfo(buf);
     }
 
@@ -643,7 +643,7 @@ int coReadIMD::compute(const char *)
         // Set timestep attribute:
         if (timesteps > 1)
         {
-            sprintf(buf, "%d %d", 0, timesteps - 1);
+            snprintf(buf, sizeof(buf), "%d %d", 0, timesteps - 1);
             setPoints->addAttribute("TIMESTEP", buf);
             setSpeed->addAttribute("TIMESTEP", buf);
             setScalar1->addAttribute("TIMESTEP", buf);
@@ -656,7 +656,7 @@ int coReadIMD::compute(const char *)
         poScalar1->setCurrentObject(setScalar1);
         poScalar2->setCurrentObject(setScalar2);
 
-        sprintf(buf, "Timesteps loaded: %d", timesteps);
+        snprintf(buf, sizeof(buf), "Timesteps loaded: %d", timesteps);
         sendInfo(buf);
 
         retVal = CONTINUE_PIPELINE;

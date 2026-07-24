@@ -42,7 +42,7 @@ int getparms(int, char *plfile)
     }
     if ((pp = fopen(plfile, "r")) == NULL)
     {
-        sprintf(readbuf, "Can't open parameter file %s", plfile);
+        snprintf(readbuf, sizeof(readbuf), "Can't open parameter file %s", plfile);
         errwin(readbuf);
         return 0;
     }

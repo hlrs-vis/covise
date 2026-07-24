@@ -159,7 +159,7 @@ void FFMPEGPlugin::checkFileFormat(const string &filename)
     ofstream dataFile(filename.c_str(), ios::ate);
     if (!dataFile)
     {
-        sprintf(buf, "Could not open file. Please check file name.");
+        snprintf(buf, sizeof(buf), "Could not open file. Please check file name.");
         myPlugin->fileErrorLabel->setLabel(buf);
         myPlugin->fileError = true;
         return;
@@ -195,7 +195,7 @@ void FFMPEGPlugin::checkFileFormat(const string &filename)
         {
             if (!((myPlugin->outWidth == 720) && (myPlugin->outHeight == 576)) && !((myPlugin->outWidth == 720) && (myPlugin->outHeight == 480)))
             {
-                sprintf(buf, "DV only supports 720x576 or 720x480");
+                snprintf(buf, sizeof(buf), "DV only supports 720x576 or 720x480");
                 myPlugin->errorLabel->setLabel(buf);
                 myPlugin->sizeError = true;
                 return;
@@ -205,7 +205,7 @@ void FFMPEGPlugin::checkFileFormat(const string &filename)
         {
             if ((myPlugin->outHeight != 480) && (myPlugin->outHeight != 512) && (myPlugin->outHeight != 576) && (myPlugin->outHeight != 608))
             {
-                sprintf(buf, "gxf muxer only accepts PAL or NTSC resolutions");
+                snprintf(buf, sizeof(buf), "gxf muxer only accepts PAL or NTSC resolutions");
                 myPlugin->errorLabel->setLabel(buf);
                 myPlugin->sizeError = true;
                 return;
@@ -581,11 +581,11 @@ void FFMPEGPlugin::saveParams()
             xercesc::DOMElement *VPChild = xmlDoc->createElement(t1 = xercesc::XMLString::transcode("VPValues"));
             xercesc::XMLString::release(&t1);
             char nr[100];
-            sprintf(nr, "%d", (*it).width);
+            snprintf(nr, sizeof(nr), "%d", (*it).width);
             VPChild->setAttribute(t1 = xercesc::XMLString::transcode("outWidth"), t2 = xercesc::XMLString::transcode(nr));
             xercesc::XMLString::release(&t1);
             xercesc::XMLString::release(&t2);
-            sprintf(nr, "%d", (*it).height);
+            snprintf(nr, sizeof(nr), "%d", (*it).height);
             VPChild->setAttribute(t1 = xercesc::XMLString::transcode("outHeight"), t2 = xercesc::XMLString::transcode(nr));
             xercesc::XMLString::release(&t1);
             xercesc::XMLString::release(&t2);
@@ -593,17 +593,17 @@ void FFMPEGPlugin::saveParams()
                                   t2 = xercesc::XMLString::transcode((*it).fps.c_str()));
             xercesc::XMLString::release(&t1);
             xercesc::XMLString::release(&t2);
-            sprintf(nr, "%d", (*it).constFrames);
+            snprintf(nr, sizeof(nr), "%d", (*it).constFrames);
             VPChild->setAttribute(t1 = xercesc::XMLString::transcode("constantFrameRate"),
                                   t2 = xercesc::XMLString::transcode(nr));
             xercesc::XMLString::release(&t1);
             xercesc::XMLString::release(&t2);
-            sprintf(nr, "%d", (*it).maxBitrate);
+            snprintf(nr, sizeof(nr), "%d", (*it).maxBitrate);
             VPChild->setAttribute(t1 = xercesc::XMLString::transcode("bitrateMax"),
                                   t2 = xercesc::XMLString::transcode(nr));
             xercesc::XMLString::release(&t1);
             xercesc::XMLString::release(&t2);
-            sprintf(nr, "%d", (*it).avgBitrate);
+            snprintf(nr, sizeof(nr), "%d", (*it).avgBitrate);
             VPChild->setAttribute(t1 = xercesc::XMLString::transcode("bitrateAverage"),
                                   t2 = xercesc::XMLString::transcode(nr));
             xercesc::XMLString::release(&t1);
@@ -665,7 +665,7 @@ void FFMPEGPlugin::addParams()
             else
             {
                 char buf[1000];
-                sprintf(buf, "Parameter name already in List. Press button again to overwrite.");
+                snprintf(buf, sizeof(buf), "Parameter name already in List. Press button again to overwrite.");
                 myPlugin->errorLabel->setLabel(buf);
                 myPlugin->sizeError = true;
                 overwrite = true;

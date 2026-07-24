@@ -122,7 +122,7 @@ int WriteTGrid(struct tgrid *tg, const char *fn)
    FILE *fp;
 
    res = 0;
-   sprintf(buf, "%s.geo", fn);
+   snprintf(buf, sizeof(buf), "%s.geo", fn);
    if ((fp = fopen(buf, "w")) != NULL)
    {
       fputs("## Geomtriedaten (automatisch erzeugt)\n\n\n\n\n\n\n\n\n\n", fp);
@@ -152,7 +152,7 @@ int WriteTBoundaryConditions(struct tgrid *tg, const char *fn)
    int i;
    FILE *fp;
 
-   sprintf(buf, "%s.rb", fn);
+   snprintf(buf, sizeof(buf), "%s.rb", fn);
    if ((fp = fopen(buf, "w")) != NULL)
    {
       fputs("##############################################\n", fp);
@@ -518,7 +518,7 @@ void DumpTGrid(struct tgrid *tg)
    for (i = 0; i < tg->gs_num; i++)
    {
       fprintf(stderr, "Grid-Section = %d\n", i);
-      sprintf(tmp, "tg_%d.txt", i);
+      snprintf(tmp, sizeof(tmp), "tg_%d.txt", i);
       fp=NULL;
       if ((fn = DebugFilename(tmp)))
          fp = fopen(fn, "w");
@@ -539,7 +539,7 @@ void DumpTGrid(struct tgrid *tg)
          fprintf(fp, "%f %f\n", tg->gs[i]->rm[0][0], tg->gs[i]->rm[0][1]);
          fclose(fp);
       }
-      sprintf(tmp, "grid_%d.txt", i);
+      snprintf(tmp, sizeof(tmp), "grid_%d.txt", i);
       
       fp=NULL;
       fn = DebugFilename(tmp);
@@ -551,7 +551,7 @@ void DumpTGrid(struct tgrid *tg)
          }
          fclose(fp);
       }
-      sprintf(tmp, "rect_%d.txt", i);
+      snprintf(tmp, sizeof(tmp), "rect_%d.txt", i);
       fp=NULL;
       fn = DebugFilename(tmp);
       if (fn && (fp = fopen(fn, "w")) != NULL)

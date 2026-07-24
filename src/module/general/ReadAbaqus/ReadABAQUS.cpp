@@ -129,7 +129,7 @@ ReadABAQUS::ReadABAQUS(int argc, char *argv[])
     for (dataset = 0; dataset < NUM_OUTPUTS; ++dataset)
     {
         char buf[32];
-        sprintf(buf, "%d", dataset);
+        snprintf(buf, sizeof(buf), "%d", dataset);
         string stringdataset(buf);
 
         string var = "Variable_";
@@ -198,7 +198,7 @@ ReadABAQUS::ReadABAQUS(int argc, char *argv[])
     for (dataset = 0; dataset < NUM_OUTPUTS; ++dataset)
     {
         char buf[32];
-        sprintf(buf, "%d", dataset);
+        snprintf(buf, sizeof(buf), "%d", dataset);
         string stringdataset(buf);
 
         string mesh = "Mesh_";

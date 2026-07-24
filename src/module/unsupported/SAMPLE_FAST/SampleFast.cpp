@@ -71,7 +71,7 @@ coDistributedObject **Sample::compute(coDistributedObject **in, char **outNames)
     else
         Density = NULL;
     char info[600];
-    sprintf(info, "sampling to grid %d x %d x %d.", size_i, size_j, size_k);
+    snprintf(info, sizeof(info), "sampling to grid %d x %d x %d.", size_i, size_j, size_k);
     Covise::sendInfo(info);
 
     // getting data from shared memory
@@ -80,7 +80,7 @@ coDistributedObject **Sample::compute(coDistributedObject **in, char **outNames)
 
     if (data_obj == NULL)
     {
-        sprintf(info, "can't get Points !");
+        snprintf(info, sizeof(info), "can't get Points !");
         Covise::sendError(info);
         return returnObject;
     }
@@ -124,7 +124,7 @@ coDistributedObject **Sample::compute(coDistributedObject **in, char **outNames)
     else
     {
         char buffer[255];
-        sprintf(buffer, "object type %s not supported !", objecttype);
+        snprintf(buffer, sizeof(buffer), "object type %s not supported !", objecttype);
         Covise::sendError(buffer);
         return returnObject;
     }
@@ -133,7 +133,7 @@ coDistributedObject **Sample::compute(coDistributedObject **in, char **outNames)
 
     if (data_obj == NULL)
     {
-        sprintf(info, "can't get Data!");
+        snprintf(info, sizeof(info), "can't get Data!");
         Covise::sendError(info);
         return returnObject;
     }
@@ -155,7 +155,7 @@ coDistributedObject **Sample::compute(coDistributedObject **in, char **outNames)
         int dim_x, dim_y, dim_z;
         structured_scalars->getGridSize(&dim_x, &dim_y, &dim_z);
         num_scalars = dim_x * dim_y * dim_z;
-        sprintf(info, "got %d structured scalar data from shm", num_scalars);
+        snprintf(info, sizeof(info), "got %d structured scalar data from shm", num_scalars);
         Covise::sendInfo(info);
         structured_scalars->getAddress(&scalar_data);
     }
@@ -164,7 +164,7 @@ coDistributedObject **Sample::compute(coDistributedObject **in, char **outNames)
         cerr << "got unstructured scalar data !" << endl;
         unstructured_scalars = (coDoFloat *)data_obj;
         num_scalars = unstructured_scalars->getNumPoints();
-        sprintf(info, "got %d unstructured scalar data from shm", num_scalars);
+        snprintf(info, sizeof(info), "got %d unstructured scalar data from shm", num_scalars);
         Covise::sendInfo(info);
         unstructured_scalars->getAddress(&scalar_data);
     }
@@ -175,7 +175,7 @@ coDistributedObject **Sample::compute(coDistributedObject **in, char **outNames)
         int dim_x, dim_y, dim_z;
         structured_vectors->getGridSize(&dim_x, &dim_y, &dim_z);
         num_vectors = dim_x * dim_y * dim_z;
-        sprintf(info, "got %d structured vector data from shm", num_vectors);
+        snprintf(info, sizeof(info), "got %d structured vector data from shm", num_vectors);
         Covise::sendInfo(info);
         structured_vectors->getAddresses(&vx, &vy, &vz);
     }
@@ -184,14 +184,14 @@ coDistributedObject **Sample::compute(coDistributedObject **in, char **outNames)
         cerr << "got unstructured vector data !" << endl;
         unstructured_vectors = (coDoVec3 *)data_obj;
         num_vectors = unstructured_vectors->getNumPoints();
-        sprintf(info, "got %d unstructured vector data from shm", num_vectors);
+        snprintf(info, sizeof(info), "got %d unstructured vector data from shm", num_vectors);
         Covise::sendInfo(info);
         unstructured_vectors->getAddresses(&vx, &vy, &vz);
     }
     else
     {
         char buffer[255];
-        sprintf(buffer, "object type %s not supported !", objecttype);
+        snprintf(buffer, sizeof(buffer), "object type %s not supported !", objecttype);
         Covise::sendError(buffer);
         return returnObject;
     }

@@ -25,7 +25,7 @@ int testingModule::compute(char const *str)
     for (int ii = 0; ii < 100; ii++)
     {
         char objname[100];
-        sprintf(objname, "info_%d", ii);
+        snprintf(objname, sizeof(objname), "info_%d", ii);
         cdo[ii] = new coDoText(objname, "name");
     }
     cdo[100] = NULL;

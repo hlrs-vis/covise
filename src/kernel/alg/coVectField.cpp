@@ -1127,7 +1127,7 @@ coDistrVectField::CreateLinesAndScalar(coDistributedObject **lines,
             setList[i] = NULL;
             string name_i = linesName;
             char buf[16];
-            sprintf(buf, "_%d", i);
+            snprintf(buf, sizeof(buf), "_%d", i);
             name_i += buf;
             if (linesName == "")
             {

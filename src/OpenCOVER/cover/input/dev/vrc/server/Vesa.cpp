@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
     }
 
     char buf[8];
-    sprintf(buf, ".DM41!");
+    snprintf(buf, sizeof(buf), ".DM41!");
     serial.write((void *)buf, 6);
 }
 

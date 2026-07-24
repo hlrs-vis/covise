@@ -596,7 +596,7 @@ SimplifySurface::compute(const char *)
 			float num_tri_red = 0;
 			string message("Initial number of triangles for ");
 			char buf[512];
-			sprintf(buf, "is %lu, trying reduction up to %.2f%%...",
+			snprintf(buf, sizeof(buf), "is %lu, trying reduction up to %.2f%%...",
 				(unsigned long)tri_conn_list.size() / 3,
 				stage_ratio * 100.0);
 			message += buf;

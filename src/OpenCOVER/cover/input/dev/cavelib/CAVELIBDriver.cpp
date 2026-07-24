@@ -42,7 +42,7 @@ CAVELIBDriver::CAVELIBDriver(const std::string &config)
     //HANDLE handle;
     HANDLE filemap;
     char tmp_str[512];
-    sprintf(tmp_str, "Global\\%d", key);
+    snprintf(tmp_str, sizeof(tmp_str), "Global\\%d", key);
     /* while((handle = CreateFile(tmp_str, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
     NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL)) == INVALID_HANDLE_VALUE)
     {
@@ -100,7 +100,7 @@ CAVELIBDriver::CAVELIBDriver(const std::string &config)
 
 #ifdef WIN32
 
-    sprintf(tmp_str, "Global\\%d", key);
+    snprintf(tmp_str, sizeof(tmp_str), "Global\\%d", key);
 
     filemap = OpenFileMapping(FILE_MAP_READ, FALSE, tmp_str);
     if (!(CaveLibWand = (TRACKD_WAND *)MapViewOfFile(filemap, FILE_MAP_READ, 0, 0, sizeof(struct TRACKD_WAND))))

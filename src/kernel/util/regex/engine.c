@@ -1040,9 +1040,9 @@ static char * /* -> representation */
     static char pbuf[10];
 
     if (isprint(ch) || ch == ' ')
-        sprintf(pbuf, "%c", ch);
+        snprintf(pbuf, sizeof(pbuf), "%c", ch);
     else
-        sprintf(pbuf, "\\%o", ch);
+        snprintf(pbuf, sizeof(pbuf), "\\%o", ch);
     return (pbuf);
 }
 #endif

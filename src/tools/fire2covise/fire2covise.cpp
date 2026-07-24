@@ -475,7 +475,7 @@ int main(int argc, char **argv)
     }
     // finalize sets
     char buffer[23];
-    sprintf(buffer, "0 %d", numSteps - 1);
+    snprintf(buffer, sizeof(buffer), "0 %d", numSteps - 1);
     char *names[] = { "CREATOR", "TIMESTEP", NULL };
     char *values[] = { "fire2asc v1.0", buffer, NULL };
     covOutFile **str = outfiles;

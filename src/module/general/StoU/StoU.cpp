@@ -28,7 +28,7 @@ StoU::StoU(int argc, char *argv[])
 
     for (i = 1; i < MAX_DATA_PORTS + 1; i++)
     {
-        sprintf(buffer, "dataIn_%d", i);
+        snprintf(buffer, sizeof(buffer), "dataIn_%d", i);
         p_inPort[i] = addInputPort(buffer, "Float|Vec3|IntArr", "Data");
         p_inPort[i]->setRequired(0);
     }
@@ -36,7 +36,7 @@ StoU::StoU(int argc, char *argv[])
     p_outPort[0] = addOutputPort("meshOut", "UnstructuredGrid", "unstructured Grid");
     for (i = 1; i < MAX_DATA_PORTS + 1; i++)
     {
-        sprintf(buffer, "dataOut_%d", i);
+        snprintf(buffer, sizeof(buffer), "dataOut_%d", i);
         p_outPort[i] = addOutputPort(buffer, "Float|Vec3|IntArr", "unstructured data");
         p_outPort[i]->setDependencyPort(p_inPort[i]);
     }

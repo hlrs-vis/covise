@@ -161,9 +161,9 @@ VrmlNodeType::addExposedField(const char *ename,
     if (defaultValue)
         setFieldDefault(ename, defaultValue);
 
-    sprintf(tmp, "set_%s", ename);
+    snprintf(tmp, sizeof(tmp), "set_%s", ename);
     add(d_eventIns, tmp, type);
-    sprintf(tmp, "%s_changed", ename);
+    snprintf(tmp, sizeof(tmp), "%s_changed", ename);
     add(d_eventOuts, tmp, type);
 }
 
@@ -263,7 +263,7 @@ VrmlMFNode *VrmlNodeType::getImplementationNodes(int parentId)
                 VrmlNode *n = (*j)->node;
                 if (strcmp(n->name(), "") == 0)
                 {
-                    sprintf(buf, "#%llx", (unsigned long long)n);
+                    snprintf(buf, sizeof(buf), "#%llx", (unsigned long long)n);
                     n->setName(buf);
                 }
 
@@ -282,7 +282,7 @@ VrmlMFNode *VrmlNodeType::getImplementationNodes(int parentId)
                 VrmlNode *n = (*j)->node;
                 if (strcmp(n->name(), "") == 0)
                 {
-                    sprintf(buf, "#%llx", (unsigned long long)n);
+                    snprintf(buf, sizeof(buf), "#%llx", (unsigned long long)n);
                     n->setName(buf);
                 }
             }
@@ -296,7 +296,7 @@ VrmlMFNode *VrmlNodeType::getImplementationNodes(int parentId)
                 VrmlNode *n = (*j)->node;
                 if (strcmp(n->name(), "") == 0)
                 {
-                    sprintf(buf, "#%llx", (unsigned long long)n);
+                    snprintf(buf, sizeof(buf), "#%llx", (unsigned long long)n);
                     n->setName(buf);
                 }
             }
@@ -348,11 +348,11 @@ VrmlNodeType::hasExposedField(const char *ename) const
     if ((type = has(d_fields, ename)) == VrmlField::NO_FIELD)
         return VrmlField::NO_FIELD;
 
-    sprintf(tmp, "set_%s", ename);
+    snprintf(tmp, sizeof(tmp), "set_%s", ename);
     if (type != has(d_eventIns, tmp))
         return VrmlField::NO_FIELD;
 
-    sprintf(tmp, "%s_changed", ename);
+    snprintf(tmp, sizeof(tmp), "%s_changed", ename);
     if (type != has(d_eventOuts, tmp))
         return VrmlField::NO_FIELD;
 

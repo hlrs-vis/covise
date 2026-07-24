@@ -296,7 +296,7 @@ finally:
         }
 #ifdef XWIN32
         s->shminfo.shmid = seqnum;
-        sprintf(temps, "X11-MIT-SHM-%d", s->shminfo.shmid);
+        snprintf(temps, sizeof(temps), "X11-MIT-SHM-%d", s->shminfo.shmid);
         seqnum++;
         w32(s->filemap = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE,
                                            0, s->xi->bytes_per_line * s->xi->height + 1, temps));
@@ -812,11 +812,11 @@ static int fbx_checkdll(char *filename, int *v1, int *v2, int *v3, int *v4)
         && len == 4)
     {
         p = (char *)buf;
-        sprintf(temps, "\\StringFileInfo\\%04X%04X\\FileVersion",
+        snprintf(temps, sizeof(temps), "\\StringFileInfo\\%04X%04X\\FileVersion",
                 *((WORD *)p), *((WORD *)&p[2]));
     }
     else
-        sprintf(temps, "\\StringFileInfo\\%04X04B0\\FileVersion",
+        snprintf(temps, sizeof(temps), "\\StringFileInfo\\%04X04B0\\FileVersion",
                 GetUserDefaultLangID());
     if (VerQueryValue(vinfo, temps, &buf, &len) && len > 0)
     {

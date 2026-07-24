@@ -725,7 +725,7 @@ Sample::compute(const char *)
       else
       {
       char str[500];
-      sprintf (str, "Dimension of data doesn't match dimension of grid - found %d coordinates and %d data", numCoords, numData);
+      snprintf(str, sizeof(str), "Dimension of data doesn't match dimension of grid - found %d coordinates and %d data", numCoords, numData);
       sendError(str);
       return FAIL;
       }
@@ -778,8 +778,8 @@ Sample::compute(const char *)
     {
         if (TimeSteps)
         {
-            sprintf(time_grid_name, "%s_%d", Grid_outObjName, time);
-            sprintf(time_data_name, "%s_%d", Data_outObjName, time);
+            snprintf(time_grid_name, sizeof(time_grid_name), "%s_%d", Grid_outObjName, time);
+            snprintf(time_data_name, sizeof(time_data_name), "%s_%d", Data_outObjName, time);
         }
         //        unstruct_grid *calc_grid=new unstruct_grid((coDoUnstructuredGrid*)GridObj);
         //int size = grids[time].size ();
@@ -942,7 +942,7 @@ Sample::compute(const char *)
     else
     {
         coDoSet *gridOutTime = new coDoSet(Grid_outObjName, usg);
-        sprintf(time_grid_name, "1 %d", (int)grids.size());
+        snprintf(time_grid_name, sizeof(time_grid_name), "1 %d", (int)grids.size());
         gridOutTime->addAttribute("TIMESTEP", time_grid_name);
         Grid_Out_Port->setCurrentObject(gridOutTime);
         //      if(typeFlag == unstruct_grid::SCALAR){

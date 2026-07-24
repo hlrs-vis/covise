@@ -68,12 +68,12 @@ int MeshRR_CoreRegion(struct Nodelist *n, struct curve *ml, struct region *reg,
 	int jx, ix;
 	static int fcount = 0;
 
-	sprintf(fngnu,"rr_coregnu_%02d.txt", fcount);
+	snprintf(fngnu, sizeof(fngnu),"rr_coregnu_%02d.txt", fcount);
 	if( (fpgnu = fopen(fngnu,"w+")) == NULL) {
 		fprintf(stderr,"Shit happened opening file '%s'!\n",fngnu);
 		exit(-1);
 	}
-	sprintf(fn,"rr_debugcore_%02d.txt", fcount++);
+	snprintf(fn, sizeof(fn),"rr_debugcore_%02d.txt", fcount++);
 	if( (fp = fopen(fn,"w+")) == NULL) {
 		fprintf(stderr,"Shit happened opening file '%s'!\n",fn);
 		exit(-1);
@@ -194,7 +194,7 @@ int MeshRR_CoreRegion(struct Nodelist *n, struct curve *ml, struct region *reg,
 	fclose(fp);
 	fclose(fpgnu);
 
-	sprintf(fn,"rr_corenodes_%02d.txt", fcount-1);
+	snprintf(fn, sizeof(fn),"rr_corenodes_%02d.txt", fcount-1);
 	if( (fp = fopen(fn,"w+")) == NULL) {
 		fprintf(stderr,"Shit happened opening file '%s'!\n",fn);
 		exit(-1);

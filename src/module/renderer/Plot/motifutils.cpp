@@ -209,7 +209,7 @@ Widget *CreateGraphChoice(Widget parent, const char *labelstr, int ngraphs, int 
         i = 0;
         for (i = 0; i < ngraphs; i++)
         {
-            sprintf(buf, "%d", i);
+            snprintf(buf, sizeof(buf), "%d", i);
             retval[i + 2] = XmCreatePushButton(retval[1], buf, NULL, 0);
         }
         XtManageChildren(retval + 2, ngraphs);
@@ -237,7 +237,7 @@ Widget *CreateGraphChoice(Widget parent, const char *labelstr, int ngraphs, int 
         retval[2] = XmCreatePushButton(retval[1], (char *)"Current", NULL, 0);
         for (i = 1; i <= ngraphs; i++)
         {
-            sprintf(buf, "%d", i - 1);
+            snprintf(buf, sizeof(buf), "%d", i - 1);
             retval[i + 2] = XmCreatePushButton(retval[1], buf, NULL, 0);
         }
         XtManageChildren(retval + 2, ngraphs + 1);
@@ -262,7 +262,7 @@ Widget *CreateGraphChoice(Widget parent, const char *labelstr, int ngraphs, int 
         retval[2] = XmCreatePushButton(retval[1], (char *)"Current", NULL, 0);
         for (i = 1; i <= ngraphs; i++)
         {
-            sprintf(buf, "%d", i - 1);
+            snprintf(buf, sizeof(buf), "%d", i - 1);
             retval[i + 2] = XmCreatePushButton(retval[1], buf, NULL, 0);
         }
         retval[ngraphs + 3] = XmCreatePushButton(retval[1], (char *)"All", NULL, 0);
@@ -318,7 +318,7 @@ Widget *CreateColorChoice(Widget parent, const char *s, int)
                   NULL);
     for (i = 0; i < maxcolors; i++)
     {
-        sprintf(buf, "%2d", i);
+        snprintf(buf, sizeof(buf), "%2d", i);
         retval[i + 2] = XmCreatePushButton(retval[1], buf, NULL, 0);
         if (use_colors > 2)
         {
@@ -662,7 +662,7 @@ Widget *CreateSetChoice(Widget parent, const char *labelstr, int nsets, int type
         i = 0;
         for (i = 0; i < nsets; i++)
         {
-            sprintf(buf, "%d", i);
+            snprintf(buf, sizeof(buf), "%d", i);
             retval[i + 2] = XmCreatePushButton(retval[1], buf, NULL, 0);
         }
         XtManageChildren(retval + 2, nsets);
@@ -690,7 +690,7 @@ Widget *CreateSetChoice(Widget parent, const char *labelstr, int nsets, int type
         i = 0;
         for (i = 0; i < nsets; i++)
         {
-            sprintf(buf, "%d", i);
+            snprintf(buf, sizeof(buf), "%d", i);
             retval[i + 2] = XmCreatePushButton(retval[1], buf, NULL, 0);
         }
         retval[nsets + 2] = XmCreatePushButton(retval[1], (char *)"All", NULL, 0);
@@ -720,7 +720,7 @@ Widget *CreateSetChoice(Widget parent, const char *labelstr, int nsets, int type
         i = 0;
         for (i = 0; i < nsets; i++)
         {
-            sprintf(buf, "%d", i);
+            snprintf(buf, sizeof(buf), "%d", i);
             retval[i + 2] = XmCreatePushButton(retval[1], buf, NULL, 0);
         }
         retval[nsets + 2] = XmCreatePushButton(retval[1], (char *)"All", NULL, 0);
@@ -751,7 +751,7 @@ Widget *CreateSetChoice(Widget parent, const char *labelstr, int nsets, int type
         retval[2] = XmCreatePushButton(retval[1], (char *)"Next", NULL, 0);
         for (i = 1; i <= nsets; i++)
         {
-            sprintf(buf, "%d", i - 1);
+            snprintf(buf, sizeof(buf), "%d", i - 1);
             retval[i + 2] = XmCreatePushButton(retval[1], buf, NULL, 0);
         }
         XtManageChildren(retval + 2, nsets + 1);
@@ -780,7 +780,7 @@ Widget *CreateSetChoice(Widget parent, const char *labelstr, int nsets, int type
         retval[2] = XmCreatePushButton(retval[1], (char *)"All", NULL, 0);
         for (i = 0; i < nsets; i++)
         {
-            sprintf(buf, "%d", i);
+            snprintf(buf, sizeof(buf), "%d", i);
             retval[i + 3] = XmCreatePushButton(retval[1], buf, NULL, 0);
         }
         XtManageChildren(retval + 2, nsets + 1);

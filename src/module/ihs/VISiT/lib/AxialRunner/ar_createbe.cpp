@@ -206,7 +206,7 @@ int clock, int clspline)
    char *fn;
    static int nbe = 0;
 
-   sprintf(fname, "ar_beplane_%02d.txt", nbe++);
+   snprintf(fname, sizeof(fname), "ar_beplane_%02d.txt", nbe++);
    fn = DebugFilename(fname);
    if(fn)
        fp = fopen(fn, "w");
@@ -444,7 +444,7 @@ int clock, int clspline)
    be->clg = AllocPointStruct();
    cl_knot = BSplineKnot(cl_poly, BSPLN_DEGREE);
    // cl points and gradient
-   sprintf(fname, "ar_becl_%02d.txt", nbe-1);
+   snprintf(fname, sizeof(fname), "ar_becl_%02d.txt", nbe-1);
    fn = DebugFilename(fname);
    if(fn)
    fp2 = fopen(fn, "w");

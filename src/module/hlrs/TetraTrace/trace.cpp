@@ -542,7 +542,7 @@ coDistributedObject **trace::run(char **names)
             else
                 toGrid = traceGrid[i + 1];
 
-            sprintf(bfr, "%s_%d", names[1], i);
+            snprintf(bfr, sizeof(bfr), "%s_%d", names[1], i);
             setElems[i] = fromGrid->buildNewNeighborList(bfr, toGrid);
         }
 

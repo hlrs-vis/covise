@@ -58,7 +58,7 @@ texture::texture(const char *newname, bool environment, int bm)
     if (blendMode)
     {
         char num[100];
-        sprintf(num, "_blendMode%d", blendMode);
+        snprintf(num, sizeof(num), "_blendMode%d", blendMode);
         strcat(defName, num);
     }
 }

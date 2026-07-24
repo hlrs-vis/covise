@@ -17,7 +17,7 @@ SoundStep::SoundStep(Player *p, float umin)
     if (p != NULL)
     {
         char name[500];
-        sprintf(name, "%d.wav", (int)speed);
+        snprintf(name, sizeof(name), "%d.wav", (int)speed);
         Audio *engineAudio = new Audio(name);
         source = player->makeSource(engineAudio);
         if (source)

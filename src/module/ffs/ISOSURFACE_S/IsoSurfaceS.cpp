@@ -1366,7 +1366,7 @@ coDistributedObject *IsoSurfaceS::issMCubes(coDoUniformGrid *grid, coDoFloat *da
     if (poly)
     {
         char buf[1024];
-        sprintf(buf, "I%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+        snprintf(buf, sizeof(buf), "I%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
         poly->addAttribute("FEEDBACK", buf);
     }
 

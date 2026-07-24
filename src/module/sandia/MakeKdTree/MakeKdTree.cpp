@@ -160,7 +160,7 @@ void Application::handle_objects(coDistributedObject *grid, coDistributedObject 
             set_objs[0] = NULL;
             for (i = 0; i < set_num_elem; i++)
             {
-                sprintf(buf, "%s_%d", Outname, i);
+                snprintf(buf, sizeof(buf), "%s_%d", Outname, i);
                 handle_objects(grid_objs[i], data_objs[i], buf, set_objs);
             }
             D_set = new coDoSet(Outname, set_objs);

@@ -1215,7 +1215,7 @@ gridstruct = new coDoStructuredGrid(Mesh,xSize, ySize, zSize, Koordx, Koordy, Ko
 if((strcmp(Colorname,"none")!=0)&&(Colorname[0]!='\0'))
 gridstruct->addAttribute(COLOR,Colorname);
 char abuf[1000];
-sprintf(abuf,"M%s\n%s\n%s\nend\n%f\n%f\n%f\nstart\n%f\n%f\n%f\n1\n"
+snprintf(abuf, sizeof(abuf),"M%s\n%s\n%s\nend\n%f\n%f\n%f\nstart\n%f\n%f\n%f\n1\n"
 ,Covise::get_module(),Covise::get_instance(),Covise::get_host()
 ,endx,endy,endz,startx,starty,startz);
 gridstruct->addAttribute("VECTOR0",abuf);

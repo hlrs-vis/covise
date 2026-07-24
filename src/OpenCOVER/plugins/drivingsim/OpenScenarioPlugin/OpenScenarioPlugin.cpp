@@ -232,7 +232,7 @@ void OpenScenarioPlugin::preSwapBuffers(int windowNumber)
 			glReadPixels(0, 0, coco.windows[windowNumber].sx, coco.windows[windowNumber].sy, GL_fmt, GL_UNSIGNED_BYTE, image->data());
 
 			char filename[100];
-			sprintf(filename, "test%d.png", frameCounter);
+			snprintf(filename, sizeof(filename), "test%d.png", frameCounter);
 
 
 			if (osgDB::writeImageFile(*(image.get()), filename))

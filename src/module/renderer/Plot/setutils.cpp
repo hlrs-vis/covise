@@ -1333,7 +1333,7 @@ void do_splitsets(int gno, int setno, int lpart)
     }
     if (!isactive(gno, setno))
     {
-        sprintf(s, "Set %d not active", setno);
+        snprintf(s, sizeof(s), "Set %d not active", setno);
         errwin(s);
         return;
     }
@@ -1432,7 +1432,7 @@ void do_splitsets(int gno, int setno, int lpart)
                 xt[k][j] = xtmp[k][i * lpart + j];
             }
         }
-        sprintf(s, "partition %d of set %d", i + 1, setno);
+        snprintf(s, sizeof(s), "partition %d of set %d", i + 1, setno);
         setcomment(gno, tmpset, s);
         log_results(buf);
         updatesetminmax(gno, tmpset);
@@ -1458,7 +1458,7 @@ void do_splitsets(int gno, int setno, int lpart)
         }
     }
 
-    sprintf(s, "partition %d of set %d", i + 1, setno);
+    snprintf(s, sizeof(s), "partition %d of set %d", i + 1, setno);
     setcomment(gno, tmpset, s);
     log_results(buf);
     updatesetminmax(gno, tmpset);
@@ -1488,7 +1488,7 @@ void do_breakset(int gno, int setno, int ind)
     }
     if (!isactive(gno, setno))
     {
-        sprintf(s, "Set %d not active", setno);
+        snprintf(s, sizeof(s), "Set %d not active", setno);
         errwin(s);
         return;
     }
@@ -1532,7 +1532,7 @@ void do_breakset(int gno, int setno, int ind)
     updatesetminmax(gno, setno);
     update_set_status(gno, setno);
 
-    sprintf(s, "split set %d at point %d", setno, ind);
+    snprintf(s, sizeof(s), "split set %d at point %d", setno, ind);
     setcomment(gno, tmpset, s);
     log_results(buf);
     updatesetminmax(gno, tmpset);
@@ -1562,7 +1562,7 @@ void do_writesets(int gno, int setno, int imbed, char *fn, char *format)
     {
         char s[192];
 
-        sprintf(s, "Unable to open file %s", fn);
+        snprintf(s, sizeof(s), "Unable to open file %s", fn);
         errwin(s);
         return;
     }
@@ -2242,7 +2242,7 @@ void do_writesets_binary(int gno, int, char *fn)
     {
         char s[192];
 
-        sprintf(s, "Unable to open file %s", fn);
+        snprintf(s, sizeof(s), "Unable to open file %s", fn);
         errwin(s);
         return;
     }
@@ -2292,7 +2292,7 @@ void outputset(int gno, int setno, char *fname, char *dformat)
     else if ((cp = fopen(fname, "w")) == NULL)
     {
         char s[256];
-        sprintf(s, "Unable to open file %s", fname);
+        snprintf(s, sizeof(s), "Unable to open file %s", fname);
         errwin(s);
         return;
     }

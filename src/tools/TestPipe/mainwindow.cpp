@@ -46,11 +46,11 @@ void MainWindow::startcovise()
 
         if (startMapeditor)
         {
-            sprintf(startcommand, "%s", "covise --script --gui");
+            snprintf(startcommand, sizeof(startcommand), "%s", "covise --script --gui");
         }
         else
         {
-            sprintf(startcommand, "%s", "covise --script");
+            snprintf(startcommand, sizeof(startcommand), "%s", "covise --script");
         }
 
         // start covise

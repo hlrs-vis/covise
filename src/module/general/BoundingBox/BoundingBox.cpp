@@ -79,7 +79,7 @@ int BoundingBox::compute(const char *)
     {
         char buffer[256];
         int i;
-        sprintf(buffer, "Bounding Box of %s:", mesh->getName());
+        snprintf(buffer, sizeof(buffer), "Bounding Box of %s:", mesh->getName());
         for (i = 0; i < 3; i++)
         {
             sendInfo(" %c : [ %10g  %10g ] , center = %10g",

@@ -224,7 +224,7 @@ int Fluent::compute(const char *)
     }
 
     if (timesteps > 1)
-        sprintf(buf, "%s_0", p_outPort2->getObjName());
+        snprintf(buf, sizeof(buf), "%s_0", p_outPort2->getObjName());
     else
         strcpy(buf, p_outPort2->getObjName());
 
@@ -296,7 +296,7 @@ int Fluent::compute(const char *)
         }
 
         if (timesteps > 1)
-            sprintf(buf, "%s_0", p_outPort1->getObjName());
+            snprintf(buf, sizeof(buf), "%s_0", p_outPort1->getObjName());
         else
             strcpy(buf, p_outPort1->getObjName());
 
@@ -398,7 +398,7 @@ int Fluent::compute(const char *)
           freeElements.remove();
       }*/
         if (timesteps > 1)
-            sprintf(buf, "%s_0", p_outPort1->getObjName());
+            snprintf(buf, sizeof(buf), "%s_0", p_outPort1->getObjName());
         else
             strcpy(buf, p_outPort1->getObjName());
 
@@ -447,7 +447,7 @@ int Fluent::compute(const char *)
             if (dataSelection[0] != 0)
             {
                 if (timesteps > 1)
-                    sprintf(buf, "%s_%d", p_outPort3->getObjName(), numSteps);
+                    snprintf(buf, sizeof(buf), "%s_%d", p_outPort3->getObjName(), numSteps);
                 else
                     strcpy(buf, p_outPort3->getObjName());
 
@@ -461,7 +461,7 @@ int Fluent::compute(const char *)
             if (dataSelection[1] != 0)
             {
                 if (timesteps > 1)
-                    sprintf(buf, "%s_%d", p_outPort4->getObjName(), numSteps);
+                    snprintf(buf, sizeof(buf), "%s_%d", p_outPort4->getObjName(), numSteps);
                 else
                     strcpy(buf, p_outPort4->getObjName());
 
@@ -474,7 +474,7 @@ int Fluent::compute(const char *)
             if (dataSelection[2] != 0)
             {
                 if (timesteps > 1)
-                    sprintf(buf, "%s_%d", p_outPort5->getObjName(), numSteps);
+                    snprintf(buf, sizeof(buf), "%s_%d", p_outPort5->getObjName(), numSteps);
                 else
                     strcpy(buf, p_outPort5->getObjName());
 
@@ -499,7 +499,7 @@ int Fluent::compute(const char *)
         }
         time_outputgrid[numSteps] = NULL;
         coDoSet *time_grd = new coDoSet(p_outPort1->getObjName(), time_outputgrid);
-        sprintf(buf, "1 %d", numSteps);
+        snprintf(buf, sizeof(buf), "1 %d", numSteps);
         time_grd->addAttribute("TIMESTEP", buf);
 
         delete gridObject;
@@ -514,7 +514,7 @@ int Fluent::compute(const char *)
         }
         time_outputpolygon[numSteps] = NULL;
         coDoSet *time_pol = new coDoSet(p_outPort2->getObjName(), time_outputpolygon);
-        sprintf(buf, "1 %d", numSteps);
+        snprintf(buf, sizeof(buf), "1 %d", numSteps);
         time_pol->addAttribute("TIMESTEP", buf);
 
         delete polygonObject;
@@ -526,7 +526,7 @@ int Fluent::compute(const char *)
         {
             time_outputdata1[numSteps] = NULL;
             coDoSet *time_data1 = new coDoSet(p_outPort3->getObjName(), time_outputdata1);
-            sprintf(buf, "1 %d", numSteps);
+            snprintf(buf, sizeof(buf), "1 %d", numSteps);
             time_data1->addAttribute("TIMESTEP", buf);
 
             for (i = 0; i < numSteps; i++)
@@ -540,7 +540,7 @@ int Fluent::compute(const char *)
         {
             time_outputdata2[numSteps] = NULL;
             coDoSet *time_data2 = new coDoSet(p_outPort4->getObjName(), time_outputdata2);
-            sprintf(buf, "1 %d", numSteps);
+            snprintf(buf, sizeof(buf), "1 %d", numSteps);
             time_data2->addAttribute("TIMESTEP", buf);
 
             for (i = 0; i < numSteps; i++)
@@ -554,7 +554,7 @@ int Fluent::compute(const char *)
         {
             time_outputdata3[numSteps] = NULL;
             coDoSet *time_data3 = new coDoSet(p_outPort5->getObjName(), time_outputdata3);
-            sprintf(buf, "1 %d", numSteps);
+            snprintf(buf, sizeof(buf), "1 %d", numSteps);
             time_data3->addAttribute("TIMESTEP", buf);
 
             for (i = 0; i < numSteps; i++)

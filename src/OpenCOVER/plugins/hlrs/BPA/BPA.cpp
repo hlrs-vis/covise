@@ -281,7 +281,7 @@ void BPA::calcIntersection()
     sphereTrans->setMatrix(osg::Matrix::translate(p));
     Origin = p;
     char buf[1000];
-    sprintf(buf, "Origin: %f %f %f, deviation=%f, numIntersections:%d", p[0], p[1], p[2], (float)standardDeviation,numIntersections);
+    snprintf(buf, sizeof(buf), "Origin: %f %f %f, deviation=%f, numIntersections:%d", p[0], p[1], p[2], (float)standardDeviation,numIntersections);
     //fprintf(stderr, "%s\n",buf);
     originLabel->setLabel(buf);
     }
@@ -823,7 +823,7 @@ void BPAPlugin::tabletPressEvent(coTUIElement * tUIItem)
     if (tUIItem == writeButton)
     {
         char fileName[100];
-        sprintf(fileName, "res%d.csv", (int)originVeloEdit->getValue());
+        snprintf(fileName, sizeof(fileName), "res%d.csv", (int)originVeloEdit->getValue());
         FILE* res = fopen(fileName, "w");
         if (res != NULL)
         {

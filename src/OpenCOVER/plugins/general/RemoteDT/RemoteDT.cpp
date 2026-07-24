@@ -301,7 +301,7 @@ void RemoteDT::connectToServer(const char *server, unsigned port, const char *pa
                 if (desktop->connectToServer(server, port, password))
                 {
                     char buf[1000];
-                    sprintf(buf, "%s:%d", server, port);
+                    snprintf(buf, sizeof(buf), "%s:%d", server, port);
                     desktopEntry = new coCheckboxMenuItem(buf, false);
                     remoteDTMenu->add(desktopEntry);
                     desktopEntry->setMenuListener(this);

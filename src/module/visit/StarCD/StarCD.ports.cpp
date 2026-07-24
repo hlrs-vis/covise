@@ -36,7 +36,7 @@ void StarCD::createOutPorts()
 
     for (i = 0; i < MAX_SCALARS; i++) // Scalar values in loop   --- result-19 = scalar
     {
-        sprintf(buf, "Scalar %d", i + 1);
+        snprintf(buf, sizeof(buf), "Scalar %d", i + 1);
         switchName[i + 18] = strcpy(new char[strlen(buf) + 1], buf);
     }
 
@@ -50,15 +50,15 @@ void StarCD::createOutPorts()
     for (i = 0; i < NUM_OUT_DATA; i++)
     {
         // create description and name
-        sprintf(buf, "Species for data port %d", i);
-        sprintf(buf1, "out_%d", i);
+        snprintf(buf, sizeof(buf), "Species for data port %d", i);
+        snprintf(buf1, sizeof(buf1), "out_%d", i);
 
         // the choice parameter
         p_value[i] = addChoiceParam(buf1, buf);
         p_value[i]->setValue(MAX_SCALARS + 18, switchName, 0);
 
         // the data port
-        sprintf(buf, "data_%d", i);
+        snprintf(buf, sizeof(buf), "data_%d", i);
         p_data[i] = addOutputPort(buf,
                                   "Float|Vec3",
                                   "Data output port");
@@ -83,68 +83,68 @@ void StarCD::createRegionParam()
     for (i = 0; i < MAX_REGIONS; i++)
     {
         // create description and name
-        sprintf(buf, "Region %d", i);
+        snprintf(buf, sizeof(buf), "Region %d", i);
 
         // case for the Region switching
         paraCase(buf);
         // the 'usual parameters
 
-        sprintf(buf, "local%d", i);
+        snprintf(buf, sizeof(buf), "local%d", i);
         p_euler[i] = addFloatVectorParam(buf, "Local Euler angles");
         p_euler[i]->setActive(0);
         p_euler[i]->setValue(0.0, 0.0, 0.0);
 
-        sprintf(buf, "vel%d", i);
+        snprintf(buf, sizeof(buf), "vel%d", i);
         p_v[i] = addFloatVectorParam(buf, "Velocity");
         p_v[i]->setActive(0);
         p_v[i]->setValue(0.0, 0.0, 0.0);
 
-        sprintf(buf, "vmag%d", i);
+        snprintf(buf, sizeof(buf), "vmag%d", i);
         p_vmag[i] = addFloatSliderParam(buf, "V-Magnitude");
         p_vmag[i]->setActive(0);
         p_vmag[i]->setValue(0.0, 1.01, 0.0);
 
-        sprintf(buf, "t__%d", i);
+        snprintf(buf, sizeof(buf), "t__%d", i);
         p_t[i] = addFloatSliderParam(buf, "Temperature");
         p_t[i]->setValue(0.0, 40.0, 20.0);
         p_t[i]->setActive(0);
 
-        sprintf(buf, "den%d", i);
+        snprintf(buf, sizeof(buf), "den%d", i);
         p_den[i] = addFloatSliderParam(buf, "Density");
         p_den[i]->setActive(0);
 
-        sprintf(buf, "p__%d", i);
+        snprintf(buf, sizeof(buf), "p__%d", i);
         p_p[i] = addFloatSliderParam(buf, "Pressure");
         p_p[i]->setActive(0);
 
-        sprintf(buf, "k__%d", i);
+        snprintf(buf, sizeof(buf), "k__%d", i);
         p_k[i] = addFloatSliderParam(buf, "k");
         p_k[i]->setActive(0);
 
-        sprintf(buf, "eps%d", i);
+        snprintf(buf, sizeof(buf), "eps%d", i);
         p_eps[i] = addFloatSliderParam(buf, "Epsilon");
         p_eps[i]->setActive(0);
 
-        sprintf(buf, "tInt%d", i);
+        snprintf(buf, sizeof(buf), "tInt%d", i);
         p_tin[i] = addFloatSliderParam(buf, "Turb. Intens");
         p_tin[i]->setActive(0);
 
-        sprintf(buf, "tLen%d", i);
+        snprintf(buf, sizeof(buf), "tLen%d", i);
         p_len[i] = addFloatSliderParam(buf, "Turb. Length");
         p_len[i]->setActive(0);
 
         // multiple scalars
         int j;
 
-        //sprintf(buf,"scal%d",i);
+        //snprintf(buf, sizeof(buf),"scal%d",i);
         //p_scalSw[i] = paraSwitch(buf,"Select scalar");
         //p_scalSw[i]->setActive(0);
         for (j = 0; j < MAX_SCALARS; j++)
         {
-            sprintf(buf, "Scalar %d", j + 1);
+            snprintf(buf, sizeof(buf), "Scalar %d", j + 1);
             //paraCase(buf);
 
-            sprintf(buf, "scal%d_%d", i, j + 1);
+            snprintf(buf, sizeof(buf), "scal%d_%d", i, j + 1);
             p_scal[i][j] = addFloatSliderParam(buf, "Scalar");
             p_scal[i][j]->setActive(0);
 
@@ -153,14 +153,14 @@ void StarCD::createRegionParam()
         //paraEndSwitch();
 
         // multipla user data
-        //sprintf(buf,"user%d",i);
+        //snprintf(buf, sizeof(buf),"user%d",i);
         //p_userSw[i] = paraSwitch(buf,"Select UserData");
         //p_userSw[i]->setActive(0);
         for (j = 0; j < MAX_SCALARS; j++)
         {
-            sprintf(buf, "User %d", j + 1);
+            snprintf(buf, sizeof(buf), "User %d", j + 1);
             //paraCase(buf);
-            sprintf(buf, "user%d_%d", i, j + 1);
+            snprintf(buf, sizeof(buf), "user%d_%d", i, j + 1);
             p_user[i][j] = addFloatSliderParam(buf, "User Field");
             p_user[i][j]->setActive(0);
 

@@ -63,7 +63,7 @@ ReadCGNS::ReadCGNS(int argc, char *argv[])
 
     // input file
     char filePath[200];
-    sprintf(filePath, "%s", getenv("HOME"));
+    snprintf(filePath, sizeof(filePath), "%s", getenv("HOME"));
     p_cgnsMeshFile = addFileBrowserParam("cgnsMeshFile", "mesh file");
     p_cgnsMeshFile->setValue(filePath, "*.cgns");
 

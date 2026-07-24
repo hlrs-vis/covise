@@ -263,7 +263,7 @@ int SimCudaHelper::PrintDevices(int deviceSelected)
 #ifdef WIN32
     sprintf_s(cTemp, 10, "%d.%d", driverVersion / 1000, driverVersion % 100);
 #else
-    sprintf(cTemp, "%d.%d", driverVersion / 1000, driverVersion % 100);
+    snprintf(cTemp, sizeof(cTemp), "%d.%d", driverVersion / 1000, driverVersion % 100);
 #endif
     sProfileString += cTemp;
 
@@ -272,7 +272,7 @@ int SimCudaHelper::PrintDevices(int deviceSelected)
 #ifdef WIN32
     sprintf_s(cTemp, 10, "%d.%d", runtimeVersion / 1000, runtimeVersion % 100);
 #else
-    sprintf(cTemp, "%d.%d", runtimeVersion / 1000, runtimeVersion % 100);
+    snprintf(cTemp, sizeof(cTemp), "%d.%d", runtimeVersion / 1000, runtimeVersion % 100);
 #endif
     sProfileString += cTemp;
 
@@ -281,7 +281,7 @@ int SimCudaHelper::PrintDevices(int deviceSelected)
 #ifdef WIN32
     sprintf_s(cTemp, 10, "%d", deviceCount);
 #else
-    sprintf(cTemp, "%d", deviceCount);
+    snprintf(cTemp, sizeof(cTemp), "%d", deviceCount);
 #endif
     sProfileString += cTemp;
 

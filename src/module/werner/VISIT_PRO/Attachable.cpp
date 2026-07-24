@@ -117,7 +117,7 @@ const char *Attachable::getChoiceLabel() const
 coDistributedObject *Attachable::getObjDO(const char *objName, int index, const char *unit) const
 {
     char fullObjName[1024];
-    sprintf(fullObjName, "%s_%d", objName, index);
+    snprintf(fullObjName, sizeof(fullObjName), "%s_%d", objName, index);
 
     return ReadObj::read(d_filename, fullObjName, unit);
 

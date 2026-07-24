@@ -55,7 +55,7 @@ string
 SectionPoint::str() const
 {
     char buf[32];
-    sprintf(buf, "%d: ", _secPointNumber);
+    snprintf(buf, sizeof(buf), "%d: ", _secPointNumber);
     string ret(buf);
     ret += _description;
     return ret;

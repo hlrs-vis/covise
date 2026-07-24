@@ -38,7 +38,7 @@ pr_exit(int status)
     else if (WIFSTOPPED(status))
     {
         std::string ANSYS_Stopped("ANSYS process stopped, signal number ");
-        sprintf(buf, "%d", WSTOPSIG(status));
+        snprintf(buf, sizeof(buf), "%d", WSTOPSIG(status));
         return -1; // well, this msy be too radical....
     }
     return 0;

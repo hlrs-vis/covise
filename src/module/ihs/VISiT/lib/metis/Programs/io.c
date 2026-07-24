@@ -153,7 +153,7 @@ void WritePartition(char *fname, idxtype *part, int n, int nparts)
   int i;
   char filename[256];
 
-  sprintf(filename,"%s.part.%d",fname, nparts);
+  snprintf(filename, sizeof(filename),"%s.part.%d",fname, nparts);
 
   if ((fpout = fopen(filename, "w")) == NULL) 
     errexit("Problems in opening the partition file: %s", filename);
@@ -175,7 +175,7 @@ void WriteMeshPartition(char *fname, int nparts, int ne, idxtype *epart, int nn,
   int i;
   char filename[256];
 
-  sprintf(filename,"%s.epart.%d",fname, nparts);
+  snprintf(filename, sizeof(filename),"%s.epart.%d",fname, nparts);
 
   if ((fpout = fopen(filename, "w")) == NULL) 
     errexit("Problems in opening the partition file: %s", filename);
@@ -185,7 +185,7 @@ void WriteMeshPartition(char *fname, int nparts, int ne, idxtype *epart, int nn,
 
   fclose(fpout);
 
-  sprintf(filename,"%s.npart.%d",fname, nparts);
+  snprintf(filename, sizeof(filename),"%s.npart.%d",fname, nparts);
 
   if ((fpout = fopen(filename, "w")) == NULL) 
     errexit("Problems in opening the partition file: %s", filename);
@@ -209,7 +209,7 @@ void WritePermutation(char *fname, idxtype *iperm, int n)
   int i;
   char filename[256];
 
-  sprintf(filename,"%s.iperm",fname);
+  snprintf(filename, sizeof(filename),"%s.iperm",fname);
 
   if ((fpout = fopen(filename, "w")) == NULL) 
     errexit("Problems in opening the permutation file: %s", filename);
@@ -360,7 +360,7 @@ void WriteMocGraph(GraphType *graph)
   adjncy = graph->adjncy;
   nvwgt = graph->nvwgt;
 
-  sprintf(filename, "moc.graph.%d.%d", nvtxs, ncon);
+  snprintf(filename, sizeof(filename), "moc.graph.%d.%d", nvtxs, ncon);
 
   if ((fpout = fopen(filename, "w")) == NULL) {
     printf("Failed to open file %s\n", filename);

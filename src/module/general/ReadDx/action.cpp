@@ -24,7 +24,7 @@ void actionClass::addMember(const char *name, const char *fieldName)
     if (cur == fields_.end())
     {
         char msg[1024];
-        sprintf(msg, "There is no fieldobject named \"%s\" required for \"%s\"", fieldName, name);
+        snprintf(msg, sizeof(msg), "There is no fieldobject named \"%s\" required for \"%s\"", fieldName, name);
         Covise::sendError(msg);
     }
     else
@@ -39,7 +39,7 @@ void actionClass::addMember(int number, const char *fieldName)
     if (cur == fields_.end())
     {
         char msg[1024];
-        sprintf(msg, "There is no fieldobject named \"%s\" required for \"%d\"", fieldName, number);
+        snprintf(msg, sizeof(msg), "There is no fieldobject named \"%s\" required for \"%d\"", fieldName, number);
         Covise::sendError(msg);
     }
     else

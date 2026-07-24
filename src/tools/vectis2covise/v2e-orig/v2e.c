@@ -551,7 +551,7 @@ sort_node_table()
     ensight_message(ENSIGHT_INFO, "Calculating scalar cell nodes \n");
 
     /* Sort the node table. */
-    sprintf(message, "sorting (%d nodes) \n", node_table_count);
+    snprintf(message, sizeof(message), "sorting (%d nodes) \n", node_table_count);
     ensight_message(ENSIGHT_INFO, message);
 
     qsort(node_table, node_table_count, sizeof(node), node_comparison_function);
@@ -746,7 +746,7 @@ write_patches(FILE *of)
     FILE *fq, *ft;
     char message[MAXLINE];
 
-    sprintf(message, "Writing %d patches \n", nbpatch);
+    snprintf(message, sizeof(message), "Writing %d patches \n", nbpatch);
     ensight_message(ENSIGHT_INFO, message);
 
     /* Write out the part header */
@@ -877,7 +877,7 @@ write_binary_patches(FILE *f)
     float *x, *y, *z;
     int *id;
 
-    sprintf(message, "Writing %d patches \n", nbpatch);
+    snprintf(message, sizeof(message), "Writing %d patches \n", nbpatch);
     ensight_message(ENSIGHT_INFO, message);
 
     /* Write out the part header */
@@ -974,7 +974,7 @@ write_binary_patches(FILE *f)
         }
     }
 
-    sprintf(message, "Writing %d quads and %d trias \n", num_quad, num_tria);
+    snprintf(message, sizeof(message), "Writing %d quads and %d trias \n", num_quad, num_tria);
     ensight_message(ENSIGHT_INFO, message);
 
     /* Write out the quads */
@@ -1029,7 +1029,7 @@ write_binary_boundaries(FILE *f)
     int *numpatchs, *numnodes, *node_used;
     int part_number = part_boundaries;
 
-    sprintf(message, "Writing %d patches on %d boundaries \n", nbpatch, nbound);
+    snprintf(message, sizeof(message), "Writing %d patches on %d boundaries \n", nbpatch, nbound);
     ensight_message(ENSIGHT_INFO, message);
 
     /* temporary boundary arrays */
@@ -1065,7 +1065,7 @@ write_binary_boundaries(FILE *f)
         if (numpatchs[bdy] > 0)
         {
 
-            sprintf(message, "Writing %d patches on boundary %d \n", numpatchs[bdy], bdy + 1);
+            snprintf(message, sizeof(message), "Writing %d patches on boundary %d \n", numpatchs[bdy], bdy + 1);
             ensight_message(ENSIGHT_INFO, message);
 
             strcpy(buffer, "part");
@@ -1074,7 +1074,7 @@ write_binary_boundaries(FILE *f)
             fwrite(&part_number, sizeof(int), 1, f);
             part_number++;
 
-            sprintf(message, "Boundary %d Patches", bdy + 1);
+            snprintf(message, sizeof(message), "Boundary %d Patches", bdy + 1);
             strcpy(buffer, message);
             fwrite(buffer, sizeof(char), 80, f);
 
@@ -1184,7 +1184,7 @@ write_binary_boundaries(FILE *f)
 
             } /* nbpatch */
 
-            sprintf(message, "Writing %d nodes on boundary %d\n", numnodes[bdy], bdy + 1);
+            snprintf(message, sizeof(message), "Writing %d nodes on boundary %d\n", numnodes[bdy], bdy + 1);
             ensight_message(ENSIGHT_INFO, message);
 
             fwrite(&numnodes[bdy], sizeof(int), 1, f);
@@ -1592,7 +1592,7 @@ calculate_scalar_cell_connectivity(void)
 #ifdef WARN_NUM_OF_NODES
                         if (remain)
                         {
-                            sprintf(message, "warning: polygon/patch %d on cell %d "
+                            snprintf(message, sizeof(message), "warning: polygon/patch %d on cell %d "
                                              "(num %d) only has %d nodes\n",
                                     j, i, pol, remain);
                             ensight_message(ENSIGHT_WARNING, message);
@@ -1897,7 +1897,7 @@ generate_binary_node_connectivity(FILE *fo, FILE *fe)
 
     append_file(fo, fh);
 
-    sprintf(message, "Writing %d tetras, %d pyras and %d hexas \n", totaltetra, totalpyra, totalhexa);
+    snprintf(message, sizeof(message), "Writing %d tetras, %d pyras and %d hexas \n", totaltetra, totalpyra, totalhexa);
     ensight_message(ENSIGHT_INFO, message);
 
     /* Close and unlink the temporary files. */
@@ -1934,7 +1934,7 @@ write_scalar_cells(FILE *of, FILE *fc)
     fprintf(of, "coordinates\n");
     fprintf(of, "%10d\n", node_table_to_write);
 
-    sprintf(message, "Writing %d nodes of %d total\n",
+    snprintf(message, sizeof(message), "Writing %d nodes of %d total\n",
             node_table_to_write, node_table_count);
     ensight_message(ENSIGHT_INFO, message);
 
@@ -1998,7 +1998,7 @@ write_binary_scalar_cells(FILE *f, FILE *fc)
 
     fwrite(&node_table_to_write, sizeof(int), 1, f);
 
-    sprintf(message, "Writing %d nodes of %d total\n",
+    snprintf(message, sizeof(message), "Writing %d nodes of %d total\n",
             node_table_to_write, node_table_count);
     ensight_message(ENSIGHT_INFO, message);
 
@@ -2045,7 +2045,7 @@ write_droplets(FILE *of)
     if ((!have_var[v_ndrops]) || !ndrops)
         return;
 
-    sprintf(message, "Writing %d droplets \n", ndrops);
+    snprintf(message, sizeof(message), "Writing %d droplets \n", ndrops);
     ensight_message(ENSIGHT_INFO, message);
 
     /* Write out the part header. */
@@ -2205,7 +2205,7 @@ write_result_vars()
             }
 
             /* Open the variable file for this variable. */
-            sprintf(filename, "var%d.%04d",
+            snprintf(filename, sizeof(filename), "var%d.%04d",
                     ensightvars[i].data->number, numresultsets);
             f = open_ensight_file(filename, "w");
 
@@ -2497,7 +2497,7 @@ write_binary_result_vars()
             }
 
             /* Open the variable file for this variable. */
-            sprintf(filename, "var%d.%04d",
+            snprintf(filename, sizeof(filename), "var%d.%04d",
                     ensightvars[i].data->number, numresultsets);
             fb = open_ensight_file(filename, "wb");
 
@@ -3215,7 +3215,7 @@ write_result_set()
             FILE *f;
             char name[80];
 
-            sprintf(name, "out.geo.%04d", numresultsets);
+            snprintf(name, sizeof(name), "out.geo.%04d", numresultsets);
             f = open_ensight_file(name, "w");
 
             write_geometry_file(f);
@@ -3228,7 +3228,7 @@ write_result_set()
             FILE *f;
             char name[80];
 
-            sprintf(name, "out.geo.%04d", numresultsets);
+            snprintf(name, sizeof(name), "out.geo.%04d", numresultsets);
             f = open_ensight_file(name, "w+b");
 
             write_binary_geometry_file(f);
@@ -3411,7 +3411,7 @@ read_record_header()
     /* Check the two values for a match, and complain if they don't */
     if (h1 != h2)
     {
-        sprintf(message, "Fortran binary headers do not match at "
+        snprintf(message, sizeof(message), "Fortran binary headers do not match at "
                          "position %ld\n",
                 pos - sizeof(fortran_header));
         ensight_message(ENSIGHT_WARNING, message);
@@ -3433,7 +3433,7 @@ long newpos, temppos;
 #define ENDRECORD                                                                                                                                                         \
     if (sizeof(fortran_header) + ftell(input_file) != newpos)                                                                                                             \
     {                                                                                                                                                                     \
-        sprintf(message, "Position mismatch while reading " "from Fortran binary file (is %ld, " "should be %ld)\n", ftell(input_file), newpos - sizeof(fortran_header)); \
+        snprintf(message, sizeof(message), "Position mismatch while reading " "from Fortran binary file (is %ld, " "should be %ld)\n", ftell(input_file), newpos - sizeof(fortran_header)); \
         ensight_message(ENSIGHT_FATAL_ERROR, message);                                                                                                                    \
     }                                                                                                                                                                     \
     fseek(input_file, newpos, SEEK_SET)
@@ -3733,7 +3733,7 @@ slurp_general()
             break;
 
         default:
-            sprintf(message, "unknown block %d \n", ident);
+            snprintf(message, sizeof(message), "unknown block %d \n", ident);
             ensight_message(ENSIGHT_FATAL_ERROR, message);
             break;
         } /* matches switch (ident)... */
@@ -3858,7 +3858,7 @@ slurp_result_set()
     else
     {
 
-        sprintf(message, "unexpected block %d \n", ident);
+        snprintf(message, sizeof(message), "unexpected block %d \n", ident);
         ensight_message(ENSIGHT_FATAL_ERROR, message);
     }
 
@@ -4421,7 +4421,7 @@ slurp_result_set()
         }
         else
         {
-            sprintf(message, "Unknown variable '%s'; ignoring.\n", name);
+            snprintf(message, sizeof(message), "Unknown variable '%s'; ignoring.\n", name);
             ensight_message(ENSIGHT_WARNING, message);
             SKIPCONTENT;
         }
@@ -4709,7 +4709,7 @@ main(int argc, char **argv)
 
         default:
 
-            sprintf(message, "Bad option %s\n", argv[1]);
+            snprintf(message, sizeof(message), "Bad option %s\n", argv[1]);
             ensight_message(ENSIGHT_WARNING, message);
             usage();
         }
@@ -4730,7 +4730,7 @@ main(int argc, char **argv)
 
         /* header */
 
-        sprintf(message, "Ensight Gold Translator for VECTIS Phase 5 : Version %s\n", VERSION);
+        snprintf(message, sizeof(message), "Ensight Gold Translator for VECTIS Phase 5 : Version %s\n", VERSION);
         ensight_message(ENSIGHT_INFO, message);
 
         while (argc > 1)
@@ -4759,7 +4759,7 @@ usage(void)
     char message[MAXLINE];
 
     fprintf(stdout, "\n");
-    sprintf(message, " Ensight Gold Translator for VECTIS Phase 5 : Version %s\n", VERSION);
+    snprintf(message, sizeof(message), " Ensight Gold Translator for VECTIS Phase 5 : Version %s\n", VERSION);
     fprintf(stdout, message);
     fprintf(stdout, "\n");
     fprintf(stdout, "    Usage: v2e [-a|-b|-v|-h] <POST filename(s)>\n");

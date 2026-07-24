@@ -600,7 +600,7 @@ Embossing::compute(const char *port)
         // set "dummy" TRANSFORM attribute
         char buf[64];
         string Transform = "Transform: ";
-        sprintf(buf, "%d\n", 3); // translation
+        snprintf(buf, sizeof(buf), "%d\n", 3); // translation
         Transform += buf;
         bump->addAttribute("vertexOrder", "2");
         bump->addAttribute("TRANSFORM", Transform.c_str());
@@ -751,7 +751,7 @@ pr_exit(int status)
     else if (WIFSTOPPED(status))
     {
         std::string ANSYS_Stopped("ANSYS process stopped, signal number ");
-        sprintf(buf, "%d", WSTOPSIG(status));
+        snprintf(buf, sizeof(buf), "%d", WSTOPSIG(status));
         return -1; // well, this may be too radical....
     }
     return 0;
@@ -1068,7 +1068,7 @@ Embossing::readAndOutputMesh()
     if (presentationMode_ == 2)
     {
         char buf[64];
-        sprintf(buf, "barrelDiameter %f\n", barrelDiameter_);
+        snprintf(buf, sizeof(buf), "barrelDiameter %f\n", barrelDiameter_);
         basicCell->addAttribute("POLY_TO_CYL", buf);
     }
     p_VernetzteGrundZelle_->setCurrentObject(basicCell);
@@ -1084,23 +1084,23 @@ Embossing::setTransformAttribute(std::string &Transform)
 {
     char buf[64];
     Transform = "Transform: ";
-    sprintf(buf, "%d\n", 7); // tile
+    snprintf(buf, sizeof(buf), "%d\n", 7); // tile
     Transform += buf;
 
     Transform += "TilingPlane ";
-    sprintf(buf, "%d\n", 1); // XY
+    snprintf(buf, sizeof(buf), "%d\n", 1); // XY
     Transform += buf;
 
     Transform += "flipTile ";
-    sprintf(buf, "%d\n", 1); // flip
+    snprintf(buf, sizeof(buf), "%d\n", 1); // flip
     Transform += buf;
 
     Transform += "TilingMin ";
-    sprintf(buf, "%d %d\n", 0, 0); // min. repl.
+    snprintf(buf, sizeof(buf), "%d %d\n", 0, 0); // min. repl.
     Transform += buf;
 
     Transform += "TilingMax ";
-    sprintf(buf, "%d %d\n", anzahlReplikationenX_, anzahlReplikationenY_);
+    snprintf(buf, sizeof(buf), "%d %d\n", anzahlReplikationenX_, anzahlReplikationenY_);
     Transform += buf;
 }
 
@@ -1176,7 +1176,7 @@ Embossing::outputDummies()
     coDoPolygons *dummy = new coDoPolygons(p_VernetzteGrundZelle_->getObjName(), 0, 0, 0);
     char buf[64];
     std::string Transform = "Transform: ";
-    sprintf(buf, "%d\n", 7); // tile
+    snprintf(buf, sizeof(buf), "%d\n", 7); // tile
     Transform += buf;
     dummy->addAttribute("TRANSFORM", Transform.c_str());
     p_VernetzteGrundZelle_->setCurrentObject(dummy);

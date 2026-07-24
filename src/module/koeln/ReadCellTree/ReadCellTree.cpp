@@ -300,7 +300,7 @@ int coReadCellTree::compute(const char *)
     for (int i = 0; i < numCells; i++)
     {
         char name[1024];
-        sprintf(name, "%s_%d", poPoints->getObjName(), i);
+        snprintf(name, sizeof(name), "%s_%d", poPoints->getObjName(), i);
         float *xx = new float[1];
         float *yy = new float[1];
         float *zz = new float[1];

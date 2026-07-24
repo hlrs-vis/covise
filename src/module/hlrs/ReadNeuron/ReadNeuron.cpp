@@ -415,7 +415,7 @@ int ReadNeuron::compute(const char *)
                         }
                     }
                 }
-                sprintf(name, "%s_%5d", m_portSoData->getObjName(), timesteps);
+                snprintf(name, sizeof(name), "%s_%5d", m_portSoData->getObjName(), timesteps);
                 coDoFloat *data = new coDoFloat(name, numSomas, &somaData[0]);
                 somaDataList.push_back(data);
                 somaData.clear();

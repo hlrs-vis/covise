@@ -278,7 +278,7 @@ int DraftTube::compute(const char *)
       coDistributedObject *CrossSection[MAX_CROSS+1];
       for (i = 0; i < ci->num_cs; i++)
       {
-         sprintf(name, "cs_%d", i);
+         snprintf(name, sizeof(name), "cs_%d", i);
          dprintf(3, "\tname=%s\n", name);
          list[0] = 0;
          CrossSection[i] = new coDoPolygons(name,
@@ -306,7 +306,7 @@ int DraftTube::compute(const char *)
       coDoSet *set = new coDoSet((char*)basename,(coDistributedObject **)CrossSection);
                                                   // argh, schrott-Programmierung
       char *finfo = (char *)calloc(3000, sizeof(char));
-      sprintf(name, "NumCS=%d;", ci->num_cs);
+      snprintf(name, sizeof(name), "NumCS=%d;", ci->num_cs);
       strcpy(finfo, name);
       for (i = 0; i < ci->num_cs; i++)
       {
@@ -314,7 +314,7 @@ int DraftTube::compute(const char *)
          char buf[100];
 
          p_m[i]->getValue(f[0], f[1], f[2]);
-         sprintf(buf, "%f:%f:%f;", f[0], f[1], f[2]);
+         snprintf(buf, sizeof(buf), "%f:%f:%f;", f[0], f[1], f[2]);
          strcat(finfo, buf);
       }
       coFeedback feedback("DraftTubePlugin");
@@ -407,7 +407,7 @@ int DraftTube::compute(const char *)
       const char *basename = boco->getObjName();
 
       //   0. number of columns per info
-      sprintf(name,"%s_colinfo",basename);
+      snprintf(name, sizeof(name),"%s_colinfo",basename);
       size[0] = 5;
       size[1] = 0;
       coDoIntArr *colInfo = new coDoIntArr(name,1,size);
@@ -420,7 +420,7 @@ int DraftTube::compute(const char *)
       partObj[0]=colInfo;
 
       //   1. type of node
-      sprintf(name,"%s_nodeinfo",basename);
+      snprintf(name, sizeof(name),"%s_nodeinfo",basename);
       size[0] = TG_COL_NODE;
       size[1] = tg->p->nump;
       coDoIntArr *nodeInfo = new coDoIntArr(name,2,size);
@@ -433,7 +433,7 @@ int DraftTube::compute(const char *)
       partObj[1]=nodeInfo;
 
       //   2. type of element
-      sprintf(name,"%s_eleminfo",basename);
+      snprintf(name, sizeof(name),"%s_eleminfo",basename);
       size[0] = 2;
       size[1] = tg->e->nume*TG_COL_ELEM;
       coDoIntArr *elemInfo = new coDoIntArr(name, 2, size);
@@ -447,14 +447,14 @@ int DraftTube::compute(const char *)
 
       //   3. list of nodes with bc (a node may appear more than one time)
       //      and its types
-      sprintf(name,"%s_diricletNodes",basename);
+      snprintf(name, sizeof(name),"%s_diricletNodes",basename);
       size [0] = TG_COL_DIRICLET;
       size [1] = 6*tg->gs[0]->p->nump;
       coDoIntArr *diricletNodes = new coDoIntArr(name, 2, size);
       data = diricletNodes->getAddress();
 
       //   4. coreesponding value to 3.
-      sprintf(name,"%s_diricletValue",basename);
+      snprintf(name, sizeof(name),"%s_diricletValue",basename);
       coDoFloat *diricletValues
          = new coDoFloat(name, 6*tg->gs[0]->p->nump);
       diricletValues->getAddress(&bPtr);
@@ -485,7 +485,7 @@ int DraftTube::compute(const char *)
       partObj[4] = diricletValues;
 
       //   5. wall
-      sprintf(name,"%s_wall",basename);
+      snprintf(name, sizeof(name),"%s_wall",basename);
       size[0] = TG_COL_WALL;
       size[1] = tg->wall->numv;
       coDoIntArr *faces = new coDoIntArr(name, 2, size );
@@ -502,7 +502,7 @@ int DraftTube::compute(const char *)
       partObj[5]=faces;
 
       //   6. balance
-      sprintf(name,"%s_balance",basename);
+      snprintf(name, sizeof(name),"%s_balance",basename);
       size[0] = TG_COL_BALANCE;
       size[1] = tg->in->numv + tg->out->numv;
       coDoIntArr *balance = new coDoIntArr(name, 2, size );
@@ -580,7 +580,7 @@ void DraftTube::CreateMenu_GeometryCrossSection()
       {
          // WARNING: Don't changed the string in buf
          // it is used in CheckUserInput.cpp
-         sprintf(buf, "%s_%s",P_AB, direction[j]);
+         snprintf(buf, sizeof(buf), "%s_%s",P_AB, direction[j]);
          tmp = IndexedParameterName(buf, i);
          p_ab[i][j] = addFloatVectorParam(tmp, tmp);
          p_ab[i][j]->setValue(2, vec);
@@ -693,18 +693,18 @@ void DraftTube::CreateMenu_GridCrossSection(void)
    for (i=0;i<MAX_CROSS;i++)
    {
       //  create description and name
-      sprintf(buf,"GridSection_%d",i+1);
+      snprintf(buf, sizeof(buf),"GridSection_%d",i+1);
       paraCase(buf);
 
       // number of elements in this section
-      sprintf(buf,"NumberOfElements_%d",i+1);
+      snprintf(buf, sizeof(buf),"NumberOfElements_%d",i+1);
       p_elem[i] = addInt32Param(buf,buf);
       p_elem[i]->setValue(0);
 
       for (j=0;j<8;j++)
       {
          // number of elements in this section
-         sprintf(buf,"OuterPart_%s_%d", sectornames[j], i+1);
+         snprintf(buf, sizeof(buf),"OuterPart_%s_%d", sectornames[j], i+1);
          p_part[i][j] = addFloatParam(buf,buf);
          p_part[i][j]->setValue(0.0);
       }

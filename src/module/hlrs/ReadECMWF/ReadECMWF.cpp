@@ -51,7 +51,7 @@ ReadECMWF::ReadECMWF(int argc, char *argv[])
     for (int i = 0; i < numParams; i++)
     {
         char namebuf[50];
-        sprintf(namebuf, "Variable%d", i);
+        snprintf(namebuf, sizeof(namebuf), "Variable%d", i);
         p_variables[i] = addChoiceParam(namebuf, namebuf);
         p_variables[i]->setValue(1, NoneChoices, 0);
     }
@@ -85,7 +85,7 @@ ReadECMWF::ReadECMWF(int argc, char *argv[])
     for (int i = 0; i < numParams; i++)
     {
         char namebuf[50];
-        sprintf(namebuf, "dataOutPort%d", i);
+        snprintf(namebuf, sizeof(namebuf), "dataOutPort%d", i);
         p_data_outs[i] = addOutputPort(namebuf, "Float", namebuf);
     }
 }
@@ -312,7 +312,7 @@ int ReadECMWF::compute(const char *)
             time_grid[nTime] = NULL;
             for (int t = 0; t < nTime; ++t)
             {
-                sprintf(buf, "%s_%d", p_grid_out->getObjName(), t);
+                snprintf(buf, sizeof(buf), "%s_%d", p_grid_out->getObjName(), t);
                 coDoStructuredGrid *outGrid = new coDoStructuredGrid(buf, (int)nz, (int)nx, (int)ny);
                 outGrid->getAddresses(&z_coord, &x_coord, &y_coord);
                 time_grid[t] = outGrid;
@@ -364,7 +364,7 @@ int ReadECMWF::compute(const char *)
             }
 
             coDoSet *time_outGrid = new coDoSet(p_grid_out->getObjName(), time_grid);
-            sprintf(buf, "1 %zd", nTime);
+            snprintf(buf, sizeof(buf), "1 %zd", nTime);
             time_outGrid->addAttribute("TIMESTEP", buf);
             p_grid_out->setCurrentObject(time_outGrid);
 
@@ -433,7 +433,7 @@ int ReadECMWF::compute(const char *)
 
             for (int t = 0; t < nTime; ++t)
             {
-                sprintf(buf, "%s_%d", p_unigrid_out->getObjName(), t);
+                snprintf(buf, sizeof(buf), "%s_%d", p_unigrid_out->getObjName(), t);
                 coDoStructuredGrid *outUniGrid = new coDoStructuredGrid(buf, (int)nz, (int)nx, (int)ny);
                 time_unigrid[t] = outUniGrid;
                 outUniGrid->getAddresses(&z_unicoord, &x_unicoord, &y_unicoord);
@@ -456,7 +456,7 @@ int ReadECMWF::compute(const char *)
 
             }
             coDoSet *time_outUniGrid = new coDoSet(p_unigrid_out->getObjName(), time_unigrid);
-            sprintf(buf, "1 %zd", nTime);
+            snprintf(buf, sizeof(buf), "1 %zd", nTime);
             time_outUniGrid->addAttribute("TIMESTEP", buf);
 
             delete [] time_unigrid;
@@ -530,7 +530,7 @@ int ReadECMWF::compute(const char *)
                     for(int t = 0; t < nTime; ++t)
                     {
                         float *floatData;
-                        sprintf(buf, "%s_%d", p_data_outs[i]->getObjName(), t);
+                        snprintf(buf, sizeof(buf), "%s_%d", p_data_outs[i]->getObjName(), t);
                         coDoFloat *outdata = new coDoFloat(buf, num_vals);
                         time_data[t] = outdata;
                         outdata->getAddress(&floatData);
@@ -540,7 +540,7 @@ int ReadECMWF::compute(const char *)
                     }
 
                     coDoSet *time_outData = new coDoSet(p_data_outs[i]->getObjName(), time_data);
-                    sprintf(buf, "1 %zd", nTime);
+                    snprintf(buf, sizeof(buf), "1 %zd", nTime);
                     time_outData->addAttribute("TIMESTEP", buf);
 
                 }else

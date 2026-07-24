@@ -111,7 +111,7 @@ void Application::compute(void *)
     if (Mesh != NULL)
     {
         if (numt > 1)
-            sprintf(buf, "%s_mesh", Mesh);
+            snprintf(buf, sizeof(buf), "%s_mesh", Mesh);
         else
             strcpy(buf, Mesh);
         mesh = new coDoRectilinearGrid(buf, n_u, n_v, n_w);
@@ -162,7 +162,7 @@ void Application::compute(void *)
     for (t = currt; t < endt; t++)
     {
         if (numt > 1)
-            sprintf(buf, "%s%04d%s", dp, t, dpend);
+            snprintf(buf, sizeof(buf), "%s%04d%s", dp, t, dpend);
         else
             strcpy(buf, data_Path);
 
@@ -181,7 +181,7 @@ void Application::compute(void *)
 
         Covise::sendInfo("Reading data for timestep %d\n", t);
         if (numt > 1)
-            sprintf(buf, "%s_%d", Velocity, t);
+            snprintf(buf, sizeof(buf), "%s_%d", Velocity, t);
         else
             strcpy(buf, Velocity);
         if (Velocity != 0)
@@ -200,7 +200,7 @@ void Application::compute(void *)
             return;
         }
         if (numt > 1)
-            sprintf(buf, "%s_%d", Temperature, t);
+            snprintf(buf, sizeof(buf), "%s_%d", Temperature, t);
         else
             strcpy(buf, Temperature);
         if (Temperature != 0)

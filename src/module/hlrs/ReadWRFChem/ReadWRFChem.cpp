@@ -44,7 +44,7 @@ ReadWRFChem::ReadWRFChem(int argc, char *argv[])
     for (int i = 0; i < numParams; i++)
     {
         char namebuf[50];
-        sprintf(namebuf, "Variable%d", i);
+        snprintf(namebuf, sizeof(namebuf), "Variable%d", i);
         p_variables[i] = addChoiceParam(namebuf, namebuf);
         p_variables[i]->setValue(1, NoneChoices, 0);
     }
@@ -76,7 +76,7 @@ ReadWRFChem::ReadWRFChem(int argc, char *argv[])
     for (int i = 0; i < numParams; i++)
     {
         char namebuf[50];
-        sprintf(namebuf, "dataOutPort%d", i);
+        snprintf(namebuf, sizeof(namebuf), "dataOutPort%d", i);
         p_data_outs[i] = addOutputPort(namebuf, "Float", namebuf);
     }
 }
@@ -289,7 +289,7 @@ int ReadWRFChem::compute(const char *)
 
             for (int t = 0; t < nTime; ++t) //TODO: is there a better way to split grid by timestep???
             {
-                sprintf(buf, "%s_%d",p_grid_out->getObjName(), t);
+                snprintf(buf, sizeof(buf), "%s_%d",p_grid_out->getObjName(), t);
                 coDoStructuredGrid *outGrid = new coDoStructuredGrid(buf, nx, ny, nz);
                 outGrid->getAddresses(&x_coord, &y_coord, &z_coord);
                 time_grid[t] = outGrid;
@@ -312,7 +312,7 @@ int ReadWRFChem::compute(const char *)
 
             }
             coDoSet *time_outGrid = new coDoSet(p_grid_out->getObjName(), time_grid);
-            sprintf(buf, "1 %d", nTime);
+            snprintf(buf, sizeof(buf), "1 %d", nTime);
             time_outGrid->addAttribute("TIMESTEP", buf);
             p_grid_out->setCurrentObject(time_outGrid);
 
@@ -350,7 +350,7 @@ int ReadWRFChem::compute(const char *)
 
             for (int t = 0; t < nTime; ++t) //TODO: is there a better way to split grid by timestep???
             {
-                sprintf(buf, "%s_%d",p_unigrid_out->getObjName(), t);
+                snprintf(buf, sizeof(buf), "%s_%d",p_unigrid_out->getObjName(), t);
                 coDoStructuredGrid *outUniGrid = new coDoStructuredGrid(buf, nx, ny, nz);
                 outUniGrid->getAddresses(&x_unicoord, &y_unicoord, &z_unicoord);
                 time_unigrid[t] = outUniGrid;
@@ -371,7 +371,7 @@ int ReadWRFChem::compute(const char *)
 
             }
             coDoSet *time_outUniGrid = new coDoSet(p_grid_out->getObjName(), time_unigrid);
-            sprintf(buf, "1 %d", nTime);
+            snprintf(buf, sizeof(buf), "1 %d", nTime);
             time_outUniGrid->addAttribute("TIMESTEP", buf);
             p_unigrid_out->setCurrentObject(time_outUniGrid);
 
@@ -413,7 +413,7 @@ int ReadWRFChem::compute(const char *)
 
             for(int t = 0; t < nTime; ++t)
             {
-                sprintf(buf, "%s_%d",p_surface_out->getObjName(), t);
+                snprintf(buf, sizeof(buf), "%s_%d",p_surface_out->getObjName(), t);
                 coDoPolygons *outsurf = new coDoPolygons(buf, ny * nz, numPolygons * 4, numPolygons);
                 outsurf->getAddresses(&x_coord, &y_coord, &z_coord, &vl, &pl);
                 time_surf[t] = outsurf;
@@ -443,7 +443,7 @@ int ReadWRFChem::compute(const char *)
 
             }
             coDoSet *time_outSurf = new coDoSet(p_surface_out->getObjName(),time_surf);
-            sprintf(buf, "1 %d", nTime);
+            snprintf(buf, sizeof(buf), "1 %d", nTime);
             time_outSurf->addAttribute("TIMESTEP", buf);
             p_surface_out->setCurrentObject(time_outSurf);
 
@@ -496,7 +496,7 @@ int ReadWRFChem::compute(const char *)
                 for(int t = 0; t < nTime; ++t)
                 {
                     float *floatData;
-                    sprintf(buf, "%s_%d",p_data_outs[i]->getObjName(), t);
+                    snprintf(buf, sizeof(buf), "%s_%d",p_data_outs[i]->getObjName(), t);
                     coDoFloat *outdata = new coDoFloat(buf, nx*ny*nz);
                     outdata->getAddress(&floatData);
                     time_data[t] = outdata;
@@ -507,7 +507,7 @@ int ReadWRFChem::compute(const char *)
                 }
 
                 coDoSet *time_outData = new coDoSet(p_data_outs[i]->getObjName(),time_data);
-                sprintf(buf, "1 %d", nTime);
+                snprintf(buf, sizeof(buf), "1 %d", nTime);
                 time_outData->addAttribute("TIMESTEP", buf);
                 p_data_outs[i]->setCurrentObject(time_outData);
 

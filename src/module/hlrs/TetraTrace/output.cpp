@@ -45,11 +45,11 @@ coDistributedObject **trace::buildOutput(char **names)
     switch (startStyle)
     {
     case 2: // plane
-        sprintf(bfr, "P%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+        snprintf(bfr, sizeof(bfr), "P%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
         break;
 
     default: // line or something unsupported
-        sprintf(bfr, "T%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+        snprintf(bfr, sizeof(bfr), "T%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
         break;
     }
     returnObject[0]->addAttribute("FEEDBACK", bfr);
@@ -192,7 +192,7 @@ coDistributedObject *trace::buildOutput_Point(char *name)
         // build parts of the set
         for (i = 0; i < num; i++)
         {
-            sprintf(bfr, "%s_%d", name, i);
+            snprintf(bfr, sizeof(bfr), "%s_%d", name, i);
 
             // how many traces are still running ?!
             n = 0;
@@ -244,7 +244,7 @@ coDistributedObject *trace::buildOutput_Point(char *name)
 
         // assemble set
         returnObject = new coDoSet(name, setElems);
-        sprintf(bfr, "1 %d", num);
+        snprintf(bfr, sizeof(bfr), "1 %d", num);
         returnObject->addAttribute("TIMESTEP", bfr);
 
         // clean up
@@ -257,7 +257,7 @@ coDistributedObject *trace::buildOutput_Point(char *name)
         // build parts of the set
         for (i = 0; i < num; i++)
         {
-            sprintf(bfr, "%s_%d", name, i);
+            snprintf(bfr, sizeof(bfr), "%s_%d", name, i);
 
             // how many traces are still running ?!
             n = 0;
@@ -290,7 +290,7 @@ coDistributedObject *trace::buildOutput_Point(char *name)
 
         // assemble set
         returnObject = new coDoSet(name, setElems);
-        sprintf(bfr, "1 %d", num);
+        snprintf(bfr, sizeof(bfr), "1 %d", num);
         returnObject->addAttribute("TIMESTEP", bfr);
 
         // clean up
@@ -333,7 +333,7 @@ coDistributedObject *trace::buildOutput_PointData(char *name)
         // build parts of the set
         for (i = 0; i < num; i++)
         {
-            sprintf(bfr, "%s_%d", name, i);
+            snprintf(bfr, sizeof(bfr), "%s_%d", name, i);
 
             // how many traces are still running ?!
             n = 0;
@@ -422,7 +422,7 @@ coDistributedObject *trace::buildOutput_PointData(char *name)
 
         // assemble set
         returnObject = new coDoSet(name, setElems);
-        sprintf(bfr, "1 %d", num);
+        snprintf(bfr, sizeof(bfr), "1 %d", num);
         returnObject->addAttribute("TIMESTEP", bfr);
 
         // clean up
@@ -435,7 +435,7 @@ coDistributedObject *trace::buildOutput_PointData(char *name)
         // build parts of the set
         for (i = 0; i < num; i++)
         {
-            sprintf(bfr, "%s_%d", name, i);
+            snprintf(bfr, sizeof(bfr), "%s_%d", name, i);
 
             // how many traces are still running ?!
             n = 0;
@@ -497,7 +497,7 @@ coDistributedObject *trace::buildOutput_PointData(char *name)
 
         // assemble set
         returnObject = new coDoSet(name, setElems);
-        sprintf(bfr, "1 %d", num);
+        snprintf(bfr, sizeof(bfr), "1 %d", num);
         returnObject->addAttribute("TIMESTEP", bfr);
 
         // clean up
@@ -554,8 +554,8 @@ coDistributedObject **trace::buildOutput_Fader(char *pName, char *dName)
         // build parts of the set
         for (i = 0; i < num; i++)
         {
-            sprintf(bfr, "%s_%d", pName, i);
-            sprintf(bfr2, "%s_%d", dName, i);
+            snprintf(bfr, sizeof(bfr), "%s_%d", pName, i);
+            snprintf(bfr2, sizeof(bfr2), "%s_%d", dName, i);
 
             // how many traces are still running ?!
             n = 0;
@@ -659,7 +659,7 @@ coDistributedObject **trace::buildOutput_Fader(char *pName, char *dName)
         // assemble set
         returnObjects[0] = new coDoSet(pName, setElems);
         returnObjects[1] = new coDoSet(dName, dataSetElems);
-        sprintf(bfr, "1 %d", num);
+        snprintf(bfr, sizeof(bfr), "1 %d", num);
         returnObjects[0]->addAttribute("TIMESTEP", bfr);
 
         // clean up
@@ -678,8 +678,8 @@ coDistributedObject **trace::buildOutput_Fader(char *pName, char *dName)
         // build parts of the set
         for (i = 0; i < num; i++)
         {
-            sprintf(bfr, "%s_%d", pName, i);
-            sprintf(bfr2, "%s_%d", dName, i);
+            snprintf(bfr, sizeof(bfr), "%s_%d", pName, i);
+            snprintf(bfr2, sizeof(bfr2), "%s_%d", dName, i);
 
             // how many traces are still running ?!
             n = 0;
@@ -738,7 +738,7 @@ coDistributedObject **trace::buildOutput_Fader(char *pName, char *dName)
         // assemble set
         returnObjects[0] = new coDoSet(pName, setElems);
         returnObjects[1] = new coDoSet(dName, dataSetElems);
-        sprintf(bfr, "1 %d", num);
+        snprintf(bfr, sizeof(bfr), "1 %d", num);
         returnObjects[0]->addAttribute("TIMESTEP", bfr);
 
         // clean up

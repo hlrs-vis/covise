@@ -141,29 +141,29 @@ void ModifyAddPart::createVentParam()
     for (i = 0; i < MAX_VENTS; i++)
     {
         // create description and name
-        sprintf(buf, "Vent %d", i);
+        snprintf(buf, sizeof(buf), "Vent %d", i);
 
         // case for the vent switching
         paraCase(buf);
 
-        sprintf(buf, "Vent_%d:Name", i);
+        snprintf(buf, sizeof(buf), "Vent_%d:Name", i);
         currVentFile[i] = 0;
         p_name[i] = addChoiceParam(buf, "Select a vent type substructure");
         p_name[i]->setValue(numVentDirs, ventdirs, currVentFile[i]);
 
-        sprintf(buf, "Vent_%d:Pos", i);
+        snprintf(buf, sizeof(buf), "Vent_%d:Pos", i);
         p_pos[i] = addFloatVectorParam(buf, "Position");
         p_pos[i]->setImmediate(1);
         p_pos[i]->setValue(0.0, 0.0, 0.0);
         pos[i][0] = pos[i][1] = pos[i][2] = 0.0;
 
-        sprintf(buf, "Vent_%d:Euler", i);
+        snprintf(buf, sizeof(buf), "Vent_%d:Euler", i);
         p_euler[i] = addFloatVectorParam(buf, "Euler Angles");
         p_euler[i]->setImmediate(1);
         p_euler[i]->setValue(0.0, 0.0, 0.0);
         euler[i][0] = euler[i][1] = euler[i][2] = 0.0;
 
-        sprintf(buf, "Vent_%d:Rot", i);
+        snprintf(buf, sizeof(buf), "Vent_%d:Rot", i);
         p_rot[i] = addFloatVectorParam(buf, "Rotation Matrix");
         p_rot[i]->setImmediate(1);
 
@@ -200,7 +200,7 @@ void ModifyAddPart::getVentDirs()
     Covise::getname(buf, ventFilePath);
     if (strlen(buf) == 0)
     {
-        sprintf(buf, "Directory %s doesn't exist", ventFilePath);
+        snprintf(buf, sizeof(buf), "Directory %s doesn't exist", ventFilePath);
         sendError(buf);
         return;
     }
@@ -209,7 +209,7 @@ void ModifyAddPart::getVentDirs()
         dirp = opendir(buf);
         if (dirp == NULL)
         {
-            sprintf(buf, "Directory %s doesn't exist", ventFilePath);
+            snprintf(buf, sizeof(buf), "Directory %s doesn't exist", ventFilePath);
             sendError(buf);
             return;
         }
@@ -250,7 +250,7 @@ void ModifyAddPart::getNumOfVents()
         if (exist[i] == 1)
             numVents++;
     }
-    sprintf(buf, ":::::::::::::Detected %d attached vents\n", numVents);
+    snprintf(buf, sizeof(buf), ":::::::::::::Detected %d attached vents\n", numVents);
     sendInfo(buf);
 }
 
@@ -343,7 +343,7 @@ int ModifyAddPart::compute()
             Covise::getname(buf, tmp);
             if (!buf)
             {
-                sprintf(buf, "ERROR: boco file %s doesn't exist", tmp);
+                snprintf(buf, sizeof(buf), "ERROR: boco file %s doesn't exist", tmp);
                 sendError(buf);
                 return STOP_PIPELINE;
             }
@@ -359,7 +359,7 @@ int ModifyAddPart::compute()
             Covise::getname(buf, tmp);
             if (!buf)
             {
-                sprintf(buf, "ERROR: configdir %s doesn't exist", tmp);
+                snprintf(buf, sizeof(buf), "ERROR: configdir %s doesn't exist", tmp);
                 sendError(buf);
                 return STOP_PIPELINE;
             }
@@ -401,7 +401,7 @@ int ModifyAddPart::compute()
             Covise::getname(buf, tmp);
             if (!buf)
             {
-                sprintf(buf, "ERROR: domainfile %s doesn't exist", tmp);
+                snprintf(buf, sizeof(buf), "ERROR: domainfile %s doesn't exist", tmp);
                 sendError(buf);
                 return STOP_PIPELINE;
             }
@@ -439,7 +439,7 @@ int ModifyAddPart::compute()
 
                 coFeedback feedback("ModifyAddPart");
                 char str[30];
-                sprintf(str, "VENT_%d", i);
+                snprintf(str, sizeof(str), "VENT_%d", i);
                 feedback.addString(str);
                 feedback.addPara(p_pos[i]);
                 feedback.addPara(p_rot[i]);
@@ -472,7 +472,7 @@ int ModifyAddPart::compute()
 
                 coFeedback feedback("ModifyAddPart");
                 char str[30];
-                sprintf(str, "VENT_%d", i);
+                snprintf(str, sizeof(str), "VENT_%d", i);
                 feedback.addString(str);
                 feedback.addPara(p_pos[i]);
                 feedback.addPara(p_rot[i]);
@@ -500,7 +500,7 @@ int ModifyAddPart::compute()
 
                 coFeedback feedback("ModifyAddPart");
                 char str[30];
-                sprintf(str, "VENT_%d", i);
+                snprintf(str, sizeof(str), "VENT_%d", i);
                 feedback.addString(str);
                 feedback.addPara(p_pos[i]);
                 feedback.addPara(p_rot[i]);
@@ -556,7 +556,7 @@ int ModifyAddPart::compute()
     }
     l += 100; // "VENTDIRS 2 vent_box vent_cyl"
     str = new char[l + 1];
-    sprintf(str, "VENTDIRS %d", numVentDirs - 1);
+    snprintf(str, sizeof(str), "VENTDIRS %d", numVentDirs - 1);
     for (i = 1; i < numVentDirs; i++)
     {
         strcat(str, " ");

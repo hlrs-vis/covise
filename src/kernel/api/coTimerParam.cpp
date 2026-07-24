@@ -213,7 +213,7 @@ const char *coTimerParam::getTypeString() const
 const char *coTimerParam::getValString() const
 {
     static char valString[192];
-    sprintf(valString, "%ld %ld %ld", d_start, d_delta, d_state);
+    snprintf(valString, sizeof(valString), "%ld %ld %ld", d_start, d_delta, d_state);
     return valString;
 }
 

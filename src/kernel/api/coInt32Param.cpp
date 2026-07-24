@@ -136,7 +136,7 @@ const char *coInt32Param::getTypeString() const
 const char *coInt32Param::getValString() const
 {
     static char valString[64];
-    sprintf(valString, "%ld", d_value);
+    snprintf(valString, sizeof(valString), "%ld", d_value);
     return valString;
 }
 

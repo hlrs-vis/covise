@@ -95,8 +95,8 @@ void Application::compute(void *)
 
     for (t = currt; t < endt; t++)
     {
-        sprintf(buf2, "%%s%%0%dd%%s", numd);
-        sprintf(buf, buf2, dp, t, dpend);
+        snprintf(buf2, sizeof(buf2), "%%s%%0%dd%%s", numd);
+        snprintf(buf, sizeof(buf), buf2, dp, t, dpend);
         fd = Covise::open(buf, O_RDONLY);
         if (fd < 0)
         {
@@ -178,7 +178,7 @@ void Application::compute(void *)
 
         if (Mesh != NULL)
         {
-            sprintf(buf, "%s_%d", Mesh, t);
+            snprintf(buf, sizeof(buf), "%s_%d", Mesh, t);
             mesh = new coDoPolygons(buf, total_numv, total_numt * 3, total_numt);
             if (mesh->objectOk())
             {
@@ -199,7 +199,7 @@ void Application::compute(void *)
 
         if (Data != 0)
         {
-            sprintf(buf, "%s_%d", Data, t);
+            snprintf(buf, sizeof(buf), "%s_%d", Data, t);
             data = new coDoVec3(buf, total_numv);
             if (data->objectOk())
             {

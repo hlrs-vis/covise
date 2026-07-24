@@ -30,11 +30,11 @@ ResultFloatParam::fillValString(char *val)
 {
     char format[100], prec[10];
     strcpy(format, "%1.");
-    sprintf(prec, "%d", prec_);
+    snprintf(prec, sizeof(prec), "%d", prec_);
     strcat(format, prec);
     strcat(format, "e");
 
-    sprintf(val, format, val_);
+    snprintf(val, sizeof(val), format, val_);
 }
 
 void

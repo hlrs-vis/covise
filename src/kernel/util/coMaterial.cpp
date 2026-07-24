@@ -194,7 +194,7 @@ void coMaterialList::add(const char *dirname)
                     char buf[300];
                     char *tmp2 = new char[strlen(tmp) + strlen(file.name) + 10];
                     sprintf(tmp2, "%s\\%s", tmp, file.name);
-                    sprintf(buf, "%s %s", dirname, file.name);
+                    snprintf(buf, sizeof(buf), "%s %s", dirname, file.name);
                     push_back(new coMaterial(buf, tmp2));
                 }
 
@@ -248,7 +248,7 @@ if(!(mdir->is_directory(n)))
 {
 char *tmp2=mdir->full_name(n);
 char buf[300];
-sprintf(buf,"%s %s",dir->name(i),mdir->name(n));
+snprintf(buf, sizeof(buf),"%s %s",dir->name(i),mdir->name(n));
 append(new coMaterial(buf,tmp2));
 delete[] tmp2;
 }

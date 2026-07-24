@@ -93,7 +93,7 @@ xercesc::DOMElement *Wiregroup::Save(xercesc::DOMDocument &document)
 
     element->appendChild(document.createTextNode(xercesc::XMLString::transcode(this->identStr())));
     element->setAttribute(xercesc::XMLString::transcode("depth"), xercesc::XMLString::transcode(this->getName()));
-    sprintf(tmp, "%f", this->getLengthOfTwist());
+    snprintf(tmp, sizeof(tmp), "%f", this->getLengthOfTwist());
     element->setAttribute(xercesc::XMLString::transcode("LengthOfTwist"), xercesc::XMLString::transcode(tmp));
     for (i = 0; i < this->numWires; i++)
     {
@@ -195,7 +195,7 @@ void Wiregroup::addManipulation(coTUIFrame *frame)
     {
         char buf[256];
 
-        sprintf(buf, "No %2d", i);
+        snprintf(buf, sizeof(buf), "No %2d", i);
         sgLenSliderL[i] = new coTUILabel(buf, frame->getID());
         sgLenSliderL[i]->setPos(1, y + i);
         sgLenSlider[i] = new coTUIFloatSlider("numHSlider", frame->getID());

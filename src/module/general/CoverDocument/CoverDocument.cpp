@@ -35,7 +35,7 @@ CoverDocument::CoverDocument(int argc, char *argv[])
     const char *basePath = getenv("COVISEDIR");
     if (!basePath)
         basePath = ".";
-    sprintf(filebase, "%s/nofile.png", basePath);
+    snprintf(filebase, sizeof(filebase), "%s/nofile.png", basePath);
 
     // Create parameters and ports
     filenameParam = addFileBrowserParam("Filename", "Name of first file");

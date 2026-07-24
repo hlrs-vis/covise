@@ -88,9 +88,9 @@ ReadStar::ReadStar(int argc, char *argv[])
     if (!cov_path)
         cov_path = getenv("COVISEDIR");
     if (cov_path)
-        sprintf(buffer, "%s/nofile", cov_path);
+        snprintf(buffer, sizeof(buffer), "%s/nofile", cov_path);
     else
-        sprintf(buffer, "./nofile");
+        snprintf(buffer, sizeof(buffer), "./nofile");
 
     p_meshFile = addFileBrowserParam("mesh_path", "Mesh file path");
     p_meshFile->setValue(buffer, "*16;*mdl;*MDL");
@@ -117,11 +117,11 @@ ReadStar::ReadStar(int argc, char *argv[])
     static const char *defFieldVal[] = { "---" };
     for (i = 0; i < NUMPORTS; i++)
     {
-        sprintf(buffer, "field_%d", i);
+        snprintf(buffer, sizeof(buffer), "field_%d", i);
         p_field[i] = addChoiceParam(buffer, "Field to read for output");
         p_field[i]->setValue(1, defFieldVal, 0);
 
-        sprintf(buffer, "data_%d", i);
+        snprintf(buffer, sizeof(buffer), "data_%d", i);
         p_data[i] = addOutputPort(buffer,
                                   "Float|Vec3|Points", "Data Output");
 
@@ -462,7 +462,7 @@ int ReadStar::handleChangedDataPath(const char *newpath,
         else
         {
             // it is not there, so unzip it (if gzip is not allready on it)
-            sprintf(tmpfile, "%s.tmp", newpath);
+            snprintf(tmpfile, sizeof(tmpfile), "%s.tmp", newpath);
             if (!stat(tmpfile, &statbfr))
             {
                 // unzip is on it -> wait
@@ -477,7 +477,7 @@ int ReadStar::handleChangedDataPath(const char *newpath,
                 // we have to unzip it ourselves
                 strcpy(tmpfile, newpath);
                 tmpfile[i - 3] = '\0';
-                sprintf(bfr, "gzip -d -c %s > %s", newpath, tmpfile);
+                snprintf(bfr, sizeof(bfr), "gzip -d -c %s > %s", newpath, tmpfile);
                 if (system(bfr) == -1)
                 {
                     cerr << "ReadStar::handleChangedDataPath: exec of " << bfr << " failed" << endl;
@@ -551,7 +551,7 @@ int ReadStar::handleChangedDataPath(const char *newpath,
             //////// This was a File09
             else
             {
-                sprintf(bfr, "File '%s': %i cells, %i vertices, stationary",
+                snprintf(bfr, sizeof(bfr), "File '%s': %i cells, %i vertices, stationary",
                         show_name(path), file09->ncell, file09->nnode);
                 starfile = file09;
                 p_fromToStep->setValue(0, 0, 0);
@@ -566,7 +566,7 @@ int ReadStar::handleChangedDataPath(const char *newpath,
         else
         {
 
-            sprintf(bfr, "File '%s': %i cells, %i vertices, transient, %i steps ",
+            snprintf(bfr, sizeof(bfr), "File '%s': %i cells, %i vertices, transient, %i steps ",
                     show_name(path), file29->ncell, file29->nnode,
                     file29->get_num_steps());
             starfile = file29;
@@ -654,9 +654,9 @@ void ReadStar::addBlockInfo(coDistributedObject *obj,
                             int timestep, int num_timesteps)
 {
     char buf[64];
-    sprintf(buf, "%d %d", timestep, num_timesteps);
+    snprintf(buf, sizeof(buf), "%d %d", timestep, num_timesteps);
     obj->addAttribute("BLOCKINFO", buf);
-    sprintf(buf, "T%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+    snprintf(buf, sizeof(buf), "T%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
     obj->addAttribute("READ_MODULE", buf);
 }
 
@@ -680,7 +680,7 @@ int ReadStar::compute(const char *)
     static int instance = 0;
     int pid = getpid();
     char filename[50];
-    sprintf(filename, "Data.%d.%03d", pid, instance);
+    snprintf(filename, sizeof(filename), "Data.%d.%03d", pid, instance);
     FILE *dataFile = fopen(filename, "w");
     instance++;
 #endif
@@ -740,7 +740,7 @@ int ReadStar::compute(const char *)
             for (whichPort = 0; whichPort < NUMPORTS; whichPort++)
             {
                 char buffer[64];
-                sprintf(buffer, "data_%ld", (long)i);
+                snprintf(buffer, sizeof(buffer), "data_%ld", (long)i);
                 strcat(buffer, "\n");
                 strcat(buffer, choice->getString(p_field[whichPort]->getValue()));
                 // remove trailing \n
@@ -775,7 +775,7 @@ int ReadStar::compute(const char *)
             for (i = 0; !(mesh_path[i] == '.' && mesh_path[i + 1] == '.'); i++)
                 buf[i] = mesh_path[i];
             buf[i] = '\0';
-            sprintf(buf2, buf, start + step * timestep);
+            snprintf(buf2, sizeof(buf2), buf, start + step * timestep);
             handleChangedMeshPath(buf2, 0);
         }
 
@@ -791,7 +791,7 @@ int ReadStar::compute(const char *)
                 for (i = 0; !(data_path[i] == '.' && data_path[i + 1] == '.'); i++)
                     buf[i] = data_path[i];
                 buf[i] = '\0';
-                sprintf(buf2, buf, start + step * (timestep - 1));
+                snprintf(buf2, sizeof(buf2), buf, start + step * (timestep - 1));
 
                 i = strlen(buf2);
 
@@ -815,7 +815,7 @@ int ReadStar::compute(const char *)
                         for (i = 0; !(data_path[i] == '.' && data_path[i + 1] == '.'); i++)
                             buf[i] = data_path[i];
                         buf[i] = '\0';
-                        sprintf(buf2, buf, start + step * (timestep + n));
+                        snprintf(buf2, sizeof(buf2), buf, start + step * (timestep + n));
                         i = strlen(buf2);
                         if (buf2[i - 1] == 'z' && buf2[i - 2] == 'g')
                         {
@@ -823,7 +823,7 @@ int ReadStar::compute(const char *)
                             buf2[i - 3] = '\0';
                             strcpy(tmpfile, buf2);
                             buf2[i - 3] = '.';
-                            sprintf(buf, "gzip -d -c %s > %s.tmp ; mv %s.tmp %s &",
+                            snprintf(buf, sizeof(buf), "gzip -d -c %s > %s.tmp ; mv %s.tmp %s &",
                                     buf2, buf2, buf2, tmpfile);
                             if (system(buf) == -1)
                             {
@@ -839,7 +839,7 @@ int ReadStar::compute(const char *)
                     for (i = 0; !(data_path[i] == '.' && data_path[i + 1] == '.'); i++)
                         buf[i] = data_path[i];
                     buf[i] = '\0';
-                    sprintf(buf2, buf, start + step * (timestep + 7));
+                    snprintf(buf2, sizeof(buf2), buf, start + step * (timestep + 7));
                     i = strlen(buf2);
                     if (buf2[i - 1] == 'z' && buf2[i - 2] == 'g')
                     {
@@ -847,7 +847,7 @@ int ReadStar::compute(const char *)
                         buf2[i - 3] = '\0';
                         strcpy(tmpfile, buf2);
                         buf2[i - 3] = '.';
-                        sprintf(buf, "gzip -d -c %s > %s.tmp ; mv %s.tmp %s &",
+                        snprintf(buf, sizeof(buf), "gzip -d -c %s > %s.tmp ; mv %s.tmp %s &",
                                 buf2, buf2, buf2, tmpfile);
                         if (system(buf) == -1)
                         {
@@ -862,7 +862,7 @@ int ReadStar::compute(const char *)
             for (i = 0; !(data_path[i] == '.' && data_path[i + 1] == '.'); i++)
                 buf[i] = data_path[i];
             buf[i] = '\0';
-            sprintf(buf2, buf, start + step * timestep);
+            snprintf(buf2, sizeof(buf2), buf, start + step * timestep);
             if (handleChangedDataPath(buf2, 0, 0) == -1)
                 Covise::sendError("What now ?!");
         }
@@ -1004,7 +1004,7 @@ int ReadStar::statData()
 
     // ---- Convert from ProSTAR units to Star units (after v3000)
     float fact = file16->getScale();
-    sprintf(buf, "%f", fact);
+    snprintf(buf, sizeof(buf), "%f", fact);
     mesh->addAttribute("STAR_SCALE8", buf);
 
     if (file16->getVersion() >= 3000)
@@ -1282,7 +1282,7 @@ int ReadStar::transData()
 
             if (num_elem > 1)
             {
-                sprintf(namebuf, "%s_%d", Poly, step_no);
+                snprintf(namebuf, sizeof(namebuf), "%s_%d", Poly, step_no);
             }
             else
             {
@@ -1310,7 +1310,7 @@ int ReadStar::transData()
             // --- Write Type Array ---
             if (num_elem > 1)
             {
-                sprintf(namebuf, "%s_%d", Type, step_no);
+                snprintf(namebuf, sizeof(namebuf), "%s_%d", Type, step_no);
             }
             else
             {
@@ -1326,7 +1326,7 @@ int ReadStar::transData()
             // --- Mesh Object ---
             if (num_elem > 1)
             {
-                sprintf(namebuf, "%s_%d", Mesh, step_no);
+                snprintf(namebuf, sizeof(namebuf), "%s_%d", Mesh, step_no);
             }
             else
             {
@@ -1343,7 +1343,7 @@ int ReadStar::transData()
             checkUSG(usg);
 
             // --- Now place an attribute which realtime is read right now
-            sprintf(buf, "%30.15f", file29->getRealTime(step_no));
+            snprintf(buf, sizeof(buf), "%30.15f", file29->getRealTime(step_no));
             meshObjList[set_elem]->addAttribute("REALTIME", buf);
 
             // --- erase temporary fields
@@ -1379,7 +1379,7 @@ int ReadStar::transData()
 
                 if (num_elem > 1)
                 {
-                    sprintf(namebuf, "%s_%d", Mesh, step_no);
+                    snprintf(namebuf, sizeof(namebuf), "%s_%d", Mesh, step_no);
                 }
                 else
                 {
@@ -1398,7 +1398,7 @@ int ReadStar::transData()
                 char *Table = Covise::get_object_name("cellTable");
                 if (num_elem > 1)
                 {
-                    sprintf(namebuf, "%s_%d", Table ? Table : "null", step_no);
+                    snprintf(namebuf, sizeof(namebuf), "%s_%d", Table ? Table : "null", step_no);
                 }
                 else
                 {
@@ -1419,7 +1419,7 @@ int ReadStar::transData()
                 const char *polyName = p_cpPoly->getObjName();
                 if (num_elem > 1)
                 {
-                    sprintf(namebuf, "%s_%d", polyName, step_no);
+                    snprintf(namebuf, sizeof(namebuf), "%s_%d", polyName, step_no);
                 }
                 else
                 {
@@ -1446,7 +1446,7 @@ int ReadStar::transData()
 
                 if (num_elem > 1)
                 {
-                    sprintf(namebuf, "%s_%d", Type, step_no);
+                    snprintf(namebuf, sizeof(namebuf), "%s_%d", Type, step_no);
                 }
                 else
                 {
@@ -1464,7 +1464,7 @@ int ReadStar::transData()
 
                 // ---- Convert from ProSTAR units to Star units (after v3000)
                 float fact = file16->getScale();
-                sprintf(buf, "%f", fact);
+                snprintf(buf, sizeof(buf), "%f", fact);
                 usg->addAttribute("STAR_SCALE8", buf);
 
                 if (file16->getVersion() >= 3000)
@@ -1515,7 +1515,7 @@ int ReadStar::transData()
             // --- create internal object name
             if (num_elem > 1)
             {
-                sprintf(namebuf, "%s_%i", Data[i], step_no);
+                snprintf(namebuf, sizeof(namebuf), "%s_%i", Data[i], step_no);
             }
             else
             {
@@ -1706,7 +1706,7 @@ int ReadStar::transData()
                 delete[] buffer;
 
                 // --- Now place an attribute which realtime is read right now
-                sprintf(buf, "%30.15f", file29->getRealTime(step_no));
+                snprintf(buf, sizeof(buf), "%30.15f", file29->getRealTime(step_no));
                 resData->addAttribute("REALTIME", buf);
 
                 if (num_timesteps)
@@ -1729,7 +1729,7 @@ int ReadStar::transData()
     if (num_elem > 1)
     {
         char timestepattr[256];
-        sprintf(timestepattr, "%d %d", 0, num_elem - 1);
+        snprintf(timestepattr, sizeof(timestepattr), "%d %d", 0, num_elem - 1);
 
         // --- Mesh
         coDoSet *set = new coDoSet(Mesh, meshObjList);
@@ -1738,7 +1738,7 @@ int ReadStar::transData()
         // --- the droplet reader needs this factor
         if (file16->getVersion() >= 3000)
         {
-            sprintf(buf, "%f", file16->getScale());
+            snprintf(buf, sizeof(buf), "%f", file16->getScale());
             set->addAttribute("STAR_SCALE8", buf);
         }
 
@@ -1846,7 +1846,7 @@ int ReadStar::transData()
         // --- Mesh
         if (file16->getVersion() >= 3000)
         {
-            sprintf(buf, "%f", file16->getScale());
+            snprintf(buf, sizeof(buf), "%f", file16->getScale());
             meshObjList[0]->addAttribute("STAR_SCALE8", buf);
         }
         //delete meshObjList[0];
@@ -2314,7 +2314,7 @@ int ReadStar::checkUSG(coDoUnstructuredGrid *grid)
 
         // status report
         //char buffer[64];
-        //sprintf(buffer,"removed %d points",numCoordToRemove);
+        //snprintf(buffer, sizeof(buffer),"removed %d points",numCoordToRemove);
         //Covise::sendInfo(buffer);
 
         return newNumCoord;

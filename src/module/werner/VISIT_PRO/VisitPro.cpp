@@ -61,11 +61,11 @@ VisitPro::VisitPro()
     for (i = 0; i < MAX_ADD_GEOM; i++)
     {
         // start new switching group
-        sprintf(buf, "Vent_%d", i);
+        snprintf(buf, sizeof(buf), "Vent_%d", i);
         paraCase(buf);
 
         const char *label[1] = { "---" };
-        sprintf(buf, "Vent_%d:Name", i);
+        snprintf(buf, sizeof(buf), "Vent_%d:Name", i);
         p_name[i] = addChoiceParam(buf, "Select a vent type substructure");
         p_name[i]->setValue(1, label, 0);
 
@@ -180,7 +180,7 @@ coDistributedObject *VisitPro::readOBJ(const char *filename,
                                        int id, const char *unit)
 {
     char buffer[1024];
-    sprintf(buffer, "%s_%d", objName, id);
+    snprintf(buffer, sizeof(buffer), "%s_%d", objName, id);
 
     return ReadObj::read(filename, buffer, unit);
 }

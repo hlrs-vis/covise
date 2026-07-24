@@ -48,7 +48,7 @@ void CoviseTime::print()
 #if !defined(__linux__) && !defined(__APPLE__)
         fl_firsttime = fl_time = val.tv_sec + ((double)val.tv_usec) / 1000000.0;
 #endif
-        sprintf(tmp_str, "System base time: %12.9f", fl_time);
+        snprintf(tmp_str, sizeof(tmp_str), "System base time: %12.9f", fl_time);
         print_time(tmp_str);
     }
     //    print_time("-----------------------------------");
@@ -57,7 +57,7 @@ void CoviseTime::print()
 #if !defined(__linux__) && !defined(__APPLE__)
         fl_time = (double)(list[i] - list[0]) / (double)CLK_TCK;
         fluni_time = ((int)fl_firsttime) % 1000 + fl_firsttime - (int)fl_firsttime + fl_time;
-        sprintf(tmp_str, "%12.9f => %12.9f: (%3d) %s",
+        snprintf(tmp_str, sizeof(tmp_str), "%12.9f => %12.9f: (%3d) %s",
                 fluni_time, fl_time, line[i], text[i]);
 #endif
         print_time(tmp_str);

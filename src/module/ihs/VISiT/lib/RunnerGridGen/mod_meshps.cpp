@@ -41,7 +41,7 @@ struct Ilist *psle, struct region *reg, struct region *reg0,int ii1)
    FILE *fp;
    static int count = 0;
 
-   sprintf(fn,"rr_debugps_%02d.txt", count++);
+   snprintf(fn, sizeof(fn),"rr_debugps_%02d.txt", count++);
    if( (fp = fopen(fn,"w+")) == NULL)
    {
       fprintf(stderr,"Shit happened opening file '%s'!\n",fn);

@@ -478,7 +478,7 @@ var_id: any_id var_array { $<integer>$ = $<integer>2; };
 */
 
 var_array: { $<integer>$ = 0; }
-     | ARRAY_NUM { char temp[100]; sprintf(temp,"[%i]",$<integer>1); 
+     | ARRAY_NUM { char temp[100]; snprintf(temp, sizeof(temp),"[%i]",$<integer>1); 
                    postSig(temp); } 
        var_array { $<integer>$ = 0x300 + 0x10000 * $<integer>1 + $<integer>3 % 0x1000; } 
      | '[' maybe_other_no_semi ']' var_array 
@@ -537,13 +537,13 @@ type_primitive:
   DOUBLE { postSig("double "); $<integer>$ = 0x7;} | 
   ID     {       
       char ctmpid[2048];
-      sprintf(ctmpid,"%s ",$<str>1);
+      snprintf(ctmpid, sizeof(ctmpid),"%s ",$<str>1);
       postSig(ctmpid);
       $<integer>$ = 0x8;} |
   VTK_ID  
     { 
       char ctmpid[2048];
-      sprintf(ctmpid,"%s ",$<str>1);
+      snprintf(ctmpid, sizeof(ctmpid),"%s ",$<str>1);
       postSig(ctmpid);
       $<integer>$ = 0x9; 
       currentFunction->ArgClasses[currentFunction->NumberOfArguments] =
@@ -590,7 +590,7 @@ macro:
            {preSig("void Set"); postSig(" ("); } type_red2 ')'
    {
    postSig(");");
-   sprintf(temps,"Set%s",$<str>3); 
+   snprintf(temps, sizeof(temps),"Set%s",$<str>3); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = $<integer>6;
@@ -620,7 +620,7 @@ macro:
 | GetMacro '('{postSig("Get");} any_id ',' {postSig(" ();"); invertSig = 1;} 
     type_red2 ')'
    { 
-   sprintf(temps,"Get%s",$<str>4); 
+   snprintf(temps, sizeof(temps),"Get%s",$<str>4); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = $<integer>7;
@@ -648,7 +648,7 @@ macro:
 | SetStringMacro '(' {preSig("void Set");} any_id ')'
    {
    postSig(" (char *);"); 
-   sprintf(temps,"Set%s",$<str>4); 
+   snprintf(temps, sizeof(temps),"Set%s",$<str>4); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = 0x303;
@@ -678,7 +678,7 @@ macro:
 | GetStringMacro '(' {preSig("char *Get");} any_id ')'
    { 
    postSig(" ();");
-   sprintf(temps,"Get%s",$<str>4); 
+   snprintf(temps, sizeof(temps),"Get%s",$<str>4); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = 0x303;
@@ -709,7 +709,7 @@ macro:
    { 
    char *local = vtkstrdup(currentFunction->Signature);
    sscanf (currentFunction->Signature, "%*s %*s (%s);", local);
-   sprintf(temps,"Set%s",$<str>3); 
+   snprintf(temps, sizeof(temps),"Set%s",$<str>3); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = $<integer>6;
@@ -720,7 +720,7 @@ macro:
    currentFunction->Signature = (char *)malloc(2048);
    sigAllocatedLength = 2048;
    sprintf(currentFunction->Signature,"%s Get%sMinValue ();",local,$<str>3);
-   sprintf(temps,"Get%sMinValue",$<str>3);
+   snprintf(temps, sizeof(temps),"Get%sMinValue",$<str>3);
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = $<integer>6;
@@ -729,7 +729,7 @@ macro:
    currentFunction->Signature = (char *)malloc(2048);
    sigAllocatedLength = 2048;
    sprintf(currentFunction->Signature,"%s Get%sMaxValue ();",local,$<str>3);
-   sprintf(temps,"Get%sMaxValue",$<str>3);
+   snprintf(temps, sizeof(temps),"Get%sMaxValue",$<str>3);
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = $<integer>6;
@@ -759,7 +759,7 @@ macro:
   {preSig("void Set"); postSig(" ("); } type_red2 ')'
    { 
    postSig("*);");
-   sprintf(temps,"Set%s",$<str>3); 
+   snprintf(temps, sizeof(temps),"Set%s",$<str>3); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = 0x309;
@@ -771,7 +771,7 @@ macro:
    {preSig("void Set"); postSig(" ("); } type_red2 ')'
    { 
    postSig("*);");
-   sprintf(temps,"Set%s",$<str>3); 
+   snprintf(temps, sizeof(temps),"Set%s",$<str>3); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = 0x309;
@@ -782,7 +782,7 @@ macro:
 | GetObjectMacro '(' {postSig("*Get");} any_id ',' 
    {postSig(" ();"); invertSig = 1;} type_red2 ')'
    { 
-   sprintf(temps,"Get%s",$<str>4); 
+   snprintf(temps, sizeof(temps),"Get%s",$<str>4); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = 0x309;
@@ -792,7 +792,7 @@ macro:
     {preSig("void "); postSig("On ();"); openSig = 0; } 
         ',' type_red2 ')'
    { 
-   sprintf(temps,"%sOn",$<str>3); 
+   snprintf(temps, sizeof(temps),"%sOn",$<str>3); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = 0x2;
@@ -800,7 +800,7 @@ macro:
    currentFunction->Signature = (char *)malloc(2048);
    sigAllocatedLength = 2048;
    sprintf(currentFunction->Signature,"void %sOff ();",$<str>3); 
-   sprintf(temps,"%sOff",$<str>3); 
+   snprintf(temps, sizeof(temps),"%sOff",$<str>3); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    output_function();
@@ -832,7 +832,7 @@ macro:
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"void Set%s (%s, %s);",$<str>3,
      local, local);
-   sprintf(temps,"Set%s",$<str>3); 
+   snprintf(temps, sizeof(temps),"Set%s",$<str>3); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 2;
    currentFunction->ArgTypes[0] = $<integer>6;
@@ -881,7 +881,7 @@ macro:
    { 
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"%s *Get%s ();",local, $<str>3);
-   sprintf(temps,"Get%s",$<str>3); 
+   snprintf(temps, sizeof(temps),"Get%s",$<str>3); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = 0x300 + $<integer>6;
@@ -919,7 +919,7 @@ macro:
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"void Set%s (%s, %s, %s);",
      $<str>3, local, local, local);
-   sprintf(temps,"Set%s",$<str>3); 
+   snprintf(temps, sizeof(temps),"Set%s",$<str>3); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 3;
    currentFunction->ArgTypes[0] = $<integer>6;
@@ -970,7 +970,7 @@ macro:
    { 
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"%s *Get%s ();",local, $<str>3);
-   sprintf(temps,"Get%s",$<str>3); 
+   snprintf(temps, sizeof(temps),"Get%s",$<str>3); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = 0x300 + $<integer>6;
@@ -1008,7 +1008,7 @@ macro:
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"void Set%s (%s, %s, %s, %s);",
      $<str>3, local, local, local, local);
-   sprintf(temps,"Set%s",$<str>3); 
+   snprintf(temps, sizeof(temps),"Set%s",$<str>3); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 4;
    currentFunction->ArgTypes[0] = $<integer>6;
@@ -1061,7 +1061,7 @@ macro:
    { 
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"%s *Get%s ();",local, $<str>3);
-   sprintf(temps,"Get%s",$<str>3); 
+   snprintf(temps, sizeof(temps),"Get%s",$<str>3); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = 0x300 + $<integer>6;
@@ -1099,7 +1099,7 @@ macro:
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"void Set%s (%s, %s, %s, %s, %s, %s);",
      $<str>3, local, local, local, local, local, local);
-   sprintf(temps,"Set%s",$<str>3); 
+   snprintf(temps, sizeof(temps),"Set%s",$<str>3); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 6;
    currentFunction->ArgTypes[0] = $<integer>6;
@@ -1156,7 +1156,7 @@ macro:
    { 
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"%s *Get%s ();",local, $<str>3);
-   sprintf(temps,"Get%s",$<str>3); 
+   snprintf(temps, sizeof(temps),"Get%s",$<str>3); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = 0x300 + $<integer>6;
@@ -1194,7 +1194,7 @@ macro:
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"void Set%s (%s [%i]);",$<str>3,
       local, $<integer>8);
-     sprintf(temps,"Set%s",$<str>3); 
+     snprintf(temps, sizeof(temps),"Set%s",$<str>3); 
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->ReturnType = 0x2;
      currentFunction->NumberOfArguments = 1;
@@ -1229,7 +1229,7 @@ macro:
    { 
    char *local = vtkstrdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"%s *Get%s ();",local, $<str>3);
-   sprintf(temps,"Get%s",$<str>3); 
+   snprintf(temps, sizeof(temps),"Get%s",$<str>3); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = 0x300 + $<integer>6;
@@ -1261,7 +1261,7 @@ macro:
      sprintf(currentFunction->Signature,"vtkCoordinate *Get%sCoordinate ();",
        $<str>3);
 
-     sprintf(temps,"Get%sCoordinate",$<str>3); 
+     snprintf(temps, sizeof(temps),"Get%sCoordinate",$<str>3); 
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 0;
      currentFunction->ReturnType = 0x309;
@@ -1272,7 +1272,7 @@ macro:
      sigAllocatedLength = 2048;
      sprintf(currentFunction->Signature,"void Set%s (double, double);",
        $<str>3);
-     sprintf(temps,"Set%s",$<str>3); 
+     snprintf(temps, sizeof(temps),"Set%s",$<str>3); 
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 2;
      currentFunction->ArgTypes[0] = 0x7;
@@ -1295,7 +1295,7 @@ macro:
      currentFunction->Signature = (char *)malloc(2048);
      sigAllocatedLength = 2048;
      sprintf(currentFunction->Signature,"double *Get%s ();", $<str>3);
-     sprintf(temps,"Get%s",$<str>3); 
+     snprintf(temps, sizeof(temps),"Get%s",$<str>3); 
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 0;
      currentFunction->ReturnType = 0x307;
@@ -1308,7 +1308,7 @@ macro:
      sprintf(currentFunction->Signature,"vtkCoordinate *Get%sCoordinate ();",
        $<str>3);
 
-     sprintf(temps,"Get%sCoordinate",$<str>3); 
+     snprintf(temps, sizeof(temps),"Get%sCoordinate",$<str>3); 
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 0;
      currentFunction->ReturnType = 0x309;
@@ -1319,7 +1319,7 @@ macro:
      sigAllocatedLength = 2048;
      sprintf(currentFunction->Signature,"void Set%s (double, double, double);",
        $<str>3);
-     sprintf(temps,"Set%s",$<str>3); 
+     snprintf(temps, sizeof(temps),"Set%s",$<str>3); 
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 3;
      currentFunction->ArgTypes[0] = 0x7;
@@ -1344,7 +1344,7 @@ macro:
      currentFunction->Signature = (char *)malloc(2048);
      sigAllocatedLength = 2048;
      sprintf(currentFunction->Signature,"double *Get%s ();", $<str>3);
-     sprintf(temps,"Get%s",$<str>3); 
+     snprintf(temps, sizeof(temps),"Get%s",$<str>3); 
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 0;
      currentFunction->ReturnType = 0x307;
@@ -1357,7 +1357,7 @@ macro:
    currentFunction->Signature = (char *)malloc(2048);
    sigAllocatedLength = 2048;
    sprintf(currentFunction->Signature, "const char *GetClassName ();");
-   sprintf(temps,"GetClassName"); 
+   snprintf(temps, sizeof(temps),"GetClassName"); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = 0x1303;
@@ -1367,7 +1367,7 @@ macro:
    sigAllocatedLength = 2048;
    sprintf(currentFunction->Signature,
            "int IsA (const char *name);");
-   sprintf(temps,"IsA"); 
+   snprintf(temps, sizeof(temps),"IsA"); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = 0x1303;
@@ -1379,7 +1379,7 @@ macro:
    sigAllocatedLength = 2048;
    sprintf(currentFunction->Signature, "%s *NewInstance ();",
            $<str>3);
-   sprintf(temps,"NewInstance"); 
+   snprintf(temps, sizeof(temps),"NewInstance"); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = 0x309;
@@ -1392,7 +1392,7 @@ macro:
      sigAllocatedLength = 2048;
      sprintf(currentFunction->Signature, "%s *SafeDownCast (vtkObject* o);",
              $<str>3);
-     sprintf(temps,"SafeDownCast"); 
+     snprintf(temps, sizeof(temps),"SafeDownCast"); 
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 1;
      currentFunction->ArgTypes[0] = 0x309;
@@ -1408,7 +1408,7 @@ macro:
    currentFunction->Signature = (char *)malloc(2048);
    sigAllocatedLength = 2048;
    sprintf(currentFunction->Signature, "const char *GetClassName ();");
-   sprintf(temps,"GetClassName"); 
+   snprintf(temps, sizeof(temps),"GetClassName"); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = 0x1303;
@@ -1418,7 +1418,7 @@ macro:
    sigAllocatedLength = 2048;
    sprintf(currentFunction->Signature,
            "int IsA (const char *name);");
-   sprintf(temps,"IsA"); 
+   snprintf(temps, sizeof(temps),"IsA"); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 1;
    currentFunction->ArgTypes[0] = 0x1303;
@@ -1430,7 +1430,7 @@ macro:
    sigAllocatedLength = 2048;
    sprintf(currentFunction->Signature, "%s *NewInstance ();",
            $<str>3);
-   sprintf(temps,"NewInstance"); 
+   snprintf(temps, sizeof(temps),"NewInstance"); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
    currentFunction->ReturnType = 0x309;
@@ -1443,7 +1443,7 @@ macro:
      sigAllocatedLength = 2048;
      sprintf(currentFunction->Signature, "%s *SafeDownCast (vtkObject* o);",
              $<str>3);
-     sprintf(temps,"SafeDownCast"); 
+     snprintf(temps, sizeof(temps),"SafeDownCast"); 
      currentFunction->Name = vtkstrdup(temps);
      currentFunction->NumberOfArguments = 1;
      currentFunction->ArgTypes[0] = 0x309;

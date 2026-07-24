@@ -120,14 +120,14 @@ int ReadIAGTecplot::compute(const char *port)
 			for (int i = 0; i < numSteps; i++)
 			{
 				char ch[64];
-				sprintf(ch, "%d", i);
+				snprintf(ch, sizeof(ch), "%d", i);
 				string num(ch);
 				string objName(objNameBase);
 				objName = objNameBase + "_" + num;
 				coDoFloat *fdata = new coDoFloat(objName.c_str(), width*height);
                 fdata->addAttribute("SPECIES", scalChoices[dataChoice].c_str());
 				char datasetName[200];
-                sprintf(datasetName, "/%s/step%d", scalChoices[dataChoice].c_str(), i+first);
+                snprintf(datasetName, sizeof(datasetName), "/%s/step%d", scalChoices[dataChoice].c_str(), i+first);
                 int dims[] = { width, height, 1 };
 				if (true)
 				{

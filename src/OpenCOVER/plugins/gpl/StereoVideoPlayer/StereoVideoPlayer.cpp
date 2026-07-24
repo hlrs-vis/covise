@@ -65,7 +65,7 @@ bool StereoVideoPlayerPlugin::parseFilename(string *name)
     else
         hostIndex = coVRMSController::instance()->getID();
     char buffer[3];
-    sprintf(buffer, "%d", hostIndex);
+    snprintf(buffer, sizeof(buffer), "%d", hostIndex);
     hostName = buffer;
 
     string stereoEye = "";

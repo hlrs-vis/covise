@@ -133,10 +133,10 @@ coDistributedObject *Magma_Trace::traceLines(const char *name, coDoSet *all_poin
             }
         }
 
-        sprintf(objname, "%s_%d", name, i);
+        snprintf(objname, sizeof(objname), "%s_%d", name, i);
         output_lines[steps_out] = out_lines->getDOLines(objname);
 
-        sprintf(objname, "%s_%d", data_name, i);
+        snprintf(objname, sizeof(objname), "%s_%d", data_name, i);
         output_data[steps_out++] = out_lines->getDOData(objname);
         delete out_lines;
 
@@ -153,7 +153,7 @@ coDistributedObject *Magma_Trace::traceLines(const char *name, coDoSet *all_poin
     coDoSet *ret = new coDoSet(name, output_lines);
 
     char time_string[256];
-    sprintf(time_string, "1 %d", steps_out);
+    snprintf(time_string, sizeof(time_string), "1 %d", steps_out);
     ret->addAttribute("TIMESTEP", time_string);
 
     output_data[steps_out] = NULL;

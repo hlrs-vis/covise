@@ -1522,7 +1522,7 @@ void coTetin__param_surface::internal_write(ostream &str,
     {
         if (write_bin)
         {
-            sprintf(cov_tmp_array, "trim_surface n_loops %d", n_loops);
+            snprintf(cov_tmp_array, sizeof(cov_tmp_array), "trim_surface n_loops %d", n_loops);
             strcpy(charDat, cov_tmp_array);
             charDat += strlen(cov_tmp_array) + 1;
         }
@@ -1537,7 +1537,7 @@ void coTetin__param_surface::internal_write(ostream &str,
     }
     if (write_bin)
     {
-        sprintf(cov_tmp_array, "bspline");
+        snprintf(cov_tmp_array, sizeof(cov_tmp_array), "bspline");
         strcpy(charDat, cov_tmp_array);
         charDat += strlen(cov_tmp_array) + 1;
     }
@@ -1646,7 +1646,7 @@ void coTetin__face_surface::internal_write(ostream &str,
 
     if (write_bin)
     {
-        sprintf(cov_tmp_array, "face_surface n_loops %d", n_loops);
+        snprintf(cov_tmp_array, sizeof(cov_tmp_array), "face_surface n_loops %d", n_loops);
         strcpy(charDat, cov_tmp_array);
         charDat += strlen(cov_tmp_array) + 1;
     }
@@ -1675,7 +1675,7 @@ void coTetin__mesh_surface::internal_write(ostream &str,
     }
     if (write_bin)
     {
-        sprintf(cov_tmp_array, "unstruct_mesh n_points %d n_triangles %d", npnts,
+        snprintf(cov_tmp_array, sizeof(cov_tmp_array), "unstruct_mesh n_points %d n_triangles %d", npnts,
                 subsurf.n_tri);
         strcpy(charDat, cov_tmp_array);
         charDat += strlen(cov_tmp_array) + 1;
@@ -1729,7 +1729,7 @@ void coTetin__unstruct_surface::internal_write(ostream &str,
     {
         if (write_bin)
         {
-            sprintf(cov_tmp_array, "unstruct_mesh %s", path);
+            snprintf(cov_tmp_array, sizeof(cov_tmp_array), "unstruct_mesh %s", path);
             strcpy(charDat, cov_tmp_array);
             charDat += strlen(cov_tmp_array) + 1;
         }
@@ -1754,7 +1754,7 @@ void coTetin__Loop::write(ostream &str,
     }
     if (write_bin)
     {
-        sprintf(cov_tmp_array, "loop n_curves %d", ncoedges);
+        snprintf(cov_tmp_array, sizeof(cov_tmp_array), "loop n_curves %d", ncoedges);
         strcpy(charDat, cov_tmp_array);
         charDat += strlen(cov_tmp_array) + 1;
     }
@@ -1787,16 +1787,16 @@ void coTetin__coedge::write(ostream &str,
         {
             if (rev)
             {
-                sprintf(cov_tmp_array, "coedge 3dcurve - %s", curve_name);
+                snprintf(cov_tmp_array, sizeof(cov_tmp_array), "coedge 3dcurve - %s", curve_name);
             }
             else
             {
-                sprintf(cov_tmp_array, "coedge 3dcurve %s", curve_name);
+                snprintf(cov_tmp_array, sizeof(cov_tmp_array), "coedge 3dcurve %s", curve_name);
             }
         }
         else
         {
-            sprintf(cov_tmp_array, "coedge");
+            snprintf(cov_tmp_array, sizeof(cov_tmp_array), "coedge");
         }
         strcpy(charDat, cov_tmp_array);
         charDat += strlen(cov_tmp_array) + 1;
@@ -1819,7 +1819,7 @@ void coTetin__coedge::write(ostream &str,
     {
         if (write_bin)
         {
-            sprintf(cov_tmp_array, "null_pcurve");
+            snprintf(cov_tmp_array, sizeof(cov_tmp_array), "null_pcurve");
             strcpy(charDat, cov_tmp_array);
             charDat += strlen(cov_tmp_array) + 1;
         }
@@ -1847,7 +1847,7 @@ void coTetin__pcurve::write(ostream &str,
     {
         if (write_bin)
         {
-            sprintf(cov_tmp_array, "polyline n_points %d", npnts);
+            snprintf(cov_tmp_array, sizeof(cov_tmp_array), "polyline n_points %d", npnts);
             strcpy(charDat, cov_tmp_array);
             charDat += strlen(cov_tmp_array) + 1;
         }
@@ -1881,14 +1881,14 @@ void coTetin__param_surface::addSizes(int &numInt, int &numFloat, int &numChar) 
     {
         if (n_loops)
         {
-            sprintf(cov_tmp_array, "trim_surface n_loops %d", n_loops);
+            snprintf(cov_tmp_array, sizeof(cov_tmp_array), "trim_surface n_loops %d", n_loops);
             numChar += strlen(cov_tmp_array) + 1;
             for (i = 0; i < n_loops; i++)
             {
                 loops[i]->addSizes(numInt, numFloat, numChar);
             }
         }
-        sprintf(cov_tmp_array, "bspline");
+        snprintf(cov_tmp_array, sizeof(cov_tmp_array), "bspline");
         numChar += strlen(cov_tmp_array) + 1;
         surf->addSizes(numInt, numFloat, numChar);
     }
@@ -1897,7 +1897,7 @@ void coTetin__param_surface::addSizes(int &numInt, int &numFloat, int &numChar) 
 void coTetin__face_surface::addSizes(int &numInt, int &numFloat, int &numChar) const
 {
     int i;
-    sprintf(cov_tmp_array, "face_surface n_loops %d", n_loops);
+    snprintf(cov_tmp_array, sizeof(cov_tmp_array), "face_surface n_loops %d", n_loops);
     numChar += strlen(cov_tmp_array) + 1;
     for (i = 0; i < n_loops; i++)
     {
@@ -1907,7 +1907,7 @@ void coTetin__face_surface::addSizes(int &numInt, int &numFloat, int &numChar) c
 
 void coTetin__mesh_surface::addSizes(int &numInt, int &numFloat, int &numChar) const
 {
-    sprintf(cov_tmp_array, "unstruct_mesh n_points %d n_triangles %d", npnts,
+    snprintf(cov_tmp_array, sizeof(cov_tmp_array), "unstruct_mesh n_points %d n_triangles %d", npnts,
             subsurf.n_tri);
     numChar += strlen(cov_tmp_array) + 1;
     if (pnts)
@@ -1921,14 +1921,14 @@ void coTetin__unstruct_surface::addSizes(int &numInt, int &numFloat,
 {
     if (path)
     {
-        sprintf(cov_tmp_array, "unstruct_mesh %s", path);
+        snprintf(cov_tmp_array, sizeof(cov_tmp_array), "unstruct_mesh %s", path);
         numChar += strlen(cov_tmp_array) + 1;
     }
 }
 
 void coTetin__Loop::addSizes(int &numInt, int &numFloat, int &numChar) const
 {
-    sprintf(cov_tmp_array, "loop n_curves %d", ncoedges);
+    snprintf(cov_tmp_array, sizeof(cov_tmp_array), "loop n_curves %d", ncoedges);
     numChar += strlen(cov_tmp_array) + 1;
     int i;
     for (i = 0; i < ncoedges; i++)
@@ -1943,16 +1943,16 @@ void coTetin__coedge::addSizes(int &numInt, int &numFloat, int &numChar) const
     {
         if (rev)
         {
-            sprintf(cov_tmp_array, "coedge 3dcurve - %s", curve_name);
+            snprintf(cov_tmp_array, sizeof(cov_tmp_array), "coedge 3dcurve - %s", curve_name);
         }
         else
         {
-            sprintf(cov_tmp_array, "coedge 3dcurve %s", curve_name);
+            snprintf(cov_tmp_array, sizeof(cov_tmp_array), "coedge 3dcurve %s", curve_name);
         }
     }
     else
     {
-        sprintf(cov_tmp_array, "coedge");
+        snprintf(cov_tmp_array, sizeof(cov_tmp_array), "coedge");
     }
     numChar += strlen(cov_tmp_array) + 1;
     if (p_curve)
@@ -1961,7 +1961,7 @@ void coTetin__coedge::addSizes(int &numInt, int &numFloat, int &numChar) const
     }
     else
     {
-        sprintf(cov_tmp_array, "null_pcurve");
+        snprintf(cov_tmp_array, sizeof(cov_tmp_array), "null_pcurve");
         numChar += strlen(cov_tmp_array) + 1;
     }
 }
@@ -1970,7 +1970,7 @@ void coTetin__pcurve::addSizes(int &numInt, int &numFloat, int &numChar) const
 {
     if (type == STD_PCURVE)
     {
-        sprintf(cov_tmp_array, "polyline n_points %d", npnts);
+        snprintf(cov_tmp_array, sizeof(cov_tmp_array), "polyline n_points %d", npnts);
         numChar += strlen(cov_tmp_array) + 1;
         if (pnts)
             numFloat += 2 * npnts;

@@ -103,7 +103,7 @@ int trans3DInterface::Calculate(int numSteps)
             } while (Grid.iGridMove == TGrid::reduced_step);
 
             dimtime = Simulation.ndPulseTime * RefTime;
-            sprintf(buf, "%10.6le %4i  %10.3le %10.3le %10.3le %10.3le %7i %7i",
+            snprintf(buf, sizeof(buf), "%10.6le %4i  %10.3le %10.3le %10.3le %10.3le %7i %7i",
                     dimtime, nstep, dtmax, Solid.ndMaxTemp,
                     Laser.ndAvePower, Solid.ndVapRate, Laser.iRays, Laser.iBadRays);
 

@@ -18,7 +18,7 @@ GRMSGEXPORT coGRObjSetTransparencyMsg::coGRObjSetTransparencyMsg(Mtype type, con
 
     char str[1024];
 
-    sprintf(str, "%f", trans);
+    snprintf(str, sizeof(str), "%f", trans);
     addToken(str);
 
     is_valid_ = 1;

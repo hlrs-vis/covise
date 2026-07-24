@@ -83,7 +83,7 @@ int MSurfacesRR_BladeElement(struct be *be, float lepar, float tepar,
 	static int ncall = 0;
 	static int ndebug = 0;
 
-	sprintf(fndebug,"rr_debugsurface_%02d.txt",ndebug++);
+	snprintf(fndebug, sizeof(fndebug),"rr_debugsurface_%02d.txt",ndebug++);
 
 	if( (fpdebug = fopen(fndebug,"w+")) == NULL) {
 		fprintf(stderr,"Shit happened opening file '%s'\n",fndebug);
@@ -241,7 +241,7 @@ int MSurfacesRR_BladeElement(struct be *be, float lepar, float tepar,
 		VPRINTF(q2,fpdebug);
 		VPRINTF(q3,fpdebug);
 
-		sprintf(fn,"rr_cambpoly_%02d.txt",ncall);
+		snprintf(fn, sizeof(fn),"rr_cambpoly_%02d.txt",ncall);
 		if( (fp = fopen(fn,"w+")) == NULL) {
 			fprintf(stderr,"file '%s'!\n",fn);
 			exit(-1);
@@ -460,7 +460,7 @@ int MSurfacesRR_BladeElement(struct be *be, float lepar, float tepar,
 #endif
 
 #ifdef DEBUG_SURFACES
-	sprintf(fn,"rr_be2_%02d.txt",ncall++);
+	snprintf(fn, sizeof(fn),"rr_be2_%02d.txt",ncall++);
 	if( (fp = fopen(fn,"w+")) == NULL) {
 		fprintf(stderr,"file '%s'!\n",fn);
 		exit(-1);
@@ -621,7 +621,7 @@ int MSurfacesRR_BladeElement(struct be *be, float lepar, float tepar,
 
 #ifdef DEBUG_SURFACES
 	fclose(fp);
-	sprintf(fn,"rr_be3_%02d.txt",ncall-1);
+	snprintf(fn, sizeof(fn),"rr_be3_%02d.txt",ncall-1);
 	if( (fp = fopen(fn,"w+")) == NULL) {
 		fprintf(stderr,"file '%s'!\n",fn);
 		exit(-1);
@@ -657,7 +657,7 @@ int MSurfacesRR_BladeElement(struct be *be, float lepar, float tepar,
 
 #ifdef DEBUG_SURFACES
 	fclose(fp);
-	sprintf(fn,"rr_becart_%02d.txt",ncall-1);
+	snprintf(fn, sizeof(fn),"rr_becart_%02d.txt",ncall-1);
 	if( (fp = fopen(fn,"w+")) == NULL) {
 		fprintf(stderr,"file '%s'!\n",fn);
 		exit(-1);
@@ -690,7 +690,7 @@ int MSurfacesRR_BladeElement(struct be *be, float lepar, float tepar,
 	fflush(fpdebug);
 	fclose(fpdebug);
 	fclose(fp);
-	sprintf(fn,"rr_bethick_%02d.txt",ncall-1);
+	snprintf(fn, sizeof(fn),"rr_bethick_%02d.txt",ncall-1);
 	if( (fp = fopen(fn,"w+")) == NULL) {
 		fprintf(stderr,"file '%s'!\n",fn);
 		exit(-1);
@@ -863,7 +863,7 @@ static int DumpConformProjection(struct Point *p, float l0,	 char *name, int n)
 	char fn[111];
 	FILE *fp;
 
-	sprintf(fn,"%s_%02d.txt",name, n);
+	snprintf(fn, sizeof(fn),"%s_%02d.txt",name, n);
 	if( (fp = fopen(fn,"w+")) == NULL) {
 		fprintf(stderr,"file '%s'!\n",fn);
 		exit(-1);

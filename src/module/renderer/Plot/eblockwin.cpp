@@ -173,7 +173,7 @@ static void update_eblock(void)
         errwin("Need to read block data first");
         return;
     }
-    sprintf(ncolsbuf, "%d columns of length %d", blockncols, blocklen);
+    snprintf(ncolsbuf, sizeof(ncolsbuf), "%d columns of length %d", blockncols, blocklen);
     string = XmStringCreateLtoR(ncolsbuf, charset);
     XtSetArg(al, XmNlabelString, string);
     XtSetValues(eblock_ncols_item, &al, 1);
@@ -416,13 +416,13 @@ static void eblock_accept_notify_proc(Widget, XtPointer, XtPointer)
     switch (block_curtype)
     {
     case XY:
-        sprintf(buf, "Cols %d %d", cx + 1, cy + 1);
+        snprintf(buf, sizeof(buf), "Cols %d %d", cx + 1, cy + 1);
         break;
     case XYRT:
     case XYDX:
     case XYDY:
     case XYZ:
-        sprintf(buf, "Cols %d %d %d", cx + 1, cy + 1, c1 + 1);
+        snprintf(buf, sizeof(buf), "Cols %d %d %d", cx + 1, cy + 1, c1 + 1);
         t2 = (double *)calloc(blocklen, sizeof(double));
         for (i = 0; i < blocklen; i++)
         {
@@ -433,7 +433,7 @@ static void eblock_accept_notify_proc(Widget, XtPointer, XtPointer)
     case XYDXDX:
     case XYDYDY:
     case XYDXDY:
-        sprintf(buf, "Cols %d %d %d %d", cx + 1, cy + 1, c1 + 1, c2 + 1);
+        snprintf(buf, sizeof(buf), "Cols %d %d %d %d", cx + 1, cy + 1, c1 + 1, c2 + 1);
         t2 = (double *)calloc(blocklen, sizeof(double));
         t3 = (double *)calloc(blocklen, sizeof(double));
         for (i = 0; i < blocklen; i++)
@@ -446,7 +446,7 @@ static void eblock_accept_notify_proc(Widget, XtPointer, XtPointer)
         break;
     case XYHILO:
     case XYBOX:
-        sprintf(buf, "Cols %d %d %d %d %d", cx + 1, cy + 1, c1 + 1, c2 + 1, c3 + 1);
+        snprintf(buf, sizeof(buf), "Cols %d %d %d %d %d", cx + 1, cy + 1, c1 + 1, c2 + 1, c3 + 1);
         t2 = (double *)calloc(blocklen, sizeof(double));
         t3 = (double *)calloc(blocklen, sizeof(double));
         t4 = (double *)calloc(blocklen, sizeof(double));
@@ -461,7 +461,7 @@ static void eblock_accept_notify_proc(Widget, XtPointer, XtPointer)
         setcol(graphno, t4, setno, blocklen, 4);
         break;
     case XYBOXPLOT:
-        sprintf(buf, "Cols %d %d %d %d %d %d", cx + 1, cy + 1, c1 + 1, c2 + 1, c3 + 1, c4 + 1);
+        snprintf(buf, sizeof(buf), "Cols %d %d %d %d %d %d", cx + 1, cy + 1, c1 + 1, c2 + 1, c3 + 1, c4 + 1);
         t2 = (double *)calloc(blocklen, sizeof(double));
         t3 = (double *)calloc(blocklen, sizeof(double));
         t4 = (double *)calloc(blocklen, sizeof(double));
@@ -508,7 +508,7 @@ Widget *CreateBlockChoice(Widget parent, char *labelstr, int nsets, int type)
         i = 0;
         for (i = 0; i < nsets; i++)
         {
-            sprintf(buf, "%d", i + 1);
+            snprintf(buf, sizeof(buf), "%d", i + 1);
             retval[i + 2] = XmCreatePushButton(retval[1], buf, NULL, 0);
         }
         XtManageChildren(retval + 2, nsets);
@@ -537,7 +537,7 @@ Widget *CreateBlockChoice(Widget parent, char *labelstr, int nsets, int type)
         retval[2] = XmCreatePushButton(retval[1], (char *)"Index", NULL, 0);
         for (i = 1; i < nsets + 1; i++)
         {
-            sprintf(buf, "%d", i);
+            snprintf(buf, sizeof(buf), "%d", i);
             retval[i + 2] = XmCreatePushButton(retval[1], buf, NULL, 0);
         }
         XtManageChildren(retval + 2, nsets + 1);

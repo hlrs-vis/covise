@@ -65,14 +65,14 @@ void ResultsFileParserAscii::parseResultsFile(std::string filename,
             {
                 _skipped++;
                 _doSkip = true;
-                sprintf(buf, "Skipping %d", _skipped);
+                snprintf(buf, sizeof(buf), "Skipping %d", _skipped);
                 _outputHandler->displayString(buf);
             }
             else
             {
                 _skipped = 0;
                 _doSkip = false;
-                sprintf(buf, "Reading TimeStep %d", _noOfTimeSteps);
+                snprintf(buf, sizeof(buf), "Reading TimeStep %d", _noOfTimeSteps);
                 _outputHandler->displayString(buf);
             }
             while (!feof(_file))
@@ -85,8 +85,8 @@ void ResultsFileParserAscii::parseResultsFile(std::string filename,
                     getLine();
 
                     char buf[1000];
-                    sprintf(buf, "%s_%d_%d", baseName.c_str(), _currentDataTypeNo, _noOfTimeSteps);
-                    //sprintf(buf,"%d_%d", _currentDataTypeNo, _noOfTimeSteps);
+                    snprintf(buf, sizeof(buf), "%s_%d_%d", baseName.c_str(), _currentDataTypeNo, _noOfTimeSteps);
+                    //snprintf(buf, sizeof(buf),"%d_%d", _currentDataTypeNo, _noOfTimeSteps);
                     if (_c[0] == 'V')
                     {
                         pushBack();

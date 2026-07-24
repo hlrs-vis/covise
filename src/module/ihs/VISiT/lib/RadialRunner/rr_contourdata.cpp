@@ -70,32 +70,32 @@ int getContourData(struct radial *rr)
 	open_angle_out[1] = nqinterpolate(shroudopen_out, nq);
 
 	// output, fill buf if msg. should be handed to upper routines
-	sprintf(buf,"\n +--------------------------------------------------\n");
-	sprintf(msg,"%s",buf);
-	sprintf(buf," | Suggested meridian parametres for\n");
+	snprintf(buf, sizeof(buf),"\n +--------------------------------------------------\n");
+	snprintf(msg, sizeof(msg),"%s",buf);
+	snprintf(buf, sizeof(buf)," | Suggested meridian parametres for\n");
 	strcat(msg,buf);
-	sprintf(buf," | %s = %9.4f /min\n","nq",nq);
+	snprintf(buf, sizeof(buf)," | %s = %9.4f /min\n","nq",nq);
 	strcat(msg,buf);
-	sprintf(buf," +--------------------------------------------------\n");
+	snprintf(buf, sizeof(buf)," +--------------------------------------------------\n");
 	strcat(msg,buf);
-	sprintf(buf," | %-*s = %9.4f /%9.4f m (%7.4f)\n",LLEN,"D2",D2,D2/2,D2/D2);
+	snprintf(buf, sizeof(buf)," | %-*s = %9.4f /%9.4f m (%7.4f)\n",LLEN,"D2",D2,D2/2,D2/D2);
 	strcat(msg,buf);
-	sprintf(buf," | %-*s = %9.4f /%9.4f m (%7.4f)\n",LLEN,"D1",D1,D1/2,D1/D2);
+	snprintf(buf, sizeof(buf)," | %-*s = %9.4f /%9.4f m (%7.4f)\n",LLEN,"D1",D1,D1/2,D1/D2);
 	strcat(msg,buf);
-	sprintf(buf," | %-*s = %9.4f /%9.4f m (%7.4f)\n",
+	snprintf(buf, sizeof(buf)," | %-*s = %9.4f /%9.4f m (%7.4f)\n",
 			LLEN,"D1i",D1i,D1i/2,D1i/D2);
 	strcat(msg,buf);
-	sprintf(buf," | %-*s = %9.4f m (%7.4f)\n",LLEN,"b0",b0,b0/D2);
+	snprintf(buf, sizeof(buf)," | %-*s = %9.4f m (%7.4f)\n",LLEN,"b0",b0,b0/D2);
 	strcat(msg,buf);
 	strcat(msg," +--------------------------------------------------\n");
 	strcat(msg," | angles (in degree)\n");
-	sprintf(buf," | %-*s = %9.4f / %9.4f\n",LLEN,"contour, in/out",
+	snprintf(buf, sizeof(buf)," | %-*s = %9.4f / %9.4f\n",LLEN,"contour, in/out",
 			contour_angle_inout[0],contour_angle_inout[1]);
 	strcat(msg,buf);
-	sprintf(buf," | %-*s = %9.4f / %9.4f\n",LLEN,"opening, in, hub/shroud",
+	snprintf(buf, sizeof(buf)," | %-*s = %9.4f / %9.4f\n",LLEN,"opening, in, hub/shroud",
 			open_angle_in[0],open_angle_in[1]);
 	strcat(msg,buf);
-	sprintf(buf," | %-*s = %9.4f / %9.4f\n",LLEN,"opening, out, hub/shroud",
+	snprintf(buf, sizeof(buf)," | %-*s = %9.4f / %9.4f\n",LLEN,"opening, out, hub/shroud",
 			open_angle_out[0],open_angle_out[1]);
 	strcat(msg,buf);
 	strcat(msg," +--------------------------------------------------\n\n");

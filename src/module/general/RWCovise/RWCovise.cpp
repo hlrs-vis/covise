@@ -215,7 +215,7 @@ int RWCovise::compute(const char *)
             obj->addAttribute("NEXT_STEP_PARAM", "stepNo\nScalar\n1\n");
             // increase stepNo by 1
             char stepNr[32];
-            sprintf(stepNr, "%ld", _p_step->getValue() + 1);
+            snprintf(stepNr, sizeof(stepNr), "%ld", _p_step->getValue() + 1);
             obj->addAttribute("NEXT_STEP", stepNr);
 
             // show last elem
@@ -256,10 +256,10 @@ int RWCovise::compute(const char *)
             }
             obj->addAttribute("ROTATE_POINT", "0 0 0");
 
-            sprintf(axis_string, "%d %d %d\n", x, y, z);
+            snprintf(axis_string, sizeof(axis_string), "%d %d %d\n", x, y, z);
             obj->addAttribute("ROTATE_VECTOR", axis_string);
 
-            sprintf(buf, "%f", (_p_rot_speed->getValue()));
+            snprintf(buf, sizeof(buf), "%f", (_p_rot_speed->getValue()));
             obj->addAttribute("ROTATE_SPEED", buf);
         }
 

@@ -320,7 +320,7 @@ void set_prop(int gno, ...)
                 }
                 break;
             default:
-                sprintf(buf, "Attribute not found in setprops()-FILL, # = %d", prop);
+                snprintf(buf, sizeof(buf), "Attribute not found in setprops()-FILL, # = %d", prop);
                 errwin(buf);
                 break;
             }
@@ -469,7 +469,7 @@ void set_prop(int gno, ...)
                 }
                 break;
             default:
-                sprintf(buf, "Attribute not found in setprops()-SYMBOL, # = %d", prop);
+                snprintf(buf, sizeof(buf), "Attribute not found in setprops()-SYMBOL, # = %d", prop);
                 errwin(buf);
                 break;
             }
@@ -580,19 +580,19 @@ void set_prop(int gno, ...)
                     }
                     break;
                 default:
-                    sprintf(buf, "Attribute not found in setprops()-RISER, # = %d", prop);
+                    snprintf(buf, sizeof(buf), "Attribute not found in setprops()-RISER, # = %d", prop);
                     errwin(buf);
                     break;
                 }
                 break;
             default:
-                sprintf(buf, "Attribute not found in setprops()-ERRORBAR, # = %d", prop);
+                snprintf(buf, sizeof(buf), "Attribute not found in setprops()-ERRORBAR, # = %d", prop);
                 errwin(buf);
                 break;
             }
             break;
         default:
-            sprintf(buf, "Attribute not found in setprops()-top, # = %d", prop);
+            snprintf(buf, sizeof(buf), "Attribute not found in setprops()-top, # = %d", prop);
             errwin(buf);
             break;
         }

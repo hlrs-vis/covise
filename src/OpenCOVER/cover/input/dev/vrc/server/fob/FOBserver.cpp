@@ -415,7 +415,7 @@ int main(int argc, char *argv[])
                     buttons = 1;
 
                 char sendbuffer[2048];
-                sprintf(sendbuffer, "VRC %d %3d [%5.1f %5.1f %5.1f] - [%6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f] - [ 0.0 0.0 %s]",
+                snprintf(sendbuffer, sizeof(sendbuffer), "VRC %d %3d [%5.1f %5.1f %5.1f] - [%6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f] - [ 0.0 0.0 %s]",
                         vrcIds[i], buttons, x, y, z,
                         mat[0][0], mat[0][1], mat[0][2],
                         mat[1][0], mat[1][1], mat[1][2],

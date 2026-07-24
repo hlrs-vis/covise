@@ -114,7 +114,7 @@ bool coErr::init(void)
                 DBGOUT("coErr::Init() - Neither TMP nor TEMP is set!");
                 memset(log_fname, 0, sizeof(log_fname));
             }
-            sprintf(tmpbuf, "yac.pid=%d", _getpid());
+            snprintf(tmpbuf, sizeof(tmpbuf), "yac.pid=%d", _getpid());
             strcat(log_fname, tmpbuf);
 #else
             // unix specific

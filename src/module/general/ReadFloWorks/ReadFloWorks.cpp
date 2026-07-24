@@ -196,7 +196,7 @@ ReadFloWorks::readGeometry(const int &portTok)
 
         // set attribute
         char ch[64];
-        sprintf(ch, "1 %d", cnt);
+        snprintf(ch, sizeof(ch), "1 %d", cnt);
         string attr(ch);
         outSet->addAttribute("TIMESTEP", attr.c_str());
 
@@ -259,7 +259,7 @@ ReadFloWorks::readScalarData(const int &portTok)
             flow_->activateTimeStep(cnt, real_time);
 
             char ch[64];
-            sprintf(ch, "%d", cnt);
+            snprintf(ch, sizeof(ch), "%d", cnt);
             string num(ch);
             string actObjNm(objNameBase + string("_") + num);
 
@@ -279,7 +279,7 @@ ReadFloWorks::readScalarData(const int &portTok)
 
         // set attribute
         char ch[64];
-        sprintf(ch, "1 %d", cnt);
+        snprintf(ch, sizeof(ch), "1 %d", cnt);
         string attr(ch);
         outSet->addAttribute("TIMESTEP", attr.c_str());
         outSet->addAttribute("SPECIES", species.c_str());
@@ -338,7 +338,7 @@ ReadFloWorks::readVectorData(const int &portTok)
             flow_->activateTimeStep(cnt, real_time);
 
             char ch[64];
-            sprintf(ch, "%d", cnt);
+            snprintf(ch, sizeof(ch), "%d", cnt);
             string num(ch);
             string actObjNm(objNameBase + string("_") + num);
 
@@ -360,7 +360,7 @@ ReadFloWorks::readVectorData(const int &portTok)
 
         // set attribute
         char ch[64];
-        sprintf(ch, "1 %d", cnt);
+        snprintf(ch, sizeof(ch), "1 %d", cnt);
         string attr(ch);
         outSet->addAttribute("TIMESTEP", attr.c_str());
         outSet->addAttribute("SPECIES", species.c_str());
@@ -437,7 +437,7 @@ int main(int argc, char *argv[])
     char portname[128];
     for (i = 0; i < NumDataPorts; i++)
     {
-        sprintf(portname, "sdata%d", i);
+        snprintf(portname, sizeof(portname), "sdata%d", i);
         READER_CONTROL->addOutputPort(DataPorts[i], portname, "Float", portname + 1);
     }
 

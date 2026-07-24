@@ -167,7 +167,7 @@ void AccessGridDaemon::startCovise()
     int sPort;
     auto conn = std::unique_ptr<ServerConnection>(new ServerConnection(&sPort, 0, (sender_type)0));
     conn->listen();
-    sprintf(cport, "%d", sPort);
+    snprintf(cport, sizeof(cport), "%d", sPort);
 
 #ifdef _WIN32
     spawnlp(P_NOWAIT, "covise", "covise", "-a", cport, NULL);

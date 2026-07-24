@@ -50,7 +50,7 @@ open_file(char *fname, char *mode)
     fp = fopen(fname, mode);
     if (!fp)
     {
-        sprintf(str, "Can't open file \"%s\" \n", fname);
+        snprintf(str, sizeof(str), "Can't open file \"%s\" \n", fname);
         ensight_message(ENSIGHT_FATAL_ERROR, str);
     }
 
@@ -94,7 +94,7 @@ unlink_ensight_file(char *fname)
 
     if (unlink(fname))
     {
-        sprintf(message, "Could not unlink file \"%s\" \n", fname);
+        snprintf(message, sizeof(message), "Could not unlink file \"%s\" \n", fname);
         ensight_message(ENSIGHT_WARNING, message);
         perror("unlink");
     }
@@ -140,16 +140,16 @@ make_ensight_directory(char *basename)
     {
 #endif
 #ifdef DEBUG
-        sprintf(message, "make ensight directory \"%s\" failed (may already exist) \n", ensight_directory);
+        snprintf(message, sizeof(message), "make ensight directory \"%s\" failed (may already exist) \n", ensight_directory);
         ensight_message(ENSIGHT_WARNING, message);
 #else
-        sprintf(message, "make ensight directory \"%s\" failed (may already exist) : overwriting \n", ensight_directory);
+        snprintf(message, sizeof(message), "make ensight directory \"%s\" failed (may already exist) : overwriting \n", ensight_directory);
         ensight_message(ENSIGHT_FATAL_ERROR, message);
 #endif /* DEBUG */
     }
     else
     {
-        sprintf(message, "made ensight directory \"%s\" \n", ensight_directory);
+        snprintf(message, sizeof(message), "made ensight directory \"%s\" \n", ensight_directory);
         ensight_message(ENSIGHT_INFO, message);
     }
 }

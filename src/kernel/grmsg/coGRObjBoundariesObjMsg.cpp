@@ -26,22 +26,22 @@ GRMSGEXPORT coGRObjBoundariesObjMsg::coGRObjBoundariesObjMsg(Mtype type, const c
     {
         addToken(boundariesName);
 
-        sprintf(str, "%f", front);
+        snprintf(str, sizeof(str), "%f", front);
         addToken(str);
 
-        sprintf(str, "%f", back);
+        snprintf(str, sizeof(str), "%f", back);
         addToken(str);
 
-        sprintf(str, "%f", left);
+        snprintf(str, sizeof(str), "%f", left);
         addToken(str);
 
-        sprintf(str, "%f", right);
+        snprintf(str, sizeof(str), "%f", right);
         addToken(str);
 
-        sprintf(str, "%f", top);
+        snprintf(str, sizeof(str), "%f", top);
         addToken(str);
 
-        sprintf(str, "%f", bottom);
+        snprintf(str, sizeof(str), "%f", bottom);
         addToken(str);
 
         is_valid_ = 1;

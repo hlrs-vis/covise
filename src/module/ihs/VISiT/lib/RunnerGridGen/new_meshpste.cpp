@@ -41,7 +41,7 @@ struct region *reg5, struct Ilist *psnod, struct Ilist *pste, struct Ilist *outl
    FILE *fp;
    static int count = 0;
 
-   sprintf(fn,"rr_debugpste_%02d.txt", count++);
+   snprintf(fn, sizeof(fn),"rr_debugpste_%02d.txt", count++);
    if( (fp = fopen(fn,"w+")) == NULL)
    {
       fprintf(stderr,"Shit happened opening file '%s'!\n",fn);

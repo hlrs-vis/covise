@@ -187,7 +187,7 @@ void Dial::updateValueString()
 
     if (_isInteger)
     {
-        sprintf(buf, "%d", int(floor(_value)));
+        snprintf(buf, sizeof(buf), "%d", int(floor(_value)));
     }
     else
     {
@@ -198,8 +198,8 @@ void Dial::updateValueString()
             else if (_input == CALCULATOR)
                 min = _calc->getDecimalPlaces();
 
-            sprintf(buf1, "%1.2e", _value);
-            sprintf(buf2, "%.*lf", abs(min), _value);
+            snprintf(buf1, sizeof(buf1), "%1.2e", _value);
+            snprintf(buf2, sizeof(buf2), "%.*lf", abs(min), _value);
 
             setTipText(buf2, true);
 
@@ -209,9 +209,9 @@ void Dial::updateValueString()
             if ((strlen(buf2) > 6) && (strlen(tmp1) < 6) && (strlen(tmp2) < 6))
             {
                 if (tmp2 == 0)
-                    sprintf(buf, "%s", tmp1);
+                    snprintf(buf, sizeof(buf), "%s", tmp1);
                 else
-                    sprintf(buf, "%s\ne%s", tmp1, tmp2);
+                    snprintf(buf, sizeof(buf), "%s\ne%s", tmp1, tmp2);
 
                 setTipVisibility(true);
             }
@@ -223,7 +223,7 @@ void Dial::updateValueString()
         }
         else
         {
-            sprintf(buf, "%2.1lf", _value);
+            snprintf(buf, sizeof(buf), "%2.1lf", _value);
         }
     }
 

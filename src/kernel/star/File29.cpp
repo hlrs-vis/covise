@@ -152,7 +152,7 @@ ChoiceList *File29::get_choice(const char **scalarName, int maxList) const
             else
             {
                 char buffer[16];
-                sprintf(buffer, "Scalar_%d", i);
+                snprintf(buffer, sizeof(buffer), "Scalar_%d", i);
                 choice->add(buffer, 14 + i);
             }
         }
@@ -808,20 +808,20 @@ void File29::findHeaders()
             aktBlk++;
         }
 
-        //sprintf(buffer,"Step %4d t=%9f",iter,time);
+        //snprintf(buffer, sizeof(buffer),"Step %4d t=%9f",iter,time);
         //dumper(buffer);
     }
 
     if (res == 8192 && iter == -1)
     {
-        sprintf(buffer, "Transient StarCD file with %d steps, correctly terminated",
+        snprintf(buffer, sizeof(buffer), "Transient StarCD file with %d steps, correctly terminated",
                 numSteps);
         dumper(buffer);
         headerBlock[numSteps] = aktBlk; // save header block for termination, too
     }
     else
     {
-        sprintf(buffer, "Transient StarCD file with %d steps, not terminated",
+        snprintf(buffer, sizeof(buffer), "Transient StarCD file with %d steps, not terminated",
                 numSteps - 1);
         dumper(buffer);
         numSteps--; // do not use last step

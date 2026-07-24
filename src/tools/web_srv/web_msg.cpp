@@ -188,7 +188,7 @@ void HMessage::add_body(char *content, int length, char *lang, int type)
     m_data = content;
     m_length = length;
 
-    sprintf(length_s, "%d", m_length);
+    snprintf(length_s, sizeof(length_s), "%d", m_length);
     add_header(CONTENT_LENGTH, length_s);
 
     add_header(CONTENT_LANGUAGE, lang);
@@ -226,7 +226,7 @@ void HMessage::add_body(char *content)
     m_data = p_tmp;
     m_length = m_length + add_l;
 
-    sprintf(length_s, "%d", m_length);
+    snprintf(length_s, sizeof(length_s), "%d", m_length);
     add_header(CONTENT_LENGTH, length_s);
 }
 

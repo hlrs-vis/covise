@@ -164,7 +164,7 @@ bool coSlopePoti::update()
         myActor->potiValueChanged(convertLinearToSlope(oldValue),
                                   convertLinearToSlope(newValue), this);
         static char num[100];
-        sprintf(num, "%f", newValue);
+        snprintf(num, sizeof(num), "%f", newValue);
         sendOngoingMessage(num);
     }
 

@@ -164,7 +164,7 @@ const char *coIntSliderParam::getTypeString() const
 const char *coIntSliderParam::getValString() const
 {
     static char valString[192];
-    sprintf(valString, "%ld %ld %ld", d_min, d_max, d_value);
+    snprintf(valString, sizeof(valString), "%ld %ld %ld", d_min, d_max, d_value);
     return valString;
 }
 

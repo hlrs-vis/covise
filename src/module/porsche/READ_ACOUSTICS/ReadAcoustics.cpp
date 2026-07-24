@@ -68,7 +68,7 @@ int ReadAcoustics::compute()
         // open the file
         if (openFile())
         {
-            sprintf(infobuf, "File %s open", filename);
+            snprintf(infobuf, sizeof(infobuf), "File %s open", filename);
             sendInfo(infobuf);
 
             // read the file, create the lists and create a COVISE polygon object
@@ -77,7 +77,7 @@ int ReadAcoustics::compute()
         }
         else
         {
-            sprintf(infobuf, "Error opening file %s", filename);
+            snprintf(infobuf, sizeof(infobuf), "Error opening file %s", filename);
             sendError(infobuf);
             return FAIL;
         }

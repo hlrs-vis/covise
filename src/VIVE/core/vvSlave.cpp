@@ -236,7 +236,7 @@ void vvTcpSlave::start()
     {
         mi = hn;
     }
-    sprintf(cEntry, "VIVE.MultiPC.Startup:%d", myID - 1);
+    snprintf(cEntry, sizeof(cEntry), "VIVE.MultiPC.Startup:%d", myID - 1);
     string command = coCoviseConfig::getEntry(cEntry);
     if (command.empty())
     {
@@ -326,9 +326,9 @@ void vvTcpSlave::start()
 
 // create command to send to remote daemon
 #ifndef NDEBUG
-            sprintf(co, "VIVE_debug %s -c %d %s %d %s\n", command.c_str() + 20, myID, mi.c_str(), port, hn.c_str());
+            snprintf(co, sizeof(co), "VIVE_debug %s -c %d %s %d %s\n", command.c_str() + 20, myID, mi.c_str(), port, hn.c_str());
 #else
-            sprintf(co, "%s -c %d %s %d %s\n", command.c_str() + 9, myID, mi.c_str(), port, hn.c_str());
+            snprintf(co, sizeof(co), "%s -c %d %s %d %s\n", command.c_str() + 9, myID, mi.c_str(), port, hn.c_str());
 #endif
 
             cerr << "Sending coVRemote the message: " << co << endl;
@@ -346,9 +346,9 @@ void vvTcpSlave::start()
     {
         cerr << "Using default ssh remote startup" << endl;
 #ifdef WIN32
-        sprintf(co, "%s -c %d %s %d %s", command.c_str(), myID, mi.c_str(), port, hn.c_str());
+        snprintf(co, sizeof(co), "%s -c %d %s %d %s", command.c_str(), myID, mi.c_str(), port, hn.c_str());
 #else
-		sprintf(co, "%s -c %d %s %d %s&", command.c_str(), myID, mi.c_str(), port, hn.c_str());
+		snprintf(co, sizeof(co), "%s -c %d %s %d %s&", command.c_str(), myID, mi.c_str(), port, hn.c_str());
 #endif
         cerr << "DEF starting: " << co << endl;
         if (system(co) == -1)

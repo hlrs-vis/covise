@@ -513,11 +513,11 @@ void fileHeader::print()
     Covise::sendInfo(dataDate);
     Covise::sendInfo(jnm);
     char buf[600];
-    sprintf(buf, "time: %f ncyc: %d crank: %f ifirst: %d ncells: %d nverts: %d", time, ncyc, crank, ifirst, ncells, nverts);
+    snprintf(buf, sizeof(buf), "time: %f ncyc: %d crank: %f ifirst: %d ncells: %d nverts: %d", time, ncyc, crank, ifirst, ncells, nverts);
     Covise::sendInfo(buf);
-    sprintf(buf, "cylrad: %f zpistn: %f zhead: %f np: %d nrk: %d nsp: %d", cylrad, zpistn, zhead, np, nrk, nsp);
+    snprintf(buf, sizeof(buf), "cylrad: %f zpistn: %f zhead: %f np: %d nrk: %d nsp: %d", cylrad, zpistn, zhead, np, nrk, nsp);
     Covise::sendInfo(buf);
-    sprintf(buf, "irez: %d numBoundaryVertices: %d iper: %d rhop: %f cmueps: %f naxisj: %d nregions: %d", irez, numBoundaryVertices, iper, rhop, cmueps, naxisj, nregions);
+    snprintf(buf, sizeof(buf), "irez: %d numBoundaryVertices: %d iper: %d rhop: %f cmueps: %f naxisj: %d nregions: %d", irez, numBoundaryVertices, iper, rhop, cmueps, naxisj, nregions);
     Covise::sendInfo(buf);
 }
 
@@ -607,63 +607,63 @@ void Application::compute(void *)
             close(fd);
             break;
         }
-        sprintf(buf, "%s_%d", Mesh, n);
+        snprintf(buf, sizeof(buf), "%s_%d", Mesh, n);
         mesh = new coDoUnstructuredGrid(buf, header.numElem, header.numElem * 8, header.numCoords, 1);
         if (!mesh->objectOk())
         {
             Covise::sendError("could not create output object:");
             break;
         }
-        sprintf(buf, "%s_%d", Veloc, n);
+        snprintf(buf, sizeof(buf), "%s_%d", Veloc, n);
         DOveloc = new coDoVec3(buf, header.numCoords);
         if (!DOveloc->objectOk())
         {
             Covise::sendError("could not create output object:");
             break;
         }
-        sprintf(buf, "%s_%d", Press, n);
+        snprintf(buf, sizeof(buf), "%s_%d", Press, n);
         DOpress = new coDoFloat(buf, header.numElem);
         if (!DOpress->objectOk())
         {
             Covise::sendError("could not create output object:");
             break;
         }
-        sprintf(buf, "%s_%d", rho_name, n);
+        snprintf(buf, sizeof(buf), "%s_%d", rho_name, n);
         DOrho = new coDoFloat(buf, header.numElem);
         if (!DOrho->objectOk())
         {
             Covise::sendError("could not create output object:");
             break;
         }
-        sprintf(buf, "%s_%d", vol_name, n);
+        snprintf(buf, sizeof(buf), "%s_%d", vol_name, n);
         DOvol = new coDoFloat(buf, header.numElem);
         if (!DOvol->objectOk())
         {
             Covise::sendError("could not create output object:");
             break;
         }
-        sprintf(buf, "%s_%d", temp_name, n);
+        snprintf(buf, sizeof(buf), "%s_%d", temp_name, n);
         DOtemperature = new coDoFloat(buf, header.numElem);
         if (!DOtemperature->objectOk())
         {
             Covise::sendError("could not create output object:");
             break;
         }
-        sprintf(buf, "%s_%d", amu_name, n);
+        snprintf(buf, sizeof(buf), "%s_%d", amu_name, n);
         DOamu = new coDoFloat(buf, header.numElem);
         if (!DOamu->objectOk())
         {
             Covise::sendError("could not create output object:");
             break;
         }
-        sprintf(buf, "%s_%d", tke_name, n);
+        snprintf(buf, sizeof(buf), "%s_%d", tke_name, n);
         DOtke = new coDoFloat(buf, header.numElem);
         if (!DOtke->objectOk())
         {
             Covise::sendError("could not create output object:");
             break;
         }
-        sprintf(buf, "%s_%d", eps_name, n);
+        snprintf(buf, sizeof(buf), "%s_%d", eps_name, n);
         DOeps = new coDoFloat(buf, header.numElem);
         if (!DOeps->objectOk())
         {
@@ -672,21 +672,21 @@ void Application::compute(void *)
         }
         if (header.np > 0)
         {
-            sprintf(buf, "%s_%d", p_name, n);
+            snprintf(buf, sizeof(buf), "%s_%d", p_name, n);
             DOparticles = new coDoPoints(buf, header.np / pfactor);
             if (!DOeps->objectOk())
             {
                 Covise::sendError("could not create output object:");
                 break;
             }
-            sprintf(buf, "%s_%d", pv_name, n);
+            snprintf(buf, sizeof(buf), "%s_%d", pv_name, n);
             DOpveloc = new coDoVec3(buf, header.np / pfactor);
             if (!DOeps->objectOk())
             {
                 Covise::sendError("could not create output object:");
                 break;
             }
-            sprintf(buf, "%s_%d", pt_name, n);
+            snprintf(buf, sizeof(buf), "%s_%d", pt_name, n);
             DOptemperature = new coDoFloat(buf, header.np / pfactor);
             if (!DOeps->objectOk())
             {

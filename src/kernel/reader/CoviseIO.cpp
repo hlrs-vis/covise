@@ -570,7 +570,7 @@ coDistributedObject *CoviseIO::readData(int fd, const char *Name)
             int readStep = 0;
             for (i = 0; i <= endstep - startstep; i++)
             {
-                sprintf(buf, "%s_%d", Name, readStep);
+                snprintf(buf, sizeof(buf), "%s_%d", Name, readStep);
                 tmp_objs[readStep] = readData(fd, buf);
                 tmp_objs[readStep + 1] = NULL;
                 readStep++;
@@ -659,17 +659,17 @@ coDistributedObject *CoviseIO::readData(int fd, const char *Name)
             t2 = t3 = 0;
             if (ho1)
             {
-                sprintf(buf, "%s_Geo", Name);
+                snprintf(buf, sizeof(buf), "%s_Geo", Name);
                 do1 = readData(fd, buf);
             }
             if (ho2)
             {
-                sprintf(buf, "%s_Col", Name);
+                snprintf(buf, sizeof(buf), "%s_Col", Name);
                 do2 = readData(fd, buf);
             }
             if (ho3)
             {
-                sprintf(buf, "%s_Norm", Name);
+                snprintf(buf, sizeof(buf), "%s_Norm", Name);
                 do3 = readData(fd, buf);
             }
 
@@ -704,22 +704,22 @@ coDistributedObject *CoviseIO::readData(int fd, const char *Name)
             t2 = t3 = t4 = 0;
             if (ho1)
             {
-                sprintf(buf, "%s_Geo", Name);
+                snprintf(buf, sizeof(buf), "%s_Geo", Name);
                 do1 = readData(fd, buf);
             }
             if (ho2)
             {
-                sprintf(buf, "%s_Col", Name);
+                snprintf(buf, sizeof(buf), "%s_Col", Name);
                 do2 = readData(fd, buf);
             }
             if (ho3)
             {
-                sprintf(buf, "%s_Norm", Name);
+                snprintf(buf, sizeof(buf), "%s_Norm", Name);
                 do3 = readData(fd, buf);
             }
             if (ho4)
             {
-                sprintf(buf, "%s_Texture", Name);
+                snprintf(buf, sizeof(buf), "%s_Texture", Name);
                 do4 = readData(fd, buf);
             }
             if (do1)

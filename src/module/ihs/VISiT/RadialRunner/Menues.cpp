@@ -55,7 +55,7 @@ void RadialRunner::CreatePortMenu(void)
 
 	paraSwitch(M_2DPORT, "Select_plot_port");
 	for(i = 1; i <= NUM_PLOT_PORTS; i++) {
-		sprintf(name,"%s%d","port_no._",i);
+		snprintf(name, sizeof(name),"%s%d","port_no._",i);
 		paraCase(name);
 		RadialRunner::CreatePlotPortMenu(i);
 		dprintf(3,"name: %s\n",name);
@@ -70,7 +70,7 @@ void RadialRunner::CreatePlotPortMenu(int p)
 {
 	char name[110];
 
-	sprintf(name,"%s_%d",M_2DPLOT,p);
+	snprintf(name, sizeof(name),"%s_%d",M_2DPLOT,p);
 	m_2DplotChoice[p-1] = paraSwitch(name, "Select_plot_data");
 	paraCase(M_MERIDIAN_CONTOUR_PLOT);
 	paraEndCase();								   // end of M_MERIDIAN_CONTOUR_PLOT
@@ -109,7 +109,7 @@ void RadialRunner::CreateMenuConformalView(int p)
 	char buf[200];
 
 	for(i = 0; i < MAX_ELEMENTS; i++) {
-		sprintf(buf,"%s_%d_%d",M_SHOW_CONFORMAL,p,i+1);
+		snprintf(buf, sizeof(buf),"%s_%d_%d",M_SHOW_CONFORMAL,p,i+1);
 		dprintf(3,"buf = %s\n",buf);
 		p_ShowConformal[i][p-1] = addBooleanParam(buf,buf);
 		p_ShowConformal[i][p-1]->setValue(0);
@@ -123,7 +123,7 @@ void RadialRunner::CreateMenuCamber(int p)
 	char buf[200];
 
 	for(i = 0; i < MAX_ELEMENTS; i++) {
-		sprintf(buf,"%s_%d_%d",M_SHOW_CAMBER,p,i+1);
+		snprintf(buf, sizeof(buf),"%s_%d_%d",M_SHOW_CAMBER,p,i+1);
 		dprintf(3,"buf = %s\n",buf);
 		p_ShowCamber[i][p-1] = addBooleanParam(buf,buf);
 		p_ShowCamber[i][p-1]->setValue(0);
@@ -137,7 +137,7 @@ void RadialRunner::CreateMenuNormCamber(int p)
 	char buf[200];
 
 	for(i = 0; i < MAX_ELEMENTS; i++) {
-		sprintf(buf,"%s_%d_%d",M_SHOW_NORMCAMBER,p,i+1);
+		snprintf(buf, sizeof(buf),"%s_%d_%d",M_SHOW_NORMCAMBER,p,i+1);
 		dprintf(2,"buf = %s\n",buf);
 		p_ShowNormCamber[i][p-1] = addBooleanParam(buf,buf);
 		p_ShowNormCamber[i][p-1]->setValue(0);

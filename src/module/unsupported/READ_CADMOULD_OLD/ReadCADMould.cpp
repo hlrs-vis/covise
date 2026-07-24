@@ -178,7 +178,7 @@ int ReadSAI::compute()
             //cerr << " curr_time: " << curr_time << endl;
             animated_poly_list[i] = (coDistributedObject *)polys;
             polys->incRefCount();
-            sprintf(buf, "%s_%d", animated_data_name, i);
+            snprintf(buf, sizeof(buf), "%s_%d", animated_data_name, i);
 
             coDoFloat *sdata = new coDoFloat(buf, dataset->no_elements);
             animated_data_list[i] = sdata;
@@ -211,7 +211,7 @@ int ReadSAI::compute()
 
         coDoSet *animated_polys = new coDoSet(animated_poly_name, animated_poly_list);
         coDoSet *animated_data = new coDoSet(animated_data_name, animated_data_list);
-        sprintf(buf, "%d %d", 0, timesteps - 1);
+        snprintf(buf, sizeof(buf), "%d %d", 0, timesteps - 1);
 
         animated_polys->addAttribute("TIMESTEP", buf);
         animated_data->addAttribute("TIMESTEP", buf);

@@ -129,7 +129,7 @@ ClientConnection::ClientConnection(Host *h, int p, int id, sender_type
         printf("invalid socket in new ClientConnection\n");
 
 #ifdef DEBUG
-    sprintf(tmpstr, "convert: %d", convert_to);
+    snprintf(tmpstr, sizeof(tmpstr), "convert: %d", convert_to);
     print_comment(__LINE__, __FILE__, tmpstr);
 #endif
 }
@@ -273,7 +273,7 @@ void Connection::close_inform()
     // Does somebody need this anyway?
     //Message msg(CLOSE_SOCKET, (int)0, NULL, MSG_COPY);
     //send_msg(&msg);                                // will be closed anyway
-    sprintf(tmpstr, "close_inform port %d", sock->get_port());
+    snprintf(tmpstr, sizeof(tmpstr), "close_inform port %d", sock->get_port());
     //print_comment(__LINE__, __FILE__, tmpstr);
     if (sock)
     {
@@ -288,7 +288,7 @@ void Connection::close()
 
     if (sock)
     {
-        sprintf(tmpstr, "close port %d", sock->get_port());
+        snprintf(tmpstr, sizeof(tmpstr), "close port %d", sock->get_port());
         //print_comment(__LINE__, __FILE__, tmpstr);
         if (remove_socket)
         {
@@ -336,7 +336,7 @@ int ServerConnection::accept()
             convert_to = DF_IEEE;
 
 #ifdef SHOWMSG
-    sprintf(tmpstr, "convert: %d", convert_to);
+    snprintf(tmpstr, sizeof(tmpstr), "convert: %d", convert_to);
     print_comment(__LINE__, __FILE__, tmpstr);
 #endif
 
@@ -840,7 +840,7 @@ int Connection::recv_msg(Message* msg, char* ip)
 		//	        LOGINFO( retstr);
 
 #ifdef SHOWMSG
-		sprintf(tmp_str, "recv: s: %d st: %d mt: %s l: %d",
+		snprintf(tmp_str, sizeof(tmp_str), "recv: s: %d st: %d mt: %s l: %d",
 			msg->sender, msg->send_type,
 			(msg->type < 0 || msg->type > COVISE_MESSAGE_LAST_DUMMY_MESSAGE) ? (msg->type == -1 ? "EMPTY" : "(invalid)") : covise_msg_types_array[msg->type],
 			msg->data.length());
@@ -1003,7 +1003,7 @@ int Connection::check_for_input(float time)
     else if (i < 0)
     {
         char buf[1024];
-        sprintf(buf, "select failed: %s\n", strerror(errno));
+        snprintf(buf, sizeof(buf), "select failed: %s\n", strerror(errno));
         // print_comment(__LINE__, __FILE__, buf);
     }
     return 0;
@@ -1186,7 +1186,7 @@ Connection *ConnectionList::check_for_input(float time)
     else if (i < 0)
     {
         char buf[1024];
-        sprintf(buf, "select failed: %s\n", strerror(errno));
+        snprintf(buf, sizeof(buf), "select failed: %s\n", strerror(errno));
         //print_comment(__LINE__, __FILE__, buf);
     }
     return NULL;

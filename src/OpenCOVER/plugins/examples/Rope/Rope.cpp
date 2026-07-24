@@ -170,18 +170,18 @@ xercesc::DOMElement *Rope::Save(xercesc::DOMDocument &document)
     xercesc::DOMElement *element = document.createElement(xercesc::XMLString::transcode(this->getName()));
     element->appendChild(document.createTextNode(xercesc::XMLString::transcode(this->identStr())));
     element->setAttribute(xercesc::XMLString::transcode("depth"), xercesc::XMLString::transcode(this->getName()));
-    sprintf(tmp, "%f", this->getRopeLength());
+    snprintf(tmp, sizeof(tmp), "%f", this->getRopeLength());
     element->setAttribute(xercesc::XMLString::transcode("length"), xercesc::XMLString::transcode(tmp));
-    sprintf(tmp, "%f", this->getPosRadius());
+    snprintf(tmp, sizeof(tmp), "%f", this->getPosRadius());
     element->setAttribute(xercesc::XMLString::transcode("posRadius"), xercesc::XMLString::transcode(tmp));
-    sprintf(tmp, "%f", this->getPosAngle());
+    snprintf(tmp, sizeof(tmp), "%f", this->getPosAngle());
     element->setAttribute(xercesc::XMLString::transcode("posAngle"), xercesc::XMLString::transcode(tmp));
     orient = this->getOrientation();
-    sprintf(tmp, "%f,%f,%f", orient.x(), orient.y(), orient.z());
+    snprintf(tmp, sizeof(tmp), "%f,%f,%f", orient.x(), orient.y(), orient.z());
     element->setAttribute(xercesc::XMLString::transcode("orientation"), xercesc::XMLString::transcode(tmp));
-    sprintf(tmp, "%d", this->getNumSegments());
+    snprintf(tmp, sizeof(tmp), "%d", this->getNumSegments());
     element->setAttribute(xercesc::XMLString::transcode("numSegments"), xercesc::XMLString::transcode(tmp));
-    sprintf(tmp, "%f", this->getSegHeight());
+    snprintf(tmp, sizeof(tmp), "%f", this->getSegHeight());
     element->setAttribute(xercesc::XMLString::transcode("segHeight"), xercesc::XMLString::transcode(tmp));
 
     for (i = 0; i < this->numStrandgroups; i++)
@@ -374,7 +374,7 @@ void Rope::addManipulation(coTUIFrame *frame)
     {
         char buf[256];
 
-        sprintf(buf, "No %2d", i);
+        snprintf(buf, sizeof(buf), "No %2d", i);
         sgLenSliderL[i] = new coTUILabel(buf, frame->getID());
         sgLenSliderL[i]->setPos(1, y + i);
         sgLenSlider[i] = new coTUIFloatSlider("numHSlider", frame->getID());

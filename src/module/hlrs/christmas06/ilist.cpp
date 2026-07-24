@@ -21,7 +21,7 @@ void Add2Ilist(struct Ilist *ilist, int ind)
         ilist->max += ilist->portion;
         if ((ilist->list = (int *)realloc(ilist->list, ilist->max * sizeof(int))) == NULL)
         {
-            sprintf(buf, "Realloc failed in Add2Ilist: %s, %d\n", __FILE__, __LINE__);
+            snprintf(buf, sizeof(buf), "Realloc failed in Add2Ilist: %s, %d\n", __FILE__, __LINE__);
             fatal(buf);
         }
     }
@@ -54,7 +54,7 @@ void FreeIlistStruct(struct Ilist *ilist)
     }
     else
     {
-        sprintf(buf, "Free on NULL: %s, %d\n", __FILE__, __LINE__);
+        snprintf(buf, sizeof(buf), "Free on NULL: %s, %d\n", __FILE__, __LINE__);
         fatal(buf);
     }
 }

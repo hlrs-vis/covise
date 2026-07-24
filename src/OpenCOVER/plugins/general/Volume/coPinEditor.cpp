@@ -548,7 +548,7 @@ int coPinEditor::hit(vruiHit *hit)
         x = ts_clamp(x, 0.0f, 1.0f);
         //valuex = virvo::lerp(myFunctionEditor->getMin(), myFunctionEditor->getMax(), x);
         currentPin->setPos(valuex,0,1);
-        sprintf(message, "X%f %f %f", x, .5, .5);
+        snprintf(message, sizeof(message), "X%f %f %f", x, .5, .5);
         sendOngoingMessage(message);
         vvTFColor *col = dynamic_cast<vvTFColor *>(currentPin->jPin);
         if (col)
@@ -578,7 +578,7 @@ int coPinEditor::hit(vruiHit *hit)
             pickTime = -1;
             selectPin(pickCoordX, pickCoordY);
             //cerr << "Lock ID="<< currentPin->getID() << endl;
-            sprintf(message, "%d", currentPin->getID());
+            snprintf(message, sizeof(message), "%d", currentPin->getID());
             sendLockMessage(message);
         }
         if (fabs(x - pickCoordX) > moveThreshold
@@ -590,7 +590,7 @@ int coPinEditor::hit(vruiHit *hit)
             pickTime = -1;
             selectPin(pickCoordX, pickCoordY);
             //cerr << "Lock ID="<< currentPin->getID() << endl;
-            sprintf(message, "%d", currentPin->getID());
+            snprintf(message, sizeof(message), "%d", currentPin->getID());
             sendLockMessage(message);
         }
     }
@@ -602,7 +602,7 @@ int coPinEditor::hit(vruiHit *hit)
         if (currentPin != NULL)
         {
             //cerr << "Lock ID="<< currentPin->getID() << endl;
-            sprintf(message, "%d", currentPin->getID());
+            snprintf(message, sizeof(message), "%d", currentPin->getID());
             sendLockMessage(message);
         }
     }
@@ -660,7 +660,7 @@ int coPinEditor::hit(vruiHit *hit)
         {
             if (currentPin != NULL)
             {
-                sprintf(message, "M%f", x);
+                snprintf(message, sizeof(message), "M%f", x);
                 sendOngoingMessage(message);
                 x = ts_clamp(x, 0.0f, 1.0f);
                 x = x - currentPin->handleTrans();
@@ -747,7 +747,7 @@ void coPinEditor::update()
                 formatString = formats[1];
             else
                 formatString = formats[0];
-            sprintf(num, formatString, myFunctionEditor->getMin() + (oldX + currentPin->handleTrans()) * (myFunctionEditor->getMax() - myFunctionEditor->getMin()));
+            snprintf(num, sizeof(num), formatString, myFunctionEditor->getMin() + (oldX + currentPin->handleTrans()) * (myFunctionEditor->getMax() - myFunctionEditor->getMin()));
             currentScalarLabel->setString(num);
             labelBackground->setPos(15 + ((pos + currentPin->handleTrans()) * W) - currentScalarLabel->getWidth() / 2.0, -59, 2);
         }
@@ -766,7 +766,7 @@ void coPinEditor::update()
                 && coVRCollaboration::instance()->isMaster())
             {
                 static char message[100];
-                sprintf(message, "E%d", currentPin->getID());
+                snprintf(message, sizeof(message), "E%d", currentPin->getID());
                 sendOngoingMessage(message);
             }
         }
@@ -830,7 +830,7 @@ void coPinEditor::update()
                                 myValue = 0.0;
                             ((coAlphaHatPin *)currentPin)->setTopWidth(myValue,0,1);
                             myFunctionEditor->topWidth->setValue(myValue);
-                            sprintf(message, "S%f", myValue);
+                            snprintf(message, sizeof(message), "S%f", myValue);
                             sendOngoingMessage(message);
                         }
                         else
@@ -838,7 +838,7 @@ void coPinEditor::update()
                             myValue = ts_clamp(myValue, 0.f,1.f);
                             ((coAlphaHatPin *)currentPin)->setBotWidth(myValue,0,1);
                             myFunctionEditor->botWidth->setValue(myValue);
-                            sprintf(message, "A%f", myValue);
+                            snprintf(message, sizeof(message), "A%f", myValue);
                             sendOngoingMessage(message);
                         }
                     }
@@ -983,7 +983,7 @@ void coPinEditor::selectPin(float x, float y)
         if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::LooseCoupling)
         {
             static char message[100];
-            sprintf(message, "E%d", currentPin->getID());
+            snprintf(message, sizeof(message), "E%d", currentPin->getID());
             sendOngoingMessage(message);
         }
     }
@@ -1141,7 +1141,7 @@ void coPinEditor::addPin(int type, int local)
     if (local)
     {
         static char message[100];
-        sprintf(message, "N%d %d", currentPin->getID(), type);
+        snprintf(message, sizeof(message), "N%d %d", currentPin->getID(), type);
         sendOngoingMessage(message);
     }
 }
@@ -1157,7 +1157,7 @@ void coPinEditor::deleteCurrentPin()
     {
 
         static char message[100];
-        sprintf(message, "D%d", currentPin->getID());
+        snprintf(message, sizeof(message), "D%d", currentPin->getID());
         sendOngoingMessage(message);
 
         list<coPin *>::iterator pin = find(pinList.begin(), pinList.end(), currentPin);

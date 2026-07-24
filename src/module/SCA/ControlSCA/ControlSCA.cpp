@@ -123,8 +123,8 @@ ControlSCA::ControlSCA()
     for (noppen_counter = 0; noppen_counter < MAX_POINTS; ++noppen_counter)
     {
         char name[256], descr[256];
-        sprintf(name, "Noppen_%d", noppen_counter + 1);
-        sprintf(descr, "Knob coordinates %d", noppen_counter + 1);
+        snprintf(name, sizeof(name), "Noppen_%d", noppen_counter + 1);
+        snprintf(descr, sizeof(descr), "Knob coordinates %d", noppen_counter + 1);
         float outofdomain[2] = { -1.0, -1.0 };
         p_freie_noppen_[noppen_counter] = addFloatVectorParam(name, descr);
         p_freie_noppen_[noppen_counter]->setValue(2, outofdomain);
@@ -294,7 +294,7 @@ ControlSCA::outputCuts(float hoehe)
 {
     char buf[1024];
 
-    sprintf(buf, "distance %g\nnormal ", -float(p_blatBreite_->getValue()));
+    snprintf(buf, sizeof(buf), "distance %g\nnormal ", -float(p_blatBreite_->getValue()));
     strcat(buf, "-1.0 0.0 0.0");
     coDoText *doTextX = new coDoText(p_cutX_->getObjName(), strlen(buf) + 1);
     char *addr;
@@ -302,7 +302,7 @@ ControlSCA::outputCuts(float hoehe)
     strcpy(addr, buf);
     p_cutX_->setCurrentObject(doTextX);
 
-    sprintf(buf, "distance %g \nnormal 0.0 -1.0 0.0", -hoehe);
+    snprintf(buf, sizeof(buf), "distance %g \nnormal 0.0 -1.0 0.0", -hoehe);
     coDoText *doTextY = new coDoText(p_cutY_->getObjName(), strlen(buf) + 1);
     doTextY->getAddress(&addr);
     strcpy(addr, buf);

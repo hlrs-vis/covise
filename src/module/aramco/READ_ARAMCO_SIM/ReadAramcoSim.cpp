@@ -80,12 +80,12 @@ ReadAramcoSim::ReadAramcoSim()
     const char *defaultChoice[] = { "---" };
     for (i = 0; i < NUM_PORTS; i++)
     {
-        sprintf(name, "Choice_%d", i);
+        snprintf(name, sizeof(name), "Choice_%d", i);
         p_choice[i] = addChoiceParam(name, "Select data for port");
         p_choice[i]->setValue(1, defaultChoice, 1);
         p_choice[i]->setImmediate(1);
 
-        sprintf(name, "Data_%d", i);
+        snprintf(name, sizeof(name), "Data_%d", i);
         p_data[i] = addOutputPort(name, "coDoFloat", name);
     }
 
@@ -321,7 +321,7 @@ int ReadAramcoSim::compute()
     doArr[numSteps] = NULL;
     coDoSet *set = new coDoSet(p_meshTime->getObjName(), doArr);
     char attribVal[16];
-    sprintf(attribVal, "0 %d", numSteps - 1);
+    snprintf(attribVal, sizeof(attribVal), "0 %d", numSteps - 1);
     set->addAttribute("TIMESTEP", attribVal);
 
     p_meshTime->setCurrentObject(set);
@@ -356,13 +356,13 @@ int ReadAramcoSim::compute()
             const char *objName = p_data[port]->getObjName();
             for (step = 0; step < numSteps; step++)
             {
-                sprintf(transObjName, "%s_%d", objName, step);
+                snprintf(transObjName, sizeof(transObjName), "%s_%d", objName, step);
                 doArr[step] = readField(transObjName, fieldNo, step);
             }
             doArr[numSteps] = NULL;
             coDoSet *set = new coDoSet(objName, doArr);
             char attribVal[16];
-            sprintf(attribVal, "0 %d", numSteps - 1);
+            snprintf(attribVal, sizeof(attribVal), "0 %d", numSteps - 1);
             set->addAttribute("TIMESTEP", attribVal);
             p_data[port]->setCurrentObject(set);
         }

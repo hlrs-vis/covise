@@ -73,7 +73,7 @@ Wire::Wire(float r, float len, float slength, float rlength, int ns, int nls, in
 
     coVRShaderList::instance()->get("SolidClipping")->apply(geode, geom);
     char name[1000];
-    sprintf(name, "Wire %d", WNum);
+    snprintf(name, sizeof(name), "Wire %d", WNum);
     geode->setName(name);
     group->addChild(geode.get());
     //end of design functions
@@ -231,7 +231,7 @@ Strand::Strand(int nw, float coreRadius, float hullRadius, float len, float rlen
     length = len;
     ropelength = rlength;
     char name[1000];
-    sprintf(name, "Strand %d", SNum);
+    snprintf(name, sizeof(name), "Strand %d", SNum);
     strandGroup->setName(name);
 
     lengthOfTwist = lot;

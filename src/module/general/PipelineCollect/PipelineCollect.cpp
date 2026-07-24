@@ -29,9 +29,9 @@ PipelineCollect::PipelineCollect(int argc, char *argv[])
     char portname[20];
     for (i = 0; i < NUM_PORTS; i++)
     {
-        sprintf(portname, "inport_%d", i);
+        snprintf(portname, sizeof(portname), "inport_%d", i);
         p_inport[i] = addInputPort(portname, "coDistributedObject", "input object");
-        sprintf(portname, "outport_%d", i);
+        snprintf(portname, sizeof(portname), "outport_%d", i);
         if (i > 0)
             p_inport[i]->setRequired(0);
         p_outport[i] = addOutputPort(portname, "coDistributedObject", "output object");
@@ -113,7 +113,7 @@ int PipelineCollect::compute(const char *)
 
             next = std::string(real_obj->getAttribute("NEXT_STEP_PARAM"));
             char number[64];
-            sprintf(number, "%d", next_step);
+            snprintf(number, sizeof(number), "%d", next_step);
             next += number;
         }
 
@@ -124,7 +124,7 @@ int PipelineCollect::compute(const char *)
             if (tmp_obj && tmp_obj->objectOk())
             {
                 //store copy of current object because objects are deleted after finishing the pipeline
-                sprintf(objname, "%s_%d", p_outport[i]->getObjName(), num_timesteps);
+                snprintf(objname, sizeof(objname), "%s_%d", p_outport[i]->getObjName(), num_timesteps);
                 num_timesteps++;
                 newObj = createNewObj(objname, tmp_obj);
                 newObj->copyAllAttributes(tmp_obj);
@@ -181,7 +181,7 @@ int PipelineCollect::compute(const char *)
                         if (real_obj->getAttribute("LAST_STEP"))
                         {
                             char step_range[100];
-                            sprintf(step_range, "1 %d", cnt);
+                            snprintf(step_range, sizeof(step_range), "1 %d", cnt);
                             set_output->addAttribute("TIMESTEP", step_range);
                         }
                         p_outport[i]->setCurrentObject(set_output);

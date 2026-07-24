@@ -58,14 +58,14 @@ ReadIVDdata::ReadIVDdata(int argc, char *argv[])
     // change MAXvector parameter in header-file
     for (i = 0; i < MAXvector; i++)
     {
-        sprintf(portname, "veloctity%d", i);
+        snprintf(portname, sizeof(portname), "veloctity%d", i);
         p_Vector[i] = addOutputPort(portname, "Vec3", "velocity field");
     }
     // create the output ports for the vector data. To increase the number of available output ports
     // change MAXscalar parameter in header-file
     for (i = 0; i < MAXscalar; i++)
     {
-        sprintf(portname, "scalar%d", i);
+        snprintf(portname, sizeof(portname), "scalar%d", i);
         p_Scalar[i] = addOutputPort(portname, "Float", "Scalar data");
     }
 
@@ -153,7 +153,7 @@ int ReadIVDdata::compute(const char *)
         /* get the COVISE output object name from the controller */
         GridObjectName = p_Grid->getObjName();
         // generate name  GridObjectName + _i
-        sprintf(buffer, "%s_Grid", GridObjectName);
+        snprintf(buffer, sizeof(buffer), "%s_Grid", GridObjectName);
         // Pointer to grid field
         d_Grid = new coDoUnstructuredGrid(buffer, total_elem, total_conn, total_coord, 1);
         if (!(d_Grid->objectOk()))
@@ -200,7 +200,7 @@ int ReadIVDdata::compute(const char *)
             {
                 GridObjectName = p_Scalar[var_index]->getObjName();
                 // generate name  VectorName + _i
-                sprintf(buffer, "scal%s_%d_%d", GridObjectName, var_index, stepnr);
+                snprintf(buffer, sizeof(buffer), "scal%s_%d_%d", GridObjectName, var_index, stepnr);
                 d_Scalar[var_index] = new coDoFloat(buffer, total_coord);
                 if (!(d_Scalar[var_index]->objectOk()))
                 {
@@ -212,7 +212,7 @@ int ReadIVDdata::compute(const char *)
             {
                 GridObjectName = p_Vector[var_index]->getObjName();
                 // generate name  VectorName + _i
-                sprintf(buffer, "vec%s_%d_%d", GridObjectName, var_index, stepnr);
+                snprintf(buffer, sizeof(buffer), "vec%s_%d_%d", GridObjectName, var_index, stepnr);
                 d_Vector[var_index] = new coDoVec3(buffer, total_coord);
                 if (!(d_Vector[var_index]->objectOk()))
                 {
@@ -711,7 +711,7 @@ bool ReadIVDdata::open_data(FILE **dfp,
     /* for more timesteps then one, add .0001 .0002, etc  */
     if (stepnr > 0)
     {
-        sprintf(nummer, ".%04d", stepnr);
+        snprintf(nummer, sizeof(nummer), ".%04d", stepnr);
         strcat(composedfn, nummer);
     }
 #ifdef WIN32

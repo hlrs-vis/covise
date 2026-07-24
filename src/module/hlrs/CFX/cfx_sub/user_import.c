@@ -83,7 +83,7 @@ char *data;
         int elemtype = cfxImportGetElement(elemid, elemnodes);
         if (!elemtype)
         {
-            sprintf(errmsg,
+            snprintf(errmsg, sizeof(errmsg),
                     "element %d not found for packet 6\n", elemid);
             cfxImportFatal(errmsg);
         }
@@ -91,7 +91,7 @@ char *data;
         {
             if (nodes[n] >= elemtype)
             {
-                sprintf(errmsg,
+                snprintf(errmsg, sizeof(errmsg),
                         "invalid node flags for element %d\n", elemid);
                 cfxImportFatal(errmsg);
             }
@@ -107,13 +107,13 @@ char *data;
         nnodes = cfxImportGetFace(elemid, faceid, nodeid);
         if (nnodes < 0)
         {
-            sprintf(errmsg,
+            snprintf(errmsg, sizeof(errmsg),
                     "element %d not found for packet 6\n", elemid);
             cfxImportFatal(errmsg);
         }
         if (0 == nnodes)
         {
-            sprintf(errmsg,
+            snprintf(errmsg, sizeof(errmsg),
                     "invalid face number for element %d\n", elemid);
             cfxImportFatal(errmsg);
         }
@@ -380,7 +380,7 @@ int main(int argc, char **argv)
             nr = wallregions[i];
             wallregionscount[i] = 0;
 
-            sprintf(regname, "wall%d", nr);
+            snprintf(regname, sizeof(regname), "wall%d", nr);
             fprintf(outfp, "adding region %s\n", regname);
             cfxImportBegReg(regname, cfxImpREG_FACES);
 
@@ -457,7 +457,7 @@ int main(int argc, char **argv)
             nr = wallregions[i];
             wallregionscount[i] = 0;
 
-            sprintf(regname, "wall%d", nr);
+            snprintf(regname, sizeof(regname), "wall%d", nr);
             fprintf(outfp, "adding region %s\n", regname);
             cfxImportBegReg(regname, cfxImpREG_FACES);
 
@@ -537,7 +537,7 @@ int main(int argc, char **argv)
             nr = balanceregions[i];
             balanceregionscount[i] = 0;
 
-            sprintf(regname, "balance%d", nr);
+            snprintf(regname, sizeof(regname), "balance%d", nr);
             fprintf(outfp, "adding region %s\n", regname);
             cfxImportBegReg(regname, cfxImpREG_FACES);
 
@@ -622,7 +622,7 @@ if (nr==107)
             nr = balanceregions[i];
             balanceregionscount[i] = 0;
 
-            sprintf(regname, "balance%d", nr);
+            snprintf(regname, sizeof(regname), "balance%d", nr);
             fprintf(outfp, "adding region %s\n", regname);
             cfxImportBegReg(regname, cfxImpREG_FACES);
 
@@ -690,18 +690,18 @@ if (nr==107)
 
         if (mtype == 1)
         {
-            sprintf(filename, "inletboco.csv");
+            snprintf(filename, sizeof(filename), "inletboco.csv");
         }
         if (mtype == 3)
         {
-            sprintf(filename, "inletboco.csv");
+            snprintf(filename, sizeof(filename), "inletboco.csv");
         }
         fprintf(outfp, "filename: %s\n", filename);
         fprintf(outfp, "numDiriclet: %d\n", numDiriclet);
 
         file = fopen(filename, "w");
         fprintf(file, "[Name]\n");
-        sprintf(balancename, "balance100");
+        snprintf(balancename, sizeof(balancename), "balance100");
         fprintf(file, balancename, "\n");
         fprintf(file, "\n");
         fprintf(file, "[Spatial Fields]\n");

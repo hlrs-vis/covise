@@ -33,7 +33,7 @@ ReadIBB::ReadIBB(int argc, char *argv[])
     port_bila = addOutputPort("bila_elems", "Polygons", "marked elements");
     port_bcin = addOutputPort("bcin", "Polygons", "inlet elements");
 
-    sprintf(buf, "%s/", getenv("HOME"));
+    snprintf(buf, sizeof(buf), "%s/", getenv("HOME"));
     p_geoFile = addFileBrowserParam("geoFile", "Geometry File");
     p_geoFile->setValue(buf, "*.msh;*.MSH");
 
@@ -293,9 +293,9 @@ int ReadIBB::compute(const char *)
                         {
 
                             if (dispCase)
-                                sprintf(buf, "%s_%d", Displacement, step + 1);
+                                snprintf(buf, sizeof(buf), "%s_%d", Displacement, step + 1);
                             else
-                                sprintf(buf, "%s_%d", Velocity, step + 1);
+                                snprintf(buf, sizeof(buf), "%s_%d", Velocity, step + 1);
                             reso = new coDoVec3(buf, (int)result.size());
                             if (!reso->objectOk())
                             {
@@ -355,7 +355,7 @@ int ReadIBB::compute(const char *)
                         }
                         if (strncmp(buf, "END VALUES", 10) == 0)
                         {
-                            sprintf(buf, "%s_%d", Pressure, step + 1);
+                            snprintf(buf, sizeof(buf), "%s_%d", Pressure, step + 1);
                             press = new coDoFloat(buf, (int)pressResult.size());
                             if (!press->objectOk())
                             {

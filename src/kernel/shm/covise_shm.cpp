@@ -243,7 +243,7 @@ SharedMemory::SharedMemory(int shm_key, shmSizeType shm_size, int nD)
     if (use_posix)
     {
         char tmp_str[255];
-        sprintf(tmp_str, "/covise_shm_%0x", key);
+        snprintf(tmp_str, sizeof(tmp_str), "/covise_shm_%0x", key);
         while ((shmfd = shm_open(tmp_str, O_RDWR, S_IRUSR | S_IWUSR)) == -1)
         {
             cerr << "shm_open file " << key << " does not exist\n";
@@ -257,7 +257,7 @@ SharedMemory::SharedMemory(int shm_key, shmSizeType shm_size, int nD)
     handle = INVALID_HANDLE_VALUE;
 #else
     char tmp_str[255];
-    sprintf(tmp_str, "%s\\%d", getenv("tmp"), key);
+    snprintf(tmp_str, sizeof(tmp_str), "%s\\%d", getenv("tmp"), key);
     while ((handle = CreateFile(tmp_str, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
                                 NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL)) == INVALID_HANDLE_VALUE)
     {
@@ -434,7 +434,7 @@ SharedMemory::SharedMemory(int *shm_key, shmSizeType shm_size)
 
         // write shared meory key into file for removal after crash
         char tmp_fname[100];
-        sprintf(tmp_fname, "/tmp/covise_shm_%d", getuid());
+        snprintf(tmp_fname, sizeof(tmp_fname), "/tmp/covise_shm_%d", getuid());
         FILE *hdl = fopen(tmp_fname, "a+");
         if (hdl)
         {
@@ -447,16 +447,16 @@ SharedMemory::SharedMemory(int *shm_key, shmSizeType shm_size)
     if (use_posix)
     {
         char buf[255];
-        sprintf(buf, "/covise_shm_%0x", key);
+        snprintf(buf, sizeof(buf), "/covise_shm_%0x", key);
         while ((shmfd = shm_open(buf, O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR)) == -1)
         {
             key++;
-            sprintf(buf, "/covise_shm_%0x", key);
+            snprintf(buf, sizeof(buf), "/covise_shm_%0x", key);
         }
 
         // write shared meory key into file for removal after crash
         char tmp_fname[100];
-        sprintf(tmp_fname, "/tmp/covise_shm_%d", getuid());
+        snprintf(tmp_fname, sizeof(tmp_fname), "/tmp/covise_shm_%d", getuid());
         FILE *hdl = fopen(tmp_fname, "a+");
         if (hdl)
         {
@@ -466,7 +466,7 @@ SharedMemory::SharedMemory(int *shm_key, shmSizeType shm_size)
     }
 #endif
 #else
-    sprintf(tmp_str, "%s\\%d", getenv("tmp"), key);
+    snprintf(tmp_str, sizeof(tmp_str), "%s\\%d", getenv("tmp"), key);
 #ifdef USE_PAGEFILE
     handle = INVALID_HANDLE_VALUE;
 #else
@@ -474,13 +474,13 @@ SharedMemory::SharedMemory(int *shm_key, shmSizeType shm_size)
                                 NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL)) == INVALID_HANDLE_VALUE)
     {
         key++;
-        sprintf(tmp_str, "%s\\%d", getenv("tmp"), key);
+        snprintf(tmp_str, sizeof(tmp_str), "%s\\%d", getenv("tmp"), key);
     }
 #endif
 #endif
     *shm_key = key;
 #ifdef DEBUG
-    sprintf(tmp_str, "new SharedMemory; key: %x  size: %d", key, size);
+    snprintf(tmp_str, sizeof(tmp_str), "new SharedMemory; key: %x  size: %d", key, size);
     print_comment(__LINE__, __FILE__, tmp_str);
 
 #endif
@@ -622,7 +622,7 @@ SharedMemory::~SharedMemory()
         if (!noDelete)
         {
             char tmp_str[255];
-            sprintf(tmp_str, "/covise_shm_%0x", key);
+            snprintf(tmp_str, sizeof(tmp_str), "/covise_shm_%0x", key);
             if (shm_unlink(tmp_str))
             {
                 fprintf(stderr, "can't remove shared mem, key=%s: %s\n", tmp_str, strerror(errno));
@@ -663,7 +663,7 @@ SharedMemory::~SharedMemory()
     // try to delete shared memory
     // can only be done if all other processes locking the shared memeory are dead
     char tmp_str[255];
-    sprintf(tmp_str, "%s\\%d", getenv("tmp"), key);
+    snprintf(tmp_str, sizeof(tmp_str), "%s\\%d", getenv("tmp"), key);
     if (!noDelete)
     {
         for (int itt = 0; itt < 5; itt++)
@@ -801,7 +801,7 @@ void SharedMemory::get_shmlist(int *ptr)
         ptr[++i] = shmptr->key;
         ptr[++i] = shmptr->size - 2 * sizeof(int); // pointer to a shared memory which is two integers larger seq_nr and key
 #ifdef DEBUG
-        sprintf(tmp_str, "get_shmlist(%d, %d)", shmptr->key, shmptr->size);
+        snprintf(tmp_str, sizeof(tmp_str), "get_shmlist(%d, %d)", shmptr->key, shmptr->size);
         print_comment(__LINE__, __FILE__, tmp_str);
 #endif
     }

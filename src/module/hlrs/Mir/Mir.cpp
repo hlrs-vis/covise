@@ -40,7 +40,7 @@ void Application::run()
     Covise::sendInfo("MIR computation starting up");
     // send EXECUTE if finished
     char buf[200];
-    sprintf(buf, "E%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+    snprintf(buf, sizeof(buf), "E%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
     Covise::set_feedback_info(buf);
     while (1)
     {
@@ -90,7 +90,7 @@ void Application::quit(void *callbackData)
     //
     // ...... delete your data here .....
 
-    sprintf(message, "MIR computation finished and exiting");
+    snprintf(message, sizeof(message), "MIR computation finished and exiting");
     Covise::sendInfo(message);
 }
 
@@ -137,7 +137,7 @@ void Application::compute(void *callbackData)
     {
         computeit = 0;
     }
-    sprintf(message, "Visualizing MIR iteration step no. %d", current_step);
+    snprintf(message, sizeof(message), "Visualizing MIR iteration step no. %d", current_step);
     Covise::sendInfo(message);
     x_coord = new double[num_cells];
     y_coord = new double[num_cells];
@@ -226,7 +226,7 @@ void covise_update_(
     num_cells = *dim;
     // Tell COVSIE that we have finished another iteration
     //
-    sprintf(message, "Computed MIR iteration step no. %d", current_step);
+    snprintf(message, sizeof(message), "Computed MIR iteration step no. %d", current_step);
     Covise::sendInfo(message);
 
     // check for COVISE requests

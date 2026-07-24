@@ -384,20 +384,20 @@ xercesc::DOMElement *Wire::Save(xercesc::DOMDocument &document)
 
     element->appendChild(document.createTextNode(xercesc::XMLString::transcode(this->identStr())));
     element->setAttribute(xercesc::XMLString::transcode("depth"), xercesc::XMLString::transcode(this->getName()));
-    sprintf(tmp, "%f", this->getPosRadius());
+    snprintf(tmp, sizeof(tmp), "%f", this->getPosRadius());
     element->setAttribute(xercesc::XMLString::transcode("posRadius"), xercesc::XMLString::transcode(tmp));
-    sprintf(tmp, "%f", this->rad2grad(this->getPosAngle()));
+    snprintf(tmp, sizeof(tmp), "%f", this->rad2grad(this->getPosAngle()));
     element->setAttribute(xercesc::XMLString::transcode("posAngle"), xercesc::XMLString::transcode(tmp));
-    sprintf(tmp, "%f", this->R);
+    snprintf(tmp, sizeof(tmp), "%f", this->R);
     element->setAttribute(xercesc::XMLString::transcode("Radius"), xercesc::XMLString::transcode(tmp));
     color = this->getColor();
-    sprintf(tmp, "%f", color[0]);
+    snprintf(tmp, sizeof(tmp), "%f", color[0]);
     element->setAttribute(xercesc::XMLString::transcode("Color0"), xercesc::XMLString::transcode(tmp));
-    sprintf(tmp, "%f", color[1]);
+    snprintf(tmp, sizeof(tmp), "%f", color[1]);
     element->setAttribute(xercesc::XMLString::transcode("Color1"), xercesc::XMLString::transcode(tmp));
-    sprintf(tmp, "%f", color[2]);
+    snprintf(tmp, sizeof(tmp), "%f", color[2]);
     element->setAttribute(xercesc::XMLString::transcode("Color2"), xercesc::XMLString::transcode(tmp));
-    sprintf(tmp, "%f", color[3]);
+    snprintf(tmp, sizeof(tmp), "%f", color[3]);
     element->setAttribute(xercesc::XMLString::transcode("Color3"), xercesc::XMLString::transcode(tmp));
 
     return element;

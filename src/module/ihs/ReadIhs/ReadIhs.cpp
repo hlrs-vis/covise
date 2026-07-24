@@ -29,9 +29,9 @@ ReadIhs::ReadIhs(int argc, char **argv) : coSimpleModule(argc, argv, "Read data 
    const char *defaultDir = getenv("HOME");
 #endif
    if(defaultDir)
-      sprintf(buf,"%s/",defaultDir);
+      snprintf(buf, sizeof(buf),"%s/",defaultDir);
    else
-      sprintf(buf,"/data/");
+      snprintf(buf, sizeof(buf),"/data/");
 	grid_path = addFileBrowserParam("grid_path","Grid file path");
 	grid_path->setValue(buf,"*.geo;*.GEO");
 
@@ -202,11 +202,11 @@ int ReadIhs::compute(const char *)
 				{
 					if(gzeros)
 					{
-						sprintf(buf,"%s%0*d%s",gp,gnumNumbers,gfileNumber,gpend);
+						snprintf(buf, sizeof(buf),"%s%0*d%s",gp,gnumNumbers,gfileNumber,gpend);
 						//fprintf(stderr,"Opening file %s\n",buf);
 					}
 					else
-						sprintf(buf,"%s%d%s",gp,gfileNumber,gpend);
+						snprintf(buf, sizeof(buf),"%s%d%s",gp,gfileNumber,gpend);
 					if ((grid_fp = fopen(buf, "r")) != NULL)
 					{
 						fclose(grid_fp);
@@ -248,7 +248,7 @@ int ReadIhs::compute(const char *)
 		if(!reuseMesh)
 		{
 
-			sprintf(buf2,"Reading grid timestep %d\n",gfileNumber);
+			snprintf(buf2, sizeof(buf2),"Reading grid timestep %d\n",gfileNumber);
 			sendInfo("%s",buf2);
 			// get rid of the header
 #ifdef NEW_HEADER
@@ -336,7 +336,7 @@ int ReadIhs::compute(const char *)
 				{
 					tbt=tb=new int[n_coord];
 					if(n_timesteps>1)
-						sprintf(buf,"%s_%d",Mesh,t);
+						snprintf(buf, sizeof(buf),"%s_%d",Mesh,t);
 					else
 						strcpy(buf,Mesh);
 					//neues Datenobjekt anlegen (buf ist der Name des Objekts,
@@ -571,11 +571,11 @@ int ReadIhs::compute(const char *)
 			{
 				if(zeros)
 				{
-					sprintf(buf,"%s%0*d%s",dp,numNumbers,fileNumber,dpend);
+					snprintf(buf, sizeof(buf),"%s%0*d%s",dp,numNumbers,fileNumber,dpend);
 					//fprintf(stderr,"Opening file %s\n",buf);
 				}
 				else
-					sprintf(buf,"%s%d%s",dp,fileNumber,dpend);
+					snprintf(buf, sizeof(buf),"%s%d%s",dp,fileNumber,dpend);
 					if ((grid_fp = Covise::fopen(buf, "r")) != NULL)
 					{
 						fclose(grid_fp);
@@ -616,7 +616,7 @@ int ReadIhs::compute(const char *)
 		int iret = sscanf(buf,"%d%d%d%d%d%d\n",&erg_head[0],&erg_head[1],&erg_head[2],&erg_head[3],&erg_head[4],&erg_head[5]);
 		if(iret != 6)
 			fprintf(stderr,"ReadIhs::compute(const char *) sscanf error read %d elements \n",iret);
-		sprintf(buf2,"%8d%8d%8d%8d%8d%8d\n",
+		snprintf(buf2, sizeof(buf2),"%8d%8d%8d%8d%8d%8d\n",
 				erg_head[0],erg_head[1],erg_head[2],erg_head[3],erg_head[4],erg_head[5]);
 		fprintf(stderr,"ReadIhs::compute(const char *) header: %s\n",buf2);
 		sendInfo("%s",buf2);
@@ -629,7 +629,7 @@ int ReadIhs::compute(const char *)
 			fgets(buf,300,data_fp);
 #endif
 
-		sprintf(buf2,"Reading data timestep %d\n",fileNumber);
+		snprintf(buf2, sizeof(buf2),"Reading data timestep %d\n",fileNumber);
 		sendInfo("%s",buf2);
 
 		int coord_erg = erg_head[0];
@@ -638,7 +638,7 @@ int ReadIhs::compute(const char *)
 		if( Veloc != 0)
 		{
 			if(n_timesteps>1)
-				sprintf(buf,"%s_%d",Veloc,t);
+				snprintf(buf, sizeof(buf),"%s_%d",Veloc,t);
 			else
 				strcpy(buf,Veloc);
 			veloc = new coDoVec3(buf, n_coord);
@@ -648,7 +648,7 @@ int ReadIhs::compute(const char *)
 				if( Press != 0)
 				{
 					if(n_timesteps>1)
-						sprintf(buf,"%s_%d",Press,t);
+						snprintf(buf, sizeof(buf),"%s_%d",Press,t);
 					else
 						strcpy(buf,Press);
 					press = new coDoFloat(buf, n_coord);
@@ -658,7 +658,7 @@ int ReadIhs::compute(const char *)
 						if( K_name != 0)
 						{
 							if(n_timesteps>1)
-								sprintf(buf,"%s_%d",K_name,t);
+								snprintf(buf, sizeof(buf),"%s_%d",K_name,t);
 							else
 								strcpy(buf,K_name);
 							K = new coDoFloat(buf, n_coord);
@@ -668,7 +668,7 @@ int ReadIhs::compute(const char *)
 								if( EPS_name != 0)
 								{
 									if(n_timesteps>1)
-										sprintf(buf,"%s_%d",EPS_name,t);
+										snprintf(buf, sizeof(buf),"%s_%d",EPS_name,t);
 									else
 										strcpy(buf,EPS_name);
 									EPS = new coDoFloat(buf, n_coord);
@@ -678,7 +678,7 @@ int ReadIhs::compute(const char *)
 										if( RHO_name != 0)
 										{
 											if(n_timesteps>1)
-												sprintf(buf,"%s_%d",RHO_name,t);
+												snprintf(buf, sizeof(buf),"%s_%d",RHO_name,t);
 											else
 												strcpy(buf,RHO_name);
 
@@ -689,7 +689,7 @@ int ReadIhs::compute(const char *)
 												if( STR_name != 0)
 												{
 													if(n_timesteps>1)
-														sprintf(buf,"%s_%d",STR_name,t);
+														snprintf(buf, sizeof(buf),"%s_%d",STR_name,t);
 													else
 														strcpy(buf,STR_name);
 

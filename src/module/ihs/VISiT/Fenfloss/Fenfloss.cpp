@@ -798,7 +798,7 @@ void Fenfloss::StopSimulation(void)
 	char simStop[255];
 
 	stopshell = ConnectionString();
-	sprintf(simStop, "%s '%s kill'", stopshell, SimBatchString());
+	snprintf(simStop, sizeof(simStop), "%s '%s kill'", stopshell, SimBatchString());
 	if(system(simStop)==-1)
            dprintf(1, "Fenfloss::StopSimulation: execution of %s failed\n", simStop);
 	if (stopshell) free(stopshell);
@@ -818,7 +818,7 @@ void Fenfloss::PrepareSimStart(int numProc)
 	int simAppl;
 
 	dprintf(1, "Fenfloss::PrepareSimStart(%d)\n", numProc);
-	sprintf(sNumNodes, "%d", numProc);
+	snprintf(sNumNodes, sizeof(sNumNodes), "%d", numProc);
 	startshell = ConnectionString();
 
 	connMeth = p_ConnectionMethod->getValue();
@@ -829,18 +829,18 @@ void Fenfloss::PrepareSimStart(int numProc)
 	const char *caseString = p_StartupSwitch->getActLabel();
 
 	if (!strcmp(s_ConnectionMethod[connMeth], "echo"))
-		sprintf(simStart, "echo -T \"flow_%s\" -e %s start %s %d", caseString, SimBatchString(), caseString, numProc);
+		snprintf(simStart, sizeof(simStart), "echo -T \"flow_%s\" -e %s start %s %d", caseString, SimBatchString(), caseString, numProc);
 #ifdef WIN32
 	else if (!strcmp(s_ConnectionMethod[connMeth], "WMI"))
 	{
-		sprintf(simStart, "\"%s start %s %d\" \" \" \"%s\" \" %s \"",  SimBatchString(), caseString, numProc, p_Hostname->getValue(), p_User->getValue());
+		snprintf(simStart, sizeof(simStart), "\"%s start %s %d\" \" \" \"%s\" \" %s \"",  SimBatchString(), caseString, numProc, p_Hostname->getValue(), p_User->getValue());
 		fprintf(stderr,"simStart='%s'\n", simStart);
 	}
 #endif
 	else if (!strcmp(s_ConnectionMethod[connMeth], "rdaemon"))
 	{
-		sprintf(simStart, "\"%s start %s %d %s\" \" \" \"%s\" \" %s \"",  SimBatchString(), caseString, numProc, s_simApplication[simAppl], p_Hostname->getValue(), p_User->getValue());
-           //sprintf(simStart, "\"%s start %s %d\" \" \" \"%s\" \" %s \"",  SimBatchString(), caseString, numProc, p_Hostname->getValue(), p_User->getValue());
+		snprintf(simStart, sizeof(simStart), "\"%s start %s %d %s\" \" \" \"%s\" \" %s \"",  SimBatchString(), caseString, numProc, s_simApplication[simAppl], p_Hostname->getValue(), p_User->getValue());
+           //snprintf(simStart, sizeof(simStart), "\"%s start %s %d\" \" \" \"%s\" \" %s \"",  SimBatchString(), caseString, numProc, p_Hostname->getValue(), p_User->getValue());
 		   
 		   dprintf(3,"\n\nsimStart='%s'\n\n", simStart);
 	}
@@ -861,7 +861,7 @@ void Fenfloss::PrepareSimStart(int numProc)
 	}
 	// execProcessWMI: commandLine, workingdirectory, host, user, password
 	else {
-           sprintf(simStart, "%s start %s %d %s", SimBatchString(), caseString, numProc, s_simApplication[simAppl]);
+           snprintf(simStart, sizeof(simStart), "%s start %s %d %s", SimBatchString(), caseString, numProc, s_simApplication[simAppl]);
         }
 
 	setUserArg(1,simStart);
@@ -906,12 +906,12 @@ char *Fenfloss::ConnectionString()
 	   
 	   memset(user, 0, sizeof(user));
 	   if (p_User->getValue() && *p_User->getValue())
-	      sprintf(user, "-l %s", p_User->getValue());
-	   sprintf(connStr, "%s %s %s", s_ConnectionMethod[connMeth],
+	      snprintf(user, sizeof(user), "-l %s", p_User->getValue());
+	   snprintf(connStr, sizeof(connStr), "%s %s %s", s_ConnectionMethod[connMeth],
 		   user, p_Hostname->getValue());
 	}
 #else
-	sprintf(connStr, "%s", s_ConnectionMethod[connMeth]);
+	snprintf(connStr, sizeof(connStr), "%s", s_ConnectionMethod[connMeth]);
 #endif
 
 	return strdup(connStr);

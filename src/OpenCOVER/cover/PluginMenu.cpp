@@ -127,7 +127,7 @@ void PluginMenu::scanPlugins()
     std::string bundlepath = covise::getBundlePath();
     if (!bundlepath.empty())
     {
-        sprintf(buf, "%s/Contents/PlugIns/", bundlepath.c_str());
+        snprintf(buf, sizeof(buf), "%s/Contents/PlugIns/", bundlepath.c_str());
         paths.push_back(buf);
     }
 #endif
@@ -141,9 +141,9 @@ void PluginMenu::scanPlugins()
         for (std::vector<std::string>::iterator it = p.begin(); it != p.end(); ++it)
         {
 #ifdef WIN32
-            sprintf(buf, "%s\\%s\\lib\\OpenCOVER\\plugins", it->c_str(), archsuffix);
+            snprintf(buf, sizeof(buf), "%s\\%s\\lib\\OpenCOVER\\plugins", it->c_str(), archsuffix);
 #else
-            sprintf(buf, "%s/%s/lib/OpenCOVER/plugins", it->c_str(), archsuffix);
+            snprintf(buf, sizeof(buf), "%s/%s/lib/OpenCOVER/plugins", it->c_str(), archsuffix);
 #endif
             paths.push_back(buf);
         }
@@ -151,9 +151,9 @@ void PluginMenu::scanPlugins()
     else if ((coviseDir != NULL) && (archsuffix != NULL))
     {
 #ifdef WIN32
-        sprintf(buf, "%s\\%s\\lib\\OpenCOVER\\plugins", coviseDir, archsuffix);
+        snprintf(buf, sizeof(buf), "%s\\%s\\lib\\OpenCOVER\\plugins", coviseDir, archsuffix);
 #else
-        sprintf(buf, "%s/%s/lib/OpenCOVER/plugins", coviseDir, archsuffix);
+        snprintf(buf, sizeof(buf), "%s/%s/lib/OpenCOVER/plugins", coviseDir, archsuffix);
 #endif
         paths.push_back(buf);
     }

@@ -325,7 +325,7 @@ int Tracer::compute(const char *)
     if (autoTitle)
     {
         char buf[64];
-        sprintf(buf, "Tracer-%s", get_instance());
+        snprintf(buf, sizeof(buf), "Tracer-%s", get_instance());
         setTitle(buf);
     }
 
@@ -557,20 +557,20 @@ Tracer::AddInteractionAttributes()
         static char interaction[512];
         if (p_startStyle->getValue() == Tracer::SQUARE)
         {
-            sprintf(interaction, "P%s\n%s\n%s\n", get_module(),
+            snprintf(interaction, sizeof(interaction), "P%s\n%s\n%s\n", get_module(),
                     get_instance(),
                     get_host());
         }
         else if (startStyle == Tracer::LINE)
         {
-            sprintf(interaction, "T%s\n%s\n%s\n", get_module(),
+            snprintf(interaction, sizeof(interaction), "T%s\n%s\n%s\n", get_module(),
                     get_instance(),
                     get_host());
         }
 #ifndef _COMPLEX_MODULE_
         else if (startStyle == Tracer::CYLINDER)
         {
-            sprintf(interaction, "T%s\n%s\n%s\n", get_module(),
+            snprintf(interaction, sizeof(interaction), "T%s\n%s\n%s\n", get_module(),
                     get_instance(),
                     get_host());
         }
@@ -588,13 +588,13 @@ Tracer::addFeedbackParams(coFeedback &feedback, const char *&oldstyleAttrib)
     static char interaction[512];
     if (p_startStyle->getValue() == Tracer::SQUARE)
     {
-        sprintf(interaction, "P%s\n%s\n%s\n", get_module(),
+        snprintf(interaction, sizeof(interaction), "P%s\n%s\n%s\n", get_module(),
                 get_instance(),
                 get_host());
     }
     else if (startStyle == Tracer::LINE)
     {
-        sprintf(interaction, "T%s\n%s\n%s\n", get_module(),
+        snprintf(interaction, sizeof(interaction), "T%s\n%s\n%s\n", get_module(),
                 get_instance(),
                 get_host());
     }
@@ -651,14 +651,14 @@ Tracer::addFeedbackParams(coFeedback &feedback, const char *&oldstyleAttrib)
         IniPoints.getPoints(&x_ini, &y_ini, &z_ini);
 
         char buf[256];
-        sprintf(buf, "%d", no_initial_points);
+        snprintf(buf, sizeof(buf), "%d", no_initial_points);
 
         string ost(buf);
 
         int point;
         for (point = 0; point < no_initial_points; ++point)
         {
-            sprintf(buf, " %g %g %g", x_ini[point], y_ini[point], z_ini[point]);
+            snprintf(buf, sizeof(buf), " %g %g %g", x_ini[point], y_ini[point], z_ini[point]);
             ost += buf;
         }
         delete[] x_ini;
@@ -871,7 +871,7 @@ Tracer::ComplexObject()
                 int numColors = ((coDoRGBA *)setListColors[curSetEle])->getNumPoints();
 
                 char colorsName[256];
-                sprintf(colorsName, "CombinedColors_RGBA_Data_%d", curSetEle);
+                snprintf(colorsName, sizeof(colorsName), "CombinedColors_RGBA_Data_%d", curSetEle);
                 outColorList[curSetEle] = new coDoRGBA(colorsName, numComplexObjectColors + numColors);
 
                 float r, g, b, a;
@@ -1376,7 +1376,7 @@ Tracer::param(const char *paramname, bool inMapLoading)
     {
         // find out "real" module name
         char realTitle[1024];
-        sprintf(realTitle, "%s_%s", get_module(), get_instance());
+        snprintf(realTitle, sizeof(realTitle), "%s_%s", get_module(), get_instance());
 
         // if it differs from the title - disable automatig settings
         if (strcmp(realTitle, getTitle()) != 0)

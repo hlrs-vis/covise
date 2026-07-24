@@ -82,9 +82,9 @@ ShmMessage::ShmMessage(data_type *d, long *count, int no)
     conn = NULL;
     type = COVISE_MESSAGE_SHM_MALLOC_LIST;
 #ifdef DEBUG
-    sprintf(tmp_str, "ShmMessage::ShmMessage");
+    snprintf(tmp_str, sizeof(tmp_str), "ShmMessage::ShmMessage");
     LOGINFO(tmp_str);
-    sprintf(tmp_str, "no: %d", no);
+    snprintf(tmp_str, sizeof(tmp_str), "no: %d", no);
     LOGINFO(tmp_str);
 #endif
     data = DataHandle(no * (sizeof(data_type) + sizeof(long)));
@@ -92,19 +92,19 @@ ShmMessage::ShmMessage(data_type *d, long *count, int no)
     {
         *(data_type *)(data.accessData() + j) = d[i];
 #ifdef DEBUG
-        sprintf(tmp_str, "data_type: %ld", *(data_type *)(data + j));
+        snprintf(tmp_str, sizeof(tmp_str), "data_type: %ld", *(data_type *)(data + j));
         LOGINFO(tmp_str);
 #endif
         j += sizeof(data_type);
         *(long *)(data.accessData() + j) = count[i];
 #ifdef DEBUG
-        sprintf(tmp_str, "size: %ld", *(long *)(data + j));
+        snprintf(tmp_str, sizeof(tmp_str), "size: %ld", *(long *)(data + j));
         LOGINFO(tmp_str);
 #endif
         j += sizeof(long);
     }
 #ifdef DEBUG
-    sprintf(tmp_str, "j: %d", j);
+    snprintf(tmp_str, sizeof(tmp_str), "j: %d", j);
     LOGINFO(tmp_str);
 #endif
 }
@@ -122,9 +122,9 @@ ShmMessage::ShmMessage(char *name, int otype, data_type *d, long *count, int no)
     conn = NULL;
     type = COVISE_MESSAGE_NEW_OBJECT_SHM_MALLOC_LIST;
 #ifdef DEBUG
-    sprintf(tmp_str, "ShmMessage::ShmMessage");
+    snprintf(tmp_str, sizeof(tmp_str), "ShmMessage::ShmMessage");
     LOGINFO(tmp_str);
-    sprintf(tmp_str, "no: %d", no);
+    snprintf(tmp_str, sizeof(tmp_str), "no: %d", no);
     LOGINFO(tmp_str);
 #endif
     int l = strlen(name) + 1;
@@ -142,19 +142,19 @@ ShmMessage::ShmMessage(char *name, int otype, data_type *d, long *count, int no)
     {
         *(data_type *)(tmp_data + j) = d[i];
 #ifdef DEBUG
-        sprintf(tmp_str, "data_type: %ld", *(data_type *)(tmp_data + j));
+        snprintf(tmp_str, sizeof(tmp_str), "data_type: %ld", *(data_type *)(tmp_data + j));
         LOGINFO(tmp_str);
 #endif
         j += sizeof(data_type);
         *(long *)(tmp_data + j) = count[i];
 #ifdef DEBUG
-        sprintf(tmp_str, "size: %ld", *(long *)(tmp_data + j));
+        snprintf(tmp_str, sizeof(tmp_str), "size: %ld", *(long *)(tmp_data + j));
         LOGINFO(tmp_str);
 #endif
         j += sizeof(long);
     }
 #ifdef DEBUG
-    sprintf(tmp_str, "j: %d", j);
+    snprintf(tmp_str, sizeof(tmp_str), "j: %d", j);
     LOGINFO(tmp_str);
 #endif
 }
@@ -227,19 +227,19 @@ void CtlMessage::init_list()
         tmpchptr = strsep(&p, "\n");
         port_names[i] = new char[strlen(tmpchptr) + 1];
         strcpy(port_names[i], tmpchptr);
-        //sprintf(tmp_str, "getting %s", port_names[i]);
+        //snprintf(tmp_str, sizeof(tmp_str), "getting %s", port_names[i]);
         //LOGINFO( tmp_str);
 
         tmpchptr = strsep(&p, "\n");
         object_names[i] = new char[strlen(tmpchptr) + 1];
         strcpy(object_names[i], tmpchptr);
-        //sprintf(tmp_str, "getting %s", object_names[i]);
+        //snprintf(tmp_str, sizeof(tmp_str), "getting %s", object_names[i]);
         //LOGINFO( tmp_str);
 
         tmpchptr = strsep(&p, "\n");
         object_types[i] = new char[strlen(tmpchptr) + 1];
         strcpy(object_types[i], tmpchptr);
-        //sprintf(tmp_str, "getting %s", object_types[i]);
+        //snprintf(tmp_str, sizeof(tmp_str), "getting %s", object_types[i]);
         //LOGINFO( tmp_str);
 
         // new aw 25-07-2000 "CONNECTED" message
@@ -1265,11 +1265,11 @@ int CtlMessage::create_finall_message()
     strcat(d, h_name);
     strcat(d, "\n");
 
-    sprintf(numbuf, "%d\n", no_of_params_out);
+    snprintf(numbuf, sizeof(numbuf), "%d\n", no_of_params_out);
     strcat(d, numbuf);
-    sprintf(numbuf, "%d\n", no_of_save_objects);
+    snprintf(numbuf, sizeof(numbuf), "%d\n", no_of_save_objects);
     strcat(d, numbuf);
-    sprintf(numbuf, "%d\n", no_of_release_objects);
+    snprintf(numbuf, sizeof(numbuf), "%d\n", no_of_release_objects);
     strcat(d, numbuf);
 
     for (i = 0; i < no_of_params_out; i++)
@@ -1283,7 +1283,7 @@ int CtlMessage::create_finall_message()
         case STRING:
             strcat(d, "String");
             strcat(data.accessData(), "\n");
-            sprintf(numbuf, "%d\n", params_out[i]->no);
+            snprintf(numbuf, sizeof(numbuf), "%d\n", params_out[i]->no);
             strcat(d, numbuf);
             strcat(d, ((ParamString *)params_out[i])->list);
             strcat(d, "\n");
@@ -1293,10 +1293,10 @@ int CtlMessage::create_finall_message()
             strcpy(d, "Text");
             strcat(d, "\n");
             // no of tokens
-            sprintf(numbuf, "%d\n", (params_out[i]->no) + 1);
+            snprintf(numbuf, sizeof(numbuf), "%d\n", (params_out[i]->no) + 1);
             strcat(d, numbuf);
             // string length
-            sprintf(numbuf, "%d\n", ((ParamText *)params_out[i])->length);
+            snprintf(numbuf, sizeof(numbuf), "%d\n", ((ParamText *)params_out[i])->length);
             strcat(d, numbuf);
             for (j = 0; j < ((ParamText *)params_out[i])->line_num; j++)
             {
@@ -1308,7 +1308,7 @@ int CtlMessage::create_finall_message()
         case COVISE_BOOLEAN:
             strcat(d, "Boolean");
             strcat(d, "\n");
-            sprintf(numbuf, "%d\n", params_out[i]->no);
+            snprintf(numbuf, sizeof(numbuf), "%d\n", params_out[i]->no);
             strcat(d, numbuf);
             strcat(d, ((ParamBoolean *)params_out[i])->list);
             strcat(d, "\n");
@@ -1317,7 +1317,7 @@ int CtlMessage::create_finall_message()
         case BROWSER:
             strcat(d, "Browser");
             strcat(d, "\n");
-            sprintf(numbuf, "%d\n", params_out[i]->no);
+            snprintf(numbuf, sizeof(numbuf), "%d\n", params_out[i]->no);
             strcat(d, numbuf);
             strcat(d, ((ParamBrowser *)params_out[i])->list);
             strcat(d, "\n");
@@ -1326,7 +1326,7 @@ int CtlMessage::create_finall_message()
         case FLOAT_SLIDER:
             strcat(d, "FloatSlider");
             strcat(d, "\n");
-            sprintf(numbuf, "%d\n", params_out[i]->no);
+            snprintf(numbuf, sizeof(numbuf), "%d\n", params_out[i]->no);
             strcat(d, numbuf);
             strcat(d, ((ParamFloatSlider *)params_out[i])->list[0]);
             strcat(d, "\n");
@@ -1339,7 +1339,7 @@ int CtlMessage::create_finall_message()
         case INT_SLIDER:
             strcat(d, "IntSlider");
             strcat(d, "\n");
-            sprintf(numbuf, "%d\n", params_out[i]->no);
+            snprintf(numbuf, sizeof(numbuf), "%d\n", params_out[i]->no);
             strcat(d, numbuf);
             strcat(d, ((ParamIntSlider *)params_out[i])->list[0]);
             strcat(d, "\n");
@@ -1352,7 +1352,7 @@ int CtlMessage::create_finall_message()
         case COLORMAP_MSG:
             strcat(d, "Colormap");
             strcat(d, "\n");
-            sprintf(numbuf, "%d\n", params_out[i]->no);
+            snprintf(numbuf, sizeof(numbuf), "%d\n", params_out[i]->no);
             strcat(d, numbuf);
             for (j = 0; j < params_out[i]->no; j++)
             {
@@ -1364,7 +1364,7 @@ int CtlMessage::create_finall_message()
         case COLOR_MSG:
             strcat(d, "Color");
             strcat(d, "\n");
-            sprintf(numbuf, "%d\n", params_out[i]->no);
+            snprintf(numbuf, sizeof(numbuf), "%d\n", params_out[i]->no);
             strcat(d, numbuf);
             for (j = 0; j < params_out[i]->no; j++)
             {
@@ -1376,9 +1376,9 @@ int CtlMessage::create_finall_message()
         case CHOICE:
             strcat(d, "Choice");
             strcat(d, "\n");
-            sprintf(numbuf, "%d\n", (params_out[i]->no) + 1);
+            snprintf(numbuf, sizeof(numbuf), "%d\n", (params_out[i]->no) + 1);
             strcat(d, numbuf);
-            sprintf(numbuf, "%d\n", ((ParamChoice *)params_out[i])->sel);
+            snprintf(numbuf, sizeof(numbuf), "%d\n", ((ParamChoice *)params_out[i])->sel);
             strcat(d, numbuf);
             for (j = 0; j < params_out[i]->no; j++)
             {
@@ -1391,7 +1391,7 @@ int CtlMessage::create_finall_message()
         case FLOAT_VECTOR:
             strcat(d, "FloatVector");
             strcat(d, "\n");
-            sprintf(numbuf, "%d\n", params_out[i]->no);
+            snprintf(numbuf, sizeof(numbuf), "%d\n", params_out[i]->no);
             strcat(d, numbuf);
             for (j = 0; j < params_out[i]->no; j++)
             {
@@ -1403,7 +1403,7 @@ int CtlMessage::create_finall_message()
         case INT_VECTOR:
             strcat(d, "IntVector");
             strcat(d, "\n");
-            sprintf(numbuf, "%d\n", params_out[i]->no);
+            snprintf(numbuf, sizeof(numbuf), "%d\n", params_out[i]->no);
             strcat(d, numbuf);
             for (j = 0; j < params_out[i]->no; j++)
             {
@@ -1415,7 +1415,7 @@ int CtlMessage::create_finall_message()
         case FLOAT_SCALAR:
             strcat(d, "FloatScalar");
             strcat(d, "\n");
-            sprintf(numbuf, "%d\n", params_out[i]->no);
+            snprintf(numbuf, sizeof(numbuf), "%d\n", params_out[i]->no);
             strcat(d, numbuf);
             strcat(d, ((ParamFloatScalar *)params_out[i])->list);
             strcat(d, "\n");
@@ -1424,7 +1424,7 @@ int CtlMessage::create_finall_message()
         case INT_SCALAR:
             strcat(d, "IntScalar");
             strcat(d, "\n");
-            sprintf(numbuf, "%d\n", params_out[i]->no);
+            snprintf(numbuf, sizeof(numbuf), "%d\n", params_out[i]->no);
             strcat(d, numbuf);
             strcat(d, ((ParamIntScalar *)params_out[i])->list);
             strcat(d, "\n");
@@ -1433,7 +1433,7 @@ int CtlMessage::create_finall_message()
         case TIMER:
             strcat(d, "Timer");
             strcat(d, "\n");
-            sprintf(numbuf, "%d\n", params_out[i]->no);
+            snprintf(numbuf, sizeof(numbuf), "%d\n", params_out[i]->no);
             strcat(d, numbuf);
             strcat(d, ((ParamTimer *)params_out[i])->list[0]);
             strcat(d, "\n");
@@ -1446,7 +1446,7 @@ int CtlMessage::create_finall_message()
         case PASSWD:
             strcat(d, "Passwd");
             strcat(d, "\n");
-            sprintf(numbuf, "%d\n", params_out[i]->no);
+            snprintf(numbuf, sizeof(numbuf), "%d\n", params_out[i]->no);
             strcat(d, numbuf);
             strcat(d, ((ParamPasswd *)params_out[i])->list[0]);
             strcat(d, "\n");
@@ -1584,7 +1584,7 @@ void RenderMessage::init_list()
         tmpchptr = get_part();
         object_names[i] = new char[strlen(tmpchptr) + 1];
         strcpy(object_names[i], tmpchptr);
-        //sprintf(tmp_str, "getting %s", object_names[i]);
+        //snprintf(tmp_str, sizeof(tmp_str), "getting %s", object_names[i]);
         //LOGINFO( tmp_str);
     }
 }

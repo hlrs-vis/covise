@@ -65,7 +65,7 @@ TraceModule::TraceModule(int ID, const char *n, int mInst, const char *fi, ARTra
     id = ID;
     oldVisibility = true;
     char markerName[100];
-    sprintf(markerName, "%s%d", n, mInst);
+    snprintf(markerName, sizeof(markerName), "%s%d", n, mInst);
     marker = MarkerTracking::instance()->getMarker(markerName);
     arMenuEntry = new coSubMenuItem(markerName);
     plugin->arMenu->add(arMenuEntry);
@@ -293,10 +293,10 @@ void TraceModule::update()
                     {
                         fprintf(stdout, "\a");
                         fflush(stdout);
-                        sprintf(buf, "vertex\nFloatVector\n%f %f %f\n", currentNormal[0], currentNormal[1], currentNormal[2]);
+                        snprintf(buf, sizeof(buf), "vertex\nFloatVector\n%f %f %f\n", currentNormal[0], currentNormal[1], currentNormal[2]);
                         CoviseRender::send_feedback_message("PARAM", buf);
                         CoviseRender::send_feedback_message("PARAM", buf);
-                        sprintf(buf, "scalar\nFloatScalar\n%f\n", c);
+                        snprintf(buf, sizeof(buf), "scalar\nFloatScalar\n%f\n", c);
                         CoviseRender::send_feedback_message("PARAM", buf);
                         CoviseRender::send_feedback_message("PARAM", buf);
                         buf[0] = '\0';
@@ -307,9 +307,9 @@ void TraceModule::update()
                 {
                     fprintf(stdout, "\a");
                     fflush(stdout);
-                    sprintf(buf, "normal\nFloatVector\n%f %f %f\n", currentNormal[0], currentNormal[1], currentNormal[2]);
+                    snprintf(buf, sizeof(buf), "normal\nFloatVector\n%f %f %f\n", currentNormal[0], currentNormal[1], currentNormal[2]);
                     CoviseRender::send_feedback_message("PARAM", buf);
-                    sprintf(buf, "distance\nFloatScalar\n%f\n", c);
+                    snprintf(buf, sizeof(buf), "distance\nFloatScalar\n%f\n", c);
                     CoviseRender::send_feedback_message("PARAM", buf);
                     buf[0] = '\0';
                     CoviseRender::send_feedback_message("EXEC", buf);
@@ -319,7 +319,7 @@ void TraceModule::update()
                 {
                     fprintf(stdout, "\a");
                     fflush(stdout);
-                    sprintf(buf, "vertex\nFloatVector\n%f %f %f\n", currentPosition1[0], currentPosition1[1], currentPosition1[2]);
+                    snprintf(buf, sizeof(buf), "vertex\nFloatVector\n%f %f %f\n", currentPosition1[0], currentPosition1[1], currentPosition1[2]);
                     CoviseRender::send_feedback_message("PARAM", buf);
                     CoviseRender::send_feedback_message("EXEC", buf);
                 }
@@ -329,11 +329,11 @@ void TraceModule::update()
                 {
                     fprintf(stdout, "\a");
                     fflush(stdout);
-                    sprintf(buf, "position\nFloatVector\n%f %f %f\n", currentPosition1[0], currentPosition1[1], currentPosition1[2]);
+                    snprintf(buf, sizeof(buf), "position\nFloatVector\n%f %f %f\n", currentPosition1[0], currentPosition1[1], currentPosition1[2]);
                     CoviseRender::send_feedback_message("PARAM", buf);
-                    sprintf(buf, "normal\nFloatVector\n%f %f %f\n", currentNormal[0], currentNormal[1], currentNormal[2]);
+                    snprintf(buf, sizeof(buf), "normal\nFloatVector\n%f %f %f\n", currentNormal[0], currentNormal[1], currentNormal[2]);
                     CoviseRender::send_feedback_message("PARAM", buf);
-                    sprintf(buf, "normal2\nFloatVector\n%f %f %f\n", currentNormal2[0], currentNormal2[1], currentNormal2[2]);
+                    snprintf(buf, sizeof(buf), "normal2\nFloatVector\n%f %f %f\n", currentNormal2[0], currentNormal2[1], currentNormal2[2]);
                     CoviseRender::send_feedback_message("PARAM", buf);
                     buf[0] = '\0';
                     CoviseRender::send_feedback_message("EXEC", buf);
@@ -344,9 +344,9 @@ void TraceModule::update()
                 {
                     fprintf(stdout, "\a");
                     fflush(stdout);
-                    sprintf(buf, "startpoint1\nFloatVector\n%f %f %f\n", currentPosition1[0], currentPosition1[1], currentPosition1[2]);
+                    snprintf(buf, sizeof(buf), "startpoint1\nFloatVector\n%f %f %f\n", currentPosition1[0], currentPosition1[1], currentPosition1[2]);
                     CoviseRender::send_feedback_message("PARAM", buf);
-                    sprintf(buf, "startpoint2\nFloatVector\n%f %f %f\n", currentPosition2[0], currentPosition2[1], currentPosition2[2]);
+                    snprintf(buf, sizeof(buf), "startpoint2\nFloatVector\n%f %f %f\n", currentPosition2[0], currentPosition2[1], currentPosition2[2]);
                     CoviseRender::send_feedback_message("PARAM", buf);
                     buf[0] = '\0';
                     CoviseRender::send_feedback_message("EXEC", buf);
@@ -356,19 +356,19 @@ void TraceModule::update()
                 {
                     fprintf(stdout, "\a");
                     fflush(stdout);
-                    sprintf(buf, "startpoint1\nFloatVector\n%f %f %f\n", currentPosition1[0], currentPosition1[1], currentPosition1[2]);
+                    snprintf(buf, sizeof(buf), "startpoint1\nFloatVector\n%f %f %f\n", currentPosition1[0], currentPosition1[1], currentPosition1[2]);
                     CoviseRender::send_feedback_message("PARAM", buf);
-                    sprintf(buf, "startpoint2\nFloatVector\n%f %f %f\n", currentPosition2[0], currentPosition2[1], currentPosition2[2]);
+                    snprintf(buf, sizeof(buf), "startpoint2\nFloatVector\n%f %f %f\n", currentPosition2[0], currentPosition2[1], currentPosition2[2]);
                     CoviseRender::send_feedback_message("PARAM", buf);
                     // TracerUsg has no normal parameter (nor Tracer)...
                     /* && strcmp(currentFeedbackInfo+1,"Tracer")!= 0 */
                     if (strncmp(feedbackInfo + 1, "Tracer", strlen("Tracer")) != 0)
                     {
-                        sprintf(buf, "normal\nFloatVector\n%f %f %f\n", currentNormal[0], currentNormal[1], currentNormal[2]);
+                        snprintf(buf, sizeof(buf), "normal\nFloatVector\n%f %f %f\n", currentNormal[0], currentNormal[1], currentNormal[2]);
                         CoviseRender::send_feedback_message("PARAM", buf);
                     }
                     // ... but has direction
-                    sprintf(buf, "direction\nFloatVector\n%f %f %f\n", currentNormal2[0], currentNormal2[1], currentNormal2[2]);
+                    snprintf(buf, sizeof(buf), "direction\nFloatVector\n%f %f %f\n", currentNormal2[0], currentNormal2[1], currentNormal2[2]);
                     CoviseRender::send_feedback_message("PARAM", buf);
                     buf[0] = '\0';
                     CoviseRender::send_feedback_message("EXEC", buf);
@@ -379,7 +379,7 @@ void TraceModule::update()
                 {
                     fprintf(stdout, "\a");
                     fflush(stdout);
-                    sprintf(buf, "isopoint\nFloatVector\n%f %f %f\n", currentPosition1[0], currentPosition1[1], currentPosition1[2]);
+                    snprintf(buf, sizeof(buf), "isopoint\nFloatVector\n%f %f %f\n", currentPosition1[0], currentPosition1[1], currentPosition1[2]);
                     CoviseRender::send_feedback_message("PARAM", buf);
                     buf[0] = '\0';
                     CoviseRender::send_feedback_message("EXEC", buf);

@@ -206,7 +206,7 @@ bool VNCWindow::connectToServer(const char *server, unsigned port, const char *p
     desktopTexture->setRepeat(true);
 
     char buf[1000];
-    sprintf(buf, "VNC");
+    snprintf(buf, sizeof(buf), "VNC");
     popupHandle = new coPopupHandle(buf);
     //popupHandle->setScale(cover->getSceneSize()/2500);
     //popupHandle->setPos(-1300*cover->getSceneSize()/2500,0,-1200*cover->getSceneSize()/2500);
@@ -464,11 +464,11 @@ void VNCWindow::mouseButtonPressed(float x, float y)
             params[0] = "ptr";
             char p1[16], p2[16], p3[16];
 
-            sprintf(p1, "%d", sx);
+            snprintf(p1, sizeof(p1), "%d", sx);
             params[1] = p1;
-            sprintf(p2, "%d", sy);
+            snprintf(p2, sizeof(p2), "%d", sy);
             params[2] = p2;
-            sprintf(p3, "%d", button);
+            snprintf(p3, sizeof(p3), "%d", button);
             params[3] = p3;
 
             vncClient->sendRFBEvent((char **)params, (uint32_t *)&NUM);
@@ -493,11 +493,11 @@ void VNCWindow::mouseButtonReleased(float x, float y)
             params[0] = "ptr";
             char p1[16], p2[16], p3[16];
 
-            sprintf(p1, "%d", sx);
+            snprintf(p1, sizeof(p1), "%d", sx);
             params[1] = p1;
-            sprintf(p2, "%d", sy);
+            snprintf(p2, sizeof(p2), "%d", sy);
             params[2] = p2;
-            sprintf(p3, "%d", button);
+            snprintf(p3, sizeof(p3), "%d", button);
             params[3] = p3;
 
             vncClient->sendRFBEvent((char **)params, (uint32_t *)&NUM);
@@ -528,11 +528,11 @@ void VNCWindow::mouseMoved(float x, float y)
             params[0] = "ptr";
             char p1[16], p2[16], p3[16];
 
-            sprintf(p1, "%d", sx);
+            snprintf(p1, sizeof(p1), "%d", sx);
             params[1] = p1;
-            sprintf(p2, "%d", sy);
+            snprintf(p2, sizeof(p2), "%d", sy);
             params[2] = p2;
-            sprintf(p3, "%d", button);
+            snprintf(p3, sizeof(p3), "%d", button);
             params[3] = p3;
 
             vncClient->sendRFBEvent((char **)params, (uint32_t *)&NUM); // send to VNC

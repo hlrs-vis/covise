@@ -43,40 +43,40 @@ coGRObjTransformAbstractMsg::coGRObjTransformAbstractMsg(coGRMsg::Mtype type, co
     mat_[3][3] = mat33;
 
     char str[1024];
-    sprintf(str, "%f", mat00);
+    snprintf(str, sizeof(str), "%f", mat00);
     addToken(str);
-    sprintf(str, "%f", mat01);
+    snprintf(str, sizeof(str), "%f", mat01);
     addToken(str);
-    sprintf(str, "%f", mat02);
+    snprintf(str, sizeof(str), "%f", mat02);
     addToken(str);
-    sprintf(str, "%f", mat03);
-    addToken(str);
-
-    sprintf(str, "%f", mat10);
-    addToken(str);
-    sprintf(str, "%f", mat11);
-    addToken(str);
-    sprintf(str, "%f", mat12);
-    addToken(str);
-    sprintf(str, "%f", mat13);
+    snprintf(str, sizeof(str), "%f", mat03);
     addToken(str);
 
-    sprintf(str, "%f", mat20);
+    snprintf(str, sizeof(str), "%f", mat10);
     addToken(str);
-    sprintf(str, "%f", mat21);
+    snprintf(str, sizeof(str), "%f", mat11);
     addToken(str);
-    sprintf(str, "%f", mat22);
+    snprintf(str, sizeof(str), "%f", mat12);
     addToken(str);
-    sprintf(str, "%f", mat23);
+    snprintf(str, sizeof(str), "%f", mat13);
     addToken(str);
 
-    sprintf(str, "%f", mat30);
+    snprintf(str, sizeof(str), "%f", mat20);
     addToken(str);
-    sprintf(str, "%f", mat31);
+    snprintf(str, sizeof(str), "%f", mat21);
     addToken(str);
-    sprintf(str, "%f", mat32);
+    snprintf(str, sizeof(str), "%f", mat22);
     addToken(str);
-    sprintf(str, "%f", mat33);
+    snprintf(str, sizeof(str), "%f", mat23);
+    addToken(str);
+
+    snprintf(str, sizeof(str), "%f", mat30);
+    addToken(str);
+    snprintf(str, sizeof(str), "%f", mat31);
+    addToken(str);
+    snprintf(str, sizeof(str), "%f", mat32);
+    addToken(str);
+    snprintf(str, sizeof(str), "%f", mat33);
     addToken(str);
 }
 

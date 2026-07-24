@@ -1059,10 +1059,10 @@ void Tracer::buildOutput(int nP, int numGridSteps)
         switch (startStyle->getValue())
         {
         case PLANE:
-            sprintf(bfr, "P%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+            snprintf(bfr, sizeof(bfr), "P%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
             break;
         default:
-            sprintf(bfr, "T%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+            snprintf(bfr, sizeof(bfr), "T%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
         }
         lines->addAttribute("FEEDBACK", bfr);
 
@@ -1311,10 +1311,10 @@ void Tracer::buildOutput(int nP, int numGridSteps)
                     }
 
                     // generate covise objects
-                    sprintf(bfr, "%s_%d", outPort1->getObjName(), i);
+                    snprintf(bfr, sizeof(bfr), "%s_%d", outPort1->getObjName(), i);
                     //lines = new coDoLines(bfr, o, (o/3)*2, o/3);
                     lines = new coDoLines(bfr, _k, x, y, z, _k, vl, numPart, ll);
-                    sprintf(bfr, "%s_%d", outPort3->getObjName(), i);
+                    snprintf(bfr, sizeof(bfr), "%s_%d", outPort3->getObjName(), i);
                     dat = new coDoFloat(bfr, _k, d);
                     lines->addAttribute("COLOR", "blue");
 
@@ -1429,9 +1429,9 @@ void Tracer::buildOutput(int nP, int numGridSteps)
                     cerr << "  generated: " << numLines << endl;
 
                     // generate covise objects
-                    sprintf(bfr, "%s_%d", outPort1->getObjName(), i);
+                    snprintf(bfr, sizeof(bfr), "%s_%d", outPort1->getObjName(), i);
                     lines = new coDoLines(bfr, _k, x, y, z, numVert, vl, numLines, ll);
-                    sprintf(bfr, "%s_%d", outPort3->getObjName(), i);
+                    snprintf(bfr, sizeof(bfr), "%s_%d", outPort3->getObjName(), i);
                     dat = new coDoFloat(bfr, _k, d);
                     lines->addAttribute("COLOR", "blue");
 
@@ -1462,23 +1462,23 @@ void Tracer::buildOutput(int nP, int numGridSteps)
         cerr << "creating output object" << endl;
 
         rObj = new coDoSet(outPort1->getObjName(), sObj);
-        sprintf(bfr, "1 %d", numGridSteps);
+        snprintf(bfr, sizeof(bfr), "1 %d", numGridSteps);
         rObj->addAttribute("TIMESTEP", bfr);
 
         switch (startStyle->getValue())
         {
         case PLANE:
-            sprintf(bfr, "P%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+            snprintf(bfr, sizeof(bfr), "P%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
             break;
         default:
-            sprintf(bfr, "T%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+            snprintf(bfr, sizeof(bfr), "T%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
         }
         rObj->addAttribute("FEEDBACK", bfr);
 
         outPort1->setCurrentObject(rObj);
 
         rObj = new coDoSet(outPort3->getObjName(), dObj);
-        sprintf(bfr, "1 %d", numGridSteps);
+        snprintf(bfr, sizeof(bfr), "1 %d", numGridSteps);
         rObj->addAttribute("TIMESTEP", bfr);
         outPort3->setCurrentObject(rObj);
     }
@@ -1586,9 +1586,9 @@ void Tracer::buildOutput(int nP, int numGridSteps)
                 }
 
                 // generate covise objects
-                sprintf(bfr, "%s_%d", outPort1->getObjName(), i);
+                snprintf(bfr, sizeof(bfr), "%s_%d", outPort1->getObjName(), i);
                 points = new coDoPoints(bfr, o);
-                sprintf(bfr, "%s_%d", outPort3->getObjName(), i);
+                snprintf(bfr, sizeof(bfr), "%s_%d", outPort3->getObjName(), i);
                 dat = new coDoFloat(bfr, o);
                 points->getAddresses(&x, &y, &z);
                 points->addAttribute("COLOR", "blue");
@@ -1757,23 +1757,23 @@ void Tracer::buildOutput(int nP, int numGridSteps)
         cerr << "creating output object" << endl;
 
         rObj = new coDoSet(outPort1->getObjName(), sObj);
-        sprintf(bfr, "1 %d", numGridSteps);
+        snprintf(bfr, sizeof(bfr), "1 %d", numGridSteps);
         rObj->addAttribute("TIMESTEP", bfr);
 
         switch (startStyle->getValue())
         {
         case PLANE:
-            sprintf(bfr, "P%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+            snprintf(bfr, sizeof(bfr), "P%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
             break;
         default:
-            sprintf(bfr, "T%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+            snprintf(bfr, sizeof(bfr), "T%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
         }
         rObj->addAttribute("FEEDBACK", bfr);
 
         outPort1->setCurrentObject(rObj);
 
         rObj = new coDoSet(outPort3->getObjName(), dObj);
-        sprintf(bfr, "1 %d", numGridSteps);
+        snprintf(bfr, sizeof(bfr), "1 %d", numGridSteps);
         rObj->addAttribute("TIMESTEP", bfr);
         outPort3->setCurrentObject(rObj);
     }
@@ -1834,9 +1834,9 @@ void Tracer::buildOutput(int nP, int numGridSteps)
             {
                 cerr << " found " << o << " points in step " << i << endl;
 
-                sprintf(bfr, "%s_%d", outPort1->getObjName(), i);
+                snprintf(bfr, sizeof(bfr), "%s_%d", outPort1->getObjName(), i);
                 points = new coDoPoints(bfr, o);
-                sprintf(bfr, "%s_%d", outPort3->getObjName(), i);
+                snprintf(bfr, sizeof(bfr), "%s_%d", outPort3->getObjName(), i);
                 dat = new coDoFloat(bfr, o);
                 points->getAddresses(&x, &y, &z);
                 points->addAttribute("COLOR", "blue");
@@ -1940,23 +1940,23 @@ void Tracer::buildOutput(int nP, int numGridSteps)
         cerr << "creating output object" << endl;
 
         rObj = new coDoSet(outPort1->getObjName(), sObj);
-        sprintf(bfr, "1 %d", numGridSteps);
+        snprintf(bfr, sizeof(bfr), "1 %d", numGridSteps);
         rObj->addAttribute("TIMESTEP", bfr);
 
         switch (startStyle->getValue())
         {
         case PLANE:
-            sprintf(bfr, "P%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+            snprintf(bfr, sizeof(bfr), "P%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
             break;
         default:
-            sprintf(bfr, "T%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+            snprintf(bfr, sizeof(bfr), "T%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
         }
         rObj->addAttribute("FEEDBACK", bfr);
 
         outPort1->setCurrentObject(rObj);
 
         rObj = new coDoSet(outPort3->getObjName(), dObj);
-        sprintf(bfr, "1 %d", numGridSteps);
+        snprintf(bfr, sizeof(bfr), "1 %d", numGridSteps);
         rObj->addAttribute("TIMESTEP", bfr);
         outPort3->setCurrentObject(rObj);
     }
@@ -2006,9 +2006,9 @@ void Tracer::buildOutput(int nP)
                     o++;
         if (o > 0)
         {
-            sprintf(bfr, "%s_%d", outPort1->getObjName(), i);
+            snprintf(bfr, sizeof(bfr), "%s_%d", outPort1->getObjName(), i);
             points = new coDoPoints(bfr, o);
-            sprintf(bfr, "%s_%d", outPort3->getObjName(), i);
+            snprintf(bfr, sizeof(bfr), "%s_%d", outPort3->getObjName(), i);
             dat = new coDoFloat(bfr, o);
             points->getAddresses(&x, &y, &z);
             points->addAttribute("COLOR", "blue");
@@ -2057,16 +2057,16 @@ void Tracer::buildOutput(int nP)
     cerr << "creating output object" << endl;
 
     rObj = new coDoSet(outPort1->getObjName(), sObj);
-    sprintf(bfr, "1 %d", n);
+    snprintf(bfr, sizeof(bfr), "1 %d", n);
     rObj->addAttribute("TIMESTEP", bfr);
 
-    sprintf(bfr, "T%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+    snprintf(bfr, sizeof(bfr), "T%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
     rObj->addAttribute("FEEDBACK", bfr);
 
     outPort1->setCurrentObject(rObj);
 
     rObj = new coDoSet(outPort3->getObjName(), dObj);
-    sprintf(bfr, "1 %d", n);
+    snprintf(bfr, sizeof(bfr), "1 %d", n);
     rObj->addAttribute("TIMESTEP", bfr);
     outPort3->setCurrentObject(rObj);
 

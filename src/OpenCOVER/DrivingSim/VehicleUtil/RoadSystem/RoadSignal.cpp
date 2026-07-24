@@ -220,17 +220,17 @@ void SignalPrototype::createGeometry(bool realScale)
 		{ 
 			if (subclass != "")
 			{
-				sprintf(tmpstr, "%d_%s", type, subclass.c_str());
+				snprintf(tmpstr, sizeof(tmpstr), "%d_%s", type, subclass.c_str());
 			}
 			else
 			{
-				sprintf(tmpstr, "%d", type);
+				snprintf(tmpstr, sizeof(tmpstr), "%d", type);
 			}
 		}
         else if (subclass == "")
-            sprintf(tmpstr, "%d-%d", type, subtype);
+            snprintf(tmpstr, sizeof(tmpstr), "%d-%d", type, subtype);
         else
-            sprintf(tmpstr, "%d-%d_%s", type, subtype, subclass.c_str());
+            snprintf(tmpstr, sizeof(tmpstr), "%d-%d_%s", type, subtype, subclass.c_str());
         std::string fn = "share/covise/signals/" + country + "/" + tmpstr + ".png";
 
         float hsize = 0.6;

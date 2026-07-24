@@ -41,7 +41,7 @@ struct Ilist *ssnod, struct Ilist *sste, struct Ilist *outlet)
    FILE *fp;
    static int count = 0;
 
-   sprintf(fn,"rr_debugsste_%02d.txt", count++);
+   snprintf(fn, sizeof(fn),"rr_debugsste_%02d.txt", count++);
    if( (fp = fopen(fn,"w+")) == NULL)
    {
       fprintf(stderr,"Shit happened opening file '%s'!\n",fn);

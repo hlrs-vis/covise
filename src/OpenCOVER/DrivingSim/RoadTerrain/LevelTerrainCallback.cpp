@@ -125,7 +125,7 @@ void LevelTerrainCallback::loaded(osgTerrain::TerrainTile *tile, const osgDB::Re
    osg::Vec3d model;
    tile->getLocator()->convertLocalToModel(osg::Vec3d(0.0,0.0,0.0), model);
    char name[1000];
-   sprintf(name,"X%f_Y%f_Z%f", model.x(), model.y(), model.z());
+   snprintf(name, sizeof(name),"X%f_Y%f_Z%f", model.x(), model.y(), model.z());
    tile->setName(name);*/
 
     //MTRand mt(10101);

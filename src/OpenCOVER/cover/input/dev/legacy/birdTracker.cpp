@@ -216,7 +216,7 @@ int birdTracker::setup(hemisphere hemi, dataformat df, unsigned int rate)
         break;
     }
 
-    sprintf(rate_string, "%06d", rate * 1000);
+    snprintf(rate_string, sizeof(rate_string), "%06d", rate * 1000);
 
     // request a system-status
     packet.setType(birdPacket::MSG_GET_STATUS, 0);

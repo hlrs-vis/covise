@@ -389,7 +389,7 @@ static int cvt_f(SprintfState *ss, double d, const char *fmt0, const char *fmt1)
         }
     }
 #endif
-    sprintf(fout, fin, d);
+    snprintf(fout, sizeof(fout), fin, d);
 
     /*
     ** This assert will catch overflow's of fout, when building with

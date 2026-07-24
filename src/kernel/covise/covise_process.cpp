@@ -672,7 +672,7 @@ Process::~Process()
 #ifndef _WIN32
     delete list_of_connections;
     pid = getpid();
-    sprintf(tmp_fname, "/tmp/kill_ids_lock_%d", getuid());
+    snprintf(tmp_fname, sizeof(tmp_fname), "/tmp/kill_ids_lock_%d", getuid());
     lock_hdl = open(tmp_fname, O_RDWR | O_CREAT, 0644);
     //    cerr << "lock_hdl: " << lock_hdl << endl;
     if (lock_hdl == -1)
@@ -692,14 +692,14 @@ Process::~Process()
             //	cerr << "Process " << getpid() << " locking\n";
         }
     }
-    sprintf(tmp_fname, "/tmp/kill_ids_%d", getuid());
+    snprintf(tmp_fname, sizeof(tmp_fname), "/tmp/kill_ids_%d", getuid());
     //    print_comment(__LINE__, __FILE__, "reading file");
     hdl = fopen(tmp_fname, "rw");
     i = ende = 0;
     while (i < 100 && !ende)
     {
         ende = (fscanf(hdl, "%d\n", &ids[i]) != 1);
-        //	sprintf(tmp_str, "%2d: %d", i, ids[i]);
+        //	snprintf(tmp_str, sizeof(tmp_str), "%2d: %d", i, ids[i]);
         //	print_comment(__LINE__, __FILE__, tmp_str);
         if (!ende && ids[i] != pid)
             i++;
@@ -708,7 +708,7 @@ Process::~Process()
     for (int j = 0; j < i; j++)
     {
         fprintf(hdl, "%d\n", ids[j]);
-        //	sprintf(tmp_str, "%2d: %d", j, ids[j]);
+        //	snprintf(tmp_str, sizeof(tmp_str), "%2d: %d", j, ids[j]);
         //	print_comment(__LINE__, __FILE__, tmp_str);
     }
     fclose(hdl);
@@ -740,7 +740,7 @@ Message *Process::wait_for_msg()
     {
         msg_queue->remove(msg);
 #ifdef DEBUG
-        sprintf(tmp_str, "msg %s removed from queue", covise_msg_types_array[msg->type]);
+        snprintf(tmp_str, sizeof(tmp_str), "msg %s removed from queue", covise_msg_types_array[msg->type]);
         print_comment(__LINE__, __FILE__, tmp_str);
 #endif
         return msg;
@@ -810,7 +810,7 @@ Message *Process::check_for_msg(float time)
     {
         msg_queue->remove(msg);
 #ifdef DEBUG
-        sprintf(tmp_str, "msg %s removed from queue", covise_msg_types_array[msg->type]);
+        snprintf(tmp_str, sizeof(tmp_str), "msg %s removed from queue", covise_msg_types_array[msg->type]);
         print_comment(__LINE__, __FILE__, tmp_str);
 #endif
         return msg;
@@ -885,7 +885,7 @@ Message *Process::wait_for_msg(int covise_msg_type, const Connection *conn = 0)
             }
             msg_queue->add(msg);
 #ifdef DEBUG
-            sprintf(tmp_str, "msg %s added to queue", covise_msg_types_array[msg->type]);
+            snprintf(tmp_str, sizeof(tmp_str), "msg %s added to queue", covise_msg_types_array[msg->type]);
             print_comment(__LINE__, __FILE__, tmp_str);
 #endif
             break;
@@ -906,7 +906,7 @@ Message *Process::wait_for_msg(int *covise_msg_type, int no,
     print_comment(__LINE__, __FILE__, "in Process::wait_for_msg, waiting for:");
     for (i = 0; i < no; i++)
     {
-        sprintf(tmp_str, "%s", covise_msg_types_array[ec_msg_type[i]]);
+        snprintf(tmp_str, sizeof(tmp_str), "%s", covise_msg_types_array[ec_msg_type[i]]);
         print_comment(__LINE__, __FILE__, tmp_str);
     }
 #endif
@@ -916,7 +916,7 @@ Message *Process::wait_for_msg(int *covise_msg_type, int no,
         Message *msg = new Message;
         tmpconn->recv_msg(msg);
 #ifdef DEBUG
-        sprintf(tmp_str, "msg %s received", covise_msg_types_array[msg->type]);
+        snprintf(tmp_str, sizeof(tmp_str), "msg %s received", covise_msg_types_array[msg->type]);
         print_comment(__LINE__, __FILE__, tmp_str);
 #endif
         switch (msg->type)
@@ -943,7 +943,7 @@ Message *Process::wait_for_msg(int *covise_msg_type, int no,
             } // else
             msg_queue->add(msg);
 #ifdef DEBUG
-            sprintf(tmp_str, "msg %s added to queue", covise_msg_types_array[msg->type]);
+            snprintf(tmp_str, sizeof(tmp_str), "msg %s added to queue", covise_msg_types_array[msg->type]);
             print_comment(__LINE__, __FILE__, tmp_str);
 #endif
             break;
@@ -1279,7 +1279,7 @@ void getNetAdaptInfo(vector<string> &name, vector<string> &ip_address, vector<st
                    Adapter.adapt.adapter_address[5]);
 #endif
 
-            sprintf(buffer, "%02x%02x%02x%02x%02x%02x",
+            snprintf(buffer, sizeof(buffer), "%02x%02x%02x%02x%02x%02x",
                     Adapter.adapt.adapter_address[0],
                     Adapter.adapt.adapter_address[1],
                     Adapter.adapt.adapter_address[2],
@@ -1332,7 +1332,7 @@ void getNetAdaptInfo(vector<string> &name, vector<string> &ip_address, vector<st
                pAdapterInfo->Address[5]);
 #endif
 
-        sprintf(buffer, "%02x%02x%02x%02x%02x%02x",
+        snprintf(buffer, sizeof(buffer), "%02x%02x%02x%02x%02x%02x",
                 pAdapterInfo->Address[0],
                 pAdapterInfo->Address[1],
                 pAdapterInfo->Address[2],
@@ -1340,8 +1340,8 @@ void getNetAdaptInfo(vector<string> &name, vector<string> &ip_address, vector<st
                 pAdapterInfo->Address[4],
                 pAdapterInfo->Address[5]);
 
-        sprintf(description, "%s", pAdapterInfo->Description);
-        sprintf(ip_addr, "%s", pAdapterInfo->IpAddressList.IpAddress.String);
+        snprintf(description, sizeof(description), "%s", pAdapterInfo->Description);
+        snprintf(ip_addr, sizeof(ip_addr), "%s", pAdapterInfo->IpAddressList.IpAddress.String);
 
         name.push_back(description);
         ip_address.push_back(ip_addr);

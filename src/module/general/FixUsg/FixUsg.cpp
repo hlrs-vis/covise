@@ -23,7 +23,7 @@ FixUSG::FixUSG(int argc, char *argv[])
     {
         char portname[20];
 
-        sprintf(portname, "DataIn%i", i);
+        snprintf(portname, sizeof(portname), "DataIn%i", i);
         ptrDataInPort[i] = addInputPort(portname, "Float|Vec3", "data");
         ptrDataInPort[i]->setRequired(0);
     }
@@ -46,7 +46,7 @@ FixUSG::FixUSG(int argc, char *argv[])
     for (i = 0; i < num_ports; i++)
     {
         char portname[20];
-        sprintf(portname, "DataOut%i", i);
+        snprintf(portname, sizeof(portname), "DataOut%i", i);
         ptrDataOutPort[i] = addOutputPort(portname, "Float|Vec3", "data");
         ptrDataOutPort[i]->setDependencyPort(ptrDataInPort[i]);
     }

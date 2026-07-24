@@ -67,19 +67,19 @@ int ReadIWS::compute()
         // open the file
         if (iwsFp = openFile(iwsFile))
         {
-            sprintf(infobuf, "File %s open", iwsFile);
+            snprintf(infobuf, sizeof(infobuf), "File %s open", iwsFile);
             Covise::sendInfo(infobuf);
 
             // read the file, create the lists and create a COVISE Unstructured Grid object
             readFile(scale_factor);
             closeFile(iwsFile);
 
-            sprintf(infobuf, "File %s closed", iwsFile);
+            snprintf(infobuf, sizeof(infobuf), "File %s closed", iwsFile);
             Covise::sendInfo(infobuf);
         }
         else
         {
-            sprintf(infobuf, "Error opening file %s", iwsFile);
+            snprintf(infobuf, sizeof(infobuf), "Error opening file %s", iwsFile);
             Covise::sendError(infobuf);
             return FAIL;
         }

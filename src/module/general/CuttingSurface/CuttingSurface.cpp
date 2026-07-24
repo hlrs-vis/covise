@@ -269,7 +269,7 @@ void CuttingSurfaceModule::param(const char *paramName, bool inMapLoading)
     {
         // find out "real" module name
         char realTitle[1024];
-        sprintf(realTitle, "%s_%s", get_module(), get_instance());
+        snprintf(realTitle, sizeof(realTitle), "%s_%s", get_module(), get_instance());
 
         // if it differs from the title - disable automatig settings
         if (strcmp(realTitle, getTitle()) != 0)
@@ -460,9 +460,9 @@ CuttingSurfaceModule::preHandleObjects(coInputPort **)
                 len += strlen(species) + 3;
             char *buf = new char[len + 64];
             if (species)
-                sprintf(buf, "Cut-%s:%s", get_instance(), species);
+                snprintf(buf, sizeof(buf), "Cut-%s:%s", get_instance(), species);
             else
-                sprintf(buf, "Cut-%s", get_instance());
+                snprintf(buf, sizeof(buf), "Cut-%s", get_instance());
             setTitle(buf);
             delete[] buf;
         }
@@ -753,7 +753,7 @@ CuttingSurfaceModule::addFeedbackParams(coDistributedObject *obj)
     if (fbStyle_ == FEED_OLD || fbStyle_ == FEED_BOTH)
     {
         char buf[1024+64];
-        sprintf(buf, "C%s\n%s\n%s\n",
+        snprintf(buf, sizeof(buf), "C%s\n%s\n%s\n",
                 Covise::get_module(),
                 Covise::get_instance(), Covise::get_host());
         if (p_option->getValue() > 1)
@@ -761,7 +761,7 @@ CuttingSurfaceModule::addFeedbackParams(coDistributedObject *obj)
         obj->addAttribute("FEEDBACK", buf);
 
         char ignore[1024];
-        sprintf(ignore, "%f %f %f %f %d", param_vertex[0], param_vertex[1], param_vertex[2], p_scalar->getValue() * (p_skew->getValue() ? 1.00001 : 1.), p_option->getValue());
+        snprintf(ignore, sizeof(ignore), "%f %f %f %f %d", param_vertex[0], param_vertex[1], param_vertex[2], p_scalar->getValue() * (p_skew->getValue() ? 1.00001 : 1.), p_option->getValue());
         obj->addAttribute("IGNORE", ignore);
 
 #ifdef _COMPLEX_MODULE_
@@ -769,7 +769,7 @@ CuttingSurfaceModule::addFeedbackParams(coDistributedObject *obj)
         if (p_SampleGeom_->getCurrentObject() && p_SampleData_->getCurrentObject())
         {
             obj->addAttribute("MODULE", "CuttingSurfaceModule3DTexPlugin");
-            sprintf(buf, "X%s\n%s\n%s\n%s\n%s",
+            snprintf(buf, sizeof(buf), "X%s\n%s\n%s\n%s\n%s",
                     Covise::get_module(),
                     Covise::get_instance(), Covise::get_host(),
                     "CuttingSurface", ignore);
@@ -1027,7 +1027,7 @@ CuttingSurfaceModule::postHandleObjects(coOutputPort **outPorts)
                 string tstepName = p_GeometryOut->getObjName();
                 tstepName += "_TStep_";
                 char buf[16];
-                sprintf(buf, "%d", i);
+                snprintf(buf, sizeof(buf), "%d", i);
                 tstepName += buf;
                 StaticParts(&GeoFullList[i], &NormFullList[i], &ColorFullList[i],
                             geoList[i], dataList[i], tstepName, false, &ScalarCont);

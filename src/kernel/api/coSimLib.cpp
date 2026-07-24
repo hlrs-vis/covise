@@ -524,11 +524,11 @@ int coSimLib::startSim(int reattach)
     if (modIsServer)
     {
         inet_ntop(AF_INET, &d_localIP, buf, 100);
-        sprintf(envVar, "C:%s/%d_%f_%d", buf,d_usePort, timeout, d_verbose);
+        snprintf(envVar, sizeof(envVar), "C:%s/%d_%f_%d", buf,d_usePort, timeout, d_verbose);
     }
     else
     {
-        sprintf(envVar, "S:%d-%d_%f_%d", d_minPort, d_maxPort, timeout, d_verbose);
+        snprintf(envVar, sizeof(envVar), "S:%d-%d_%f_%d", d_minPort, d_maxPort, timeout, d_verbose);
     }
     
     printf("CO_SIMLIB_CONN: [%s]\n", envVar);
@@ -712,7 +712,7 @@ int coSimLib::startSim(int reattach)
             // create command to send to remote daemon
             //startFEN + Parameter
             char rdcommand[1000];
-            sprintf(rdcommand, "startFEN %s\n", execcommand);
+            snprintf(rdcommand, sizeof(rdcommand), "startFEN %s\n", execcommand);
 
             cerr << "Sending RemoteDaemon the message: " << rdcommand << endl;
 
@@ -2000,7 +2000,7 @@ int coSimLib::setParaMap(int isCell, int isFortran, int nodeNo, int length,
     // write Mappings to files
     if (d_verbose > 1)
     {
-        sprintf(buffer, "coSimlib.%d.Map", nodeNo);
+        snprintf(buffer, sizeof(buffer), "coSimlib.%d.Map", nodeNo);
         FILE *outFile = fopen(buffer, "w");
 
         fprintf(outFile, "Node mapping file for %s(%d) for Proc #%d\n\n",

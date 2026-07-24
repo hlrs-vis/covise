@@ -31,7 +31,7 @@ void BSplinePoint(int deg, struct Point *d, struct Flist *t, float t0, float *x)
    {
       if ((D[i] = (float *)calloc(deg, sizeof(float))) == NULL)
       {
-         sprintf(buf, "Error allocating memory: (float)D[i] = %d", i);
+         snprintf(buf, sizeof(buf), "Error allocating memory: (float)D[i] = %d", i);
          fatal(buf);
       }
    }

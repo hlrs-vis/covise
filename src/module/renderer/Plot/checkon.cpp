@@ -142,7 +142,7 @@ int checkon(int prop, int old_val, int new_val)
         }
         else
         {
-            sprintf(buf, "LINEWIDTH out of bounds, should be from 0 to %d", MAX_LINEWIDTH);
+            snprintf(buf, sizeof(buf), "LINEWIDTH out of bounds, should be from 0 to %d", MAX_LINEWIDTH);
             check_err = 1;
         }
         break;
@@ -153,7 +153,7 @@ int checkon(int prop, int old_val, int new_val)
         }
         else
         {
-            sprintf(buf, "LINESTYLE out of bounds, should be from 0 to %d", MAX_LINESTYLE);
+            snprintf(buf, sizeof(buf), "LINESTYLE out of bounds, should be from 0 to %d", MAX_LINESTYLE);
             check_err = 1;
         }
         break;
@@ -164,7 +164,7 @@ int checkon(int prop, int old_val, int new_val)
         }
         else
         {
-            sprintf(buf, "COLOR out of bounds, should be from 0 to %d", 16 - 1);
+            snprintf(buf, sizeof(buf), "COLOR out of bounds, should be from 0 to %d", 16 - 1);
             check_err = 1;
         }
         break;
@@ -175,7 +175,7 @@ int checkon(int prop, int old_val, int new_val)
         }
         else
         {
-            sprintf(buf, "JUST out of bounds, should be from 0 to %d", MAX_JUST);
+            snprintf(buf, sizeof(buf), "JUST out of bounds, should be from 0 to %d", MAX_JUST);
             check_err = 1;
         }
         break;
@@ -186,7 +186,7 @@ int checkon(int prop, int old_val, int new_val)
         }
         else
         {
-            sprintf(buf, "FONT out of bounds, should be from 0 to %d", MAX_FONT - 1);
+            snprintf(buf, sizeof(buf), "FONT out of bounds, should be from 0 to %d", MAX_FONT - 1);
             check_err = 1;
         }
         break;
@@ -197,7 +197,7 @@ int checkon(int prop, int old_val, int new_val)
         }
         else
         {
-            sprintf(buf, "ARROW out of bounds, should be from 0 to %d", MAX_ARROW);
+            snprintf(buf, sizeof(buf), "ARROW out of bounds, should be from 0 to %d", MAX_ARROW);
             check_err = 1;
         }
         break;
@@ -208,7 +208,7 @@ int checkon(int prop, int old_val, int new_val)
         }
         else
         {
-            sprintf(buf, "PATTERN out of bounds, should be from 0 to %d", MAX_PATTERN - 1);
+            snprintf(buf, sizeof(buf), "PATTERN out of bounds, should be from 0 to %d", MAX_PATTERN - 1);
             check_err = 1;
         }
         break;
@@ -219,7 +219,7 @@ int checkon(int prop, int old_val, int new_val)
         }
         else
         {
-            sprintf(buf, "SYMBOL out of bounds, should be from 0 to %d", MAXSYM - 1);
+            snprintf(buf, sizeof(buf), "SYMBOL out of bounds, should be from 0 to %d", MAXSYM - 1);
             check_err = 1;
         }
         break;
@@ -230,7 +230,7 @@ int checkon(int prop, int old_val, int new_val)
         }
         else
         {
-            sprintf(buf, "PREC out of bounds, should be from 0 to %d", MAX_PREC - 1);
+            snprintf(buf, sizeof(buf), "PREC out of bounds, should be from 0 to %d", MAX_PREC - 1);
             check_err = 1;
         }
         break;

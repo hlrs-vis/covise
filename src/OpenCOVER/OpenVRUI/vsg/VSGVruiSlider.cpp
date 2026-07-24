@@ -254,11 +254,11 @@ ref_ptr<Node> VSGVruiSlider::createText(float xPos)
 
     if (slider->isInteger())
     {
-        sprintf(number, "%d", (int)value);
+        snprintf(number, sizeof(number), "%d", (int)value);
     }
     else
     {
-        sprintf(number, "%.*f", precision, value);
+        snprintf(number, sizeof(number), "%.*f", precision, value);
     }
 
     vec3 position;

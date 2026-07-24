@@ -137,9 +137,9 @@ void Application::parameter(void *)
         ex_get_var_param(exoid, "e", &num_element_variables);
         ex_get_var_param(exoid, "g", &num_global_variables);
 
-        sprintf(buf, "Dataset: %s Version: %f", database_title, version);
+        snprintf(buf, sizeof(buf), "Dataset: %s Version: %f", database_title, version);
         Covise::sendInfo(buf);
-        sprintf(buf, "Num_elem: %d Num_Coord: %d Num_blks: %d Num_node_sets: %d Num_side_sets: %d Num_node_vars: %d Num_elem_vars: %d", num_elem, num_nodes,
+        snprintf(buf, sizeof(buf), "Num_elem: %d Num_Coord: %d Num_blks: %d Num_node_sets: %d Num_side_sets: %d Num_node_vars: %d Num_elem_vars: %d", num_elem, num_nodes,
                 num_elem_blks, num_node_sets, num_side_sets, num_nodal_variables, num_element_variables);
         Covise::sendInfo(buf);
 
@@ -251,8 +251,8 @@ void Application::compute(void *)
     int *element_ns = new int[num_elem_blks];
     ex_get_elem_blk_ids(exoid, elem_blk_ids);
 
-    sprintf(BLOCKINFObuf, "%d %d %d", timestep - min, max - min, min);
-    sprintf(READ_MODULEbuf, "O%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+    snprintf(BLOCKINFObuf, sizeof(BLOCKINFObuf), "%d %d %d", timestep - min, max - min, min);
+    snprintf(READ_MODULEbuf, sizeof(READ_MODULEbuf), "O%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
 
     num_elem = 0;
     num_conn = 0;
@@ -285,7 +285,7 @@ void Application::compute(void *)
         }
         else
         {
-            sprintf(buf, "Unknown elemtype %s", ex_buf);
+            snprintf(buf, sizeof(buf), "Unknown elemtype %s", ex_buf);
             Covise::sendInfo(buf);
         }
         num_conn += UnstructuredGrid_Num_Nodes[element_types[i]] * element_ns[i];

@@ -123,7 +123,7 @@ bool RecordPathPlugin::init()
     viewPath->setState(false);
     viewPath->setCallback([this](bool state) {
         char label[100];
-        sprintf(label, "numSamples: %zd", recordList.size());
+        snprintf(label, sizeof(label), "numSamples: %zd", recordList.size());
         numSamples->setText(label);
         if (state)
         {
@@ -345,7 +345,7 @@ RecordPathPlugin::preFrame()
         {
             oldUpdateTime = time;
             char label[100];
-            sprintf(label, "numSamples: %zd", recordList.size());
+            snprintf(label, sizeof(label), "numSamples: %zd", recordList.size());
             numSamples->setText(label);
         }
         if (time - oldTime > recordRate)

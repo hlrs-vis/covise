@@ -39,13 +39,13 @@ AddGeom::AddGeom(int id, coModule *mod)
     // Case switching group start -
     char buf[64];
 
-    sprintf(buf, "Vent_%d:Pos", id);
+    snprintf(buf, sizeof(buf), "Vent_%d:Pos", id);
     p_pos = mod->addFloatVectorParam(buf, "Position");
 
-    sprintf(buf, "Vent_%d:Euler", id);
+    snprintf(buf, sizeof(buf), "Vent_%d:Euler", id);
     p_euler = mod->addFloatVectorParam(buf, "Euler Angles");
 
-    sprintf(buf, "Vent_%d:Rot", id);
+    snprintf(buf, sizeof(buf), "Vent_%d:Rot", id);
     p_rot = mod->addFloatVectorParam(buf, "Rotation Matrix");
     mod->paraEndCase();
 
@@ -131,7 +131,7 @@ coDistributedObject *AddGeom::getCurrentObject(const char *baseName, const char 
     // now add all interactors...
     coFeedback feedback("VisitProPlugin");
     char str[30];
-    sprintf(str, "VENT_%d", d_id);
+    snprintf(str, sizeof(str), "VENT_%d", d_id);
     feedback.addString(str);
     feedback.addPara(p_pos);
     feedback.addPara(p_rot);

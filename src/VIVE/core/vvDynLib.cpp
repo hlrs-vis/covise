@@ -143,7 +143,7 @@ CO_SHLIB_HANDLE vvDynLib::dlopen(const char *filename, bool showErrors)
         while (dirname != NULL)
         {
 #ifdef _WIN32
-            sprintf(buf, "%s\\%s\\lib\\VIVE\\plugins\\%s", dirname, archsuffix, filename);
+            snprintf(buf, sizeof(buf), "%s\\%s\\lib\\VIVE\\plugins\\%s", dirname, archsuffix, filename);
 #else
             snprintf(buf, sizeof(buf), "%s/%s/lib/VIVE/plugins/%s", dirname, archsuffix, filename);
 #endif

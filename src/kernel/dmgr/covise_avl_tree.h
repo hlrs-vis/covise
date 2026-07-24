@@ -280,7 +280,7 @@ T *AVLTree<T>::search_node(T *data, int search)
 #ifdef DEBUG
     char tmp_str[255];
 
-    sprintf(tmp_str, "AVLTree<T>::search_node, mode %d", search);
+    snprintf(tmp_str, sizeof(tmp_str), "AVLTree<T>::search_node, mode %d", search);
     print(tmp_str);
     print_comment(__LINE__, __FILE__, "searching node:");
     data->print();
@@ -1322,7 +1322,7 @@ void AVLTree<T>::show_tree(CO_AVL_Node<T> *curr_node)
    //    printf("\n ");
    for (i=0; i<covise_depth; i++)
       //	printf("-");
-      sprintf(tmp_str, " Node %4d @@%p: bal=%2d  data=%p",
+      snprintf(tmp_str, sizeof(tmp_str), " Node %4d @@%p: bal=%2d  data=%p",
          covise_n_node, curr_node, curr_node->balance,
          (void *)curr_node->data);
    //    printf(tmp_str);

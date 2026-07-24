@@ -76,9 +76,9 @@ void CreateGAContourWireframe(struct curve *c)
    FILE *fp_3d, *fp_2d;
    char fname[255];
 
-   sprintf(fname, "ga_contour2d_%02d.txt", ncall);
+   snprintf(fname, sizeof(fname), "ga_contour2d_%02d.txt", ncall);
    fp_2d = fopen(fname, "w");
-   sprintf(fname, "ga_contour3d_%02d.txt", ncall++);
+   snprintf(fname, sizeof(fname), "ga_contour3d_%02d.txt", ncall++);
    fp_3d = fopen(fname, "w");
    for (i = 0; i <= nsec; i++)
    {
@@ -165,7 +165,7 @@ int SurfacesGA_BladeElement(struct gate *ga)
    char fname[255];
    static int nbe = 0;
 
-   sprintf(fname, "ga_beplane_%02d.txt", nbe++);
+   snprintf(fname, sizeof(fname), "ga_beplane_%02d.txt", nbe++);
    fp = fopen(fname, "w");
 #endif                                         // DEBUG_SURFACES
 
@@ -630,7 +630,7 @@ int ReadProfileFromFile(struct gate *ga, const char *fn)
    static int nbe = 0;
    int j;
 
-   sprintf(fname, "ga_beplane_%02d.txt", nbe++);
+   snprintf(fname, sizeof(fname), "ga_beplane_%02d.txt", nbe++);
    fp = fopen(fname, "w");
 
    fprintf(fp, "Anzahl Punkte: %d\n", ga->bp->num);

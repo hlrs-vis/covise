@@ -83,7 +83,7 @@ void read_tipsy_file(vector<real4> &bodyPositions,
     */
 
     char fullFileName[256];
-    sprintf(fullFileName, "%s", fileName.c_str());
+    snprintf(fullFileName, sizeof(fullFileName), "%s", fileName.c_str());
 
     cout << "Trying to read file: " << fullFileName << endl;
 

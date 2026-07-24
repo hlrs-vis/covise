@@ -19,7 +19,7 @@ char *CreateFileNameParam(const char *def, const char *env, const char *file, in
 	if (p && *p) {
 		if (file && *file) {
 			if (strlen(p)+strlen(file)+1 <= MAXPATH)
-				sprintf(buf, "%s/%s", p, file);
+				snprintf(buf, sizeof(buf), "%s/%s", p, file);
 		}
 		else {
 			if (strlen(p) <= MAXPATH)
@@ -30,7 +30,7 @@ char *CreateFileNameParam(const char *def, const char *env, const char *file, in
 		if (mode == CFNP_NORM) {
 			if (file && *file) {
 				if (strlen(file)+2 <= MAXPATH)
-					sprintf(buf, "./%s", file);
+					snprintf(buf, sizeof(buf), "./%s", file);
 			}
 			else {
 				strcpy(buf, "./");

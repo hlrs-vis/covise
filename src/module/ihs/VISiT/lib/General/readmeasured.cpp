@@ -36,7 +36,7 @@ struct Isofield * ReadMeasured(char *fn)
    isof = AllocIsofieldStruct();
    for (i = 0; i < niso; i++)
    {
-      sprintf(curve, ISO_CURVE, i+1);
+      snprintf(curve, sizeof(curve), ISO_CURVE, i+1);
       if ((buf = IHS_GetCFGValue(fn, curve, ISO_VAL)) != NULL)
       {
          sscanf(buf, "%f", &iv);
@@ -48,7 +48,7 @@ struct Isofield * ReadMeasured(char *fn)
          sscanf(buf, "%d", &np);
          for (j = 0; j < np; j++)
          {
-            sprintf(point, ISO_POINT, j+1);
+            snprintf(point, sizeof(point), ISO_POINT, j+1);
             if ((buf = IHS_GetCFGValue(fn, curve, point)) != NULL)
             {
                sscanf(buf, "%f, %f, %f", &off, &val1, &val2);

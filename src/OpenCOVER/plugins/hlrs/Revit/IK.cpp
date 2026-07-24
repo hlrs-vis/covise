@@ -1221,7 +1221,7 @@ void MatrixF::Print(char* fname)
 #ifdef _MSC_VER
 			sprintf_s(buf, "%s %04.3f", buf, GetVal(c, r));
 #else
-			sprintf(buf, "%s %04.3f", buf, GetVal(c, r));
+			snprintf(buf, sizeof(buf), "%s %04.3f", buf, GetVal(c, r));
 #endif
 		}
 		fprintf(fp, "%s\n", buf);

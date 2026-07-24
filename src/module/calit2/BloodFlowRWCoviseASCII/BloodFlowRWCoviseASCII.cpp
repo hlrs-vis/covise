@@ -771,7 +771,7 @@ RW_ASCII::readSETELE(const char *name, char *command, istream &str)
             {
                 char namebuf[100000];
 
-                sprintf(namebuf, "%s_%d", name, i);
+                snprintf(namebuf, sizeof(namebuf), "%s_%d", name, i);
                 objs[i] = readObj(namebuf, str);
 
                 if (!objs[i] && i > 0)
@@ -996,7 +996,7 @@ RW_ASCII::readSTRSDT(const char *name, char *command, istream &str)
                 {
 
                     // an error occured in DATA definition
-                    sprintf(errBuf,
+                    snprintf(errBuf, sizeof(errBuf),
                             "ERROR: Illegal read in DATA definition '%s'", buffer);
 
                     // clean up
@@ -1096,7 +1096,7 @@ RW_ASCII::readSTRVDT(const char *name, char *command, istream &str)
                 {
 
                     // an error occured in VERTEX definition
-                    sprintf(errBuf,
+                    snprintf(errBuf, sizeof(errBuf),
                             "ERROR: Illegal read in VERTEX definition '%s'",
                             buffer);
 
@@ -1397,7 +1397,7 @@ RW_ASCII::readRCTGRD(const char *name, char *command, istream &str)
                 {
 
                     // an error occured in VERTEX definition
-                    sprintf(errBuf,
+                    snprintf(errBuf, sizeof(errBuf),
                             "ERROR: Illegal read in VERTEX definition '%s'",
                             buffer);
 
@@ -1419,7 +1419,7 @@ RW_ASCII::readRCTGRD(const char *name, char *command, istream &str)
                 {
 
                     // an error occured in VERTEX definition
-                    sprintf(errBuf,
+                    snprintf(errBuf, sizeof(errBuf),
                             "ERROR: Illegal read in VERTEX definition '%s'",
                             buffer);
 
@@ -1441,7 +1441,7 @@ RW_ASCII::readRCTGRD(const char *name, char *command, istream &str)
                 {
 
                     // an error occured in VERTEX definition
-                    sprintf(errBuf,
+                    snprintf(errBuf, sizeof(errBuf),
                             "ERROR: Illegal read in VERTEX definition '%s'",
                             buffer);
 
@@ -2929,7 +2929,7 @@ RW_ASCII::compute(const char *)
 
             coDoSet *set_output = new coDoSet(p_dataOut->getObjName(), outobjs);
             char buf[128];
-            sprintf(buf, "1 %zu", files.size());
+            snprintf(buf, sizeof(buf), "1 %zu", files.size());
             set_output->addAttribute("TIMESTEP", buf);
 
             if (set_output)

@@ -549,7 +549,7 @@ public:
 
         Covise::init(argc, argv);
         char buf[500];
-        sprintf(buf, "C%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+        snprintf(buf, sizeof(buf), "C%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
         Covise::set_feedback_info(buf);
         Covise::set_quit_callback(Application::quitCallback, this);
         Covise::set_start_callback(Application::computeCallback, this);

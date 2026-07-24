@@ -130,7 +130,7 @@ float Trans3D::idle()
         {
             timestep = 0;
             char buf[1000];
-            sprintf(buf, "T%s\n%s\n%s\n", Covise::get_module(),
+            snprintf(buf, sizeof(buf), "T%s\n%s\n%s\n", Covise::get_module(),
                     Covise::get_instance(),
                     Covise::get_host());
             Covise::set_feedback_info(buf);

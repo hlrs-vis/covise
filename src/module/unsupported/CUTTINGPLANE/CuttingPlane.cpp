@@ -206,8 +206,8 @@ void Application::handle_objects(coDistributedObject *mesh, coDistributedObject 
             data_set_objs[0] = NULL;
             for (i = 0; i < set_num_elem; i++)
             {
-                sprintf(buf, "%s_%d", Outgridname, i);
-                sprintf(buf2, "%s_%d", Outdataname, i);
+                snprintf(buf, sizeof(buf), "%s_%d", Outgridname, i);
+                snprintf(buf2, sizeof(buf2), "%s_%d", Outdataname, i);
                 handle_objects(mesh_objs[i], data_objs[i], buf, buf2, grid_set_objs, data_set_objs);
             }
             G_set = new coDoSet(Outgridname, grid_set_objs);

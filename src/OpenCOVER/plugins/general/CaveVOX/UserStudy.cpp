@@ -407,7 +407,7 @@ void UserStudy::setNextValue()
 
     _valueToSet = _values[_counter];
 
-    num = sprintf(buf, "%lf", _valueToSet);
+    num = snprintf(buf, sizeof(buf), "%lf", _valueToSet);
 
     for (i = 0, tmp = 0, min = 0, flag = false; i < num; i++)
     {
@@ -421,7 +421,7 @@ void UserStudy::setNextValue()
             flag = true;
     }
 
-    sprintf(buf, "%.*lf", min, _valueToSet);
+    snprintf(buf, sizeof(buf), "%.*lf", min, _valueToSet);
 
     if (_numberMode == SEARCH)
     {
@@ -450,7 +450,7 @@ void UserStudy::setNextValue()
         _msg->setText(buf);
     else
     {
-        sprintf(buf, "find the interesting range");
+        snprintf(buf, sizeof(buf), "find the interesting range");
         _msg->setText(buf);
     }
 

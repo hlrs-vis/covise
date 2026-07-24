@@ -223,7 +223,7 @@ int ReadFamu::compute(const char * /*port*/)
 
         filesBinding(_in_FirstFile->getValue(), _in_SecondFile->getValue(), (const char *)tempFile, _targetFile->getValue());
         char command[1024];
-        sprintf(command, "%s %s", _FamuExePath->getValue(), _FamuArgs->getValue());
+        snprintf(command, sizeof(command), "%s %s", _FamuExePath->getValue(), _FamuArgs->getValue());
         if (system(command) == -1)
             sendError("execution of %s failed", command);
         moveDist->setValue(0.0, 0.0, 0.0);
@@ -354,7 +354,7 @@ void ReadFamu::sendResultsToPorts(ResultsFileData *resultsFileData,
             {
                 int num = (int)(360.0 / _periodicAngle->getValue());
                 char attrValue[200];
-                sprintf(attrValue, "%d %f", num - 1, _periodicAngle->getValue());
+                snprintf(attrValue, sizeof(attrValue), "%d %f", num - 1, _periodicAngle->getValue());
                 dataSet->addAttribute("MULTIROT", attrValue);
             }
         }

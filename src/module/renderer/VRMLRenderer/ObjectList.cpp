@@ -524,7 +524,7 @@ int ObjectList::setViewPoint(char *camera)
         return 0;
     }
     fieldOfView = 1.; // force fieldOfView ?!
-    sprintf(tmpx, "   fieldOfView %f \n    description \"COVISE\" \n} \n", fieldOfView);
+    snprintf(tmpx, sizeof(tmpx), "   fieldOfView %f \n    description \"COVISE\" \n} \n", fieldOfView);
     strcat(tmp, tmpx);
 
     m_cameraMsg = new char[strlen(tmp) + 1];
@@ -583,11 +583,11 @@ void ObjectList::setTelepointer(char *telep)
     //pz = 0;
     if (press)
     {
-        sprintf(tmp, "11 Transform {\n translation %f %f %f\n children Shape{  appearance Appearance { material Material {diffuseColor  1 0 0 }}\n geometry Text {  string \"<%s\"\n fontStyle FontStyle{ size 0.3} } }\n}\n", px, py, pz, host);
+        snprintf(tmp, sizeof(tmp), "11 Transform {\n translation %f %f %f\n children Shape{  appearance Appearance { material Material {diffuseColor  1 0 0 }}\n geometry Text {  string \"<%s\"\n fontStyle FontStyle{ size 0.3} } }\n}\n", px, py, pz, host);
     }
     else
     {
-        sprintf(tmp, "12 Transform {\n translation %f %f %f\n children Shape{  appearance Appearance { material Material {diffuseColor  1 0 0 }}\n geometry Text {  string \"<%s\"\n fontStyle FontStyle{ size 0.3} } }\n}\n", px, py, pz, host);
+        snprintf(tmp, sizeof(tmp), "12 Transform {\n translation %f %f %f\n children Shape{  appearance Appearance { material Material {diffuseColor  1 0 0 }}\n geometry Text {  string \"<%s\"\n fontStyle FontStyle{ size 0.3} } }\n}\n", px, py, pz, host);
     }
 
     m_telepMsg = new char[strlen(tmp) + 1];
@@ -638,7 +638,7 @@ ObjectList::TransformViewPoint(char *output)
         return;
     }
     fieldofView = 1.;
-    sprintf(tmp, "   fieldOfView %f\n    description \"COVISE\" } \n", fieldofView);
+    snprintf(tmp, sizeof(tmp), "   fieldOfView %f\n    description \"COVISE\" } \n", fieldofView);
     strcat(output, tmp);
 }
 
@@ -653,13 +653,13 @@ void ObjectList::parseObjects(void)
 
     char tmp_buff[10000];
 
-    sprintf(tmp_buff, "%s", " 2 #VRML V2.0 utf8  \n");
+    snprintf(tmp_buff, sizeof(tmp_buff), "%s", " 2 #VRML V2.0 utf8  \n");
     m_length += (int)strlen(tmp_buff);
     for (const auto& it : *this)
     {
         if (strcmp("Endset", it->name) == 0)
         {
-            sprintf(tmp_buff, "%s", "]\n}\n");
+            snprintf(tmp_buff, sizeof(tmp_buff), "%s", "]\n}\n");
             m_length += (int)strlen(tmp_buff);
             numbeg--;
             if (numbeg == 0)
@@ -667,7 +667,7 @@ void ObjectList::parseObjects(void)
         }
         else if (strcmp("Beginset", it->name) == 0)
         {
-            sprintf(tmp_buff, "%s", "Group {\n    children [\n");
+            snprintf(tmp_buff, sizeof(tmp_buff), "%s", "Group {\n    children [\n");
             m_length += (int)strlen(tmp_buff);
             if (numbeg == 1)
                 numt++;
@@ -678,7 +678,7 @@ void ObjectList::parseObjects(void)
             bufs[numb] = new char[200];
             sprintf(bufs[numb], "\nROUTE SCR.switchValue TO SW_%s.set_whichChoice\n", it->rootname);
             numb++;
-            sprintf(tmp_buff, "DEF SW_%s Switch {\n    choice [\n", it->rootname);
+            snprintf(tmp_buff, sizeof(tmp_buff), "DEF SW_%s Switch {\n    choice [\n", it->rootname);
             m_length += (int)strlen(tmp_buff);
             numt = 0;
             hastime++;
@@ -691,7 +691,7 @@ void ObjectList::parseObjects(void)
             if (cb)
             {
                 tmp = (const char *)(*cb);
-                sprintf(tmp_buff, "\n\n# Name: %s Group: %s\n\n", it->name, it->rootname);
+                snprintf(tmp_buff, sizeof(tmp_buff), "\n\n# Name: %s Group: %s\n\n", it->name, it->rootname);
                 m_length += (int)strlen(tmp_buff);
                 //fprintf(fp,tmp);
                 m_length += (int)strlen(tmp);
@@ -702,7 +702,7 @@ void ObjectList::parseObjects(void)
     } // end while
     if (hastime > 0)
     {
-        sprintf(tmp_buff, "%s%s%s%s%s%s%s%sfield SFInt32 sizeOfSwitch %d\n}\n%s",
+        snprintf(tmp_buff, sizeof(tmp_buff), "%s%s%s%s%s%s%s%sfield SFInt32 sizeOfSwitch %d\n}\n%s",
                 SLIDER, SLIDER2, SLIDER3, SLIDER4, SLIDER5, SLIDER6, SLIDER7, SLIDER8, numtime, ROUTES);
         m_length += (int)strlen(tmp_buff);
     }
@@ -756,11 +756,11 @@ int ObjectList::sendObjects(const Connection *conn)
             // add Group
             if (it->real_root)
             {
-                sprintf(tmp_buff, " 7 %s@%s#%d\n", it->rootname, it->real_root, it->get_timestep());
+                snprintf(tmp_buff, sizeof(tmp_buff), " 7 %s@%s#%d\n", it->rootname, it->real_root, it->get_timestep());
             }
             else
             {
-                sprintf(tmp_buff, " 7 %s@ROOT#%d\n", it->rootname, it->get_timestep());
+                snprintf(tmp_buff, sizeof(tmp_buff), " 7 %s@ROOT#%d\n", it->rootname, it->get_timestep());
             }
             it->m_new = 0;
             send_obj(conn, tmp_buff);
@@ -775,16 +775,16 @@ int ObjectList::sendObjects(const Connection *conn)
             bufs[numb] = new char[200];
             sprintf(bufs[numb], "\nROUTE SCR.switchValue TO SW_%s.set_whichChoice\n", it->rootname);
             numb++;
-            sprintf(tmp_buff, "DEF SW_%s Switch {\n    choice [\n", it->rootname);
+            snprintf(tmp_buff, sizeof(tmp_buff), "DEF SW_%s Switch {\n    choice [\n", it->rootname);
 
             // add Switch
             if (it->real_root)
             {
-                sprintf(tmp_buff, " 8 %s@%s#%d#%d\n", it->rootname, it->real_root, it->m_min_timestep, it->m_max_timestep);
+                snprintf(tmp_buff, sizeof(tmp_buff), " 8 %s@%s#%d#%d\n", it->rootname, it->real_root, it->m_min_timestep, it->m_max_timestep);
             }
             else
             {
-                sprintf(tmp_buff, " 8 %s@ROOT#%d#%d\n", it->rootname, it->m_min_timestep, it->m_max_timestep);
+                snprintf(tmp_buff, sizeof(tmp_buff), " 8 %s@ROOT#%d#%d\n", it->rootname, it->m_min_timestep, it->m_max_timestep);
             }
             it->m_new = 0;
             send_obj(conn, tmp_buff);
@@ -800,16 +800,16 @@ int ObjectList::sendObjects(const Connection *conn)
             if (cb)
             {
                 tmp = (const char *)(*cb);
-                sprintf(tmp_buff, "\n\n# Name: %s Group: %s\n\n", it->name, it->rootname);
+                snprintf(tmp_buff, sizeof(tmp_buff), "\n\n# Name: %s Group: %s\n\n", it->name, it->rootname);
 
                 // add Geometry
                 if (it->rootname)
                 {
-                    sprintf(tmp_buff, " 6 %s@%s#%d\n", it->name, it->rootname, it->get_timestep());
+                    snprintf(tmp_buff, sizeof(tmp_buff), " 6 %s@%s#%d\n", it->name, it->rootname, it->get_timestep());
                 }
                 else
                 {
-                    sprintf(tmp_buff, " 6 %s@ROOT#%d\n", it->name, it->get_timestep());
+                    snprintf(tmp_buff, sizeof(tmp_buff), " 6 %s@ROOT#%d\n", it->name, it->get_timestep());
                 }
                 int add_l = (int)strlen(tmp);
                 send_obj(conn, tmp_buff, add_l);
@@ -851,11 +851,11 @@ int ObjectList::sendNewObjects(const Connection *conn)
                 // add Group
                 if (it->real_root)
                 {
-                    sprintf(tmp_buff, " 7 %s@%s#%d\n", it->rootname, it->real_root, it->get_timestep());
+                    snprintf(tmp_buff, sizeof(tmp_buff), " 7 %s@%s#%d\n", it->rootname, it->real_root, it->get_timestep());
                 }
                 else
                 {
-                    sprintf(tmp_buff, " 7 %s@ROOT#%d\n", it->rootname, it->get_timestep());
+                    snprintf(tmp_buff, sizeof(tmp_buff), " 7 %s@ROOT#%d\n", it->rootname, it->get_timestep());
                 }
                 it->m_new = 0;
                 send_obj(conn, tmp_buff);
@@ -869,16 +869,16 @@ int ObjectList::sendNewObjects(const Connection *conn)
                 bufs[numb] = new char[200];
                 sprintf(bufs[numb], "\nROUTE SCR.switchValue TO SW_%s.set_whichChoice\n", it->rootname);
                 numb++;
-                sprintf(tmp_buff, "DEF SW_%s Switch {\n    choice [\n", it->rootname);
+                snprintf(tmp_buff, sizeof(tmp_buff), "DEF SW_%s Switch {\n    choice [\n", it->rootname);
 
                 // add Switch
                 if (it->real_root)
                 {
-                    sprintf(tmp_buff, " 8 %s@%s#%d#%d\n", it->rootname, it->real_root, it->m_min_timestep, it->m_max_timestep);
+                    snprintf(tmp_buff, sizeof(tmp_buff), " 8 %s@%s#%d#%d\n", it->rootname, it->real_root, it->m_min_timestep, it->m_max_timestep);
                 }
                 else
                 {
-                    sprintf(tmp_buff, " 8 %s@ROOT#%d#%d\n", it->rootname, it->m_min_timestep, it->m_max_timestep);
+                    snprintf(tmp_buff, sizeof(tmp_buff), " 8 %s@ROOT#%d#%d\n", it->rootname, it->m_min_timestep, it->m_max_timestep);
                 }
                 it->m_new = 0;
                 send_obj(conn, tmp_buff);
@@ -893,15 +893,15 @@ int ObjectList::sendNewObjects(const Connection *conn)
                 if (cb)
                 {
                     tmp = (const char *)(*cb);
-                    sprintf(tmp_buff, "\n\n# Name: %s Group: %s\n\n", it->name, it->rootname);
+                    snprintf(tmp_buff, sizeof(tmp_buff), "\n\n# Name: %s Group: %s\n\n", it->name, it->rootname);
                     // add Geometry
                     if (it->rootname)
                     {
-                        sprintf(tmp_buff, " 6 %s@%s#%d\n", it->name, it->rootname, it->get_timestep());
+                        snprintf(tmp_buff, sizeof(tmp_buff), " 6 %s@%s#%d\n", it->name, it->rootname, it->get_timestep());
                     }
                     else
                     {
-                        sprintf(tmp_buff, " 6 %s@ROOT#%d\n", it->name, it->get_timestep());
+                        snprintf(tmp_buff, sizeof(tmp_buff), " 6 %s@ROOT#%d\n", it->name, it->get_timestep());
                     }
                     int add_l = (int)strlen(tmp);
                     send_obj(conn, tmp_buff, add_l);
@@ -928,7 +928,7 @@ int ObjectList::sendTimestep(const Connection *conn)
 
     if (m_no_sw > 0)
     {
-        sprintf(tmp_buff, "10 %d", m_crt_timestep);
+        snprintf(tmp_buff, sizeof(tmp_buff), "10 %d", m_crt_timestep);
         send_obj(conn, tmp_buff);
     }
     return 1;

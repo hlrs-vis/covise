@@ -40,7 +40,7 @@ ShmAccess::ShmAccess(char *d, int noDelete)
     for (int i = 0; i < num; i++)
     {
 #ifdef DEBUG
-        sprintf(tmp_str, "new SharedMemory(%d, %d)", *((int *)ptr), *((shmSizeType *)(ptr+sizeof(int))));
+        snprintf(tmp_str, sizeof(tmp_str), "new SharedMemory(%d, %d)", *((int *)ptr), *((shmSizeType *)(ptr+sizeof(int))));
         print_comment(__LINE__, __FILE__, tmp_str);
 #endif
         shm = new SharedMemory(*((int *)ptr), *((shmSizeType *)(ptr+sizeof(int))), noDelete);

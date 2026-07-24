@@ -138,7 +138,7 @@ const char *coFloatParam::getTypeString() const
 const char *coFloatParam::getValString() const
 {
     static char valString[64];
-    sprintf(valString, "%f", d_value);
+    snprintf(valString, sizeof(valString), "%f", d_value);
     return valString;
 }
 

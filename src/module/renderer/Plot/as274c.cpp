@@ -728,16 +728,16 @@ void pr_utdm_v(double *x, int N, int width, int precision)
     char s[100], fmt[100]; /* will be used in making printf() formats */
     char buf[256];
 
-    sprintf(fmt, "%%%d.%dg", width, precision);
+    snprintf(fmt, sizeof(fmt), "%%%d.%dg", width, precision);
     for (i = 0; i < N; i++)
     {
         leavespace = i * width;
-        sprintf(s, "%%%ds", leavespace);
-        sprintf(buf, s, "");
+        snprintf(s, sizeof(s), "%%%ds", leavespace);
+        snprintf(buf, sizeof(buf), s, "");
         stufftext(buf, 0);
         for (j = i; j < N; j++)
         {
-            sprintf(buf, fmt, x[pos++]);
+            snprintf(buf, sizeof(buf), fmt, x[pos++]);
             stufftext(buf, 0);
         }
         stufftext((char *)"\n", 0);
@@ -813,11 +813,11 @@ void putdvec(const char *s, double *x, int l, int h)
 {
     int i;
     char buf[512];
-    sprintf(buf, "Vector %-10s: \n", s);
+    snprintf(buf, sizeof(buf), "Vector %-10s: \n", s);
     stufftext(buf, 0);
     for (i = l; i <= h; i++)
     {
-        sprintf(buf, " %d: %.4g \n", i, x[i]);
+        snprintf(buf, sizeof(buf), " %d: %.4g \n", i, x[i]);
         stufftext(buf, 0);
     }
 }
@@ -879,7 +879,7 @@ int dofitcurve(int cnt, double *xd, double *yd, int nd, double *c)
     error = clear(nvars, nrbar, d, rbar, thetab, &sserr);
     if (error)
     {
-        sprintf(buf, "as274c: clear() returned %d", error);
+        snprintf(buf, sizeof(buf), "as274c: clear() returned %d", error);
         errwin(buf);
         goto bustout;
     }
@@ -892,7 +892,7 @@ int dofitcurve(int cnt, double *xd, double *yd, int nd, double *c)
         error = includ(nvars, nrbar, 1.0, xrow, y[i], d, rbar, thetab, &sserr);
         if (error)
         {
-            sprintf(buf, "as274c: includ() returned %d at row %d", error, i);
+            snprintf(buf, sizeof(buf), "as274c: includ() returned %d at row %d", error, i);
             errwin(buf);
             goto bustout;
         }
@@ -901,38 +901,38 @@ int dofitcurve(int cnt, double *xd, double *yd, int nd, double *c)
     error = tolset(nvars, nrbar, d, rbar, tol);
     if (error)
     {
-        sprintf(buf, "as274c: tolset() returned %d\n", error);
+        snprintf(buf, sizeof(buf), "as274c: tolset() returned %d\n", error);
         errwin(buf);
         goto bustout;
     }
     error = sing(nvars, nrbar, d, rbar, thetab, &sserr, tol, lindep);
     if (error)
     {
-        sprintf(buf, "as274c: sing() returned %d", error);
+        snprintf(buf, sizeof(buf), "as274c: sing() returned %d", error);
         errwin(buf);
         goto bustout;
     }
-    sprintf(buf, "SSerr = %17g\n", sserr);
+    snprintf(buf, sizeof(buf), "SSerr = %17g\n", sserr);
     stufftext(buf, 0);
 
     error = regcf(nvars, nrbar, d, rbar, thetab, tol, beta, nvars);
     if (error)
     {
-        sprintf(buf, "as274c: regcf() returned %d", error);
+        snprintf(buf, sizeof(buf), "as274c: regcf() returned %d", error);
         errwin(buf);
         goto bustout;
     }
     stufftext((char *)"\nVariable order:\n ", 0);
     for (j = 0; j < nvars; j++)
     {
-        sprintf(buf, "   %d ", vorder[j]);
+        snprintf(buf, sizeof(buf), "   %d ", vorder[j]);
         stufftext(buf, 0);
     }
     stufftext((char *)"\n", 0);
 
     putdvec("Beta", beta, 0, nvars - 1);
     putdvec("d", d, 0, nvars - 1);
-    sprintf(buf, "rbar matrix:\n");
+    snprintf(buf, sizeof(buf), "rbar matrix:\n");
     stufftext(buf, 0);
     pr_utdm_v(rbar, nvars - 1, 14, 6);
     putdvec("thetab", thetab, 0, nvars - 1);

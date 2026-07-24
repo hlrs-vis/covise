@@ -32,7 +32,7 @@ PressureLevels::PressureLevels(int argc, char *argv[])
     for (int i = 4; i < numParams; i++)
     {
         char namebuf[50];
-        sprintf(namebuf, "InputData%d", i);
+        snprintf(namebuf, sizeof(namebuf), "InputData%d", i);
         p_inData[i] = addInputPort(namebuf, "Float", namebuf);
     }
 

@@ -266,7 +266,7 @@ int CreateRR_MeridianContours(struct radial *rr)
 		vec[1] = p2[1] - p1[1];
 		vec[2] = p2[2] - p1[2];
 		dprintf(4," BSplinePoint ... done!\n");
-		sprintf(fname, "rr_calcmeridian_%02d.txt", i);
+		snprintf(fname, sizeof(fname), "rr_calcmeridian_%02d.txt", i);
 #ifdef DEBUG_MERIDIANS
 		if ((fcrv = fopen(fname, "w")) == NULL) {
 			dprintf(0, "error opening meridian file '%s' *yakk*\n", fname);
@@ -504,7 +504,7 @@ int CreateRR_MeridianContours(struct radial *rr)
 #endif						   // !NO_INLET_EXT
 
 	for (j = 0; j < rr->be_num; j++) {
-		sprintf(fname, "rr_meridian_%02d.txt", j);
+		snprintf(fname, sizeof(fname), "rr_meridian_%02d.txt", j);
 		if ((fcrv = fopen(fname, "w")) == NULL) {
 			dprintf(0, "error writing meridian file '%s' *yakk*\n", fname);
 			return 0;
@@ -513,7 +513,7 @@ int CreateRR_MeridianContours(struct radial *rr)
 		fclose(fcrv);
 	}
 #ifdef GAP
-	sprintf(fname, "rr_meridian_gap.txt");
+	snprintf(fname, sizeof(fname), "rr_meridian_gap.txt");
 	if ((fcrv = fopen(fname, "w")) == NULL) {
 		fprintf(stdout, "error writing meridian file '%s' *yakk*\n", fname);
 		return 0;

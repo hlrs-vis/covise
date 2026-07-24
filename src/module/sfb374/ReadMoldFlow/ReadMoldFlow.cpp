@@ -174,7 +174,7 @@ int ReadMoldFlow::readASCII()
         d_resultFile = fopen(resultFileName, "r");
         if (!d_resultFile)
         {
-            sprintf(buf, "Could not read %s: %s", resultFileName, strerror(errno));
+            snprintf(buf, sizeof(buf), "Could not read %s: %s", resultFileName, strerror(errno));
             sendError(buf);
             return STOP_PIPELINE;
         }
@@ -199,15 +199,15 @@ int ReadMoldFlow::readASCII()
             {
                 if (zeros)
                 {
-                    sprintf(buf, "%s%0*d%s", dp, numNumbers, fileNumber, dpend);
+                    snprintf(buf, sizeof(buf), "%s%0*d%s", dp, numNumbers, fileNumber, dpend);
                     //fprintf(stderr,"Opening file %s\n",buf);
                 }
                 else
-                    sprintf(buf, "%s%d%s", dp, fileNumber, dpend);
+                    snprintf(buf, sizeof(buf), "%s%d%s", dp, fileNumber, dpend);
                 d_resultFile = fopen(buf, "r");
                 if (d_resultFile)
                 {
-                    sprintf(buf2, "Reading file %s\n", buf);
+                    snprintf(buf2, sizeof(buf2), "Reading file %s\n", buf);
                     Covise::sendInfo(buf2);
                     break;
                 }
@@ -217,7 +217,7 @@ int ReadMoldFlow::readASCII()
             }
             if (d_resultFile)
             {
-                sprintf(buf, "%s_%d", Results, fileNumber);
+                snprintf(buf, sizeof(buf), "%s_%d", Results, fileNumber);
                 coDoFloat *dataObj = NULL;
                 if ((dataObj = readResults(buf)) == NULL)
                 {
@@ -256,7 +256,7 @@ int ReadMoldFlow::readASCII()
     }
     else
     {
-        sprintf(buf, "%s_Grid", Surface);
+        snprintf(buf, sizeof(buf), "%s_Grid", Surface);
         surface = new coDoPolygons(buf, n_coord, n_elem * 3, n_elem);
     }
 
@@ -445,7 +445,7 @@ void ReadMoldFlow::openFiles()
     d_nodeFile = fopen(nodeFileName, "r");
     if (!d_nodeFile)
     {
-        sprintf(buffer, "Could not read %s: %s", nodeFileName, strerror(errno));
+        snprintf(buffer, sizeof(buffer), "Could not read %s: %s", nodeFileName, strerror(errno));
         sendError(buffer);
         return;
     }
@@ -453,7 +453,7 @@ void ReadMoldFlow::openFiles()
     d_elementFile = fopen(elementFileName, "r");
     if (!d_elementFile)
     {
-        sprintf(buffer, "Could not read %s: %s", elementFileName, strerror(errno));
+        snprintf(buffer, sizeof(buffer), "Could not read %s: %s", elementFileName, strerror(errno));
         sendError(buffer);
         return;
     }

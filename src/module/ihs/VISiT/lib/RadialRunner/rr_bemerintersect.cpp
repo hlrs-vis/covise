@@ -71,7 +71,7 @@ int BladeEdgeMeridianIntersection(struct edge *e, struct be **be, int be_num)
 	}
 	e->bmpar = AllocFlistStruct(be_num);
 #ifdef DEBUG_INTERSECTION
-	sprintf(fname, "rr_bemerint_%02d.txt", ncall++);
+	snprintf(fname, sizeof(fname), "rr_bemerint_%02d.txt", ncall++);
 	if ((fm = fopen(fname, "w")) == NULL)
 		fprintf(stderr, "cannot open file %s\n", fname);
 #endif	// DEBUG_INTERSECTION
@@ -91,7 +91,7 @@ int BladeEdgeMeridianIntersection(struct edge *e, struct be **be, int be_num)
 
 	for (i = 0; i < NPOIN_EDGE; i++) {
 #ifdef DEBUG_INTERSECTION
-		sprintf(fname, "rr_intersect%02d_%02d.txt", nedge++, (ncall-1));
+		snprintf(fname, sizeof(fname), "rr_intersect%02d_%02d.txt", nedge++, (ncall-1));
 		if ((fp = fopen(fname, "w")) == NULL)
 			fprintf(stderr, "cannot open file %s\n", fname);
 		fprintf(fp, "\nBLADE EDGE SEGMENT %d\n", i);

@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
 
     int status = 0;
     char buf[8];
-    sprintf(buf, ".VP1%d!", projectorID);
+    snprintf(buf, sizeof(buf), ".VP1%d!", projectorID);
     serial.write((void *)buf, 6);
 }
 

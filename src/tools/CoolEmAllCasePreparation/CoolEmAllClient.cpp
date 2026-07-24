@@ -68,7 +68,7 @@ bool CoolEmAllClient::setValue(std::string path, std::string var, std::string va
     std::string command;
     time_t timei = time(NULL);
     char timec[1000];
-    sprintf(timec, "%d", static_cast<int>(timei));
+    snprintf(timec, sizeof(timec), "%d", static_cast<int>(timei));
     std::string times = timec;
     std::string experiment;
     std::string trial;

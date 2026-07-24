@@ -466,15 +466,15 @@ int Arrayset::finish_and_send()
 
     // cerr << "Tokens bisher gesamt: " << num_tokens << endl;
     // cerr << "Addiere + 4 dazu (rtitle,ctitle,rdim,cdim)" << endl;
-    sprintf(numbuf, "%d\n", num_tokens + 4);
+    snprintf(numbuf, sizeof(numbuf), "%d\n", num_tokens + 4);
     strcat(msg_buf, numbuf);
     strcat(msg_buf, rtitle);
     strcat(msg_buf, "\n");
     strcat(msg_buf, ctitle);
     strcat(msg_buf, "\n");
-    sprintf(numbuf, "%d\n", cdim);
+    snprintf(numbuf, sizeof(numbuf), "%d\n", cdim);
     strcat(msg_buf, numbuf);
-    sprintf(numbuf, "%d\n", rdim);
+    snprintf(numbuf, sizeof(numbuf), "%d\n", rdim);
     strcat(msg_buf, numbuf);
     strcat(msg_buf, buf);
     strcat(msg_buf, "\0");

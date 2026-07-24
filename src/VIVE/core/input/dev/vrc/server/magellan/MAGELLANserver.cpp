@@ -274,7 +274,7 @@ int main(int argc, char *argv[])
             if (C < -360.0)
                 C += 360.0;
             ROT;
-            sprintf(sendbuffer, "VRC %d %3d [%5.8f %5.8f %5.8f] - [%5.8f %5.8f %5.8f %5.8f %5.8f %5.8f %5.8f %5.8f %5.8f] - [0 0]",
+            snprintf(sendbuffer, sizeof(sendbuffer), "VRC %d %3d [%5.8f %5.8f %5.8f] - [%5.8f %5.8f %5.8f %5.8f %5.8f %5.8f %5.8f %5.8f %5.8f] - [0 0]",
                     stationID, button,
                     X, Z, Y,
                     matr[0][0], matr[0][1], matr[0][2],

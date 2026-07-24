@@ -649,7 +649,7 @@ int main(int argc, char *argv[])
 
     // finish sets by writing their Attributes
     char buffer[64];
-    sprintf(buffer, "0 %d", numFiles);
+    snprintf(buffer, sizeof(buffer), "0 %d", numFiles);
     const char *attrName[] = { "TIMESTEP", "SPECIES" };
     const char *attrVal[] = { buffer, "Mesh" };
 

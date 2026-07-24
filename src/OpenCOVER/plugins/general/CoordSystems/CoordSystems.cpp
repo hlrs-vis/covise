@@ -347,7 +347,7 @@ void CoordAxis::makeIdentity()
 void CoordAxis::setLabelValue(float scalefactor)
 {
     char buf[50];
-    sprintf(buf, "%.3f", scalefactor);
+    snprintf(buf, sizeof(buf), "%.3f", scalefactor);
     ScLabel->setString(buf);
 }
 //------------------------------------------------------------------------------------------------------------------------------

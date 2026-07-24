@@ -81,7 +81,7 @@ char *getCurrDirName(){return currDirName_;}\
 
 
 %define LEX_BODY {return lexer->yylex();}
-%define ERROR_BODY { char comsg[4096]; sprintf(comsg, "Syntax error in line %d; %s not recognized", lexer->getLineNo(), lexer->YYText()); Covise::sendError(comsg); isCorrect_=false;}
+%define ERROR_BODY { char comsg[4096]; snprintf(comsg, sizeof(comsg), "Syntax error in line %d; %s not recognized", lexer->getLineNo(), lexer->YYText()); Covise::sendError(comsg); isCorrect_=false;}
 
 
 

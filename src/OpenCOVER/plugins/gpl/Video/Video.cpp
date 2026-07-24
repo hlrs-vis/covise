@@ -52,7 +52,7 @@ VideoPlugin::VideoPlugin()
     else
         hostIndex = coVRMSController::instance()->getID();
     char buffer[3];
-    sprintf(buffer, "%d", hostIndex);
+    snprintf(buffer, sizeof(buffer), "%d", hostIndex);
     hostName = buffer;
 
     if (coVRConfig::instance()->channels[0].stereoMode == osg::DisplaySettings::RIGHT_EYE)
@@ -87,14 +87,14 @@ bool VideoPlugin::opt_frame_size(int w, int h)
     errorLabel->setLabel("");
     if (w <= 0 || h <= 0)
     {
-        sprintf(buf, "INCORRECT FRAME SIZE");
+        snprintf(buf, sizeof(buf), "INCORRECT FRAME SIZE");
         fprintf(stderr, "incorrect frame size h=%d w=%d\n", h, w);
         errorLabel->setLabel(buf);
         return (true);
     }
     if ((w % 2) != 0 || (h % 2) != 0)
     {
-        sprintf(buf, "FRAME SIZE MUST BE A MULTIPLE OF 2");
+        snprintf(buf, sizeof(buf), "FRAME SIZE MUST BE A MULTIPLE OF 2");
         fprintf(stderr, "frame size not a multiple of 2\n");
         errorLabel->setLabel(buf);
         return (true);
@@ -299,7 +299,7 @@ void VideoPlugin::fillFilenameField(const string &name, bool browser, bool chang
                 {
                     ifs.close();
                     char index[5];
-                    sprintf(index, "_%03d", count++);
+                    snprintf(index, sizeof(index), "_%03d", count++);
                     newname = filename + index;
                 }
                 else
@@ -324,7 +324,7 @@ void VideoPlugin::fillFilenameField(const string &name, bool browser, bool chang
                 {
                     ifs.close();
                     char index[5];
-                    sprintf(index, "_%03d", count++);
+                    snprintf(index, sizeof(index), "_%03d", count++);
                     newname = filename + index;
                 }
                 else

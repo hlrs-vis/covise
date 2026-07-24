@@ -82,7 +82,7 @@ void setBicycleBreak(int breakvalue)
 {
     if ((breakvalue >= 0) && (breakvalue <= 10000))
     {
-        sprintf(buf, "%i\n", breakvalue);
+        snprintf(buf, sizeof(buf), "%i\n", breakvalue);
 
         if (sendto(ssend, buf, BUFLEN, 0, (struct sockaddr *)&si_other, slen) == -1)
         {

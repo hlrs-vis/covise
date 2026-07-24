@@ -67,11 +67,11 @@ CutGeometry::CutGeometry(int argc, char *argv[])
 
     for (i = 0; i < NUM_DATA_IN_PORTS; i++)
     {
-        sprintf(portname, "DataIn%d", i);
+        snprintf(portname, sizeof(portname), "DataIn%d", i);
         p_data_in[i] = addInputPort(portname, "Float|Vec3|RGBA", "data");
         p_data_in[i]->setRequired(0);
 
-        sprintf(portname, "DataOut%d", i);
+        snprintf(portname, sizeof(portname), "DataOut%d", i);
         p_data_out[i] = addOutputPort(portname, "Float|Vec3|RGBA", "data");
         if (p_data_out[i] == NULL)
             sendError("Error");
@@ -658,7 +658,7 @@ int CutGeometry::compute(const char *)
             // copyAttributes( poly_in , geo_return);
             p_geo_out->setCurrentObject(geo_return);
             // we support VR here
-            sprintf(bfr, "G%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+            snprintf(bfr, sizeof(bfr), "G%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
             // geo_return->addAttribute("FEEDBACK", bfr);
             setInteraction(bfr);
         }
@@ -673,7 +673,7 @@ int CutGeometry::compute(const char *)
             // copyAttributes( poly_in , geo_return);
             p_geo_out->setCurrentObject(geo_return);
             // we support VR here
-            sprintf(bfr, "G%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+            snprintf(bfr, sizeof(bfr), "G%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
             // geo_return->addAttribute("FEEDBACK", bfr);
             setInteraction(bfr);
         }
@@ -689,7 +689,7 @@ int CutGeometry::compute(const char *)
             // copyAttributes( strips_in , geo_return);
             p_geo_out->setCurrentObject(geo_return);
             // we support VR here
-            sprintf(bfr, "G%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+            snprintf(bfr, sizeof(bfr), "G%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
             // geo_return->addAttribute("FEEDBACK", bfr);
             setInteraction(bfr);
         }
@@ -945,7 +945,7 @@ int CutGeometry::compute(const char *)
             // copyAttributes( poly_in , geo_return);
             p_geo_out->setCurrentObject(geo_return);
             // we support VR here
-            sprintf(bfr, "G%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+            snprintf(bfr, sizeof(bfr), "G%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
             // geo_return->addAttribute("FEEDBACK", bfr);
             setInteraction(bfr);
         }

@@ -105,5 +105,5 @@ int coUifPara::isActive() const
 void coUifPara::para_error(const char *what)
 {
     char buffer[256];
-    sprintf(buffer, "Parameter '%s' %s", d_name, what);
+    snprintf(buffer, sizeof(buffer), "Parameter '%s' %s", d_name, what);
 }

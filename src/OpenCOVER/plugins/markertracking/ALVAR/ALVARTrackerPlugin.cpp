@@ -692,7 +692,7 @@ ALVARPlugin::preFrame()
                                         calibCount++;
                                         //cout<<calibCount<<"/"<<calibCountMax<<endl;
                                         char tmpText[100];
-                                        sprintf(tmpText, "%d%%", (int)(((float)calibCount / (float)calibCountMax) * 100.0));
+                                        snprintf(tmpText, sizeof(tmpText), "%d%%", (int)(((float)calibCount / (float)calibCountMax) * 100.0));
                                         calibrateLabel->setLabel(tmpText);
                                     }
                                 }

@@ -166,9 +166,9 @@ int unitwrite(int unit, int i, const char *pstr)
     char buffer[200];
 
     if (pstr == 0)
-        sprintf(buffer, "%i", i);
+        snprintf(buffer, sizeof(buffer), "%i", i);
     else
-        sprintf(buffer, pstr, i);
+        snprintf(buffer, sizeof(buffer), pstr, i);
     if (unit == 0 || unit == 6)
     {
         cout << buffer;
@@ -201,9 +201,9 @@ int unitwrite(int unit, prec r, const char *pstr)
     char buffer[200];
 
     if (pstr == 0)
-        sprintf(buffer, "%lf", (double)r);
+        snprintf(buffer, sizeof(buffer), "%lf", (double)r);
     else
-        sprintf(buffer, pstr, (double)r);
+        snprintf(buffer, sizeof(buffer), pstr, (double)r);
     if (unit == 0 || unit == 6)
     {
         cout << buffer;

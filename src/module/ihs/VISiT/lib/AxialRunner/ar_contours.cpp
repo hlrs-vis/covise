@@ -1151,11 +1151,11 @@ void CreateContourWireframe(struct curve *c, int nump)
    FILE *fp_3d=NULL, *fp_2d=NULL;
    char fname[255];
 
-   sprintf(fname, "ar_contour2d_%02d.txt", ncall);
+   snprintf(fname, sizeof(fname), "ar_contour2d_%02d.txt", ncall);
    fn = DebugFilename(fname);
    if(fn)
    fp_2d = fopen(fn, "w");
-   sprintf(fname, "ar_contour3d_%02d.txt", ncall++);
+   snprintf(fname, sizeof(fname), "ar_contour3d_%02d.txt", ncall++);
    fn = DebugFilename(fname);
    if(fn)
    fp_3d = fopen(fn, "w");

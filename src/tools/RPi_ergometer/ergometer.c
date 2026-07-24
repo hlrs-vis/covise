@@ -209,7 +209,7 @@ void isrSyncEdgeDetected(void)
 // ---------------------------------------------------------
 void sendUDPData(void)
 {
-    sprintf(buf, "%i\n", speed);
+    snprintf(buf, sizeof(buf), "%i\n", speed);
 
     if (sendto(s, buf, BUFLEN, 0, (struct sockaddr *)&si_other, slen) == -1)
     {

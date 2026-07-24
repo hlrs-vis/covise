@@ -250,7 +250,7 @@ void JAKAPlugin::sendPose(const Pose& pose)
 {
 
     char buf[200];
-    sprintf(buf, "%d,%s\n", 1, pose.to_Taiwanstring().c_str());
+    snprintf(buf, sizeof(buf), "%d,%s\n", 1, pose.to_Taiwanstring().c_str());
     //udpclient->send(&lm, sizeof(lm));
     udpclient->send(&buf, strlen(buf));
     cout << buf << std::endl;

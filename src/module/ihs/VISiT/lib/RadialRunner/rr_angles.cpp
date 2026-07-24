@@ -61,7 +61,7 @@ int CalcRR_BladeAngles(struct radial *rr)
 
 #ifdef DEBUG_ANGLES
 	for(i = 0; i < rr->be_num; i++) {
-		sprintf(fn,"rr_blade_elem_%02d.txt", i);
+		snprintf(fn, sizeof(fn),"rr_blade_elem_%02d.txt", i);
 
 		if( (fp = fopen(fn,"w+")) == NULL ) {
 			fprintf(stderr," ERROR opening file '%s'.\n",fn);
@@ -140,7 +140,7 @@ static int CalcRR_Angles(struct radial *rr)
 	}											   // end i, blade elements
 
 	if(err == EULER_ERR) {
-		sprintf(fn,"euler.err");
+		snprintf(fn, sizeof(fn),"euler.err");
 		if ( (fp = fopen(fn,"w+")) == NULL) {
 			fprintf(stderr,"Cannot open file '%s'.\n",fn);
 			errfile = 0;
@@ -169,7 +169,7 @@ static int CalcRR_Angles(struct radial *rr)
 
 
 #ifdef DEBUG_AREAS
-	sprintf(fn,"rr_lete_areas.txt");
+	snprintf(fn, sizeof(fn),"rr_lete_areas.txt");
 	if ( (fp = fopen(fn,"w+")) == NULL) {
 		fprintf(stderr,"Cannot open file '%s'.\n",fn);
 		exit(1);
@@ -228,7 +228,7 @@ static int CalcRR_PumpAngles(struct radial *rr)
 	}											   // end i, blade elements
 
 	if(err == EULER_ERR) {
-		sprintf(fn,"euler.err");
+		snprintf(fn, sizeof(fn),"euler.err");
 		if ( (fp = fopen(fn,"w+")) == NULL) {
 			fprintf(stderr,"Cannot open file '%s'.\n",fn);
 			errfile = 0;
@@ -259,7 +259,7 @@ static int CalcRR_PumpAngles(struct radial *rr)
 
 
 #ifdef DEBUG_AREAS
-	sprintf(fn,"rr_lete_areas.txt");
+	snprintf(fn, sizeof(fn),"rr_lete_areas.txt");
 	if ( (fp = fopen(fn,"w+")) == NULL) {
 		fprintf(stderr,"Cannot open file '%s'.\n",fn);
 		exit(1);

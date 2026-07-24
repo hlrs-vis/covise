@@ -47,7 +47,7 @@ void rShared::initShared(rShared *daddy, char *name, int id, coTUIFrame *frame, 
     if (this->elemName)
         free(this->elemName);
     this->elemName = strdup(name);
-    sprintf(buf, "%s_%d", name, id);
+    snprintf(buf, sizeof(buf), "%s_%d", name, id);
     this->elemIDName = strdup(buf);
     this->coverGroup = new osg::Group();
     this->coverGroup->setName(name);
@@ -59,7 +59,7 @@ void rShared::initShared(rShared *daddy, char *name, int id, coTUIFrame *frame, 
 
         this->daddy->coverGroup->addChild(this->coverGroup.get());
         this->depth = daddy->depth + 1;
-        sprintf(buf, "%s/%s", this->daddy->getIDNamePath(), this->getIDName());
+        snprintf(buf, sizeof(buf), "%s/%s", this->daddy->getIDNamePath(), this->getIDName());
         this->elemIDNamePath = strdup(buf);
         this->ropeLength = daddy->ropeLength; // gesetzt wird das im rope ...
     }

@@ -79,12 +79,12 @@ int MeshRR_CoreRegion(struct Nodelist *n, struct curve *ml, struct region *reg,
 	int jx, ix;
 	static int fcount = 0;
 
-	sprintf(fngnu,"rr_coregnu_%02d.txt", fcount);
+	snprintf(fngnu, sizeof(fngnu),"rr_coregnu_%02d.txt", fcount);
 	if( (fpgnu = fopen(fngnu,"w+")) == NULL) {
 		fprintf(stderr,"Shit happened opening file '%s'!\n",fngnu);
 		exit(-1);
 	}
-	sprintf(fn,"rr_debugcore_%02d.txt", fcount++);
+	snprintf(fn, sizeof(fn),"rr_debugcore_%02d.txt", fcount++);
 	if( (fp = fopen(fn,"w+")) == NULL) {
 		fprintf(stderr,"Shit happened opening file '%s'!\n",fn);
 		exit(-1);
@@ -203,7 +203,7 @@ int MeshRR_CoreRegion(struct Nodelist *n, struct curve *ml, struct region *reg,
 	fclose(fp);
 	fclose(fpgnu);
 
-	sprintf(fn,"rr_corenodes_%02d.txt", fcount-1);
+	snprintf(fn, sizeof(fn),"rr_corenodes_%02d.txt", fcount-1);
 	if( (fp = fopen(fn,"w+")) == NULL) {
 		fprintf(stderr,"Shit happened opening file '%s'!\n",fn);
 		exit(-1);
@@ -268,7 +268,7 @@ static int getScaledRegion(struct Flist **arc, struct Point **line,
 	static int count = 0;
 	char fn[123];
 	FILE *fp;
-	sprintf(fn,"scaled_region_%02d.dat",count++);
+	snprintf(fn, sizeof(fn),"scaled_region_%02d.dat",count++);
 	if( (fp = fopen(fn,"w+")) == NULL)
 		fprintf(stderr," could not open file '%s'!\n",fn);
 #endif
@@ -362,7 +362,7 @@ static int getShapeFunctions(struct Point **lines, struct Point **f)
 	static int count = 0;
 	char fn[123];
 	FILE *fp;
-	sprintf(fn,"shape_funcs_%02d.dat",count++);
+	snprintf(fn, sizeof(fn),"shape_funcs_%02d.dat",count++);
 	if( (fp = fopen(fn,"w+")) == NULL)
 		fprintf(stderr," could not open file '%s'!\n",fn);
 #endif

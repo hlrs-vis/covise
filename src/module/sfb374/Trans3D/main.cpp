@@ -514,7 +514,7 @@ void read_file(const char *pname)
             *pstr = '\0';
         /*    strcat(buffer2,".tpj.gz");
       //    rename(pname,buffer2);
-      //    sprintf(buffer,"%sgzip.dll",AppPath);
+      //    snprintf(buffer, sizeof(buffer),"%sgzip.dll",AppPath);
       //    HINSTANCE   hInst = LoadLibrary(buffer);
       //    PZIPFN      pZipFn = (PZIPFN) GetProcAddress(hInst,"_Decompress");
       //    pZipFn(buffer2);
@@ -673,7 +673,7 @@ void read_file(const char *pname)
     unitclose(fs.unit);
     if (c == 0x1f) // Textdatei wieder komprimieren
     {
-        sprintf(buffer, "%sgzip.dll", AppPath);
+        snprintf(buffer, sizeof(buffer), "%sgzip.dll", AppPath);
         //    HINSTANCE   hInst = LoadLibrary(buffer);
         //    PZIPFN      pZipFn = (PZIPFN) GetProcAddress(hInst,"_Compress");
         //    pZipFn(buffer2);
@@ -834,7 +834,7 @@ void write_file(const char *pname)
    // Komprimieren und umbenennen
 
      char  buffer2[200];
-     sprintf(buffer2,"%sgzip.dll",AppPath);
+     snprintf(buffer2, sizeof(buffer2),"%sgzip.dll",AppPath);
      HINSTANCE   hInst = LoadLibrary(buffer2);
      PZIPFN      pZipFn = (PZIPFN) GetProcAddress(hInst,"_Compress");
      pZipFn(buffer);
@@ -938,7 +938,7 @@ int CalculateAblation()
 #ifdef WIN32
             sprintf(buffer, "%10.6le %4i  %10.3le %10.3le %10.3le %10.3le %7i %7i",
 #else
-            sprintf(buffer, "%10.6e %4i  %10.3e %10.3e %10.3e %10.3e %7i %7i",
+            snprintf(buffer, sizeof(buffer), "%10.6e %4i  %10.3e %10.3e %10.3e %10.3e %7i %7i",
 #endif
                     dimtime, nstep, dtmax, Solid.ndMaxTemp,
                     Laser.ndAvePower, Solid.ndVapRate, Laser.iRays, Laser.iBadRays);

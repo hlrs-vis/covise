@@ -49,7 +49,7 @@ struct Element *eoutlet,  int reg_num, int offset)
    FILE *fp;
    static int count = 0;
 
-   sprintf(fn,"rr_debugelem_%02d.txt", count++);
+   snprintf(fn, sizeof(fn),"rr_debugelem_%02d.txt", count++);
    if( (fp = fopen(fn,"w+")) == NULL)
    {
       fprintf(stderr,"Shit happened opening file '%s'!\n",fn);
@@ -688,7 +688,7 @@ int DumpBCElements(struct Element *bcelem, struct Nodelist *n, char *name)
    char fn[111];
    FILE *fp;
 
-   sprintf(fn,"rr_%s.txt",name);
+   snprintf(fn, sizeof(fn),"rr_%s.txt",name);
    if( (fp = fopen(fn,"w+")) == NULL)
    {
       fprintf(stderr,"Shit happened opening file '%s'!\n",fn);
@@ -730,7 +730,7 @@ int DumpElements(struct Nodelist *n, struct Element *e, int ge_num)
 
    for(i = 0; i < ge_num-1; i++)
    {
-      sprintf(fn,"rr_elems_%02d.txt", i);
+      snprintf(fn, sizeof(fn),"rr_elems_%02d.txt", i);
       if( (fp = fopen(fn,"w+")) == NULL)
       {
          fprintf(stderr,"Shit happened opening file '%s'!\n",fn);
@@ -799,7 +799,7 @@ int Write_2DMeridianMesh(struct Nodelist *n, struct Element *e, int ge_num)
    // **************************************************
    for(i = 0; i < ge_num; i+=ii)
    {
-      sprintf(fn,"rr_mesh2Dmeridian_%02d.dat",i);
+      snprintf(fn, sizeof(fn),"rr_mesh2Dmeridian_%02d.dat",i);
       if( (fp = fopen(fn,"w+")) == NULL)
       {
          fprintf(stderr,"Shit happened opening file '%s'!\n",fn);

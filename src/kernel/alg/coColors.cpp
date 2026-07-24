@@ -537,7 +537,7 @@ coDistributedObject *coColors::createColors(recObj &base, const coObjInfo &info,
     {
         char namebuf[512];
         char namemask[512];
-        sprintf(namemask, "%s_%%d", info.getName());
+        snprintf(namemask, sizeof(namemask), "%s_%%d", info.getName());
 
         // create array for Set
         coDistributedObject **setArr = new coDistributedObject *[base.numElem];
@@ -545,7 +545,7 @@ coDistributedObject *coColors::createColors(recObj &base, const coObjInfo &info,
         // recursively create set objects
         for (i = 0; i < base.numElem; i++)
         {
-            sprintf(namebuf, namemask, i);
+            snprintf(namebuf, sizeof(namebuf), namemask, i);
             setArr[i] = createColors(base.subObj[i], coObjInfo(namebuf), outStyle, repeat);
         }
 
@@ -630,7 +630,7 @@ coDistributedObject *coColors::createColors(recObj &base, const coObjInfo &info,
             int texSize = 256;
             while (texSize < steps_)
                 texSize *= 2;
-            sprintf(namebuf, "%s_Img", info.getName());
+            snprintf(namebuf, sizeof(namebuf), "%s_Img", info.getName());
             unsigned char *image = new unsigned char[textureComponents_ * texSize];
             unsigned char *iPtr = image;
             float delta = 1.0f / (texSize - 1) * (steps_ - 0.00001f);

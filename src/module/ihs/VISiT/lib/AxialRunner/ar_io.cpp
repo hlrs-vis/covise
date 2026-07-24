@@ -292,7 +292,7 @@ int ReadAxialRunner(struct geometry *g, const char *fn)
    g->ar->p_hubcap = AllocPointStruct();
    for (i = 0; ; i++)
    {
-      sprintf(key, AR_PCAP, i);
+      snprintf(key, sizeof(key), AR_PCAP, i);
       x = y = z = 0.0;
       if ((tmp = IHS_GetCFGValue(fn, AR_DIM, key)) != NULL)
       {
@@ -518,7 +518,7 @@ void DumpAR(struct axial *ar)
 
    if (!ar)
       return;
-   sprintf(fname, "ar_struct_%02d.txt", fcount++);
+   snprintf(fname, sizeof(fname), "ar_struct_%02d.txt", fcount++);
    fn = DebugFilename(fname);
    if(fn)
    ferr = fopen(fn, "w");
@@ -615,7 +615,7 @@ void WriteGNU_AR(struct axial *ar)
    char fname[255];
    char *fn;
 
-   sprintf(fname, "ar_blade3d_%02d.txt", ncall++);
+   snprintf(fname, sizeof(fname), "ar_blade3d_%02d.txt", ncall++);
    fn = DebugFilename(fname);
    if (fn && (fp = fopen(fn, "w")) != NULL)
    {
@@ -750,7 +750,7 @@ int WriteAxialRunner(struct axial *ar, FILE *fp)
    {
       dprintf(6," WriteAxialRunner(): %d (%d)\n",
          i, ar->p_hubcap->nump);
-      sprintf(buf, AR_PCAP, i);
+      snprintf(buf, sizeof(buf), AR_PCAP, i);
       dprintf(6," WriteAxialRunner(): buf  = %s\n",buf);
       dprintf(6," WriteAxialRunner(): x[i] = %f\n",
          ar->p_hubcap->x[i]);
@@ -784,63 +784,63 @@ int WriteAxialRunner(struct axial *ar, FILE *fp)
    fprintf(fp, "\n%s\n",AR_IANGLE);
    for(i = 0; i < ar->be_num; i++)
    {
-      sprintf(buf, STAT, i);
+      snprintf(buf, sizeof(buf), STAT, i);
       fprintf(fp, "%*s = %6.4f, %9.4f\n", L_LEN, buf,
          ar->be[i]->para, ar->be[i]->angle[0]);
    }
    fprintf(fp, "\n%s\n",AR_OANGLE);
    for(i = 0; i < ar->be_num; i++)
    {
-      sprintf(buf, STAT, i);
+      snprintf(buf, sizeof(buf), STAT, i);
       fprintf(fp, "%*s = %6.4f, %9.4f\n", L_LEN, buf,
          ar->be[i]->para, ar->be[i]->angle[1]);
    }
    fprintf(fp, "\n%s\n",AR_MIANGLE);
    for(i = 0; i < ar->be_num; i++)
    {
-      sprintf(buf, STAT, i);
+      snprintf(buf, sizeof(buf), STAT, i);
       fprintf(fp, "%*s = %6.4f, %9.4f\n", L_LEN, buf,
          ar->be[i]->para, ar->be[i]->mod_angle[0]);
    }
    fprintf(fp, "\n%s\n",AR_MOANGLE);
    for(i = 0; i < ar->be_num; i++)
    {
-      sprintf(buf, STAT, i);
+      snprintf(buf, sizeof(buf), STAT, i);
       fprintf(fp, "%*s = %6.4f, %9.4f\n", L_LEN, buf,
          ar->be[i]->para, ar->be[i]->mod_angle[1]);
    }
    fprintf(fp, "\n%s\n",AR_PTHICK);
    for(i = 0; i < ar->be_num; i++)
    {
-      sprintf(buf, STAT, i);
+      snprintf(buf, sizeof(buf), STAT, i);
       fprintf(fp, "%*s = %6.4f, %9.4f\n", L_LEN, buf,
          ar->be[i]->para, ar->be[i]->p_thick);
    }
    fprintf(fp, "\n%s\n",AR_TETHICK);
    for(i = 0; i < ar->be_num; i++)
    {
-      sprintf(buf, STAT, i);
+      snprintf(buf, sizeof(buf), STAT, i);
       fprintf(fp, "%*s = %6.4f, %9.4f\n", L_LEN, buf,
          ar->be[i]->para, ar->be[i]->te_thick);
    }
    fprintf(fp, "\n%s\n",AR_CAMB);
    for(i = 0; i < ar->be_num; i++)
    {
-      sprintf(buf, STAT, i);
+      snprintf(buf, sizeof(buf), STAT, i);
       fprintf(fp, "%*s = %6.4f, %9.4f\n", L_LEN, buf,
          ar->be[i]->para, ar->be[i]->camb);
    }
    fprintf(fp, "\n%s\n",AR_CAMBPOS);
    for(i = 0; i < ar->be_num; i++)
    {
-      sprintf(buf, STAT, i);
+      snprintf(buf, sizeof(buf), STAT, i);
       fprintf(fp, "%*s = %6.4f, %9.4f\n", L_LEN, buf,
          ar->be[i]->para, ar->be[i]->camb_pos);
    }
    fprintf(fp, "\n%s\n",BP_SHIFT);
    for(i = 0; i < ar->be_num; i++)
    {
-      sprintf(buf, STAT, i);
+      snprintf(buf, sizeof(buf), STAT, i);
       fprintf(fp, "%*s = %6.4f, %9.4f\n", L_LEN, buf,
          ar->be[i]->para, ar->be[i]->bp_shift);
    }
@@ -849,7 +849,7 @@ int WriteAxialRunner(struct axial *ar, FILE *fp)
    fprintf(fp, "%*s = %d\n", L_LEN, "naca style", ar->bp->naca);
    for(i = 0; i < ar->bp->num; i++)
    {
-      sprintf(buf, STAT, i);
+      snprintf(buf, sizeof(buf), STAT, i);
       fprintf(fp, "%*s = %13.8f, %14.8f\n", L_LEN, buf,
          ar->bp->c[i], ar->bp->t[i]);
    }
@@ -881,12 +881,12 @@ void PlotAR_BladeEdges(struct axial *ar)
    rad_hub    = 0.5 * ar->ref * ar->diam[0];
    rad_shroud = 0.5 * ar->ref;
 
-   sprintf(fname, "ar_edges_%02d.txt", ncall++);
+   snprintf(fname, sizeof(fname), "ar_edges_%02d.txt", ncall++);
    fn = DebugFilename(fname);
    if(fn)
    fp = fopen(fn, "w");
 
-   sprintf(fname_gnu, "ar_edges.gnu");
+   snprintf(fname_gnu, sizeof(fname_gnu), "ar_edges.gnu");
    fn = DebugFilename(fname);
    if(fn)
    if ((fgnu = fopen(fn, "w")) != NULL)

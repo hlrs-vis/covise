@@ -153,7 +153,7 @@ int hpsetmode(int mode)
         fclose(hpout);
         if (!ptofile)
         {
-            sprintf(sysbuf, "%s %s", curprint, fname);
+            snprintf(sysbuf, sizeof(sysbuf), "%s %s", curprint, fname);
             system(sysbuf);
             unlink(fname);
         }
@@ -165,7 +165,7 @@ int hpsetmode(int mode)
         fclose(hpout);
         if (!ptofile)
         {
-            sprintf(sysbuf, "%s %s", curprint, fname);
+            snprintf(sysbuf, sizeof(sysbuf), "%s %s", curprint, fname);
             system(sysbuf);
             unlink(fname);
         }
@@ -189,14 +189,14 @@ void drawhp(int x2, int y2, int mode)
 
         if (mode)
         {
-            sprintf(stmp, "PD%1d,%1d\n", xtmp, ytmp);
+            snprintf(stmp, sizeof(stmp), "PD%1d,%1d\n", xtmp, ytmp);
             putstrhp(stmp);
         }
         else
         {
             if (!(x1 == xtmp && yy1 == ytmp))
             {
-                sprintf(stmp, "PU%1d,%1d\n", xtmp, ytmp);
+                snprintf(stmp, sizeof(stmp), "PU%1d,%1d\n", xtmp, ytmp);
                 putstrhp(stmp);
             }
         }
@@ -209,14 +209,14 @@ void drawhp(int x2, int y2, int mode)
 
         if (mode)
         {
-            sprintf(stmp, "PD%1d,%1d\n", x2, y2);
+            snprintf(stmp, sizeof(stmp), "PD%1d,%1d\n", x2, y2);
             putstrhp(stmp);
         }
         else
         {
             if (!(x1 == x2 && yy1 == y2))
             {
-                sprintf(stmp, "PU%1d,%1d\n", x2, y2);
+                snprintf(stmp, sizeof(stmp), "PU%1d,%1d\n", x2, y2);
                 putstrhp(stmp);
             }
         }
@@ -261,7 +261,7 @@ int hpsetcolor(int c)
         char stmp[10];
 
         c = (c - 1) % MAXCOLOR + 1;
-        sprintf(stmp, "SP%d;PU\n", c);
+        snprintf(stmp, sizeof(stmp), "SP%d;PU\n", c);
         putstrhp(stmp);
     }
     hpcolor = c;
@@ -399,7 +399,7 @@ void hpfill(int n, int *px, int *py)
     {
         xtmp = py[0];
         ytmp = (-px[0]) + hpymax;
-        sprintf(stmp, "PU%1d,%1d\n", xtmp, ytmp);
+        snprintf(stmp, sizeof(stmp), "PU%1d,%1d\n", xtmp, ytmp);
         putstrhp(stmp);
         strcpy(stmp, "PM0;PD");
         putstrhp(stmp);
@@ -407,23 +407,23 @@ void hpfill(int n, int *px, int *py)
         {
             xtmp = py[j];
             ytmp = (-px[j]) + hpymax;
-            sprintf(stmp, "%1d,%1d,", xtmp, ytmp);
+            snprintf(stmp, sizeof(stmp), "%1d,%1d,", xtmp, ytmp);
             putstrhp(stmp);
         }
     }
     else
     {
-        sprintf(stmp, "PU%1d,%1d\n", px[0], py[0]);
+        snprintf(stmp, sizeof(stmp), "PU%1d,%1d\n", px[0], py[0]);
         putstrhp(stmp);
         strcpy(stmp, "PM0;PD");
         putstrhp(stmp);
         for (j = 1; j < n; j++)
         {
-            sprintf(stmp, "%1d,%1d,", px[j], py[j]);
+            snprintf(stmp, sizeof(stmp), "%1d,%1d,", px[j], py[j]);
             putstrhp(stmp);
         }
     }
-    sprintf(stmp, ";PM2;FP\n");
+    snprintf(stmp, sizeof(stmp), ";PM2;FP\n");
     putstrhp(stmp);
 }
 
@@ -452,14 +452,14 @@ void hpdrawarc(int x, int y, int r)
 
         xtmp = y;
         ytmp = (-x) + hpymax;
-        sprintf(stmp, "PU%1d,%1d;", xtmp, ytmp);
+        snprintf(stmp, sizeof(stmp), "PU%1d,%1d;", xtmp, ytmp);
     }
     else
     {
-        sprintf(stmp, "PU%1d,%1d;", x, y);
+        snprintf(stmp, sizeof(stmp), "PU%1d,%1d;", x, y);
     }
     putstrhp(stmp);
-    sprintf(stmp, "CI%1d\n", r);
+    snprintf(stmp, sizeof(stmp), "CI%1d\n", r);
     putstrhp(stmp);
 }
 
@@ -474,14 +474,14 @@ void hpfillarc(int x, int y, int r)
 
         xtmp = y;
         ytmp = (-x) + hpymax;
-        sprintf(stmp, "PU%1d,%1d;", xtmp, ytmp);
+        snprintf(stmp, sizeof(stmp), "PU%1d,%1d;", xtmp, ytmp);
     }
     else
     {
-        sprintf(stmp, "PU%1d,%1d;", x, y);
+        snprintf(stmp, sizeof(stmp), "PU%1d,%1d;", x, y);
     }
     putstrhp(stmp);
-    sprintf(stmp, "PM0;CI%1d;PM2;FP\n", r);
+    snprintf(stmp, sizeof(stmp), "PM0;CI%1d;PM2;FP\n", r);
     putstrhp(stmp);
 }
 

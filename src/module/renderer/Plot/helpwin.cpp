@@ -80,14 +80,14 @@ void create_help_frame(Widget w,
         if (stat("doc/ACEgr.html", &sb))
         {
             char tmpbuf[256];
-            sprintf(tmpbuf, "Can't stat file %s", "doc/ACEgr.html");
+            snprintf(tmpbuf, sizeof(tmpbuf), "Can't stat file %s", "doc/ACEgr.html");
             errwin(tmpbuf);
             return;
         }
         if (!S_ISREG(sb.st_mode))
         {
             char tmpbuf[256];
-            sprintf(tmpbuf, "File %s is not a regular file", "doc/ACEgr.html");
+            snprintf(tmpbuf, sizeof(tmpbuf), "File %s is not a regular file", "doc/ACEgr.html");
             errwin(tmpbuf);
             return;
         }

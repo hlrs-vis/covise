@@ -828,7 +828,7 @@ void PDBPickBox::setView(string &view, bool state)
                 {
                     string basename = _name + "-ff";
                     char buf[10];
-                    sprintf(buf, "%d", i);
+                    snprintf(buf, sizeof(buf), "%d", i);
                     Node *tempnode = readNodeFile((plugin->getRelativeTempPath()).c_str() + basename + buf + view + WRL_EXT);
                     osg::StateSet *state = tempnode->getOrCreateStateSet();
                     state->setMode(GL_CULL_FACE, osg::StateAttribute::OFF);
@@ -1551,7 +1551,7 @@ void PDBPlugin::preFrame()
             int counter = 0;
             string basename = loadFile + "-ff";
             char buf[10];
-            sprintf(buf, "%d", counter);
+            snprintf(buf, sizeof(buf), "%d", counter);
             Switch *timeSwitch = new Switch;
             string framename = basename + buf;
             Node *node = loadVRMLFile(framename);
@@ -1559,7 +1559,7 @@ void PDBPlugin::preFrame()
             {
                 counter++;
                 timeSwitch->addChild(node);
-                sprintf(buf, "%d", counter);
+                snprintf(buf, sizeof(buf), "%d", counter);
                 framename = basename + buf;
                 node = loadVRMLFile(framename);
             }
@@ -2155,7 +2155,7 @@ void PDBPlugin::loadPDB(string &filename, DataBankType dbtype)
     while(loaded)
     {
       char buf[32];
-      sprintf(buf, "FF%d", counter);
+      snprintf(buf, sizeof(buf), "FF%d", counter);
       filename.erase().append(buf);
 
       loaded = loadPDBFile(filename, timeSwitch);

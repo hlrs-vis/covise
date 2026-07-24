@@ -248,7 +248,7 @@ int coviseToFoam(Foam::Time &runTime)
         /*
 	FILE *fp;
 	char fn[200];
-	sprintf(fn,"shape_errors.txt");
+	snprintf(fn, sizeof(fn),"shape_errors.txt");
 	if( ( fp = fopen(fn,"w+")) == NULL) {
 		fprintf(stderr,"couldn't open file '%s'!\n",fn);
 	}

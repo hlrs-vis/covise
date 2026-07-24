@@ -58,7 +58,7 @@ struct covise_info *Radial2Covise(struct radial *rr)
 	FreeCoviseInfo(ci);
 	if (!(err = CreateRR_BladeElements(rr))) {
 #ifdef DEBUG_POLYGONS
-		sprintf(fname, "rr_polygons_%02d.txt", fcount++);
+		snprintf(fname, sizeof(fname), "rr_polygons_%02d.txt", fcount++);
 		ferr = fopen(fname, "w");
 		fprintf(ferr, "after CreateRR_BladeElements():\n");
 		fprintf(ferr, "rr->be_num		  = %d\n", rr->be_num);
@@ -548,20 +548,20 @@ void GetXMGRCommands(char *plbuf, float *xy,const char *title,const char *xlabel
 	if(q_flag) {
 		xy_min = MIN(xy[0], xy[1]);
 		xy_max = MAX(xy[2], xy[3]);
-		sprintf(buf, "WORLD %f,%f,%f,%f\n", xy_min, xy_min, xy_max, xy_max);
+		snprintf(buf, sizeof(buf), "WORLD %f,%f,%f,%f\n", xy_min, xy_min, xy_max, xy_max);
 	}
 	else {
-		sprintf(buf, "WORLD %f,%f,%f,%f\n", xy[0], xy[1], xy[2], xy[3]);
+		snprintf(buf, sizeof(buf), "WORLD %f,%f,%f,%f\n", xy[0], xy[1], xy[2], xy[3]);
 	}
 	sprintf(plbuf,"AUTOSCALE\n");
 	strcat(plbuf, buf);
 	strcat(plbuf, "SETS SYMBOL 27\n");
 	strcat(plbuf, "SETS LINESTYLE 0\n");
-	sprintf(buf,"title \"%s\"\n", title);
+	snprintf(buf, sizeof(buf),"title \"%s\"\n", title);
 	strcat(plbuf, buf);
-	sprintf(buf, "xaxis	 label \"%s\"\n", xlabel);
+	snprintf(buf, sizeof(buf), "xaxis	 label \"%s\"\n", xlabel);
 	strcat(plbuf, buf);
-	sprintf(buf, "yaxis	 label \"%s\"\n", ylabel);
+	snprintf(buf, sizeof(buf), "yaxis	 label \"%s\"\n", ylabel);
 	strcat(plbuf, buf);
 	factor = 10.0;
 	ytic = (float)(((int)(((xy[3]-xy[1])*factor)))/(9.0*factor));
@@ -569,7 +569,7 @@ void GetXMGRCommands(char *plbuf, float *xy,const char *title,const char *xlabel
 		factor *= 10.0;
 		ytic = (float)(((int)(((xy[3]-xy[1])*factor)))/(9.0*factor));
 	}
-	sprintf(buf, "yaxis	 tick major %f\nyaxis  tick minor %f\n",
+	snprintf(buf, sizeof(buf), "yaxis	 tick major %f\nyaxis  tick minor %f\n",
 			ytic,ytic/2.0);
 	strcat(plbuf, buf);
 
@@ -585,29 +585,29 @@ void AddXMGRSet2Plot(char *plbuf, float *xy, float *x, float *y, int num,
 
 	float xy_min, xy_max;
 
-	sprintf(gname,"g%d",graph);
-	sprintf(sname,"s%d",set);
+	snprintf(gname, sizeof(gname),"g%d",graph);
+	snprintf(sname, sizeof(sname),"s%d",set);
 
 	strcat(plbuf,"VIEW 0.15,0.15,0.85,0.55\n");	   // prev. graph.
 	for(i = 0; i < num; i++) {
-		sprintf(buf,"%s.%s POINT %10.6f %10.6f\n",gname,sname,x[i],y[i]);
+		snprintf(buf, sizeof(buf),"%s.%s POINT %10.6f %10.6f\n",gname,sname,x[i],y[i]);
 		strcat(plbuf,buf);
 	}
 	strcat(plbuf,"VIEW 0.15,0.58,0.85,0.85\n");
 	if(q_flag) {
 		xy_min = MIN(xy[0], xy[1]);
 		xy_max = MAX(xy[2], xy[3]);
-		sprintf(buf, "WORLD %f,%f,%f,%f\n", xy_min, xy_min, xy_max, xy_max);
+		snprintf(buf, sizeof(buf), "WORLD %f,%f,%f,%f\n", xy_min, xy_min, xy_max, xy_max);
 	}
 	else {
-		sprintf(buf, "WORLD %f,%f,%f,%f\n", xy[0], xy[1], xy[2], xy[3]);
+		snprintf(buf, sizeof(buf), "WORLD %f,%f,%f,%f\n", xy[0], xy[1], xy[2], xy[3]);
 	}
 	strcat(plbuf,buf);
-	sprintf(buf,"title \"%s\"\n", title);
+	snprintf(buf, sizeof(buf),"title \"%s\"\n", title);
 	strcat(plbuf, buf);
-	sprintf(buf, "xaxis	 label \"%s\"\n", xlabel);
+	snprintf(buf, sizeof(buf), "xaxis	 label \"%s\"\n", xlabel);
 	strcat(plbuf, buf);
-	sprintf(buf, "yaxis	 label \"%s\"\n", ylabel);
+	snprintf(buf, sizeof(buf), "yaxis	 label \"%s\"\n", ylabel);
 	strcat(plbuf, buf);
 }
 
@@ -1370,7 +1370,7 @@ int PutBladeData(struct radial *rr)
 
 	// **************************************************
 	// blades in cartesian coords.
-	sprintf(fn,"blade.data");
+	snprintf(fn, sizeof(fn),"blade.data");
 	if( (fp = fopen(fn,"w+")) == NULL) {
 		last_err = PUT_BLADEDATA_ERR;
 		return 1;
@@ -1414,7 +1414,7 @@ int PutBladeData(struct radial *rr)
 	fclose(fp);
 	// **************************************************
 	// blades for proE.
-	sprintf(fn,"blade.ibl");
+	snprintf(fn, sizeof(fn),"blade.ibl");
 	if( (fp = fopen(fn,"w+")) == NULL) {
 		last_err = PUT_BLADEDATA_ERR;
 		return 1;
@@ -1436,7 +1436,7 @@ int PutBladeData(struct radial *rr)
 	}
 	fclose(fp);
 	// center line
-	sprintf(fn,"centerline.ibl");
+	snprintf(fn, sizeof(fn),"centerline.ibl");
 	if( (fp = fopen(fn,"w+")) == NULL) {
 		last_err = PUT_BLADEDATA_ERR;
 		return 1;
@@ -1458,7 +1458,7 @@ int PutBladeData(struct radial *rr)
 	j = 0;
 #endif
 	// hub contour
-	sprintf(fn,"hub.ibl");
+	snprintf(fn, sizeof(fn),"hub.ibl");
 	if( (fp = fopen(fn,"w+")) == NULL) {
 		last_err = PUT_BLADEDATA_ERR;
 		return 1;
@@ -1474,7 +1474,7 @@ int PutBladeData(struct radial *rr)
 	fclose(fp);
 
 	// shroud contour
-	sprintf(fn,"shroud.ibl");
+	snprintf(fn, sizeof(fn),"shroud.ibl");
 	if( (fp = fopen(fn,"w+")) == NULL) {
 		last_err = PUT_BLADEDATA_ERR;
 		return 1;

@@ -303,7 +303,7 @@ vvConfig::vvConfig()
         float h, p, r;
         
         char str[200];
-        sprintf(str, "VIVE.ScreenConfig.Screen:%d", (int)i);
+        snprintf(str, sizeof(str), "VIVE.ScreenConfig.Screen:%d", (int)i);
         bool state = vvVIVEConfig::getScreenConfigEntry((int)i, screens[i].name, &hsize, &vsize, &x, &y, &z, &h, &p, &r);
         if (!state)
         {
@@ -340,7 +340,7 @@ vvConfig::vvConfig()
     for (size_t i = 0; i < pipes.size(); i++)
     {
         char str[200];
-        sprintf(str, "VIVE.PipeConfig.Pipe:%d", (int)i);
+        snprintf(str, sizeof(str), "VIVE.PipeConfig.Pipe:%d", (int)i);
         pipes[i].x11DisplayNum = coCoviseConfig::getInt("server", str, 0);
         pipes[i].x11ScreenNum = coCoviseConfig::getInt("screen", str, 0);
         pipes[i].x11DisplayHost = coCoviseConfig::getEntry("host", str, "");
@@ -354,7 +354,7 @@ vvConfig::vvConfig()
         w.window = NULL;
 
         char str[200];
-        sprintf(str, "VIVE.WindowConfig.Window:%d", (int)i);
+        snprintf(str, sizeof(str), "VIVE.WindowConfig.Window:%d", (int)i);
 
         w.name = coCoviseConfig::getEntry("comment", str, "COVER");
         w.pipeNum = coCoviseConfig::getInt("pipeIndex", str, 0);
@@ -388,7 +388,7 @@ vvConfig::vvConfig()
         std::string stereoM;
 
         char str[200];
-        sprintf(str, "VIVE.ChannelConfig.Channel:%d", (int)i);
+        snprintf(str, sizeof(str), "VIVE.ChannelConfig.Channel:%d", (int)i);
         std::string s = coCoviseConfig::getEntry("comment", str, "NoNameChannel");
         channels[i].name = s;
         stereoM = coCoviseConfig::getEntry("stereoMode", str);
@@ -451,7 +451,7 @@ vvConfig::vvConfig()
         std::string stereoM;
 
         char str[200];
-        sprintf(str, "VIVE.PBOConfig.PBO:%d", (int)i);
+        snprintf(str, sizeof(str), "VIVE.PBOConfig.PBO:%d", (int)i);
         
         PBOs[i].PBOsx = coCoviseConfig::getInt("PBOSizeX", str, -1);
         PBOs[i].PBOsx = coCoviseConfig::getInt("width", str, PBOs[i].PBOsx);
@@ -465,7 +465,7 @@ vvConfig::vvConfig()
         std::string stereoM;
 
         char str[200];
-        sprintf(str, "VIVE.ViewportConfig.Viewport:%d", (int)i);
+        snprintf(str, sizeof(str), "VIVE.ViewportConfig.Viewport:%d", (int)i);
         viewportStruct &vp = viewports[i];
         std::string mode = coCoviseConfig::getEntry("mode", str, "");
         mode = toLower(mode);
@@ -496,7 +496,7 @@ vvConfig::vvConfig()
         {
             // no viewport config, check for values in channelConfig for backward compatibility
 
-            sprintf(str, "VIVE.ChannelConfig.Channel:%d", (int)i);
+            snprintf(str, sizeof(str), "VIVE.ChannelConfig.Channel:%d", (int)i);
             vp.window = coCoviseConfig::getInt("windowIndex", str, -1,&exists);
             if (!exists)
             {
@@ -649,7 +649,7 @@ vvConfig::vvConfig()
     for (size_t i = 0; i < blendingTextures.size(); i++)
     {
         char str[200];
-        sprintf(str, "VIVE.BlendingTextureConfig.BlendingTexture:%d", (int)i);
+        snprintf(str, sizeof(str), "VIVE.BlendingTextureConfig.BlendingTexture:%d", (int)i);
         blendingTextureStruct &bt = blendingTextures[i];
         bool exists=false;
         bt.window = coCoviseConfig::getInt("windowIndex", str, -1,&exists);

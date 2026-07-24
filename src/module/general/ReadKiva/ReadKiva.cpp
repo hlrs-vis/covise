@@ -622,63 +622,63 @@ int ReadKiva::compute(const char *)
         {
             break;
         }
-        sprintf(buf, "%s_%d", Mesh, n);
+        snprintf(buf, sizeof(buf), "%s_%d", Mesh, n);
         mesh = new coDoUnstructuredGrid(buf, header.numElem, header.numElem * 8, header.numCoords, 1);
         if (!mesh->objectOk())
         {
             sendError("could not create output object:");
             break;
         }
-        sprintf(buf, "%s_%d", Veloc, n);
+        snprintf(buf, sizeof(buf), "%s_%d", Veloc, n);
         DOveloc = new coDoVec3(buf, header.numCoords);
         if (!DOveloc->objectOk())
         {
             sendError("could not create output object:");
             break;
         }
-        sprintf(buf, "%s_%d", Press, n);
+        snprintf(buf, sizeof(buf), "%s_%d", Press, n);
         DOpress = new coDoFloat(buf, header.numElem);
         if (!DOpress->objectOk())
         {
             sendError("could not create output object:");
             break;
         }
-        sprintf(buf, "%s_%d", rho_name, n);
+        snprintf(buf, sizeof(buf), "%s_%d", rho_name, n);
         DOrho = new coDoFloat(buf, header.numElem);
         if (!DOrho->objectOk())
         {
             sendError("could not create output object:");
             break;
         }
-        sprintf(buf, "%s_%d", vol_name, n);
+        snprintf(buf, sizeof(buf), "%s_%d", vol_name, n);
         DOvol = new coDoFloat(buf, header.numElem);
         if (!DOvol->objectOk())
         {
             sendError("could not create output object:");
             break;
         }
-        sprintf(buf, "%s_%d", temp_name, n);
+        snprintf(buf, sizeof(buf), "%s_%d", temp_name, n);
         DOtemperature = new coDoFloat(buf, header.numElem);
         if (!DOtemperature->objectOk())
         {
             sendError("could not create output object:");
             break;
         }
-        sprintf(buf, "%s_%d", amu_name, n);
+        snprintf(buf, sizeof(buf), "%s_%d", amu_name, n);
         DOamu = new coDoFloat(buf, header.numElem);
         if (!DOamu->objectOk())
         {
             sendError("could not create output object:");
             break;
         }
-        sprintf(buf, "%s_%d", tke_name, n);
+        snprintf(buf, sizeof(buf), "%s_%d", tke_name, n);
         DOtke = new coDoFloat(buf, header.numElem);
         if (!DOtke->objectOk())
         {
             sendError("could not create output object:");
             break;
         }
-        sprintf(buf, "%s_%d", eps_name, n);
+        snprintf(buf, sizeof(buf), "%s_%d", eps_name, n);
         DOeps = new coDoFloat(buf, header.numElem);
         if (!DOeps->objectOk())
         {
@@ -687,21 +687,21 @@ int ReadKiva::compute(const char *)
         }
         if (header.np > 0)
         {
-            sprintf(buf, "%s_%d", p_name, n);
+            snprintf(buf, sizeof(buf), "%s_%d", p_name, n);
             DOparticles = new coDoPoints(buf, header.np / pfactor);
             if (!DOeps->objectOk())
             {
                 sendError("could not create output object:");
                 break;
             }
-            sprintf(buf, "%s_%d", pv_name, n);
+            snprintf(buf, sizeof(buf), "%s_%d", pv_name, n);
             DOpveloc = new coDoVec3(buf, header.np / pfactor);
             if (!DOeps->objectOk())
             {
                 sendError("could not create output object:");
                 break;
             }
-            sprintf(buf, "%s_%d", pt_name, n);
+            snprintf(buf, sizeof(buf), "%s_%d", pt_name, n);
             DOptemperature = new coDoFloat(buf, header.np / pfactor);
             if (!DOeps->objectOk())
             {

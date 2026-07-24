@@ -169,7 +169,7 @@ bool ReadWLines2D::parseLines(vvTokenizer *tokenizer)
                     dataGrid[offset + gridSize[0] * y + rightX] = STAY;
                     break;
                 default:
-                    sprintf(msg, "Error in world lines file at line %d", tokenizer->getLineNumber());
+                    snprintf(msg, sizeof(msg), "Error in world lines file at line %d", tokenizer->getLineNumber());
                     Covise::sendError(msg);
                     return false;
                     break;
@@ -581,7 +581,7 @@ int ReadWLines2D::compute()
     }
     else
     {
-        sprintf(msg, "World lines grid size: %d x %d, time steps: %d",
+        snprintf(msg, sizeof(msg), "World lines grid size: %d x %d, time steps: %d",
                 gridSize[0], gridSize[1], numTimesteps);
         Covise::sendInfo(msg);
     }

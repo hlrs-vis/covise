@@ -40,31 +40,31 @@ GRMSGEXPORT coGRObjMaterialObjMsg::coGRObjMaterialObjMsg(Mtype type,
 
     char str[1024];
 
-    sprintf(str, "%d", _ambient[0]);
+    snprintf(str, sizeof(str), "%d", _ambient[0]);
     addToken(str);
-    sprintf(str, "%d", _ambient[1]);
+    snprintf(str, sizeof(str), "%d", _ambient[1]);
     addToken(str);
-    sprintf(str, "%d", _ambient[2]);
-    addToken(str);
-
-    sprintf(str, "%d", _diffuse[0]);
-    addToken(str);
-    sprintf(str, "%d", _diffuse[1]);
-    addToken(str);
-    sprintf(str, "%d", _diffuse[2]);
+    snprintf(str, sizeof(str), "%d", _ambient[2]);
     addToken(str);
 
-    sprintf(str, "%d", _specular[0]);
+    snprintf(str, sizeof(str), "%d", _diffuse[0]);
     addToken(str);
-    sprintf(str, "%d", _specular[1]);
+    snprintf(str, sizeof(str), "%d", _diffuse[1]);
     addToken(str);
-    sprintf(str, "%d", _specular[2]);
-    addToken(str);
-
-    sprintf(str, "%f", _shininess);
+    snprintf(str, sizeof(str), "%d", _diffuse[2]);
     addToken(str);
 
-    sprintf(str, "%f", _transparency);
+    snprintf(str, sizeof(str), "%d", _specular[0]);
+    addToken(str);
+    snprintf(str, sizeof(str), "%d", _specular[1]);
+    addToken(str);
+    snprintf(str, sizeof(str), "%d", _specular[2]);
+    addToken(str);
+
+    snprintf(str, sizeof(str), "%f", _shininess);
+    addToken(str);
+
+    snprintf(str, sizeof(str), "%f", _transparency);
     addToken(str);
 
     is_valid_ = 1;

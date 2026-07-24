@@ -197,7 +197,7 @@ int PolyToCyl::compute(const char *port)
         else
         {
             char objname[256];
-            sprintf(objname, "%s_tmp", p_poly_out->getObjName());
+            snprintf(objname, sizeof(objname), "%s_tmp", p_poly_out->getObjName());
             // multiple line points by FACTOR
             in_l = discreteLine(objname, in_l);
             //p_poly_out->setCurrentObject( discreteLine(p_poly_out->getObjName(), in_l) );
@@ -355,11 +355,11 @@ int PolyToCyl::compute(const char *port)
         }
         else
         {
-            sprintf(surf_name, "%s_top", p_surf_out->getObjName());
+            snprintf(surf_name, sizeof(surf_name), "%s_top", p_surf_out->getObjName());
             coDoPolygons *top = torus->getObject(surf_name);
 
-            sprintf(surf_name, "%s_bottom", p_surf_out->getObjName());
-            sprintf(buf, "barrelDiameter %f", h_barrelDiameter->getFValue());
+            snprintf(surf_name, sizeof(surf_name), "%s_bottom", p_surf_out->getObjName());
+            snprintf(buf, sizeof(buf), "barrelDiameter %f", h_barrelDiameter->getFValue());
             surf_set[0] = top;
             surf_set[0]->addAttribute("MATERIAL", paper);
             surf_set[0]->addAttribute("POLY_TO_CYL", buf);

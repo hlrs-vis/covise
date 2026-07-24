@@ -277,7 +277,7 @@ void initialize_screen(int *argc, char **argv)
     disp = XtDisplay(app_shell);
     if (!disp)
     {
-        sprintf(buf, "%s: can't open display, exiting...", argv[0]);
+        snprintf(buf, sizeof(buf), "%s: can't open display, exiting...", argv[0]);
         XtWarning(buf);
         exit(0);
     }
@@ -373,7 +373,7 @@ static void MenuCB(Widget, XtPointer client_data, XtPointer)
             create_help_frame(NULL, NULL, NULL);
             break;
         case 2: /* xmosaic or other HTML viewer */
-            sprintf(buf, "cd %s/doc ; %s %s &", acegrdir, help_viewer, help_file);
+            snprintf(buf, sizeof(buf), "cd %s/doc ; %s %s &", acegrdir, help_viewer, help_file);
             set_wait_cursor();
             system(buf);
             unset_wait_cursor();

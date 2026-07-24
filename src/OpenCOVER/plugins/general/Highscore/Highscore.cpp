@@ -57,7 +57,7 @@ void HSEntry::setInterimTime(double t)
 {
     interimTime = t;
     char number[100];
-    sprintf(number, "%03.3f", getInterimTimeDiff());
+    snprintf(number, sizeof(number), "%03.3f", getInterimTimeDiff());
     InterimLabel->setLabel(number);
 }
 
@@ -65,7 +65,7 @@ void HSEntry::setStartTime(double t)
 {
     startTime = t;
     char number[100];
-    sprintf(number, "%03.3f", getLapTime());
+    snprintf(number, sizeof(number), "%03.3f", getLapTime());
     LapLabel->setLabel(number);
 }
 
@@ -73,7 +73,7 @@ void HSEntry::setFinishTime(double t)
 {
     finishTime = t;
     char number[100];
-    sprintf(number, "%03.3f", getLapTime());
+    snprintf(number, sizeof(number), "%03.3f", getLapTime());
     LapLabel->setLabel(number);
 }
 
@@ -98,7 +98,7 @@ void HSEntry::setPos(int p)
 {
     pos = p;
     char number[100];
-    sprintf(number, "%d", pos);
+    snprintf(number, sizeof(number), "%d", pos);
     PosLabel->setLabel(number);
     PosLabel->setPos((pos / 20) * 4 + 0, (pos % 20));
     NameLabel->setPos((pos / 20) * 4 + 1, (pos % 20));
@@ -405,14 +405,14 @@ void Highscore::save()
         xercesc::DOMElement *hsElement = document->createElement(xercesc::XMLString::transcode("HSEntry"));
 
         char number[100];
-        sprintf(number, "%d", (*hs)->getPos());
+        snprintf(number, sizeof(number), "%d", (*hs)->getPos());
         hsElement->setAttribute(t1 = xercesc::XMLString::transcode("pos"), t2 = xercesc::XMLString::transcode(number)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
         hsElement->setAttribute(t1 = xercesc::XMLString::transcode("name"), t2 = xercesc::XMLString::transcode((*hs)->getName().c_str())); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
-        sprintf(number, "%lf", (*hs)->getStartTime());
+        snprintf(number, sizeof(number), "%lf", (*hs)->getStartTime());
         hsElement->setAttribute(t1 = xercesc::XMLString::transcode("startTime"), t2 = xercesc::XMLString::transcode(number)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
-        sprintf(number, "%lf", (*hs)->getInterimTime());
+        snprintf(number, sizeof(number), "%lf", (*hs)->getInterimTime());
         hsElement->setAttribute(t1 = xercesc::XMLString::transcode("interimTime"), t2 = xercesc::XMLString::transcode(number)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
-        sprintf(number, "%lf", (*hs)->getFinishTime());
+        snprintf(number, sizeof(number), "%lf", (*hs)->getFinishTime());
         hsElement->setAttribute(t1 = xercesc::XMLString::transcode("finishTime"), t2 = xercesc::XMLString::transcode(number)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
         rootElement->appendChild(hsElement);
     }

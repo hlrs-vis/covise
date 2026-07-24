@@ -591,7 +591,7 @@ void coInputTUI::update()
 			InputDevice *id = Input::instance()->getDevice(devicesChoice->getSelectedEntry());
 			calibrationStep++;
 			char buf[300];
-			sprintf(buf, "step %d, please go to position %s and press any button.", calibrationStep,id->getCalibrationPointName(calibrationStep).c_str());
+			snprintf(buf, sizeof(buf), "step %d, please go to position %s and press any button.", calibrationStep,id->getCalibrationPointName(calibrationStep).c_str());
 			calibrationLabel->setLabel(buf);
 		}
 		if (cover->getPointerButton()->wasPressed())
@@ -767,7 +767,7 @@ void coVRTui::updateState()
 void coVRTui::updateFPS(double fps)
 {
     char buf[300];
-    sprintf(buf, "Fps: %6.2f", fps);
+    snprintf(buf, sizeof(buf), "Fps: %6.2f", fps);
     FPSLabel->setLabel(buf);
 }
 
@@ -915,7 +915,7 @@ void coVRTui::tabletEvent(coTUIElement *tUIItem)
     {
         PresentationStep->setValue(PresentationStep->getValue() + 1);
         char buf[100];
-        sprintf(buf, "%d\ngoToStep %d", coGRMsg::KEYWORD, PresentationStep->getValue());
+        snprintf(buf, sizeof(buf), "%d\ngoToStep %d", coGRMsg::KEYWORD, PresentationStep->getValue());
         cover->guiToRenderMsg(buf);
     }
     else if (tUIItem == PresentationBack)
@@ -925,13 +925,13 @@ void coVRTui::tabletEvent(coTUIElement *tUIItem)
             PresentationStep->setValue(PresentationStep->getValue() - 1);
         }
         char buf[100];
-        sprintf(buf, "%d\ngoToStep %d", coGRMsg::KEYWORD, PresentationStep->getValue());
+        snprintf(buf, sizeof(buf), "%d\ngoToStep %d", coGRMsg::KEYWORD, PresentationStep->getValue());
         cover->guiToRenderMsg(buf);
     }
     else if (tUIItem == PresentationStep)
     {
         char buf[100];
-        sprintf(buf, "%d\ngoToStep %d", coGRMsg::KEYWORD, PresentationStep->getValue());
+        snprintf(buf, sizeof(buf), "%d\ngoToStep %d", coGRMsg::KEYWORD, PresentationStep->getValue());
         cover->guiToRenderMsg(buf);
     }
 

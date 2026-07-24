@@ -370,7 +370,7 @@ void Application::compute(const char *)
                 case _FILE_NONE: // don't make data
                     if (k == 0) // make the first Polygon set only the first time
                     {
-                        sprintf(buf, "%s_%d", obj_name, j);
+                        snprintf(buf, sizeof(buf), "%s_%d", obj_name, j);
                         poly_out = new coDoUnstructuredGrid(buf, number, conn_anz, coord_anz, pl, vl, x_coord, y_coord, z_coord, tl);
                         if (poly_out->objectOk())
                         {
@@ -400,7 +400,7 @@ void Application::compute(const char *)
                             }
                         }
                         // data name with time and part
-                        sprintf(buf, "%s_%d", data_name, j);
+                        snprintf(buf, sizeof(buf), "%s_%d", data_name, j);
                         unstr_s3d_out = new coDoFloat(buf, coord_anz, partskalardata);
                         outObjdata[j] = unstr_s3d_out;
                         cerr << "alocare++ " << j << endl;
@@ -432,7 +432,7 @@ void Application::compute(const char *)
                         }
 
                         // data name with time and part
-                        sprintf(buf, "%s_%d", data_name, j);
+                        snprintf(buf, sizeof(buf), "%s_%d", data_name, j);
                         unstr_v3d_out = new coDoVec3(buf, coord_anz, u_data, v_data, w_data);
                         outObjdata[j] = unstr_v3d_out;
                         delete[] u_data;
@@ -463,7 +463,7 @@ void Application::compute(const char *)
                         }
                     }
 
-                    sprintf(buf, "%s_%d_%d", data_name, k, j);
+                    snprintf(buf, sizeof(buf), "%s_%d_%d", data_name, k, j);
                     trans_out = new coDoUnstructuredGrid(buf, number, conn_anz, coord_anz, pl, vl, i_data, j_data, k_data, tl);
                     trans_out->addAttribute("vertexOrder", "2");
                     if (userColors != NULL)
@@ -473,7 +473,7 @@ void Application::compute(const char *)
 
                     if (j == nparts - 1)
                     {
-                        sprintf(buf, "%s_%d", data_name, k);
+                        snprintf(buf, sizeof(buf), "%s_%d", data_name, k);
                         coDoSet *Transformset = new coDoSet(buf, transform);
 
                         outTime[k] = Transformset;
@@ -554,7 +554,7 @@ void Application::compute(const char *)
             // here we make the displacement Polygon set
             coDoSet *outDisplacements = new coDoSet(data_name, outTime);
 
-            sprintf(buf, "1 %ld", timesteps);
+            snprintf(buf, sizeof(buf), "1 %ld", timesteps);
             outDisplacements->addAttribute("TIMESTEP", buf);
 
             for (i = 0; i < timesteps; i++)
@@ -721,7 +721,7 @@ void Application::read_displace(char *datapath, int nj, int time, int skip, floa
 
     for (j = 0; j < time; j++)
     {
-        sprintf(partpath, "%s%03d", mainpath, d + (j * skip));
+        snprintf(partpath, sizeof(partpath), "%s%03d", mainpath, d + (j * skip));
         displaced[j] = new float[nj * 3];
         if ((data_fp = Covise::fopen(partpath, "r")) == NULL)
         {

@@ -450,20 +450,20 @@ void update_set_list(int gno, SetChoiceItem l)
         case FILTER_SELECT_NONE: /* Active sets */
             if (isactive(gno, i))
             {
-                sprintf(buf, "S%d (%s)", i, getcomment(gno, i));
+                snprintf(buf, sizeof(buf), "S%d (%s)", i, getcomment(gno, i));
                 xms[cnt] = XmStringCreateLtoR(buf, charset);
                 cnt++;
             }
             break;
         case FILTER_SELECT_ALL: /* All sets */
-            sprintf(buf, "S%d (%s)", i, getcomment(gno, i));
+            snprintf(buf, sizeof(buf), "S%d (%s)", i, getcomment(gno, i));
             xms[cnt] = XmStringCreateLtoR(buf, charset);
             cnt++;
             break;
         case FILTER_SELECT_ACTIVE: /* Active sets */
             if (isactive(gno, i))
             {
-                sprintf(buf, "S%d (%s)", i, getcomment(gno, i));
+                snprintf(buf, sizeof(buf), "S%d (%s)", i, getcomment(gno, i));
                 xms[cnt] = XmStringCreateLtoR(buf, charset);
                 cnt++;
             }
@@ -471,7 +471,7 @@ void update_set_list(int gno, SetChoiceItem l)
         case FILTER_SELECT_INACT: /* Inactive sets */
             if (!isactive(gno, i))
             {
-                sprintf(buf, "S%d (%s)", i, getcomment(gno, i));
+                snprintf(buf, sizeof(buf), "S%d (%s)", i, getcomment(gno, i));
                 xms[cnt] = XmStringCreateLtoR(buf, charset);
                 cnt++;
             }
@@ -479,7 +479,7 @@ void update_set_list(int gno, SetChoiceItem l)
         case FILTER_SELECT_DEACT: /* Deactivated sets */
             if (!isactive(gno, i) && g[gno].p[i].deact)
             {
-                sprintf(buf, "S%d (%s)", i, getcomment(gno, i));
+                snprintf(buf, sizeof(buf), "S%d (%s)", i, getcomment(gno, i));
                 xms[cnt] = XmStringCreateLtoR(buf, charset);
                 cnt++;
             }
@@ -512,7 +512,7 @@ void AddSetToLists(int gno, int setno)
         char buf[256];
         if (isactive(gno, setno))
         {
-            sprintf(buf, "S%d (%s)", setno, getcomment(gno, setno));
+            snprintf(buf, sizeof(buf), "S%d (%s)", setno, getcomment(gno, setno));
             xms = XmStringCreateLtoR(buf, charset);
         }
         else
@@ -1529,7 +1529,7 @@ static void do_int_proc(Widget, XtPointer client_data, XtPointer)
     {
         setno = selsets[i];
         sum = do_int(setno, itype);
-        sprintf(buf, "%lf", sum);
+        snprintf(buf, sizeof(buf), "%lf", sum);
         xv_setstr(ui->sum_item, buf);
     }
     unset_wait_cursor();

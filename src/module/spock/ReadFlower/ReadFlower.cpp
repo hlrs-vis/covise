@@ -158,9 +158,9 @@ void Application::paramChange(void *)
         return;
     }
     fclose(fp);
-    sprintf(msg, "TITLE: \"%s\"", Title);
+    snprintf(msg, sizeof(msg), "TITLE: \"%s\"", Title);
     Covise::sendInfo(msg);
-    sprintf(msg, "%i VARIABLES", nVars);
+    snprintf(msg, sizeof(msg), "%i VARIABLES", nVars);
     Covise::sendInfo(msg);
 
     // copy variable names to choice param
@@ -352,7 +352,7 @@ void Application::fileformaterror(char *msg)
 {
     char hstr[1000];
 
-    sprintf(hstr, "error in '%s' in line %i: %s.", filename, line, msg);
+    snprintf(hstr, sizeof(hstr), "error in '%s' in line %i: %s.", filename, line, msg);
     Covise::sendError(hstr);
 }
 
@@ -465,7 +465,7 @@ int Application::getOutputObjectNames()
 
     for (i = 0; i < 3; i++)
     {
-        sprintf(name, "data%i", i + 1);
+        snprintf(name, sizeof(name), "data%i", i + 1);
         data_name[i] = Covise::get_object_name(name);
         if (data_name[i] == NULL)
         {
@@ -591,7 +591,7 @@ int Application::readFile()
         else
         {
             // Fehler, falls ALLE Records von Routinen bedient werden
-            // sprintf (msg, "unknown record type >>%s<<", hstr);
+            // snprintf(msg, sizeof(msg), "unknown record type >>%s<<", hstr);
             // fileformaterror (msg);
             // return (FALSE);
         }
@@ -653,7 +653,7 @@ int Application::readZoneHeader(DynZoneDescr **curDescrP)
                 curDescr->Format = FEBLOCK;
             else
             {
-                sprintf(msg, "unknown zone format >>%s<<", hstr);
+                snprintf(msg, sizeof(msg), "unknown zone format >>%s<<", hstr);
                 fileformaterror(msg);
                 return (FALSE);
             }
@@ -862,7 +862,7 @@ void Application::createOutputObjects()
             curDescr->j = 1;
         }
 
-        sprintf(hstr, "%s_grid%i", grid_name, z);
+        snprintf(hstr, sizeof(hstr), "%s_grid%i", grid_name, z);
         GRID = new coDoStructuredGrid(hstr, curDescr->k,
                                       curDescr->j,
                                       curDescr->i,
@@ -886,7 +886,7 @@ void Application::createOutputObjects()
             {
                 curZone[v + 3] = curZone[v + 3]->next;
                 curDescr = curDescr->next;
-                sprintf(hstr, "%s_zone%i", data_name[v], z);
+                snprintf(hstr, sizeof(hstr), "%s_zone%i", data_name[v], z);
                 DATA = new coDoFloat(hstr, curDescr->k,
                                      curDescr->j,
                                      curDescr->i,

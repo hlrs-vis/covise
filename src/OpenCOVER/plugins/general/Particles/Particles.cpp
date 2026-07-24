@@ -673,7 +673,7 @@ int Particles::readBinaryTimestep(int timestep)
     }
 
     int numParticles = particleNumber;
-    sprintf(buf, "reading num=%d timestep=%d", numParticles, timestep);
+    snprintf(buf, sizeof(buf), "reading num=%d timestep=%d", numParticles, timestep);
     if (timestep % 50 == 0)
     {
         OpenCOVER::instance()->hud->setText2(buf);
@@ -887,7 +887,7 @@ int Particles::readFile(char *fn, int timestep)
         }
         if (timestep % 10 == 0)
         {
-            sprintf(buf, "reading %s, num=%d timestep=%d", fn, numParticles, timestep);
+            snprintf(buf, sizeof(buf), "reading %s, num=%d timestep=%d", fn, numParticles, timestep);
             OpenCOVER::instance()->hud->setText2(buf);
             OpenCOVER::instance()->hud->redraw();
         }
@@ -1022,7 +1022,7 @@ int Particles::readIMWFFile(char *fn, int timestep)
 
         if (timestep % 10 == 0)
         {
-            sprintf(buf, "reading %s, num=%d timestep=%d", fn, numParticles, timestep);
+            snprintf(buf, sizeof(buf), "reading %s, num=%d timestep=%d", fn, numParticles, timestep);
             OpenCOVER::instance()->hud->setText2(buf);
             OpenCOVER::instance()->hud->redraw();
             switchNode->setValue(timestep);
@@ -1334,7 +1334,7 @@ int Particles::readIndentFile(char *fn, int timestep)
     if (timestep % 10 == 0)
     {
         char buf[LINE_LEN];
-        sprintf(buf, "reading %s, num=%d timestep=%d", fn, numParticles, timestep);
+        snprintf(buf, sizeof(buf), "reading %s, num=%d timestep=%d", fn, numParticles, timestep);
         OpenCOVER::instance()->hud->setText2(buf);
         OpenCOVER::instance()->hud->redraw();
         switchNode->setValue(timestep);

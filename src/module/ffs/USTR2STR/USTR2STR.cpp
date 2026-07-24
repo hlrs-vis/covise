@@ -102,7 +102,7 @@ void Compute(void *userData, void *callbackData)
     Covise::get_scalar_param("SizeY", &SizeY);
     Covise::get_scalar_param("SizeZ", &SizeZ);
     char info[255];
-    sprintf(info, "sampling to grid %d x %d x %d.", SizeX, SizeY, SizeZ);
+    snprintf(info, sizeof(info), "sampling to grid %d x %d x %d.", SizeX, SizeY, SizeZ);
     Covise::sendInfo(info);
 
     /* getting data from shared memory */
@@ -114,7 +114,7 @@ void Compute(void *userData, void *callbackData)
     if (d_obj == NULL)
     {
         char info[255];
-        sprintf(info, "can't create %s !", objectname);
+        snprintf(info, sizeof(info), "can't create %s !", objectname);
         Covise::sendError(info);
         return;
     }
@@ -136,7 +136,7 @@ void Compute(void *userData, void *callbackData)
         if (udata == NULL)
         {
             char info[255];
-            sprintf(info, "can't create %s !", objectname);
+            snprintf(info, sizeof(info), "can't create %s !", objectname);
             Covise::sendError(info);
             return;
         }
@@ -188,7 +188,7 @@ void Compute(void *userData, void *callbackData)
             if (d_obj == NULL)
             {
                 char info[255];
-                sprintf(info, "can't create %s !", objectname);
+                snprintf(info, sizeof(info), "can't create %s !", objectname);
                 Covise::sendError(info);
                 return;
             }
@@ -196,7 +196,7 @@ void Compute(void *userData, void *callbackData)
             if (strcmp(objecttype, "SETELE") != 0)
             {
                 char info[255];
-                sprintf(info, "objecttype %s doesn't match!", objecttype);
+                snprintf(info, sizeof(info), "objecttype %s doesn't match!", objecttype);
                 Covise::sendError(info);
                 return;
             }
@@ -224,7 +224,7 @@ void Compute(void *userData, void *callbackData)
             else
             {
                 char info[255];
-                sprintf(info, "got a set with %d elements", num_of_ugrids);
+                snprintf(info, sizeof(info), "got a set with %d elements", num_of_ugrids);
                 Covise::sendInfo(info);
             }
             char *sgrid_name = Covise::get_object_name("OutputGrid");
@@ -240,8 +240,8 @@ void Compute(void *userData, void *callbackData)
             {
                 char tmp_grid_name[255];
                 char tmp_data_name[255];
-                sprintf(tmp_grid_name, "%s_%d", sgrid_name, i);
-                sprintf(tmp_data_name, "%s_%d", sdata_name, i);
+                snprintf(tmp_grid_name, sizeof(tmp_grid_name), "%s_%d", sgrid_name, i);
+                snprintf(tmp_data_name, sizeof(tmp_data_name), "%s_%d", sdata_name, i);
                 mkStructured((coDoUnstructuredGrid *)ugrid_array[i],
                              udata_array[i],
                              &sgrid,
@@ -281,7 +281,7 @@ void Compute(void *userData, void *callbackData)
         else
         {
             char buffer[255];
-            sprintf(buffer, "object type %s doesn't match !", objecttype);
+            snprintf(buffer, sizeof(buffer), "object type %s doesn't match !", objecttype);
             Covise::sendError(buffer);
             return;
         }
@@ -321,7 +321,7 @@ void mkStructured(coDoUnstructuredGrid *input_grid,
         int dim_x, dim_y, dim_z;
         structured_scalars->getGridSize(&dim_x, &dim_y, &dim_z);
         num_scalars = dim_x * dim_y * dim_z;
-        sprintf(info, "got %d structured scalar data from shm", num_scalars);
+        snprintf(info, sizeof(info), "got %d structured scalar data from shm", num_scalars);
         Covise::sendInfo(info);
         structured_scalars->getAddress(&scalar_data);
     }
@@ -330,7 +330,7 @@ void mkStructured(coDoUnstructuredGrid *input_grid,
         cerr << "got unstructured scalar data !" << endl;
         coDoFloat *unstructured_scalars = (coDoFloat *)input_data;
         num_scalars = unstructured_scalars->getNumPoints();
-        sprintf(info, "got %d unstructured scalar data from shm", num_scalars);
+        snprintf(info, sizeof(info), "got %d unstructured scalar data from shm", num_scalars);
         Covise::sendInfo(info);
         unstructured_scalars->getAddress(&scalar_data);
     }
@@ -341,7 +341,7 @@ void mkStructured(coDoUnstructuredGrid *input_grid,
         int dim_x, dim_y, dim_z;
         structured_vectors->getGridSize(&dim_x, &dim_y, &dim_z);
         num_vectors = dim_x * dim_y * dim_z;
-        sprintf(info, "got %d structured vector data from shm", num_vectors);
+        snprintf(info, sizeof(info), "got %d structured vector data from shm", num_vectors);
         Covise::sendInfo(info);
         structured_vectors->getAddresses(&vx, &vy, &vz);
     }
@@ -350,14 +350,14 @@ void mkStructured(coDoUnstructuredGrid *input_grid,
         cerr << "got unstructured vector data !" << endl;
         coDoVec3 *unstructured_vectors = (coDoVec3 *)input_data;
         num_vectors = unstructured_vectors->getNumPoints();
-        sprintf(info, "got %d unstructured vector data from shm", num_vectors);
+        snprintf(info, sizeof(info), "got %d unstructured vector data from shm", num_vectors);
         Covise::sendInfo(info);
         unstructured_vectors->getAddresses(&vx, &vy, &vz);
     }
     else
     {
         char buffer[255];
-        sprintf(buffer, "object type %s doesn't match !", objecttype);
+        snprintf(buffer, sizeof(buffer), "object type %s doesn't match !", objecttype);
         Covise::sendError(buffer);
         return;
     }

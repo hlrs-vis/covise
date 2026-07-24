@@ -514,7 +514,7 @@ void FaroArm::OnPositionSampled(const CScanData &ScanData)
                                 summMat(i, j) += cameraProbeMat(i, j);
                     }
                     char buf[16];
-                    sprintf(buf, " %d", currentSample + 1);
+                    snprintf(buf, sizeof(buf), " %d", currentSample + 1);
                     imageFrameNo->setLabel(buf);
                     oldSampledMat = sampledMat;
                     currentSample++;
@@ -591,7 +591,7 @@ void FaroArm::makeReferenceFrame()
     // reference points from config-file
     for (int i = 0; i < 3; i++)
     {
-        sprintf(configName, "COVER.Input.Faro.ReferencePoint%d", i);
+        snprintf(configName, sizeof(configName), "COVER.Input.Faro.ReferencePoint%d", i);
         refPoints[i][0] = coCoviseConfig::getFloat("x", configName, 0);
         refPoints[i][1] = coCoviseConfig::getFloat("y", configName, 0);
         refPoints[i][2] = coCoviseConfig::getFloat("z", configName, 0);
@@ -818,11 +818,11 @@ void FaroArm::displaySamplePoints()
 
     for (int i = 0; i < 3; i++)
     {
-        sprintf(buf, " %f", transPointSampled[i].x());
+        snprintf(buf, sizeof(buf), " %f", transPointSampled[i].x());
         transPointSampled_Value[i][0]->setLabel(buf);
-        sprintf(buf, " %f", transPointSampled[i].y());
+        snprintf(buf, sizeof(buf), " %f", transPointSampled[i].y());
         transPointSampled_Value[i][1]->setLabel(buf);
-        sprintf(buf, " %f", transPointSampled[i].z());
+        snprintf(buf, sizeof(buf), " %f", transPointSampled[i].z());
         transPointSampled_Value[i][2]->setLabel(buf);
     }
     updateTUI();
@@ -845,17 +845,17 @@ void FaroArm::updateTUI()
     else if (!haveRefFrame && haveObjectPoints)
         newCoordMat = probeMat * transformObjectMat;
 
-    sprintf(buf, " %f", newCoordMat.getTrans().x());
+    snprintf(buf, sizeof(buf), " %f", newCoordMat.getTrans().x());
     transValue[0]->setLabel(buf);
-    sprintf(buf, " %f", newCoordMat.getTrans().y());
+    snprintf(buf, sizeof(buf), " %f", newCoordMat.getTrans().y());
     transValue[1]->setLabel(buf);
-    sprintf(buf, " %f", newCoordMat.getTrans().z());
+    snprintf(buf, sizeof(buf), " %f", newCoordMat.getTrans().z());
     transValue[2]->setLabel(buf);
-    sprintf(buf, " %f", newCoordMat.getRotate().x());
+    snprintf(buf, sizeof(buf), " %f", newCoordMat.getRotate().x());
     rotValue[0]->setLabel(buf);
-    sprintf(buf, " %f", newCoordMat.getRotate().y());
+    snprintf(buf, sizeof(buf), " %f", newCoordMat.getRotate().y());
     rotValue[1]->setLabel(buf);
-    sprintf(buf, " %f", newCoordMat.getRotate().z());
+    snprintf(buf, sizeof(buf), " %f", newCoordMat.getRotate().z());
     rotValue[2]->setLabel(buf);
 }
 

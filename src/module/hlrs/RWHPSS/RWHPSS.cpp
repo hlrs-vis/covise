@@ -45,7 +45,7 @@ int myOpen(const char *file, int mode)
     dirname = strtok(strdup(covisepath), ":");
     while (dirname != NULL)
     {
-        sprintf(buf, "%s/%s", dirname, file);
+        snprintf(buf, sizeof(buf), "%s/%s", dirname, file);
         fp = ::open(buf, mode, 0660);
         if (fp > 0)
             return (fp);
@@ -57,7 +57,7 @@ int myOpen(const char *file, int mode)
                 break;
             }
         }
-        sprintf(buf, "%s/%s", dirname, file);
+        snprintf(buf, sizeof(buf), "%s/%s", dirname, file);
         fp = ::open(buf, mode, 0660);
         if (fp > 0)
             return (fp);
@@ -635,7 +635,7 @@ coDistributedObject *Application::readData(char *Name)
 
             for (i = 0; i < numsets; i++)
             {
-                sprintf(buf, "%s_%d", Name, i);
+                snprintf(buf, sizeof(buf), "%s_%d", Name, i);
                 tmp_objs[i] = readData(buf);
             }
             tmp_objs[i] = NULL;
@@ -670,17 +670,17 @@ coDistributedObject *Application::readData(char *Name)
                 swap_int(t3);
             if (do1)
             {
-                sprintf(buf, "%s_Geo", Name);
+                snprintf(buf, sizeof(buf), "%s_Geo", Name);
                 do1 = readData(buf);
             }
             if (do2)
             {
-                sprintf(buf, "%s_Col", Name);
+                snprintf(buf, sizeof(buf), "%s_Col", Name);
                 do2 = readData(buf);
             }
             if (do3)
             {
-                sprintf(buf, "%s_Norm", Name);
+                snprintf(buf, sizeof(buf), "%s_Norm", Name);
                 do3 = readData(buf);
             }
 

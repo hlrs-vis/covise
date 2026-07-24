@@ -43,8 +43,8 @@ int findFunction(std::string name, int startIndex = 0)
 bool lookForParam(std::string name)
 {
     char getname[1000], setname[1000];
-    sprintf(getname, "Get%s", name.c_str());
-    sprintf(setname, "Set%s", name.c_str());
+    snprintf(getname, sizeof(getname), "Get%s", name.c_str());
+    snprintf(setname, sizeof(setname), "Set%s", name.c_str());
 
     int getter = -1, setter = -1;
     for (int i = 0; i < data.NumberOfFunctions; ++i)
@@ -236,8 +236,8 @@ std::string escape(std::string s)
 std::string descriptionForParam(std::string name)
 {
     char getname[1000], setname[1000];
-    sprintf(getname, "Get%s", name.c_str());
-    sprintf(setname, "Set%s", name.c_str());
+    snprintf(getname, sizeof(getname), "Get%s", name.c_str());
+    snprintf(setname, sizeof(setname), "Set%s", name.c_str());
 
     int getter = -1, setter = -1;
     for (int i = 0; i < data.NumberOfFunctions; ++i)
@@ -333,7 +333,7 @@ int main(int argc, char *argv[])
     do
     {
         char input[100000];
-        sprintf(input, "%s/%s.h", vtkinc.c_str(), currentclass.c_str());
+        snprintf(input, sizeof(input), "%s/%s.h", vtkinc.c_str(), currentclass.c_str());
 
         FILE *fin = fopen(input, "r");
         if (!fin)
@@ -394,7 +394,7 @@ int main(int argc, char *argv[])
         currentclass = baseclasses[i];
         fprintf(stderr, "processing %s\n", currentclass.c_str());
         char input[100000];
-        sprintf(input, "%s/%s.h", vtkinc.c_str(), currentclass.c_str());
+        snprintf(input, sizeof(input), "%s/%s.h", vtkinc.c_str(), currentclass.c_str());
 
         FILE *fin = fopen(input, "r");
         if (!fin)

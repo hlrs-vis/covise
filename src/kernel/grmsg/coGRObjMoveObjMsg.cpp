@@ -26,13 +26,13 @@ GRMSGEXPORT coGRObjMoveObjMsg::coGRObjMoveObjMsg(const char *obj_name, const cha
         strcpy(moveName_, moveName);
         addToken(moveName);
 
-        sprintf(str, "%f", x);
+        snprintf(str, sizeof(str), "%f", x);
         addToken(str);
 
-        sprintf(str, "%f", y);
+        snprintf(str, sizeof(str), "%f", y);
         addToken(str);
 
-        sprintf(str, "%f", z);
+        snprintf(str, sizeof(str), "%f", z);
         addToken(str);
 
         is_valid_ = 1;

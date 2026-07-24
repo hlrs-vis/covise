@@ -67,7 +67,7 @@ coBinImage::coBinImage(int width, int height, int numChannels, int numFrames,
     if (!fi)
     {
         char buffer[1024];
-        sprintf(buffer, "%s: %s", filename, strerror(errno));
+        snprintf(buffer, sizeof(buffer), "%s: %s", filename, strerror(errno));
         setError(buffer);
         return;
     }

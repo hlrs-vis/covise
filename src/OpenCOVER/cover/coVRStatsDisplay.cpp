@@ -492,7 +492,7 @@ struct AveragedValueTextDrawCallback : public virtual osg::Drawable::DrawCallbac
             if (getAttribute(_stats, _attributeName, first, val1)
                 && getAttribute(_stats, _attributeName, second, val2))
             {
-                sprintf(_tmpText, "%3.1f%s%3.1f", val1 * _multiplier, _accum==AccumMinMax ? "-" : "±", val2 * _multiplier);
+                snprintf(_tmpText, sizeof(_tmpText), "%3.1f%s%3.1f", val1 * _multiplier, _accum==AccumMinMax ? "-" : "±", val2 * _multiplier);
                 text->setText(_tmpText, osgText::String::ENCODING_UTF8);
             }
             else
@@ -507,7 +507,7 @@ struct AveragedValueTextDrawCallback : public virtual osg::Drawable::DrawCallbac
             double value;
             if (getAttribute(_stats, _attributeName, _accum, value))
             {
-                sprintf(_tmpText, "%4.2f", value * _multiplier);
+                snprintf(_tmpText, sizeof(_tmpText), "%4.2f", value * _multiplier);
                 text->setText(_tmpText, osgText::String::ENCODING_UTF8);
             }
             else
@@ -1260,7 +1260,7 @@ struct PagerCallback : public virtual osg::NodeCallback
             double value = _dp->getAverageTimeToMergeTiles();
             if (value >= 0.0 && value <= 1000)
             {
-                sprintf(_tmpText, "%4.0f", value * _multiplier);
+                snprintf(_tmpText, sizeof(_tmpText), "%4.0f", value * _multiplier);
                 _averageValue->setText(_tmpText, osgText::String::ENCODING_UTF8);
             }
             else
@@ -1271,7 +1271,7 @@ struct PagerCallback : public virtual osg::NodeCallback
             value = _dp->getMinimumTimeToMergeTile();
             if (value >= 0.0 && value <= 1000)
             {
-                sprintf(_tmpText, "%4.0f", value * _multiplier);
+                snprintf(_tmpText, sizeof(_tmpText), "%4.0f", value * _multiplier);
                 _minValue->setText(_tmpText, osgText::String::ENCODING_UTF8);
             }
             else
@@ -1282,7 +1282,7 @@ struct PagerCallback : public virtual osg::NodeCallback
             value = _dp->getMaximumTimeToMergeTile();
             if (value >= 0.0 && value <= 1000)
             {
-                sprintf(_tmpText, "%4.0f", value * _multiplier);
+                snprintf(_tmpText, sizeof(_tmpText), "%4.0f", value * _multiplier);
                 _maxValue->setText(_tmpText, osgText::String::ENCODING_UTF8);
             }
             else
@@ -1290,10 +1290,10 @@ struct PagerCallback : public virtual osg::NodeCallback
                 _maxValue->setText("", osgText::String::ENCODING_UTF8);
             }
 
-            sprintf(_tmpText, "%4d", _dp->getFileRequestListSize());
+            snprintf(_tmpText, sizeof(_tmpText), "%4d", _dp->getFileRequestListSize());
             _filerequestlist->setText(_tmpText, osgText::String::ENCODING_UTF8);
 
-            sprintf(_tmpText, "%4d", _dp->getDataToCompileListSize());
+            snprintf(_tmpText, sizeof(_tmpText), "%4d", _dp->getDataToCompileListSize());
             _compilelist->setText(_tmpText, osgText::String::ENCODING_UTF8);
         }
 

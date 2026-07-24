@@ -99,11 +99,11 @@ VRCTracker::VRCTracker(int portnumber, int debugLevel, float scale, const char *
     if (d_debugLevel > 2)
     {
         char filename[64];
-        sprintf(filename, "VRCTracker.%d", getpid());
+        snprintf(filename, sizeof(filename), "VRCTracker.%d", getpid());
         d_rawDump = fopen(filename, "w");
         if (!d_rawDump)
         {
-            sprintf(filename, "/var/tmp/VRCTracker.%d", getpid());
+            snprintf(filename, sizeof(filename), "/var/tmp/VRCTracker.%d", getpid());
             d_rawDump = fopen(filename, "w");
         }
         if (d_rawDump)

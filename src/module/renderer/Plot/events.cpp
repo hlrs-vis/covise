@@ -251,7 +251,7 @@ void do_hardcopy(void)
         fp = fopen(printstr, "w");
         if (fp == NULL)
         {
-            sprintf(buf, "Can't open %s for write, hardcopy aborted", printstr);
+            snprintf(buf, sizeof(buf), "Can't open %s for write, hardcopy aborted", printstr);
             errwin(buf);
             hardcopyflag = FALSE;
             set_right_footer(NULL);
@@ -608,38 +608,38 @@ void getpoints(int x, int y)
             create_ticklabel(form, g[cg].px, wx, s1);
             form = g[cg].fy;
             create_ticklabel(form, g[cg].py, wy, s2);
-            sprintf(buf, "G%1d: X, Y = [%s, %s]", cg, s1, s2);
+            snprintf(buf, sizeof(buf), "G%1d: X, Y = [%s, %s]", cg, s1, s2);
         }
         break;
     case 1:
         xtmp = wx - dsx;
         ytmp = wy - dsy;
-        sprintf(buf, locator_format, cg, xtmp, ytmp);
+        snprintf(buf, sizeof(buf), locator_format, cg, xtmp, ytmp);
         break;
     case 2:
         xtmp = my_hypot(dsx - wx, dsy - wy);
         ytmp = 0.0;
-        sprintf(buf, locator_format, cg, xtmp, ytmp);
+        snprintf(buf, sizeof(buf), locator_format, cg, xtmp, ytmp);
         break;
     case 3:
         if (dsx - wx != 0.0 || dsy - wy != 0.0)
         {
             xtmp = my_hypot(dsx - wx, dsy - wy);
             ytmp = 180.0 + 180.0 / M_PI * atan2(dsy - wy, dsx - wx);
-            sprintf(buf, locator_format, cg, xtmp, ytmp);
+            snprintf(buf, sizeof(buf), locator_format, cg, xtmp, ytmp);
         }
         else
         {
-            sprintf(buf, "ERROR: dx = dy = 0.0");
+            snprintf(buf, sizeof(buf), "ERROR: dx = dy = 0.0");
         }
         break;
     case 4:
         xtmp = xconv(wx);
         ytmp = yconv(wy);
-        sprintf(buf, locator_format, cg, xtmp, ytmp);
+        snprintf(buf, sizeof(buf), locator_format, cg, xtmp, ytmp);
         break;
     case 5:
-        sprintf(buf, locator_format, cg, x, y);
+        snprintf(buf, sizeof(buf), locator_format, cg, x, y);
         break;
     }
 #ifdef XVIEW
@@ -661,21 +661,21 @@ void set_stack_message(void)
     if (stack_depth_item)
     {
 #ifdef MOTIF
-        sprintf(buf, " SD:%1d ", g[cg].ws_top);
+        snprintf(buf, sizeof(buf), " SD:%1d ", g[cg].ws_top);
         XmStringFree(sdstring);
         sdstring = XmStringCreateLtoR(buf, charset);
         XtSetArg(al, XmNlabelString, sdstring);
         XtSetValues(stack_depth_item, &al, 1);
-        sprintf(buf, " CW:%1d ", g[cg].curw);
+        snprintf(buf, sizeof(buf), " CW:%1d ", g[cg].curw);
         XmStringFree(cystring);
         cystring = XmStringCreateLtoR(buf, charset);
         XtSetArg(al, XmNlabelString, cystring);
         XtSetValues(curw_item, &al, 1);
 #endif
 #ifdef XVIEW
-        sprintf(buf, "SD:%1d", g[cg].ws_top);
+        snprintf(buf, sizeof(buf), "SD:%1d", g[cg].ws_top);
         xv_set(stack_depth_item, PANEL_LABEL_STRING, buf, NULL);
-        sprintf(buf, "CW:%1d", g[cg].curw);
+        snprintf(buf, sizeof(buf), "CW:%1d", g[cg].curw);
         xv_set(curw_item, PANEL_LABEL_STRING, buf, NULL);
 #endif
     }
@@ -781,7 +781,7 @@ void set_default_message(char *buf)
 
     gethostname(hbuf, 256);
 
-    sprintf(buf, "%s, %s, %s", hbuf, DisplayString(disp), str);
+    snprintf(buf, sizeof(buf), "%s, %s, %s", hbuf, DisplayString(disp), str);
 }
 
 /*
@@ -947,7 +947,7 @@ void set_action(int act)
         break;
     case COPY_NEAREST2ND:
         set_cursor(0);
-        sprintf(tmpbuf, "Selected S%1d in graph %d, click in the graph to place the copy", setno1, graphno1);
+        snprintf(tmpbuf, sizeof(tmpbuf), "Selected S%1d in graph %d, click in the graph to place the copy", setno1, graphno1);
         set_left_footer(tmpbuf);
         break;
     case MOVE_NEAREST1ST:
@@ -956,7 +956,7 @@ void set_action(int act)
         break;
     case MOVE_NEAREST2ND:
         set_cursor(4);
-        sprintf(tmpbuf, "Selected S%1d in graph %d, click in the graph to move the set", setno1, graphno1);
+        snprintf(tmpbuf, sizeof(tmpbuf), "Selected S%1d in graph %d, click in the graph to move the set", setno1, graphno1);
         set_left_footer(tmpbuf);
         break;
     case JOIN_NEAREST1ST:
@@ -1084,7 +1084,7 @@ void do_text_string(int op, int c)
         }
         break;
     case 1:
-        sprintf(stmp, "%c", c);
+        snprintf(stmp, sizeof(stmp), "%c", c);
         strcat(tmpstr, stmp);
         break;
     case 2:
@@ -1970,7 +1970,7 @@ void my_proc(Xv_window window, Event *xv_event)
                     {
                         char tmpbuf[128];
 
-                        sprintf(tmpbuf, "Kill S%1d?", setno);
+                        snprintf(tmpbuf, sizeof(tmpbuf), "Kill S%1d?", setno);
                         if (yesno(tmpbuf, NULL, NULL, NULL))
                         {
                             do_kill(cg, setno, 0);
@@ -2004,7 +2004,7 @@ void my_proc(Xv_window window, Event *xv_event)
                     {
                         char tmpbuf[128];
 
-                        sprintf(tmpbuf, "Deactivate S%1d?", setno);
+                        snprintf(tmpbuf, sizeof(tmpbuf), "Deactivate S%1d?", setno);
                         if (yesno(tmpbuf, NULL, NULL, NULL))
                         {
                             do_deactivate(cg, setno);
@@ -2052,7 +2052,7 @@ void my_proc(Xv_window window, Event *xv_event)
                     {
                         char tmpbuf[128];
 
-                        sprintf(tmpbuf, "Copy S%1d in graph %d to next set in graph %d?", setno1, graphno1, graphno2);
+                        snprintf(tmpbuf, sizeof(tmpbuf), "Copy S%1d in graph %d to next set in graph %d?", setno1, graphno1, graphno2);
                         if (yesno(tmpbuf, NULL, NULL, NULL))
                         {
                             do_copy(setno1, graphno1, 0, graphno2 + 1);
@@ -2100,7 +2100,7 @@ void my_proc(Xv_window window, Event *xv_event)
                     {
                         char tmpbuf[128];
 
-                        sprintf(tmpbuf, "Move S%1d in graph %d to next set in graph %d?", setno1, graphno1, graphno2);
+                        snprintf(tmpbuf, sizeof(tmpbuf), "Move S%1d in graph %d to next set in graph %d?", setno1, graphno1, graphno2);
                         if (yesno(tmpbuf, NULL, NULL, NULL))
                         {
                             do_move(setno1, graphno1, -1, graphno2 + 1);
@@ -2134,7 +2134,7 @@ void my_proc(Xv_window window, Event *xv_event)
                     {
                         char tmpbuf[128];
 
-                        sprintf(tmpbuf, "Reverse S%1d?", setno);
+                        snprintf(tmpbuf, sizeof(tmpbuf), "Reverse S%1d?", setno);
                         if (yesno(tmpbuf, NULL, NULL, NULL))
                         {
                             do_reverse_sets(setno);
@@ -2188,7 +2188,7 @@ void my_proc(Xv_window window, Event *xv_event)
                     {
                         char tmpbuf[128];
 
-                        sprintf(tmpbuf, "Join S%1d in graph %d to the end of S%1d in graph %d?", setno1, graphno1, setno, graphno2);
+                        snprintf(tmpbuf, sizeof(tmpbuf), "Join S%1d in graph %d to the end of S%1d in graph %d?", setno1, graphno1, setno, graphno2);
                         if (yesno(tmpbuf, NULL, NULL, NULL))
                         {
                             do_join_sets(graphno1, setno1, graphno2, setno);
@@ -2253,7 +2253,7 @@ void my_proc(Xv_window window, Event *xv_event)
                         {
                             char tmpbuf[128];
 
-                            sprintf(tmpbuf, "In S%1d, delete points %d through %d?", setno1, loc1, loc2);
+                            snprintf(tmpbuf, sizeof(tmpbuf), "In S%1d, delete points %d through %d?", setno1, loc1, loc2);
                             if (yesno(tmpbuf, NULL, NULL, NULL))
                             {
                                 do_drop_points(setno1, loc1 - 1, loc2 - 1);
@@ -2299,7 +2299,7 @@ void my_proc(Xv_window window, Event *xv_event)
                 findpoint(cg, wx, wy, &wx, &wy, &setno, &loc);
                 if (setno != -1)
                 {
-                    sprintf(buf, "Set %d, loc %d, (%lf, %lf)", setno, loc, wx, wy);
+                    snprintf(buf, sizeof(buf), "Set %d, loc %d, (%lf, %lf)", setno, loc, wx, wy);
                     xv_setstr(locate_point_item, buf);
                     set_action(FIND_POINT);
                 }
@@ -2346,12 +2346,12 @@ void my_proc(Xv_window window, Event *xv_event)
                     {
                         world2deviceabs(xx[track_point], yy[track_point], &xtmp, &ytmp);
                         setpointer(xtmp, ytmp);
-                        sprintf(buf, "Set %d, loc %d, (%lf, %lf)", track_set, track_point + 1,
+                        snprintf(buf, sizeof(buf), "Set %d, loc %d, (%lf, %lf)", track_set, track_point + 1,
                                 xx[track_point], yy[track_point]);
                     }
                     else
                     {
-                        sprintf(buf, "OUTSIDE - Set %d, loc %d, (%lf, %lf)", track_set, track_point + 1,
+                        snprintf(buf, sizeof(buf), "OUTSIDE - Set %d, loc %d, (%lf, %lf)", track_set, track_point + 1,
                                 xx[track_point], yy[track_point]);
                     }
                     xv_setstr(locate_point_item, buf);
@@ -2445,7 +2445,7 @@ void my_proc(Xv_window window, Event *xv_event)
                 {
                     area = comp_area(narea_pts, area_polyx, area_polyy);
                 }
-                sprintf(buf, "[%lf]", fabs(area));
+                snprintf(buf, sizeof(buf), "[%lf]", fabs(area));
 #ifdef MOTIF
                 XmStringFree(astring);
                 astring = XmStringCreateLtoR(buf, charset);
@@ -2478,7 +2478,7 @@ void my_proc(Xv_window window, Event *xv_event)
                 {
                     area = comp_perimeter(narea_pts, area_polyx, area_polyy);
                 }
-                sprintf(buf, "[%lf]", fabs(area));
+                snprintf(buf, sizeof(buf), "[%lf]", fabs(area));
 
 #ifdef MOTIF
                 XmStringFree(pstring);
@@ -2519,13 +2519,13 @@ void my_proc(Xv_window window, Event *xv_event)
                 findpoint(cg, wx, wy, &wx, &wy, &setno, &loc);
                 if (setno == -1)
                 {
-                    sprintf(buf, "No sets found");
+                    snprintf(buf, sizeof(buf), "No sets found");
                     xv_setstr(locate_point_item, buf);
                     set_action(0);
                 }
                 else
                 {
-                    sprintf(buf, "Set %d, loc %d, (%lf, %lf)", setno, loc, wx, wy);
+                    snprintf(buf, sizeof(buf), "Set %d, loc %d, (%lf, %lf)", setno, loc, wx, wy);
                     xv_setstr(locate_point_item, buf);
                     if (setno >= 0)
                     {
@@ -2542,7 +2542,7 @@ void my_proc(Xv_window window, Event *xv_event)
             case MOVE_POINT1ST:
                 device2world(x, y, &wx, &wy);
                 findpoint(cg, wx, wy, &wx, &wy, &setnumber, &setindex);
-                sprintf(buf, "Set %d, loc %d, (%14lg, %14lg)", setnumber, setindex, wx, wy);
+                snprintf(buf, sizeof(buf), "Set %d, loc %d, (%14lg, %14lg)", setnumber, setindex, wx, wy);
                 xv_setstr(locate_point_item, buf);
                 if (setnumber >= 0)
                 {
@@ -2571,7 +2571,7 @@ void my_proc(Xv_window window, Event *xv_event)
                     set_point(cg, setnumber, setindex - 1, wx1, wy);
                     break;
                 }
-                sprintf(buf, "Set %d, loc %d, (%14lg, %14lg)", setnumber, setindex, wx, wy);
+                snprintf(buf, sizeof(buf), "Set %d, loc %d, (%14lg, %14lg)", setnumber, setindex, wx, wy);
                 xv_setstr(locate_point_item, buf);
                 update_set_status(cg, setnumber);
                 set_action(0);
@@ -2593,19 +2593,19 @@ void my_proc(Xv_window window, Event *xv_event)
                     case 0: /* at end */
                         ind = getsetlength(cg, add_setno);
                         add_point(cg, add_setno, wx, wy, 0.0, 0.0, XY);
-                        sprintf(buf, "Set %d, loc %d, (%lf, %lf)", add_setno, ind + 1, wx, wy);
+                        snprintf(buf, sizeof(buf), "Set %d, loc %d, (%lf, %lf)", add_setno, ind + 1, wx, wy);
                         break;
                     case 1: /* at beginning */
                         ind = 1;
                         add_point(cg, add_setno, wx, wy, 0.0, 0.0, XY);
-                        sprintf(buf, "Set %d, loc %d, (%lf, %lf)", add_setno, ind + 1, wx, wy);
+                        snprintf(buf, sizeof(buf), "Set %d, loc %d, (%lf, %lf)", add_setno, ind + 1, wx, wy);
                         break;
                     case 2: /* after nearest point */
                         findpoint_inset(cg, add_setno, wx, wy, &ind);
                         if (ind >= 1)
                         {
                             add_point_at(cg, add_setno, ind - 1, TRUE, wx, wy, 0.0, 0.0, XY);
-                            sprintf(buf, "Added to Set %d, after loc %d, (%lf, %lf)", add_setno, ind, wx, wy);
+                            snprintf(buf, sizeof(buf), "Added to Set %d, after loc %d, (%lf, %lf)", add_setno, ind, wx, wy);
                         }
                         break;
                     case 3: /* before nearest point */
@@ -2613,7 +2613,7 @@ void my_proc(Xv_window window, Event *xv_event)
                         if (ind >= 1)
                         {
                             add_point_at(cg, add_setno, ind - 1, FALSE, wx, wy, 0.0, 0.0, XY);
-                            sprintf(buf, "Added to Set %d, before loc %d, (%lf, %lf)", add_setno, ind, wx, wy);
+                            snprintf(buf, sizeof(buf), "Added to Set %d, before loc %d, (%lf, %lf)", add_setno, ind, wx, wy);
                         }
                         break;
                     }
@@ -2639,7 +2639,7 @@ void my_proc(Xv_window window, Event *xv_event)
                 {
                     ind = getsetlength(cg, digit_setno);
                     add_point(cg, digit_setno, wx, wy, 0.0, 0.0, XY);
-                    sprintf(buf, "Set %d, loc %d, (%lf, %lf)", digit_setno, ind + 1, wx, wy);
+                    snprintf(buf, sizeof(buf), "Set %d, loc %d, (%lf, %lf)", digit_setno, ind + 1, wx, wy);
                     xv_setstr(locate_point_item, buf);
                     XDrawLine(disp, xwin, gc, x - 5, y - 5, x + 5, y + 5);
                     XDrawLine(disp, xwin, gc, x - 5, y + 5, x + 5, y - 5);
@@ -2662,7 +2662,7 @@ void my_proc(Xv_window window, Event *xv_event)
                 {
                     ind = getsetlength(cg, digit_setno);
                     add_point(cg, digit_setno, wx, wy, 0.0, 0.0, XY);
-                    sprintf(buf, "Set %d, loc %d, (%lf, %lf)", digit_setno, ind + 1, wx, wy);
+                    snprintf(buf, sizeof(buf), "Set %d, loc %d, (%lf, %lf)", digit_setno, ind + 1, wx, wy);
                     xv_setstr(locate_point_item, buf);
                     XDrawLine(disp, xwin, gc, x - 5, y - 5, x + 5, y + 5);
                     XDrawLine(disp, xwin, gc, x - 5, y + 5, x + 5, y - 5);
@@ -2685,7 +2685,7 @@ void my_proc(Xv_window window, Event *xv_event)
                 {
                     ind = getsetlength(cg, digit_setno);
                     add_point(cg, digit_setno, wx, wy, 0.0, 0.0, XY);
-                    sprintf(buf, "Set %d, loc %d, (%lf, %lf)", digit_setno, ind + 1, wx, wy);
+                    snprintf(buf, sizeof(buf), "Set %d, loc %d, (%lf, %lf)", digit_setno, ind + 1, wx, wy);
                     xv_setstr(locate_point_item, buf);
                     XDrawLine(disp, xwin, gc, x - 5, y - 5, x + 5, y + 5);
                     XDrawLine(disp, xwin, gc, x - 5, y + 5, x + 5, y - 5);
@@ -2713,7 +2713,7 @@ void my_proc(Xv_window window, Event *xv_event)
                 break;
             case DISLINE2ND:
                 device2world(x, y, &wx2, &wy2);
-                sprintf(buf, "(%lf, %lf, %lf, %lf degrees)", my_hypot((wx2 - wx1), (wy2 - wy1)),
+                snprintf(buf, sizeof(buf), "(%lf, %lf, %lf, %lf degrees)", my_hypot((wx2 - wx1), (wy2 - wy1)),
                         wx2 - wx1, wy2 - wy1, 180.0 / M_PI * atan2(wy2 - wy1, wx2 - wx1));
                 xv_setstr(locate_point_item, buf);
                 set_action(0);
@@ -2731,9 +2731,9 @@ void my_proc(Xv_window window, Event *xv_event)
                 }
                 if (timestamp_x_item)
                 {
-                    sprintf(buf, "%lg", wx);
+                    snprintf(buf, sizeof(buf), "%lg", wx);
                     xv_setstr(timestamp_x_item, buf);
-                    sprintf(buf, "%lg", wy);
+                    snprintf(buf, sizeof(buf), "%lg", wy);
                     xv_setstr(timestamp_y_item, buf);
                 }
                 timestamp.x = wx;
@@ -2834,9 +2834,9 @@ void my_proc(Xv_window window, Event *xv_event)
                 }
                 if (legend_x_panel)
                 {
-                    sprintf(buf, "%.6g", wx);
+                    snprintf(buf, sizeof(buf), "%.6g", wx);
                     xv_setstr(legend_x_panel, buf);
-                    sprintf(buf, "%.6g", wy);
+                    snprintf(buf, sizeof(buf), "%.6g", wy);
                     xv_setstr(legend_y_panel, buf);
                 }
                 else
@@ -3005,12 +3005,12 @@ void my_proc(Xv_window window, Event *xv_event)
                     {
                         world2deviceabs(x[track_point], y[track_point], &xtmp, &ytmp);
                         setpointer(xtmp, ytmp);
-                        sprintf(buf, "Set %d, loc %d, (%lf, %lf)", track_set, track_point + 1,
+                        snprintf(buf, sizeof(buf), "Set %d, loc %d, (%lf, %lf)", track_set, track_point + 1,
                                 x[track_point], y[track_point]);
                     }
                     else
                     {
-                        sprintf(buf, "OUTSIDE - Set %d, loc %d, (%lf, %lf)", track_set, track_point + 1,
+                        snprintf(buf, sizeof(buf), "OUTSIDE - Set %d, loc %d, (%lf, %lf)", track_set, track_point + 1,
                                 x[track_point], y[track_point]);
                     }
                     xv_setstr(locate_point_item, buf);
@@ -3063,7 +3063,7 @@ void my_proc(Xv_window window, Event *xv_event)
                     {
                         ind = getsetlength(cg, add_setno);
                         add_point(cg, add_setno, wx, wy, 0.0, 0.0, XY);
-                        sprintf(buf, "Set %d, loc %d, (%lf, %lf)", add_setno, ind + 1, wx, wy);
+                        snprintf(buf, sizeof(buf), "Set %d, loc %d, (%lf, %lf)", add_setno, ind + 1, wx, wy);
                         xv_setstr(locate_point_item, buf);
                         XDrawLine(disp, xwin, gc, x - 5, y - 5, x + 5, y + 5);
                         XDrawLine(disp, xwin, gc, x - 5, y + 5, x + 5, y - 5);

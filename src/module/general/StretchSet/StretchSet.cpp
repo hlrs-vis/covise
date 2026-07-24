@@ -51,7 +51,7 @@ StretchSet::StretchSet(int argc, char *argv[])
     for (i = 0; i < maxDataPortNm_; ++i)
     {
         char cNm[3];
-        sprintf(cNm, "%i", i);
+        snprintf(cNm, sizeof(cNm), "%i", i);
         // input port
         std::string portName(pInBaseNm + std::string(cNm));
         pInPorts_[i] = addInputPort(portName.c_str(), "coDistributedObject", "data set");
@@ -124,7 +124,7 @@ int StretchSet::compute(const char *)
                     retSet = new coDoSet(pOutPorts_[i]->getObjName(), setList);
                     delete[] setList;
                     char buf[16];
-                    sprintf(buf, "1 %d", l);
+                    snprintf(buf, sizeof(buf), "1 %d", l);
                     retSet->addAttribute("TIMESTEP", buf);
 
                     pOutPorts_[i]->setCurrentObject(retSet);

@@ -17,7 +17,7 @@ ResultIntParam::ResultIntParam(const char *name, int i)
     val_ = i;
 
     char val[1024];
-    sprintf(val, "%d", i);
+    snprintf(val, sizeof(val), "%d", i);
     setLabel(name, val);
 }
 
@@ -27,7 +27,7 @@ ResultIntParam::setValue(int i)
     val_ = i;
 
     char val[1024];
-    sprintf(val, "%d", i);
+    snprintf(val, sizeof(val), "%d", i);
     setLabel(val);
 }
 

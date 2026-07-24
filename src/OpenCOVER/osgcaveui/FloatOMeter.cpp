@@ -322,7 +322,7 @@ void FloatOMeter::updateDigits(bool clear, bool setValue)
                 break;
     }
 
-    //num = sprintf(buf, "%1.*lf", abs(_decimalPlace), _value);
+    //num = snprintf(buf, sizeof(buf), "%1.*lf", abs(_decimalPlace), _value);
 
     // skip leading zero positions
     for (i = _markedDigitPlace, iter = _digits.begin(); (_isDigitMarked && (i > max)); i--, iter++)
@@ -389,7 +389,7 @@ void FloatOMeter::digitLabelUpdate(DigitLabel *digit)
     {
         sprintf(_logBuf, "floatOMeter label pressed:\t'set'");
 
-        sprintf(buf, "%.*lf", abs(_decimalPlace), _value);
+        snprintf(buf, sizeof(buf), "%.*lf", abs(_decimalPlace), _value);
         if (sscanf(buf, "%lf", &tmp) != 1)
         {
             cerr << "cui::FlotOMeter::updateDigits: sscanf failed" << endl;
@@ -619,9 +619,9 @@ void FloatOMeter::getMinMaxPlaces(bool clear, bool setValue, int &min, int &max)
     int i, num, lastDigit;
 
     if (setValue)
-        num = sprintf(buf, "%1.*lf", abs(DECIMAL_PLACES), _value);
+        num = snprintf(buf, sizeof(buf), "%1.*lf", abs(DECIMAL_PLACES), _value);
     else
-        num = sprintf(buf, "%1.*lf", abs(_decimalPlace), _value);
+        num = snprintf(buf, sizeof(buf), "%1.*lf", abs(_decimalPlace), _value);
 
     _sign = false;
 

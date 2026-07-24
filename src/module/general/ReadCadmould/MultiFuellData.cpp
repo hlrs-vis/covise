@@ -50,9 +50,9 @@ MultiFuellData::MultiFuellData(const char *path, int numFields,
     for (i = 1; i <= MAXFILES; i++)
     {
         if (i < MAXFILES)
-            sprintf(filename, "%s%02d", path, i);
+            snprintf(filename, sizeof(filename), "%s%02d", path, i);
         else
-            sprintf(filename, "%s00", path);
+            snprintf(filename, sizeof(filename), "%s00", path);
 
         // try to open file if existent
         struct stat dummy;

@@ -151,7 +151,7 @@ bool ClipPlanePlugin::init()
     for (int i = 0; i < cover->getNumClipPlanes(); i++)
     {
         char name[100];
-        sprintf(name, "Plane%d", i);
+        snprintf(name, sizeof(name), "Plane%d", i);
         //SharedState update functions
         sharedPlanes[i].reset(new vrb::SharedState<std::vector<double>>(("ClipPlane_Plane_" + std::to_string(i)), std::vector<double>{0, 0, 0, 0}, vrb::USE_COUPLING_MODE));
         sharedPlanes[i]->setUpdateFunction(
@@ -217,10 +217,10 @@ bool ClipPlanePlugin::init()
 
         plane[i].UiGroup = new ui::Group(clipMenu, name);
         auto group = plane[i].UiGroup;
-        sprintf(name, "Plane %d", i);
+        snprintf(name, sizeof(name), "Plane %d", i);
         group->setText(name);
 
-        sprintf(name, "Enable plane %d", i);
+        snprintf(name, sizeof(name), "Enable plane %d", i);
         plane[i].EnableButton = new ui::Button(group, "Enable"+std::to_string(i));
         plane[i].EnableButton->setText(name);
         plane[i].EnableButton->setShared(true);
@@ -237,7 +237,7 @@ bool ClipPlanePlugin::init()
         });
         plane[i].EnableButton->setState(*plane[i].enabled);
 
-        sprintf(name, "Pick interactor for plane %d", i);
+        snprintf(name, sizeof(name), "Pick interactor for plane %d", i);
         plane[i].PickInteractorButton = new ui::Button(group, "Pick"+std::to_string(i));
         plane[i].PickInteractorButton->setText(name);
         plane[i].PickInteractorButton->setShared(true);
@@ -268,7 +268,7 @@ bool ClipPlanePlugin::init()
                 }
             });
 
-        sprintf(name, "Direct interactor for plane %d", i);
+        snprintf(name, sizeof(name), "Direct interactor for plane %d", i);
         plane[i].DirectInteractorButton = new ui::Button(group, "Direct"+std::to_string(i));
         plane[i].DirectInteractorButton->setGroup(cover->navGroup(), coVRNavigationManager::NavOther);
         plane[i].DirectInteractorButton->setText(name);
@@ -309,7 +309,7 @@ bool ClipPlanePlugin::init()
         plane[i].directInteractor = new vrui::coTrackerButtonInteraction(coInteraction::ButtonA, "sphere");
         plane[i].relativeInteractor = new vrui::coRelativeInputInteraction("spacemouse");
 
-        sprintf(name, "Edit values for plane %d", i);
+        snprintf(name, sizeof(name), "Edit values for plane %d", i);
         plane[i].ClipEditField = new ui::EditField(group, "Edit"+std::to_string(i));
         plane[i].ClipEditField->setText(name);
         plane[i].ClipEditField->setShared(true);

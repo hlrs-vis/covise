@@ -1169,7 +1169,7 @@ Transform::copyRotateAttributes(coDistributedObject *tgt,
                         fprintf(stderr, "Transform::copyRotateAttributes: sscanf1 failed\n");
                     }
                     matrix.transformCoordinates(1, buf, buf + 1, buf + 2);
-                    sprintf(newSetting, "%f %f %f", buf[0], buf[1], buf[2]);
+                    snprintf(newSetting, sizeof(newSetting), "%f %f %f", buf[0], buf[1], buf[2]);
                     tgt->addAttribute(name[attr], newSetting);
                 }
                 if (strcmp(name[attr], "ROTATE_VECTOR") == 0)
@@ -1183,7 +1183,7 @@ Transform::copyRotateAttributes(coDistributedObject *tgt,
                         fprintf(stderr, "Transform::copyRotateAttributes: sscanf2 failed\n");
                     }
                     matrix.transformVector(1, vector);
-                    sprintf(newSetting, "%f %f %f", buf[0], buf[1], buf[2]);
+                    snprintf(newSetting, sizeof(newSetting), "%f %f %f", buf[0], buf[1], buf[2]);
                     tgt->addAttribute(name[attr], newSetting);
                 }
                 if (strcmp(name[attr], "ROTATE_ANGLE") == 0
@@ -1195,7 +1195,7 @@ Transform::copyRotateAttributes(coDistributedObject *tgt,
                         fprintf(stderr, "Transform::copyRotateAttributes: sscanf3 failed\n");
                     }
                     angle *= -1.0;
-                    sprintf(newSetting, "%f", angle);
+                    snprintf(newSetting, sizeof(newSetting), "%f", angle);
                     tgt->addAttribute(name[attr], newSetting);
                 }
                 else

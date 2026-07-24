@@ -113,7 +113,7 @@ void Application::compute(void *)
     fd = Covise::open(dataPath, O_RDONLY);
     if (fd == -1)
     {
-        sprintf(buf, "Error Opening File '%s'", dataPath);
+        snprintf(buf, sizeof(buf), "Error Opening File '%s'", dataPath);
         Covise::sendError(buf);
         return;
     }
@@ -126,7 +126,7 @@ void Application::compute(void *)
         return;
     }
 
-    sprintf(buf, "%s_%d", GeometryName, 1);
+    snprintf(buf, sizeof(buf), "%s_%d", GeometryName, 1);
     group_set = new coDoSet(buf, SET_CREATE);
     if (!group_set->objectOk())
     {
@@ -153,11 +153,11 @@ void Application::compute(void *)
     // groups
     for (int i = 0; i < n_groups; i++)
     {
-        sprintf(buf, "%s_1_%d", GeometryName, i + 1);
+        snprintf(buf, sizeof(buf), "%s_1_%d", GeometryName, i + 1);
         nurbs_set[i] = new coDoSet(buf, SET_CREATE);
         if (!nurbs_set[i]->objectOk())
         {
-            sprintf(buf, "ERROR: creation of data object 'nurbs_set[%d]' failed", i + 1);
+            snprintf(buf, sizeof(buf), "ERROR: creation of data object 'nurbs_set[%d]' failed", i + 1);
             Covise::sendError(buf);
             return;
         }
@@ -362,11 +362,11 @@ void Application::compute(void *)
     //  in the example vdafs-files)
     for (; k < n_groups + n_sets; k++)
     {
-        sprintf(buf, "%s_1_%d", GeometryName, k + 1);
+        snprintf(buf, sizeof(buf), "%s_1_%d", GeometryName, k + 1);
         nurbs_set[k] = new coDoSet(buf, SET_CREATE);
         if (!nurbs_set[k]->objectOk())
         {
-            sprintf(buf, "ERROR: creation of data object 'nurbs_set[%d]' failed", k + 1);
+            snprintf(buf, sizeof(buf), "ERROR: creation of data object 'nurbs_set[%d]' failed", k + 1);
             Covise::sendError(buf);
             return;
         }
@@ -597,7 +597,7 @@ coDoPoints *create_points(char *name)
     coDoPoints *pts = NULL;
 
     setup_POINTS(n_points);
-    sprintf(buf, "%s_%d", name, 1);
+    snprintf(buf, sizeof(buf), "%s_%d", name, 1);
     pts = new coDoPoints(buf, n_points);
     if (!pts->objectOk())
     {
@@ -658,7 +658,7 @@ DO_NurbsCurveCol *create_nurbs_curves(char *name)
     DO_NurbsCurveCol *ncc = NULL;
 
     setup_NCUC(n_elements, n_knots, n_cpoints);
-    sprintf(buf, "%s_%d", name, 2);
+    snprintf(buf, sizeof(buf), "%s_%d", name, 2);
     ncc = new DO_NurbsCurveCol(buf, n_elements, n_knots, n_cpoints);
     if (!ncc->objectOk())
     {
@@ -756,7 +756,7 @@ DO_NurbsSurfaceCol *create_nurbs_surfaces(char *name)
     DO_NurbsSurfaceCol *nsc = NULL;
 
     setup_NSFC(n_elements, n_Uknots, n_Vknots, n_cpoints);
-    sprintf(buf, "%s_%d", name, 3);
+    snprintf(buf, sizeof(buf), "%s_%d", name, 3);
     nsc = new DO_NurbsSurfaceCol(buf,
                                  n_elements,
                                  n_Uknots, n_Vknots,
@@ -909,7 +909,7 @@ DO_FaceCol *create_nurbs_faces(char *name)
         n_tLoops,
         n_tCurves, n_tKnots, n_tCpoints,
         n_surfaces, n_Uknots, n_Vknots, n_cpoints);
-    sprintf(buf, "%s_%d", name, 4);
+    snprintf(buf, sizeof(buf), "%s_%d", name, 4);
     nfc = new DO_FaceCol(buf,
                          n_tLoops,
                          n_tCurves, n_tKnots, n_tCpoints,

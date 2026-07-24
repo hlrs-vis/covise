@@ -1087,21 +1087,21 @@ void drawsetxy(int gno, plotarr p, int i)
         case SYM_TAG_FIRST: /* tag the first point in a set */
             if (symok(x[0], y[0]))
             {
-                sprintf(s, "S%1d:1", i);
+                snprintf(s, sizeof(s), "S%1d:1", i);
                 writestr(x[0], y[0], 0, 2, s);
             }
             break;
         case SYM_TAG_LAST: /* tag the last point in a set */
             if (symok(x[p.len - 1], y[p.len - 1]))
             {
-                sprintf(s, "S%1d:%1d", i, p.len);
+                snprintf(s, sizeof(s), "S%1d:%1d", i, p.len);
                 writestr(x[p.len - 1], y[p.len - 1], 0, 2, s);
             }
             break;
         case SYM_TAG_CENTER: /* tag the middle point in a set */
             if (symok(x[p.len / 2], y[p.len / 2]))
             {
-                sprintf(s, "S%1d:%1d", i, p.len / 2);
+                snprintf(s, sizeof(s), "S%1d:%1d", i, p.len / 2);
                 writestr(x[p.len / 2], y[p.len / 2], 0, 2, s);
             }
             break;
@@ -1116,11 +1116,11 @@ void drawsetxy(int gno, plotarr p, int i)
                 {
                     if (sy == SYM_SETNO)
                     {
-                        sprintf(s, "S%d", i);
+                        snprintf(s, sizeof(s), "S%d", i);
                     }
                     else
                     {
-                        sprintf(s, "S%1d:%1d)", i, j + 1);
+                        snprintf(s, sizeof(s), "S%1d:%1d)", i, j + 1);
                     }
                     writestr(x[j], y[j], 0, 0, s);
                 }
@@ -2070,7 +2070,7 @@ void drawsetxypolar(plotarr p, int i)
         case SYM_TAG_FIRST: /* tag the first point in a set */
             if (symok(x[0], y[0]))
             {
-                sprintf(s, "S%1d:1", i);
+                snprintf(s, sizeof(s), "S%1d:1", i);
                 sd = setcharsize(0.8);
                 writestr(x[0], y[0], 0, 2, s);
                 (void)setcharsize(sd);
@@ -2079,7 +2079,7 @@ void drawsetxypolar(plotarr p, int i)
         case SYM_TAG_LAST: /* tag the last point in a set */
             if (symok(x[p.len - 1], y[p.len - 1]))
             {
-                sprintf(s, "S%1d:%1d", i, p.len);
+                snprintf(s, sizeof(s), "S%1d:%1d", i, p.len);
                 sd = setcharsize(0.8);
                 writestr(x[p.len - 1], y[p.len - 1], 0, 2, s);
                 (void)setcharsize(sd);
@@ -2088,7 +2088,7 @@ void drawsetxypolar(plotarr p, int i)
         case SYM_TAG_CENTER: /* tag the middle point in a set */
             if (symok(x[p.len / 2], y[p.len / 2]))
             {
-                sprintf(s, "S%1d:%1d", i, p.len / 2);
+                snprintf(s, sizeof(s), "S%1d:%1d", i, p.len / 2);
                 sd = setcharsize(0.8);
                 writestr(x[p.len / 2], y[p.len / 2], 0, 2, s);
                 (void)setcharsize(sd);
@@ -2105,11 +2105,11 @@ void drawsetxypolar(plotarr p, int i)
                 {
                     if (sy == SYM_SETNO)
                     {
-                        sprintf(s, "S%d", i);
+                        snprintf(s, sizeof(s), "S%d", i);
                     }
                     else
                     {
-                        sprintf(s, "S%1d:%1d)", i, j + 1);
+                        snprintf(s, sizeof(s), "S%1d:%1d)", i, j + 1);
                     }
                     writestr(x[j], y[j], 0, 0, s);
                 }

@@ -74,7 +74,7 @@ bool HLRSRealtimeDynamics::tryConnect()
 {
     tcp::resolver resolver(io_service);
 	char buf[100];
-	sprintf(buf,"%d",serverPort);
+	snprintf(buf, sizeof(buf),"%d",serverPort);
 	
     tcp::resolver::query query(remoteHost, buf);
     tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);

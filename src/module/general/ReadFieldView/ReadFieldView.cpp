@@ -397,7 +397,7 @@ int ReadFieldView::readASCIIData()
                             else
                             {
                                 char tmpName[500];
-                                sprintf(tmpName, "%s_%d", varInfos[varIndex].objectName.c_str(), t);
+                                snprintf(tmpName, sizeof(tmpName), "%s_%d", varInfos[varIndex].objectName.c_str(), t);
                                 objName = tmpName;
                             }
                             if (vi.components == 1)

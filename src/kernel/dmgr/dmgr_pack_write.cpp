@@ -113,7 +113,7 @@ void Packer::flush()
 #endif
 
 #ifdef DEBUG
-    sprintf(tmp_str, "PackBuffer::write_int %d", wi);
+    snprintf(tmp_str, sizeof(tmp_str), "PackBuffer::write_int %d", wi);
     print_comment(__LINE__, __FILE__, tmp_str);
 #endif
     if (intbuffer_ptr >= intbuffer_size()) // if buffer full
@@ -137,9 +137,9 @@ char *PackBuffer::get_ptr_for_n_bytes(int &n) // always aligned
 #endif
 
 #ifdef DEBUG
-    sprintf(tmp_str, "want pointer for %d bytes", n);
+    snprintf(tmp_str, sizeof(tmp_str), "want pointer for %d bytes", n);
     print_comment(__LINE__, __FILE__, tmp_str);
-    sprintf(tmp_str, "intbuffer_ptr: %d  intbuffer_size: %d",
+    snprintf(tmp_str, sizeof(tmp_str), "intbuffer_ptr: %d  intbuffer_size: %d",
             intbuffer_ptr, intbuffer_size);
     print_comment(__LINE__, __FILE__, tmp_str);
 #endif
@@ -168,9 +168,9 @@ char *PackBuffer::get_ptr_for_n_bytes(int &n) // always aligned
     if (intbuffer_ptr % (SIZEOF_ALIGNMENT / sizeof(int)))
         intbuffer_ptr++;
 #ifdef DEBUG
-    sprintf(tmp_str, "got pointer for %d bytes", n);
+    snprintf(tmp_str, sizeof(tmp_str), "got pointer for %d bytes", n);
     print_comment(__LINE__, __FILE__, tmp_str);
-    sprintf(tmp_str, "intbuffer_ptr: %d  intbuffer_size: %d",
+    snprintf(tmp_str, sizeof(tmp_str), "intbuffer_ptr: %d  intbuffer_size: %d",
             intbuffer_ptr, intbuffer_size);
     print_comment(__LINE__, __FILE__, tmp_str);
 #endif
@@ -745,7 +745,7 @@ int Packer::write_object()
     for (i = 0; i < no_of_els; i++)
     {
 #ifdef DEBUG
-        sprintf(tmp_str, "writing element no. %d of level %d", i, level);
+        snprintf(tmp_str, sizeof(tmp_str), "writing element no. %d of level %d", i, level);
         print_comment(__LINE__, __FILE__, tmp_str);
 #endif
         switch (*shm_obj_ptr)
@@ -786,7 +786,7 @@ int Packer::write_object()
         };
     }
 #ifdef DEBUG
-    sprintf(tmp_str, "finished level %d", level);
+    snprintf(tmp_str, sizeof(tmp_str), "finished level %d", level);
     print_comment(__LINE__, __FILE__, tmp_str);
     level--;
     print_comment(__LINE__, __FILE__, "Ende Packer::write_object");

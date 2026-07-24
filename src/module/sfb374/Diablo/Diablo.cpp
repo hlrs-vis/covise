@@ -56,10 +56,10 @@ int Application::start_FIDAP()
 
     Covise::sendInfo("FIDAP wird gestartet ...");
 
-    sprintf(buf, "cp %s ~/covise/data/sfb374/fidap/FDREAD.temp\n", prjname);
+    snprintf(buf, sizeof(buf), "cp %s ~/covise/data/sfb374/fidap/FDREAD.temp\n", prjname);
     if (system(buf) == -1)
     {
-        sprintf(buf, "Fehler >> Geometriefile %s existiert nicht", prjname);
+        snprintf(buf, sizeof(buf), "Fehler >> Geometriefile %s existiert nicht", prjname);
         Covise::sendInfo(buf);
         return (-1);
     }
@@ -74,20 +74,20 @@ int Application::start_FIDAP()
 
     err = pclose(ptr);
 
-    sprintf(buf, "mv ~/covise/data/sfb374/fidap/temp.FIOUT %s\n", DATAPATH);
+    snprintf(buf, sizeof(buf), "mv ~/covise/data/sfb374/fidap/temp.FIOUT %s\n", DATAPATH);
     if (system(buf) == -1)
     {
         Covise::sendInfo("Fehler >> Fehler in Skript");
         return (-1);
     }
-    sprintf(buf, "mv ~/covise/data/sfb374/fidap/temp.FDNEUT %s\n", DATAPATH);
+    snprintf(buf, sizeof(buf), "mv ~/covise/data/sfb374/fidap/temp.FDNEUT %s\n", DATAPATH);
     if (system(buf) == -1)
     {
         Covise::sendInfo("Fehler >> Neutralfile konnte nicht erstellt werden");
         return (-1);
     }
 
-    sprintf(buf, "mv ~/covise/data/sfb374/fidap/temp.FIOUT.nodes %s\n", DATAPATH);
+    snprintf(buf, sizeof(buf), "mv ~/covise/data/sfb374/fidap/temp.FIOUT.nodes %s\n", DATAPATH);
     system(buf);
 
     Covise::sendInfo("FIDAP beendet.");
@@ -320,7 +320,7 @@ void Application::compute(void *)
     {
         if (NDID[NDACT - 1] == node) /* -1 wegen fortran */
         {
-            sprintf(buf, "Calculating node %d of %d", NDACT, NDN);
+            snprintf(buf, sizeof(buf), "Calculating node %d of %d", NDACT, NDN);
             Covise::sendInfo(buf);
             wrtver_(&NDACT, &NDN, MVTIME, &MVN, &CCNODE, &CCMAX, &CCRESM, &TEMP1,
                     &TIME1, &TAUA3X, &TSCHM, &TIME2, &NDNMAX, &MVNMAX, TEMPERATURES,

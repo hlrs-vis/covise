@@ -137,7 +137,7 @@ coDistributedObject *EliminatePolygons::handle_port1(const coDistributedObject *
         {
             if (in_set->getAttribute("TIMESTEP") != NULL && elimMode != FOR_ALL && fields_are_set)
                 Destruct();
-            sprintf(my_obj_name, "%s_%d", obj_name, i + 1);
+            snprintf(my_obj_name, sizeof(my_obj_name), "%s_%d", obj_name, i + 1);
             poly_out[i] = (coDistributedObject *)handle_port1(objs[i], my_obj_name);
         }
         poly_out[numsets] = NULL;

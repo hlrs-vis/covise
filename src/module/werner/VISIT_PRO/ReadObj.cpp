@@ -403,7 +403,7 @@ ReadObj::readObjFile(const char *objName, float scale)
         }
     }
 
-    sprintf(infobuf, "found %d coordinates, %d vertices, %d polygons, %d normals", numCoords, numVertices, numPolys, numNormals);
+    snprintf(infobuf, sizeof(infobuf), "found %d coordinates, %d vertices, %d polygons, %d normals", numCoords, numVertices, numPolys, numNormals);
     Covise::sendInfo(infobuf);
 
     // get the COVISE output object name from the controller

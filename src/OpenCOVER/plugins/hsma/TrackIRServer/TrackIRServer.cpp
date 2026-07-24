@@ -174,6 +174,6 @@ void CameraEvents::HandleFrameAvailable(INPCamera *pCamera)
     if (!(ausgabeCounter++ % 500))
         _cprintf("x=%.1f  y=%.1f  z=%.1f   yaw=%.1f  pitch=%.1f  roll=%.1f \n", varX.dblVal, varY.dblVal, varZ.dblVal, varYaw.dblVal, varPitch.dblVal, varRoll.dblVal);
     char tracking_data[100];
-    sprintf(tracking_data, "%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;$$$\n", varX.dblVal, varY.dblVal, varZ.dblVal, varYaw.dblVal, varPitch.dblVal, varRoll.dblVal);
+    snprintf(tracking_data, sizeof(tracking_data), "%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;$$$\n", varX.dblVal, varY.dblVal, varZ.dblVal, varYaw.dblVal, varPitch.dblVal, varRoll.dblVal);
     send_TrackingData(mySocket, tracking_data);
 }

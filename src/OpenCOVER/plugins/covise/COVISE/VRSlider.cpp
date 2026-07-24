@@ -431,11 +431,11 @@ void Slider::updateParameter()
     {
         if (floatSlider)
         {
-            sprintf(buf, "%s\nFloatSlider\n%.3f %.3f %.3f\n", parameterName.c_str(), min, max, value);
+            snprintf(buf, sizeof(buf), "%s\nFloatSlider\n%.3f %.3f %.3f\n", parameterName.c_str(), min, max, value);
         }
         else
         {
-            sprintf(buf, "%s\nIntSlider\n%d %d %d\n", parameterName.c_str(), (int)min, (int)max, (int)value);
+            snprintf(buf, sizeof(buf), "%s\nIntSlider\n%d %d %d\n", parameterName.c_str(), (int)min, (int)max, (int)value);
         }
         CoviseRender::send_feedback_message("PARAM", buf);
         buf[0] = '\0';
@@ -512,7 +512,7 @@ void SliderList::add(RenderObject *dobj, osg::Node *n)
 {
     int i = 0;
     char buf[100];
-    sprintf(buf, "SLIDER%d", i);
+    snprintf(buf, sizeof(buf), "SLIDER%d", i);
     while (const char *attrib = dobj->getAttribute(buf))
     {
         char *sattrib = new char[strlen(attrib) + 1];
@@ -535,7 +535,7 @@ void SliderList::add(RenderObject *dobj, osg::Node *n)
             sl = new Slider(attrib, sattrib, n);
             append(sl);
         }
-        sprintf(buf, "SLIDER%d", ++i);
+        snprintf(buf, sizeof(buf), "SLIDER%d", ++i);
         delete[] sattrib;
     }
 }

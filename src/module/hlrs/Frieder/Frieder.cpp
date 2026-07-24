@@ -227,7 +227,7 @@ void Application::recvData()
     {
         readScalars(0);
         char buf[600];
-        sprintf(buf, "E%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+        snprintf(buf, sizeof(buf), "E%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
         Covise::set_feedback_info(buf);
         Covise::send_feedback_message("EXEC", "");
     }
@@ -532,7 +532,7 @@ coDistributedObject *objectGroup::makePlygons(const char *objectName)
     {
         p->addAttribute("vertexOrder", "2");
         char buf[1024];
-        sprintf(buf, "SunfaceLayer_%s", name);
+        snprintf(buf, sizeof(buf), "SunfaceLayer_%s", name);
         p->addAttribute("OBJECTNAME", buf);
         float *x_coord, *y_coord, *z_coord;
         int *vl, *el, i;

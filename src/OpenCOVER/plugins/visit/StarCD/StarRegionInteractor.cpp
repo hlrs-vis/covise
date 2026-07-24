@@ -750,15 +750,15 @@ void StarRegionVectorInteractor::getValue (float *vx, float *vy, float *vz)
 //    pfString *strx, *stry, *strz;
 //    char str[200];
 
-//    sprintf(str, "%.2f", currentVector[0]);
+//    snprintf(str, sizeof(str), "%.2f", currentVector[0]);
 //    strx = labels->getString(0);
 //    strx->setString(str);
 
-//    sprintf(str, "%.2f", currentVector[1]);
+//    snprintf(str, sizeof(str), "%.2f", currentVector[1]);
 //    stry = labels->getString(1);
 //    stry->setString(str);
 
-//    sprintf(str, "%.2f", currentVector[2]);
+//    snprintf(str, sizeof(str), "%.2f", currentVector[2]);
 //    strz = labels->getString(2);
 //    strz->setString(str);
 
@@ -1458,7 +1458,7 @@ StarRegionScalarInteractor::makeLabel(float angle, float value)
 
    scaleMat.makeScale(0.2, 0.2, 0.2);
 
-   sprintf(str, "%.2f", value);
+   snprintf(str, sizeof(str), "%.2f", value);
    //fprintf(stderr,"str=[%s]\n", str);
 
    if (font != NULL)
@@ -1679,7 +1679,7 @@ StarRegionScalarInteractor::makeCurrentLabel()
 
    scaleMat.makeScale(0.2, 0.2, 0.2);
 
-   sprintf(str, "%.2f", currentValue);
+   snprintf(str, sizeof(str), "%.2f", currentValue);
 
    if (font != NULL)
    {
@@ -1713,16 +1713,16 @@ StarRegionScalarInteractor::updateLabels()
    pfString *curStr, *minStr, *maxStr;
    char str[200];
 
-   sprintf(str, "%.2f", currentValue);
+   snprintf(str, sizeof(str), "%.2f", currentValue);
 
    curStr = currentLabel->getString(0);
    curStr->setString(str);
 
-   sprintf(str, "%.2f", minValue);
+   snprintf(str, sizeof(str), "%.2f", minValue);
    minStr = minLabel->getString(0);
    minStr->setString(str);
 
-   sprintf(str, "%.2f", maxValue);
+   snprintf(str, sizeof(str), "%.2f", maxValue);
    maxStr = maxLabel->getString(0);
    maxStr->setString(str);
 

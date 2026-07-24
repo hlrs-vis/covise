@@ -405,7 +405,7 @@ int main(int argc, char *argv[])
                 unsigned int but;
                 tracker->getStylusSwitchStatus(station, &but);
                 char sendbuffer[2048];
-                sprintf(sendbuffer, "VRC %d %3d [%5.1f %5.1f %5.1f] - [%6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f] - [%6.3f %6.3f ]",
+                snprintf(sendbuffer, sizeof(sendbuffer), "VRC %d %3d [%5.1f %5.1f %5.1f] - [%6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f] - [%6.3f %6.3f ]",
                         vrcIds[i], but, x, y, z,
                         mat[0][0], mat[0][1], mat[0][2],
                         mat[1][0], mat[1][1], mat[1][2],

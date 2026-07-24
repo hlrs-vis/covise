@@ -219,57 +219,57 @@ int Gate::compute(const char *)
       feedback.apply(poly);
       // TUI%d %cmodule \n instance \n host \n parameterName \n parent\n text \n xPos \n yPos \n floatSlider \n parameterName \n min \n max \n value)
       // ... TUI-VR-Slider fuer Parameter Q ...
-      sprintf(buf,"M%s\n%s\n%s\n" M_Q "\nNenndaten\n" M_Q "\n0\n0\nfloatSlider\n%f\n%f\n%f\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),0.,200.,geo->ga->Q);
+      snprintf(buf, sizeof(buf),"M%s\n%s\n%s\n" M_Q "\nNenndaten\n" M_Q "\n0\n0\nfloatSlider\n%f\n%f\n%f\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),0.,200.,geo->ga->Q);
       poly->addAttribute("TUI0",buf);
-      sprintf(buf,"M%s\n%s\n%s\n" M_H "\nNenndaten\n" M_H "\n0\n1\nfloatSlider\n%f\n%f\n%f\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),0.,50.,geo->ga->H);
+      snprintf(buf, sizeof(buf),"M%s\n%s\n%s\n" M_H "\nNenndaten\n" M_H "\n0\n1\nfloatSlider\n%f\n%f\n%f\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),0.,50.,geo->ga->H);
       poly->addAttribute("TUI1",buf);
-      sprintf(buf,"M%s\n%s\n%s\n" M_N "\nNenndaten\n" M_N "\n0\n2\nfloatSlider\n%f\n%f\n%f\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),0.,1000.,geo->ga->n);
+      snprintf(buf, sizeof(buf),"M%s\n%s\n%s\n" M_N "\nNenndaten\n" M_N "\n0\n2\nfloatSlider\n%f\n%f\n%f\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),0.,1000.,geo->ga->n);
       poly->addAttribute("TUI2",buf);
-      sprintf(buf,"M%s\n%s\n%s\n" M_N_OPT "\nNenndaten\n" M_N_OPT "\n0\n3\nfloatSlider\n%f\n%f\n%f\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),0.,500.,geo->ga->nopt);
+      snprintf(buf, sizeof(buf),"M%s\n%s\n%s\n" M_N_OPT "\nNenndaten\n" M_N_OPT "\n0\n3\nfloatSlider\n%f\n%f\n%f\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),0.,500.,geo->ga->nopt);
       poly->addAttribute("TUI3",buf);
-      sprintf(buf,"M%s\n%s\n%s\n" M_Q_OPT "\nNenndaten\n" M_Q_OPT "\n0\n4\nfloatSlider\n%f\n%f\n%f\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),0.,100.,geo->ga->Qopt);
+      snprintf(buf, sizeof(buf),"M%s\n%s\n%s\n" M_Q_OPT "\nNenndaten\n" M_Q_OPT "\n0\n4\nfloatSlider\n%f\n%f\n%f\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),0.,100.,geo->ga->Qopt);
       poly->addAttribute("TUI4",buf);
      
-      sprintf(buf,"M%s\n%s\n%s\n" M_NUMBER_OF_BLADES "\nNenndaten\n" M_NUMBER_OF_BLADES "\n0\n5\nint\n%d\n1\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),geo->ga->nob);
+      snprintf(buf, sizeof(buf),"M%s\n%s\n%s\n" M_NUMBER_OF_BLADES "\nNenndaten\n" M_NUMBER_OF_BLADES "\n0\n5\nint\n%d\n1\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),geo->ga->nob);
       poly->addAttribute("TUI5",buf);
       /*if (geo->ga->close==1)
       {
-         sprintf(buf,"M%s\n%s\n%s\n"M_BLADE_ANGLE"\nNenndaten\n"M_BLADE_ANGLE"\n0\n5\nfloatSlider\n%f\n%f\n%f\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),geo->ga->beta_min,geo->ga->beta_max,geo->ga->bangle*180./M_PI);
+         snprintf(buf, sizeof(buf),"M%s\n%s\n%s\n"M_BLADE_ANGLE"\nNenndaten\n"M_BLADE_ANGLE"\n0\n5\nfloatSlider\n%f\n%f\n%f\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),geo->ga->beta_min,geo->ga->beta_max,geo->ga->bangle*180./M_PI);
       }
       else*/
       {
-         sprintf(buf,"M%s\n%s\n%s\n" M_BLADE_ANGLE "\nNenndaten\n" M_BLADE_ANGLE "\n0\n6\nfloatSlider\n%f\n%f\n%f\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),-20.,8.,geo->ga->bangle*180./M_PI);
+         snprintf(buf, sizeof(buf),"M%s\n%s\n%s\n" M_BLADE_ANGLE "\nNenndaten\n" M_BLADE_ANGLE "\n0\n6\nfloatSlider\n%f\n%f\n%f\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),-20.,8.,geo->ga->bangle*180./M_PI);
       }
       poly->addAttribute("TUI6",buf);
 
       // ... MENUE-VR-Slider fuer Parameter Q ...
-      sprintf(buf,"M%s\n%s\n%s\nfloat\n" M_Q "\n%f\n%f\n%f\nNenndaten\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),0.,200.,geo->ga->Q);
+      snprintf(buf, sizeof(buf),"M%s\n%s\n%s\nfloat\n" M_Q "\n%f\n%f\n%f\nNenndaten\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),0.,200.,geo->ga->Q);
       poly->addAttribute("SLIDER0",buf);
 
       // ... MENUE-VR-Slider fuer Parameter H ...
-      sprintf(buf,"M%s\n%s\n%s\nfloat\n" M_H "\n%f\n%f\n%f\nNenndaten\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),0.,50.,geo->ga->H);
+      snprintf(buf, sizeof(buf),"M%s\n%s\n%s\nfloat\n" M_H "\n%f\n%f\n%f\nNenndaten\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),0.,50.,geo->ga->H);
       poly->addAttribute("SLIDER1",buf);
 
       // ... MENUE-VR-Slider fuer Parameter n ...
-      sprintf(buf,"M%s\n%s\n%s\nfloat\n" M_N "\n%f\n%f\n%f\nNenndaten\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),0.,1000.,geo->ga->n);
+      snprintf(buf, sizeof(buf),"M%s\n%s\n%s\nfloat\n" M_N "\n%f\n%f\n%f\nNenndaten\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),0.,1000.,geo->ga->n);
       poly->addAttribute("SLIDER2",buf);
 
       // ... MENUE-VR-Slider fuer Parameter nopt ...
-      sprintf(buf,"M%s\n%s\n%s\nfloat\n" M_N_OPT "\n%f\n%f\n%f\nNenndaten\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),0.,500.,geo->ga->nopt);
+      snprintf(buf, sizeof(buf),"M%s\n%s\n%s\nfloat\n" M_N_OPT "\n%f\n%f\n%f\nNenndaten\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),0.,500.,geo->ga->nopt);
       poly->addAttribute("SLIDER3",buf);
 
       // ... MENUE-VR-Slider fuer Parameter Qopt ...
-      sprintf(buf,"M%s\n%s\n%s\nfloat\n" M_Q_OPT "\n%f\n%f\n%f\nNenndaten\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),0.,100.,geo->ga->Qopt);
+      snprintf(buf, sizeof(buf),"M%s\n%s\n%s\nfloat\n" M_Q_OPT "\n%f\n%f\n%f\nNenndaten\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),0.,100.,geo->ga->Qopt);
       poly->addAttribute("SLIDER4",buf);
 
       // ... MENUE-VR-Slider fuer Parameter blade angle ...
 /*      if (geo->ga->close==1)
       {
-         sprintf(buf,"M%s\n%s\n%s\nfloat\n"M_BLADE_ANGLE"\n%f\n%f\n%f\nNenndaten\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),geo->ga->beta_min,geo->ga->beta_max,geo->ga->bangle*180./M_PI);
+         snprintf(buf, sizeof(buf),"M%s\n%s\n%s\nfloat\n"M_BLADE_ANGLE"\n%f\n%f\n%f\nNenndaten\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),geo->ga->beta_min,geo->ga->beta_max,geo->ga->bangle*180./M_PI);
       }
       else */
       {
-         sprintf(buf,"M%s\n%s\n%s\nfloat\n" M_BLADE_ANGLE "\n%f\n%f\n%f\nNenndaten\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),-20.,10.,geo->ga->bangle*180./M_PI);
+         snprintf(buf, sizeof(buf),"M%s\n%s\n%s\nfloat\n" M_BLADE_ANGLE "\n%f\n%f\n%f\nNenndaten\n",Covise::get_module(),Covise::get_instance(),Covise::get_host(),-20.,10.,geo->ga->bangle*180./M_PI);
       }
       poly->addAttribute("SLIDER6",buf);
       GenerateNormals(BLADE,poly,bladenormals->getObjName());
@@ -417,7 +417,7 @@ int Gate::compute(const char *)
       float *bPtr;
       const char *basename = boco->getObjName();
       //   0. number of columns per info
-      sprintf(name,"%s_colinfo",basename);
+      snprintf(name, sizeof(name),"%s_colinfo",basename);
       size[0] = 6;
       size[1] = 0;
       coDoIntArr *colInfo = new coDoIntArr(name,1,size);
@@ -431,7 +431,7 @@ int Gate::compute(const char *)
       partObj[0]=colInfo;
 
       //   1. type of node
-      sprintf(name,"%s_nodeinfo",basename);
+      snprintf(name, sizeof(name),"%s_nodeinfo",basename);
       size[0] = GG_COL_NODE;
       size[1] = gg->p->nump;
       coDoIntArr *nodeInfo = new coDoIntArr(name,2,size);
@@ -444,7 +444,7 @@ int Gate::compute(const char *)
       partObj[1]=nodeInfo;
 
       //   2. type of element
-      sprintf(name,"%s_eleminfo",basename);
+      snprintf(name, sizeof(name),"%s_eleminfo",basename);
       size[0] = GG_COL_ELEM;
       size[1] = gg->e->nume;
       coDoIntArr *elemInfo = new coDoIntArr(name, 2, size);
@@ -458,14 +458,14 @@ int Gate::compute(const char *)
 
       //   3. list of nodes with bc (a node may appear more than one time)
       //      and its types
-      sprintf(name,"%s_diricletNodes",basename);
+      snprintf(name, sizeof(name),"%s_diricletNodes",basename);
       size [0] = GG_COL_DIRICLET;
       size [1] = 5*gg->bcin->num;
       coDoIntArr *diricletNodes = new coDoIntArr(name, 2, size);
       data = diricletNodes->getAddress();
 
       //   4. corresponding value to 3.
-      sprintf(name,"%s_diricletValue",basename);
+      snprintf(name, sizeof(name),"%s_diricletValue",basename);
       coDoFloat *diricletValues
          = new coDoFloat(name, 5*gg->bcin->num);
       diricletValues->getAddress(&bPtr);
@@ -507,12 +507,12 @@ int Gate::compute(const char *)
       partObj[4] = diricletValues;
 
       //   5. wall
-      sprintf(name,"%s_wallValue",basename);
+      snprintf(name, sizeof(name),"%s_wallValue",basename);
       coDoFloat *wallValues
          = new coDoFloat(name, gg->bcwallvol->num);
       wallValues->getAddress(&bPtr);
 
-      sprintf(name,"%s_wall",basename);
+      snprintf(name, sizeof(name),"%s_wall",basename);
       size[0] = GG_COL_WALL;
       size[1] = gg->bcwallvol->num;
       coDoIntArr *faces = new coDoIntArr(name, 2, size );
@@ -530,7 +530,7 @@ int Gate::compute(const char *)
       partObj[5]=faces;
 
       //   6. balance
-      sprintf(name,"%s_balance",basename);
+      snprintf(name, sizeof(name),"%s_balance",basename);
       size[0] = GG_COL_BALANCE;
       size[1] = gg->bcinvol->num + gg->bcoutvol->num + gg->bcperiodicval->num;
 
@@ -571,14 +571,14 @@ int Gate::compute(const char *)
       partObj[6] = balance;
 
       //  7. pressure bc: outlet elements
-      sprintf(name,"%s_pressElems",basename);
+      snprintf(name, sizeof(name),"%s_pressElems",basename);
       size[0] = GG_COL_PRESS;
       size[1] = gg->bcoutvol->num;
       coDoIntArr *pressElems = new coDoIntArr(name, 2, size );
       data=pressElems->getAddress();
 
       //  8. pressure bc: value for outlet elements
-      /*sprintf(name,"%s_pressVal",basename);
+      /*snprintf(name, sizeof(name),"%s_pressVal",basename);
       coDoFloat *pressValues
          = new coDoFloat(name, gg->bcoutvol->num);
 		 pressValues->getAddress(&bPtr);*/
@@ -630,8 +630,8 @@ int Gate::compute(const char *)
    int bladeang_min;
    int bladeang_max;
    
-   sprintf(plbuf,"AUTOSCALE\n");
-   sprintf(buf, "WORLD %f,%f,%f,%f\n", xwmin, ywmin, xwmax, ywmax );
+   snprintf(plbuf, sizeof(plbuf),"AUTOSCALE\n");
+   snprintf(buf, sizeof(buf), "WORLD %f,%f,%f,%f\n", xwmin, ywmin, xwmax, ywmax );
    strcat(plbuf, buf);
    strcat(plbuf, "SETS SYMBOL 27\n");
    strcat(plbuf, "SETS LINESTYLE 0\n");

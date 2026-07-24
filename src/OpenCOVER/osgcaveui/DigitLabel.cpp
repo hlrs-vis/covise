@@ -177,7 +177,7 @@ void DigitLabel::setDigit()
     char text[4];
     std::list<DigitListener *>::iterator iter;
 
-    sprintf(text, "%d", _digit);
+    snprintf(text, sizeof(text), "%d", _digit);
     setDigitText(text);
 
     for (iter = _listener.begin(); iter != _listener.end(); iter++)
@@ -199,7 +199,7 @@ void DigitLabel::setDigit(int digit)
 
     _value = _digit * STEP_ANGLE + STEP_ANGLE / 2.0;
 
-    sprintf(text, "%d", _digit);
+    snprintf(text, sizeof(text), "%d", _digit);
     setDigitText(text);
 }
 

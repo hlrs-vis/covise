@@ -142,7 +142,7 @@ fastrak::setHemisphere(int station, float x, float y, float z)
     cout << "INFO: Setting hemisphere: ";
 #endif
     char s[500];
-    sprintf(s, "H%d,%10f,%10f,%10f", station, hx, hy, hz);
+    snprintf(s, sizeof(s), "H%d,%10f,%10f,%10f", station, hx, hy, hz);
 
     sendFastrakCmd(s);
 }
@@ -155,7 +155,7 @@ fastrak::setPositionFilter(float f, float flow, float fhigh, float factor)
 #endif
     char s[500];
 
-    sprintf(s, "x,%10f,%10f,%10f,%10f", f, flow, fhigh, factor);
+    snprintf(s, sizeof(s), "x,%10f,%10f,%10f,%10f", f, flow, fhigh, factor);
     sendFastrakCmd(s);
 }
 
@@ -167,7 +167,7 @@ fastrak::setAttitudeFilter(float f, float flow, float fhigh, float factor)
 #endif
     char s[500];
 
-    sprintf(s, "v,%10f,%10f,%10f,%10f", f, flow, fhigh, factor);
+    snprintf(s, sizeof(s), "v,%10f,%10f,%10f,%10f", f, flow, fhigh, factor);
     sendFastrakCmd(s);
 }
 
@@ -779,9 +779,9 @@ fastrak::setOutput(int station)
     // 22: intersense wand
 
     if (buttonDevice == BUTTONDEVICE_STYLUS)
-        sprintf(s, "O%d,2,11,16,1", station);
+        snprintf(s, sizeof(s), "O%d,2,11,16,1", station);
     else
-        sprintf(s, "O%d,2,11,22,1", station);
+        snprintf(s, sizeof(s), "O%d,2,11,22,1", station);
 
     sendFastrakCmd(s);
 }
@@ -811,13 +811,13 @@ fastrak::reinitialize()
     {
         // reset to factory defaults
         fprintf(stderr, "\nFASTRAK RESET:  resetting to factory defaults\n");
-        sprintf(s, "W");
+        snprintf(s, sizeof(s), "W");
         sendFastrakCmd(s);
     }
     else
 #endif
     {
-        sprintf(s, "%c", 25);
+        snprintf(s, sizeof(s), "%c", 25);
         sendFastrakCmd(s);
         fprintf(stderr, "\nFASTRAK RESET:  reinitialize ");
         for (int i = 0; i < 20; i++)
@@ -867,7 +867,7 @@ fastrak::resetReferenceFrame(int station)
 #endif
     char s[10];
 
-    sprintf(s, "R%d", station);
+    snprintf(s, sizeof(s), "R%d", station);
     sendFastrakCmd(s);
 }
 
@@ -880,7 +880,7 @@ fastrak::setReferenceFrame(int station, float Ox, float Oy, float Oz,
 #endif
     char s[1000];
 
-    sprintf(s, "A%d,%1f,%1f,%1f,%1f,%1f,%1f,%1f,%1f,%1f", station,
+    snprintf(s, sizeof(s), "A%d,%1f,%1f,%1f,%1f,%1f,%1f,%1f,%1f,%1f", station,
             Ox, Oy, Oz, Xx, Xy, Xz, Yx, Yy, Yz);
 
     sendFastrakCmd(s);
@@ -894,7 +894,7 @@ fastrak::setStationActive(int station)
 #endif
     char s[20];
 
-    sprintf(s, "l%d,1", station);
+    snprintf(s, sizeof(s), "l%d,1", station);
     sendFastrakCmd(s);
 }
 
@@ -905,7 +905,7 @@ fastrak::setStationPassive(int station)
 #ifdef DEBUG
     cout << "CONFIG: setStationPassive: ";
 #endif
-    sprintf(s, "l%d,0", station);
+    snprintf(s, sizeof(s), "l%d,0", station);
     sendFastrakCmd(s);
 }
 

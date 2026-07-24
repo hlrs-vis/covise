@@ -184,7 +184,7 @@ ChoiceState::PartDictionary(coOutputPort *p_partdict) const
     for (it = _instance_dictionary.begin(); it != _instance_dictionary.end(); ++it)
     {
         char buf[32];
-        sprintf(buf, "%d: ", it->second);
+        snprintf(buf, sizeof(buf), "%d: ", it->second);
         text += buf;
         text += it->first.c_str();
         text += '\n';
@@ -227,11 +227,11 @@ ChoiceState::AccumulateFieldsInStep(odb_Step &step, int step_label)
     // inform about this time step
     string mssg("Step ");
     char buf[256];
-    sprintf(buf, "%d has ", step_label);
+    snprintf(buf, sizeof(buf), "%d has ", step_label);
     mssg += buf;
     if (num_modal > 0)
     {
-        sprintf(buf, "%d frames in the modal domain", num_modal);
+        snprintf(buf, sizeof(buf), "%d frames in the modal domain", num_modal);
         mssg += buf;
     }
     if (num_harmonic > 0)
@@ -244,7 +244,7 @@ ChoiceState::AccumulateFieldsInStep(odb_Step &step, int step_label)
         {
             mssg += " ";
         }
-        sprintf(buf, "%d frames in the harmonic domain", num_harmonic);
+        snprintf(buf, sizeof(buf), "%d frames in the harmonic domain", num_harmonic);
         mssg += buf;
         _harmonic = true;
     }
@@ -258,7 +258,7 @@ ChoiceState::AccumulateFieldsInStep(odb_Step &step, int step_label)
         {
             mssg += " ";
         }
-        sprintf(buf, "%d frames in the time domain", num_time);
+        snprintf(buf, sizeof(buf), "%d frames in the time domain", num_time);
         mssg += buf;
     }
     if (num_time == 0 && num_modal == 0 && num_harmonic == 0)
@@ -578,7 +578,7 @@ covise::coDoSet *DynamicSet(string name, vector<coDistributedObject *> &objs)
     }
     delete[] setList;
     char buf[64];
-    sprintf(buf, "1_%d", no_timesteps);
+    snprintf(buf, sizeof(buf), "1_%d", no_timesteps);
     ret->addAttribute("TIMESTEP", buf);
     return ret;
 }
@@ -653,19 +653,19 @@ ChoiceState::DataSet(int dataset, int minStep, int maxStep, int jumpSteps,
             case odb_Enum::MODAL:
                 if (sCon[sIter.currentKey()].procedure() == "FREQUENCY")
                 {
-                    sprintf(buf, "%g", frame.frequency());
+                    snprintf(buf, sizeof(buf), "%g", frame.frequency());
                 }
                 else
                 {
-                    sprintf(buf, "%d", frame.mode());
+                    snprintf(buf, sizeof(buf), "%d", frame.mode());
                 }
                 break;
             case odb_Enum::FREQUENCY:
-                sprintf(buf, "%g", frame.frequency());
+                snprintf(buf, sizeof(buf), "%g", frame.frequency());
                 try_conjugate = conjugate;
                 break;
             case odb_Enum::TIME:
-                sprintf(buf, "%g", frame.frameValue() + accumulateTime * sCon[sIter.currentKey()].totalTime());
+                snprintf(buf, sizeof(buf), "%g", frame.frameValue() + accumulateTime * sCon[sIter.currentKey()].totalTime());
                 break;
             }
             Data::REALTIME = buf;
@@ -727,7 +727,7 @@ ChoiceState::DataSet(int dataset, int minStep, int maxStep, int jumpSteps,
             string data_mesh = p_data->getObjName();
             string name_part_indices = p_part_indices->getObjName();
             string name_disp = p_displacements->getObjName();
-            sprintf(buf, "_%d", time);
+            snprintf(buf, sizeof(buf), "_%d", time);
             name_mesh += buf;
             data_mesh += buf;
             name_part_indices += buf;

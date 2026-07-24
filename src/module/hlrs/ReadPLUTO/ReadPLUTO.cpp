@@ -312,7 +312,7 @@ int ReadPLUTO::compute(const char *)
     {
         // initialise data objects
         {
-            sprintf(buf, "%s_%d", mesh_name, n);
+            snprintf(buf, sizeof(buf), "%s_%d", mesh_name, n);
             mesh = new coDoStructuredGrid(buf, n_x1, n_x2, n_x3,
                                           vec_gridx1_glob,
                                           vec_gridx2_glob,
@@ -322,56 +322,56 @@ int ReadPLUTO::compute(const char *)
                 sendError("could not create output object:");
                 break;
             }
-            sprintf(buf, "%s_%d", rho_name, n);
+            snprintf(buf, sizeof(buf), "%s_%d", rho_name, n);
             DOrho = new coDoFloat(buf, n_x1 * n_x2 * n_x3);
             if (!DOrho->objectOk())
             {
                 sendError("could not create output object:");
                 break;
             }
-            sprintf(buf, "%s_%d", rholog_name, n);
+            snprintf(buf, sizeof(buf), "%s_%d", rholog_name, n);
             DOrholog = new coDoFloat(buf, n_x1 * n_x2 * n_x3);
             if (!DOrholog->objectOk())
             {
                 sendError("could not create output object:");
                 break;
             }
-            sprintf(buf, "%s_%d", pr_name, n);
+            snprintf(buf, sizeof(buf), "%s_%d", pr_name, n);
             DOpress = new coDoFloat(buf, n_x1 * n_x2 * n_x3);
             if (!DOpress->objectOk())
             {
                 sendError("could not create output object:");
                 break;
             }
-            sprintf(buf, "%s_%d", prlog_name, n);
+            snprintf(buf, sizeof(buf), "%s_%d", prlog_name, n);
             DOpresslog = new coDoFloat(buf, n_x1 * n_x2 * n_x3);
             if (!DOpresslog->objectOk())
             {
                 sendError("could not create output object:");
                 break;
             }
-            sprintf(buf, "%s_%d", vel_name, n);
+            snprintf(buf, sizeof(buf), "%s_%d", vel_name, n);
             DOvel = new coDoVec3(buf, n_x1 * n_x2 * n_x3);
             if (!DOvel->objectOk())
             {
                 sendError("could not create output object:");
                 break;
             }
-            sprintf(buf, "%s_%d", magfield_name, n);
+            snprintf(buf, sizeof(buf), "%s_%d", magfield_name, n);
             DOmagfield = new coDoVec3(buf, n_x1 * n_x2 * n_x3);
             if (!DOmagfield->objectOk())
             {
                 sendError("could not create output object:");
                 break;
             }
-            sprintf(buf, "%s_%d", vel_cart_name, n);
+            snprintf(buf, sizeof(buf), "%s_%d", vel_cart_name, n);
             DOvel_cart = new coDoVec3(buf, n_x1 * n_x2 * n_x3);
             if (!DOvel_cart->objectOk())
             {
                 sendError("could not create output object:");
                 break;
             }
-            sprintf(buf, "%s_%d", magfield_cart_name, n);
+            snprintf(buf, sizeof(buf), "%s_%d", magfield_cart_name, n);
             DOmagfield_cart = new coDoVec3(buf, n_x1 * n_x2 * n_x3);
             if (!DOmagfield_cart->objectOk())
             {
@@ -396,7 +396,7 @@ int ReadPLUTO::compute(const char *)
         if (fileFormat == 0)
         { // single file (data.%d.flt)
 
-            sprintf(filename_buf, "%s/data.%04d.flt", dir_path.c_str(), t);
+            snprintf(filename_buf, sizeof(filename_buf), "%s/data.%04d.flt", dir_path.c_str(), t);
             fd = openDataFile(&fd, filename_buf);
             if (readData(fd, rho, pr, v1, v2, v3, b1, b2, b3) < 0)
                 break;
@@ -405,49 +405,49 @@ int ReadPLUTO::compute(const char *)
         else
         { // multiple files (rho.%d.flt etc.)
 
-            sprintf(filename_buf, "%s/rho.%04d.flt", dir_path.c_str(), t);
+            snprintf(filename_buf, sizeof(filename_buf), "%s/rho.%04d.flt", dir_path.c_str(), t);
             fd = openDataFile(&fd, filename_buf);
             if (readData(fd, rho) < 0)
                 break;
             close(fd);
 
-            sprintf(filename_buf, "%s/pr.%04d.flt", dir_path.c_str(), t);
+            snprintf(filename_buf, sizeof(filename_buf), "%s/pr.%04d.flt", dir_path.c_str(), t);
             fd = openDataFile(&fd, filename_buf);
             if (readData(fd, pr) < 0)
                 break;
             close(fd);
 
-            sprintf(filename_buf, "%s/v1.%04d.flt", dir_path.c_str(), t);
+            snprintf(filename_buf, sizeof(filename_buf), "%s/v1.%04d.flt", dir_path.c_str(), t);
             fd = openDataFile(&fd, filename_buf);
             if (readData(fd, v1) < 0)
                 break;
             close(fd);
 
-            sprintf(filename_buf, "%s/v2.%04d.flt", dir_path.c_str(), t);
+            snprintf(filename_buf, sizeof(filename_buf), "%s/v2.%04d.flt", dir_path.c_str(), t);
             fd = openDataFile(&fd, filename_buf);
             if (readData(fd, v2) < 0)
                 break;
             close(fd);
 
-            sprintf(filename_buf, "%s/v3.%04d.flt", dir_path.c_str(), t);
+            snprintf(filename_buf, sizeof(filename_buf), "%s/v3.%04d.flt", dir_path.c_str(), t);
             fd = openDataFile(&fd, filename_buf);
             if (readData(fd, v3) < 0)
                 break;
             close(fd);
 
-            sprintf(filename_buf, "%s/b1.%04d.flt", dir_path.c_str(), t);
+            snprintf(filename_buf, sizeof(filename_buf), "%s/b1.%04d.flt", dir_path.c_str(), t);
             fd = openDataFile(&fd, filename_buf);
             if (readData(fd, b1) < 0)
                 break;
             close(fd);
 
-            sprintf(filename_buf, "%s/b2.%04d.flt", dir_path.c_str(), t);
+            snprintf(filename_buf, sizeof(filename_buf), "%s/b2.%04d.flt", dir_path.c_str(), t);
             fd = openDataFile(&fd, filename_buf);
             if (readData(fd, b2) < 0)
                 break;
             close(fd);
 
-            sprintf(filename_buf, "%s/b3.%04d.flt", dir_path.c_str(), t);
+            snprintf(filename_buf, sizeof(filename_buf), "%s/b3.%04d.flt", dir_path.c_str(), t);
             fd = openDataFile(&fd, filename_buf);
             if (readData(fd, b3) < 0)
                 break;
@@ -488,7 +488,7 @@ int ReadPLUTO::compute(const char *)
         DOSmagfield_cart[n] = DOmagfield_cart;
     }
 
-    sprintf(buf, "%d %d", tbeg, tend);
+    snprintf(buf, sizeof(buf), "%d %d", tbeg, tend);
     coDoSet *set = new coDoSet(mesh_name, grids);
     set->addAttribute("TIMESTEP", buf);
     p_mesh->setCurrentObject(set);

@@ -137,7 +137,7 @@ const char *coIntScalarParam::getTypeString() const
 const char *coIntScalarParam::getValString() const
 {
     static char valString[64];
-    sprintf(valString, "%ld", d_value);
+    snprintf(valString, sizeof(valString), "%ld", d_value);
     return valString;
 }
 

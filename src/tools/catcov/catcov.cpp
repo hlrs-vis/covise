@@ -410,7 +410,7 @@ void CatCov::WriteTimeAttrib()
     char timeAttr[] = "TIMESTEP";
     int numattrib = 1;
 
-    sprintf(strBuf, "%d %d", 1, noTimeSteps_);
+    snprintf(strBuf, sizeof(strBuf), "%d %d", 1, noTimeSteps_);
     int size = sizeof(int);
     size += strlen(timeAttr) + strlen(strBuf) + 2;
     swap_int(size);

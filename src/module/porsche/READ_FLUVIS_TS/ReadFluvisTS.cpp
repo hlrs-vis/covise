@@ -139,33 +139,33 @@ void Application::compute(void *)
     for (i = from_ts; i <= to_ts; i++)
     {
 
-        sprintf(tmpElemFileName, "%s%04d/%s", dir_base_name, i, elemFile);
-        sprintf(tmpKnotFileName, "%s%04d/%s", dir_base_name, i, knotFile);
-        sprintf(tmpGridName, "%s_%04d", gridObjName, i);
+        snprintf(tmpElemFileName, sizeof(tmpElemFileName), "%s%04d/%s", dir_base_name, i, elemFile);
+        snprintf(tmpKnotFileName, sizeof(tmpKnotFileName), "%s%04d/%s", dir_base_name, i, knotFile);
+        snprintf(tmpGridName, sizeof(tmpGridName), "%s_%04d", gridObjName, i);
         gridSubObj = createGridObject(tmpElemFileName, tmpKnotFileName, tmpGridName);
         GRID_Set->addElement(gridSubObj);
         delete gridSubObj;
 
-        sprintf(tmpVelFileName, "%s%04d/%s", dir_base_name, i, velFile);
-        sprintf(tmpVelName, "%s_%04d", velObjName, i);
+        snprintf(tmpVelFileName, sizeof(tmpVelFileName), "%s%04d/%s", dir_base_name, i, velFile);
+        snprintf(tmpVelName, sizeof(tmpVelName), "%s_%04d", velObjName, i);
         velSubObj = createVelocityObject(tmpVelFileName, tmpVelName);
         VEL_Set->addElement(velSubObj);
         delete velSubObj;
 
-        sprintf(tmpDensityFileName, "%s%04d/%s", dir_base_name, i, sc0File);
-        sprintf(tmpDensityName, "%s_%04d", densityObjName, i);
+        snprintf(tmpDensityFileName, sizeof(tmpDensityFileName), "%s%04d/%s", dir_base_name, i, sc0File);
+        snprintf(tmpDensityName, sizeof(tmpDensityName), "%s_%04d", densityObjName, i);
         densSubObject = createScalarObject(tmpDensityFileName, tmpDensityName);
         DENS_Set->addElement(densSubObject);
         delete densSubObject;
 
-        sprintf(tmppstaticFileName, "%s%04d/%s", dir_base_name, i, sc1File);
-        sprintf(tmpPstaticName, "%s_%04d", pstaticObjName, i);
+        snprintf(tmppstaticFileName, sizeof(tmppstaticFileName), "%s%04d/%s", dir_base_name, i, sc1File);
+        snprintf(tmpPstaticName, sizeof(tmpPstaticName), "%s_%04d", pstaticObjName, i);
         pstatSubObject = createScalarObject(tmppstaticFileName, tmpPstaticName);
         PSTAT_Set->addElement(pstatSubObject);
         delete pstatSubObject;
 
-        sprintf(tmpptotalFileName, "%s%04d/%s", dir_base_name, i, sc2File);
-        sprintf(tmpPtotalName, "%s_%04d", ptotalObjName, i);
+        snprintf(tmpptotalFileName, sizeof(tmpptotalFileName), "%s%04d/%s", dir_base_name, i, sc2File);
+        snprintf(tmpPtotalName, sizeof(tmpPtotalName), "%s_%04d", ptotalObjName, i);
         ptotSubObject = createScalarObject(tmpptotalFileName, tmpPtotalName);
         PTOT_Set->addElement(ptotSubObject);
         delete ptotSubObject;
@@ -173,7 +173,7 @@ void Application::compute(void *)
 
     char attr[200];
 
-    sprintf(attr, "%d %d", from_ts, to_ts);
+    snprintf(attr, sizeof(attr), "%d %d", from_ts, to_ts);
     GRID_Set->addAttribute("TIMESTEP", attr);
     VEL_Set->addAttribute("TIMESTEP", attr);
     DENS_Set->addAttribute("TIMESTEP", attr);
@@ -378,7 +378,7 @@ Application::createScalarObject(char *scalarPath, char *scalarObjName)
 
     if ((scalarFp = Covise::fopen(scalarPath, "r")) == NULL)
     {
-        sprintf(buf, "No valid file for Scalar Object %d", scalarObjName);
+        snprintf(buf, sizeof(buf), "No valid file for Scalar Object %d", scalarObjName);
         Covise::sendInfo(buf);
         return NULL;
     }

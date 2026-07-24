@@ -190,9 +190,9 @@ int Patran::compute(const char *)
     gridFile->eval_num_connections();
 
     if (timesteps > 1 && has_timesteps)
-        sprintf(buf, "%s_0", p_outPort1->getObjName());
+        snprintf(buf, sizeof(buf), "%s_0", p_outPort1->getObjName());
     else
-        sprintf(buf, "%s", p_outPort1->getObjName());
+        snprintf(buf, sizeof(buf), "%s", p_outPort1->getObjName());
     mesh = new coDoUnstructuredGrid(buf, gridFile->num_elements, gridFile->num_connections, gridFile->num_nodes, 1);
 
     if (!mesh->objectOk())
@@ -242,7 +242,7 @@ int Patran::compute(const char *)
             time_outputgrid[i] = NULL;
 
             coDoSet *outputgrid = new coDoSet(p_outPort1->getObjName(), time_outputgrid);
-            sprintf(buf, "1 %d", timesteps);
+            snprintf(buf, sizeof(buf), "1 %d", timesteps);
             outputgrid->addAttribute("TIMESTEP", buf);
             p_outPort1->setCurrentObject(outputgrid);
         }
@@ -310,9 +310,9 @@ int Patran::compute(const char *)
                         has_displ_file = 1;
                         sendInfo("Successfully read the file '%s': %i data nodes, %i data columns.", next_path, nodal_displFile->nnodes, nodal_displFile->header.nwidth);
                         if (timesteps > 1 && has_timesteps)
-                            sprintf(buf, "%s_%d", p_outPort2->getObjName(), i);
+                            snprintf(buf, sizeof(buf), "%s_%d", p_outPort2->getObjName(), i);
                         else
-                            sprintf(buf, "%s", p_outPort2->getObjName());
+                            snprintf(buf, sizeof(buf), "%s", p_outPort2->getObjName());
                         displ_data = new coDoVec3(buf, gridFile->num_nodes);
 
                         if (!displ_data->objectOk())
@@ -347,7 +347,7 @@ int Patran::compute(const char *)
             if (timesteps > 1 && has_timesteps)
             {
                 coDoSet *outputdata = new coDoSet(p_outPort2->getObjName(), time_outputdata);
-                sprintf(buf, "1 %d", timesteps);
+                snprintf(buf, sizeof(buf), "1 %d", timesteps);
                 outputdata->addAttribute("TIMESTEP", buf);
                 p_outPort2->setCurrentObject(outputdata);
             }
@@ -423,9 +423,9 @@ int Patran::compute(const char *)
                         has_nsh_file = 1;
                         sendInfo("Successfully read the file '%s': %i nodes", next_path, nodal_stressFile->nnodes);
                         if (timesteps > 1 && has_timesteps)
-                            sprintf(buf, "%s_%d", p_outPort3->getObjName(), i);
+                            snprintf(buf, sizeof(buf), "%s_%d", p_outPort3->getObjName(), i);
                         else
-                            sprintf(buf, "%s", p_outPort3->getObjName());
+                            snprintf(buf, sizeof(buf), "%s", p_outPort3->getObjName());
                         nsh_data = new coDoFloat(buf, gridFile->num_nodes);
 
                         if (!nsh_data->objectOk())
@@ -459,7 +459,7 @@ int Patran::compute(const char *)
             if (timesteps > 1 && has_timesteps)
             {
                 coDoSet *scalardata = new coDoSet(p_outPort3->getObjName(), time_scalardata);
-                sprintf(buf, "1 %d", timesteps);
+                snprintf(buf, sizeof(buf), "1 %d", timesteps);
                 scalardata->addAttribute("TIMESTEP", buf);
                 p_outPort3->setCurrentObject(scalardata);
             }
@@ -529,9 +529,9 @@ int Patran::compute(const char *)
                             has_elem_file = 1;
                             sendInfo("Successfully read the file '%s': %i nodes and width %i.", next_path, elemAscFile->nnodes, elemAscFile->nwidth);
                             if (timesteps > 1 && has_timesteps)
-                                sprintf(buf, "%s_%d", p_outPort3->getObjName(), i);
+                                snprintf(buf, sizeof(buf), "%s_%d", p_outPort3->getObjName(), i);
                             else
-                                sprintf(buf, "%s", p_outPort3->getObjName());
+                                snprintf(buf, sizeof(buf), "%s", p_outPort3->getObjName());
                             elem_data = new coDoFloat(buf, gridFile->num_elements);
 
                             if (!elem_data->objectOk())
@@ -566,9 +566,9 @@ int Patran::compute(const char *)
                             has_elem_file = 1;
                             sendInfo("Successfully read the file '%s': %i lines.", next_path, elemFile->numlines);
                             if (timesteps > 1 && has_timesteps)
-                                sprintf(buf, "%s_%d", p_outPort3->getObjName(), i);
+                                snprintf(buf, sizeof(buf), "%s_%d", p_outPort3->getObjName(), i);
                             else
-                                sprintf(buf, "%s", p_outPort3->getObjName());
+                                snprintf(buf, sizeof(buf), "%s", p_outPort3->getObjName());
                             elem_data = new coDoFloat(buf, gridFile->num_elements);
 
                             if (!elem_data->objectOk())
@@ -604,7 +604,7 @@ int Patran::compute(const char *)
             if (timesteps > 1 && has_timesteps)
             {
                 coDoSet *elementdata = new coDoSet(p_outPort3->getObjName(), time_elementdata);
-                sprintf(buf, "1 %d", timesteps);
+                snprintf(buf, sizeof(buf), "1 %d", timesteps);
                 elementdata->addAttribute("TIMESTEP", buf);
                 p_outPort3->setCurrentObject(elem_data);
             }

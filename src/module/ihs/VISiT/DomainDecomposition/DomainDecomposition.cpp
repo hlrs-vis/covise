@@ -416,7 +416,7 @@ void sendgeodata_module_(int *igeb, int *npoin_ges, int *nelem_ges, int *knmax_n
 
 	//global data per node
 	int i=9;
-	sprintf(buf,"%s_%d_global"     ,pgridbase,*igeb);
+	snprintf(buf, sizeof(buf),"%s_%d_global"     ,pgridbase,*igeb);
 	coDoIntArr *globalData = new coDoIntArr(buf,1,&i);
 	int *data=globalData->getAddress();
 	data[0]=*igeb;
@@ -429,16 +429,16 @@ void sendgeodata_module_(int *igeb, int *npoin_ges, int *nelem_ges, int *knmax_n
 	data[7]=*ncd;
 	data[8]=*nkd;
 	geo[0] = globalData;
-	sprintf(buf,"%s_%d_cov_coord"     ,pgridbase,*igeb); geo[1]=floatDO(buf,cov_coord,*nkn * *ncd);
-	sprintf(buf,"%s_%d_cov_lnods"     ,pgridbase,*igeb); geo[2]=  intDO(buf,cov_lnods,*nel * *nkd);
-	sprintf(buf,"%s_%d_cov_lnods_num" ,pgridbase,*igeb); geo[3]=  intDO(buf,cov_lnods_num,*nel);
-	sprintf(buf,"%s_%d_cov_lnods_proz",pgridbase,*igeb); geo[4]=  intDO(buf,cov_lnods_proz,*nel);
-	sprintf(buf,"%s_%d_cov_coord_num" ,pgridbase,*igeb); geo[5]=  intDO(buf,cov_coord_num,*nkn);
-	sprintf(buf,"%s_%d_cov_coord_joi" ,pgridbase,*igeb); geo[6]=  intDO(buf,cov_coord_joi,*nkn);
-	sprintf(buf,"%s_%d_cov_lnods_joi" ,pgridbase,*igeb); geo[7]=  intDO(buf,cov_lnods_joi,*nel);
-	sprintf(buf,"%s_%d_cov_coord_mod" ,pgridbase,*igeb); geo[8]=  intDO(buf,cov_coord_mod,*nkn);
-	sprintf(buf,"%s_%d_cov_lnods_mod" ,pgridbase,*igeb); geo[9]=  intDO(buf,cov_lnods_mod,*nel);
-	sprintf(buf,"%s_%d_cov_coord_proz",pgridbase,*igeb); geo[10]= intDO(buf,cov_coord_proz,*nkn);
+	snprintf(buf, sizeof(buf),"%s_%d_cov_coord"     ,pgridbase,*igeb); geo[1]=floatDO(buf,cov_coord,*nkn * *ncd);
+	snprintf(buf, sizeof(buf),"%s_%d_cov_lnods"     ,pgridbase,*igeb); geo[2]=  intDO(buf,cov_lnods,*nel * *nkd);
+	snprintf(buf, sizeof(buf),"%s_%d_cov_lnods_num" ,pgridbase,*igeb); geo[3]=  intDO(buf,cov_lnods_num,*nel);
+	snprintf(buf, sizeof(buf),"%s_%d_cov_lnods_proz",pgridbase,*igeb); geo[4]=  intDO(buf,cov_lnods_proz,*nel);
+	snprintf(buf, sizeof(buf),"%s_%d_cov_coord_num" ,pgridbase,*igeb); geo[5]=  intDO(buf,cov_coord_num,*nkn);
+	snprintf(buf, sizeof(buf),"%s_%d_cov_coord_joi" ,pgridbase,*igeb); geo[6]=  intDO(buf,cov_coord_joi,*nkn);
+	snprintf(buf, sizeof(buf),"%s_%d_cov_lnods_joi" ,pgridbase,*igeb); geo[7]=  intDO(buf,cov_lnods_joi,*nel);
+	snprintf(buf, sizeof(buf),"%s_%d_cov_coord_mod" ,pgridbase,*igeb); geo[8]=  intDO(buf,cov_coord_mod,*nkn);
+	snprintf(buf, sizeof(buf),"%s_%d_cov_lnods_mod" ,pgridbase,*igeb); geo[9]=  intDO(buf,cov_lnods_mod,*nel);
+	snprintf(buf, sizeof(buf),"%s_%d_cov_coord_proz",pgridbase,*igeb); geo[10]= intDO(buf,cov_coord_proz,*nkn);
 	geo[11]=NULL;
 	for (i=0;i<GNUM-1;i++)
 	{
@@ -447,7 +447,7 @@ void sendgeodata_module_(int *igeb, int *npoin_ges, int *nelem_ges, int *knmax_n
 			fprintf(stderr," Fehler!!!!!!!!!!!!!!!!!!!!!!!!%d\n",i);
 		}
 	}
-	sprintf(buf,"%s_%d"     ,pgridbase,*igeb);
+	snprintf(buf, sizeof(buf),"%s_%d"     ,pgridbase,*igeb);
 	pgrid[*igeb-1] = new coDoSet(buf,geo);
 	// delete
 	for (i=0;i<GNUM;i++)
@@ -478,7 +478,7 @@ void sendrbedata_module_(int *igeb,int *nrbpo_geb,int *nwand_geb,int *npres_geb,
 
 	//global data per node
 	int i=6;
-	sprintf(buf,"%s_%d_global"     ,pbocobase,*igeb);
+	snprintf(buf, sizeof(buf),"%s_%d_global"     ,pbocobase,*igeb);
 	coDoIntArr *globalData = new coDoIntArr(buf,1,&i);
 	int *data=globalData->getAddress();
 	data[0]=*nrbpo_geb;
@@ -489,18 +489,18 @@ void sendrbedata_module_(int *igeb,int *nrbpo_geb,int *nwand_geb,int *npres_geb,
 	data[4]=*nconv_geb;
 	data[5]=*nrbknie;
 	boc[0] = globalData;
-	sprintf(buf,"%s_%d_cov_displ_kn"  ,pbocobase,*igeb); boc[1] =intDO  (buf,cov_displ_kn,*nrbpo_geb);
-	sprintf(buf,"%s_%d_cov_displ_ty"  ,pbocobase,*igeb); boc[2] =intDO  (buf,cov_displ_typ,*nrbpo_geb);
-	sprintf(buf,"%s_%d_cov_wand_el"   ,pbocobase,*igeb); boc[3] =intDO  (buf,cov_wand_el,*nwand_geb);
-	sprintf(buf,"%s_%d_cov_wand_kn"   ,pbocobase,*igeb); boc[4] =intDO  (buf,cov_wand_kn,*nwand_geb * *nrbknie);
-	sprintf(buf,"%s_%d_cov_wand_num"  ,pbocobase,*igeb); boc[5] =intDO  (buf,cov_wand_num,*nwand_geb);
-	sprintf(buf,"%s_%d_cov_pres_el"   ,pbocobase,*igeb); boc[6] =intDO  (buf,cov_pres_el,*npres_geb);
-	sprintf(buf,"%s_%d_cov_pres_kn"   ,pbocobase,*igeb); boc[7] =intDO  (buf,cov_pres_kn,*npres_geb * *nrbknie);
-	sprintf(buf,"%s_%d_cov_pres_num"  ,pbocobase,*igeb); boc[8] =intDO  (buf,cov_pres_num,*npres_geb);
-	sprintf(buf,"%s_%d_cov_conv_el"   ,pbocobase,*igeb); boc[9] =intDO  (buf,cov_conv_el,*nconv_geb);
-	sprintf(buf,"%s_%d_cov_conv_kn"   ,pbocobase,*igeb); boc[10]=intDO  (buf,cov_conv_kn,*nconv_geb * *nrbknie);
-	sprintf(buf,"%s_%d_cov_conv_num"  ,pbocobase,*igeb); boc[11]=intDO  (buf,cov_conv_num,*nconv_geb);
-	sprintf(buf,"%s_%d_cov_displ_wert",pbocobase,*igeb); boc[12]=floatDO(buf,cov_displ_wert,*nrbpo_geb);
+	snprintf(buf, sizeof(buf),"%s_%d_cov_displ_kn"  ,pbocobase,*igeb); boc[1] =intDO  (buf,cov_displ_kn,*nrbpo_geb);
+	snprintf(buf, sizeof(buf),"%s_%d_cov_displ_ty"  ,pbocobase,*igeb); boc[2] =intDO  (buf,cov_displ_typ,*nrbpo_geb);
+	snprintf(buf, sizeof(buf),"%s_%d_cov_wand_el"   ,pbocobase,*igeb); boc[3] =intDO  (buf,cov_wand_el,*nwand_geb);
+	snprintf(buf, sizeof(buf),"%s_%d_cov_wand_kn"   ,pbocobase,*igeb); boc[4] =intDO  (buf,cov_wand_kn,*nwand_geb * *nrbknie);
+	snprintf(buf, sizeof(buf),"%s_%d_cov_wand_num"  ,pbocobase,*igeb); boc[5] =intDO  (buf,cov_wand_num,*nwand_geb);
+	snprintf(buf, sizeof(buf),"%s_%d_cov_pres_el"   ,pbocobase,*igeb); boc[6] =intDO  (buf,cov_pres_el,*npres_geb);
+	snprintf(buf, sizeof(buf),"%s_%d_cov_pres_kn"   ,pbocobase,*igeb); boc[7] =intDO  (buf,cov_pres_kn,*npres_geb * *nrbknie);
+	snprintf(buf, sizeof(buf),"%s_%d_cov_pres_num"  ,pbocobase,*igeb); boc[8] =intDO  (buf,cov_pres_num,*npres_geb);
+	snprintf(buf, sizeof(buf),"%s_%d_cov_conv_el"   ,pbocobase,*igeb); boc[9] =intDO  (buf,cov_conv_el,*nconv_geb);
+	snprintf(buf, sizeof(buf),"%s_%d_cov_conv_kn"   ,pbocobase,*igeb); boc[10]=intDO  (buf,cov_conv_kn,*nconv_geb * *nrbknie);
+	snprintf(buf, sizeof(buf),"%s_%d_cov_conv_num"  ,pbocobase,*igeb); boc[11]=intDO  (buf,cov_conv_num,*nconv_geb);
+	snprintf(buf, sizeof(buf),"%s_%d_cov_displ_wert",pbocobase,*igeb); boc[12]=floatDO(buf,cov_displ_wert,*nrbpo_geb);
 	boc[13]=NULL;
 	for (i=0;i<RNUM-1;i++)
 	{
@@ -510,7 +510,7 @@ void sendrbedata_module_(int *igeb,int *nrbpo_geb,int *nwand_geb,int *npres_geb,
    		}
 	}
 
-	sprintf(buf,"%s_%d"     ,pbocobase,*igeb);
+	snprintf(buf, sizeof(buf),"%s_%d"     ,pbocobase,*igeb);
 	pboco[*igeb-1] = new coDoSet(buf,boc);
 	// delete
 	for (i=0;i<RNUM-1;i++)

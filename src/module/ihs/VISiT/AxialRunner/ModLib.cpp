@@ -8,7 +8,7 @@ char *AxialRunner::IndexedParameterName(const char *name, int index)
 {
    char buf[255];
 
-   sprintf(buf, "%s__%d_", name, index + 1);;
+   snprintf(buf, sizeof(buf), "%s__%d_", name, index + 1);;
    return strdup(buf);
 }
 
@@ -155,7 +155,7 @@ int min, int max, int *dest)
       {
          char errtext[255];
 
-         sprintf(errtext, "The input value for %s is out of range: min=%d,max=%d (--> reset to old value)", b->getName(), min, max);
+         snprintf(errtext, sizeof(errtext), "The input value for %s is out of range: min=%d,max=%d (--> reset to old value)", b->getName(), min, max);
          sendError(errtext);
          *dest = old;
          b->setValue(old);

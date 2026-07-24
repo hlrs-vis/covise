@@ -724,7 +724,7 @@ void VrmlNode::eventIn(double timeStamp,
     {
         setField(eventName, *fieldValue);
         char eventOutName[256];
-        sprintf(eventOutName, "%s_changed", eventName);
+        snprintf(eventOutName, sizeof(eventOutName), "%s_changed", eventName);
         eventOut(timeStamp, eventOutName, *fieldValue);
         setModified();
     }
@@ -741,7 +741,7 @@ void VrmlNode::eventIn(double timeStamp,
         {
             setField(eventName, *fieldValue);
             char eventOutName[256];
-            sprintf(eventOutName, "%s_changed", eventName);
+            snprintf(eventOutName, sizeof(eventOutName), "%s_changed", eventName);
             eventOut(timeStamp, eventOutName, *fieldValue);
             setModified();
         }

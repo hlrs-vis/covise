@@ -33,7 +33,7 @@ UpdateView::UpdateView()
     for (int i = 0; i < m_numViews; i++)
     {
         char hName[1000];
-        sprintf(hName, "fasi%02d", i + 1);
+        snprintf(hName, sizeof(hName), "fasi%02d", i + 1);
 
         config->setActiveHost(QString(hName));
         float h, p, r;

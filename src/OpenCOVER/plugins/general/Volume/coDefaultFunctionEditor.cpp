@@ -311,16 +311,16 @@ void coDefaultFunctionEditor::updateLabels()
 
     float m = minValue[activeChannel];
     if (((float)(int)m) != m)
-        sprintf(num, "%.2f", m);
+        snprintf(num, sizeof(num), "%.2f", m);
     else
-        sprintf(num, "%d", (int)m);
+        snprintf(num, sizeof(num), "%d", (int)m);
     scalarMin->setString(num);
 
     m = maxValue[activeChannel];
     if (((float)(int)m) != m)
-        sprintf(num, "%.2f", m);
+        snprintf(num, sizeof(num), "%.2f", m);
     else
-        sprintf(num, "%d", (int)m);
+        snprintf(num, sizeof(num), "%d", (int)m);
     scalarMax->setString(num);
 }
 

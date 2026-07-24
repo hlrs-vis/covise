@@ -122,7 +122,7 @@ int Application::compute()
         {
             if ((fp = fopen(next_path, "r")) == NULL)
             {
-                sprintf(buf, "ERROR: Can't open file >> %s", next_path);
+                snprintf(buf, sizeof(buf), "ERROR: Can't open file >> %s", next_path);
                 sendError(buf);
                 return STOP_PIPELINE;
             }
@@ -130,11 +130,11 @@ int Application::compute()
             sscanf(buf, "%d %d %d", &x_dim, &y_dim, &z_dim);
             //cerr <<"x_dim= "<<x_dim<<" y_dim= "<<y_dim<<" z_dim= "<<z_dim<<endl;
 
-            sprintf(buf, "Reading the grid file %s (step %d) ...", next_path, i + 1);
+            snprintf(buf, sizeof(buf), "Reading the grid file %s (step %d) ...", next_path, i + 1);
             sendInfo(buf);
 
             if (timesteps > 1)
-                sprintf(buf, "%s_%d", p_outPort1->getObjName(), i);
+                snprintf(buf, sizeof(buf), "%s_%d", p_outPort1->getObjName(), i);
             else
             {
                 time_outputgrid[i] = NULL;
@@ -165,16 +165,16 @@ int Application::compute()
         {
             if ((fp = fopen(next_path, "r")) == NULL)
             {
-                sprintf(buf, "ERROR: Can't open file >> %s", next_path);
+                snprintf(buf, sizeof(buf), "ERROR: Can't open file >> %s", next_path);
                 sendError(buf);
                 return STOP_PIPELINE;
             }
 
-            sprintf(buf, "Reading the scalar data file %s (step %d) ...", next_path, i + 1);
+            snprintf(buf, sizeof(buf), "Reading the scalar data file %s (step %d) ...", next_path, i + 1);
             sendInfo(buf);
 
             if (timesteps > 1)
-                sprintf(buf, "%s_%d", p_outPort2->getObjName(), i);
+                snprintf(buf, sizeof(buf), "%s_%d", p_outPort2->getObjName(), i);
             else
             {
                 time_outputscalar[i] = NULL;
@@ -205,16 +205,16 @@ int Application::compute()
         {
             if ((fp = fopen(next_path, "r")) == NULL)
             {
-                sprintf(buf, "ERROR: Can't open file >> %s", next_path);
+                snprintf(buf, sizeof(buf), "ERROR: Can't open file >> %s", next_path);
                 sendError(buf);
                 return STOP_PIPELINE;
             }
 
-            sprintf(buf, "Reading the vector data file %s (step %d) ...", next_path, i + 1);
+            snprintf(buf, sizeof(buf), "Reading the vector data file %s (step %d) ...", next_path, i + 1);
             sendInfo(buf);
 
             if (timesteps > 1)
-                sprintf(buf, "%s_%d", p_outPort3->getObjName(), i);
+                snprintf(buf, sizeof(buf), "%s_%d", p_outPort3->getObjName(), i);
             else
                 strcpy(buf, p_outPort3->getObjName());
 
@@ -258,7 +258,7 @@ int Application::compute()
     {
         time_outputgrid[numSteps] = NULL;
         coDoSet *time_grd = new coDoSet(p_outPort1->getObjName(), time_outputgrid);
-        sprintf(buf, "1 %d", numSteps);
+        snprintf(buf, sizeof(buf), "1 %d", numSteps);
         time_grd->addAttribute("TIMESTEP", buf);
 
         for (i = 0; i < numSteps; i++)

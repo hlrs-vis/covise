@@ -178,7 +178,7 @@ int GenDat::compute(const char *)
     Covise::get_color_param("color", &rr, &gg, &bb, &aa);
 
     char rgbtxt[20];
-    sprintf(rgbtxt, "#%02x%02x%02x%02x", (int)(rr * 255.), (int)(gg * 255.), (int)(bb * 255.), (int)(aa * 255.));
+    snprintf(rgbtxt, sizeof(rgbtxt), "#%02x%02x%02x%02x", (int)(rr * 255.), (int)(gg * 255.), (int)(bb * 255.), (int)(aa * 255.));
 
     T = Timestep / 2.0f;
 
@@ -274,7 +274,7 @@ int GenDat::compute(const char *)
 
 #ifdef VECTOR_INTERACTOR_ATTRIBUTE
             char abuf[1000];
-            sprintf(abuf, "M%s\n%s\n%s\nend\n%f\n%f\n%f\nstart\n%f\n%f\n%f\n1\n", Covise::get_module(), Covise::get_instance(), Covise::get_host(), endx, endy, endz, startx, starty, startz);
+            snprintf(abuf, sizeof(abuf), "M%s\n%s\n%s\nend\n%f\n%f\n%f\nstart\n%f\n%f\n%f\n1\n", Covise::get_module(), Covise::get_instance(), Covise::get_host(), endx, endy, endz, startx, starty, startz);
             gridstruct->addAttribute("VECTOR0", abuf);
 #endif
 

@@ -75,7 +75,7 @@ int CreateRR_BladeElements(struct radial *rr)
 #endif						   // DEBUG_MERIDIANS
 
 #ifdef DEBUG_MERIDIANS
-	sprintf(fname, "rr_edges_%02d.txt", ncall++);
+	snprintf(fname, sizeof(fname), "rr_edges_%02d.txt", ncall++);
 	if ((fedge = fopen(fname, "w")) == NULL)
 		fprintf(stderr, "cannot open file %s\n", fname);
 #endif						   // DEBUG_MERIDIANS

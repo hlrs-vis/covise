@@ -15,7 +15,7 @@ void RadialRunner::CreatePlot(void)
 
 	for(i = 0; i < NUM_PLOT_PORTS; i++) {
 		dprintf(2,"i = %d:\n",i);
-		sprintf(buf,"XMGR%s_%d",M_2DPLOT,i+1);
+		snprintf(buf, sizeof(buf),"XMGR%s_%d",M_2DPLOT,i+1);
 		char *PLOT_Name = Covise::get_object_name(buf);
 		dprintf(2,"PLOT_Name: %s\n",PLOT_Name);
 		dprintf(1,"plot port %2d: ",i+1);

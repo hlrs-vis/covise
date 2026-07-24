@@ -1380,7 +1380,7 @@ void NurbsSurface::createNewSurface()
 void NurbsSurface::updateUI()
 {
     char currentSurfaceName[100];
-    sprintf(currentSurfaceName,"Current Surface: %d",currentSurface->surfaceIndex);
+    snprintf(currentSurfaceName, sizeof(currentSurfaceName),"Current Surface: %d",currentSurface->surfaceIndex);
     currentSurfaceLabel->setText(currentSurfaceName);
     surfaceSelectionSlider->setBounds(0,surfaces.size()-1);
 }

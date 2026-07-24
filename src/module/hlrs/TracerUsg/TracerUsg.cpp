@@ -891,11 +891,11 @@ void Application::compute(void *)
                 switch (startStyle)
                 {
                 case 2: // plane
-                    sprintf(buf, "P%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+                    snprintf(buf, sizeof(buf), "P%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
                     break;
 
                 default: // line
-                    sprintf(buf, "T%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+                    snprintf(buf, sizeof(buf), "T%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
                     break;
                 }
                 lineobj->addAttribute("FEEDBACK", buf);
@@ -983,15 +983,15 @@ void Application::compute(void *)
                         this_num_points++;
                     }
 
-                    sprintf(buf, "%s_%d", Lines, i);
+                    snprintf(buf, sizeof(buf), "%s_%d", Lines, i);
                     line_elements[i] = new coDoLines(buf, this_num_points, this_x, this_y, this_z, this_num_vert, this_vl, 1, this_ll);
                     line_elements[i]->addAttribute("COLOR", "red");
 
-                    sprintf(buf, "%s_%d", DataOut, i);
+                    snprintf(buf, sizeof(buf), "%s_%d", DataOut, i);
                     data_elements[i] = new coDoFloat(buf, this_num_points, this_scalar);
 
                     line_elements[i]->addAttribute("TRACER_DATA_OBJECT", buf);
-                    sprintf(buf, "%s_%d", VelOut, i);
+                    snprintf(buf, sizeof(buf), "%s_%d", VelOut, i);
                     vel_elements[i] = new coDoVec3(buf, this_num_points, this_vector_x, this_vector_y, this_vector_z);
 
                     line_elements[i]->addAttribute("TRACER_VEL_OBJECT", buf);
@@ -1009,11 +1009,11 @@ void Application::compute(void *)
                 switch (startStyle)
                 {
                 case 2: // plane
-                    sprintf(buf, "P%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+                    snprintf(buf, sizeof(buf), "P%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
                     break;
 
                 default: // line
-                    sprintf(buf, "T%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+                    snprintf(buf, sizeof(buf), "T%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
                     break;
                 }
                 set_lines_out->addAttribute("FEEDBACK", buf);
@@ -3824,7 +3824,7 @@ void Application::HandleTimeSteps::setTime(int no_step, const coDistributedObjec
         in[0] = in_grid_elements[no_step];
         in[1] = in_velo_elements[no_step];
 
-        sprintf(buf, "_%d", no_step);
+        snprintf(buf, sizeof(buf), "_%d", no_step);
         thisLineName = outLineName + buf;
         thisDataName = outDataName + buf;
         thisVeloName = outVeloName + buf;
@@ -3889,7 +3889,7 @@ void Application::HandleTimeSteps::createOutput(ia<const coDistributedObject *> 
     returnObject[2] = new coDoSet(outVeloName, &timeVeloElements[0]);
 
     char buf[64];
-    sprintf(buf, "1 %d", no_timesteps);
+    snprintf(buf, sizeof(buf), "1 %d", no_timesteps);
     const_cast<coDistributedObject *>(returnObject[0])->addAttribute("TIMESTEP", buf);
     const_cast<coDistributedObject *>(returnObject[1])->addAttribute("TIMESTEP", buf);
     const_cast<coDistributedObject *>(returnObject[2])->addAttribute("TIMESTEP", buf);
@@ -3934,12 +3934,12 @@ void Application::createDummies(const char *Lines, const char *DataOut,
     switch (startStyle)
     {
     case 2: // plane
-        sprintf(buf, "P%s\n%s\n%s\n", Covise::get_module(),
+        snprintf(buf, sizeof(buf), "P%s\n%s\n%s\n", Covise::get_module(),
                 Covise::get_instance(), Covise::get_host());
         break;
 
     default: // line
-        sprintf(buf, "T%s\n%s\n%s\n", Covise::get_module(),
+        snprintf(buf, sizeof(buf), "T%s\n%s\n%s\n", Covise::get_module(),
                 Covise::get_instance(), Covise::get_host());
         break;
     }

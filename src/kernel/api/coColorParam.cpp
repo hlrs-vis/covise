@@ -147,7 +147,7 @@ const char *coColorParam::getTypeString() const
 const char *coColorParam::getValString() const
 {
     static char valString[192];
-    sprintf(valString, "%f %f %f %f", d_value[0], d_value[1], d_value[2], d_value[3]);
+    snprintf(valString, sizeof(valString), "%f %f %f %f", d_value[0], d_value[1], d_value[2], d_value[3]);
     return valString;
 }
 

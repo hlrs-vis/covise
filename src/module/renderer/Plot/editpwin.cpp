@@ -262,7 +262,7 @@ void drawcellCB(Widget w, XtPointer client_data, XtPointer calld)
     XbaeMatrixDrawCellCallbackStruct *cs = (XbaeMatrixDrawCellCallbackStruct *)calld;
     printf("Called draw cell %d %d\n", i = cs->row, j = cs->column);
     datap = getcol(cg, 0, j);
-    sprintf(buf, "%8.1lf", datap[i]);
+    snprintf(buf, sizeof(buf), "%8.1lf", datap[i]);
     cell = (String)XtMalloc(sizeof(char) * (strlen(buf) + 1));
     strcpy(cell, buf);
     cs->type = XbaeString;
@@ -372,7 +372,7 @@ void create_ss_frame(EditPoints *ep)
         for (j = 0; j < ep->ncols; j++)
         {
             datap = getcol(ep->gno, ep->setno, j);
-            sprintf(buf, "%8.1lf", datap[i]);
+            snprintf(buf, sizeof(buf), "%8.1lf", datap[i]);
             cells[i][j] = XtNewString(buf);
         }
     }
@@ -407,7 +407,7 @@ void create_ss_frame(EditPoints *ep)
     rowlabels = (String *)malloc(len * sizeof(String));
     for (i = 0; i < len; i++)
     {
-        sprintf(buf, "%d", i + 1);
+        snprintf(buf, sizeof(buf), "%d", i + 1);
         rowlabels[i] = (String)malloc((sizeof(buf) + 1) * sizeof(char));
         strcpy(rowlabels[i], buf);
     }
@@ -474,7 +474,7 @@ void create_editp_frame(Widget, XtPointer, XtPointer)
     }
     strcpy(tbuf, "/tmp/ACEgrXXXXXX");
     mkstemp(tbuf);
-    sprintf(buf, "xterm -e %s %s", ebuf, tbuf);
+    snprintf(buf, sizeof(buf), "xterm -e %s %s", ebuf, tbuf);
     system(buf);
     getdata(cg, fname, DISK, XY);
 }

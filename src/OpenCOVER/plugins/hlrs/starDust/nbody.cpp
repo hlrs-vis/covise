@@ -730,15 +730,15 @@ void display()
 
             if (bDispInteractions)
             {
-                sprintf(msg1, "%0.2f billion interactions per second", interactionsPerSecond);
+                snprintf(msg1, sizeof(msg1), "%0.2f billion interactions per second", interactionsPerSecond);
             }
             else
             {
-                sprintf(msg1, "%0.2f GFLOP/s", gflops);
+                snprintf(msg1, sizeof(msg1), "%0.2f GFLOP/s", gflops);
             }
 
-            sprintf(msg0, "%s", deviceName);
-            sprintf(msg2, "%0.2f FPS [%s | %d bodies]",
+            snprintf(msg0, sizeof(msg0), "%s", deviceName);
+            snprintf(msg2, sizeof(msg2), "%0.2f FPS [%s | %d bodies]",
                     ifps, fp64 ? "double precision" : "single precision", numBodies);
 
             glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO); // invert color
@@ -783,7 +783,7 @@ void display()
         computePerfStats(interactionsPerSecond, gflops, milliseconds, 1);
 
         ifps = 1.f / (milliseconds / 1000.f);
-        sprintf(fps,
+        snprintf(fps, sizeof(fps),
                 "CUDA N-Body (%d bodies): "
                 "%0.1f fps | %0.1f BIPS | %0.1f GFLOP/s | %s",
                 numBodies, ifps, interactionsPerSecond, gflops,

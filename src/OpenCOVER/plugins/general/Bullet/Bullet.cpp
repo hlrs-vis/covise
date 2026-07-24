@@ -1148,7 +1148,7 @@ void Bullet::save()
         xercesc::DOMElement *bpElement = document->createElement(t1 = xercesc::XMLString::transcode("BulletProbe")); xercesc::XMLString::release(&t1);
 
         char number[100];
-        sprintf(number, "%f", (*bp)->getScale());
+        snprintf(number, sizeof(number), "%f", (*bp)->getScale());
         bpElement->setAttribute(t1 = xercesc::XMLString::transcode("size"), t2 = xercesc::XMLString::transcode(number)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
         bpElement->setAttribute(t1 = xercesc::XMLString::transcode("hostName"), t2 = xercesc::XMLString::transcode((*bp)->getHost().c_str())); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
 
@@ -1164,17 +1164,17 @@ void Bullet::save()
         y = coord.xyz[1];
         z = coord.xyz[2];
 
-        sprintf(number, "%f", h);
+        snprintf(number, sizeof(number), "%f", h);
         bpElement->setAttribute(t1 = xercesc::XMLString::transcode("h"), t2 = xercesc::XMLString::transcode(number)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
-        sprintf(number, "%f", p);
+        snprintf(number, sizeof(number), "%f", p);
         bpElement->setAttribute(t1 = xercesc::XMLString::transcode("p"), t2 = xercesc::XMLString::transcode(number)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
-        sprintf(number, "%f", r);
+        snprintf(number, sizeof(number), "%f", r);
         bpElement->setAttribute(t1 = xercesc::XMLString::transcode("r"), t2 = xercesc::XMLString::transcode(number)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
-        sprintf(number, "%f", x);
+        snprintf(number, sizeof(number), "%f", x);
         bpElement->setAttribute(t1 = xercesc::XMLString::transcode("x"), t2 = xercesc::XMLString::transcode(number)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
-        sprintf(number, "%f", y);
+        snprintf(number, sizeof(number), "%f", y);
         bpElement->setAttribute(t1 = xercesc::XMLString::transcode("y"), t2 = xercesc::XMLString::transcode(number)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
-        sprintf(number, "%f", z);
+        snprintf(number, sizeof(number), "%f", z);
         bpElement->setAttribute(t1 = xercesc::XMLString::transcode("z"), t2 = xercesc::XMLString::transcode(number)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
         rootElement->appendChild(bpElement);
     }

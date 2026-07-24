@@ -52,7 +52,7 @@ void AxialRunner::CreatePortMenu(void)
    paraSwitch(M_2DPORT, "Select_plot_port");
    for(i = 1; i <= NUM_PLOT_PORTS; i++)
    {
-      sprintf(name,"%s%d","port_no._",i);
+      snprintf(name, sizeof(name),"%s%d","port_no._",i);
       paraCase(name);
       AxialRunner::CreatePlotPortMenu(i);
 #ifdef DEBUG_PLOT_SELECT
@@ -69,7 +69,7 @@ void AxialRunner::CreatePlotPortMenu(int p)
 {
    char name[110];
 
-   sprintf(name,"%s_%d",M_2DPLOT,p);
+   snprintf(name, sizeof(name),"%s_%d",M_2DPLOT,p);
    m_2DplotChoice[p-1] = paraSwitch(name, "Select_plot_data");
    paraCase(M_MERIDIAN_CONTOUR_PLOT);
    paraEndCase();                                 // end of M_MERIDIAN_CONTOUR_PLOT
@@ -108,7 +108,7 @@ void AxialRunner::CreateMenuConformalView(int p)
 
    for(i = 0; i < MAX_ELEMENTS; i++)
    {
-      sprintf(buf,"%s_%d_%d",M_SHOW_CONFORMAL,p,i+1);
+      snprintf(buf, sizeof(buf),"%s_%d_%d",M_SHOW_CONFORMAL,p,i+1);
       p_ShowConformal[i][p-1] = addBooleanParam(buf,buf);
       p_ShowConformal[i][p-1]->setValue(0);
    }
@@ -122,7 +122,7 @@ void AxialRunner::CreateMenuCamber(int p)
 
    for(i = 0; i < MAX_ELEMENTS; i++)
    {
-      sprintf(buf,"%s_%d_%d",M_SHOW_CAMBER,p,i+1);
+      snprintf(buf, sizeof(buf),"%s_%d_%d",M_SHOW_CAMBER,p,i+1);
       p_ShowCamber[i][p-1] = addBooleanParam(buf,buf);
       p_ShowCamber[i][p-1]->setValue(0);
    }
@@ -136,7 +136,7 @@ void AxialRunner::CreateMenuNormCamber(int p)
 
    for(i = 0; i < MAX_ELEMENTS; i++)
    {
-      sprintf(buf,"%s_%d_%d",M_SHOW_NORMCAMBER,p,i+1);
+      snprintf(buf, sizeof(buf),"%s_%d_%d",M_SHOW_NORMCAMBER,p,i+1);
       p_ShowNormCamber[i][p-1] = addBooleanParam(buf,buf);
       p_ShowNormCamber[i][p-1]->setValue(0);
    }
@@ -308,7 +308,7 @@ void AxialRunner::CreateHubCornerMenu(void)
    dprintf(1,"AxialRunner::CreateHubCornerMenu() ...\n");
    for(i = 0; i < MAX_POINTS; i++)
    {
-      sprintf(buf,"point_%02d",i+1);
+      snprintf(buf, sizeof(buf),"point_%02d",i+1);
       dprintf(3,"   buf = %s (i=%d)\n",buf,i);
       pselect[i] = strdup(buf);
    }
@@ -345,7 +345,7 @@ void AxialRunner::CreateHubCapMenu(void)
    dprintf(1,"AxialRunner::CreateHubCapMenu() ...\n");
    for(i = 0; i < MAX_POINTS; i++)
    {
-      sprintf(buf,"point_%02d",i+1);
+      snprintf(buf, sizeof(buf),"point_%02d",i+1);
       pselect[i] = strdup(buf);
    }
 

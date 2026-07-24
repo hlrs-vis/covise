@@ -87,7 +87,7 @@ int ReadBladeProfile(struct profile *bp, const char *sec, const char *fn)
       }
       else
       {
-         sprintf(buf, BP_STAT, i);
+         snprintf(buf, sizeof(buf), BP_STAT, i);
          if ((tmp = IHS_GetCFGValue(fn, sec, buf)) != NULL)
          {
             sscanf(tmp, "%f, %f", &c, &t);

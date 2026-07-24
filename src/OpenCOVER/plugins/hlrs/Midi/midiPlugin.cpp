@@ -1187,13 +1187,13 @@ bool MidiPlugin::openMidiIn(int streamNum, int device)
 #ifndef WIN32
 	/*char devName[100];
 	if (device == 0)
-		sprintf(devName, "/dev/midi");
+		snprintf(devName, sizeof(devName), "/dev/midi");
 	else
-		sprintf(devName, "/dev/midi%d", device );
+		snprintf(devName, sizeof(devName), "/dev/midi%d", device );
 	midifd[streamNum] = open(devName, O_RDONLY | O_NONBLOCK);
 	if (midifd[streamNum] <= 0)
 	{
-		sprintf(devName, "/dev/midi%d", device);
+		snprintf(devName, sizeof(devName), "/dev/midi%d", device);
 		midifd[streamNum] = open(devName, O_RDONLY | O_NONBLOCK);
 	}
 	fprintf(stderr, "open %s %d\n", devName, midifd[streamNum]);
@@ -1232,7 +1232,7 @@ bool MidiPlugin::openMidiOut(int device)
 {
 #ifndef WIN32
 	/*char devName[100];
-	sprintf(devName, "-/dev/midi%d", device + 1);
+	snprintf(devName, sizeof(devName), "-/dev/midi%d", device + 1);
 	midiOutfd = open(devName, O_WRONLY | O_NONBLOCK);
 	fprintf(stderr, "open /dev/midi%d %d", device + 1, midiOutfd);
 	if (midiOutfd <= 0)
@@ -1981,7 +1981,7 @@ void MidiPlugin::MIDItab_create(void)
 	for (int i = 0; i < NUMMidiStreams; i++)
 	{
 		char name[500];
-		sprintf(name, "inputDevices_%d", i);
+		snprintf(name, sizeof(name), "inputDevices_%d", i);
 		inputDevice[i] = new ui::SelectionList(MIDITab, name);
 
 #ifdef WIN32
@@ -3333,13 +3333,13 @@ bool TriplePlay::openMidiIn(int device)
 #ifndef WIN32
 	/*char devName[100];
 	if (device == 0)
-		sprintf(devName, "/dev/midi");
+		snprintf(devName, sizeof(devName), "/dev/midi");
 	else
-		sprintf(devName, "/dev/midi%d", device);
+		snprintf(devName, sizeof(devName), "/dev/midi%d", device);
 	midiInfd= open(devName, O_RDONLY | O_NONBLOCK);
 	if (midiInfd<= 0)
 	{
-		sprintf(devName, "/dev/midi%d", device);
+		snprintf(devName, sizeof(devName), "/dev/midi%d", device);
 		midiInfd= open(devName, O_RDONLY | O_NONBLOCK);
 	}
 	fprintf(stderr, "open %s\n", devName );
@@ -3382,7 +3382,7 @@ bool TriplePlay::openMidiOut(int device)
 {
 #ifndef WIN32
 /*	char devName[100];
-	sprintf(devName, "-/dev/midi%d", device + 1);
+	snprintf(devName, sizeof(devName), "-/dev/midi%d", device + 1);
 	midiOutfd = open(devName, O_WRONLY | O_NONBLOCK);
 	fprintf(stderr, "open /dev/midi%d %d", device + 1, midiOutfd);
 	if (midiOutfd <= 0)
@@ -3431,7 +3431,7 @@ void MidiPlugin::OpenMidiDevice(const std::string &DeviceName,snd_rawmidi_t *&in
 	char devName[128];
 	int device;
 
-	sprintf(devName, "hw:%d", card);
+	snprintf(devName, sizeof(devName), "hw:%d", card);
 	if ((err = snd_ctl_open(&ctl, devName, 0)) < 0) {
 		error("cannot open control for card %d: %s", card, snd_strerror(err));
 		return;
@@ -3487,7 +3487,7 @@ void MidiPlugin::OpenMidiDevice(const std::string &DeviceName,snd_rawmidi_t *&in
 		if(DeviceName == name)
 		{
 
-			sprintf(devName, "hw:%d,%d", card, device);
+			snprintf(devName, sizeof(devName), "hw:%d,%d", card, device);
 			if ((err = snd_rawmidi_open(&inputp, &outputp, devName, SND_RAWMIDI_NONBLOCK)) < 0) {
 				error("cannot open port \"%s\": %s", devName, snd_strerror(err));
 			}
@@ -3502,7 +3502,7 @@ void MidiPlugin::OpenMidiDevice(const std::string &DeviceName,snd_rawmidi_t *&in
 		if(DeviceName == sub_name)
 		{
 		        inputp = outputp = nullptr;
-			sprintf(devName, "hw:%d,%d,%d", card, device, sub);
+			snprintf(devName, sizeof(devName), "hw:%d,%d,%d", card, device, sub);
 			if ((err = snd_rawmidi_open(&inputp, &outputp, devName, SND_RAWMIDI_NONBLOCK)) < 0) {
 				error("cannot open port \"%s\": %s", devName, snd_strerror(err));
 
@@ -3594,7 +3594,7 @@ void MidiPlugin::list_card_devices(int card)
 	int device;
 	int err;
 
-	sprintf(name, "hw:%d", card);
+	snprintf(name, sizeof(name), "hw:%d", card);
 	if ((err = snd_ctl_open(&ctl, name, 0)) < 0) {
 		error("cannot open control for card %d: %s", card, snd_strerror(err));
 		return;

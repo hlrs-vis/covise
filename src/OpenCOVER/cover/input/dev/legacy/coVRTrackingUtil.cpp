@@ -333,7 +333,7 @@ int coVRTrackingUtil::readOffset()
         for (int i = 0; i < numDevices; ++i)
         {
             char configName[1000];
-            sprintf(configName, "COVER.Input.%s.%s", deviceNames[i], entries[val]);
+            snprintf(configName, sizeof(configName), "COVER.Input.%s.%s", deviceNames[i], entries[val]);
 
             bool exist_1 = false, exist_2 = false, exist_3 = false;
             coCoviseConfig::getFloat("x", configName, 0., &exist_1);
@@ -352,7 +352,7 @@ int coVRTrackingUtil::readOffset()
         for (int i = 0; i < numDevices; ++i)
         {
             char configName[1000];
-            sprintf(configName, "COVER.Input.%s.%s", cmDeviceNames[i], entries[val]);
+            snprintf(configName, sizeof(configName), "COVER.Input.%s.%s", cmDeviceNames[i], entries[val]);
 
             bool exist_1 = false, exist_2 = false, exist_3 = false;
             coCoviseConfig::getFloat("x", configName, 0., &exist_1);
@@ -385,7 +385,7 @@ int coVRTrackingUtil::readOffset()
     for (int i = 0; i < numDevices; i++)
     {
         char configName[1000];
-        sprintf(configName, "COVER.Input.%s.Offset", useCmDevices ? cmDeviceNames[i] : deviceNames[i]);
+        snprintf(configName, sizeof(configName), "COVER.Input.%s.Offset", useCmDevices ? cmDeviceNames[i] : deviceNames[i]);
         // TrackingSystem Position Offset
         deviceOffsets[i].trans[0] = coCoviseConfig::getFloat("x", configName, 0.);
         deviceOffsets[i].trans[1] = coCoviseConfig::getFloat("y", configName, 0.);
@@ -397,7 +397,7 @@ int coVRTrackingUtil::readOffset()
         };
 
         // TrackingSystem Orientation Offset
-        sprintf(configName, "COVER.Input.%s.Orientation", useCmDevices ? cmDeviceNames[i] : deviceNames[i]);
+        snprintf(configName, sizeof(configName), "COVER.Input.%s.Orientation", useCmDevices ? cmDeviceNames[i] : deviceNames[i]);
         deviceOffsets[i].rot[0] = coCoviseConfig::getFloat("h", configName, 0.);
         deviceOffsets[i].rot[1] = coCoviseConfig::getFloat("p", configName, 0.);
         deviceOffsets[i].rot[2] = coCoviseConfig::getFloat("r", configName, 0.);

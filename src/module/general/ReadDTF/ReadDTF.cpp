@@ -221,7 +221,7 @@ bool ReadDTF::createDataParams()
 
     for (int i = 0; i < 10; i++)
     {
-        sprintf(paramName, "cfd_data_%d", i);
+        snprintf(paramName, sizeof(paramName), "cfd_data_%d", i);
         dataParam = addChoiceParam(paramName, "Type of CFD data to show");
         dataParam->setValue(dataTypes.size(), labels, 0);
 
@@ -248,7 +248,7 @@ bool ReadDTF::createDataPorts()
 
     for (int i = 0; i < 10; i++)
     {
-        sprintf(portName, "us3dPort_%d", i);
+        snprintf(portName, sizeof(portName), "us3dPort_%d", i);
         dataPort = addOutputPort(portName,
                                  "coDoFloat",
                                  "port for unstructured S3D data");

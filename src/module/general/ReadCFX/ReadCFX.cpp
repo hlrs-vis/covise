@@ -112,7 +112,7 @@ CFX::CFX(int argc, char **argv)
     p_result = addFileBrowserParam("result", "Result file path");
     //gridfileParam->setValue("data","data *.dat*");
     char defaultfile[MAXPATHLEN];
-    sprintf(defaultfile, "%s/nofile.res", getenv("COVISEDIR"));
+    snprintf(defaultfile, sizeof(defaultfile), "%s/nofile.res", getenv("COVISEDIR"));
     p_result->setValue(defaultfile, "*.res");
 
     p_zone = addChoiceParam("domains", "domains");
@@ -735,7 +735,7 @@ int CFX::compute(const char *)
         int numTimesteps = timesteps;
         char ts[100];
 
-        sprintf(ts, "1 %d", timesteps);
+        snprintf(ts, sizeof(ts), "1 %d", timesteps);
 
         if (((zone == 0) && outputgrid[0]) || ((zone != 0) && outputgrid[zone - 1]))
         {
@@ -933,23 +933,23 @@ int CFX::compute(const char *)
         char objectName[1000];
         for (int i = 0; i < numTimesteps; i++)
         {
-            sprintf(objectName, "%s_%d", p_outPort9->getObjName(), i);
+            snprintf(objectName, sizeof(objectName), "%s_%d", p_outPort9->getObjName(), i);
             particleObjects[i] = new coDoPoints(objectName, numParticlesPerStep[i]);
             particleObjects[i]->getAddresses(xc + i, yc + i, zc + i);
             numParticlesPerStep[i] = 0;
             if (particleSObjects)
             {
-                sprintf(objectName, "%s_%d", p_outPort10->getObjName(), i);
+                snprintf(objectName, sizeof(objectName), "%s_%d", p_outPort10->getObjName(), i);
                 particleSObjects[i] = new coDoFloat(objectName, numParticlesPerStep[i]);
             }
             if (particleVObjects)
             {
-                sprintf(objectName, "%s_%d", p_outPort11->getObjName(), i);
+                snprintf(objectName, sizeof(objectName), "%s_%d", p_outPort11->getObjName(), i);
                 particleVObjects[i] = new coDoVec3(objectName, numParticlesPerStep[i]);
             }
         }
 
-        sprintf(objectName, "1 %d", numTimesteps);
+        snprintf(objectName, sizeof(objectName), "1 %d", numTimesteps);
         coDoSet *particleSet = new coDoSet(p_outPort9->getObjName(), (coDistributedObject **)particleObjects);
         particleSet->addAttribute("TIMESTEP", objectName);
         p_outPort9->setCurrentObject(particleSet);
@@ -1148,7 +1148,7 @@ int CFX::readZone(char *Name, char *Name2, char *Name3, int timesteps, int var, 
 
         if (timesteps > 1)
         {
-            sprintf(ts, "1 %d", timesteps);
+            snprintf(ts, sizeof(ts), "1 %d", timesteps);
             timeset->addAttribute("TIMESTEP", ts);
         }
 
@@ -1174,7 +1174,7 @@ int CFX::readZone(char *Name, char *Name2, char *Name3, int timesteps, int var, 
 
         if (timesteps > 1)
         {
-            sprintf(ts, "1 %d", timesteps);
+            snprintf(ts, sizeof(ts), "1 %d", timesteps);
             timeset->addAttribute("TIMESTEP", ts);
         }
         int varnum = VectIndex[p_vector->getValue() - 1];
@@ -1201,7 +1201,7 @@ int CFX::readZone(char *Name, char *Name2, char *Name3, int timesteps, int var, 
 
         if (timesteps > 1)
         {
-            sprintf(ts, "1 %d", timesteps);
+            snprintf(ts, sizeof(ts), "1 %d", timesteps);
             timeset->addAttribute("TIMESTEP", ts);
         }
         int varnum = ScalIndex[p_scalar->getValue() - 1];
@@ -1289,7 +1289,7 @@ int CFX::readZone(char *Name, char *Name2, char *Name3, int timesteps, int var, 
 
         if (timesteps > 1)
         {
-            sprintf(ts, "1 %d", timesteps);
+            snprintf(ts, sizeof(ts), "1 %d", timesteps);
             timeset->addAttribute("TIMESTEP", ts);
         }
 
@@ -1301,7 +1301,7 @@ int CFX::readZone(char *Name, char *Name2, char *Name3, int timesteps, int var, 
 
         if (timesteps > 1)
         {
-            sprintf(ts, "1 %d", timesteps);
+            snprintf(ts, sizeof(ts), "1 %d", timesteps);
             timeset->addAttribute("TIMESTEP", ts);
         }
 
@@ -1488,7 +1488,7 @@ int CFX::readZone(char *Name, char *Name2, char *Name3, int timesteps, int var, 
 
         if (timesteps > 1)
         {
-            sprintf(ts, "1 %d", timesteps);
+            snprintf(ts, sizeof(ts), "1 %d", timesteps);
             timeset->addAttribute("TIMESTEP", ts);
         }
 
@@ -1504,7 +1504,7 @@ int CFX::readZone(char *Name, char *Name2, char *Name3, int timesteps, int var, 
 
         if (timesteps > 1)
         {
-            sprintf(ts, "1 %d", timesteps);
+            snprintf(ts, sizeof(ts), "1 %d", timesteps);
             timesetscal->addAttribute("TIMESTEP", ts);
         }
 
@@ -1520,7 +1520,7 @@ int CFX::readZone(char *Name, char *Name2, char *Name3, int timesteps, int var, 
 
         if (timesteps > 1)
         {
-            sprintf(ts, "1 %d", timesteps);
+            snprintf(ts, sizeof(ts), "1 %d", timesteps);
             timesetvect->addAttribute("TIMESTEP", ts);
         }
 
@@ -1766,10 +1766,10 @@ int CFX::readGrid(const char *gridName, int nelems, int nconn, int nnodes, int t
         char rotspeed[100];
         char tsteplength[100];
 
-        sprintf(rotaxis, "%5.2f %5.2f %5.2f", p_rotAxis->getValue(0), p_rotAxis->getValue(1), p_rotAxis->getValue(2));
-        sprintf(rotaxispoint, "%5.2f %5.2f %5.2f", p_rotVertex->getValue(0), p_rotVertex->getValue(1), p_rotVertex->getValue(2));
-        sprintf(rotspeed, "%9.6f", omega);
-        sprintf(tsteplength, "%16.10f", stepduration);
+        snprintf(rotaxis, sizeof(rotaxis), "%5.2f %5.2f %5.2f", p_rotAxis->getValue(0), p_rotAxis->getValue(1), p_rotAxis->getValue(2));
+        snprintf(rotaxispoint, sizeof(rotaxispoint), "%5.2f %5.2f %5.2f", p_rotVertex->getValue(0), p_rotVertex->getValue(1), p_rotVertex->getValue(2));
+        snprintf(rotspeed, sizeof(rotspeed), "%9.6f", omega);
+        snprintf(tsteplength, sizeof(tsteplength), "%16.10f", stepduration);
 
         (*gridObj)->addAttribute("ROT_AXIS", rotaxis);
         (*gridObj)->addAttribute("ROT_AXIS_POINT", rotaxispoint);

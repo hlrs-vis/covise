@@ -12322,7 +12322,7 @@ int rs274ngc_save_parameters(/* ARGUMENTS             */
                     ERM(NCE_PARAMETER_FILE_OUT_OF_ORDER);
                 else if (k IS variable)
                 {
-                    sprintf(line, "%d\t%f\n", k, parameters[k]);
+                    snprintf(line, sizeof(line), "%d\t%f\n", k, parameters[k]);
                     fputs(line, outfile);
                     if (k IS required)
                         required SET_TO _required_parameters[index++];
@@ -12331,7 +12331,7 @@ int rs274ngc_save_parameters(/* ARGUMENTS             */
                 }
                 else if (k IS required) // know (k < variable)
                 {
-                    sprintf(line, "%d\t%f\n", k, parameters[k]);
+                    snprintf(line, sizeof(line), "%d\t%f\n", k, parameters[k]);
                     fputs(line, outfile);
                     required SET_TO _required_parameters[index++];
                 }
@@ -12343,7 +12343,7 @@ int rs274ngc_save_parameters(/* ARGUMENTS             */
     {
         if (k IS required)
         {
-            sprintf(line, "%d\t%f\n", k, parameters[k]);
+            snprintf(line, sizeof(line), "%d\t%f\n", k, parameters[k]);
             fputs(line, outfile);
             required SET_TO _required_parameters[index++];
         }

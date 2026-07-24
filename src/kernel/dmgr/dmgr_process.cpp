@@ -78,7 +78,7 @@ void DataManagerProcess::ask_for_object(Message *msg)
 
     //    cerr << "local ASK_FOR_OBJECT: " << msg->data.data() << "\n";
     oe = get_local_object(msg->data);
-    sprintf(tmp_str, "sending Object %s ++++++", msg->data.data());
+    snprintf(tmp_str, sizeof(tmp_str), "sending Object %s ++++++", msg->data.data());
     print_comment(__LINE__, __FILE__, tmp_str, 4);
     msg->data = DataHandle();
     if (oe)
@@ -232,7 +232,7 @@ Message *DataManagerProcess::wait_for_msg(int *covise_msg_type, int no,
                 {
                     msg_queue->add(msg);
 #ifdef DEBUG
-                    sprintf(tmp_str, "msg %s added to queue", covise_msg_types_array[msg->type]);
+                    snprintf(tmp_str, sizeof(tmp_str), "msg %s added to queue", covise_msg_types_array[msg->type]);
                     print_comment(__LINE__, __FILE__, tmp_str, 4);
 #endif
                 }
@@ -276,7 +276,7 @@ int ObjectEntry_compare(ObjectEntry *a, ObjectEntry *b)
     //    cerr << cmp << endl;
     //#ifdef DEBUG
     //    char tmp_str[255];
-    //    sprintf(tmp_str, "%x: %s   %x: %s -> %d", &a->name, a->name,
+    //    snprintf(tmp_str, sizeof(tmp_str), "%x: %s   %x: %s -> %d", &a->name, a->name,
     //					      &b->name, b->name, cmp);
     //    print_comment(__LINE__, __FILE__, tmp_str,4);
     //#endif
@@ -781,9 +781,9 @@ coShmPtr *DataManagerProcess::shm_alloc(int type, shmSizeType msize)
         break;
     };
 #ifdef DEBUG
-    sprintf(tmpstr, "DataManagerProcess::shm_alloc size: %d of type %d", size, type);
+    snprintf(tmpstr, sizeof(tmpstr), "DataManagerProcess::shm_alloc size: %d of type %d", size, type);
     print_comment(__LINE__, __FILE__, tmpstr, 8);
-    sprintf(tmpstr, "at address %d, %d", chptr->get_shm_seq_no(), chptr->get_offset());
+    snprintf(tmpstr, sizeof(tmpstr), "at address %d, %d", chptr->get_shm_seq_no(), chptr->get_offset());
     print_comment(__LINE__, __FILE__, tmpstr, 8);
 #endif
 
@@ -1005,7 +1005,7 @@ int DataManagerProcess::delete_object(const DataHandle& n)
 
     ObjectEntry *oe = new ObjectEntry(n);
 #ifdef DEBUG
-    sprintf(tmp_str, "Removing object %s from list", n);
+    snprintf(tmp_str, sizeof(tmp_str), "Removing object %s from list", n);
     print_comment(__LINE__, __FILE__, tmp_str, 4);
 #endif
     int retval = (objects->remove_node(oe) != NULL);
@@ -1158,7 +1158,7 @@ int DataManagerProcess::destroy_object(const DataHandle& n, const Connection* c)
             if (ae->acc == ACC_REMOTE_DATA_MANAGER)
             {
 #ifdef DEBUG
-                sprintf(tmp_str, "destroy object %s for remote dmgr", oe->name);
+                snprintf(tmp_str, sizeof(tmp_str), "destroy object %s for remote dmgr", oe->name);
                 print_comment(__LINE__, __FILE__, tmp_str, 4);
 #endif
                 Message msg{ COVISE_MESSAGE_CTRL_DESTROY_OBJECT, n };
@@ -1172,7 +1172,7 @@ int DataManagerProcess::destroy_object(const DataHandle& n, const Connection* c)
             }
         }
 #ifdef DEBUG
-        sprintf(tmp_str, "Removing object %s from list", oe->name);
+        snprintf(tmp_str, sizeof(tmp_str), "Removing object %s from list", oe->name);
         print_comment(__LINE__, __FILE__, tmp_str, 4);
         // is done in shm_free recursively
         tmpval = (objects->remove_node(oe) != NULL);
@@ -1294,7 +1294,7 @@ int DataManagerProcess::shm_free(int shm_seq_no, int offset)
     for (count = 2 * sizeof(int); count < length;)
     {
 #ifdef DEBUG
-        sprintf(tmp_str, "count < length: %d < %d", count, length);
+        snprintf(tmp_str, sizeof(tmp_str), "count < length: %d < %d", count, length);
         print_comment(__LINE__, __FILE__, tmp_str, 4);
 #endif
         switch (*objptr)
@@ -1352,7 +1352,7 @@ int DataManagerProcess::shm_free(int shm_seq_no, int offset)
             }
             break;
         default:
-            sprintf(tmp_str, "couldn't handle type %d in shm_free", *objptr);
+            snprintf(tmp_str, sizeof(tmp_str), "couldn't handle type %d in shm_free", *objptr);
             print_comment(__LINE__, __FILE__, tmp_str, 4);
             return 0;
         }
@@ -1360,7 +1360,7 @@ int DataManagerProcess::shm_free(int shm_seq_no, int offset)
     
     ObjectEntry* tmpoe = new ObjectEntry{ DataHandle{obj_name, strlen(obj_name) + 1, false} };
 #ifdef DEBUG
-    sprintf(tmp_str, "Removing object %s from list", obj_name);
+    snprintf(tmp_str, sizeof(tmp_str), "Removing object %s from list", obj_name);
     print_comment(__LINE__, __FILE__, tmp_str, 4);
 #endif
     if (objects->remove_node_compare(tmpoe))
@@ -1512,7 +1512,7 @@ ObjectEntry *DataManagerProcess::get_object(const DataHandle &n)
     DataHandle tmp_name{ n.length() + sizeof(int) };
     strcpy(tmp_name.accessData(), n.data());
 #ifdef DEBUG
-    sprintf(tmp_str, "in get_object: %s", tmp_name);
+    snprintf(tmp_str, sizeof(tmp_str), "in get_object: %s", tmp_name);
     print_comment(__LINE__, __FILE__, tmp_str, 4);
 #endif
     //    objects->print();
@@ -1544,7 +1544,7 @@ ObjectEntry *DataManagerProcess::get_object(const DataHandle &n)
             {
             case COVISE_MESSAGE_OBJECT_FOLLOWS:
 #ifdef DEBUG
-                sprintf(tmp_str, "%s found at remote datamanager",
+                snprintf(tmp_str, sizeof(tmp_str), "%s found at remote datamanager",
                         tmp_name.data());
                 print_comment(__LINE__, __FILE__, tmp_str, 4);
 #endif
@@ -1558,7 +1558,7 @@ ObjectEntry *DataManagerProcess::get_object(const DataHandle &n)
                 break;
             case COVISE_MESSAGE_OBJECT_NOT_FOUND:
                 //               covise_time->mark(__LINE__, "GET: object not found");
-                sprintf(tmp_str, "%s not found at remote datamanager",
+                snprintf(tmp_str, sizeof(tmp_str), "%s not found at remote datamanager",
                         tmp_name.data());
                 print_comment(__LINE__, __FILE__, tmp_str, 4);
                 break;
@@ -1614,7 +1614,7 @@ ObjectEntry *DataManagerProcess::get_object(const DataHandle &n)
         tmp_ptr = oe->name;
     else
         tmp_ptr = "";
-    sprintf(tmp_str, "oe == %x returned: %s", oe, tmp_ptr);
+    snprintf(tmp_str, sizeof(tmp_str), "oe == %x returned: %s", oe, tmp_ptr);
     print_comment(__LINE__, __FILE__, tmp_str, 4);
 #endif
     return oe;
@@ -1768,9 +1768,9 @@ void ObjectEntry::print()
     tmpiptr = (int *)tmparr->getPtr();
     tmpname = coDistributedObject::calcTypeString(tmpiptr[0]);
 
-    sprintf(tmp_str, "(%d, %8d) %s of type %s", shm_seq_no, offset, name.data(), tmpname);
+    snprintf(tmp_str, sizeof(tmp_str), "(%d, %8d) %s of type %s", shm_seq_no, offset, name.data(), tmpname);
     print_comment(__LINE__, __FILE__, tmp_str, 4);
-    sprintf(tmp_str, "Length: %d, Version: %d, Refcount: %d", tmpiptr[6], tmpiptr[8], tmpiptr[10]);
+    snprintf(tmp_str, sizeof(tmp_str), "Length: %d, Version: %d, Refcount: %d", tmpiptr[6], tmpiptr[8], tmpiptr[10]);
     print_comment(__LINE__, __FILE__, tmp_str, 4);
 
     //    cerr << " (" << shm_seq_no << "," << setw(4)
@@ -1921,7 +1921,7 @@ void ObjectEntry::pack_and_send_object(Message *msg, DataManagerProcess *)
        char tmp_str[255];
        int i;
        for(i = 0;i < size;i++) {
-      sprintf(tmp_str, "data[%3d] = %d", i, (int)msg->data[i]);
+      snprintf(tmp_str, sizeof(tmp_str), "data[%3d] = %d", i, (int)msg->data[i]);
       print_comment(__LINE__, __FILE__, tmp_str,4);
        }
    */

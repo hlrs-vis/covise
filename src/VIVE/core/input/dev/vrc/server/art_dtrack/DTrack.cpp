@@ -1132,7 +1132,7 @@ bool DTrack::cmd_send(int cmd, int val)
         break;
 
     case DTRACK_CMD_SEND_N_DATA:
-        sprintf(cmdstr, "dtrack 33 %d", val);
+        snprintf(cmdstr, sizeof(cmdstr), "dtrack 33 %d", val);
         break;
 
     default:

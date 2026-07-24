@@ -400,7 +400,7 @@ bool coValuePoti::update()
         myActor->potiValueChanged(oldValue, newValue, this);
 
         static char num[100];
-        sprintf(num, "%f", newValue);
+        snprintf(num, sizeof(num), "%f", newValue);
         sendOngoingMessage(num);
     }
 
@@ -486,7 +486,7 @@ int coValuePoti::hit(vruiHit *hit)
     if (interactionA->wasStarted() || interactionB->wasStarted())
     {
         static char context[100];
-        sprintf(context, "%d", myActor->getContext());
+        snprintf(context, sizeof(context), "%d", myActor->getContext());
         sendLockMessage(context);
         if (myActor)
             myActor->potiPressed(this, remoteContext);

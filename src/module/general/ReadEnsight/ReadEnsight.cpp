@@ -391,7 +391,7 @@ int ReadEnsight::readGeometry(const int &portTok2d, const int &portTok3d)
     for (ii = allGeoFiles.begin(); ii != allGeoFiles.end(); ii++)
     {
         char ch[64];
-        sprintf(ch, "%d", cnt);
+        snprintf(ch, sizeof(ch), "%d", cnt);
         string num(ch);
         string actObjNm2d(objNameBase2d);
         string actObjNm3d(objNameBase3d);
@@ -486,7 +486,7 @@ int ReadEnsight::readGeometry(const int &portTok2d, const int &portTok3d)
             }
             tmp[jj] = NULL;
             objects3d = tmp;
-            sprintf(ch, "1 %d", trueNumTs);
+            snprintf(ch, sizeof(ch), "1 %d", trueNumTs);
         }
         else
         {
@@ -496,11 +496,11 @@ int ReadEnsight::readGeometry(const int &portTok2d, const int &portTok3d)
             // set attribute - realtime
             for (int i = 0; (i < cnt) && (i < rTimes.size()); ++i)
             {
-                sprintf(ch, "%f", rTimes[i]);
+                snprintf(ch, sizeof(ch), "%f", rTimes[i]);
                 objects2d[i]->addAttribute("REALTIME", ch);
                 objects3d[i]->addAttribute("REALTIME", ch);
             }
-            sprintf(ch, "1 %d", cnt);
+            snprintf(ch, sizeof(ch), "1 %d", cnt);
         }
 
         coDoSet *outSet2d = new coDoSet(objNameBase2d.c_str(), (coDistributedObject **)objects2d);
@@ -573,7 +573,7 @@ int ReadEnsight::readMGeometry(const int &portTok1d)
     for (ii = allMGeoFiles.begin(); ii != allMGeoFiles.end(); ii++)
     {
         char ch[64];
-        sprintf(ch, "%d", cnt);
+        snprintf(ch, sizeof(ch), "%d", cnt);
         string num(ch);
         string actObjNm1d(objNameBase1d);
         if (realNumTs > 1)
@@ -650,7 +650,7 @@ int ReadEnsight::readMGeometry(const int &portTok1d)
             }
             tmp[jj] = NULL;
             objects1d = tmp;
-            sprintf(ch, "1 %d", trueNumTs);
+            snprintf(ch, sizeof(ch), "1 %d", trueNumTs);
         }
         else
         {
@@ -658,10 +658,10 @@ int ReadEnsight::readMGeometry(const int &portTok1d)
             // set attribute - realtime
             for (int i = 0; i < cnt; ++i)
             {
-                sprintf(ch, "%f", rTimes[i]);
+                snprintf(ch, sizeof(ch), "%f", rTimes[i]);
                 objects1d[i]->addAttribute("REALTIME", ch);
             }
-            sprintf(ch, "1 %d", cnt);
+            snprintf(ch, sizeof(ch), "1 %d", cnt);
         }
         coDoSet *outSet1d = new coDoSet(objNameBase1d.c_str(), (coDistributedObject **)objects1d);
         // set attribute - timesteps
@@ -1455,7 +1455,7 @@ int ReadEnsight::compute(const char *)
     }
 
     char buf[256];
-    sprintf(buf, "ReadEnsight finished - run took %ld seconds", (long)(time(NULL) - anfT));
+    snprintf(buf, sizeof(buf), "ReadEnsight finished - run took %ld seconds", (long)(time(NULL) - anfT));
     coModule::sendInfo("%s", buf);
 
     // clean up geoObjs
@@ -1599,7 +1599,7 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
             coDistributedObject *tmp;
 
             char cn[16];
-            sprintf(cn, "%d", it->getPartNum());
+            snprintf(cn, sizeof(cn), "%d", it->getPartNum());
             string oNm = baseName3d + "_el_" + string(cn);
 
             // if we have Ensight gold coordinate lists belong to parts
@@ -1752,7 +1752,7 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
 #endif
 
                     char sp[16];
-                    sprintf(sp, "%d", subPart);
+                    snprintf(sp, sizeof(sp), "%d", subPart);
                     string subName = oNm + "_sub_" + string(sp);
                     subObjects[subPart] = new coDoUnstructuredGrid(subName.c_str(),
                         (int)dc.getNumElem(),
@@ -1844,7 +1844,7 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
     while (it != thePl.end())
     {
         char cn[16];
-        sprintf(cn, "%d", it->getPartNum());
+        snprintf(cn, sizeof(cn), "%d", it->getPartNum());
         string oNm = baseName2d + "_el_" + string(cn);
 
         // remove trailing blanks
@@ -1989,7 +1989,7 @@ ReadEnsight::createDataOutObj(EnFile::dimType dim, const string &baseName,
         if (((numElem > 0) || (dim == EnFile::EnFile::DIM2D && (it->numCoords() > 0 && it->numEleRead3d() == 0 && it->numEleRead2d() == 0))) && it->isActive()) // HACK: if no elements read, output coordinates as points at the 2D port)
         {
             char cn[16];
-            sprintf(cn, "%d", it->getPartNum());
+            snprintf(cn, sizeof(cn), "%d", it->getPartNum());
             string oNm = baseName + "t" + std::to_string(step) + "_el_" + string(cn);
             string oNmCTV = baseName + "t" + std::to_string(step) + "_elv_" + string(cn);
             coDistributedObject *tmp = NULL;
@@ -2099,7 +2099,7 @@ ReadEnsight::createDataOutObj(EnFile::dimType dim, const string &baseName,
                         r.removeUnusedData(xn, yn, zn, it->subParts_IndexList.at(subPart), currentNumCoord);
 
                         char c[16];
-                        sprintf(c, "%d", subPart);
+                        snprintf(c, sizeof(c), "%d", subPart);
                         string oNmsub = oNm + "_sp_" + string(c);
                         string oNmCTVsub = oNmCTV + "_sp_" + string(c);
                         string oNmsubv = oNm + "v_sp_" + string(c);
@@ -2249,7 +2249,7 @@ ReadEnsight::createDataOutObj(EnFile::dimType dim, const string &baseName,
 #endif
 
                         char c[16];
-                        sprintf(c, "%d", subPart);
+                        snprintf(c, sizeof(c), "%d", subPart);
                         string oNmsub = oNm + "_sp_" + string(c);
                         string oNmCTVsub = oNmCTV + "_sp_" + string(c);
 
@@ -2386,7 +2386,7 @@ int ReadEnsight::readData1d(const int &portTok1d,
     for (ii = allFiles.begin(); ii != allFiles.end(); ii++)
     {
         char ch[64];
-        sprintf(ch, "%d", cnt);
+        snprintf(ch, sizeof(ch), "%d", cnt);
         string num(ch);
         string actObjNm1d(objNameBase1d);
         if (rNumTs > 1)
@@ -2396,10 +2396,10 @@ int ReadEnsight::readData1d(const int &portTok1d,
         switch (dim)
         {
         case 1:
-            sprintf(buf, "ReadEnsight start reading scalar data out of file %s", (*ii).c_str());
+            snprintf(buf, sizeof(buf), "ReadEnsight start reading scalar data out of file %s", (*ii).c_str());
             break;
         case 3:
-            sprintf(buf, "ReadEnsight start reading vector data out of file %s", (*ii).c_str());
+            snprintf(buf, sizeof(buf), "ReadEnsight start reading vector data out of file %s", (*ii).c_str());
             break;
         }
         coModule::sendInfo("%s", buf);
@@ -2459,14 +2459,14 @@ int ReadEnsight::readData1d(const int &portTok1d,
         char ch[64];
         for (int i = 0; i < cnt; ++i)
         {
-            sprintf(ch, "%f", rTimes[i]);
+            snprintf(ch, sizeof(ch), "%f", rTimes[i]);
             objects1d[i]->addAttribute("REALTIME", ch);
         }
 
         coDoSet *outSet1d = new coDoSet(objNameBase1d.c_str(), (coDistributedObject **)objects1d);
 
         // set attribute - timesteps
-        sprintf(ch, "1 %d", cnt);
+        snprintf(ch, sizeof(ch), "1 %d", cnt);
         string attr(ch);
         outSet1d->addAttribute("TIMESTEP", attr.c_str());
 
@@ -2517,7 +2517,7 @@ int ReadEnsight::readData2d(const int &portTok2d,
     for (ii = allFiles.begin(); ii != allFiles.end(); ii++)
     {
         char ch[64];
-        sprintf(ch, "%d", cnt);
+        snprintf(ch, sizeof(ch), "%d", cnt);
         string num(ch);
         string actObjNm2d(objNameBase2d);
         if (rNumTs > 1)
@@ -2527,10 +2527,10 @@ int ReadEnsight::readData2d(const int &portTok2d,
         switch (dim)
         {
         case 1:
-            sprintf(buf, "ReadEnsight start reading scalar data out of file %s", (*ii).c_str());
+            snprintf(buf, sizeof(buf), "ReadEnsight start reading scalar data out of file %s", (*ii).c_str());
             break;
         case 3:
-            sprintf(buf, "ReadEnsight start reading vector data out of file %s", (*ii).c_str());
+            snprintf(buf, sizeof(buf), "ReadEnsight start reading vector data out of file %s", (*ii).c_str());
             break;
         }
         coModule::sendInfo("%s", buf);
@@ -2596,7 +2596,7 @@ int ReadEnsight::readData2d(const int &portTok2d,
             char ch[64];
             for (int i = 0; i < cnt; ++i)
             {
-                sprintf(ch, "%f", rTimes[i]);
+                snprintf(ch, sizeof(ch), "%f", rTimes[i]);
                 objects2d[i]->addAttribute("REALTIME", ch);
             }
         }
@@ -2605,7 +2605,7 @@ int ReadEnsight::readData2d(const int &portTok2d,
 
         char ch[64];
         // set attribute - timesteps
-        sprintf(ch, "1 %d", cnt);
+        snprintf(ch, sizeof(ch), "1 %d", cnt);
         string attr(ch);
         outSet2d->addAttribute("TIMESTEP", attr.c_str());
 
@@ -2655,7 +2655,7 @@ int ReadEnsight::readData3d(const int &portTok3d,
     for (ii = allFiles.begin(); ii != allFiles.end(); ii++)
     {
         char ch[64];
-        sprintf(ch, "%d", cnt);
+        snprintf(ch, sizeof(ch), "%d", cnt);
         string num(ch);
         string actObjNm3d(objNameBase3d);
         if (rNumTs > 1)
@@ -2665,10 +2665,10 @@ int ReadEnsight::readData3d(const int &portTok3d,
         switch (dim)
         {
         case 1:
-            sprintf(buf, "ReadEnsight start reading scalar data out of file %s", (*ii).c_str());
+            snprintf(buf, sizeof(buf), "ReadEnsight start reading scalar data out of file %s", (*ii).c_str());
             break;
         case 3:
-            sprintf(buf, "ReadEnsight start reading vector data out of file %s", (*ii).c_str());
+            snprintf(buf, sizeof(buf), "ReadEnsight start reading vector data out of file %s", (*ii).c_str());
             break;
         }
         coModule::sendInfo("%s", buf);
@@ -2734,14 +2734,14 @@ int ReadEnsight::readData3d(const int &portTok3d,
         char ch[64];
         for (int i = 0; i < cnt; ++i)
         {
-            sprintf(ch, "%f", rTimes[i]);
+            snprintf(ch, sizeof(ch), "%f", rTimes[i]);
             objects3d[i]->addAttribute("REALTIME", ch);
         }
 
         coDoSet *outSet3d = new coDoSet(objNameBase3d.c_str(), (coDistributedObject **)objects3d);
 
         // set attribute - timesteps
-        sprintf(ch, "1 %d", cnt);
+        snprintf(ch, sizeof(ch), "1 %d", cnt);
         string attr(ch);
         outSet3d->addAttribute("TIMESTEP", attr.c_str());
 

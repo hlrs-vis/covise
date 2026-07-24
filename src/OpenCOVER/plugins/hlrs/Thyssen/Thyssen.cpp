@@ -30,19 +30,19 @@ void VrmlNodeThyssen::initFields(VrmlNodeThyssen *node, vrml::VrmlNodeType *t)
         char nameBuf[200];
         for(int i=0;i<4;i++)
         {
-            sprintf(nameBuf,"carPos%d",i);
+            snprintf(nameBuf, sizeof(nameBuf),"carPos%d",i);
             t->addEventOut(nameBuf, VrmlField::SFVEC3F);
-            sprintf(nameBuf,"carDoorClose%d",i);
+            snprintf(nameBuf, sizeof(nameBuf),"carDoorClose%d",i);
             t->addEventOut(nameBuf, VrmlField::SFTIME);
-            sprintf(nameBuf,"carDoorOpen%d",i);
+            snprintf(nameBuf, sizeof(nameBuf),"carDoorOpen%d",i);
             t->addEventOut(nameBuf, VrmlField::SFTIME);
-            sprintf(nameBuf,"landingDoorClose%d",i);
+            snprintf(nameBuf, sizeof(nameBuf),"landingDoorClose%d",i);
             t->addEventOut(nameBuf, VrmlField::SFTIME);
-            sprintf(nameBuf,"landingDoorOpen%d",i);
+            snprintf(nameBuf, sizeof(nameBuf),"landingDoorOpen%d",i);
             t->addEventOut(nameBuf, VrmlField::SFTIME);
-            sprintf(nameBuf,"carAngle%d",i);
+            snprintf(nameBuf, sizeof(nameBuf),"carAngle%d",i);
             t->addEventOut(nameBuf, VrmlField::SFFLOAT);
-            sprintf(nameBuf,"exchangerAngle%d",i);
+            snprintf(nameBuf, sizeof(nameBuf),"exchangerAngle%d",i);
             t->addEventOut(nameBuf, VrmlField::SFFLOAT);
         }
     }
@@ -105,7 +105,7 @@ void VrmlNodeThyssen::render(Viewer *)
     {
         carData &cd = ThyssenPlugin::plugin->cars[i];
         d_carPos[i].set( 0, cd.posZ / 1000.0, -cd.posY / 1000.0);
-        sprintf(pname,"carPos%d",i);
+        snprintf(pname, sizeof(pname),"carPos%d",i);
         eventOut(timeStamp, pname, d_carPos[i]);
         if(cd.doorState != cd.oldDoorState)
         {
@@ -116,13 +116,13 @@ void VrmlNodeThyssen::render(Viewer *)
             if(cd.doorState == ThyssenPlugin::opening)
             {
                 d_carDoorOpen[i].set(timeStamp);
-                sprintf(pname,"carDoorOpen%d",i);
+                snprintf(pname, sizeof(pname),"carDoorOpen%d",i);
                 eventOut(timeStamp, pname, d_carDoorOpen[i]);
             }
             if(cd.doorState == ThyssenPlugin::closing)
             {
                 d_carDoorClose[i].set(timeStamp);
-                sprintf(pname,"carDoorClose%d",i);
+                snprintf(pname, sizeof(pname),"carDoorClose%d",i);
                 eventOut(timeStamp, pname, d_carDoorClose[i]);
             }
             cd.oldDoorState = cd.doorState;
@@ -135,13 +135,13 @@ void VrmlNodeThyssen::render(Viewer *)
         {
             ed.oldAngle = ed.swvlRotaryMotor;
             d_exchangerAngle[i].set(ed.swvlRotaryMotor/180.0*M_PI);
-            sprintf(pname,"exchangerAngle%d",i);
+            snprintf(pname, sizeof(pname),"exchangerAngle%d",i);
             eventOut(timeStamp, pname, d_exchangerAngle[i]);
             if(ed.linkedCar >=0 && ed.linkedCar < ThyssenPlugin::plugin->cars.size())
             {
                 carData &cd = ThyssenPlugin::plugin->cars[ed.linkedCar];
                 d_carAngle[i].set(ed.swvlRotaryMotor/180.0*M_PI);
-                sprintf(pname,"carAngle%d",i);
+                snprintf(pname, sizeof(pname),"carAngle%d",i);
                 eventOut(timeStamp, pname, d_carAngle[i]);
             }
             else

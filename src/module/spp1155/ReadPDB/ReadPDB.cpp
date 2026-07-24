@@ -175,7 +175,7 @@ void ReadPDB::readPDBFile()
         int result, result2;
         result = strcspn(m_filename, "0123456789");
         strncat(filenamepattern, m_filename, result);
-        sprintf(filenamepattern, "%s%s", filenamepattern, "%d");
+        snprintf(filenamepattern, sizeof(filenamepattern), "%s%s", filenamepattern, "%d");
         result2 = strspn(m_filename + result, "0123456789");
 
         strncat(filenamepattern, m_filename + result + result2, sizeof(m_filename) - result - result2);
@@ -421,12 +421,12 @@ void ReadPDB::param(const char *name, bool inMapLoading)
                 i = m_iTimestepMin;
                 m_iTimestepMax = i;
 
-                sprintf(cTmpSearch, cTmp, i);
+                snprintf(cTmpSearch, sizeof(cTmpSearch), cTmp, i);
                 while (fileExists(cTmpSearch))
                 {
                     m_iTimestepMax = i;
                     i++;
-                    sprintf(cTmpSearch, cTmp, i);
+                    snprintf(cTmpSearch, sizeof(cTmpSearch), cTmp, i);
                 }
                 if (inMapLoading)
                 {

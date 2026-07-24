@@ -123,7 +123,7 @@ EnGoldGeoBIN::read(dimType dim, coDistributedObject **outObjects2d, coDistribute
             EnPart part;
             readPart(part);
             readPartConn(part);
-            sprintf(buf, "read part#%d :  %d of %d", it->getPartNum(), cnt, allPartsToRead);
+            snprintf(buf, sizeof(buf), "read part#%d :  %d of %d", it->getPartNum(), cnt, allPartsToRead);
             ens->sendInfo("%s", buf);
             cnt++;
         }
@@ -134,7 +134,7 @@ EnGoldGeoBIN::read(dimType dim, coDistributedObject **outObjects2d, coDistribute
         globalCoordIndexOffset_ = numCoords_;
     }
 
-    sprintf(buf, "done reading parts  %d parts read", cnt);
+    snprintf(buf, sizeof(buf), "done reading parts  %d parts read", cnt);
     ens->sendInfo("%s", buf);
 
     createGeoOutObj(dim, outObjects2d, outObjects3d, actObjNm2d, actObjNm3d, timeStep);
@@ -655,7 +655,7 @@ EnGoldGeoBIN::readPartConn(EnPart &actPart)
             cerr << endl;
         }
 
-        sprintf(buf, " -> found %d fully degenerated cells in part %d", degCells, partNo);
+        snprintf(buf, sizeof(buf), " -> found %d fully degenerated cells in part %d", degCells, partNo);
         ens->sendInfo("%s", buf);
     }
 

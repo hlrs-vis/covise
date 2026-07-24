@@ -28,7 +28,7 @@ OceanDepth::OceanDepth(int argc, char *argv[])
     p_inData[H] = addInputPort("h", "Float", "h");
     /*for(int i=5; i<numParams; i++){
 		char namebuf[50];
-		sprintf(namebuf, "InputData%d", i);
+		snprintf(namebuf, sizeof(namebuf), "InputData%d", i);
 		p_inData[i] = addInputPort(namebuf,"Float", namebuf);
 	}*/
 

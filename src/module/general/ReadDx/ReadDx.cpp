@@ -42,7 +42,7 @@ ReadDx::ReadDx(int argc, char *argv[]) // vvvv --- this info appears in the modu
     for (i = 0; i < maxDataPorts; i++)
     {
         char name[1000];
-        sprintf(name, "Scalar%c", (char)((int)'A' + i));
+        snprintf(name, sizeof(name), "Scalar%c", (char)((int)'A' + i));
         p_ScalarData[i] = addOutputPort(name, "Float", "Data on object");
     }
     const char *choiceVal[] = { "None", "StepFile", "Normal" };
@@ -202,7 +202,7 @@ bool ReadDx::makeGridSet(const char *objName, coDistributedObject **d, MultiGrid
     else
     {
         char msg[1024];
-        sprintf(msg, "The element type %s is not yet supported", elementType);
+        snprintf(msg, sizeof(msg), "The element type %s is not yet supported", elementType);
         Covise::sendError(msg);
     }
     for (i = 0; i < nelem; i++)
@@ -310,7 +310,7 @@ bool ReadDx::computeTimeStep(const char *fileName, int timeStepNo, coDistributed
     if (!parser->isOpen())
     {
         char msg[1024];
-        sprintf(msg, "file %s could not be opened", fileName);
+        snprintf(msg, sizeof(msg), "file %s could not be opened", fileName);
         Covise::sendError(msg);
         delete a;
         delete parser;
@@ -340,7 +340,7 @@ bool ReadDx::computeTimeStep(const char *fileName, int timeStepNo, coDistributed
 
     for (i = 0; i < numParts; i++)
     {
-        sprintf(partName, "%s_%d", gridObjName, i);
+        snprintf(partName, sizeof(partName), "%s_%d", gridObjName, i);
         //old makeGridSet(partName, gridSet+i, (*it),a->getArrays(), a->getFields(),fileName,i, reverse[i], reverseSize[i]);
         bool status = makeGridSet(partName, gridSet + i, m.get(i), a->getArrays(), a->getFields(), fileName, i, reverse[i], reverseSize[i]);
         if (!status)
@@ -353,11 +353,11 @@ bool ReadDx::computeTimeStep(const char *fileName, int timeStepNo, coDistributed
     *resultGrid = new coDoSet(gridObjName, gridSet);
 
     char ts[1024];
-    sprintf(ts, "1 %d", numParts);
+    snprintf(ts, sizeof(ts), "1 %d", numParts);
     if ((numParts > 1) && (p_timeStepMode->getValue() == NORMAL))
     {
         char ts[1024];
-        sprintf(ts, "1 %d", numParts);
+        snprintf(ts, sizeof(ts), "1 %d", numParts);
         (*resultGrid)->addAttribute("TIMESTEP", ts);
     }
 
@@ -394,7 +394,7 @@ bool ReadDx::computeTimeStep(const char *fileName, int timeStepNo, coDistributed
     {
         const char *name = p_ScalarData[i]->getObjName();
         char objName[1024];
-        sprintf(objName, "%s_%d", name, timeStepNo);
+        snprintf(objName, sizeof(objName), "%s_%d", name, timeStepNo);
         timeData[i][timeStepNo] = new coDoSet(objName, dataSet[i]);
         if ((numParts > 1) && (p_timeStepMode->getValue() == NORMAL))
         {
@@ -434,7 +434,7 @@ int ReadDx::compute(const char *)
         stepFile->get_nextpath(&nextPath);
         if (NULL != nextPath)
         {
-            sprintf(partName, "%s_%d", gridName, i);
+            snprintf(partName, sizeof(partName), "%s_%d", gridName, i);
             bool status = computeTimeStep(nextPath, i, &(timeGrids[i]), partName, timeData, numberOfDataSets);
             delete[] nextPath;
             if (!status)
@@ -451,7 +451,7 @@ int ReadDx::compute(const char *)
 
     coDoSet *gridSet = new coDoSet(gridName, timeGrids);
     char ts[1024];
-    sprintf(ts, "1 %d", numberOfTimeSteps);
+    snprintf(ts, sizeof(ts), "1 %d", numberOfTimeSteps);
     if ((numberOfTimeSteps > 1) && (p_timeStepMode->getValue() == STEPFILE))
     {
         gridSet->addAttribute("TIMESTEP", ts);

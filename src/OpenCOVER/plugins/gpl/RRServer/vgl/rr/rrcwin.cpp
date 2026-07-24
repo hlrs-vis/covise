@@ -131,9 +131,9 @@ void rrcwin::initgl(void)
     rrglframe *b = NULL;
     char dpystr[80];
 #ifdef XDK
-    sprintf(dpystr, "LOCALPC:%d.0", _dpynum);
+    snprintf(dpystr, sizeof(dpystr), "LOCALPC:%d.0", _dpynum);
 #else
-    sprintf(dpystr, ":%d.0", _dpynum);
+    snprintf(dpystr, sizeof(dpystr), ":%d.0", _dpynum);
 #endif
     rrcs::safelock l(_mutex);
     if (_drawmethod == RR_DRAWOGL)
@@ -177,9 +177,9 @@ void rrcwin::initx11(void)
     rrfb *b = NULL;
     char dpystr[80];
 #ifdef XDK
-    sprintf(dpystr, "localhost:%d.0", _dpynum);
+    snprintf(dpystr, sizeof(dpystr), "localhost:%d.0", _dpynum);
 #else
-    sprintf(dpystr, ":%d.0", _dpynum);
+    snprintf(dpystr, sizeof(dpystr), ":%d.0", _dpynum);
 #endif
     rrcs::safelock l(_mutex);
     if (_drawmethod == RR_DRAWX11)
@@ -232,7 +232,7 @@ rrframe *rrcwin::getFrame(bool usexv)
         if (!_xvf[_cfi])
         {
             char dpystr[80];
-            sprintf(dpystr, ":%d.0", _dpynum);
+            snprintf(dpystr, sizeof(dpystr), ":%d.0", _dpynum);
             _xvf[_cfi] = new rrxvframe(dpystr, _window);
             if (!_xvf[_cfi])
                 _throw("Could not allocate class instance");

@@ -81,6 +81,6 @@ bool Date::setWithDateString(const std::string &dateString)
 std::string Date::getDateString() const
 {
     char datestring[256];
-    sprintf(datestring, "%u/%u/%u %u:%u:%u", year, month, day, hour, minute, second);
+    snprintf(datestring, sizeof(datestring), "%u/%u/%u %u:%u:%u", year, month, day, hour, minute, second);
     return std::string(datestring);
 }

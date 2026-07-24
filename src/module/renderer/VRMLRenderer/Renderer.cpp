@@ -324,7 +324,7 @@ void Renderer::render(void *callbackData)
     }
     // CoviseRender::sendInfo("Got update message from master:");
 
-    // sprintf(print_buf,"key: %s data: %s",CoviseRender::get_render_keyword(),
+    // snprintf(print_buf, sizeof(print_buf),"key: %s data: %s",CoviseRender::get_render_keyword(),
     //                                      CoviseRender::get_render_data() );
     // CoviseRender::sendInfo(print_buf);
 }

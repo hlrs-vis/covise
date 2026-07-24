@@ -1552,7 +1552,7 @@ OpenCOVER::readConfigFile()
     std::string line = coCoviseConfig::getEntry("COVER.Notify");
     if (!line.empty())
     {
-        sprintf(envOsgNotifyLevel, "OSG_NOTIFY_LEVEL=%s", line.c_str());
+        snprintf(envOsgNotifyLevel, sizeof(envOsgNotifyLevel), "OSG_NOTIFY_LEVEL=%s", line.c_str());
         putenv(envOsgNotifyLevel);
         /* ALWAYS
       FATAL

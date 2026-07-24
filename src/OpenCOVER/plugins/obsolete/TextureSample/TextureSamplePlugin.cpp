@@ -494,7 +494,7 @@ void VrmlNodeTextureSample::newButton(int n)
         i++;
     }
     char name[500];
-    sprintf(name, "Texture %d", n);
+    snprintf(name, sizeof(name), "Texture %d", n);
     coTUIButton *button = new coTUIButton(name, plugin->textureTab->getID());
     buttonInfo *bi = new buttonInfo();
     bi->button = button;

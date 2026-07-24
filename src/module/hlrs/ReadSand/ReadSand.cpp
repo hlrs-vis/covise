@@ -132,14 +132,14 @@ void Application::compute(void *)
         {
             cerr << "ReadSand::compute: sscanf failed" << endl;
         }
-        sprintf(buf, "%s_%d", Points, timestep);
+        snprintf(buf, sizeof(buf), "%s_%d", Points, timestep);
         points = new coDoPoints(buf, numpoints);
         if (!points->objectOk())
         {
             Covise::sendError("ERROR: creation of data object 'Points' failed");
             return;
         }
-        sprintf(buf, "%s_%d", Grid, timestep);
+        snprintf(buf, sizeof(buf), "%s_%d", Grid, timestep);
         if ((((int)sqrt((float)numpoints)) * ((int)sqrt((float)numpoints))) == numpoints)
         {
             s_grid = new coDoStructuredGrid(buf, (int)sqrt((float)numpoints), (int)sqrt((float)numpoints), 1);
@@ -151,14 +151,14 @@ void Application::compute(void *)
         }
         else
             s_grid = NULL;
-        sprintf(buf, "%s_%d", Velocity, timestep);
+        snprintf(buf, sizeof(buf), "%s_%d", Velocity, timestep);
         velocity = new coDoVec3(buf, numpoints);
         if (!velocity->objectOk())
         {
             Covise::sendError("ERROR: creation of data object 'velocity' failed");
             return;
         }
-        sprintf(buf, "%s_%d", Radius, timestep);
+        snprintf(buf, sizeof(buf), "%s_%d", Radius, timestep);
         radius = new coDoFloat(buf, numpoints);
         if (!radius->objectOk())
         {

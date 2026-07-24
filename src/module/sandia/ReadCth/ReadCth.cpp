@@ -118,7 +118,7 @@ void Application::compute(void *)
 
     int alltime = 0;
     FILE *fp;
-    sprintf(buf, "%s%d%s", dp, startb + currb, dpend);
+    snprintf(buf, sizeof(buf), "%s%d%s", dp, startb + currb, dpend);
     fp = Covise::fopen(buf, "r");
     if (fp == NULL)
     {
@@ -135,7 +135,7 @@ void Application::compute(void *)
         Covise::sendError(buf2);
         return;
     }
-    sprintf(buf, "  info: %s\n", p->info);
+    snprintf(buf, sizeof(buf), "  info: %s\n", p->info);
     Covise::sendInfo(buf);
     fprintf(stdout, "  variables:\n");
     fflush(stdout);
@@ -190,11 +190,11 @@ void Application::compute(void *)
             zc = yc + ydim;
             if (Mesh != NULL)
             {
-                sprintf(buf, "%s_g_%d", Mesh, alltime);
+                snprintf(buf, sizeof(buf), "%s_g_%d", Mesh, alltime);
                 mesh = new coDoRectilinearGrid(buf, xdim, ydim, zdim, xc, yc, zc);
                 if (mesh->objectOk())
                 {
-                    sprintf(buf, "%d", alltime);
+                    snprintf(buf, sizeof(buf), "%d", alltime);
                     mesh->addAttribute("TIMESTEP", buf);
                 }
                 else
@@ -211,11 +211,11 @@ void Application::compute(void *)
 
             if (Data != 0)
             {
-                sprintf(buf, "%s_%d", Data, alltime);
+                snprintf(buf, sizeof(buf), "%s_%d", Data, alltime);
                 data = new coDoFloat(buf, xdim, ydim, zdim, (float *)sb->values);
                 if (data->objectOk())
                 {
-                    sprintf(buf, "%d", alltime);
+                    snprintf(buf, sizeof(buf), "%d", alltime);
                     data->addAttribute("TIMESTEP", buf);
                     //data->getAddress(&s_data);
                     //read(fd,s_data,xdim*ydim*zdim*sizeof(float));
@@ -259,13 +259,13 @@ void Application::compute(void *)
     Mesh_set->addAttribute("TIMESTEP", "1 100");
     Data_set->addAttribute("TIMESTEP", "1 100");
 
-    sprintf(buf, "%d %d %d", currb, numb, numt);
+    snprintf(buf, sizeof(buf), "%d %d %d", currb, numb, numt);
     Mesh_set->addAttribute("BLOCKINFO", buf);
-    sprintf(buf, "B%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+    snprintf(buf, sizeof(buf), "B%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
     Mesh_set->addAttribute("READ_MODULE", buf);
-    sprintf(buf, "%d %d %d", currb, numb, numt);
+    snprintf(buf, sizeof(buf), "%d %d %d", currb, numb, numt);
     Mesh_set->addAttribute("BLOCKINFO", buf);
-    sprintf(buf, "B%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+    snprintf(buf, sizeof(buf), "B%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
     Mesh_set->addAttribute("READ_MODULE", buf);
     delete Mesh_sets[0];
     delete[] Mesh_sets;

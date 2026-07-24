@@ -111,7 +111,7 @@ Message *ApplicationProcess::wait_for_ctl_msg()
     while (!end)
     {
         msg = wait_for_msg();
-        sprintf(tmp_str, "msg->type %d received", msg->type);
+        snprintf(tmp_str, sizeof(tmp_str), "msg->type %d received", msg->type);
         print_comment(__LINE__, __FILE__, "msg->type %d received", msg->type);
         if (msg->conn == datamanager)
         {
@@ -244,9 +244,9 @@ ApplicationProcess::ApplicationProcess(const char *n, int argc, char *argv[],
         pid = getpid();
         msg->data = DataHandle{ (char*)& pid, sizeof(pid_t), false };
 #ifdef DEBUG
-        sprintf(tmp_str, "SEND_APPL_PROCID: %d", *(pid_t *)msg->data);
+        snprintf(tmp_str, sizeof(tmp_str), "SEND_APPL_PROCID: %d", *(pid_t *)msg->data);
         print_comment(__LINE__, __FILE__, tmp_str);
-        sprintf(tmp_str, "pid: %d", pid);
+        snprintf(tmp_str, sizeof(tmp_str), "pid: %d", pid);
         print_comment(__LINE__, __FILE__, tmp_str);
 #endif
         if (!datamanager->sendMessage(msg))

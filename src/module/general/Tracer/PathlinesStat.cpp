@@ -144,7 +144,7 @@ PathlinesStat::gatherAll(coOutputPort *p_line, // pointer to line output port
     for (tick = 0; tick < numOfAnimationSteps; ++tick)
     {
         char tick_trail[32];
-        sprintf(tick_trail, "_%d", tick);
+        snprintf(tick_trail, sizeof(tick_trail), "_%d", tick);
         std::string line_name_time(line_name);
         std::string mag_name_time(mag_name);
         line_name_time += tick_trail;
@@ -161,7 +161,7 @@ PathlinesStat::gatherAll(coOutputPort *p_line, // pointer to line output port
             for (traj = 0; traj < no_ptasks_; ++traj)
             {
                 char traj_trail[32];
-                sprintf(traj_trail, "_%d", traj);
+                snprintf(traj_trail, sizeof(traj_trail), "_%d", traj);
                 std::string line_name_time_traj(line_name_time);
                 std::string mag_name_time_traj(mag_name_time);
                 line_name_time_traj += traj_trail;
@@ -351,7 +351,7 @@ PathlinesStat::gatherAll(coOutputPort *p_line, // pointer to line output port
     coDoSet *output_mag = new coDoSet(mag_name, m_time_steps);
     // set TIMESTEP attribute
     char dyna_attr[32];
-    sprintf(dyna_attr, "1 %d", numOfAnimationSteps);
+    snprintf(dyna_attr, sizeof(dyna_attr), "1 %d", numOfAnimationSteps);
     output_lines->addAttribute("TIMESTEP", dyna_attr);
     output_mag->addAttribute("TIMESTEP", dyna_attr);
     // delete objects in l_time_steps & m_time_steps

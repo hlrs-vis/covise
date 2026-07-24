@@ -97,7 +97,7 @@ void MeshFileTransParserHmAscii::parseMeshFile(
                     *_c = '\0';
                 }
                 char buf[1000];
-                sprintf(buf, "component %d %s\n", componentID, componentName);
+                snprintf(buf, sizeof(buf), "component %d %s\n", componentID, componentName);
                 _outputHandler->displayString(buf);
             }
             while (!feof(_fileHandle) && !sel(componentID))
@@ -119,7 +119,7 @@ void MeshFileTransParserHmAscii::parseMeshFile(
                             *_c = '\0';
                         }
                         char buf[1000];
-                        sprintf(buf, "component %d %s\n", componentID, componentName);
+                        snprintf(buf, sizeof(buf), "component %d %s\n", componentID, componentName);
                         _outputHandler->displayString(buf);
                     }
                 }

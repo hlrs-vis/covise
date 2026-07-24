@@ -95,7 +95,7 @@ void ReadAbaqus::readFile(ReadAbaqus_Stream *abaqIn)
     // create grid obj
 
     char namebuf[512];
-    sprintf(namebuf, "%s_0", p_mesh->getObjName());
+    snprintf(namebuf, sizeof(namebuf), "%s_0", p_mesh->getObjName());
     coDoUnstructuredGrid *grd
         = new coDoUnstructuredGrid(namebuf, numElem, numConn, numVert, 1);
 
@@ -209,7 +209,7 @@ void ReadAbaqus::readFile(ReadAbaqus_Stream *abaqIn)
         grd->incRefCount();
     }
     coDoSet *set = new coDoSet(p_mesh->getObjName(), objArr);
-    sprintf(namebuf, "1 %d", timesteps);
+    snprintf(namebuf, sizeof(namebuf), "1 %d", timesteps);
     set->addAttribute("TIMESTEP", namebuf);
     p_mesh->setCurrentObject(set);
 
@@ -229,7 +229,7 @@ void ReadAbaqus::readFile(ReadAbaqus_Stream *abaqIn)
     const char *dataName = p_data->getObjName();
     for (i = 0; i < timesteps; i++)
     {
-        sprintf(namebuf, "%s_%d", dataName, i);
+        snprintf(namebuf, sizeof(namebuf), "%s_%d", dataName, i);
         objArr[i] = dataArr[i] = new coDoFloat(namebuf, numVert);
     }
 
@@ -258,7 +258,7 @@ void ReadAbaqus::readFile(ReadAbaqus_Stream *abaqIn)
     }
 
     set = new coDoSet(p_data->getObjName(), objArr);
-    sprintf(namebuf, "1 %d", timesteps);
+    snprintf(namebuf, sizeof(namebuf), "1 %d", timesteps);
     set->addAttribute("TIMESTEP", namebuf);
     p_data->setCurrentObject(set);
 

@@ -224,7 +224,7 @@ coDoStructuredGrid::coDoStructuredGrid(const coObjInfo &info, int x, int y, int 
     x_coord.set_length(x * y * z);
     y_coord.set_length(x * y * z);
     z_coord.set_length(x * y * z);
-    sprintf(tmp_str, "set_length: %d  get_length: %d %d %d", x * y * z, x_coord.get_length(), y_coord.get_length(), z_coord.get_length());
+    snprintf(tmp_str, sizeof(tmp_str), "set_length: %d  get_length: %d %d %d", x * y * z, x_coord.get_length(), y_coord.get_length(), z_coord.get_length());
 
     covise_data_list dl[6];
     dl[0].type = INTSHM;
@@ -265,7 +265,7 @@ coDoStructuredGrid::coDoStructuredGrid(const coObjInfo &info, int x, int y, int 
     y_coord.set_length(x * y * z);
     z_coord.set_length(x * y * z);
 
-    sprintf(tmp_str, "set_length: %d  get_length: %d %d %d", x * y * z, x_coord.get_length(), y_coord.get_length(), z_coord.get_length());
+    snprintf(tmp_str, sizeof(tmp_str), "set_length: %d  get_length: %d %d %d", x * y * z, x_coord.get_length(), y_coord.get_length(), z_coord.get_length());
 
     covise_data_list dl[6];
     dl[0].type = INTSHM;

@@ -154,9 +154,9 @@ void ShiftValues::preHandleObjects(coInputPort **InPorts)
                 len += (int)strlen(species) + 3;
             char *buf = new char[len + 64];
             if (species)
-                sprintf(buf, "Iso-%s:%s", get_instance(), species);
+                snprintf(buf, sizeof(buf), "Iso-%s:%s", get_instance(), species);
             else
-                sprintf(buf, "Iso-%s", get_instance());
+                snprintf(buf, sizeof(buf), "Iso-%s", get_instance());
             setTitle(buf);
             delete[] buf;
         }
@@ -1317,7 +1317,7 @@ ShiftValues::param(const char *paramName, bool inMapLoading)
     {
         // find out "real" module name
         char realTitle[1024];
-        sprintf(realTitle, "%s_%s", get_module(), get_instance());
+        snprintf(realTitle, sizeof(realTitle), "%s_%s", get_module(), get_instance());
 
         // if it differs from the title - disable automatig settings
         if (strcmp(realTitle, getTitle()) != 0)
@@ -1439,7 +1439,7 @@ void NullInputData(coOutputPort *p_GridOut, coOutputPort *p_NormalsOut, coOutput
             strips_out->addAttribute("vertexOrder", "2");
             
                  // strips_out->addAttribute("COLOR",colorn);
-                 // sprintf(buf,"I%s\n%s\n%s\n",Covise::get_module(),Covise::get_instance(),Covise::get_host());
+                 // snprintf(buf, sizeof(buf),"I%s\n%s\n%s\n",Covise::get_module(),Covise::get_instance(),Covise::get_host());
                  // strips_out->addAttribute("FEEDBACK", buf);
          
         }
@@ -1450,7 +1450,7 @@ void NullInputData(coOutputPort *p_GridOut, coOutputPort *p_NormalsOut, coOutput
         polygons_out = new coDoPolygons(GridOut, 0, 0, 0);
         if (polygons_out->objectOk())
         {
-            //sprintf(buf,"I%s\n%s\n%s\n",Covise::get_module(),Covise::get_instance(),Covise::get_host());
+            //snprintf(buf, sizeof(buf),"I%s\n%s\n%s\n",Covise::get_module(),Covise::get_instance(),Covise::get_host());
             if (gennormals)
                 polygons_out->addAttribute("vertexOrder", "1");
             else
@@ -2385,7 +2385,7 @@ ShiftValues::addFeedbackParams(coDistributedObject *obj)
 {
     if (fbStyle_ == FEED_OLD || fbStyle_ == FEED_BOTH)
     {
-        sprintf(buf, "I%s\n%s\n%s\n%f\n%f\n%f\n",
+        snprintf(buf, sizeof(buf), "I%s\n%s\n%s\n%f\n%f\n%f\n",
                 Covise::get_module(), Covise::get_instance(), Covise::get_host(),
                 p_isovalue->getMin(), p_isovalue->getMax(),
                 p_isovalue->getValue());

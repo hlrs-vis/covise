@@ -308,7 +308,7 @@ Destination *IBVerbsTransport::client_exch_dest(int sockfd,
     char msg[sizeof "0000:000000:000000:00000000:0000000000000000"];
     int parsed;
 
-    sprintf(msg, "%04x:%06x:%06x:%08x:%016Lx", my_dest->lid, my_dest->qpn,
+    snprintf(msg, sizeof(msg), "%04x:%06x:%06x:%08x:%016Lx", my_dest->lid, my_dest->qpn,
             my_dest->psn, my_dest->rkey, my_dest->vaddr);
     if (write(sockfd, msg, sizeof msg) != sizeof msg)
     {
@@ -434,7 +434,7 @@ Destination *IBVerbsTransport::server_exch_dest(int connfd, Destination *my_dest
         return 0;
     }
 
-    sprintf(msg, "%04x:%06x:%06x:%08x:%016Lx", my_dest->lid, my_dest->qpn,
+    snprintf(msg, sizeof(msg), "%04x:%06x:%06x:%08x:%016Lx", my_dest->lid, my_dest->qpn,
             my_dest->psn, my_dest->rkey, my_dest->vaddr);
     if (write(connfd, msg, sizeof msg) != sizeof msg)
     {

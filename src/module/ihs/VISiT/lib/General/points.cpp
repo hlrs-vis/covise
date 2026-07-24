@@ -87,7 +87,7 @@ int ReadPointStruct(struct Point *p, const char *sec, const char *fn)
    num = 0;
    for (i = 0; ; i++)
    {
-      sprintf(key, POINT, i);
+      snprintf(key, sizeof(key), POINT, i);
       if ((tmp = IHS_GetCFGValue(fn, sec, key)) != NULL)
       {
          sscanf(tmp, "%f, %f, %f", &x, &y, &z);

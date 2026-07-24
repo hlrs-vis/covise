@@ -99,11 +99,11 @@ void do_compute(int setno, int loadto, int graphto, char *fstr)
             {
                 if (formula(cg, i, fstr))
                 {
-                    sprintf(buf, "\nERROR: computing %s on set %d\n", fstr, i);
+                    snprintf(buf, sizeof(buf), "\nERROR: computing %s on set %d\n", fstr, i);
                     stufftext(buf, STUFF_START);
                     return;
                 }
-                sprintf(buf, "\nComputed %s on set %d\n", fstr, i);
+                snprintf(buf, sizeof(buf), "\nComputed %s on set %d\n", fstr, i);
                 stufftext(buf, STUFF_START);
                 idraw = 1;
             }
@@ -137,7 +137,7 @@ void do_compute(int setno, int loadto, int graphto, char *fstr)
         }
         if (formula(graphto, setno, fstr))
         {
-            sprintf(buf, "\nERROR: computing %s on set %d\n", fstr, setno);
+            snprintf(buf, sizeof(buf), "\nERROR: computing %s on set %d\n", fstr, setno);
             stufftext(buf, STUFF_START);
             if (loadto != setno)
             {
@@ -145,7 +145,7 @@ void do_compute(int setno, int loadto, int graphto, char *fstr)
             }
             return;
         }
-        sprintf(buf, "\nComputed %s on set %d, result to set %d\n", fstr, itmp, setno);
+        snprintf(buf, sizeof(buf), "\nComputed %s on set %d, result to set %d\n", fstr, itmp, setno);
         stufftext(buf, STUFF_START);
         if (!isactive_graph(graphto))
         {
@@ -457,7 +457,7 @@ void do_digfilter(int set1, int set2)
     {
         activateset(cg, digfiltset);
         setlength(cg, digfiltset, getsetlength(cg, set1) - getsetlength(cg, set2) + 1);
-        sprintf(buf, "Digital filter from set %d applied to set %d", set2, set1);
+        snprintf(buf, sizeof(buf), "Digital filter from set %d applied to set %d", set2, set1);
         filterser(getsetlength(cg, set1),
                   getx(cg, set1),
                   gety(cg, set1),
@@ -502,7 +502,7 @@ void do_linearc(int set1, int set2)
         {
             xtmp[i] = i;
         }
-        sprintf(buf, "Linear convolution of set %d with set %d", set1, set2);
+        snprintf(buf, sizeof(buf), "Linear convolution of set %d with set %d", set1, set2);
         setcomment(cg, linearcset, buf);
         log_results(buf);
         updatesetminmax(cg, linearcset);
@@ -541,11 +541,11 @@ void do_xcor(int set1, int set2, int itype, int lag)
         setlength(cg, xcorset, lag);
         if (set1 != set2)
         {
-            sprintf(buf, "X-correlation of set %d and %d at lag %d", set1, set2, lag);
+            snprintf(buf, sizeof(buf), "X-correlation of set %d and %d at lag %d", set1, set2, lag);
         }
         else
         {
-            sprintf(buf, "Autocorrelation of set %d at lag %d", set1, lag);
+            snprintf(buf, sizeof(buf), "Autocorrelation of set %d at lag %d", set1, lag);
         }
         ierr = crosscorr(gety(cg, set1), gety(cg, set2), getsetlength(cg, set1), lag, itype, getx(cg, xcorset), gety(cg, xcorset));
         xtmp = getx(cg, xcorset);
@@ -591,7 +591,7 @@ void do_spline(int set, double start, double stop, int n)
     {
         activateset(cg, splineset);
         setlength(cg, splineset, n);
-        sprintf(buf, "Spline fit from set %d", set);
+        snprintf(buf, sizeof(buf), "Spline fit from set %d", set);
         x = getx(cg, set);
         y = gety(cg, set);
         b = (double *)calloc(len, sizeof(double));
@@ -656,7 +656,7 @@ double do_int(int setno, int itype)
         {
             activateset(cg, intset);
             setlength(cg, intset, getsetlength(cg, setno) - 1);
-            sprintf(buf, "Cumulative sum of set %d", setno);
+            snprintf(buf, sizeof(buf), "Cumulative sum of set %d", setno);
             sum = trapint(getx(cg, setno), gety(cg, setno), getx(cg, intset), gety(cg, intset), getsetlength(cg, setno));
             setcomment(cg, intset, buf);
             log_results(buf);
@@ -704,17 +704,17 @@ void do_differ(int setno, int itype)
         switch (itype)
         {
         case 0:
-            sprintf(buf, "Forward difference of set %d", setno);
+            snprintf(buf, sizeof(buf), "Forward difference of set %d", setno);
             setlength(cg, diffset, getsetlength(cg, setno) - 1);
             forwarddiff(getx(cg, setno), gety(cg, setno), getx(cg, diffset), gety(cg, diffset), getsetlength(cg, setno));
             break;
         case 1:
-            sprintf(buf, "Backward difference of set %d", setno);
+            snprintf(buf, sizeof(buf), "Backward difference of set %d", setno);
             setlength(cg, diffset, getsetlength(cg, setno) - 1);
             backwarddiff(getx(cg, setno), gety(cg, setno), getx(cg, diffset), gety(cg, diffset), getsetlength(cg, setno));
             break;
         case 2:
-            sprintf(buf, "Centered difference of set %d", setno);
+            snprintf(buf, sizeof(buf), "Centered difference of set %d", setno);
             setlength(cg, diffset, getsetlength(cg, setno) - 2);
             centereddiff(getx(cg, setno), gety(cg, setno), getx(cg, diffset), gety(cg, diffset), getsetlength(cg, setno));
             break;
@@ -752,7 +752,7 @@ void do_seasonal_diff(int setno, int period)
         seasonaldiff(getx(cg, setno), gety(cg, setno),
                      getx(cg, diffset), gety(cg, diffset),
                      getsetlength(cg, setno), period);
-        sprintf(buf, "Seasonal difference of set %d, period %d", setno, period);
+        snprintf(buf, sizeof(buf), "Seasonal difference of set %d, period %d", setno, period);
         setcomment(cg, diffset, buf);
         log_results(buf);
         updatesetminmax(cg, diffset);
@@ -905,7 +905,7 @@ void do_regress(int setno, int ideg, int iresid, int rno, int invr)
             goto bustout;
         }
 
-        sprintf(buf, "\nRegression of set %d results to set %d\n", setno, fitset);
+        snprintf(buf, sizeof(buf), "\nRegression of set %d results to set %d\n", setno, fitset);
         stufftext(buf, STUFF_STOP);
 
         if (sdeg == 12) /* ln(y) = ln(A) + b * ln(x) */
@@ -951,7 +951,7 @@ void do_regress(int setno, int ideg, int iresid, int rno, int invr)
         case 2:
             break;
         }
-        sprintf(buf, "%d deg fit of set %d", ideg, setno);
+        snprintf(buf, sizeof(buf), "%d deg fit of set %d", ideg, setno);
         setcomment(cg, fitset, buf);
         log_results(buf);
         updatesetminmax(cg, fitset);
@@ -1030,23 +1030,23 @@ void do_runavg(int setno, int runlen, int runtype, int rno, int invr)
         {
         case 0:
             runavg(xt, yt, xr, yr, len, runlen);
-            sprintf(buf, "%d-pt. avg. on set %d ", runlen, setno);
+            snprintf(buf, sizeof(buf), "%d-pt. avg. on set %d ", runlen, setno);
             break;
         case 1:
             runmedian(xt, yt, xr, yr, len, runlen);
-            sprintf(buf, "%d-pt. median on set %d ", runlen, setno);
+            snprintf(buf, sizeof(buf), "%d-pt. median on set %d ", runlen, setno);
             break;
         case 2:
             runminmax(xt, yt, xr, yr, len, runlen, 0);
-            sprintf(buf, "%d-pt. min on set %d ", runlen, setno);
+            snprintf(buf, sizeof(buf), "%d-pt. min on set %d ", runlen, setno);
             break;
         case 3:
             runminmax(xt, yt, xr, yr, len, runlen, 1);
-            sprintf(buf, "%d-pt. max on set %d ", runlen, setno);
+            snprintf(buf, sizeof(buf), "%d-pt. max on set %d ", runlen, setno);
             break;
         case 4:
             runstddev(xt, yt, xr, yr, len, runlen);
-            sprintf(buf, "%d-pt. std dev., set %d ", runlen, setno);
+            snprintf(buf, sizeof(buf), "%d-pt. std dev., set %d ", runlen, setno);
             break;
         }
         setcomment(cg, runset, buf);
@@ -1193,11 +1193,11 @@ void do_fourier(int fftflag, int setno, int load, int loadx, int invflag, int ty
         }
         if (fftflag)
         {
-            sprintf(buf, "FFT of set %d", setno);
+            snprintf(buf, sizeof(buf), "FFT of set %d", setno);
         }
         else
         {
-            sprintf(buf, "DFT of set %d", setno);
+            snprintf(buf, sizeof(buf), "DFT of set %d", setno);
         }
         setcomment(cg, specset, buf);
         log_results(buf);
@@ -1246,7 +1246,7 @@ void do_window(int setno, int type, int wind)
         if (wind != 0)
         {
             apply_window(xx, yy, ilen, type, wind);
-            sprintf(buf, "%s windowed set %d", wtype[wind - 1], setno);
+            snprintf(buf, sizeof(buf), "%s windowed set %d", wtype[wind - 1], setno);
         } /* shouldn't happen */
         else
         {
@@ -1418,7 +1418,7 @@ void histogram(int fromset, int toset, int tograph,
     set_prop(tograph, SET, SETNUM, toset, LINESTYLE, 0, 0);
     updatesymbols(tograph, toset);
     updatesetminmax(tograph, toset);
-    sprintf(buf, "Histogram from set # %d", fromset);
+    snprintf(buf, sizeof(buf), "Histogram from set # %d", fromset);
     setcomment(tograph, toset, buf);
     log_results(buf);
     update_set_status(tograph, toset);
@@ -1472,7 +1472,7 @@ void do_sample(int setno, int typeno, char *exprstr, int startno, int stepno)
             add_point(cg, resset, x[i], y[i], 0.0, 0.0, XY);
             npts++;
         }
-        sprintf(buf, "Sample, %d, %d set #%d", startno, stepno, setno);
+        snprintf(buf, sizeof(buf), "Sample, %d, %d set #%d", startno, stepno, setno);
     }
     else
     {
@@ -1501,7 +1501,7 @@ void do_sample(int setno, int typeno, char *exprstr, int startno, int stepno)
         }
         if (npts > 0)
         {
-            sprintf(buf, "Sample from %d, using '%s'", setno, exprstr);
+            snprintf(buf, sizeof(buf), "Sample from %d, using '%s'", setno, exprstr);
         }
     }
     if (npts > 0)

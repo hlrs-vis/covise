@@ -30,7 +30,7 @@ int ReadCalc(char *fn, float **calc)
       fatal("Error allocating memory: (float *)calc");
    for (i = 0; i < ncalc; i++)
    {
-      sprintf(text, CALC_VAL, i+1);
+      snprintf(text, sizeof(text), CALC_VAL, i+1);
       if ((buf = IHS_GetCFGValue(fn, ISO_CALC, text)) != NULL)
       {
          sscanf(buf, "%f", calc[0]+i);

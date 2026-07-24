@@ -377,7 +377,7 @@ void TopsanViewer::set(string name)
     char snumbuf[15];
     while (!remainder.empty())
     {
-        sprintf(snumbuf, "%d", snum);
+        snprintf(snumbuf, sizeof(snumbuf), "%d", snum);
         topsanPanel->addTab(remainder, string("Summary") + string(snumbuf), remainder, 250);
         snum++;
     }
@@ -386,7 +386,7 @@ void TopsanViewer::set(string name)
     char fnum[15];
     for (int i = 0; i < _imagemap[name].size(); i++)
     {
-        sprintf(fnum, "%d", i + 1);
+        snprintf(fnum, sizeof(fnum), "%d", i + 1);
         topsanPanel->addTextureTab(_tsDir + "/" + _imagemap[name][i], string("Figure ") + string(fnum));
     }
 

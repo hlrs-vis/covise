@@ -217,14 +217,14 @@ void coVRUniform::setTexture(const char *tf, int i)
 void coVRUniform::setValue(vsg::dmat4 m)
 {
     char ms[1600];
-    sprintf(ms, "%lf %lf %lf %lf  %lf %lf %lf %lf  %lf %lf %lf %lf  %lf %lf %lf %lf", m(0, 0), m(0, 1), m(0, 2), m(0, 3), m(1, 0), m(1, 1), m(1, 2), m(1, 3), m(2, 0), m(2, 1), m(2, 2), m(2, 3), m(3, 0), m(3, 1), m(3, 2), m(3, 3));
+    snprintf(ms, sizeof(ms), "%lf %lf %lf %lf  %lf %lf %lf %lf  %lf %lf %lf %lf  %lf %lf %lf %lf", m(0, 0), m(0, 1), m(0, 2), m(0, 3), m(1, 0), m(1, 1), m(1, 2), m(1, 3), m(2, 0), m(2, 1), m(2, 2), m(2, 3), m(3, 0), m(3, 1), m(3, 2), m(3, 3));
     value = ms;
     //uniform->set(m);
 }
 void coVRUniform::setValue(vsg::mat4 m)
 {
     char ms[1600];
-    sprintf(ms, "%f %f %f %f  %f %f %f %f  %f %f %f %f  %f %f %f %f", m(0, 0), m(0, 1), m(0, 2), m(0, 3), m(1, 0), m(1, 1), m(1, 2), m(1, 3), m(2, 0), m(2, 1), m(2, 2), m(2, 3), m(3, 0), m(3, 1), m(3, 2), m(3, 3));
+    snprintf(ms, sizeof(ms), "%f %f %f %f  %f %f %f %f  %f %f %f %f  %f %f %f %f", m(0, 0), m(0, 1), m(0, 2), m(0, 3), m(1, 0), m(1, 1), m(1, 2), m(1, 3), m(2, 0), m(2, 1), m(2, 2), m(2, 3), m(3, 0), m(3, 1), m(3, 2), m(3, 3));
     value = ms;
     //uniform->set(m);
 }
@@ -232,7 +232,7 @@ void coVRUniform::setValue(vsg::mat4 m)
 void coVRUniform::setValue(float f)
 {
     char fs[100];
-    sprintf(fs, "%f", f);
+    snprintf(fs, sizeof(fs), "%f", f);
     value = fs;
     //uniform->set(f);
 }
@@ -240,7 +240,7 @@ void coVRUniform::setValue(float f)
 void coVRUniform::setValue(bool b)
 {
     char fs[100];
-    sprintf(fs, "%s", b ? "true" : "false");
+    snprintf(fs, sizeof(fs), "%s", b ? "true" : "false");
     value = fs;
     //uniform->set(b);
 }
@@ -249,7 +249,7 @@ void coVRUniform::setValue(bool b)
 void coVRUniform::setValue(vsg::vec3 v)
 {
     char vs[300];
-    sprintf(vs, "%f %f %f", v[0], v[1], v[2]);
+    snprintf(vs, sizeof(vs), "%f %f %f", v[0], v[1], v[2]);
     value = vs;
     //uniform->set(v);
 }
@@ -257,7 +257,7 @@ void coVRUniform::setValue(vsg::vec3 v)
 void coVRUniform::setValue(vsg::vec4 v)
 {
     char vs[400];
-    sprintf(vs, "%f %f %f %f", v[0], v[1], v[2], v[3]);
+    snprintf(vs, sizeof(vs), "%f %f %f %f", v[0], v[1], v[2], v[3]);
     value = vs;
     //uniform->set(v);
 }
@@ -758,7 +758,7 @@ void vvShader::loadMaterial()
                             for (int i = 0; i < 6; i++)
                             {
                                 char attrName[100];
-                                sprintf(attrName, "texture%d", i + 1);
+                                snprintf(attrName, sizeof(attrName), "texture%d", i + 1);
                                 XmlAttribute textureName(attrName, node);
                                 u->setTexture(textureName.c_str(), i);
                             }
@@ -1143,7 +1143,7 @@ void vvShader::storeMaterial()
             for (int i = 0; i < 6; i++)
             {
                 char attrName[100];
-                sprintf(attrName, "texture%d", i + 1);
+                snprintf(attrName, sizeof(attrName), "texture%d", i + 1);
                 uniform->setAttribute(t1 = xercesc::XMLString::transcode(attrName), t2 = xercesc::XMLString::transcode(fn[i].c_str()));
 				xercesc::XMLString::release(&t1);
 				xercesc::XMLString::release(&t2);
@@ -2111,7 +2111,7 @@ osg::Uniform *vvShaderList::getDuration()
 osg::Uniform *vvShaderList::getViewportWidth()
 {
     char str[200];
-    sprintf(str, "VIVE.WindowConfig.Window:%d", 0);
+    snprintf(str, sizeof(str), "VIVE.WindowConfig.Window:%d", 0);
 
     viewportWidthUniform->set(coCoviseConfig::getInt("width", str, 1024));
     return viewportWidthUniform.get();
@@ -2120,7 +2120,7 @@ osg::Uniform *vvShaderList::getViewportWidth()
 osg::Uniform *vvShaderList::getViewportHeight()
 {
     char str[200];
-    sprintf(str, "VIVE.WindowConfig.Window:%d", 0);
+    snprintf(str, sizeof(str), "VIVE.WindowConfig.Window:%d", 0);
 
     viewportHeightUniform->set(coCoviseConfig::getInt("height", str, 768));
     return viewportHeightUniform.get();

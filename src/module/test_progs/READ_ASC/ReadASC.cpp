@@ -223,7 +223,7 @@ coDistributedObject *ReadASC::readGeom(const char *name, char *command, istream 
                     && (sscanf(command, "%f,%f,%f", vx, vy, vz) < 3)
                     && (sscanf(command, "%f;%f;%f", vx, vy, vz) < 3))
                 {
-                    sprintf(errBuf, "Illegal read in VERT definition: '%s'", buffer);
+                    snprintf(errBuf, sizeof(errBuf), "Illegal read in VERT definition: '%s'", buffer);
                     Covise::sendError(errBuf);
                     delete lines;
                     delete poly;
@@ -369,7 +369,7 @@ coDistributedObject *ReadASC::readUSG(const char *name, char *command, istream &
                     && (sscanf(command, "%f,%f,%f", vx, vy, vz) < 3)
                     && (sscanf(command, "%f;%f;%f", vx, vy, vz) < 3))
                 {
-                    sprintf(errBuf, "Illegal read in VERT definition: '%s'", buffer);
+                    snprintf(errBuf, sizeof(errBuf), "Illegal read in VERT definition: '%s'", buffer);
                     Covise::sendError(errBuf);
                     delete obj;
                     return NULL;
@@ -549,7 +549,7 @@ coDistributedObject *ReadASC::readV3D(const char *name, char *command, istream &
                     && (sscanf(command, "%f,%f,%f", vx, vy, vz) < 3)
                     && (sscanf(command, "%f;%f;%f", vx, vy, vz) < 3))
                 {
-                    sprintf(errBuf, "Illegal read in DATA definition: '%s'", buffer);
+                    snprintf(errBuf, sizeof(errBuf), "Illegal read in DATA definition: '%s'", buffer);
                     Covise::sendError(errBuf);
                     delete obj;
                     return NULL;
@@ -640,7 +640,7 @@ coDistributedObject *ReadASC::readS3D(const char *name, char *command, istream &
             {
                 if (sscanf(command, "%f", vx) < 1)
                 {
-                    sprintf(errBuf, "Illegal read in DATA definition: '%s'", buffer);
+                    snprintf(errBuf, sizeof(errBuf), "Illegal read in DATA definition: '%s'", buffer);
                     Covise::sendError(errBuf);
                     delete obj;
                     return NULL;
@@ -727,7 +727,7 @@ coDistributedObject *ReadASC::readSet(const char *name, char *command, istream &
             for (i = 0; i < numElem; i++)
             {
                 char namebuf[100000];
-                sprintf(namebuf, "%s_%d", name, i);
+                snprintf(namebuf, sizeof(namebuf), "%s_%d", name, i);
                 objs[i] = readObj(namebuf, str);
                 if (!objs[i] && i > 0)
                 {

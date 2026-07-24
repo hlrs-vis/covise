@@ -534,7 +534,7 @@ void Application::FinalCompute(char **out_names)
             coDoPolygons *temp_out;
 
             temp_out = new coDoPolygons(obj_name, 0, 0, 0);
-            sprintf(bfr, "A%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+            snprintf(bfr, sizeof(bfr), "A%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
             temp_out->addAttribute("FEEDBACK", bfr);
         }
 
@@ -797,7 +797,7 @@ void Application::FinalCompute(char **out_names)
     }
 
     // we support VR here
-    sprintf(bfr, "A%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+    snprintf(bfr, sizeof(bfr), "A%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
     plane_out->addAttribute("FEEDBACK", bfr);
 
     //////
@@ -1073,7 +1073,7 @@ void Application::sort_line(void)
         n++;
     }
 
-    sprintf(bfr, "number of lines: n=%d,  num_sorted_values=%d", n, num_sorted_values);
+    snprintf(bfr, sizeof(bfr), "number of lines: n=%d,  num_sorted_values=%d", n, num_sorted_values);
     Covise::sendInfo(bfr);
 
     // return

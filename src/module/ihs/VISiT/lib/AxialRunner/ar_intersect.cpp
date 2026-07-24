@@ -145,15 +145,15 @@ int CalcIntersection(struct margin *ma, struct curve *c, struct be *be, struct m
    char fname[255];
    char *fn;
 
-   sprintf(fname, "ar_lines_%02d.txt", ncall);
+   snprintf(fname, sizeof(fname), "ar_lines_%02d.txt", ncall);
    fn = DebugFilename(fname);
    if(fn)
    fp_lin = fopen(fn, "w");
-   sprintf(fname, "ar_extension_%02d.txt", ncall);
+   snprintf(fname, sizeof(fname), "ar_extension_%02d.txt", ncall);
    fn = DebugFilename(fname);
    if(fn)
    fp_ext = fopen(fn, "w");
-   sprintf(fname, "ar_intersect_%02d.txt", ncall++);
+   snprintf(fname, sizeof(fname), "ar_intersect_%02d.txt", ncall++);
    fn = DebugFilename(fname);
    if(fn)
    fp_int = fopen(fn, "w");

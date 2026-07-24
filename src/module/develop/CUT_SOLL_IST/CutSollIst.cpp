@@ -68,7 +68,7 @@ int CutSollIst::compute()
         }
         // add feedback attribute
         char feedback[512];
-        sprintf(feedback, "G%s\n%s\n%s\n", Covise::get_module(),
+        snprintf(feedback, sizeof(feedback), "G%s\n%s\n%s\n", Covise::get_module(),
                 Covise::get_instance(),
                 Covise::get_host());
         new_elems[0]->addAttribute("FEEDBACK", feedback);
@@ -83,12 +83,12 @@ int CutSollIst::compute()
         char param[512];
         char *text;
 
-        sprintf(param, "distance %f\nnormal %f %f %f", pdistance - pthickness,
+        snprintf(param, sizeof(param), "distance %f\nnormal %f %f %f", pdistance - pthickness,
                 pnormal[0], pnormal[1], pnormal[2]);
         coDoText *cut1 = new coDoText(p_cut1->getObjName(), strlen(param) + 1, param);
         p_cut1->setCurrentObject(cut1);
 
-        sprintf(param, "distance %f\nnormal %f %f %f", (-1.) * (pdistance + pthickness),
+        snprintf(param, sizeof(param), "distance %f\nnormal %f %f %f", (-1.) * (pdistance + pthickness),
                 (-1.) * pnormal[0], (-1.) * pnormal[1], (-1.) * pnormal[2]);
         coDoText *cut2 = new coDoText(p_cut2->getObjName(), strlen(param) + 1, param);
         p_cut2->setCurrentObject(cut2);

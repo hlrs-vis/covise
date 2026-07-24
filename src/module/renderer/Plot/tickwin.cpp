@@ -168,7 +168,7 @@ void update_ticks_items(int gno)
             {
                 t.tmajor = 1;
             }
-            sprintf(buf, "%.0lf", t.tmajor);
+            snprintf(buf, sizeof(buf), "%.0lf", t.tmajor);
         }
         else if (islogy(gno) && (curaxis % 2 == 1))
         {
@@ -177,11 +177,11 @@ void update_ticks_items(int gno)
             {
                 t.tmajor = 1;
             }
-            sprintf(buf, "%.0lf", t.tmajor);
+            snprintf(buf, sizeof(buf), "%.0lf", t.tmajor);
         }
         else if (t.tmajor > 0)
         {
-            sprintf(buf, "%.5lg", t.tmajor);
+            snprintf(buf, sizeof(buf), "%.5lg", t.tmajor);
         }
         else
         {
@@ -195,7 +195,7 @@ void update_ticks_items(int gno)
             {
                 t.tminor = 0;
             }
-            sprintf(buf, "%.0lf", t.tminor);
+            snprintf(buf, sizeof(buf), "%.0lf", t.tminor);
         }
         else if (islogy(gno) && (curaxis % 2 == 1))
         {
@@ -204,11 +204,11 @@ void update_ticks_items(int gno)
             {
                 t.tminor = 0;
             }
-            sprintf(buf, "%.0lf", t.tminor);
+            snprintf(buf, sizeof(buf), "%.0lf", t.tminor);
         }
         else if (t.tminor > 0)
         {
-            sprintf(buf, "%.5lg", t.tminor);
+            snprintf(buf, sizeof(buf), "%.5lg", t.tminor);
         }
         else
         {
@@ -482,14 +482,14 @@ static void update_axis_items(int gno)
         get_graph_tickmarks(gno, &t, curaxis);
         /* removing alternate ticks
          XmToggleButtonSetState(altmap, t.alt == ON, False);
-         sprintf(buf, "%.5g", t.tmin);
+         snprintf(buf, sizeof(buf), "%.5g", t.tmin);
          XmTextSetString(altmin, buf);
-         sprintf(buf, "%.5g", t.tmax);
+         snprintf(buf, sizeof(buf), "%.5g", t.tmax);
          XmTextSetString(altmax, buf);
       */
-        sprintf(buf, "%.5g", t.offsx);
+        snprintf(buf, sizeof(buf), "%.5g", t.offsx);
         XmTextSetString(offx, buf);
-        sprintf(buf, "%.5g", t.offsy);
+        snprintf(buf, sizeof(buf), "%.5g", t.offsy);
         XmTextSetString(offy, buf);
     }
 }
@@ -802,15 +802,15 @@ static void update_ticklabel_items(int gno)
         SetChoice(tlstarttype, t.tl_starttype == SPEC);
         if (t.tl_starttype == SPEC)
         {
-            sprintf(buf, "%lf", t.tl_start);
+            snprintf(buf, sizeof(buf), "%lf", t.tl_start);
             xv_setstr(tlstart, buf);
-            sprintf(buf, "%lf", t.tl_stop);
+            snprintf(buf, sizeof(buf), "%lf", t.tl_stop);
             xv_setstr(tlstop, buf);
         }
         SetChoice(tlstoptype, t.tl_stoptype == SPEC);
         if (t.tl_stoptype == SPEC)
         {
-            sprintf(buf, "%lf", t.tl_stop);
+            snprintf(buf, sizeof(buf), "%lf", t.tl_stop);
             xv_setstr(tlstop, buf);
         }
         iv = getFormat_index(t.tl_format);
@@ -1438,7 +1438,7 @@ static void accept_special_proc(Widget, XtPointer, XtPointer)
     iv = atoi((char *)xv_getstr(nspec));
     if (iv > MAX_TICK_LABELS)
     {
-        sprintf(buf, "Number of ticks/tick labels exceeds %d", MAX_TICK_LABELS);
+        snprintf(buf, sizeof(buf), "Number of ticks/tick labels exceeds %d", MAX_TICK_LABELS);
         errwin(buf);
         return;
     }
@@ -1482,11 +1482,11 @@ static void load_special(int gno, int a)
     if (special_frame)
     {
         get_graph_tickmarks(gno, &t, a);
-        sprintf(buf, "%d", t.t_spec);
+        snprintf(buf, sizeof(buf), "%d", t.t_spec);
         xv_setstr(nspec, buf);
         for (i = 0; i < t.t_spec; i++)
         {
-            sprintf(buf, "%lf", t.t_specloc[i]);
+            snprintf(buf, sizeof(buf), "%lf", t.t_specloc[i]);
             xv_setstr(specloc[i], buf);
             if (t.t_speclab[i].s != NULL)
             {
@@ -1558,7 +1558,7 @@ static void do_special_proc(Widget, XtPointer, XtPointer)
         {
             rc3 = XmCreateRowColumn(rc, (char *)"rc3", NULL, 0);
             XtVaSetValues(rc3, XmNorientation, XmHORIZONTAL, NULL);
-            sprintf(buf, "%2d", i + 1);
+            snprintf(buf, sizeof(buf), "%2d", i + 1);
             //specnum[i] =
             XtVaCreateManagedWidget(buf, xmLabelWidgetClass, rc3,
                                     NULL);

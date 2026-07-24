@@ -3022,7 +3022,7 @@ int WriteGGrid(struct ggrid *gg, const char *fn)
    FILE *fp;
 
    res = 0;
-   sprintf(buf, "%s.geo", fn);
+   snprintf(buf, sizeof(buf), "%s.geo", fn);
    if ((fp = fopen(buf, "w")) != NULL)
    {
       fputs("## Geomtriedaten (automatisch erzeugt)\n\n\n\n\n\n\n\n\n\n", fp);

@@ -155,24 +155,24 @@ File16 *StarMesh::openProstar(const char *compdir, const char *casename, const c
     if (meshdir)
     {
         // try case.mdl
-        sprintf(filename, "%s/%s.mdl", meshdir, casename);
+        snprintf(filename, sizeof(filename), "%s/%s.mdl", meshdir, casename);
         fd = open(filename, O_RDONLY);
         if (fd < 0)
         {
             // try case16
-            sprintf(filename, "%s/%s16", meshdir, casename);
+            snprintf(filename, sizeof(filename), "%s/%s16", meshdir, casename);
             fd = open(filename, O_RDONLY);
         }
     }
     else
     {
         // try case.mdl
-        sprintf(filename, "%s/%s.mdl", compdir, casename);
+        snprintf(filename, sizeof(filename), "%s/%s.mdl", compdir, casename);
         fd = open(filename, O_RDONLY);
         if (fd < 0)
         {
             // try case16
-            sprintf(filename, "%s/%s16", compdir, casename);
+            snprintf(filename, sizeof(filename), "%s/%s16", compdir, casename);
             fd = open(filename, O_RDONLY);
         }
     }
@@ -246,7 +246,7 @@ coDistributedObject **StarMesh::getBCPatches(const char *objName)
     for (i = 0; i < d_numReg; i++)
     {
         Bpatch *boun = &d_bound[i];
-        sprintf(buffer, "%s_%d", objName, boun->regNo);
+        snprintf(buffer, sizeof(buffer), "%s_%d", objName, boun->regNo);
 
         // make the polygon object
         coDoPolygons *poly

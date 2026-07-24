@@ -49,7 +49,7 @@ VideoWindow::VideoWindow(int num)
     fprintf(stderr, "Start writing buffer!\n");
     displayedBuf = header->writeBuf;
     char buf[1000];
-    sprintf(buf, "Video%c", 'A' + portNumber);
+    snprintf(buf, sizeof(buf), "Video%c", 'A' + portNumber);
 
     fprintf(stderr, "Create video texture!\n");
     fprintf(stderr, "Buffer1 is: %s\n", buf1);
@@ -199,7 +199,7 @@ bool Vic::init()
     for (int i = 0; i < NUMPORTS; i++)
     {
         char buf[1000];
-        sprintf(buf, "Video%c", 'A' + i);
+        snprintf(buf, sizeof(buf), "Video%c", 'A' + i);
         videoEntry[i] = new coCheckboxMenuItem(buf, false);
         vicMenu->add(videoEntry[i]);
         videoEntry[i]->setMenuListener(this);

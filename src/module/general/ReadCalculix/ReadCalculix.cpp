@@ -38,7 +38,7 @@ ReadCalculix::ReadCalculix(int argc, char *argv[])
 
 	// input file
 	char filePath[200];
-	sprintf(filePath, "%s", getenv("HOME"));
+	snprintf(filePath, sizeof(filePath), "%s", getenv("HOME"));
 	p_inpFile = addFileBrowserParam("inp_file", "Calculix input file");
 	p_inpFile->setValue(filePath, "*.inp");
 

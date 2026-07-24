@@ -58,7 +58,7 @@ int CreateDR_MeridianContours(struct radial *rr)
    char fn[119];
    FILE *fp;
 
-   sprintf(fn,"dr_debugmerids.txt");
+   snprintf(fn, sizeof(fn),"dr_debugmerids.txt");
    if( (fp = fopen(fn,"w+")) == NULL)
    {
       fprintf(stderr,"file '%s'!\n",fn);
@@ -640,7 +640,7 @@ int CreateDR_MeridianContours(struct radial *rr)
 #ifdef DEBUG_MERIDIANS
    for (j = 0; j < rr->be_num; j++)
    {
-      sprintf(fn, "dr_meridian_%02d.txt", j);
+      snprintf(fn, sizeof(fn), "dr_meridian_%02d.txt", j);
       if ((fp = fopen(fn, "w")) == NULL)
       {
          fprintf(stderr, "error writing meridian file '%s' *yakk*\n", fn);
@@ -650,7 +650,7 @@ int CreateDR_MeridianContours(struct radial *rr)
       fclose(fp);
    }
 #ifdef GAP
-   sprintf(fn, "dr_meridian_gap.txt");
+   snprintf(fn, sizeof(fn), "dr_meridian_gap.txt");
    if ((fp = fopen(fn, "w")) == NULL)
    {
       fprintf(stderr, "error writing meridian file '%s' *yakk*\n", fn);
@@ -660,7 +660,7 @@ int CreateDR_MeridianContours(struct radial *rr)
    fclose(fp);
 #endif
    // sphere points
-   sprintf(fn, "dr_sphere.txt");
+   snprintf(fn, sizeof(fn), "dr_sphere.txt");
    if ((fp = fopen(fn, "w")) == NULL)
    {
       fprintf(stderr, "error writing meridian file '%s' *yakk*\n", fn);

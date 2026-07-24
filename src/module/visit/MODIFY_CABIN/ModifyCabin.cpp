@@ -52,7 +52,7 @@ void pj_covise_get_prescr_pnts(float **points_x, float **points_y,
 
 void ModifyCabin::selfExec()
 {
-    sprintf(buf, "T%s\n%s\n%s\n", Covise::get_module(),
+    snprintf(buf, sizeof(buf), "T%s\n%s\n%s\n", Covise::get_module(),
             Covise::get_instance(),
             Covise::get_host());
     Covise::set_feedback_info(buf);
@@ -1151,13 +1151,13 @@ int ModifyCabin::compute()
         for (int i = 0; i < numMoveNames; i++)
         {
             char str[1024];
-            sprintf(str, "%s %f %f %f %f %f %f %d", moveNames[i],
+            snprintf(str, sizeof(str), "%s %f %f %f %f %f %f %d", moveNames[i],
                     moveList[i].trans_vec[0], moveList[i].trans_vec[1], moveList[i].trans_vec[2],
                     moveList[i].dmin, moveList[i].dmax, moveList[i].value, moveList[i].numFamilies);
             for (int j = 0; j < moveList[i].numFamilies; j++)
             {
                 char tmp[300];
-                sprintf(tmp, " %s", moveList[i].familyNames[j]);
+                snprintf(tmp, sizeof(tmp), " %s", moveList[i].familyNames[j]);
                 strcat(str, tmp);
             }
             //fprintf(stderr,"feedback Str=[%s]\n", str);

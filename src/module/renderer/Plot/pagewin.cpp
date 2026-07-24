@@ -50,9 +50,9 @@ void update_page(void)
     if (page_frame)
     {
         SetChoice(page_layout_item, get_pagelayout(0));
-        sprintf(buf, "%d", canvasw);
+        snprintf(buf, sizeof(buf), "%d", canvasw);
         xv_setstr(page_width_item, buf);
-        sprintf(buf, "%d", canvash);
+        snprintf(buf, sizeof(buf), "%d", canvash);
         xv_setstr(page_height_item, buf);
     }
 }

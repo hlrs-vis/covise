@@ -19,9 +19,9 @@ GRMSGEXPORT coGRObjAttachedClipPlaneMsg::coGRObjAttachedClipPlaneMsg(Mtype type,
     flip_ = flip;
 
     char token[100];
-    sprintf(token, "%d", index_);
+    snprintf(token, sizeof(token), "%d", index_);
     addToken(token);
-    sprintf(token, "%f", offset_);
+    snprintf(token, sizeof(token), "%f", offset_);
     addToken(token);
     addToken(flip_ ? "1" : "0");
 

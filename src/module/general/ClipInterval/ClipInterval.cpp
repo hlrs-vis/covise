@@ -36,11 +36,11 @@ Clip_Interval::Clip_Interval(int argc, char *argv[])
     Data_Out_Port = addOutputPort("DataOut0", "Float", "Scalar output");
     for (i = 0; i < NUM_ADDITIONAL_PORTS; ++i)
     {
-        sprintf(buf, "DataOut%d", i + 1);
-        sprintf(buf1, "Field output %d", i);
+        snprintf(buf, sizeof(buf), "DataOut%d", i + 1);
+        snprintf(buf1, sizeof(buf1), "Field output %d", i);
         Data_Map_Out_Port[i] = addOutputPort(buf, "Float|Vec3|Tensor", buf1);
-        sprintf(buf, "DataIn%d", i + 1);
-        sprintf(buf1, "Field input %d", i);
+        snprintf(buf, sizeof(buf), "DataIn%d", i + 1);
+        snprintf(buf1, sizeof(buf1), "Field input %d", i);
         Data_Map_In_Port[i] = addInputPort(buf, "Float|Vec3|Tensor", buf1);
         Data_Map_In_Port[i]->setRequired(0);
         Data_Map_Out_Port[i]->setDependencyPort(Data_Map_In_Port[i]);

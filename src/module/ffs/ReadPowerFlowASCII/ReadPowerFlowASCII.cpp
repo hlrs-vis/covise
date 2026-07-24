@@ -180,13 +180,13 @@ void Application::paramChange(void *)
             return;
         }
         fclose(fp);
-        sprintf(msg, "TITLE: \"%s\"", Title);
+        snprintf(msg, sizeof(msg), "TITLE: \"%s\"", Title);
         Covise::sendInfo(msg);
-        sprintf(msg, "%i VARIABLES", nVars);
+        snprintf(msg, sizeof(msg), "%i VARIABLES", nVars);
         Covise::sendInfo(msg);
         /*
       for(int i = 0; i < nVars;i++) {
-         sprintf(msg, "[%d] %s",i,VarNames[i]);
+         snprintf(msg, sizeof(msg), "[%d] %s",i,VarNames[i]);
          Covise::sendInfo (msg);
       }
       */
@@ -232,7 +232,7 @@ void Application::execute(void *)
             if (!getTSFilename(current_ts))
                 return;
 
-            sprintf(msg, "Reading %s", filename);
+            snprintf(msg, sizeof(msg), "Reading %s", filename);
             Covise::sendInfo(msg);
 
             // open the file
@@ -259,7 +259,7 @@ void Application::execute(void *)
         if (!openFile())
             return;
 
-        sprintf(msg, "Reading %s", filename);
+        snprintf(msg, sizeof(msg), "Reading %s", filename);
         Covise::sendInfo(msg);
 
         // get the data, close the file
@@ -437,7 +437,7 @@ void Application::fileformaterror(char *msg)
 {
     char hstr[1000];
 
-    sprintf(hstr, "error in '%s' in line %i: %s.", filename, line, msg);
+    snprintf(hstr, sizeof(hstr), "error in '%s' in line %i: %s.", filename, line, msg);
     Covise::sendError(hstr);
 }
 
@@ -577,7 +577,7 @@ int Application::getOutputObjectNames()
 
     for (i = 0; i < 3; i++)
     {
-        sprintf(name, "dataout%i", i + 1);
+        snprintf(name, sizeof(name), "dataout%i", i + 1);
         data_name[i] = Covise::get_object_name(name);
         if (data_name[i] == NULL)
         {
@@ -686,7 +686,7 @@ int Application::readFile()
         else
         {
             // Fehler, falls ALLE Records von Routinen bedient werden
-            // sprintf (msg, "unknown record type >>%s<<", hstr);
+            // snprintf(msg, sizeof(msg), "unknown record type >>%s<<", hstr);
             // fileformaterror (msg);
             // return (FALSE);
         }
@@ -755,7 +755,7 @@ int Application::readZoneHeader(DynZoneDescr **curDescrP)
                 curDescr->Format = FEBLOCK;
             else
             {
-                sprintf(msg, "unknown zone format >>%s<<", hstr);
+                snprintf(msg, sizeof(msg), "unknown zone format >>%s<<", hstr);
                 fileformaterror(msg);
                 return (FALSE);
             }
@@ -796,7 +796,7 @@ int Application::readZoneHeader(DynZoneDescr **curDescrP)
             while (hstr[i] == '0' && i < strlen(hstr))
                 i++;
             sscanf(&hstr[i], "%i", &curDescr->n);
-            sprintf(msg, "%d Nodes", curDescr->n);
+            snprintf(msg, sizeof(msg), "%d Nodes", curDescr->n);
             Covise::sendInfo(msg);
         }
         else if (strcmp(upStr(hstr), "E") == 0) // numelement
@@ -806,7 +806,7 @@ int Application::readZoneHeader(DynZoneDescr **curDescrP)
             while (hstr[i] == '0' && i < strlen(hstr))
                 i++;
             sscanf(&hstr[i], "%i", &curDescr->e);
-            sprintf(msg, "%d Elements", curDescr->e);
+            snprintf(msg, sizeof(msg), "%d Elements", curDescr->e);
             Covise::sendInfo(msg);
         }
         else if (strcmp(upStr(hstr), "ET") == 0) // elementtype -> not yet
@@ -819,7 +819,7 @@ int Application::readZoneHeader(DynZoneDescr **curDescrP)
                 curDescr->et = QUADRILATERAL;
             else
             {
-                sprintf(msg, "unknown zone format >>%s<<", hstr);
+                snprintf(msg, sizeof(msg), "unknown zone format >>%s<<", hstr);
                 fileformaterror(msg);
                 return (FALSE);
             }
@@ -1032,7 +1032,7 @@ void Application::createOutputObjects()
     // 	 sprintf(tmp_grid_name, "%s_ts", grid_name);
     //       	 if(current_ts == from_ts) {
     // 	     GRID_TS_Set = new coDoSet(grid_name, SET_CREATE);
-    // 	     sprintf(attr, "1 %d", to_ts - from_ts + 1);
+    // 	     snprintf(attr, sizeof(attr), "1 %d", to_ts - from_ts + 1);
     // 	     GRID_TS_Set->addAttribute( "TIMESTEP", attr );
     // 	 }
     //    } else {
@@ -1066,7 +1066,7 @@ void Application::createOutputObjects()
                 curDescr->j = 1;
             }
 
-            sprintf(hstr, "%s_grid%i", grid_name, z);
+            snprintf(hstr, sizeof(hstr), "%s_grid%i", grid_name, z);
             if (!time_dependent || current_ts == from_ts)
             {
                 GRID = new coDoStructuredGrid(hstr, curDescr->k,
@@ -1080,7 +1080,7 @@ void Application::createOutputObjects()
                 {
                     for (i = from_ts; i < to_ts; i++)
                         GRID_Set->addElement(GRID);
-                    sprintf(attr, "1 %d", to_ts - from_ts + 1);
+                    snprintf(attr, sizeof(attr), "1 %d", to_ts - from_ts + 1);
                     GRID_Set->addAttribute("TIMESTEP", attr);
                 }
                 delete GRID;
@@ -1089,7 +1089,7 @@ void Application::createOutputObjects()
         else
         {
 
-            sprintf(hstr, "%s_grid%i", grid_name, z);
+            snprintf(hstr, sizeof(hstr), "%s_grid%i", grid_name, z);
             int *tl = new int[curDescr->e];
             int *el = new int[curDescr->e];
             switch (curDescr->et)
@@ -1132,7 +1132,7 @@ void Application::createOutputObjects()
                 {
                     for (i = from_ts; i < to_ts; i++)
                         GRID_Set->addElement(uGRID);
-                    sprintf(attr, "1 %d", to_ts - from_ts + 1);
+                    snprintf(attr, sizeof(attr), "1 %d", to_ts - from_ts + 1);
                     GRID_Set->addAttribute("TIMESTEP", attr);
                 }
                 delete uGRID;
@@ -1151,7 +1151,7 @@ void Application::createOutputObjects()
             if (current_ts == from_ts)
             {
                 DATA_TS_Set[0] = new coDoSet(data_name[0], SET_CREATE);
-                sprintf(attr, "1 %d", to_ts - from_ts + 1);
+                snprintf(attr, sizeof(attr), "1 %d", to_ts - from_ts + 1);
                 DATA_TS_Set[0]->addAttribute("TIMESTEP", attr);
             }
         }
@@ -1170,7 +1170,7 @@ void Application::createOutputObjects()
             curZone[4] = curZone[4]->next;
             curZone[5] = curZone[5]->next;
             curDescr = curDescr->next;
-            sprintf(hstr, "%s_zone%i", tmp_data_name, z);
+            snprintf(hstr, sizeof(hstr), "%s_zone%i", tmp_data_name, z);
             if (curDescr->k * curDescr->j * curDescr->i > 0)
             {
                 VDATA = new coDoVec3(hstr, curDescr->k,
@@ -1218,7 +1218,7 @@ void Application::createOutputObjects()
                 if (current_ts == from_ts)
                 {
                     DATA_TS_Set[1 + v] = new coDoSet(data_name[1 + v], SET_CREATE);
-                    sprintf(attr, "1 %d", to_ts - from_ts + 1);
+                    snprintf(attr, sizeof(attr), "1 %d", to_ts - from_ts + 1);
                     DATA_TS_Set[1 + v]->addAttribute("TIMESTEP", attr);
                 }
             }
@@ -1235,7 +1235,7 @@ void Application::createOutputObjects()
             {
                 curZone[v + 6] = curZone[v + 6]->next;
                 curDescr = curDescr->next;
-                sprintf(hstr, "%s_zone%i", tmp_data_name, z);
+                snprintf(hstr, sizeof(hstr), "%s_zone%i", tmp_data_name, z);
                 if (curDescr->k * curDescr->j * curDescr->i > 0)
                 {
                     DATA = new coDoFloat(hstr, curDescr->k,

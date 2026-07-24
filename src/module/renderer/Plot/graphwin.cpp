@@ -588,7 +588,7 @@ static void create_gshow_frame(Widget, XtPointer, XtPointer)
         graph_show_choice_item = (Widget *)XtMalloc(maxgraph * sizeof(Widget));
         for (i = 0; i < maxgraph; i++)
         {
-            sprintf(buf, "%d", i);
+            snprintf(buf, sizeof(buf), "%d", i);
             graph_show_choice_item[i] = XtVaCreateManagedWidget(buf,
                                                                 xmToggleButtonWidgetClass, rc,
                                                                 NULL);
@@ -682,9 +682,9 @@ static void update_image()
 {
     char buf[256];
     XmToggleButtonSetState(image_display_item, drawimage_flag, False);
-    sprintf(buf, "%d", imagex);
+    snprintf(buf, sizeof(buf), "%d", imagex);
     xv_setstr(image_x_item, buf);
-    sprintf(buf, "%d", imagey);
+    snprintf(buf, sizeof(buf), "%d", imagey);
     xv_setstr(image_y_item, buf);
 }
 

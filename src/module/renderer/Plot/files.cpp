@@ -1940,7 +1940,7 @@ int readrawspice(int gno, char *, FILE *fp)
             }
         }
     }
-    sprintf(tmpstring1, "%d sets of %d data points read", numvariables,
+    snprintf(tmpstring1, sizeof(tmpstring1), "%d sets of %d data points read", numvariables,
             numpoints);
     if (inwin)
     {
@@ -2030,7 +2030,7 @@ int readnetcdf(int gno,
         if ((x_id = ncvarid(cdfid, xvar)) == -1)
         {
             char ebuf[256];
-            sprintf(ebuf, "readnetcdf(): No such variable %s for X", xvar);
+            snprintf(ebuf, sizeof(ebuf), "readnetcdf(): No such variable %s for X", xvar);
             errwin(ebuf);
             return 0;
         }
@@ -2045,7 +2045,7 @@ int readnetcdf(int gno,
     if ((y_id = ncvarid(cdfid, yvar)) == -1)
     {
         char ebuf[256];
-        sprintf(ebuf, "readnetcdf(): No such variable %s for Y", yvar);
+        snprintf(ebuf, sizeof(ebuf), "readnetcdf(): No such variable %s for Y", yvar);
         errwin(ebuf);
         return 0;
     }

@@ -15,7 +15,7 @@ const char *vpbGetVersion()
     static int vpb_version_init = 1;
     if (vpb_version_init)
     {
-        sprintf(vpb_version, "%d.%d.%d", VPB_VERSION_MAJOR, VPB_VERSION_MINOR, VPB_VERSION_PATCH);
+        snprintf(vpb_version, sizeof(vpb_version), "%d.%d.%d", VPB_VERSION_MAJOR, VPB_VERSION_MINOR, VPB_VERSION_PATCH);
         vpb_version_init = 0;
     }
 

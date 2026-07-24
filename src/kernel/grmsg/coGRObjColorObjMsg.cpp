@@ -20,13 +20,13 @@ GRMSGEXPORT coGRObjColorObjMsg::coGRObjColorObjMsg(Mtype type, const char *obj_n
 
     char str[1024];
 
-    sprintf(str, "%d", r);
+    snprintf(str, sizeof(str), "%d", r);
     addToken(str);
 
-    sprintf(str, "%d", g);
+    snprintf(str, sizeof(str), "%d", g);
     addToken(str);
 
-    sprintf(str, "%d", b);
+    snprintf(str, sizeof(str), "%d", b);
     addToken(str);
 
     is_valid_ = 1;

@@ -112,7 +112,7 @@ int AssembleUsg::compute(const char *)
 
         for (i = 0; i < num_sets; i++)
         {
-            sprintf(buffer, "%s_%d", p_gridOut->getObjName(), i);
+            snprintf(buffer, sizeof(buffer), "%s_%d", p_gridOut->getObjName(), i);
             // --------------------------------------------------------
             gelem_out[i] = unpack_grid(gelem_in[i], buffer);
             if (gelem_out[i] == NULL)
@@ -156,7 +156,7 @@ int AssembleUsg::compute(const char *)
 
             for (i = 0; i < dnum_sets; i++)
             {
-                sprintf(buffer, "%s_%d", p_dataOut->getObjName(), i);
+                snprintf(buffer, sizeof(buffer), "%s_%d", p_dataOut->getObjName(), i);
                 // --------------------------------------------------------
                 delem_out[i] = unpack_data(delem_in[i], buffer);
                 if (delem_out[i] == NULL)

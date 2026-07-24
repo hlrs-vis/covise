@@ -195,7 +195,7 @@ int TascFlow::compute()
     num_corners = num_polygons * 4;
     num_points = num_corners;
 
-    //sprintf(buf, "%s", p_outPort9->getObjName());
+    //snprintf(buf, sizeof(buf), "%s", p_outPort9->getObjName());
     //   coDoPolygons *pol_out=new coDoPolygons(p_outPort9->getObjName(),num_points,num_corners,num_polygons);
 
     //pol_out->getAddresses(&x_coord,&y_coord,&z_coord,&corner_list,&polygon_list);
@@ -270,7 +270,7 @@ int TascFlow::compute()
 
         dimg = dimx * dimy * dimz;
 
-        // sprintf(buf, "%s_%d", p_outPort1->getObjName(), i );
+        // snprintf(buf, sizeof(buf), "%s_%d", p_outPort1->getObjName(), i );
         //grid_out = new coDoStructuredGrid( buf , dimx, dimy, dimz);
         //grid_out->getAddresses(&x,&y,&z);
         float *x = new float[dimg];
@@ -370,7 +370,7 @@ int TascFlow::compute()
         {
             if (j == 0)
             {
-                sprintf(buf, "%s.covise", ScalChoiceVal[data1 - 1]);
+                snprintf(buf, sizeof(buf), "%s.covise", ScalChoiceVal[data1 - 1]);
                 fd = covOpenOutFile(buf);
                 if (!fd)
                 {
@@ -434,7 +434,7 @@ int TascFlow::compute()
                 {
                     char *an[] = { "TIMESTEP" };
                     char nb[3];
-                    sprintf(nb, "%d", timesteps);
+                    snprintf(nb, sizeof(nb), "%d", timesteps);
                     char *at[] = { nb };
                     covWriteSetEnd(fd, an, at, 1);
                 }
@@ -446,7 +446,7 @@ int TascFlow::compute()
         {
             if (j == 0)
             {
-                sprintf(buf, "%s.covise", VectChoiceVal[vector1 - 1]);
+                snprintf(buf, sizeof(buf), "%s.covise", VectChoiceVal[vector1 - 1]);
                 fd2 = covOpenOutFile(buf);
                 if (!fd2)
                 {
@@ -481,7 +481,7 @@ int TascFlow::compute()
                 }
                 dimg = dimx * dimy * dimz;
                 int index;
-                //sprintf(buf, "%s_0_%d", p_outPort4->getObjName(),i);
+                //snprintf(buf, sizeof(buf), "%s_0_%d", p_outPort4->getObjName(),i);
                 //vector_out  = new DO_Structured_V3D_Data(buf, dimx, dimy, dimz);
                 //vector_out->getAddresses(&x,&y,&z);
 
@@ -542,7 +542,7 @@ int TascFlow::compute()
                 {
                     char *an[] = { "TIMESTEP" };
                     char nb[3];
-                    sprintf(nb, "%d", timesteps);
+                    snprintf(nb, sizeof(nb), "%d", timesteps);
                     char *at[] = { nb };
                     covWriteSetEnd(fd2, an, at, 1);
                 }

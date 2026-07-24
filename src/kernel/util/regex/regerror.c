@@ -89,7 +89,7 @@ size_t
             if (r->code != 0)
                 (void)strcpy(convbuf, r->name);
             else
-                sprintf(convbuf, "REG_0x%x", target);
+                snprintf(convbuf, sizeof(convbuf), "REG_0x%x", target);
             assert(strlen(convbuf) < sizeof(convbuf));
             s = convbuf;
         }

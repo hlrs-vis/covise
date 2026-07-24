@@ -75,7 +75,7 @@ bool HMDCalibration::init()
     noOfCyclesLabel->setPos(10, 5);
     noOfCyclesInt = new coTUILabel("  0", myTab->getID());
     noOfCyclesInt->setPos(10, 6);
-    sprintf(buf, "      %d", cycle);
+    snprintf(buf, sizeof(buf), "      %d", cycle);
     noOfCyclesInt->setLabel(buf);
 
     targetLabel = new coTUILabel("Target: ", myTab->getID());
@@ -197,57 +197,57 @@ void HMDCalibration::updateTUI()
 {
     char buf[32];
 
-    sprintf(buf, "      %d", cycle);
+    snprintf(buf, sizeof(buf), "      %d", cycle);
     noOfCyclesInt->setLabel(buf);
 
-    sprintf(buf, "  %f", targetMat.getTrans().x());
+    snprintf(buf, sizeof(buf), "  %f", targetMat.getTrans().x());
     transValue[0]->setLabel(buf);
-    sprintf(buf, "  %f", targetMat.getTrans().y());
+    snprintf(buf, sizeof(buf), "  %f", targetMat.getTrans().y());
     transValue[1]->setLabel(buf);
-    sprintf(buf, "  %f", targetMat.getTrans().z());
+    snprintf(buf, sizeof(buf), "  %f", targetMat.getTrans().z());
     transValue[2]->setLabel(buf);
-    sprintf(buf, "  %f", cameraMat.getTrans().x());
+    snprintf(buf, sizeof(buf), "  %f", cameraMat.getTrans().x());
     transValue[3]->setLabel(buf);
-    sprintf(buf, "  %f", cameraMat.getTrans().y());
+    snprintf(buf, sizeof(buf), "  %f", cameraMat.getTrans().y());
     transValue[4]->setLabel(buf);
-    sprintf(buf, "  %f", cameraMat.getTrans().z());
+    snprintf(buf, sizeof(buf), "  %f", cameraMat.getTrans().z());
     transValue[5]->setLabel(buf);
-    sprintf(buf, "  %f", patternMat.getTrans().x());
+    snprintf(buf, sizeof(buf), "  %f", patternMat.getTrans().x());
     transValue[6]->setLabel(buf);
-    sprintf(buf, "  %f", patternMat.getTrans().y());
+    snprintf(buf, sizeof(buf), "  %f", patternMat.getTrans().y());
     transValue[7]->setLabel(buf);
-    sprintf(buf, "  %f", patternMat.getTrans().z());
+    snprintf(buf, sizeof(buf), "  %f", patternMat.getTrans().z());
     transValue[8]->setLabel(buf);
-    sprintf(buf, "  %f", cameraSumm.getTrans().x());
+    snprintf(buf, sizeof(buf), "  %f", cameraSumm.getTrans().x());
     transValue[9]->setLabel(buf);
-    sprintf(buf, "  %f", cameraSumm.getTrans().y());
+    snprintf(buf, sizeof(buf), "  %f", cameraSumm.getTrans().y());
     transValue[10]->setLabel(buf);
-    sprintf(buf, "  %f", cameraSumm.getTrans().z());
+    snprintf(buf, sizeof(buf), "  %f", cameraSumm.getTrans().z());
     transValue[11]->setLabel(buf);
 
-    sprintf(buf, "  %f", targetMat.getRotate().x());
+    snprintf(buf, sizeof(buf), "  %f", targetMat.getRotate().x());
     rotValue[0]->setLabel(buf);
-    sprintf(buf, "  %f", targetMat.getRotate().y());
+    snprintf(buf, sizeof(buf), "  %f", targetMat.getRotate().y());
     rotValue[1]->setLabel(buf);
-    sprintf(buf, "  %f", targetMat.getRotate().z());
+    snprintf(buf, sizeof(buf), "  %f", targetMat.getRotate().z());
     rotValue[2]->setLabel(buf);
-    sprintf(buf, "  %f", cameraMat.getRotate().x());
+    snprintf(buf, sizeof(buf), "  %f", cameraMat.getRotate().x());
     rotValue[3]->setLabel(buf);
-    sprintf(buf, "  %f", cameraMat.getRotate().y());
+    snprintf(buf, sizeof(buf), "  %f", cameraMat.getRotate().y());
     rotValue[4]->setLabel(buf);
-    sprintf(buf, "  %f", cameraMat.getRotate().z());
+    snprintf(buf, sizeof(buf), "  %f", cameraMat.getRotate().z());
     rotValue[5]->setLabel(buf);
-    sprintf(buf, "  %f", patternMat.getRotate().x());
+    snprintf(buf, sizeof(buf), "  %f", patternMat.getRotate().x());
     rotValue[6]->setLabel(buf);
-    sprintf(buf, "  %f", patternMat.getRotate().y());
+    snprintf(buf, sizeof(buf), "  %f", patternMat.getRotate().y());
     rotValue[7]->setLabel(buf);
-    sprintf(buf, "  %f", patternMat.getRotate().z());
+    snprintf(buf, sizeof(buf), "  %f", patternMat.getRotate().z());
     rotValue[8]->setLabel(buf);
-    sprintf(buf, "  %f", cameraSumm.getRotate().x());
+    snprintf(buf, sizeof(buf), "  %f", cameraSumm.getRotate().x());
     rotValue[9]->setLabel(buf);
-    sprintf(buf, "  %f", cameraSumm.getRotate().y());
+    snprintf(buf, sizeof(buf), "  %f", cameraSumm.getRotate().y());
     rotValue[10]->setLabel(buf);
-    sprintf(buf, "  %f", cameraSumm.getRotate().z());
+    snprintf(buf, sizeof(buf), "  %f", cameraSumm.getRotate().z());
     rotValue[11]->setLabel(buf);
 }
 

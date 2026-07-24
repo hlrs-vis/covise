@@ -324,7 +324,7 @@ void coCallFeedback::setVectorParam(const char *name, int numElem, float *field)
     {
         if (i > 0)
             strcat(buf, " ");
-        sprintf(elemBuf, "%f", field[i]);
+        snprintf(elemBuf, sizeof(elemBuf), "%f", field[i]);
         strcat(buf, elemBuf);
     }
     sendFeedback(d_feedbackInfo, "PARAM", buf);
@@ -353,7 +353,7 @@ void coCallFeedback::setVectorParam(const char *name, int numElem, int *field)
     {
         if (i > 0)
             strcat(buf, " ");
-        sprintf(elemBuf, "%d", field[i]);
+        snprintf(elemBuf, sizeof(elemBuf), "%d", field[i]);
         strcat(buf, elemBuf);
     }
 

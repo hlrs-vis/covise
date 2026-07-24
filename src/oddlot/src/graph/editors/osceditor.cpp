@@ -610,7 +610,7 @@ OpenScenarioEditor::createWaypoints(OpenScenario::oscTrajectory *trajectory, con
                         char buf[100];
 
                         QPointF dist = controlPoints.at(index) - controlPoints.at(i);
-                        sprintf(buf, "%lf %lf", dist.x(), dist.y());
+                        snprintf(buf, sizeof(buf), "%lf %lf", dist.x(), dist.y());
                         controlPoint->status.setValue(buf);
                     }
 
@@ -621,7 +621,7 @@ OpenScenarioEditor::createWaypoints(OpenScenario::oscTrajectory *trajectory, con
                         char buf[100];
 
                         QPointF dist = controlPoints.at(index) - controlPoints.at(i);
-                        sprintf(buf, "%lf %lf", dist.x(), dist.y());
+                        snprintf(buf, sizeof(buf), "%lf %lf", dist.x(), dist.y());
                         controlPoint->status.setValue(buf);
                     }
                 }

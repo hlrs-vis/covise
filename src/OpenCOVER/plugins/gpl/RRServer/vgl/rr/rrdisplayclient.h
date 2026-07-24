@@ -176,7 +176,7 @@ public:
     {
 #ifdef __linux__
         char name[100];
-        sprintf(name, "rrcompressor %d", _myrank);
+        snprintf(name, sizeof(name), "rrcompressor %d", _myrank);
         prctl(PR_SET_NAME, name, 0, 0, 0);
 #endif
         while (!_deadyet)

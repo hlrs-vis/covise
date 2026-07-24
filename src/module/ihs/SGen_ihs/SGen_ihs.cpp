@@ -496,16 +496,16 @@ void Application::compute(void *)
       float xwmax=(float)temp;
       float ywmax=(float)temp;
 
-      sprintf(world, "WORLD %f,%f,%f,%f\n", xwmin, ywmin, xwmax, ywmax);
+      snprintf(world, sizeof(world), "WORLD %f,%f,%f,%f\n", xwmin, ywmin, xwmax, ywmax);
       strcpy(plbuf, world);
 
-      sprintf(ticks,"XAXIS TICK MAJOR %f\n", xwmax /2);
+      snprintf(ticks, sizeof(ticks),"XAXIS TICK MAJOR %f\n", xwmax /2);
       strcat(plbuf, ticks);
-      sprintf(ticks,"XAXIS TICK MINOR %f\n", xwmax/4);
+      snprintf(ticks, sizeof(ticks),"XAXIS TICK MINOR %f\n", xwmax/4);
       strcat(plbuf, ticks);
-      sprintf(ticks,"YAXIS TICK MAJOR %f\n", ywmax/2);
+      snprintf(ticks, sizeof(ticks),"YAXIS TICK MAJOR %f\n", ywmax/2);
       strcat(plbuf, ticks);
-      sprintf(ticks,"YAXIS TICK MINOR %f\n", ywmax/4);
+      snprintf(ticks, sizeof(ticks),"YAXIS TICK MINOR %f\n", ywmax/4);
       strcat(plbuf, ticks);
 
       // --- Legende ---
@@ -529,7 +529,7 @@ void Application::compute(void *)
 
          for(i=0;i<num_slices;i++)
          {
-            sprintf(plbuf,"%s_%d",PlotData,i);
+            snprintf(plbuf, sizeof(plbuf),"%s_%d",PlotData,i);
 
             coDoVec2 *plot_elem = new
                coDoVec2(plbuf,2*num_pts);
@@ -578,16 +578,16 @@ void Application::compute(void *)
       float xwmax=(float)temp;
       float ywmax=(float)temp;*/
 
-      sprintf(world, "WORLD %f,%f,%f,%f\n", xwmin, ywmin, xwmax, ywmax);
+      snprintf(world, sizeof(world), "WORLD %f,%f,%f,%f\n", xwmin, ywmin, xwmax, ywmax);
       strcpy(plbuf, world);
 
-      sprintf(ticks,"XAXIS TICK MAJOR %f\n", xwmax /2);
+      snprintf(ticks, sizeof(ticks),"XAXIS TICK MAJOR %f\n", xwmax /2);
       strcat(plbuf, ticks);
-      sprintf(ticks,"XAXIS TICK MINOR %f\n", xwmax/4);
+      snprintf(ticks, sizeof(ticks),"XAXIS TICK MINOR %f\n", xwmax/4);
       strcat(plbuf, ticks);
-      sprintf(ticks,"YAXIS TICK MAJOR %f\n", ywmax/2);
+      snprintf(ticks, sizeof(ticks),"YAXIS TICK MAJOR %f\n", ywmax/2);
       strcat(plbuf, ticks);
-      sprintf(ticks,"YAXIS TICK MINOR %f\n", ywmax/4);
+      snprintf(ticks, sizeof(ticks),"YAXIS TICK MINOR %f\n", ywmax/4);
       strcat(plbuf, ticks);
 
       // --- Legende ---
@@ -611,7 +611,7 @@ void Application::compute(void *)
 
          for(i=0;i<2;i++)
          {
-            sprintf(plbuf,"%s %d",PlotData,i);
+            snprintf(plbuf, sizeof(plbuf),"%s %d",PlotData,i);
 
             coDoVec2 *plot_elem = new
                coDoVec2(plbuf,2*num_pts);
@@ -661,16 +661,16 @@ void Application::compute(void *)
       float xwmax=(float)temp;
       float ywmax=(float)temp;*/
 
-      sprintf(world, "WORLD %f,%f,%f,%f\n", xwmin, ywmin, xwmax, ywmax);
+      snprintf(world, sizeof(world), "WORLD %f,%f,%f,%f\n", xwmin, ywmin, xwmax, ywmax);
       strcpy(plbuf, world);
 
-      sprintf(ticks,"XAXIS TICK MAJOR %f\n", xwmax /2);
+      snprintf(ticks, sizeof(ticks),"XAXIS TICK MAJOR %f\n", xwmax /2);
       strcat(plbuf, ticks);
-      sprintf(ticks,"XAXIS TICK MINOR %f\n", xwmax/4);
+      snprintf(ticks, sizeof(ticks),"XAXIS TICK MINOR %f\n", xwmax/4);
       strcat(plbuf, ticks);
-      sprintf(ticks,"YAXIS TICK MAJOR %f\n", ywmax/2);
+      snprintf(ticks, sizeof(ticks),"YAXIS TICK MAJOR %f\n", ywmax/2);
       strcat(plbuf, ticks);
-      sprintf(ticks,"YAXIS TICK MINOR %f\n", ywmax/4);
+      snprintf(ticks, sizeof(ticks),"YAXIS TICK MINOR %f\n", ywmax/4);
       strcat(plbuf, ticks);
 
       // --- Legende ---
@@ -694,7 +694,7 @@ void Application::compute(void *)
 
          for(i=0;i<2;i++)
          {
-            sprintf(plbuf,"%s %d",PlotData,i);
+            snprintf(plbuf, sizeof(plbuf),"%s %d",PlotData,i);
 
             coDoVec2 *plot_elem = new
                coDoVec2(plbuf,2*num_pts);
@@ -749,7 +749,7 @@ void Application::compute(void *)
             /* --- Kreisausschnitte plotten (Profile) ---*/
             for(i=0;i<num_slices;i++)
             {
-               sprintf(plbuf_schnitt,"%s %d",PlotData_Schnitt,i+b*(num_slices+num_pts));
+               snprintf(plbuf_schnitt, sizeof(plbuf_schnitt),"%s %d",PlotData_Schnitt,i+b*(num_slices+num_pts));
                coDoVec2 *plot_elem_schnitt = new
                   coDoVec2(plbuf_schnitt,2*num_pts);
                if (plot_elem_schnitt->objectOk())
@@ -776,7 +776,7 @@ void Application::compute(void *)
             /* --- Radiale Linien plotten ---*/
             for(i=0;i<num_pts;i++)
             {
-               sprintf(plbuf_schnitt,"%s %d",PlotData_Schnitt,i+num_slices+b*(num_slices+num_pts));
+               snprintf(plbuf_schnitt, sizeof(plbuf_schnitt),"%s %d",PlotData_Schnitt,i+num_slices+b*(num_slices+num_pts));
                coDoVec2 *plot_elem_schnitt = new
                   coDoVec2(plbuf_schnitt,2*num_slices);
                if (plot_elem_schnitt->objectOk())
@@ -895,7 +895,7 @@ void Application::compute(void *)
             {
                schaufeln->addAttribute("ROTATE_POINT","0 0 0");
                schaufeln->addAttribute("ROTATE_VECTOR","0 0 1");
-               sprintf(buf,"%f",(absol_.N/100.0));
+               snprintf(buf, sizeof(buf),"%f",(absol_.N/100.0));
                schaufeln->addAttribute("ROTATE_SPEED",buf);
             }
             schaufeln->addAttribute("MATERIAL","metal metal.30");
@@ -905,105 +905,105 @@ void Application::compute(void *)
 
          // ... MENUE-VR-Slider fuer Parameter Q ...
 
-         sprintf(buf,"M%s\n%s\n%s\nfloat\nQ\n%f\n%f\n%f\nNenndaten\n"
+         snprintf(buf, sizeof(buf),"M%s\n%s\n%s\nfloat\nQ\n%f\n%f\n%f\nNenndaten\n"
                ,Covise::get_module(),Covise::get_instance(),Covise::get_host()
                ,minQ,maxQ,absol_.Q);
          schaufeln->addAttribute("SLIDER0",buf);
 
          // ... MENUE-VR-Slider fuer Parameter mwa ...
 
-         sprintf(buf,"M%s\n%s\n%s\nfloat\nH\n%f\n%f\n%f\nNenndaten\n"
+         snprintf(buf, sizeof(buf),"M%s\n%s\n%s\nfloat\nH\n%f\n%f\n%f\nNenndaten\n"
                ,Covise::get_module(),Covise::get_instance(),Covise::get_host()
                ,minH,maxH,absol_.H);
          schaufeln->addAttribute("SLIDER1",buf);
 
          // ... MENUE-VR-Slider fuer Parameter mwa ...
 
-         sprintf(buf,"M%s\n%s\n%s\nfloat\nn\n%f\n%f\n%f\nNenndaten\n"
+         snprintf(buf, sizeof(buf),"M%s\n%s\n%s\nfloat\nn\n%f\n%f\n%f\nNenndaten\n"
                ,Covise::get_module(),Covise::get_instance(),Covise::get_host()
                ,minN,maxN,absol_.N);
          schaufeln->addAttribute("SLIDER2",buf);
 
          // ... MENUE-VR-Slider fuer Parameter mwa ...
 
-         sprintf(buf,"M%s\n%s\n%s\nint\nz\n%ld\n%ld\n%ld\nNenndaten\n"
+         snprintf(buf, sizeof(buf),"M%s\n%s\n%s\nint\nz\n%ld\n%ld\n%ld\nNenndaten\n"
                ,Covise::get_module(),Covise::get_instance(),Covise::get_host()
                ,minn,maxn,zwis_.nlschaufel);
          schaufeln->addAttribute("SLIDER3",buf);
 
          // ... MENUE-VR-Slider fuer Parameter mwa ...
 
-         sprintf(buf,"M%s\n%s\n%s\nfloat\ndb2i\n%f\n%f\n%f\nWinkeluebertreibung\n"
+         snprintf(buf, sizeof(buf),"M%s\n%s\n%s\nfloat\ndb2i\n%f\n%f\n%f\nWinkeluebertreibung\n"
                ,Covise::get_module(),Covise::get_instance(),Covise::get_host()
                ,mindb2i,maxdb2i,wust_.db2i);
          schaufeln->addAttribute("SLIDER4",buf);
 
          // ... MENUE-VR-Slider fuer Parameter mwa ...
 
-         sprintf(buf,"M%s\n%s\n%s\nfloat\ndb2a\n%f\n%f\n%f\nWinkeluebertreibung\n"
+         snprintf(buf, sizeof(buf),"M%s\n%s\n%s\nfloat\ndb2a\n%f\n%f\n%f\nWinkeluebertreibung\n"
                ,Covise::get_module(),Covise::get_instance(),Covise::get_host()
                ,mindb2a,maxdb2a,wust_.db2a);
          schaufeln->addAttribute("SLIDER5",buf);
 
          // ... MENUE-VR-Slider fuer Parameter mwa ...
 
-         sprintf(buf,"M%s\n%s\n%s\nfloat\ndb1i\n%f\n%f\n%f\nWinkeluebertreibung\n"
+         snprintf(buf, sizeof(buf),"M%s\n%s\n%s\nfloat\ndb1i\n%f\n%f\n%f\nWinkeluebertreibung\n"
                ,Covise::get_module(),Covise::get_instance(),Covise::get_host()
                ,mindb1i,maxdb1i,wust_.db1i);
          schaufeln->addAttribute("SLIDER6",buf);
 
          // ... MENUE-VR-Slider fuer Parameter mwa ...
 
-         sprintf(buf,"M%s\n%s\n%s\nfloat\ndb1a\n%f\n%f\n%f\nWinkeluebertreibung\n"
+         snprintf(buf, sizeof(buf),"M%s\n%s\n%s\nfloat\ndb1a\n%f\n%f\n%f\nWinkeluebertreibung\n"
                ,Covise::get_module(),Covise::get_instance(),Covise::get_host()
                ,mindb1a,maxdb1a,wust_.db1a);
          schaufeln->addAttribute("SLIDER7",buf);
 
          // ... MENUE-VR-Slider fuer Parameter mwa ...
 
-         sprintf(buf,"M%s\n%s\n%s\nfloat\nUmschlingung\n%f\n%f\n%f\nSchaufelkontur\n"
+         snprintf(buf, sizeof(buf),"M%s\n%s\n%s\nfloat\nUmschlingung\n%f\n%f\n%f\nSchaufelkontur\n"
                ,Covise::get_module(),Covise::get_instance(),Covise::get_host()
                ,minumschlingung,maxumschlingung,kont_.umschlingung);
          schaufeln->addAttribute("SLIDER8",buf);
 
          // ... MENUE-VR-Slider fuer Parameter max2 ...
 
-         sprintf(buf,"M%s\n%s\n%s\nfloat\nmax2\n%f\n%f\n%f\nSchaufelkontur\n"
+         snprintf(buf, sizeof(buf),"M%s\n%s\n%s\nfloat\nmax2\n%f\n%f\n%f\nSchaufelkontur\n"
                ,Covise::get_module(),Covise::get_instance(),Covise::get_host()
                ,minmax2,maxmax2,kont_.max2);
          schaufeln->addAttribute("SLIDER9",buf);
 
          // ... MENUE-VR-Slider fuer Parameter pe2i ...
 
-         sprintf(buf,"M%s\n%s\n%s\nfloat\npe2i\n%f\n%f\n%f\nSchaufelkontur\n"
+         snprintf(buf, sizeof(buf),"M%s\n%s\n%s\nfloat\npe2i\n%f\n%f\n%f\nSchaufelkontur\n"
                ,Covise::get_module(),Covise::get_instance(),Covise::get_host()
                ,minpe2i,maxpe2i,kont_.pe2i);
          schaufeln->addAttribute("SLIDER10",buf);
 
          // ... MENUE-VR-Slider fuer Parameter pe2a ...
 
-         sprintf(buf,"M%s\n%s\n%s\nfloat\npe2a\n%f\n%f\n%f\nSchaufelkontur\n"
+         snprintf(buf, sizeof(buf),"M%s\n%s\n%s\nfloat\npe2a\n%f\n%f\n%f\nSchaufelkontur\n"
                ,Covise::get_module(),Covise::get_instance(),Covise::get_host()
                ,minpe2a,maxpe2a,kont_.pe2a);
          schaufeln->addAttribute("SLIDER11",buf);
 
          // ... MENUE-VR-Slider fuer Parameter max1 ...
 
-         sprintf(buf,"M%s\n%s\n%s\nfloat\nmax1\n%f\n%f\n%f\nSchaufelkontur\n"
+         snprintf(buf, sizeof(buf),"M%s\n%s\n%s\nfloat\nmax1\n%f\n%f\n%f\nSchaufelkontur\n"
                ,Covise::get_module(),Covise::get_instance(),Covise::get_host()
                ,minmax1,maxmax1,kont_.max1);
          schaufeln->addAttribute("SLIDER12",buf);
 
          // ... MENUE-VR-Slider fuer Parameter pe1i ...
 
-         sprintf(buf,"M%s\n%s\n%s\nfloat\npe1i\n%f\n%f\n%f\nSchaufelkontur\n"
+         snprintf(buf, sizeof(buf),"M%s\n%s\n%s\nfloat\npe1i\n%f\n%f\n%f\nSchaufelkontur\n"
                ,Covise::get_module(),Covise::get_instance(),Covise::get_host()
                ,minpe1i,maxpe1i,kont_.pe1i);
          schaufeln->addAttribute("SLIDER13",buf);
 
          // ... MENUE-VR-Slider fuer Parameter pe1a ...
 
-         sprintf(buf,"M%s\n%s\n%s\nfloat\npe1a\n%f\n%f\n%f\nSchaufelkontur\n"
+         snprintf(buf, sizeof(buf),"M%s\n%s\n%s\nfloat\npe1a\n%f\n%f\n%f\nSchaufelkontur\n"
                ,Covise::get_module(),Covise::get_instance(),Covise::get_host()
                ,minpe1a,maxpe1a,kont_.pe1a);
          schaufeln->addAttribute("SLIDER14",buf);
@@ -1012,34 +1012,34 @@ void Application::compute(void *)
 
          // ... VR-Slider fuer Parameter mwi ...
 
-         /*		sprintf(buf,"V%s\n%s\n%s\nfloat\nmwi\n%f\n%f\n%f\n"
+         /*		snprintf(buf, sizeof(buf),"V%s\n%s\n%s\nfloat\nmwi\n%f\n%f\n%f\n"
                         ,Covise::get_module(),Covise::get_instance(),Covise::get_host()
                         ,minmwi,maxmwi,maxw_.mwi);
 
-                        sprintf(b2,"%d\n",2);
+                        snprintf(b2, sizeof(b2),"%d\n",2);
                         strcat(buf,b2);
-                        sprintf(b2,"%d\n",num_pts);
+                        snprintf(b2, sizeof(b2),"%d\n",num_pts);
                         strcat(buf,b2);
                         for(i=0;i<num_pts;i++)
                         {
-                        sprintf(b2,"%f\n%f\n%f\n",xyz_.x_sl[0][i],xyz_.y_ss[0][i],xyz_.z_sl[0][i]);
+                        snprintf(b2, sizeof(b2),"%f\n%f\n%f\n",xyz_.x_sl[0][i],xyz_.y_ss[0][i],xyz_.z_sl[0][i]);
                         strcat(buf,b2);
                         }
                         schaufeln->addAttribute("SLIDER15",buf);*/
 
          // ... VR-Slider fuer Parameter mwa ...
 
-         /*		sprintf(buf,"V%s\n%s\n%s\nfloat\nmwa\n%f\n%f\n%f\n"
+         /*		snprintf(buf, sizeof(buf),"V%s\n%s\n%s\nfloat\nmwa\n%f\n%f\n%f\n"
                         ,Covise::get_module(),Covise::get_instance(),Covise::get_host()
                         ,minmwa,maxmwa,maxw_.mwa);
 
-                        sprintf(b2,"%d\n",2);
+                        snprintf(b2, sizeof(b2),"%d\n",2);
                         strcat(buf,b2);
-                        sprintf(b2,"%d\n",num_pts);
+                        snprintf(b2, sizeof(b2),"%d\n",num_pts);
                         strcat(buf,b2);
                         for(i=0;i<num_pts;i++)
                         {
-                        sprintf(b2,"%f\n%f\n%f\n",xyz_.x_sl[num_slices-1][i],xyz_.y_sl[num_slices-1][i],xyz_.z_sl[num_slices-1][i]);
+                        snprintf(b2, sizeof(b2),"%f\n%f\n%f\n",xyz_.x_sl[num_slices-1][i],xyz_.y_sl[num_slices-1][i],xyz_.z_sl[num_slices-1][i]);
                         strcat(buf,b2);
                         }
                         schaufeln->addAttribute("SLIDER16",buf);*/
@@ -1047,13 +1047,13 @@ void Application::compute(void *)
          // ... VR-Slider fuer Parameter Umschlingung ...
 
          aussen=num_slices-1;
-         sprintf(buf,"V%s\n%s\n%s\nfloat\nUmschlingung\n%f\n%f\n%f\n"
+         snprintf(buf, sizeof(buf),"V%s\n%s\n%s\nfloat\nUmschlingung\n%f\n%f\n%f\n"
                ,Covise::get_module(),Covise::get_instance(),Covise::get_host()
                ,minumschlingung,maxumschlingung,kont_.umschlingung);
 
-         sprintf(b2,"%d\n",2);
+         snprintf(b2, sizeof(b2),"%d\n",2);
          strcat(buf,b2);
-         sprintf(b2,"%d\n",20);
+         snprintf(b2, sizeof(b2),"%d\n",20);
          strcat(buf,b2);
          float h0, hmin, hmax, hx, winkelmin, winkelmax,radius;
          h0=xyz_.z_ds[aussen][num_pts-1];
@@ -1066,7 +1066,7 @@ void Application::compute(void *)
          radius=zwis_.d2*530;
          for(i=0;i<20;i++)
          {
-            sprintf(b2,"%f\n%f\n%f\n",radius*sin(winkelmin+((winkelmax-winkelmin)/19)*i),radius*cos(winkelmin+((winkelmax-winkelmin)/19)*i),hmin+((hmax-hmin)/19)*i);
+            snprintf(b2, sizeof(b2),"%f\n%f\n%f\n",radius*sin(winkelmin+((winkelmax-winkelmin)/19)*i),radius*cos(winkelmin+((winkelmax-winkelmin)/19)*i),hmin+((hmax-hmin)/19)*i);
             strcat(buf,b2);
          }
          schaufeln->addAttribute("SLIDER15",buf);
@@ -1074,34 +1074,34 @@ void Application::compute(void *)
          // ... VR-Slider fuer Parameter max2 ...
 
          float winkel;
-         sprintf(buf,"V%s\n%s\n%s\nfloat\nmax2\n%f\n%f\n%f\n"
+         snprintf(buf, sizeof(buf),"V%s\n%s\n%s\nfloat\nmax2\n%f\n%f\n%f\n"
                ,Covise::get_module(),Covise::get_instance(),Covise::get_host()
                ,minmax2,maxmax2,kont_.max2);
-         sprintf(b2,"%d\n",2);
+         snprintf(b2, sizeof(b2),"%d\n",2);
          strcat(buf,b2);
-         sprintf(b2,"%d\n",num_slices);
+         snprintf(b2, sizeof(b2),"%d\n",num_slices);
          strcat(buf,b2);
          winkel=(float)(2*M_PI/zwis_.nlschaufel)*kont_.umschlingung;
          for(i=0;i<num_slices;i++)
          {
-            sprintf(b2,"%f\n%f\n%f\n",lauf_.d_2[i]/2*sin(winkel),lauf_.d_2[i]/2*cos(winkel),xyz_.z_ss[i][num_pts-1]);
+            snprintf(b2, sizeof(b2),"%f\n%f\n%f\n",lauf_.d_2[i]/2*sin(winkel),lauf_.d_2[i]/2*cos(winkel),xyz_.z_ss[i][num_pts-1]);
             strcat(buf,b2);
          }
          schaufeln->addAttribute("SLIDER16",buf);
 
          // ... VR-Slider fuer Parameter max1 ...
 
-         sprintf(buf,"V%s\n%s\n%s\nfloat\nmax1\n%f\n%f\n%f\n"
+         snprintf(buf, sizeof(buf),"V%s\n%s\n%s\nfloat\nmax1\n%f\n%f\n%f\n"
                ,Covise::get_module(),Covise::get_instance(),Covise::get_host()
                ,minmax1,maxmax1,kont_.max1);
-         sprintf(b2,"%d\n",2);
+         snprintf(b2, sizeof(b2),"%d\n",2);
          strcat(buf,b2);
-         sprintf(b2,"%d\n",num_slices);
+         snprintf(b2, sizeof(b2),"%d\n",num_slices);
          strcat(buf,b2);
          winkel=0;
          for(i=0;i<num_slices;i++)
          {
-            sprintf(b2,"%f\n%f\n%f\n",lauf_.d_2[i]/2*sin(winkel),lauf_.d_2[i]/2*cos(winkel),xyz_.z_ss[i][0]);
+            snprintf(b2, sizeof(b2),"%f\n%f\n%f\n",lauf_.d_2[i]/2*sin(winkel),lauf_.d_2[i]/2*cos(winkel),xyz_.z_ss[i][0]);
             strcat(buf,b2);
          }
          schaufeln->addAttribute("SLIDER17",buf);
@@ -1109,12 +1109,12 @@ void Application::compute(void *)
          // ... VR-Slider fuer Parameter pe2i ...
 
          int x60=13;
-         sprintf(buf,"V%s\n%s\n%s\nfloat\npe2i\n%f\n%f\n%f\n"
+         snprintf(buf, sizeof(buf),"V%s\n%s\n%s\nfloat\npe2i\n%f\n%f\n%f\n"
                ,Covise::get_module(),Covise::get_instance(),Covise::get_host()
                ,minpe2i,maxpe2i,kont_.pe2i);
-         sprintf(b2,"%d\n",2);
+         snprintf(b2, sizeof(b2),"%d\n",2);
          strcat(buf,b2);
-         sprintf(b2,"%d\n",num_pts-x60+10);
+         snprintf(b2, sizeof(b2),"%d\n",num_pts-x60+10);
          strcat(buf,b2);
 
          // extrapolierte Punkte
@@ -1122,7 +1122,7 @@ void Application::compute(void *)
          {
             winkel=(float)(2*M_PI/zwis_.nlschaufel)*kont_.umschlingung*(1-kont_.pe2i*(10-i)/10);
 
-            sprintf(b2,"%f\n%f\n%f\n",lauf_.d_2[0]/2*sin(winkel),lauf_.d_2[0]/2*cos(winkel)
+            snprintf(b2, sizeof(b2),"%f\n%f\n%f\n",lauf_.d_2[0]/2*sin(winkel),lauf_.d_2[0]/2*cos(winkel)
                   ,xyz_.z_sl[0][num_pts-1]-(2*M_PI/zwis_.nlschaufel*kont_.umschlingung*kont_.pe1i)*lauf_.d_2[0]/2*tan(wink_.beta2_sch[0]*M_PI/180)*i/10);
             strcat(buf,b2);
          }
@@ -1130,7 +1130,7 @@ void Application::compute(void *)
          // Punkte auf der Skelettlinie
          for(i=num_pts-1;i>x60-1;i--)
          {
-            sprintf(b2,"%f\n%f\n%f\n",xyz_.x_sl[0][i],xyz_.y_sl[0][i],xyz_.z_sl[0][i]);
+            snprintf(b2, sizeof(b2),"%f\n%f\n%f\n",xyz_.x_sl[0][i],xyz_.y_sl[0][i],xyz_.z_sl[0][i]);
             strcat(buf,b2);
          }
 
@@ -1138,12 +1138,12 @@ void Application::compute(void *)
 
          // ... VR-Slider fuer Parameter pe2a ...
 
-         sprintf(buf,"V%s\n%s\n%s\nfloat\npe2a\n%f\n%f\n%f\n"
+         snprintf(buf, sizeof(buf),"V%s\n%s\n%s\nfloat\npe2a\n%f\n%f\n%f\n"
                ,Covise::get_module(),Covise::get_instance(),Covise::get_host()
                ,minpe2a,maxpe2a,kont_.pe2a);
-         sprintf(b2,"%d\n",2);
+         snprintf(b2, sizeof(b2),"%d\n",2);
          strcat(buf,b2);
-         sprintf(b2,"%d\n",num_pts-x60+10);
+         snprintf(b2, sizeof(b2),"%d\n",num_pts-x60+10);
          strcat(buf,b2);
 
          // extrapolierte Punkte
@@ -1151,7 +1151,7 @@ void Application::compute(void *)
          {
             winkel=(float)(2*M_PI/zwis_.nlschaufel)*kont_.umschlingung*(1-kont_.pe2a*(10-i)/10);
 
-            sprintf(b2,"%f\n%f\n%f\n",
+            snprintf(b2, sizeof(b2),"%f\n%f\n%f\n",
                   lauf_.d_2[num_slices-1]/2*sin(winkel),
                   lauf_.d_2[num_slices-1]/2*cos(winkel),
                   xyz_.z_sl[num_slices-1][num_pts-1]-(2*M_PI/zwis_.nlschaufel*kont_.umschlingung*kont_.pe1a)*lauf_.d_2[num_slices-1]/2*tan(wink_.beta2_sch[num_slices-1]*M_PI/180)*i/10);
@@ -1161,7 +1161,7 @@ void Application::compute(void *)
          // Punkte auf der Skelettlinie
          for(i=num_pts-1;i>x60-1;i--)
          {
-            sprintf(b2,"%f\n%f\n%f\n",xyz_.x_sl[num_slices-1][i],xyz_.y_sl[num_slices-1][i],xyz_.z_sl[num_slices-1][i]);
+            snprintf(b2, sizeof(b2),"%f\n%f\n%f\n",xyz_.x_sl[num_slices-1][i],xyz_.y_sl[num_slices-1][i],xyz_.z_sl[num_slices-1][i]);
             strcat(buf,b2);
          }
 
@@ -1181,12 +1181,12 @@ void Application::compute(void *)
          x40=i;
 
          // Slideraufruf
-         sprintf(buf,"V%s\n%s\n%s\nfloat\npe1i\n%f\n%f\n%f\n"
+         snprintf(buf, sizeof(buf),"V%s\n%s\n%s\nfloat\npe1i\n%f\n%f\n%f\n"
                ,Covise::get_module(),Covise::get_instance(),Covise::get_host()
                ,minpe1i,maxpe1i,kont_.pe1i);
-         sprintf(b2,"%d\n",2);
+         snprintf(b2, sizeof(b2),"%d\n",2);
          strcat(buf,b2);
-         sprintf(b2,"%d\n",x40+11);
+         snprintf(b2, sizeof(b2),"%d\n",x40+11);
          strcat(buf,b2);
 
          // extrapolierte Punkte
@@ -1194,7 +1194,7 @@ void Application::compute(void *)
          {
             winkel=(float)(2*M_PI/zwis_.nlschaufel*kont_.umschlingung*kont_.pe1i*i/10);
 
-            sprintf(b2,"%f\n%f\n%f\n",lauf_.d_2[0]/2*sin(winkel),lauf_.d_2[0]/2*cos(winkel)
+            snprintf(b2, sizeof(b2),"%f\n%f\n%f\n",lauf_.d_2[0]/2*sin(winkel),lauf_.d_2[0]/2*cos(winkel)
                   ,xyz_.z_sl[0][0]+(2*M_PI/zwis_.nlschaufel*kont_.umschlingung*kont_.pe1i)*lauf_.d_2[0]/2*tan(wink_.beta1_sch[0]*M_PI/180)*(10-i)/10);
             strcat(buf,b2);
          }
@@ -1202,7 +1202,7 @@ void Application::compute(void *)
          // Punkte auf der Skelettlinie
          for(i=0;i<x40+1;i++)
          {
-            sprintf(b2,"%f\n%f\n%f\n",xyz_.x_sl[0][i],xyz_.y_sl[0][i],xyz_.z_sl[0][i]);
+            snprintf(b2, sizeof(b2),"%f\n%f\n%f\n",xyz_.x_sl[0][i],xyz_.y_sl[0][i],xyz_.z_sl[0][i]);
             strcat(buf,b2);
          }
 
@@ -1220,12 +1220,12 @@ void Application::compute(void *)
          x40=i;
          x40=11;
          // Slideraufruf
-         sprintf(buf,"V%s\n%s\n%s\nfloat\npe1i\n%f\n%f\n%f\n"
+         snprintf(buf, sizeof(buf),"V%s\n%s\n%s\nfloat\npe1i\n%f\n%f\n%f\n"
                ,Covise::get_module(),Covise::get_instance(),Covise::get_host()
                ,minpe1a,maxpe1a,kont_.pe1a);
-         sprintf(b2,"%d\n",2);
+         snprintf(b2, sizeof(b2),"%d\n",2);
          strcat(buf,b2);
-         sprintf(b2,"%d\n",x40+11);
+         snprintf(b2, sizeof(b2),"%d\n",x40+11);
          strcat(buf,b2);
 
          // extrapolierte Punkte
@@ -1233,7 +1233,7 @@ void Application::compute(void *)
          {
             winkel=(float)(2*M_PI/zwis_.nlschaufel*kont_.umschlingung*kont_.pe1a*i/10);
 
-            sprintf(b2,"%f\n%f\n%f\n",
+            snprintf(b2, sizeof(b2),"%f\n%f\n%f\n",
                   lauf_.d_2[num_slices-1]/2*sin(winkel),
                   lauf_.d_2[num_slices-1]/2*cos(winkel),
                   xyz_.z_sl[num_slices-1][0]+(2*M_PI/zwis_.nlschaufel*kont_.umschlingung*kont_.pe1a)*lauf_.d_2[num_slices-1]/2*tan(wink_.beta1_sch[num_slices-1]*M_PI/180)*(10-i)/10);
@@ -1243,7 +1243,7 @@ void Application::compute(void *)
          // Punkte auf der Skelettlinie
          for(i=0;i<x40+1;i++)
          {
-            sprintf(b2,"%f\n%f\n%f\n",xyz_.x_sl[num_slices-1][i],xyz_.y_sl[num_slices-1][i],xyz_.z_sl[num_slices-1][i]);
+            snprintf(b2, sizeof(b2),"%f\n%f\n%f\n",xyz_.x_sl[num_slices-1][i],xyz_.y_sl[num_slices-1][i],xyz_.z_sl[num_slices-1][i]);
             strcat(buf,b2);
          }
 
@@ -1621,7 +1621,7 @@ void Application::compute(void *)
 
             for(i=0;i<20;i++)//aplo_.seed;i++)
             {
-            sprintf(plbuf_netz_nabe,"%s %d",Plotdata_netz_nabe,i);
+            snprintf(plbuf_netz_nabe, sizeof(plbuf_netz_nabe),"%s %d",Plotdata_netz_nabe,i);
 
             coDoVec2 *plot_elem_netz_nabe = new
             coDoVec2(plbuf_netz_nabe,10);

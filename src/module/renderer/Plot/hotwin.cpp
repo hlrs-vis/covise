@@ -53,7 +53,7 @@ static void do_hotlink_proc(Widget, XtPointer, XtPointer)
     src = GetChoice(hotlink_source_item);
     strcpy(fname, xv_getstr(hotlink_file_item));
 
-    sprintf(buf, "S%02d -> %s -> %s", setno, src == 0 ? "DISK" : "PIPE", fname);
+    snprintf(buf, sizeof(buf), "S%02d -> %s -> %s", setno, src == 0 ? "DISK" : "PIPE", fname);
 
     xms = XmStringCreateLtoR(buf, charset);
     XmListAddItemUnselected(hotlink_list_item, xms, 0);
@@ -115,7 +115,7 @@ void update_hotlinks(void)
             {
                 if (is_hotlinked(i, j))
                 {
-                    sprintf(buf, "S%02d -> %s -> %s", j,
+                    snprintf(buf, sizeof(buf), "S%02d -> %s -> %s", j,
                             get_hotlink_src(i, j) == DISK ? "DISK" : "PIPE",
                             get_hotlink_file(i, j));
                     xms = XmStringCreateLtoR(buf, charset);

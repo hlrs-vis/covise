@@ -342,7 +342,7 @@ void Treadmill::_handleTokens(const std::vector<std::string> &tokens)
             {
                 out[i] = ' ';
             }
-            sprintf(out, "%lf %lf %lf 0 0 %d |", mpi_x, mpi_y, mpi_angle, _turnDecision);
+            snprintf(out, sizeof(out), "%lf %lf %lf 0 0 %d |", mpi_x, mpi_y, mpi_angle, _turnDecision);
             // _serverSocket->write(out, 50);
             //_messageReceiver->write(out, 50);
             std::string outString(out);

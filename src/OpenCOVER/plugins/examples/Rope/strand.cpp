@@ -90,9 +90,9 @@ xercesc::DOMElement *Strand::Save(xercesc::DOMDocument &document)
 
     element->appendChild(document.createTextNode(xercesc::XMLString::transcode(this->identStr())));
     element->setAttribute(xercesc::XMLString::transcode("depth"), xercesc::XMLString::transcode(this->getName()));
-    sprintf(tmp, "%f", this->getPosRadius());
+    snprintf(tmp, sizeof(tmp), "%f", this->getPosRadius());
     element->setAttribute(xercesc::XMLString::transcode("posRadius"), xercesc::XMLString::transcode(tmp));
-    sprintf(tmp, "%f", this->rad2grad(this->getPosAngle()));
+    snprintf(tmp, sizeof(tmp), "%f", this->rad2grad(this->getPosAngle()));
     element->setAttribute(xercesc::XMLString::transcode("posAngle"), xercesc::XMLString::transcode(tmp));
     for (i = 0; i < this->numWiregroups; i++)
     {
@@ -198,7 +198,7 @@ void Strand::addManipulation(coTUIFrame *frame)
     {
         char buf[256];
 
-        sprintf(buf, "No %2d", i);
+        snprintf(buf, sizeof(buf), "No %2d", i);
         sgLenSliderL[i] = new coTUILabel(buf, frame->getID());
         sgLenSliderL[i]->setPos(1, y + i);
         sgLenSlider[i] = new coTUIFloatSlider("numHSlider", frame->getID());

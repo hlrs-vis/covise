@@ -1000,11 +1000,11 @@ void MathematicPlugin::updateStateLabel()
         char sentense[1024];
         if (distancesVec_.at(0)->getDistance() != 0)
         {
-            sprintf(sentense, coTranslator::coTranslate("%s liegt nicht auf %s").c_str(), pointsVec_.at(0)->getName().c_str(), linesVec_.at(0)->getName().c_str());
+            snprintf(sentense, sizeof(sentense), coTranslator::coTranslate("%s liegt nicht auf %s").c_str(), pointsVec_.at(0)->getName().c_str(), linesVec_.at(0)->getName().c_str());
         }
         else
         {
-            sprintf(sentense, coTranslator::coTranslate("%s liegt auf %s").c_str(), pointsVec_.at(0)->getName().c_str(), linesVec_.at(0)->getName().c_str());
+            snprintf(sentense, sizeof(sentense), coTranslator::coTranslate("%s liegt auf %s").c_str(), pointsVec_.at(0)->getName().c_str(), linesVec_.at(0)->getName().c_str());
         }
 
         text = std::string(sentense);
@@ -1034,11 +1034,11 @@ void MathematicPlugin::updateStateLabel()
         char sentense[1024];
         if (distancesVec_.at(0)->getDistance() != 0)
         {
-            sprintf(sentense, coTranslator::coTranslate("%s liegt nicht auf %s").c_str(), pointsVec_.at(0)->getName().c_str(), planesVec_.at(0)->getName().c_str());
+            snprintf(sentense, sizeof(sentense), coTranslator::coTranslate("%s liegt nicht auf %s").c_str(), pointsVec_.at(0)->getName().c_str(), planesVec_.at(0)->getName().c_str());
         }
         else
         {
-            sprintf(sentense, coTranslator::coTranslate("%s liegt auf %s").c_str(), pointsVec_.at(0)->getName().c_str(), planesVec_.at(0)->getName().c_str());
+            snprintf(sentense, sizeof(sentense), coTranslator::coTranslate("%s liegt auf %s").c_str(), pointsVec_.at(0)->getName().c_str(), planesVec_.at(0)->getName().c_str());
         }
 
         text = std::string(sentense);

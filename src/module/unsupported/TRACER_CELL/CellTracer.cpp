@@ -533,11 +533,11 @@ coDistributedObject **Application::compute(coDistributedObject **in, char **outN
         switch (startStyle)
         {
         case 2: // plane
-            sprintf(buf, "P%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+            snprintf(buf, sizeof(buf), "P%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
             break;
 
         default: // line
-            sprintf(buf, "T%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+            snprintf(buf, sizeof(buf), "T%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
             break;
         }
         lineobj->addAttribute("FEEDBACK", buf);
@@ -626,14 +626,14 @@ coDistributedObject **Application::compute(coDistributedObject **in, char **outN
                 this_num_points++;
             }
 
-            sprintf(buf, "%s_%d", Lines, i);
+            snprintf(buf, sizeof(buf), "%s_%d", Lines, i);
             line_elements[i] = new coDoLines(buf, this_num_points, this_x, this_y, this_z, this_num_vert, this_vl, 1, this_ll);
             line_elements[i]->addAttribute("COLOR", "red");
 
-            sprintf(buf, "%s_%d", DataOut, i);
+            snprintf(buf, sizeof(buf), "%s_%d", DataOut, i);
             data_elements[i] = new coDoFloat(buf, this_num_points, this_scalar);
 
-            sprintf(buf, "%s_%d", VelOut, i);
+            snprintf(buf, sizeof(buf), "%s_%d", VelOut, i);
             vel_elements[i] = new coDoVec3(buf, this_num_points, this_vector_x, this_vector_y, this_vector_z);
         }
 
@@ -649,11 +649,11 @@ coDistributedObject **Application::compute(coDistributedObject **in, char **outN
         switch (startStyle)
         {
         case 2: // plane
-            sprintf(buf, "P%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+            snprintf(buf, sizeof(buf), "P%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
             break;
 
         default: // line
-            sprintf(buf, "T%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+            snprintf(buf, sizeof(buf), "T%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
             break;
         }
         set_lines_out->addAttribute("FEEDBACK", buf);

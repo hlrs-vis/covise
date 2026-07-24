@@ -39,7 +39,7 @@ ReadNetCDF::ReadNetCDF(int argc, char *argv[])
     for (int i = 0; i < numParams; i++)
     {
         char namebuf[50];
-        sprintf(namebuf, "Variable%d", i);
+        snprintf(namebuf, sizeof(namebuf), "Variable%d", i);
         p_variables[i] = addChoiceParam(namebuf, namebuf);
         p_variables[i]->setValue(1, NoneChoices, 0);
     }
@@ -67,7 +67,7 @@ ReadNetCDF::ReadNetCDF(int argc, char *argv[])
     for (int i = 0; i < numParams; i++)
     {
         char namebuf[50];
-        sprintf(namebuf, "dataOutPort%d", i);
+        snprintf(namebuf, sizeof(namebuf), "dataOutPort%d", i);
         p_data_outs[i] = addOutputPort(namebuf, "Float", namebuf);
     }
 }

@@ -135,7 +135,7 @@ void Host::HostNumeric(const char *n)
     invalidIP |= (countNumbers != 4);
     if (invalidIP)
     {
-        sprintf(tmpStr, "Invalid IP address:%s", n);
+        snprintf(tmpStr, sizeof(tmpStr), "Invalid IP address:%s", n);
         setName("Invalid IP address");
     }
     else
@@ -179,7 +179,7 @@ void Host::HostSymbolic(const char *n)
     char_address[2] = *(hent->h_addr_list[0] + 2);
     char_address[3] = *(hent->h_addr_list[0] + 3);
     char buf[1024];
-    sprintf(buf, "%d.%d.%d.%d",
+    snprintf(buf, sizeof(buf), "%d.%d.%d.%d",
             char_address[0],
             char_address[1],
             char_address[2],
@@ -218,7 +218,7 @@ Host::Host(unsigned long a)
     char_address[2] = tmpaddr[2];
     char_address[3] = tmpaddr[3];
     char tmpName[256];
-    sprintf(tmpName, "%d.%d.%d.%d",
+    snprintf(tmpName, sizeof(tmpName), "%d.%d.%d.%d",
             char_address[0],
             char_address[1],
             char_address[2],

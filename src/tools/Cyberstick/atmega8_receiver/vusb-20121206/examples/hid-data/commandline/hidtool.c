@@ -35,7 +35,7 @@ static char *usbErrorMessage(int errCode)
     case USBOPEN_ERR_IO:
         return "Communication error with device";
     default:
-        sprintf(buffer, "Unknown USB error %d", errCode);
+        snprintf(buffer, sizeof(buffer), "Unknown USB error %d", errCode);
         return buffer;
     }
     return NULL; /* not reached */

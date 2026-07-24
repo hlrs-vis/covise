@@ -182,7 +182,7 @@ SPartToU::SPartToU()
         coString name("InData_");
         coString descr("Input data port ");
         char buf[64];
-        sprintf(buf, "%d", port);
+        snprintf(buf, sizeof(buf), "%d", port);
         name += buf;
         descr += buf;
         p_inData_[port] = addInputPort(name,
@@ -197,7 +197,7 @@ SPartToU::SPartToU()
         coString name("OutGridData_");
         coString descr("Output grid data port ");
         char buf[64];
-        sprintf(buf, "%d", port);
+        snprintf(buf, sizeof(buf), "%d", port);
         name += buf;
         descr += buf;
         p_outData_[port] = addOutputPort(name,
@@ -212,7 +212,7 @@ SPartToU::SPartToU()
         coString name("OutPolyData_");
         coString descr("Output poly data port ");
         char buf[64];
-        sprintf(buf, "%d", port);
+        snprintf(buf, sizeof(buf), "%d", port);
         name += buf;
         descr += buf;
         p_outDataPoly_[port] = addOutputPort(name,

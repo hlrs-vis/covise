@@ -390,13 +390,13 @@ EnPart::partInfoString(const int &ref) const
     string infoStr;
     // ref No.
     char nStr[32];
-    sprintf(nStr, "%8d", ref);
+    snprintf(nStr, sizeof(nStr), "%8d", ref);
     infoStr += nStr;
     infoStr += " | ";
 
     // part No.
     char rStr[32];
-    sprintf(rStr, "%8d", partNum_);
+    snprintf(rStr, sizeof(rStr), "%8d", partNum_);
     infoStr += rStr;
     infoStr += " | ";
 
@@ -415,7 +415,7 @@ EnPart::partInfoString(const int &ref) const
     int nTot(0);
     for (j = 0; j < elementList_.size(); ++j)
         nTot += numList_[j];
-    sprintf(nStr, "%8d", nTot);
+    snprintf(nStr, sizeof(nStr), "%8d", nTot);
     infoStr += nStr;
     infoStr += " | ";
     if ((numEleRead2d_ > 0) && (numEleRead3d_ > 0))

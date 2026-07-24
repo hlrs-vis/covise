@@ -817,7 +817,7 @@ WebGLRenderer::WebGLRenderer(int argc, char *argv[])
             });
 
     static char defVal[256];
-    sprintf(defVal, "data.xml");
+    snprintf(defVal, sizeof(defVal), "data.xml");
     CoviseRender::set_port_default("filename", defVal);
     CoviseRender::set_port_default("renderToFile", "FALSE");
 

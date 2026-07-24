@@ -661,7 +661,7 @@ writeCoTimeStepsAttr(FILE *fd, int numSteps)
 
     strcpy(timeAttr, "TIMESTEP");
 
-    sprintf(value, "%d %d", 1, numSteps);
+    snprintf(value, sizeof(value), "%d %d", 1, numSteps);
 
     size = sizeof(int) + strlen(timeAttr) + strlen(value) + 2;
 
@@ -693,16 +693,16 @@ make_covise_directory(char *basename)
     {
 #endif
 #ifdef DEBUG
-        sprintf(message, "make COVISE directory \"%s\" failed (may already exist) \n", COVISE_directory);
+        snprintf(message, sizeof(message), "make COVISE directory \"%s\" failed (may already exist) \n", COVISE_directory);
         covise_message(ENSIGHT_WARNING, message);
 #else
-        sprintf(message, "make COVISE directory \"%s\" failed (may already exist) : overwriting \n", COVISE_directory);
+        snprintf(message, sizeof(message), "make COVISE directory \"%s\" failed (may already exist) : overwriting \n", COVISE_directory);
         covise_message(ENSIGHT_FATAL_ERROR, message);
 #endif /* DEBUG */
     }
     else
     {
-        sprintf(message, "made COVISE directory \"%s\" \n", COVISE_directory);
+        snprintf(message, sizeof(message), "made COVISE directory \"%s\" \n", COVISE_directory);
         covise_message(ENSIGHT_INFO, message);
     }
 }

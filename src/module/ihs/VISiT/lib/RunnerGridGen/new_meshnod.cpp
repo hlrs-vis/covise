@@ -80,7 +80,7 @@ int MeshNew_GridRegions(struct rr_grid *grid)
    for(i = 0; i < grid->ge_num; i++)
    {
 #ifdef DEBUG_NODES
-      sprintf(fn,"rr_debugnodes_%02d.txt", i);
+      snprintf(fn, sizeof(fn),"rr_debugnodes_%02d.txt", i);
       if( (fp = fopen(fn,"w+")) == NULL)
       {
          fprintf(stderr,"Shit happened opening file '%s'!\n",fn);
@@ -342,7 +342,7 @@ int MeshNew_GridRegions(struct rr_grid *grid)
 
    for(i = 0; i < grid->ge_num; i++)
    {
-      sprintf(fn,"rr_nodes_%02d.txt", i);
+      snprintf(fn, sizeof(fn),"rr_nodes_%02d.txt", i);
       if( (fp = fopen(fn,"w+")) == NULL)
       {
          fprintf(stderr,"Shit happened opening file '%s'!\n",fn);
@@ -372,7 +372,7 @@ int MeshNew_GridRegions(struct rr_grid *grid)
       fclose(fp);
    }
 
-   sprintf(fn,"rr_nodes_all.txt");
+   snprintf(fn, sizeof(fn),"rr_nodes_all.txt");
    if( (fp = fopen(fn,"w+")) == NULL)
    {
       fprintf(stderr,"Shit happened opening file '%s'!\n",fn);

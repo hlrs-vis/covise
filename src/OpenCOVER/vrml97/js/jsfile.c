@@ -206,7 +206,7 @@ JSFile_GetErrorMessage(void *userRef, const char *locale,
     if (argc != 1)                                                                                        \
     {                                                                                                     \
         char str[NUMBER_SIZE];                                                                            \
-        sprintf(str, "%d", argc);                                                                         \
+        snprintf(str, sizeof(str), "%d", argc);                                                                         \
         JS_ReportErrorNumber(cx, JSFile_GetErrorMessage, NULL, JSFILEMSG_EXPECTS_ONE_ARG_ERROR, op, str); \
         goto out;                                                                                         \
     }
@@ -2257,7 +2257,7 @@ file_toURL(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 
     JSFILE_CHECK_NATIVE("toURL");
 
-    sprintf(url, "file://%s", file->path);
+    snprintf(url, sizeof(url), "file://%s", file->path);
     /* TODO: js_escape in jsstr.h may go away at some point */
 
     urlChars = js_InflateString(cx, url, strlen(url));

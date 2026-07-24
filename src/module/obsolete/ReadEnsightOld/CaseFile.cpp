@@ -161,7 +161,7 @@ CaseFile::parse()
             for (j = 0; j < numTimesteps_; ++j)
             {
                 char buf[6];
-                sprintf(buf, "%4.4d", j);
+                snprintf(buf, sizeof(buf), "%4.4d", j);
                 string post(buf);
                 //cerr << "CaseFile::parse(): got geo-file name " << basic+post << endl;
                 geoFiles_.push_back(basic + post);

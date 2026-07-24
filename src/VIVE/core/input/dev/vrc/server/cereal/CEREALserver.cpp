@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
     for (i = 0; i < 3; i++)
     {
 #ifndef STANDALONE
-        sprintf(varname, "CerealConfig.IO%d", i + 1);
+        snprintf(varname, sizeof(varname), "CerealConfig.IO%d", i + 1);
         const char *config = coCoviseConfig::getEntry(varname);
 #else
         const char *config = NULL;
@@ -238,7 +238,7 @@ int main(int argc, char *argv[])
         int buttons = bgdata.din[0];
 
         char sendbuffer[2048];
-        sprintf(sendbuffer, "VRC %d %3d [0.0 0.0 0.0] - [",
+        snprintf(sendbuffer, sizeof(sendbuffer), "VRC %d %3d [0.0 0.0 0.0] - [",
                 stationID, buttons);
         for (i = 0; i < 8; i++)
         {

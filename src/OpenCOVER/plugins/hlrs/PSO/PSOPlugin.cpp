@@ -140,7 +140,7 @@ void PSOPlugin::initPSO()
             {
                 par2D[i] = new OSGPSOParticleOnResponseSurface;
 				char name[100];
-				sprintf(name, "p%d", i);
+				snprintf(name, sizeof(name), "p%d", i);
 				par2D[i]->setName(name);
                 cover->getObjectsRoot()->addChild(par2D[i]);
             }
@@ -161,7 +161,7 @@ void PSOPlugin::initPSO()
             {
                 par3D[i] = new OSGPSOParticle;
 				char name[100];
-				sprintf(name, "p%d", i);
+				snprintf(name, sizeof(name), "p%d", i);
 				par3D[i]->setName(name);
                 cover->getObjectsRoot()->addChild(par3D[i]);
             }

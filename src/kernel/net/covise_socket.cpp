@@ -778,14 +778,14 @@ int Socket::write(const void *buf, unsigned nbyte)
     if (no_of_bytes < 0)
     {
 #ifdef _WIN32
-        sprintf(tmp_str, "Socket send error = %d", WSAGetLastError());
+        snprintf(tmp_str, sizeof(tmp_str), "Socket send error = %d", WSAGetLastError());
         LOGERROR(tmp_str);
 #else
         if (errno == EPIPE)
             return COVISE_SOCKET_INVALID;
         if (errno == ECONNRESET)
             return COVISE_SOCKET_INVALID;
-        sprintf(tmp_str, "Socket write error = %d: %s, no_of_bytes = %d", errno, coStrerror(errno), no_of_bytes);
+        snprintf(tmp_str, sizeof(tmp_str), "Socket write error = %d: %s, no_of_bytes = %d", errno, coStrerror(errno), no_of_bytes);
         LOGERROR(tmp_str);
 #endif
 #ifdef _DEBUG
@@ -823,7 +823,7 @@ int Socket::read(void *buf, unsigned nbyte)
 #endif
     if (no_of_bytes < 0)
     {
-        sprintf(tmp_str, "Socket::read error: %s", coStrerror(getErrno()));
+        snprintf(tmp_str, sizeof(tmp_str), "Socket::read error: %s", coStrerror(getErrno()));
         LOGINFO(tmp_str);
         //    perror("Socket read error");
         LOGINFO("read returns <= 0: close socket.");
@@ -1398,14 +1398,14 @@ int SSLSocket::write(const void *buf, unsigned int nbyte)
         checkSSLError(mSSLObject, no_of_bytes);
 
 #ifdef _WIN32
-        sprintf(tmp_str, "Socket send error = %d", WSAGetLastError());
+        snprintf(tmp_str, sizeof(tmp_str), "Socket send error = %d", WSAGetLastError());
         LOGERROR(tmp_str);
 #else
         if (errno == EPIPE)
             return COVISE_SOCKET_INVALID;
         if (errno == ECONNRESET)
             return COVISE_SOCKET_INVALID;
-        sprintf(tmp_str, "Socket write error = %d: %s, no_of_bytes = %d", errno, coStrerror(errno), no_of_bytes);
+        snprintf(tmp_str, sizeof(tmp_str), "Socket write error = %d: %s, no_of_bytes = %d", errno, coStrerror(errno), no_of_bytes);
         LOGERROR(tmp_str);
 #endif
 #ifdef _DEBUG

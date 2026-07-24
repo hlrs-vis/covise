@@ -656,7 +656,7 @@ void showbuffer(float x, float y, float z, float matrix[3][3], int button, UDP_S
     char sendbuffer[2048];
     static int often = 0;
     often++;
-    sprintf(sendbuffer, "VRC %d %3d [%f %f %f] - [%f %f %f %f %f %f %f %f %f] - [0 0]",
+    snprintf(sendbuffer, sizeof(sendbuffer), "VRC %d %3d [%f %f %f] - [%f %f %f %f %f %f %f %f %f] - [0 0]",
             stationID, button, x, y, z,
             matrix[0][0], matrix[0][1], matrix[0][2],
             matrix[1][0], matrix[1][1], matrix[1][2],

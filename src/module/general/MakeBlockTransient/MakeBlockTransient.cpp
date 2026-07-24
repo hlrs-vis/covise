@@ -104,7 +104,7 @@ int MakeBlockTransient::compute(const char *)
     char buf[16];
     char Name[300];
 
-    sprintf(buf, "1 %d", numSteps);
+    snprintf(buf, sizeof(buf), "1 %d", numSteps);
 
     cerr << "NumBlocks=" << numBlocks << endl;
 
@@ -126,7 +126,7 @@ int MakeBlockTransient::compute(const char *)
             }
         }
 
-        sprintf(Name, "%s_%d", p_outport->getObjName(), j);
+        snprintf(Name, sizeof(Name), "%s_%d", p_outport->getObjName(), j);
 
         set_list[numSteps] = NULL;
         timeset = new coDoSet(Name, set_list);

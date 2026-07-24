@@ -476,7 +476,7 @@ addField(const char *typeString, const char *name)
    if (type == VrmlField::NO_FIELD)
    {
       char msg[100];
-      sprintf(msg,"invalid field type: %s",typeString);
+      snprintf(msg, sizeof(msg),"invalid field type: %s",typeString);
       yyerror(msg);
       return VrmlField::NO_FIELD;
    }
@@ -503,7 +503,7 @@ addEventIn(const char *typeString, const char *name)
    if (type == VrmlField::NO_FIELD)
    {
       char msg[100];
-      sprintf(msg,"invalid eventIn type: %s",typeString);
+      snprintf(msg, sizeof(msg),"invalid eventIn type: %s",typeString);
       yyerror(msg);
 
       return VrmlField::NO_FIELD;
@@ -528,7 +528,7 @@ addEventOut(const char *typeString, const char *name)
    if (type == VrmlField::NO_FIELD)
    {
       char msg[100];
-      sprintf(msg,"invalid eventOut type: %s",typeString);
+      snprintf(msg, sizeof(msg),"invalid eventOut type: %s",typeString);
       yyerror(msg);
 
       return VrmlField::NO_FIELD;
@@ -553,7 +553,7 @@ addExposedField(const char *typeString, const char *name)
    if (type == VrmlField::NO_FIELD)
    {
       char msg[100];
-      sprintf(msg,"invalid exposedField type: %s",typeString);
+      snprintf(msg, sizeof(msg),"invalid exposedField type: %s",typeString);
       yyerror(msg);
 
       return VrmlField::NO_FIELD;
@@ -601,7 +601,7 @@ enterNode(const char *nodeTypeName)
    if (t == NULL)
    {
       char tmp[256];
-      sprintf(tmp, "Unknown node type '%s'", nodeTypeName);
+      snprintf(tmp, sizeof(tmp), "Unknown node type '%s'", nodeTypeName);
       yyerror(tmp);
    }
    FieldRec *fr = new FieldRec;
@@ -674,7 +674,7 @@ enterField(const char *fieldName)
       else
       {
          char msg[256];
-         sprintf(msg, "%s nodes do not have %s fields/eventIns/eventOuts",
+         snprintf(msg, sizeof(msg), "%s nodes do not have %s fields/eventIns/eventOuts",
          fr->nodeType->getName(), fieldName);
          yyerror(msg);
       }
@@ -721,7 +721,7 @@ addScriptEventIn(const char *typeString, const char *name)
       if (type == VrmlField::NO_FIELD)
       {
          char msg[100];
-         sprintf(msg,"invalid eventIn type: %s",typeString);
+         snprintf(msg, sizeof(msg),"invalid eventIn type: %s",typeString);
          yyerror(msg);
       }
 
@@ -740,7 +740,7 @@ addScriptEventOut(const char *typeString, const char *name)
       if (type == VrmlField::NO_FIELD)
       {
          char msg[100];
-         sprintf(msg,"invalid eventOut type: %s",typeString);
+         snprintf(msg, sizeof(msg),"invalid eventOut type: %s",typeString);
          yyerror(msg);
       }
 
@@ -759,7 +759,7 @@ addScriptExposedField(const char *typeString, const char *name)
       if (type == VrmlField::NO_FIELD)
       {
          char msg[100];
-         sprintf(msg,"invalid eventOut type: %s",typeString);
+         snprintf(msg, sizeof(msg),"invalid eventOut type: %s",typeString);
          yyerror(msg);
       }
 
@@ -780,7 +780,7 @@ enterScriptExposedField(const char *typeString, const char *fieldName)
       if (fr->fieldType == VrmlField::NO_FIELD)
       {
          char msg[100];
-         sprintf(msg,"invalid Script field %s type: %s", fieldName, typeString);
+         snprintf(msg, sizeof(msg),"invalid Script field %s type: %s", fieldName, typeString);
          yyerror(msg);
       }
       else
@@ -819,7 +819,7 @@ enterScriptField(const char *typeString, const char *fieldName)
       if (fr->fieldType == VrmlField::NO_FIELD)
       {
          char msg[100];
-         sprintf(msg,"invalid Script field %s type: %s", fieldName, typeString);
+         snprintf(msg, sizeof(msg),"invalid Script field %s type: %s", fieldName, typeString);
          yyerror(msg);
       }
       else
@@ -938,7 +938,7 @@ static void addRoute(const char *fromNodeName,
    if (! fromNode || ! toNode)
    {
       char msg[256];
-      sprintf(msg, "invalid %s node name \"%s\" in ROUTE statement.",
+      snprintf(msg, sizeof(msg), "invalid %s node name \"%s\" in ROUTE statement.",
               fromNode ? "destination" : "source",
               fromNode ? toNodeName : fromNodeName);
       yyerror(msg);
@@ -978,7 +978,7 @@ static VrmlField *addIS(const char *isFieldName)
    if (! fr )
    {
       char msg[256];
-      sprintf(msg,"IS statement (%s) without field declaration", isFieldName);
+      snprintf(msg, sizeof(msg),"IS statement (%s) without field declaration", isFieldName);
       yyerror(msg);
       return 0;
    }
@@ -995,7 +995,7 @@ static VrmlField *addIS(const char *isFieldName)
       else if (! fr->fieldName)
       {
          char msg[256];
-         sprintf(msg,"invalid IS interface name (%s) in PROTO %s", isFieldName,
+         snprintf(msg, sizeof(msg),"invalid IS interface name (%s) in PROTO %s", isFieldName,
                  t->getName() );
          yyerror(msg);
       }
@@ -1010,7 +1010,7 @@ static VrmlField *addIS(const char *isFieldName)
    else
    {
       char msg[256];
-      sprintf(msg,"IS statement (%s) must be in a PROTO or Script.",
+      snprintf(msg, sizeof(msg),"IS statement (%s) must be in a PROTO or Script.",
               isFieldName);
       yyerror(msg);
    }
@@ -1026,7 +1026,7 @@ static VrmlField *addEventIS(const char *fieldName, const char *isFieldName)
     if (! fr )
     {
        char msg[256];
-       sprintf(msg,"IS statement (%s) with no eventIn/eventOut declaration",
+       snprintf(msg, sizeof(msg),"IS statement (%s) with no eventIn/eventOut declaration",
                isFieldName);
        yyerror(msg);
     }

@@ -15,7 +15,7 @@ void Add2Flist(struct Flist *flist, float ind)
       flist->max += flist->portion;
       if ((flist->list = (float *)realloc(flist->list, flist->max*sizeof(float))) == NULL)
       {
-         sprintf(buf, "Realloc failed in Add2Flist: %s, %d\n", __FILE__, __LINE__);
+         snprintf(buf, sizeof(buf), "Realloc failed in Add2Flist: %s, %d\n", __FILE__, __LINE__);
          fatal(buf);
       }
    }
@@ -53,7 +53,7 @@ void FreeFlistStruct(struct Flist *flist)
    }
    else
    {
-      sprintf(buf, "Free on NULL: %s, %d\n", __FILE__, __LINE__);
+      snprintf(buf, sizeof(buf), "Free on NULL: %s, %d\n", __FILE__, __LINE__);
       fatal(buf);
    }
 }

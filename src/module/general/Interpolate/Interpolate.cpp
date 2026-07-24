@@ -209,7 +209,7 @@ int Interpolate::compute(const char *)
 
             for (i = 0; i < steps; i++)
             {
-                sprintf(int_index_name, "%s_%d", o_index_name, i);
+                snprintf(int_index_name, sizeof(int_index_name), "%s_%d", o_index_name, i);
                 index_out[i] = new coDoIntArr(int_index_name, num_dim, size);
                 if (index_out[i] == NULL)
                 {
@@ -227,7 +227,7 @@ int Interpolate::compute(const char *)
             index_out[4 * steps] = NULL;
             for (i = 0; i < 4 * steps; i++)
             {
-                sprintf(int_index_name, "%s_%d", o_index_name, i);
+                snprintf(int_index_name, sizeof(int_index_name), "%s_%d", o_index_name, i);
                 index_out[i] = new coDoIntArr(int_index_name, num_dim, size);
                 if (index_out[i] == NULL)
                 {
@@ -248,7 +248,7 @@ int Interpolate::compute(const char *)
         // create set
         char attr[256];
         newIndex = (coDistributedObject **)index_out;
-        sprintf(attr, "%d %d", 1, NumElemsInSetList(newIndex));
+        snprintf(attr, sizeof(attr), "%d %d", 1, NumElemsInSetList(newIndex));
         coDoSet *index_set = new coDoSet(o_index_name, newIndex);
         index_set->addAttribute("TIMESTEP", attr);
         p_indexOut->setCurrentObject(index_set);
@@ -310,7 +310,7 @@ int Interpolate::compute(const char *)
         int k = 0;
         for (i = f_start; i < f_end; i++) //gott
         {
-            sprintf(int_data_name, "%s_%d", o_data_name, i);
+            snprintf(int_data_name, sizeof(int_data_name), "%s_%d", o_data_name, i);
             interpolate(data1_obj, motion, steps, int_data_name, i, &newData[k]);
             if (newData[k] == NULL)
             {
@@ -330,7 +330,7 @@ int Interpolate::compute(const char *)
         // create set
         coDoSet *data_set = new coDoSet(o_data_name, newData);
         char attr[256];
-        sprintf(attr, "%d %d", 1, NumElemsInSetList(newData));
+        snprintf(attr, sizeof(attr), "%d %d", 1, NumElemsInSetList(newData));
         data_set->addAttribute("TIMESTEP", attr);
 
         return CONTINUE_PIPELINE;
@@ -381,8 +381,8 @@ int Interpolate::compute(const char *)
         for (i = 0; i < steps; i++)
         {
 
-            sprintf(int_data1_name, "%s_%d", o_data1_name, k);
-            sprintf(int_data2_name, "%s_%d", o_data2_name, k);
+            snprintf(int_data1_name, sizeof(int_data1_name), "%s_%d", o_data1_name, k);
+            snprintf(int_data2_name, sizeof(int_data2_name), "%s_%d", o_data2_name, k);
             interpolate(data1_obj, motion, steps, int_data1_name, i, &newData1[k]);
             interpolate(data2_obj, motion, steps, int_data2_name, i, &newData2[k]);
             k++;
@@ -402,10 +402,10 @@ int Interpolate::compute(const char *)
         coDoSet *data1_set = new coDoSet(o_data1_name, newData1);
         coDoSet *data2_set = new coDoSet(o_data2_name, newData2);
         char attr[256];
-        sprintf(attr, "%d %d", 1, NumElemsInSetList(newData1));
+        snprintf(attr, sizeof(attr), "%d %d", 1, NumElemsInSetList(newData1));
         data1_set->addAttribute("TIMESTEP", attr);
 
-        sprintf(attr, "%d %d", 1, NumElemsInSetList(newData2));
+        snprintf(attr, sizeof(attr), "%d %d", 1, NumElemsInSetList(newData2));
         data2_set->addAttribute("TIMESTEP", attr);
 
         p_dataOut_1->setCurrentObject(data1_set);
@@ -469,7 +469,7 @@ int Interpolate::compute(const char *)
         int k = 0;
         for (i = f_start; i < f_end; i++) //gott
         {
-            sprintf(int_data_name, "%s_%d", o_data_name, i);
+            snprintf(int_data_name, sizeof(int_data_name), "%s_%d", o_data_name, i);
             interpolate_two_fields(data1_obj, data3_obj, motion, steps, int_data_name, i, &newData[k]);
             if (newData[k] == NULL)
             {
@@ -489,7 +489,7 @@ int Interpolate::compute(const char *)
         // create set
         coDoSet *data_set = new coDoSet(o_data_name, newData);
         char attr[256];
-        sprintf(attr, "%d %d", 1, NumElemsInSetList(newData));
+        snprintf(attr, sizeof(attr), "%d %d", 1, NumElemsInSetList(newData));
         data_set->addAttribute("TIMESTEP", attr);
 
         return CONTINUE_PIPELINE;
@@ -675,7 +675,7 @@ void Interpolate::interpolate(const coDistributedObject *d, const int m,
             for (i = 0; i < numElem; i++)
             {
                 char name[512];
-                sprintf(name, "%s_%d", dataName, i);
+                snprintf(name, sizeof(name), "%s_%d", dataName, i);
                 interpolate(inObj[i], m, s, name, no, &outObj[i]);
             }
             coDoSet *setOut = new coDoSet(dataName, outObj);
@@ -930,7 +930,7 @@ void Interpolate::interpolate_two_fields(
         //    for (i=0;i<numElem;i++)
         //    {
         //       char name[512];
-        //       sprintf(name,"%s_%d",dataName,i);
+        //       snprintf(name, sizeof(name),"%s_%d",dataName,i);
         //       interpolate(inObj[i],m,s,name,no,&outObj[i]);
         //    }
         //    coDoSet *setOut = new coDoSet(dataName,outObj);

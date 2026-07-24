@@ -266,9 +266,9 @@ int ExtractTexCoords::compute(const char *)
     char fn[200];
 
 #ifdef _WIN32
-    sprintf(fn, "%s\\hubshroud.txt", getenv("TMP"));
+    snprintf(fn, sizeof(fn), "%s\\hubshroud.txt", getenv("TMP"));
 #else
-    sprintf(fn, "/tmp/hubshroud.txt");
+    snprintf(fn, sizeof(fn), "/tmp/hubshroud.txt");
 #endif
     if ((fp = fopen(fn, "w+")) == NULL)
     {
@@ -444,9 +444,9 @@ int ExtractTexCoords::compute(const char *)
     shroud_side2.push_back(shroud2[pos]);
 
 #ifdef _WIN32
-    sprintf(fn, "%s\\shroud_ps_ss.txt", getenv("TMP"));
+    snprintf(fn, sizeof(fn), "%s\\shroud_ps_ss.txt", getenv("TMP"));
 #else
-    sprintf(fn, "/tmp/shroud_ps_ss.txt");
+    snprintf(fn, sizeof(fn), "/tmp/shroud_ps_ss.txt");
 #endif
     if ((fp = fopen(fn, "w+")) == NULL)
     {
@@ -601,9 +601,9 @@ int ExtractTexCoords::compute(const char *)
 
 // evaluate ps
 #ifdef _WIN32
-    sprintf(fn, "%s\\ps.txt", getenv("TMP"));
+    snprintf(fn, sizeof(fn), "%s\\ps.txt", getenv("TMP"));
 #else
-    sprintf(fn, "/tmp/ps.txt");
+    snprintf(fn, sizeof(fn), "/tmp/ps.txt");
 #endif
     if ((fp = fopen(fn, "w+")) == NULL)
     {
@@ -623,9 +623,9 @@ int ExtractTexCoords::compute(const char *)
 
 // evaluate ss
 #ifdef _WIN32
-    sprintf(fn, "%s\\ss.txt", getenv("TMP"));
+    snprintf(fn, sizeof(fn), "%s\\ss.txt", getenv("TMP"));
 #else
-    sprintf(fn, "/tmp/ss.txt");
+    snprintf(fn, sizeof(fn), "/tmp/ss.txt");
 #endif
     if ((fp = fopen(fn, "w+")) == NULL)
     {
@@ -671,9 +671,9 @@ int ExtractTexCoords::compute(const char *)
 
 // evaluate meridional compression
 #ifdef _WIN32
-    sprintf(fn, "%s\\compression.txt", getenv("TMP"));
+    snprintf(fn, sizeof(fn), "%s\\compression.txt", getenv("TMP"));
 #else
-    sprintf(fn, "/tmp/compression.txt");
+    snprintf(fn, sizeof(fn), "/tmp/compression.txt");
 #endif
     if ((fp = fopen(fn, "w+")) == NULL)
     {
@@ -797,9 +797,9 @@ int ExtractTexCoords::compute(const char *)
    delete[] vert;
 */
 #ifdef _WIN32
-    sprintf(fn, "%s\\textureCoords.txt", getenv("TMP"));
+    snprintf(fn, sizeof(fn), "%s\\textureCoords.txt", getenv("TMP"));
 #else
-    sprintf(fn, "/tmp/textureCoords.txt");
+    snprintf(fn, sizeof(fn), "/tmp/textureCoords.txt");
 #endif
     if ((fp = fopen(fn, "w+")) == NULL)
     {

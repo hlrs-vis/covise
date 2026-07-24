@@ -63,7 +63,7 @@ ReadHyperMesh::ReadHyperMesh(int argc, char **argv)
     int i;
     for (i = 0; i < NUMRES; i++)
     {
-        sprintf(buf, "data%d", i);
+        snprintf(buf, sizeof(buf), "data%d", i);
         dataPort[i] = addOutputPort(buf, "Float|Vec3", buf);
         dataPort[i]->setInfo(buf);
     }
@@ -626,7 +626,7 @@ int ReadHyperMesh::compute(const char *)
     if (numPoints)
     {
         char buf[1000];
-        sprintf(buf, "%s_Grid", mesh->getObjName());
+        snprintf(buf, sizeof(buf), "%s_Grid", mesh->getObjName());
         gridObj = new coDoUnstructuredGrid(buf, numElem, numVert, numPoints, &elements[0], &vertices[0], &xPoints[0], &yPoints[0], &zPoints[0], &types[0]);
     }
     else
@@ -675,7 +675,7 @@ int ReadHyperMesh::compute(const char *)
                     getLine();
 
                     char buf[1000];
-                    sprintf(buf, "%s_%d_%d", dataPort[numData]->getObjName(), numData, numTimeSteps);
+                    snprintf(buf, sizeof(buf), "%s_%d_%d", dataPort[numData]->getObjName(), numData, numTimeSteps);
                     if (c[0] == 'V')
                     {
                         pushBack();
@@ -738,7 +738,7 @@ int ReadHyperMesh::compute(const char *)
         if (haveDisplacements)
         {
             char buf[1000];
-            sprintf(buf, "%s_Grid_%d", mesh->getObjName(), i);
+            snprintf(buf, sizeof(buf), "%s_Grid_%d", mesh->getObjName(), i);
             coDoVec3 *dataObj = (coDoVec3 *)dataObjects[displacementData][i];
             dataObj->getAddresses(&dx, &dy, &dz);
             int n;

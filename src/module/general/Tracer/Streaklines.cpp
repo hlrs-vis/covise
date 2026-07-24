@@ -127,7 +127,7 @@ Streaklines::gatherTimeStep()
         lines_.resize(covise_time_ + 1);
     std::string name = name_line_;
     char buf[64];
-    sprintf(buf, "_%d", covise_time_);
+    snprintf(buf, sizeof(buf), "_%d", covise_time_);
     name += buf;
 
     lines_[covise_time_] = new coDoLines(name, numVertices,
@@ -152,7 +152,7 @@ Streaklines::gatherTimeStep()
         magnitude_.resize(covise_time_ + 1);
     // magnitude
     name = name_magnitude_;
-    sprintf(buf, "_%d", covise_time_);
+    snprintf(buf, sizeof(buf), "_%d", covise_time_);
     name += buf;
 
     magnitude_[covise_time_] = new coDoFloat(name, numVertices, &mag[0]);

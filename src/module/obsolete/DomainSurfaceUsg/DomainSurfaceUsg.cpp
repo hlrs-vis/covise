@@ -249,7 +249,7 @@ void Application::doModule(coDistributedObject *meshIn,
                     if (masterLevel)
                     {
                         char buffer[64];
-                        sprintf(buffer, "Step %d", i);
+                        snprintf(buffer, sizeof(buffer), "Step %d", i);
                         Covise::sendInfo(buffer);
                     }
                     sprintf(meshOutInt, meshOutMask, i);
@@ -409,7 +409,7 @@ void Application::doModule(coDistributedObject *meshIn,
                 if (masterLevel)
                 {
                     char buffer[64];
-                    sprintf(buffer, "Step %d", i);
+                    snprintf(buffer, sizeof(buffer), "Step %d", i);
                     Covise::sendInfo(buffer);
                 }
                 sprintf(meshOutInt, meshOutMask, i);

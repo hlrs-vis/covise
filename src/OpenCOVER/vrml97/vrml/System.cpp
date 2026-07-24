@@ -180,10 +180,10 @@ bool System::loadUrl(const char *url, int np, char **parameters)
     int result = 1;
 #ifndef _WIN32
     if (np)
-        sprintf(buf, "/bin/csh -c \"netscape -remote 'openURL(%s, %s)'\" &",
+        snprintf(buf, sizeof(buf), "/bin/csh -c \"netscape -remote 'openURL(%s, %s)'\" &",
                 url, parameters[0]);
     else
-        sprintf(buf, "/bin/csh -c \"netscape -remote 'openURL(%s)'\" &", url);
+        snprintf(buf, sizeof(buf), "/bin/csh -c \"netscape -remote 'openURL(%s)'\" &", url);
     result = system(buf);
     fprintf(stderr, "%s\n", buf);
 #else

@@ -46,7 +46,7 @@ DxFile::DxFile(const char *filename, bool selfContained)
     if (!valid_)
     {
         char msg[1024];
-        sprintf(msg, "file %s ccould not be opened", filename);
+        snprintf(msg, sizeof(msg), "file %s ccould not be opened", filename);
         Covise::sendError(msg);
         return;
     }

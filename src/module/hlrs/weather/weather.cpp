@@ -263,7 +263,7 @@ void Application::computeCallback(void *userData, void *callbackData)
 void Application::selfExec()
 {
     char buf[1000];
-    sprintf(buf, "E%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+    snprintf(buf, sizeof(buf), "E%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
     Covise::set_feedback_info(buf);
     Covise::send_feedback_message("EXEC", "");
 }

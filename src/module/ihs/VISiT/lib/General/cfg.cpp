@@ -314,7 +314,7 @@ char **dump_cfg(void)
          dprintf(2, "Dump of ihs_cfg:\nFile: %s\tnum : %d\n", c->filename, c->num);
          for (i = 0; i< c->num; i++)
          {
-            sprintf(tmp, "%s.%s=%s",
+            snprintf(tmp, sizeof(tmp), "%s.%s=%s",
                c->icfg[i]->section, c->icfg[i]->key,
                c->icfg[i]->value);
             buf[numbuf++] = strdup(tmp);
@@ -361,9 +361,9 @@ static void DumpIHSCfg(void)
          dprintf(6, "Dump of ihs_cfg: file: %s  num : %d\n", c->filename, c->num);
          for (i = 0; i< c->num; i++)
          {
-            sprintf(sec, "Section: <%s>", c->icfg[i]->section);
-            sprintf(key, "Key: <%s>", c->icfg[i]->key);
-            sprintf(val, "Value: <%s>", c->icfg[i]->value);
+            snprintf(sec, sizeof(sec), "Section: <%s>", c->icfg[i]->section);
+            snprintf(key, sizeof(key), "Key: <%s>", c->icfg[i]->key);
+            snprintf(val, sizeof(val), "Value: <%s>", c->icfg[i]->value);
             dprintf(6, "  %-40s %-40s %-40s\n", sec, key, val);
          }
       }

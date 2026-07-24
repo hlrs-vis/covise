@@ -122,7 +122,7 @@ int CuttingSurface3DTex::compute(const char *)
         str++;
         sscanf(str, "%s %s %s", modulename, moduleinstance, hostname);
         cuttingsurface->addAttribute("MODULE", "CuttingSurface3DTexPlugin");
-        sprintf(buf, "X%s\n%s\n%s\n%s\n%s", modulename, moduleinstance, hostname, "CuttingSurface", value);
+        snprintf(buf, sizeof(buf), "X%s\n%s\n%s\n%s\n%s", modulename, moduleinstance, hostname, "CuttingSurface", value);
         cuttingsurface->addAttribute("INTERACTOR", buf);
     }
 

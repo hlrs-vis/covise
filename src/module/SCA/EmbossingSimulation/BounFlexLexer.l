@@ -102,7 +102,7 @@ dumpNodes(ostream *outs,int* accumL)
          // add node to nodes
          ++accum;
          char form[32];
-         sprintf(form,"%10d",ints);
+         snprintf(form, sizeof(form),"%10d",ints);
          nodes += form;
          if(accum==8){ // flush
             dumpNodes(yyout,&accum);

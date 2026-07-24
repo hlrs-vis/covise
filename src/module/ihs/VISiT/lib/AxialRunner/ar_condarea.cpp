@@ -35,7 +35,7 @@ int CreateAR_ConduitAreas(struct axial *ar)
    char *fn;
    FILE *fp=NULL;
 
-   sprintf(fname, "ar_area_%02d.txt", ncall++);
+   snprintf(fname, sizeof(fname), "ar_area_%02d.txt", ncall++);
    fn = DebugFilename(fname);
    if(fn)
    fp = fopen(fn, "w");

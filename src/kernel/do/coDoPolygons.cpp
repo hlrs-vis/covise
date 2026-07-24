@@ -90,7 +90,7 @@ coDoPolygons::MakeOctTree(const char *octtreeSurname) const
     if (!oct_tree)
     {
         char fullOctname[256];
-        sprintf(fullOctname, "%s_OctTree_%s", name, octtreeSurname);
+        snprintf(fullOctname, sizeof(fullOctname), "%s_OctTree_%s", name, octtreeSurname);
         oct_tree = new coDoOctTreeP(coObjInfo(fullOctname), numelem,
                                     numconn, numpoints,
                                     el, cl, x_c_, y_c_, z_c_);

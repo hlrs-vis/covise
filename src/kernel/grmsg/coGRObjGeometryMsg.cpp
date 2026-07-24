@@ -24,11 +24,11 @@ GRMSGEXPORT coGRObjGeometryMsg::coGRObjGeometryMsg(const char *obj_name, float w
 
     char str[1024];
 
-    sprintf(str, "%f", width_);
+    snprintf(str, sizeof(str), "%f", width_);
     addToken(str);
-    sprintf(str, "%f", height_);
+    snprintf(str, sizeof(str), "%f", height_);
     addToken(str);
-    sprintf(str, "%f", length_);
+    snprintf(str, sizeof(str), "%f", length_);
     addToken(str);
 
     is_valid_ = 1;

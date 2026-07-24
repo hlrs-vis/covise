@@ -60,7 +60,7 @@ coDistributedObject *FixPart::handle_objects(const coDistributedObject *obj_in)
         }
         else
         {
-            sprintf(obj_name, "%s_fix", in_set->getName());
+            snprintf(obj_name, sizeof(obj_name), "%s_fix", in_set->getName());
             out_set = new coDoSet(obj_name, objs_out);
             delete[] objs_out;
             return out_set;
@@ -81,7 +81,7 @@ coDistributedObject *FixPart::handle_objects(const coDistributedObject *obj_in)
             y_out[i] = y[i] - displace_vector[timestep][1];
             z_out[i] = z[i] - displace_vector[timestep][2];
         }
-        sprintf(obj_name, "%s_fix", grid_in->getName());
+        snprintf(obj_name, sizeof(obj_name), "%s_fix", grid_in->getName());
         grid_out = new coDoUnstructuredGrid(obj_name, num_elem, num_conn, num_coords,
                                             elem, conn, x_out, y_out, z_out, type);
         delete[] x_out;

@@ -58,7 +58,7 @@ AlkaneBuilder::AlkaneBuilder()
         connections.push_back(osg::Vec3(-1, 1, 1));
         connections.push_back(osg::Vec3(1, -1, 1));
         char name[1024];
-        sprintf(name, "Carbon_%d", i);
+        snprintf(name, sizeof(name), "Carbon_%d", i);
         //fprintf(stderr,"creating C atom %s\n", name );
 
         float w = opencover::coVRConfig::instance()->screens[0].hsize;
@@ -75,7 +75,7 @@ AlkaneBuilder::AlkaneBuilder()
         std::vector<osg::Vec3> connections;
         connections.push_back(osg::Vec3(0, 0, 1));
         char name[1024];
-        sprintf(name, coTranslator::coTranslate("Hydrogen_%d").c_str(), i);
+        snprintf(name, sizeof(name), coTranslator::coTranslate("Hydrogen_%d").c_str(), i);
         //fprintf(stderr,"creating H atom %s\n", name );
         float w = opencover::coVRConfig::instance()->screens[0].hsize;
         float h = opencover::coVRConfig::instance()->screens[0].vsize;
@@ -246,10 +246,10 @@ AlkaneBuilder::makeDescription(std::string name, std::string formula, float font
     char t[2000];
     if (mode_) // build mode
     {
-        sprintf(t, coTranslator::coTranslate("Bauen Sie das Alkan: %s\n").c_str(), name.c_str());
+        snprintf(t, sizeof(t), coTranslator::coTranslate("Bauen Sie das Alkan: %s\n").c_str(), name.c_str());
     }
     else
-        sprintf(t, coTranslator::coTranslate("Sie sehen das Alkan: %s\n").c_str(), name.c_str());
+        snprintf(t, sizeof(t), coTranslator::coTranslate("Sie sehen das Alkan: %s\n").c_str(), name.c_str());
 
     osgText::String ot(std::string(t), osgText::String::ENCODING_UTF8);
     anweisungText_->setText(ot);
@@ -264,7 +264,7 @@ AlkaneBuilder::makeDescription(std::string name, std::string formula, float font
     statusText_->setFont(opencover::coVRFileManager::instance()->getFontFile(NULL));
     pos[2] -= fontSize;
     statusText_->setPosition(pos);
-    sprintf(t, " ");
+    snprintf(t, sizeof(t), " ");
     osgText::String ott(std::string(t), osgText::String::ENCODING_UTF8);
     statusText_->setText(ott);
     statusGeode_->addDrawable(statusText_);
@@ -290,11 +290,11 @@ AlkaneBuilder::updateDescription(std::string name, std::string formula)
     statusText_->setText(" ");
     if (mode_) // build mode
     {
-        sprintf(t, coTranslator::coTranslate("Bauen Sie das Alkan: %s\n").c_str(), name.c_str());
+        snprintf(t, sizeof(t), coTranslator::coTranslate("Bauen Sie das Alkan: %s\n").c_str(), name.c_str());
     }
     else
     {
-        sprintf(t, coTranslator::coTranslate("Sie sehen das Alkan: %s\n").c_str(), name.c_str());
+        snprintf(t, sizeof(t), coTranslator::coTranslate("Sie sehen das Alkan: %s\n").c_str(), name.c_str());
     }
     osgText::String ot(std::string(t), osgText::String::ENCODING_UTF8);
     anweisungText_->setText(ot);

@@ -92,7 +92,7 @@ RemoteVideo::RemoteVideo(int id, std::string arvariant)
     video = new osg::MatrixTransform();
     video->addChild(geometryNode);
     char buf[100];
-    sprintf(buf, "RemoteVideo_%d", id);
+    snprintf(buf, sizeof(buf), "RemoteVideo_%d", id);
     video->setName(buf);
     cover->getObjectsRoot()->addChild(video);
 }

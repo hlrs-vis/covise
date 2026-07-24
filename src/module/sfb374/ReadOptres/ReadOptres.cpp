@@ -75,20 +75,20 @@ ReadOptres::ReadOptres()
     p_geometry = addOutputPort("geometry", "coDoPolygons", "selected geometry objects(no data)");
     for (i = 0; i < NUM_PORTS; i++)
     {
-        sprintf(buf, "bar_data%d", i);
-        sprintf(buf2, "data[%d] on bars", i);
+        snprintf(buf, sizeof(buf), "bar_data%d", i);
+        snprintf(buf2, sizeof(buf2), "data[%d] on bars", i);
         p_bar_data[i] = addOutputPort(buf, "coDoFloat|coDoVec3", buf2);
     }
     for (i = 0; i < NUM_PORTS; i++)
     {
-        sprintf(buf, "patch_data%d", i);
-        sprintf(buf2, "data[%d] on patches", i);
+        snprintf(buf, sizeof(buf), "patch_data%d", i);
+        snprintf(buf2, sizeof(buf2), "data[%d] on patches", i);
         p_patch_data[i] = addOutputPort(buf, "coDoFloat|coDoVec3", buf2);
     }
     for (i = 0; i < NUM_PORTS; i++)
     {
-        sprintf(buf, "volume_data%d", i);
-        sprintf(buf2, "data[%d] on volumes", i);
+        snprintf(buf, sizeof(buf), "volume_data%d", i);
+        snprintf(buf2, sizeof(buf2), "data[%d] on volumes", i);
         p_volume_data[i] = addOutputPort(buf, "coDoFloat|coDoVec3", buf2);
     }
 
@@ -104,8 +104,8 @@ ReadOptres::ReadOptres()
     };
     for (i = 0; i < NUM_PORTS; i++)
     {
-        sprintf(buf, "dataSelection%d", i);
-        sprintf(buf2, "data to be read in on port [%d]", i);
+        snprintf(buf, sizeof(buf), "dataSelection%d", i);
+        snprintf(buf2, sizeof(buf2), "data to be read in on port [%d]", i);
         p_selection[i] = addChoiceParam(buf, buf2);
         p_selection[i]->setValue(14, choiceVal, 0);
     }
@@ -302,7 +302,7 @@ int ReadOptres::compute()
         {
             if (timestep == 0)
             {
-                sprintf(buf, "Could not open file: %s", name);
+                snprintf(buf, sizeof(buf), "Could not open file: %s", name);
                 Covise::sendError(buf);
                 break;
             }
@@ -315,7 +315,7 @@ int ReadOptres::compute()
         if (err == 0)
         {
             // no error, so all data is read, now create the COVISE objects
-            sprintf(buf, "Reading Timestep %d", baseNumber + timestep);
+            snprintf(buf, sizeof(buf), "Reading Timestep %d", baseNumber + timestep);
             Covise::sendInfo(buf);
 
             int *vertexNumbers = new int[NdNb]; // array which holds new vertex numbers or -1
@@ -407,7 +407,7 @@ int ReadOptres::compute()
                 // if anything was selected, then create the output
                 if (numPoly)
                 {
-                    sprintf(buf, "%s_%d", p_geometry->getObjName(), baseNumber + timestep);
+                    snprintf(buf, sizeof(buf), "%s_%d", p_geometry->getObjName(), baseNumber + timestep);
                     int n = 0;
                     while (Geometry_sets[n])
                         n++;
@@ -626,7 +626,7 @@ int ReadOptres::compute()
                     // if anything was selected, then create the output
                     if (numPoly)
                     {
-                        sprintf(buf, "%s_%d", p_patches->getObjName(), baseNumber + timestep);
+                        snprintf(buf, sizeof(buf), "%s_%d", p_patches->getObjName(), baseNumber + timestep);
                         int n = 0;
                         while (Patch_sets[n])
                             n++;
@@ -744,7 +744,7 @@ int ReadOptres::compute()
                                 n++;
                             PatchData_sets[i][n + 1] = NULL;
 
-                            sprintf(buf, "%s_%d", p_patch_data[i]->getObjName(), baseNumber + timestep);
+                            snprintf(buf, sizeof(buf), "%s_%d", p_patch_data[i]->getObjName(), baseNumber + timestep);
                             if (dataType[p_selection[i]->getValue()] == NS)
                             {
                                 PatchData_sets[i][n] = new coDoFloat(buf, numNodes);
@@ -1086,31 +1086,31 @@ int ReadOptres::compute()
         }
         else if (err == 1)
         {
-            sprintf(buf, "Could not open file: %s", name);
+            snprintf(buf, sizeof(buf), "Could not open file: %s", name);
             Covise::sendError(buf);
             break;
         }
         else if ((err > 2) && (err < 9))
         {
-            sprintf(buf, "Error %d reading file %s", err, name);
+            snprintf(buf, sizeof(buf), "Error %d reading file %s", err, name);
             Covise::sendError(buf);
             break;
         }
         else if (err == 9)
         {
-            sprintf(buf, "Wrong Version of file %s, expected V6.0C", name);
+            snprintf(buf, sizeof(buf), "Wrong Version of file %s, expected V6.0C", name);
             Covise::sendError(buf);
             break;
         }
         else if (err == 10)
         {
-            sprintf(buf, "no material corresponds to the material number of an element inf file %s", name);
+            snprintf(buf, sizeof(buf), "no material corresponds to the material number of an element inf file %s", name);
             Covise::sendError(buf);
             break;
         }
         else
         {
-            sprintf(buf, "Unknown Error %d reading file %s", err, name);
+            snprintf(buf, sizeof(buf), "Unknown Error %d reading file %s", err, name);
             Covise::sendError(buf);
             break;
         }

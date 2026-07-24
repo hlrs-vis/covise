@@ -314,7 +314,7 @@ void Calculator::updateDisplay()
     //   else
     //     strcpy(buf, "");
 
-    sprintf(buf, "%.*lf", abs(_decimalPlace), _value);
+    snprintf(buf, sizeof(buf), "%.*lf", abs(_decimalPlace), _value);
 
     if (_isDot && (_decimalPlace == 0))
         strcat(buf, ".");
@@ -484,7 +484,7 @@ void Calculator::undo()
     if (_isSign)
         _value *= -1.0;
 
-    num = sprintf(buf, "%.*lf", abs(_decimalPlace), _value);
+    num = snprintf(buf, sizeof(buf), "%.*lf", abs(_decimalPlace), _value);
 
     if (_isDot)
     {
@@ -522,7 +522,7 @@ void Calculator::setValue(double value, bool setValue)
         }
         else
         {
-            num = sprintf(buf, "%.*lf", abs(DECIMAL_PLACES), value);
+            num = snprintf(buf, sizeof(buf), "%.*lf", abs(DECIMAL_PLACES), value);
 
             _isSign = false;
 
@@ -569,7 +569,7 @@ void Calculator::setValue(double value, bool setValue)
         }
         else
         {
-            num = sprintf(buf, "%.*lf", abs(_decimalPlace), value);
+            num = snprintf(buf, sizeof(buf), "%.*lf", abs(_decimalPlace), value);
 
             _isSign = false;
 

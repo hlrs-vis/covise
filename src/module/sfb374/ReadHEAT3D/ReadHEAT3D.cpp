@@ -78,7 +78,7 @@ void ReadHEAT3D::compute(void *)
     if ((h3d = Covise::fopen(filepath, "r")) == NULL)
     {
         char bfr[1024];
-        sprintf(bfr, "ERROR: can't open file %s", filepath);
+        snprintf(bfr, sizeof(bfr), "ERROR: can't open file %s", filepath);
         Covise::sendError(bfr);
     }
 

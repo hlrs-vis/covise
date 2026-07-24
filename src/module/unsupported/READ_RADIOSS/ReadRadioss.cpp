@@ -61,12 +61,12 @@ ReadRadioss::ReadRadioss()
     {
         if (i == 0)
         {
-            sprintf(buf, "displacements");
+            snprintf(buf, sizeof(buf), "displacements");
             dataPort[i] = addOutputPort(buf, "coDoVec3", buf);
         }
         else
         {
-            sprintf(buf, "scalar value %d", i);
+            snprintf(buf, sizeof(buf), "scalar value %d", i);
             dataPort[i] = addOutputPort(buf, "coDoFloat", buf);
         }
     }

@@ -414,7 +414,7 @@ tmp_objs=new coDistributedObject *[numsets+1];
 
 for(i=0;i<numsets;i++)
 {
-sprintf(buf, "%s_%d", Name, i);
+snprintf(buf, sizeof(buf), "%s_%d", Name, i);
 tmp_objs[i]=readData(buf);
 }
 tmp_objs[i]=NULL;
@@ -443,17 +443,17 @@ read(fp,&t2,sizeof(int));  if (byte_swap) swap_int(t2);
 read(fp,&t3,sizeof(int));  if (byte_swap) swap_int(t3);
 if(do1)
 {
-sprintf(buf, "%s_Geo", Name);
+snprintf(buf, sizeof(buf), "%s_Geo", Name);
 do1=readData(buf);
 }
 if(do2)
 {
-sprintf(buf, "%s_Col", Name);
+snprintf(buf, sizeof(buf), "%s_Col", Name);
 do2=readData(buf);
 }
 if(do3)
 {
-sprintf(buf, "%s_Norm", Name);
+snprintf(buf, sizeof(buf), "%s_Norm", Name);
 do3=readData(buf);
 }
 

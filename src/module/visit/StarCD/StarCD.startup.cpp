@@ -666,7 +666,7 @@ int StarCD::doSetup(const coDistributedObject *setupObj,
     if (useModified)
     {
         char buffer[1024];
-        sprintf(buffer, "%s.modified", p_setup->getValue());
+        snprintf(buffer, sizeof(buffer), "%s.modified", p_setup->getValue());
         starConfig = open(buffer, O_RDONLY);
         if (starConfig > 0)
         {

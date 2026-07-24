@@ -168,7 +168,7 @@ int CreateRR_GridRegions(int nob, struct rr_grid *grid)
 	arc[0] = phi[0]*r0;
 	arc[1] = phi[1]*grid->ge[i]->ml->p->x[grid->ge[i]->ml->p->nump-1];
 #ifdef DEBUG_REGIONS
-	sprintf(fndebug,"rr_debugmesh_%02d.txt",i);
+	snprintf(fndebug, sizeof(fndebug),"rr_debugmesh_%02d.txt",i);
 	if( (fpdebug = fopen(fndebug,"w+")) == NULL) {
 	    fprintf(stderr,"Shit happened opening file '%s'!\n",fndebug);
 	    exit(-1);
@@ -1029,7 +1029,7 @@ int CreateRR_GridRegions(int nob, struct rr_grid *grid)
     }
     for(i = itip; i <= ishroud; i++) {
 #ifdef DEBUG_REGIONS
-	sprintf(fndebug,"rr_debugapmesh_%02d.txt",i);
+	snprintf(fndebug, sizeof(fndebug),"rr_debugapmesh_%02d.txt",i);
 	if( (fpdebug = fopen(fndebug,"w+")) == NULL) {
 	    fprintf(stderr,"Shit happened opening file '%s'!\n",fndebug);
 	    exit(-1);

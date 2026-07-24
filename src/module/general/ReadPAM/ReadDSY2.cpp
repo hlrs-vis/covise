@@ -128,7 +128,7 @@ void ReadDSY::addSpecialGlobals(coStringObj::ElemType typa)
                 std::string myOwnTitle(whatNow);
                 myOwnTitle += " Var. ";
                 char labNum[16];
-                sprintf(labNum, "%d", counter);
+                snprintf(labNum, sizeof(labNum), "%d", counter);
                 myOwnTitle += labNum;
                 strcpy(titles + 48 * counter, myOwnTitle.c_str());
             }
@@ -151,10 +151,10 @@ void ReadDSY::addSpecialGlobals(coStringObj::ElemType typa)
                 std::string myOwnTitle(whatNow);
                 myOwnTitle += " ";
                 char labNum[16];
-                sprintf(labNum, "%d", ids[2 * counter]);
+                snprintf(labNum, sizeof(labNum), "%d", ids[2 * counter]);
                 myOwnTitle += labNum;
                 myOwnTitle += " airbag ";
-                sprintf(labNum, "%d", ids[2 * counter + 1]);
+                snprintf(labNum, sizeof(labNum), "%d", ids[2 * counter + 1]);
                 myOwnTitle += labNum;
                 strcpy(titles + 48 * counter, myOwnTitle.c_str());
             }
@@ -177,19 +177,19 @@ void ReadDSY::addSpecialGlobals(coStringObj::ElemType typa)
                 myOwnTitle += " ";
 
                 char labNum[16];
-                sprintf(labNum, "%d", ids[2 * counter]);
+                snprintf(labNum, sizeof(labNum), "%d", ids[2 * counter]);
                 myOwnTitle += labNum;
 
                 myOwnTitle += " ch1: ";
-                sprintf(labNum, "%d", ids[2 * counter + 1]);
+                snprintf(labNum, sizeof(labNum), "%d", ids[2 * counter + 1]);
                 myOwnTitle += labNum;
 
                 myOwnTitle += " ch2: ";
-                sprintf(labNum, "%d", ids[2 * counter + 2]);
+                snprintf(labNum, sizeof(labNum), "%d", ids[2 * counter + 2]);
                 myOwnTitle += labNum;
 
                 myOwnTitle += " ab: ";
-                sprintf(labNum, "%d", ids[2 * counter + 3]);
+                snprintf(labNum, sizeof(labNum), "%d", ids[2 * counter + 3]);
                 myOwnTitle += labNum;
 
                 strcpy(titles + 48 * counter, myOwnTitle.c_str());
@@ -221,7 +221,7 @@ void ReadDSY::addSpecialGlobals(coStringObj::ElemType typa)
             {
                 coTitle += " ";
                 coTitle += whatNow;
-                sprintf(thisTitle, " label(%d)", ids[mat]);
+                snprintf(thisTitle, sizeof(thisTitle), " label(%d)", ids[mat]);
                 coTitle += thisTitle;
             }
             /* else {

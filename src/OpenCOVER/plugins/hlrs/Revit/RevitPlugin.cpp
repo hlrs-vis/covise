@@ -1836,7 +1836,7 @@ RevitPlugin::handleMessage(Message *m)
 		tb >> area;
 		tb >> levelName;
 		char info[1000];
-		sprintf(info, "Nr.: %s\n%s\nArea: %3.7lfm^2\nLevel: %s", roomNumber, roomName, area / 10.0, levelName);
+		snprintf(info, sizeof(info), "Nr.: %s\n%s\nArea: %3.7lfm^2\nLevel: %s", roomNumber, roomName, area / 10.0, levelName);
 		label1->setText(info);
 		//fprintf(stderr,"Room %s %s Area: %lf Level: %s\n", roomNumber,roomName,area,levelName);
 	}
@@ -3003,7 +3003,7 @@ RevitPlugin::handleMessage(Message *m)
 			osg::MatrixTransform *mt = new osg::MatrixTransform();
 			mt->setMatrix(osg::Matrix::scale(REVIT_M_TO_FEET, REVIT_M_TO_FEET, REVIT_M_TO_FEET));
 			char buffer[333];
-			sprintf(buffer, "Default %d", ID);
+			snprintf(buffer, sizeof(buffer), "Default %d", ID);
 			mt->setName(buffer);
 			currentGroup.top()->addChild(mt);
 			osg::Node *inlineNode = NULL;
@@ -3679,7 +3679,7 @@ void RevitPlugin::createNewAnnotation(int id, AnnotationMessage *am)
 	stb << (double)orientation.hpr[1];
 	stb << (double)orientation.hpr[2];
 	char tmpText[100];
-	sprintf(tmpText, "Annotation %d", id);
+	snprintf(tmpText, sizeof(tmpText), "Annotation %d", id);
 	stb << tmpText;
 
 	Message message(stb);

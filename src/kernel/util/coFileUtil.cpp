@@ -544,7 +544,7 @@ const char *coDirectoryImpl::check_path(const char *pathname, const char *path)
             }
         }
 
-        sprintf(newpath, "%s/%s", dirname, pathname);
+        snprintf(newpath, sizeof(newpath), "%s/%s", dirname, pathname);
 #ifdef _WIN32
         if (!_stat(newpath, &statbuf))
 #else

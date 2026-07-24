@@ -3189,7 +3189,7 @@ void WristWatch::stop(char *s)
     // sk: 11.04.2001
     char info_buf[200];
     // fprintf( stderr, "%s took %6.3f seconds\n", s, dur );
-    sprintf(info_buf, "%s took %6.3f seconds.", s, dur);
+    snprintf(info_buf, sizeof(info_buf), "%s took %6.3f seconds.", s, dur);
     Covise::sendInfo(info_buf);
 #endif
     return;

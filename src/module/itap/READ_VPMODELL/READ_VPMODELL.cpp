@@ -96,7 +96,7 @@ void Application::compute() ///here will be readed the xsnap_3d data
     if (stat(datapath, &sbuf) < 0)
     {
         char buf[1000];
-        sprintf(buf, "Could not find File %s", datapath);
+        snprintf(buf, sizeof(buf), "Could not find File %s", datapath);
         Covise::sendError(buf);
         return;
     }
@@ -104,9 +104,9 @@ void Application::compute() ///here will be readed the xsnap_3d data
     if (file_size != (n1 * n2 * n3 * n_bytes * 1))
     {
         char buf[1000];
-        sprintf(buf, "file_size is not equal to (n1 * n2 * n3 * n_bytes )");
+        snprintf(buf, sizeof(buf), "file_size is not equal to (n1 * n2 * n3 * n_bytes )");
         Covise::sendError(buf);
-        sprintf(buf, "file_size =%d bytes.", file_size);
+        snprintf(buf, sizeof(buf), "file_size =%d bytes.", file_size);
         Covise::sendError(buf);
 
         return;
@@ -117,7 +117,7 @@ void Application::compute() ///here will be readed the xsnap_3d data
     if (file < 0)
     {
         char buf[1000];
-        sprintf(buf, "Could not open File %s", datapath);
+        snprintf(buf, sizeof(buf), "Could not open File %s", datapath);
         Covise::sendError(buf);
         return;
     }

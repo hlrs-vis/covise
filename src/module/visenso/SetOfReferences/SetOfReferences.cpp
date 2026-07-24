@@ -51,7 +51,7 @@ int SetOfReferences::compute(const char *)
     if (p_timestep->getValue())
     {
         char buf[16];
-        sprintf(buf, "1 %d", count);
+        snprintf(buf, sizeof(buf), "1 %d", count);
         set_output->addAttribute("TIMESTEP", buf);
     }
 

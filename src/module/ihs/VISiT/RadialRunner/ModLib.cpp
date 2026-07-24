@@ -4,7 +4,7 @@ char *RadialRunner::IndexedParameterName(const char *name, int index)
 {
    char buf[255];
 
-   sprintf(buf, "%s__%d_", name, index + 1);
+   snprintf(buf, sizeof(buf), "%s__%d_", name, index + 1);
    return strdup(buf);
 }
 

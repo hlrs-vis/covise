@@ -18,8 +18,8 @@ int strnicmp(const char *string1, const char *string2, int n)
     int x;
 
     // lokale Kopien anfertigen
-    sprintf(str1, "%s", string1);
-    sprintf(str2, "%s", string2);
+    snprintf(str1, sizeof(str1), "%s", string1);
+    snprintf(str2, sizeof(str2), "%s", string2);
 
     // untersuchte Länge ist n oder die kleinste Stringlänge, falls n größer als diese ist
     len = MIN(MIN(strlen(str1), strlen(str2)), n);
@@ -42,8 +42,8 @@ int stricmp(const char *string1, const char *string2)
     int x;
 
     // lokale Kopien anfertigen
-    sprintf(str1, "%s", string1);
-    sprintf(str2, "%s", string2);
+    snprintf(str1, sizeof(str1), "%s", string1);
+    snprintf(str2, sizeof(str2), "%s", string2);
 
     // untersuchte Länge ist die kleinste Stringlänge
     len = MIN(strlen(str1), strlen(str2));

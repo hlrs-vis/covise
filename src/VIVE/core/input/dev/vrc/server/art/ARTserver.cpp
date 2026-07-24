@@ -317,7 +317,7 @@ int main(int argc, char **argv)
             art->getButtons(artID[i], &b);
 
             char sendbuffer[2048];
-            sprintf(sendbuffer, "VRC %d %3d [%5.1f %5.1f %5.1f] - [%6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f] - [ 0 0 %s]",
+            snprintf(sendbuffer, sizeof(sendbuffer), "VRC %d %3d [%5.1f %5.1f %5.1f] - [%6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f] - [ 0 0 %s]",
                     coverID[i], b, x, y, z,
                     mat[0][0], mat[0][1], mat[0][2],
                     mat[1][0], mat[1][1], mat[1][2],

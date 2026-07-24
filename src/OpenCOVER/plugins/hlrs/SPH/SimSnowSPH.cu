@@ -275,7 +275,7 @@ void SimSnowSPH::Simulate(bool doTiming, bool progress, bool gridWallCollisions,
 	if(doTiming)
 	{
 		char tmp[2048];
-		sprintf(tmp,"%4.4f\t%4.4f\t%4.4f\t%4.4f\t%4.4f\t%4.4f\t%4.4f\t\n", time_hashSPHData, time_radixsort, time_updatelists, time_computeStep1, time_ComputeStep2, time_ComputeStep3, time_integrateForces);
+		snprintf(tmp, sizeof(tmp),"%4.4f\t%4.4f\t%4.4f\t%4.4f\t%4.4f\t%4.4f\t%4.4f\t\n", time_hashSPHData, time_radixsort, time_updatelists, time_computeStep1, time_ComputeStep2, time_ComputeStep3, time_integrateForces);
 		printf(tmp);
 	}
 

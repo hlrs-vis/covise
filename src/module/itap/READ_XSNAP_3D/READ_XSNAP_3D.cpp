@@ -98,7 +98,7 @@ void Application::compute() ///here will be readed the xsnap_3d data
     if (stat(datapath, &sbuf) < 0)
     {
         char buf[1000];
-        sprintf(buf, "Could not find File %s", datapath);
+        snprintf(buf, sizeof(buf), "Could not find File %s", datapath);
         Covise::sendError(buf);
         return;
     }
@@ -106,9 +106,9 @@ void Application::compute() ///here will be readed the xsnap_3d data
     if (file_size != (n1 * n2 * n3 * n_bytes * n4))
     {
         char buf[1000];
-        sprintf(buf, "file_size is not equal to (n1 * n2 * n3 * n_bytes * n4)");
+        snprintf(buf, sizeof(buf), "file_size is not equal to (n1 * n2 * n3 * n_bytes * n4)");
         Covise::sendError(buf);
-        sprintf(buf, "file_size =%d bytes.", file_size);
+        snprintf(buf, sizeof(buf), "file_size =%d bytes.", file_size);
         Covise::sendError(buf);
 
         return;
@@ -119,7 +119,7 @@ void Application::compute() ///here will be readed the xsnap_3d data
     if (file < 0)
     {
         char buf[1000];
-        sprintf(buf, "Could not open File %s", datapath);
+        snprintf(buf, sizeof(buf), "Could not open File %s", datapath);
         Covise::sendError(buf);
         return;
     }
@@ -219,10 +219,10 @@ void Application::compute() ///here will be readed the xsnap_3d data
     }
     grid_out = new coDoUniformGrid(grid_name, nx, ny, nz, x_min, x_max, y_min, y_max, z_min, z_max);
     char buf[300];
-    sprintf(buf, "%d %d", time, n4);
+    snprintf(buf, sizeof(buf), "%d %d", time, n4);
     grid_out->addAttribute("BLOCKINFO", buf);
     str_s3d_out->addAttribute("BLOCKINFO", buf);
-    sprintf(buf, "T%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
+    snprintf(buf, sizeof(buf), "T%s\n%s\n%s\n", Covise::get_module(), Covise::get_instance(), Covise::get_host());
     grid_out->addAttribute("READ_MODULE", buf);
     str_s3d_out->addAttribute("READ_MODULE", buf);
     delete grid_out;

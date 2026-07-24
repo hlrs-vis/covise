@@ -93,7 +93,7 @@ int main(int argc, char* argv[])
     host = new Host(argv[2]);
     int id = atoi(argv[3]);
     proc_id = id;
-    sprintf(err_name, "err%d", id);
+    snprintf(err_name, sizeof(err_name), "err%d", id);
     int send_back = 0;
 
     key = 2000 + (id << 24);

@@ -5169,7 +5169,7 @@ void Isoline::createcoDistributedObjects(const char *Line_name,
     {
         Lines = new coDistributedObject *[2];
 
-        sprintf(name, "%s_0", Line_name);
+        snprintf(name, sizeof(name), "%s_0", Line_name);
         Lines[0] = new coDoLines(name, 0, 0, 0);
         attribs.addAttributes(Lines[0]);
         if (!Lines[0]->getAttribute("COLOR"))
@@ -5184,7 +5184,7 @@ void Isoline::createcoDistributedObjects(const char *Line_name,
 
     for (i = 0; i < num_isolines; i++)
     {
-        sprintf(name, "%s_%d", Line_name, plane->cur_line_elem);
+        snprintf(name, sizeof(name), "%s_%d", Line_name, plane->cur_line_elem);
         plane->cur_line_elem++;
         // add offset to isolines (z-buffer problem)
         if (option == 0)

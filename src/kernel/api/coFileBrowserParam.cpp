@@ -154,7 +154,7 @@ const char *coFileBrowserParam::getTypeString() const
 const char *coFileBrowserParam::getValString() const
 {
     static char valString[512];
-    sprintf(valString, "%s %s", d_path.c_str(), d_filter.c_str());
+    snprintf(valString, sizeof(valString), "%s %s", d_path.c_str(), d_filter.c_str());
     return valString;
 }
 

@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     int kill_id;
 
     fprintf(stderr, "checking remaining shm segments...\n");
-    sprintf(tmp_fname, "/tmp/covise_shm_%d", getuid());
+    snprintf(tmp_fname, sizeof(tmp_fname), "/tmp/covise_shm_%d", getuid());
     bool all_removed = false;
     FILE *hdl = fopen(tmp_fname, "r");
     if (hdl)
@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
             {
                 // posix shmem
                 char tmp_str[100];
-                sprintf(tmp_str, "/covise_shm_%x", key);
+                snprintf(tmp_str, sizeof(tmp_str), "/covise_shm_%x", key);
                 if (shm_unlink(tmp_str))
                 {
                     printf("removal of %s (key=%x) failed: %s\n", tmp_str, key, strerror(errno));
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
         for (i = 0xea000000; i < UINT_MAX; ++i)
         {
             char tmp_str[100];
-            sprintf(tmp_str, "/covise_shm_%0x", i);
+            snprintf(tmp_str, sizeof(tmp_str), "/covise_shm_%0x", i);
             printf("\r%s", tmp_str);
             if (!shm_unlink(tmp_str))
             {
@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
         for (i = 0; i < 0xea000000; ++i)
         {
             char tmp_str[100];
-            sprintf(tmp_str, "/covise_shm_%0x", i);
+            snprintf(tmp_str, sizeof(tmp_str), "/covise_shm_%0x", i);
             printf("\r%s", tmp_str);
             if (!shm_unlink(tmp_str))
             {
@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
 
     fprintf(stderr, "checking remaining processes...\n");
 
-    sprintf(tmp_fname, "/tmp/kill_ids_%d", getuid());
+    snprintf(tmp_fname, sizeof(tmp_fname), "/tmp/kill_ids_%d", getuid());
     hdl = fopen(tmp_fname, "r");
     bool all_killed = true;
     if (hdl)

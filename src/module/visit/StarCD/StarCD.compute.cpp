@@ -37,46 +37,46 @@ char *StarCD::activeRegionSettings()
     {
         if (flags.icoreg[reg] > 0)
         {
-            sprintf(buffer, "REGION %d: %s\n", flags.icoreg[reg], choices[reg + 1]);
+            snprintf(buffer, sizeof(buffer), "REGION %d: %s\n", flags.icoreg[reg], choices[reg + 1]);
             strcat(settings, buffer);
 
-            sprintf(buffer, "  LOCAL %f %f %f\n", p_euler[reg]->getValue(0),
+            snprintf(buffer, sizeof(buffer), "  LOCAL %f %f %f\n", p_euler[reg]->getValue(0),
                     p_euler[reg]->getValue(1),
                     p_euler[reg]->getValue(2));
             strcat(settings, buffer);
 
             if (flags.icovel[reg] > 0)
             {
-                sprintf(buffer, "  VMAG  %s\n", p_vmag[reg]->getValString());
+                snprintf(buffer, sizeof(buffer), "  VMAG  %s\n", p_vmag[reg]->getValString());
                 strcat(settings, buffer);
 
-                sprintf(buffer, "  VDIR  %f %f %f\n", p_v[reg]->getValue(0),
+                snprintf(buffer, sizeof(buffer), "  VDIR  %f %f %f\n", p_v[reg]->getValue(0),
                         p_v[reg]->getValue(1),
                         p_v[reg]->getValue(2));
                 strcat(settings, buffer);
             }
             if (flags.icot[reg] > 0)
             {
-                sprintf(buffer, "  T    %s\n", p_t[reg]->getValString());
+                snprintf(buffer, sizeof(buffer), "  T    %s\n", p_t[reg]->getValString());
                 strcat(settings, buffer);
             }
             if (flags.icop[reg] > 0)
             {
-                sprintf(buffer, "  P    %s\n", p_p[reg]->getValString());
+                snprintf(buffer, sizeof(buffer), "  P    %s\n", p_p[reg]->getValString());
                 strcat(settings, buffer);
             }
             if (flags.icotur[reg] == 1)
             {
-                sprintf(buffer, "  K    %s\n", p_k[reg]->getValString());
+                snprintf(buffer, sizeof(buffer), "  K    %s\n", p_k[reg]->getValString());
                 strcat(settings, buffer);
-                sprintf(buffer, "  EPS  %s\n", p_eps[reg]->getValString());
+                snprintf(buffer, sizeof(buffer), "  EPS  %s\n", p_eps[reg]->getValString());
                 strcat(settings, buffer);
             }
             else if (flags.icotur[reg] == -1)
             {
-                sprintf(buffer, "  TIN  %s\n", p_tin[reg]->getValString());
+                snprintf(buffer, sizeof(buffer), "  TIN  %s\n", p_tin[reg]->getValString());
                 strcat(settings, buffer);
-                sprintf(buffer, "  TLEN %s\n", p_len[reg]->getValString());
+                snprintf(buffer, sizeof(buffer), "  TLEN %s\n", p_len[reg]->getValString());
                 strcat(settings, buffer);
             }
             int sca;
@@ -84,7 +84,7 @@ char *StarCD::activeRegionSettings()
             {
                 if (flags.icosca[reg][sca])
                 {
-                    sprintf(buffer, "  SCAL%d  %s\n", flags.icosca[reg][sca],
+                    snprintf(buffer, sizeof(buffer), "  SCAL%d  %s\n", flags.icosca[reg][sca],
                             p_scal[reg][sca]->getValString());
                     strcat(settings, buffer);
                 }
@@ -94,7 +94,7 @@ char *StarCD::activeRegionSettings()
             {
                 if (flags.icousr[reg][userNo])
                 {
-                    sprintf(buffer, "  SCAL%d  %s\n", flags.icousr[reg][userNo],
+                    snprintf(buffer, sizeof(buffer), "  SCAL%d  %s\n", flags.icousr[reg][userNo],
                             p_user[reg][userNo]->getValString());
                     strcat(settings, buffer);
                 }

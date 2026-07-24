@@ -26,7 +26,7 @@ void errexit(char *f_str,...)
   vsprintf(out1, f_str, argp);
   va_end(argp);
 
-  sprintf(out2, "Error! %s", out1);
+  snprintf(out2, sizeof(out2), "Error! %s", out1);
 
   fprintf(stdout, "%s", out2);
   fflush(stdout);

@@ -2071,7 +2071,7 @@ void drawpolysym(double *x, double *y, int len, int sym, int skip, int fill, dou
         {
             if (symok(x[i], y[i]))
             {
-                sprintf(s, "%d", i + 1);
+                snprintf(s, sizeof(s), "%d", i + 1);
                 writestr(x[i], y[i], 0, 0, s);
             }
         }

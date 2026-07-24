@@ -18,7 +18,7 @@ void AxialRunner::CreatePlot(void)
    for(i = 0; i < NUM_PLOT_PORTS; i++)
    {
       dprintf(5,"CreatePlot(): i = %d:\n",i);
-      sprintf(buf,"XMGR%s_%d",M_2DPLOT,i+1);
+      snprintf(buf, sizeof(buf),"XMGR%s_%d",M_2DPLOT,i+1);
       if(!(PLOT_Name = Covise::get_object_name(buf)))
       {
          sendError("No plot port named '%s' available!",buf);

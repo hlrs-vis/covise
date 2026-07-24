@@ -207,15 +207,15 @@ void Probe::updateProbe()
             char buffer[50];
             if (p_showField->getValue() && p_showPotential->getValue())
             {
-                sprintf(buffer, "%.2f V/m   %.2f V", field.length(), potential);
+                snprintf(buffer, sizeof(buffer), "%.2f V/m   %.2f V", field.length(), potential);
             }
             else if (p_showField->getValue() && !p_showPotential->getValue())
             {
-                sprintf(buffer, "%.2f V/m", field.length());
+                snprintf(buffer, sizeof(buffer), "%.2f V/m", field.length());
             }
             else if (!p_showField->getValue() && p_showPotential->getValue())
             {
-                sprintf(buffer, "%.2f V", potential);
+                snprintf(buffer, sizeof(buffer), "%.2f V", potential);
             }
             label->setString(buffer);
         }

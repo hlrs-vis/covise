@@ -797,7 +797,7 @@ HRESULT WINAVIPlugin::SaveProfile(LPWSTR &profileString)
         time(&rawtime);
         tm *utcTime = localtime(&rawtime);
         char prof[40];
-        sprintf(prof, "CustomProfile_%02d%02d%4d_%02d%02d%02d.prx", utcTime->tm_mday, utcTime->tm_mon + 1,
+        snprintf(prof, sizeof(prof), "CustomProfile_%02d%02d%4d_%02d%02d%02d.prx", utcTime->tm_mday, utcTime->tm_mon + 1,
                 utcTime->tm_year + 1900, utcTime->tm_hour, utcTime->tm_min, utcTime->tm_sec);
         strcat_s(filename, nameLength, prof);
 
@@ -1378,17 +1378,17 @@ HRESULT WINAVIPlugin::CreateProfile(const char *name, int width, int height, DWO
         char newName[200];
         if (strchr(codec, '8') != NULL)
         {
-            sprintf(newName, "Windows Media Video 8 %dx%d %d kbit/s", width, height, bitrate);
+            snprintf(newName, sizeof(newName), "Windows Media Video 8 %dx%d %d kbit/s", width, height, bitrate);
             wmtVersion = WMT_VER_8_0;
         }
         else if (strchr(codec, '7') != NULL)
         {
-            sprintf(newName, "Windows Media Video 7 %dx%d %d kbit/s", width, height, bitrate);
+            snprintf(newName, sizeof(newName), "Windows Media Video 7 %dx%d %d kbit/s", width, height, bitrate);
             wmtVersion = WMT_VER_7_0;
         }
         else
         {
-            sprintf(newName, "Windows Media Video 9 %dx%d %d kbit/s", width, height, bitrate);
+            snprintf(newName, sizeof(newName), "Windows Media Video 9 %dx%d %d kbit/s", width, height, bitrate);
             wmtVersion = WMT_VER_9_0;
         }
         hr = SetProfileFeatures(true, newName);

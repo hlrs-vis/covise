@@ -398,10 +398,10 @@ int ICEM_closeDomain(int id, char *solver_text_obj_name)
     icem_def_variables(id);
     if (n_Mesh_nodes > 0 && Mesh != NULL && curr_domainfile_name != NULL)
     {
-        sprintf(tmp_array, "./");
+        snprintf(tmp_array, sizeof(tmp_array), "./");
         tmp_domainfile_name = ICEM_temp_name(tmp_array,
                                              name_space[0], "/tmp/xxx_dom");
-        sprintf(tmp_array, "/bin/cp %s %s", curr_domainfile_name,
+        snprintf(tmp_array, sizeof(tmp_array), "/bin/cp %s %s", curr_domainfile_name,
                 tmp_domainfile_name);
         Res = system(tmp_array);
         if (Res)
@@ -480,19 +480,19 @@ int ICEM_closeDomain(int id, char *solver_text_obj_name)
                     case_name);
             if (strcmp(ptr_outpintftype, "star") == 0)
             {
-                sprintf(tmp_array,
+                snprintf(tmp_array, sizeof(tmp_array),
                         "#!/bin/csh -f\n%s/icemcfd/output-interfaces/starcd -dom %s -u -b %s %s\n",
                         env_mesh, domain_file, curr_bocofile_name, path_case_name);
             }
             else if (strcmp(ptr_outpintftype, "fluent") == 0)
             {
-                sprintf(tmp_array,
+                snprintf(tmp_array, sizeof(tmp_array),
                         "#!/bin/csh -f\n%s/icemcfd/output-interfaces/georampant -dom %s -b %s %s\n",
                         env_mesh, domain_file, curr_bocofile_name, path_case_name);
             }
             else if (strcmp(ptr_outpintftype, "fenfloss") == 0)
             {
-                sprintf(tmp_array,
+                snprintf(tmp_array, sizeof(tmp_array),
                         "#!/bin/csh -f\n%s/icemcfd/output-interfaces/fenfloss -dom %s -b %s %s\n",
                         env_mesh, domain_file, curr_bocofile_name, path_case_name);
             }
@@ -953,7 +953,7 @@ static void ICEM_make_directory_name(char *config_dir,
     mode_t mode;
     struct stat stat_buf;
 
-    sprintf(name_space, "%s/%s", config_dir, dir_name);
+    snprintf(name_space, sizeof(name_space), "%s/%s", config_dir, dir_name);
     if (access(name_space, F_OK))
     {
         // Read, write, execute by owner,
@@ -964,7 +964,7 @@ static void ICEM_make_directory_name(char *config_dir,
         {
             printf("Directory \"%s\" cannot be created.\n", name_space);
             printf("Create %s in configuration directory\n", config_dir);
-            sprintf(name_space, "%s", config_dir);
+            snprintf(name_space, sizeof(name_space), "%s", config_dir);
         }
     }
     else
@@ -974,7 +974,7 @@ static void ICEM_make_directory_name(char *config_dir,
         {
             printf("Check problems with directory %s\n", name_space);
             printf("Create %s in configuration directory\n", config_dir);
-            sprintf(name_space, "%s", config_dir);
+            snprintf(name_space, sizeof(name_space), "%s", config_dir);
         }
         else
         {
@@ -982,7 +982,7 @@ static void ICEM_make_directory_name(char *config_dir,
             {
                 printf("\"%s\" is not a directory.\n", name_space);
                 printf("Create %s in configuration directory\n", config_dir);
-                sprintf(name_space, "%s", config_dir);
+                snprintf(name_space, sizeof(name_space), "%s", config_dir);
             }
         }
     }

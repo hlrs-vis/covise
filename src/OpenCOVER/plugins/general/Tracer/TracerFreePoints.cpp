@@ -66,7 +66,7 @@ TracerFreePoints::TracerFreePoints(coInteractor *inter, TracerPlugin *p)
 
             // create interactor
             char iname[1024];
-            sprintf(iname, "3dtransinteractor_%d", i);
+            snprintf(iname, sizeof(iname), "3dtransinteractor_%d", i);
             _pointsList.push_back(new coVR3DTransInteractor(currentHandPos_o, _interSize, coInteraction::ButtonA, "Menu", iname, coInteraction::Medium));
         }
     }
@@ -142,7 +142,7 @@ TracerFreePoints::update(coInteractor *inter)
 
             // create interactor
             char iname[1024];
-            sprintf(iname, "3dtransinteractor_%d", i);
+            snprintf(iname, sizeof(iname), "3dtransinteractor_%d", i);
             _pointsList.push_back(new coVR3DTransInteractor(pos, _interSize, coInteraction::ButtonA, "hand", iname, coInteraction::Medium));
 
             if (showPickInteractor_)
@@ -208,7 +208,7 @@ TracerFreePoints::preFrame()
             {
 
                 char iname[1024];
-                sprintf(iname, "3dtransinteractor_%d", _numPoints);
+                snprintf(iname, sizeof(iname), "3dtransinteractor_%d", _numPoints);
                 _pointsList.push_back(new coVR3DTransInteractor(currentHandPos_o, _interSize, coInteraction::ButtonA, "hand", iname, coInteraction::Medium));
 
                 _numPoints++;
@@ -230,7 +230,7 @@ TracerFreePoints::preFrame()
                     osg::Vec3 p;
                     p = (*it)->getPos();
 
-                    sprintf(tmp, "[%f,%f,%f]", p[0], p[1], p[2]);
+                    snprintf(tmp, sizeof(tmp), "[%f,%f,%f]", p[0], p[1], p[2]);
                     //fprintf(stderr,"tmpstr=%s\n", tmpstr);
                     //fprintf(stderr,"tmp=%s\n", tmp);
                     strcat(tmpstr, tmp);
@@ -257,7 +257,7 @@ TracerFreePoints::preFrame()
                     char tmp[1024];
                     osg::Vec3 p;
                     p = (*it2)->getPos();
-                    sprintf(tmp, "[%f,%f,%f]", p[0], p[1], p[2]);
+                    snprintf(tmp, sizeof(tmp), "[%f,%f,%f]", p[0], p[1], p[2]);
                     strcat(tmpstr, tmp);
                 }
                 plugin->getSyncInteractors(_inter);

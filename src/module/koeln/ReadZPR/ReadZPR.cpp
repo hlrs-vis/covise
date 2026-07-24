@@ -126,7 +126,7 @@ int coReadZPR::compute(const char *)
         }
 
         char buf[1024];
-        sprintf(buf, "%s_%d", poPointName, numTimeSteps - 1);
+        snprintf(buf, sizeof(buf), "%s_%d", poPointName, numTimeSteps - 1);
         pointLists.push_back(new coDoPoints(buf, (int)x_list.size(),
                                             &x_list.front(), &y_list.front(), &z_list.front()));
         x_list.clear();
@@ -160,7 +160,7 @@ int coReadZPR::compute(const char *)
     if (numTimeSteps > 1)
     {
         char buf[1024];
-        sprintf(buf, "0 %i", numTimeSteps - 1);
+        snprintf(buf, sizeof(buf), "0 %i", numTimeSteps - 1);
         pointSet->addAttribute("TIMESTEP", buf);
     }
 

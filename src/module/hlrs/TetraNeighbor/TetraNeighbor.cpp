@@ -70,7 +70,7 @@ coDistributedObject **TetraNeighbor::compute(const coDistributedObject **in, cha
         {
             gridIn = (const coDoUnstructuredGrid *)setIn[i];
             gridIn->getGridSize(&numElem, &numConn, &numPoints);
-            sprintf(bfr, "%s_%d", outNames[0], i);
+            snprintf(bfr, sizeof(bfr), "%s_%d", outNames[0], i);
             setOut[i] = new coDoFloat(bfr, numElem * 5);
         }
 

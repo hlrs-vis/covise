@@ -123,7 +123,7 @@ public:
     }
     std::string to_string() const {
         char buf[200];
-        sprintf(buf, "%f %f %f %f %f %f", tran.x, tran.y, tran.z, rpy.rx / M_PI * 180.0, rpy.ry / M_PI * 180.0, rpy.rz / M_PI * 180.0);
+        snprintf(buf, sizeof(buf), "%f %f %f %f %f %f", tran.x, tran.y, tran.z, rpy.rx / M_PI * 180.0, rpy.ry / M_PI * 180.0, rpy.rz / M_PI * 180.0);
         return std::string(buf);
 
     }
@@ -143,7 +143,7 @@ public:
             temp.rpy.rx = (-2 * M_PI) + temp.rpy.rx;
         if (temp.rpy.rx < -M_PI)
             temp.rpy.rx = (2 * M_PI) + temp.rpy.rx;
-        sprintf(buf, "%f,%f,%f,%f,%f,%f", temp.tran.x/1000.0, temp.tran.y/1000.0 , temp.tran.z/1000.0, temp.rpy.rx, temp.rpy.ry, temp.rpy.rz);
+        snprintf(buf, sizeof(buf), "%f,%f,%f,%f,%f,%f", temp.tran.x/1000.0, temp.tran.y/1000.0 , temp.tran.z/1000.0, temp.rpy.rx, temp.rpy.ry, temp.rpy.rz);
         return std::string(buf);
 
     }

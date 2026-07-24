@@ -61,7 +61,7 @@ void Connection::close()
 
     if (sock)
     {
-        sprintf(tmpstr, "close port %d", sock->get_port());
+        snprintf(tmpstr, sizeof(tmpstr), "close port %d", sock->get_port());
         print_comment(__LINE__, __FILE__, tmpstr);
         if (remove_socket)
         {
@@ -353,7 +353,7 @@ int HConnection::send_msg(Message *msg)
     p_sMsg->print();
     cerr << endl << "-------------------------------" << endl;
 
-    sprintf(write_buff, "%s\r\n", p_sMsg->m_start);
+    snprintf(write_buff, sizeof(write_buff), "%s\r\n", p_sMsg->m_start);
     bytes_written += strlen(p_sMsg->m_start) + 2;
 
     // write standard headers
@@ -368,7 +368,7 @@ int HConnection::send_msg(Message *msg)
                 if (tmp_val == COVISE_SOCKET_INVALID)
                     return -1;
                 retval += tmp_val;
-                sprintf(write_buff, "%s:%s\r\n", p_sMsg->m_headers[i]->m_name, p_sMsg->m_headers[i]->m_value);
+                snprintf(write_buff, sizeof(write_buff), "%s:%s\r\n", p_sMsg->m_headers[i]->m_name, p_sMsg->m_headers[i]->m_value);
                 bytes_written = l;
             }
             else
@@ -390,7 +390,7 @@ int HConnection::send_msg(Message *msg)
          {
             tmp_val = sock->write(write_buff,bytes_written);
             retval += tmp_val;
-   sprintf(write_buff,"%s:%s\r\n",tmp->m_name,tmp->m_value);
+   snprintf(write_buff, sizeof(write_buff),"%s:%s\r\n",tmp->m_name,tmp->m_value);
    bytes_written = l;
    }
    else
@@ -466,7 +466,7 @@ int HConnection::send_http_error(msg_type code, char *arg, int get_flag)
                              <meta http-equiv=refresh content=\"3; URL=javascript:void(closing())\">";
     p_sMsg = new HMessage(code);
 
-    sprintf(buff, "<HTML><HEAD>%s<TITLE>%s %s</TITLE></HEAD>\n<BODY><H2>%s %s</H2>\n", close_window, msg_array[code], msg_txt[code], msg_array[code], msg_txt[code]);
+    snprintf(buff, sizeof(buff), "<HTML><HEAD>%s<TITLE>%s %s</TITLE></HEAD>\n<BODY><H2>%s %s</H2>\n", close_window, msg_array[code], msg_txt[code], msg_array[code], msg_txt[code]);
 
     p_tmp = new char[strlen(buff) + 1];
     strcpy(p_tmp, buff);
@@ -477,14 +477,14 @@ int HConnection::send_http_error(msg_type code, char *arg, int get_flag)
     if (msg_form[code] != NULL)
     {
         if (strchr(msg_form[code], '%'))
-            sprintf(buff, msg_form[code], arg);
+            snprintf(buff, sizeof(buff), msg_form[code], arg);
         else
-            sprintf(buff, msg_form[code]);
+            snprintf(buff, sizeof(buff), msg_form[code]);
         p_sMsg->add_body(buff); // add explications
     }
 
 #ifndef _AIRBUS
-    sprintf(buff, "<HR>\n<ADDRESS><A HREF=\"%s\">%s</A></ADDRESS>\n</BODY></HTML>\n", SERVER_ADDRESS, SERVER_SOFTWARE);
+    snprintf(buff, sizeof(buff), "<HR>\n<ADDRESS><A HREF=\"%s\">%s</A></ADDRESS>\n</BODY></HTML>\n", SERVER_ADDRESS, SERVER_SOFTWARE);
     p_sMsg->add_body(buff); // add response tail
 #endif
 

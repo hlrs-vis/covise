@@ -51,7 +51,7 @@ MakePlots::MakePlots(int argc, char *argv[])
     char tail[16];
     for (i = 0; i < NO_MAX_PLOTS; ++i)
     {
-        sprintf(tail, "_%d", i);
+        snprintf(tail, sizeof(tail), "_%d", i);
         strcpy(full_name, name);
         strcat(full_name, tail);
         strcpy(full_desc, desc);
@@ -227,7 +227,7 @@ int MakePlots::compute(const char *)
         if (!p_y[i]->getCurrentObject())
             continue;
         std::string outname(p_out->getObjName());
-        sprintf(short_buffer, "_%d", j);
+        snprintf(short_buffer, sizeof(short_buffer), "_%d", j);
         outname += short_buffer;
         ((coDoFloat *)(p_y[i]->getCurrentObject()))->getAddress(&yData);
         outplots[j] = new coDoVec2(outname, noPoints_, xData, yData);
@@ -268,11 +268,11 @@ int MakePlots::compute(const char *)
     char buffer[65536], add[256];
     buffer[0] = '\0';
 
-    sprintf(add, "TITLE \"%s\"\n", p_title->getValue());
+    snprintf(add, sizeof(add), "TITLE \"%s\"\n", p_title->getValue());
     strcat(buffer, add);
-    sprintf(add, "xaxis LABEL \"%s\"\n", p_xAxis->getValue());
+    snprintf(add, sizeof(add), "xaxis LABEL \"%s\"\n", p_xAxis->getValue());
     strcat(buffer, add);
-    sprintf(add, "yaxis LABEL \"%s\"\n", p_yAxis->getValue());
+    snprintf(add, sizeof(add), "yaxis LABEL \"%s\"\n", p_yAxis->getValue());
     strcat(buffer, add);
 
     strcat(buffer, "FRAME ON\n");
@@ -285,25 +285,25 @@ int MakePlots::compute(const char *)
     {
         if (!p_y[i]->getCurrentObject())
             continue;
-        sprintf(add, "LEGEND STRING %d \"%s\"\n", j,
+        snprintf(add, sizeof(add), "LEGEND STRING %d \"%s\"\n", j,
                 p_y[i]->getCurrentObject()->getAttribute("SPECIES"));
         strcat(buffer, add);
-        sprintf(add, "S%d COLOR %d\n", j, j % 12 + 2);
+        snprintf(add, sizeof(add), "S%d COLOR %d\n", j, j % 12 + 2);
         strcat(buffer, add);
         ++j;
     }
 
     strcat(buffer, "SETS linewidth 2\n");
 
-    sprintf(add, "WORLD %f,%f,%f,%f\n",
+    snprintf(add, sizeof(add), "WORLD %f,%f,%f,%f\n",
             startTime_, minVal_, endTime_, maxVal_);
     strcat(buffer, add);
 
-    sprintf(add, "YAXIS TICK MAJOR %f\nYAXIS TICK MINOR %f\n",
+    snprintf(add, sizeof(add), "YAXIS TICK MAJOR %f\nYAXIS TICK MINOR %f\n",
             vBigTick_, vSmallTick_);
     strcat(buffer, add);
 
-    sprintf(add, "XAXIS TICK MAJOR %f\nXAXIS TICK MINOR %f\n",
+    snprintf(add, sizeof(add), "XAXIS TICK MAJOR %f\nXAXIS TICK MINOR %f\n",
             tBigTick_, tSmallTick_);
     strcat(buffer, add);
 

@@ -264,8 +264,8 @@ Probe3D::compute(const char *)
     }
 
     char minattr[100], maxattr[100];
-    sprintf(minattr, "%f", min);
-    sprintf(maxattr, "%f", max);
+    snprintf(minattr, sizeof(minattr), "%f", min);
+    snprintf(maxattr, sizeof(maxattr), "%f", max);
     coDistributedObject *geometry = NULL;
     if (p_dimension_->getValue() == 0 && p_grid_->getCurrentObject())
     { //  "3d"
@@ -417,19 +417,19 @@ Probe3D::gOutput(const vector<vector<float> > &gresults, float min, float max, f
             string name_i(name);
             string name_field_i(name_field);
             char buf[32];
-            sprintf(buf, "_%d", i);
+            snprintf(buf, sizeof(buf), "_%d", i);
             name_i += buf;
             name_field_i += buf;
             setList[i] = makePolygon(name_i.c_str());
             setListField[i] = makeField(name_field_i.c_str(), gresults[i]);
             staticMinMaxCalculation(smin, smax, savg, gresults[i]);
-            sprintf(attrString, "%f %f %f", smin, smax, savg);
+            snprintf(attrString, sizeof(attrString), "%f %f %f", smin, smax, savg);
             setListField[i]->addAttribute("PROBE3D_SQUARE", attrString);
         }
         coDoSet *dynamicSet = new coDoSet(name.c_str(), setList);
         coDoSet *dynamicSetField = new coDoSet(name_field.c_str(), setListField);
         char buf[62];
-        sprintf(buf, "1 %d", (int)gresults.size());
+        snprintf(buf, sizeof(buf), "1 %d", (int)gresults.size());
 
         dynamicSet->addAttribute("TIMESTEP", buf);
         dynamicSetField->addAttribute("TIMESTEP", buf);
@@ -443,7 +443,7 @@ Probe3D::gOutput(const vector<vector<float> > &gresults, float min, float max, f
             coDoPolygons *poly = makePolygon(name.c_str());
             coDoFloat *field = makeField(name_field.c_str(), gresults[0]);
             staticMinMaxCalculation(smin, smax, savg, gresults[0]);
-            sprintf(attrString, "%f %f %f", smin, smax, savg);
+            snprintf(attrString, sizeof(attrString), "%f %f %f", smin, smax, savg);
             poly->addAttribute("PROBE3D_SQUARE", attrString);
             geometry = poly;
             scalar = field;
@@ -472,7 +472,7 @@ Probe3D::gOutput(const vector<vector<float> > &gresults, float min, float max, f
                 *zStart = point_[2] + normal1[2] * side_ * 0.5f;
 
                 staticMinMaxCalculation(smin, smax, savg, gresults[0]);
-                sprintf(attrString, "%f %f %f", smin, smax, savg);
+                snprintf(attrString, sizeof(attrString), "%f %f %f", smin, smax, savg);
                 points->addAttribute("PROBE3D_CUBE", attrString);
             }
 
@@ -517,7 +517,7 @@ Probe3D::gOutput(const vector<vector<float> > &gresults, float min, float max, f
     {
         //FIXME time dependend not taken into account
         float value = gresults[0][0];
-        sprintf(attrString, "%f %f %f", min, max, value);
+        snprintf(attrString, sizeof(attrString), "%f %f %f", min, max, value);
         geometry->addAttribute("PROBE3D_POINT", attrString);
     }
 
@@ -618,19 +618,19 @@ Probe3D::pOutput(const vector<vector<float> > &presults,
     char buf[32];
 
     //Get rid of warnigs for 32- and 64- bit platforms
-    sprintf(buf, "%d", (int)presults.size()); // how many time steps
+    snprintf(buf, sizeof(buf), "%d", (int)presults.size()); // how many time steps
 
     for (i = 0; i < presults.size(); ++i)
     {
 
         attributeValue += ' ';
         char buf[32];
-        sprintf(buf, "%g", presults[i][0]);
+        snprintf(buf, sizeof(buf), "%g", presults[i][0]);
         attributeValue += buf;
     }
     char attrBuf[1000]; // Min Max value
     //FIXME time dependent not taken into account
-    sprintf(attrBuf, "%f %f %s", min, max, attributeValue.c_str());
+    snprintf(attrBuf, sizeof(attrBuf), "%f %f %s", min, max, attributeValue.c_str());
 
     geometry->addAttribute(pointAttribute, attrBuf);
     // feedback for the cover plugin

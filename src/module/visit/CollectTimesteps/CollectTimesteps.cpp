@@ -27,7 +27,7 @@ using namespace std;
 static const char *debug_filename()
 {
     static char buf[64];
-    sprintf(buf, "StepData.%d", getpid());
+    snprintf(buf, sizeof(buf), "StepData.%d", getpid());
     return buf;
 }
 
@@ -103,7 +103,7 @@ StepData::StepData(int argc, char *argv[])
     int i;
     for (i = 0; i < MAX_LINES; i++)
     {
-        sprintf(buffer, "Line_%d", i);
+        snprintf(buffer, sizeof(buffer), "Line_%d", i);
         p_selectLine[i] = addChoiceParam(buffer, "Select value for line");
         p_selectLine[i]->setValue(1, select, 0);
     }
@@ -422,7 +422,7 @@ int StepData::compute(const char *)
     coDistributedObject *lines[MAX_LINES];
     int numLines = 0;
     char nameBase[128], name[128];
-    sprintf(nameBase, "%s_%%d", p_out->getObjName());
+    snprintf(nameBase, sizeof(nameBase), "%s_%%d", p_out->getObjName());
     char *label[MAX_LINES];
 
     float startTime = FLT_MAX;
@@ -437,7 +437,7 @@ int StepData::compute(const char *)
         if (select >= 0)
         {
             //////////// allocate DO
-            sprintf(name, nameBase, line);
+            snprintf(name, sizeof(name), nameBase, line);
             coDoVec2 *line
                 = new coDoVec2(name, d_numSteps);
             float *x, *y;
@@ -500,11 +500,11 @@ int StepData::compute(const char *)
     char buffer[65536], add[256];
     buffer[0] = '\0';
 
-    sprintf(add, "TITLE \"%s\"\n", p_title->getValue());
+    snprintf(add, sizeof(add), "TITLE \"%s\"\n", p_title->getValue());
     strcat(buffer, add);
-    sprintf(add, "xaxis LABEL \"%s\"\n", p_xAxis->getValue());
+    snprintf(add, sizeof(add), "xaxis LABEL \"%s\"\n", p_xAxis->getValue());
     strcat(buffer, add);
-    sprintf(add, "yaxis LABEL \"%s\"\n", p_yAxis->getValue());
+    snprintf(add, sizeof(add), "yaxis LABEL \"%s\"\n", p_yAxis->getValue());
     strcat(buffer, add);
 
     strcat(buffer, "FRAME ON\n");
@@ -515,23 +515,23 @@ int StepData::compute(const char *)
 
     for (line = 0; line < numLines; line++)
     {
-        sprintf(add, "LEGEND STRING %d \"%s\"\n", line, label[line]);
+        snprintf(add, sizeof(add), "LEGEND STRING %d \"%s\"\n", line, label[line]);
         strcat(buffer, add);
-        sprintf(add, "S%d COLOR %d\n", line, line % 12 + 2);
+        snprintf(add, sizeof(add), "S%d COLOR %d\n", line, line % 12 + 2);
         strcat(buffer, add);
     }
 
     strcat(buffer, "SETS linewidth 2\n");
 
-    sprintf(add, "WORLD %f,%f,%f,%f\n",
+    snprintf(add, sizeof(add), "WORLD %f,%f,%f,%f\n",
             startTime, minVal, endTime, maxVal);
     strcat(buffer, add);
 
-    sprintf(add, "YAXIS TICK MAJOR %f\nYAXIS TICK MINOR %f\n",
+    snprintf(add, sizeof(add), "YAXIS TICK MAJOR %f\nYAXIS TICK MINOR %f\n",
             vBigTick, vSmallTick);
     strcat(buffer, add);
 
-    sprintf(add, "XAXIS TICK MAJOR %f\nXAXIS TICK MINOR %f\n",
+    snprintf(add, sizeof(add), "XAXIS TICK MAJOR %f\nXAXIS TICK MINOR %f\n",
             tBigTick, tSmallTick);
     strcat(buffer, add);
 

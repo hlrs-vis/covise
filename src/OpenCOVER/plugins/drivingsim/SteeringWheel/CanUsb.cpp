@@ -38,7 +38,7 @@ CanUsb::CanUsb(char *serial, int nSpeed)
     // Set baudrate
     FT_Purge(ftHandle, FT_PURGE_RX);
 
-    sprintf(buf, "S%d\r", nSpeed);
+    snprintf(buf, sizeof(buf), "S%d\r", nSpeed);
     size = 3;
     if (!(FT_OK == FT_Write(ftHandle, buf, size, &retLen)))
     {
@@ -92,24 +92,24 @@ BOOL CanUsb::sendFrame(CanMsg &msg)
     {
         if (msg.flags & CANMSG_RTR)
         {
-            sprintf(txbuf, "R%08.8lX%i", msg.id, msg.len);
+            snprintf(txbuf, sizeof(txbuf), "R%08.8lX%i", msg.id, msg.len);
             msg.len = 0;
         }
         else
         {
-            sprintf(txbuf, "T%08.8lX%i", msg.id, msg.len);
+            snprintf(txbuf, sizeof(txbuf), "T%08.8lX%i", msg.id, msg.len);
         }
     }
     else
     {
         if (msg.flags & CANMSG_RTR)
         {
-            sprintf(txbuf, "r%03.3lX%i", msg.id, msg.len);
+            snprintf(txbuf, sizeof(txbuf), "r%03.3lX%i", msg.id, msg.len);
             msg.len = 0; // Just dlc no data for RTR
         }
         else
         {
-            sprintf(txbuf, "t%03.3lX%i", msg.id, msg.len);
+            snprintf(txbuf, sizeof(txbuf), "t%03.3lX%i", msg.id, msg.len);
         }
     }
 
@@ -119,7 +119,7 @@ BOOL CanUsb::sendFrame(CanMsg &msg)
 
         for (i = 0; i < msg.len; i++)
         {
-            sprintf(hex, "%02.2X", msg.data[i]);
+            snprintf(hex, sizeof(hex), "%02.2X", msg.data[i]);
             strcat(txbuf, hex);
         }
     }
