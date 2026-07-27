@@ -196,12 +196,13 @@ void VrmlNodeAppearance::render(Viewer *viewer)
                 d_textureTransforms[i].get()->render(viewer);
             else
                 viewer->setTextureTransform(0, 0, 0, 0);
+
+            auto t = d_textures[i].get()->as<VrmlNodeTexture>();
+            if (i == 0)
+                t->setAppearance(this);
+            // MAYBE something must be done here for multi-texturing to work correctly
+            t->render(viewer);
         }
-        auto t = d_textures[i].get()->as<VrmlNodeTexture>();
-        if (i == 0)
-            t->setAppearance(this);
-        // MAYBE something must be done here for multi-texturing to work correctly
-        t->render(viewer);
     }
     clearModified();
 }
