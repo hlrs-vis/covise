@@ -164,4 +164,35 @@ void SharedStateBase::becomeMaster()
         send = true;
     }
 }
+
+
+SharedCallback::SharedCallback(std::string name, SharedStateType mode)
+    : SharedStateBase(name, mode) {
+    covise::TokenBuffer tb;
+    subscribe(tb.getData());
+}
+
+void SharedCallback::push() {
+    covise::TokenBuffer data;
+    setVar(data.getData());
+}
+
+void SharedCallback::update(clientRegVar* theChangedVar) {
+    if (theChangedVar->name() != variableName || theChangedVar->isDeleted())
+    {
+        return;
+    }
+    if (m_firstUpdate)
+    {
+        m_firstUpdate = false;
+        return;
+    }
+    deserializeValue(theChangedVar);
+    valueChanged = true;
+    if (updateCallback != nullptr)
+    {
+        updateCallback();
+    } 
+}
+
 }

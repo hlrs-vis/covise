@@ -136,19 +136,16 @@ private:
 
 };
 
-class SharedCallback : public SharedStateBase {
+class VRBCLIENTEXPORT SharedCallback : public SharedStateBase {
 public:
-    SharedCallback(std::string name, SharedStateType mode = USE_COUPLING_MODE)
-        : SharedStateBase(name, mode) {
-        covise::TokenBuffer tb;
-        subscribe(tb.getData());
-    }
-    void push() {
-        covise::TokenBuffer data;
-        setVar(data.getData());
-    }
+    SharedCallback(std::string name, SharedStateType mode = USE_COUPLING_MODE);
+    void push();
+    // skip initial update to not trigger when joining a session
+    void update(clientRegVar* theChangedRegEntry) override;
+
 private:
     void deserializeValue(const regVar* data) override {}
+    bool m_firstUpdate = true;
 };
 
 }
