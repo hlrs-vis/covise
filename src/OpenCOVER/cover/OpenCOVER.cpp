@@ -1682,8 +1682,8 @@ void OpenCOVER::restartVrbc()
 
           public:
             bool sendMessage(const covise::Message *msg) const override {
-                if (OpenCOVER::instance()->m_visPlugin)
-                    return coVRPluginList::instance()->sendVisMessage(msg);
+                if (auto visPlugin = OpenCOVER::instance()->m_visPlugin)
+                    return visPlugin->sendVisMessage(msg);
                 return false;
             }
 
