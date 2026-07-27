@@ -481,23 +481,25 @@ void VrmlNodeTUIButton::render(Viewer *viewer)
 void VrmlNodeTUIToggleButton::initFields(VrmlNodeTUIToggleButton *node, vrml::VrmlNodeType *t)
 {
     VrmlNodeTUIElement::initFields(node, t);
-    initFieldsHelper(node, t, 
-        exposedField("choice", node->d_choice, [node](auto f){
+
+    auto updateFunc = [](VrmlNodeTUIToggleButton *node,bool state){
             if(node->d_TUIElement != NULL)
             {
-                coTUIToggleButton *tb = (coTUIToggleButton *)node->d_TUIElement;
-                node->d_state.set(node->d_choice.get() >= 0);
-                tb->setState(node->d_choice.get() >= 0);
-            }
-        }),
-        exposedField("state", node->d_state, [node](auto f){
-            if(node->d_TUIElement != NULL)
-            {
+                node->d_choice.set(state ? 0 : -1);
+                node->d_state.set(state);
                 coTUIToggleButton *tb = (coTUIToggleButton *)node->d_TUIElement;
                 tb->setState(node->d_state.get());
                 if (node->sharedState && node->d_shared.get())
-				    *node->sharedState = node->d_state.get();
+				    *node->sharedState = state;
             }
+        };
+
+    initFieldsHelper(node, t, 
+        exposedField("choice", node->d_choice, [updateFunc, node](auto f){
+            updateFunc(node, node->d_choice.get() >= 0);
+        }),
+        exposedField("state", node->d_state, [updateFunc, node](auto f){
+            updateFunc(node, node->d_state.get());
         }));
 }
 
@@ -532,23 +534,25 @@ VrmlNodeTUIToggleButton::VrmlNodeTUIToggleButton(const VrmlNodeTUIToggleButton& 
 {
 }
 
+void VrmlNodeTUIToggleButton::sendStateToVrml(bool state)
+{
+    d_state.set(state);
+    d_choice.set(state ? 0 : -1);
+
+    double timeStamp = System::the->time();
+    eventOut(timeStamp, "state", d_state);
+    eventOut(timeStamp, "choice", d_choice);    
+}
+
+
 void VrmlNodeTUIToggleButton::tabletEvent(coTUIElement *)
 {
-    double timeStamp = System::the->time();
     coTUIToggleButton *tb = (coTUIToggleButton *)d_TUIElement;
-    d_state.set(tb->getState());
-    eventOut(timeStamp, "state", d_state);
-
 	
 	if (sharedState)
-	{
-		*sharedState = tb->getState();
-	}
-    if (tb->getState())
-        d_choice.set(0);
-    else
-        d_choice.set(-1);
-    eventOut(timeStamp, "choice", d_choice);
+        *sharedState = tb->getState();
+    
+    sendStateToVrml(tb->getState());
 }
 
 void VrmlNodeTUIToggleButton::render(Viewer *viewer)
@@ -572,14 +576,7 @@ void VrmlNodeTUIToggleButton::render(Viewer *viewer)
                     {
                         coTUIToggleButton* tb = (coTUIToggleButton*)d_TUIElement;
                         tb->setState(*sharedState);
-                        d_state.set(tb->getState());
-                        double timeStamp = System::the->time();
-                        eventOut(timeStamp, "state", d_state);
-                        if (tb->getState())
-                            d_choice.set(0);
-                        else
-                            d_choice.set(-1);
-                        eventOut(timeStamp, "choice", d_choice);
+                        sendStateToVrml(tb->getState());
                     }
                     });
             }
@@ -587,16 +584,7 @@ void VrmlNodeTUIToggleButton::render(Viewer *viewer)
         VrmlNodeTUIElement::render(viewer);
         coTUIToggleButton *tb = (coTUIToggleButton *)d_TUIElement;
         tb->setState(d_state.get());
-
-        double timeStamp = System::the->time();
-        // create eventOuts for default values
-        d_state.set(tb->getState());
-        eventOut(timeStamp, "state", d_state);
-        if (tb->getState())
-            d_choice.set(0);
-        else
-            d_choice.set(-1);
-        eventOut(timeStamp, "choice", d_choice);
+        sendStateToVrml(tb->getState());
         clearModified();
     }
     // the elements are created in subclasses

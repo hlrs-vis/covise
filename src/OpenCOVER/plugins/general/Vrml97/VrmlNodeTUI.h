@@ -173,6 +173,7 @@ private:
     VrmlSFBool d_state;
     VrmlSFInt d_choice;
     std::unique_ptr<vrb::SharedState<bool>> sharedState;
+    void sendStateToVrml(bool state);
 };
 
 class VRML97COVEREXPORT VrmlNodeTUIFrame : public VrmlNodeTUIElement
