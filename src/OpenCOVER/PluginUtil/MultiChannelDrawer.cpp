@@ -521,7 +521,7 @@ void MultiChannelDrawer::initViewData(ViewData &vd) {
    }
 
    vd.colorTex->setInternalFormat( GL_RGBA );
-   vd.depthTex->setInternalFormat( GL_DEPTH_COMPONENT32F );
+   vd.depthTex->setInternalFormat( GL_R32F );
 
    createGeometry(vd);
 
@@ -645,15 +645,23 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
     {
         //std::cerr << "MultiChannelDrawer: need to update geo, format=" << depthFormat << ", w=" << w << ", h=" << h << std::endl;
         GLenum depthInternalFormat = 0;
+        // pixel format used for uploading/allocating the depth texture's
+        // image data - GL_R32F depth values are plain color data (GL_RED),
+        // whereas packed depth/stencil data still requires GL_DEPTH_COMPONENT
+        GLenum depthPixelFormat = GL_DEPTH_COMPONENT;
         int depthTypeSize = 0;
         switch (depthFormat)
         {
         case GL_FLOAT:
-            depthInternalFormat = GL_DEPTH_COMPONENT32F;
+            // store depth values as a plain single-channel float color
+            // texture (GL_R32F) instead of an actual depth texture
+            depthInternalFormat = GL_R32F;
+            depthPixelFormat = GL_RED;
             depthTypeSize = 4;
             break;
         case GL_UNSIGNED_INT_24_8:
             depthInternalFormat = GL_DEPTH_COMPONENT24;
+            depthPixelFormat = GL_DEPTH_COMPONENT;
             depthTypeSize = 4;
             break;
         default:
@@ -664,7 +672,7 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
         if (m_useCuda && cd)
         {
             vd.depthTex->setTextureSize(w, h);
-            vd.depthTex->setSourceFormat(GL_DEPTH_COMPONENT);
+            vd.depthTex->setSourceFormat(depthPixelFormat);
             vd.depthTex->setSourceType(depthFormat == GL_UNSIGNED_INT_24_8 ? GL_UNSIGNED_INT : depthFormat);
             vd.depthTex->setInternalFormat(depthInternalFormat);
 
@@ -677,7 +685,7 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
         {
             auto dimg = vd.depthImg;
             dimg->setInternalTextureFormat(depthInternalFormat);
-            dimg->allocateImage(w, h, 1, GL_DEPTH_COMPONENT, depthFormat == GL_UNSIGNED_INT_24_8 ? GL_UNSIGNED_INT : depthFormat);
+            dimg->allocateImage(w, h, 1, depthPixelFormat, depthFormat == GL_UNSIGNED_INT_24_8 ? GL_UNSIGNED_INT : depthFormat);
         }
 
         vd.depthWidth = w;
