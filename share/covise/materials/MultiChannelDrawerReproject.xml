@@ -9,21 +9,41 @@ uniform sampler2D dep;
 uniform vec2 size;
 uniform mat4 ReprojectionMatrix;
 
-float depth(vec2 xy) {
-   return texture2D(dep, xy/size).r;
+// normalized texture coordinates in [0,1] for a pixel coordinate
+vec2 texcoord(vec2 xy) {
+   return xy/size;
 }
 
+float depth(vec2 xy) {
+   return texture2D(dep, texcoord(xy)).r;
+}
+
+vec4 sampleColor(vec2 xy) {
+   return texture2D(col, texcoord(xy));
+}
+
+bool is_far(float d) {
+   return d == 1.;
+}
+
+// map a pixel coordinate + depth value to clip space of the new camera
 vec4 pos(vec2 xy, float d) {
-   vec4 p = vec4(xy.x/size.x-0.5, 0.5-xy.y/size.y, d-0.5, 0.5)*2.;
+   vec2 tc = texcoord(xy);
+   vec4 p = vec4(tc.x-0.5, 0.5-tc.y, d-0.5, 0.5)*2.;
    return ReprojectionMatrix * p;
 }
 
 void main(void) {
    vec2 xy = gl_Vertex.xy;
-   vec4 color = texture2D(col, xy/size);
-   gl_FrontColor = color;
 
-   gl_Position = pos(xy, depth(xy));
+   float d = depth(xy);
+   if (is_far(d)) {
+      gl_Position = vec4(2., 2., 2., 1.);
+      return;
+   }
+
+   gl_FrontColor = sampleColor(xy);
+   gl_Position = pos(xy, d);
 }
   </vertexProgram>
 

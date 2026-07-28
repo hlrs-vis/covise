@@ -13,15 +13,27 @@ uniform mat4 ReprojectionMatrix;
 uniform vec2 offset;
 uniform bool withNeighbors;
 
+
+// normalized texture coordinates in [0,1] for a pixel coordinate
+vec2 texcoord(vec2 xy) {
+   return xy/size;
+}
+
+float depth(vec2 xy) {
+   return texture2D(dep, texcoord(xy)).r;
+}
+
+vec4 sampleColor(vec2 xy) {
+   return texture2D(col, texcoord(xy));
+}
+
 bool is_far(float d) {
    return d == 1.;
 }
 
-float depth(vec2 xy) {
-   return texture2D(dep, xy).r;
-}
-
-vec4 pos(vec2 tc, float d) {
+// map a pixel coordinate + depth value to clip space of the new camera
+vec4 pos(vec2 xy, float d) {
+   vec2 tc = texcoord(xy);
    vec4 p = vec4(tc.x-0.5, 0.5-tc.y, d-0.5, 0.5)*2.;
    return ReprojectionMatrix * p;
 }
@@ -38,23 +50,19 @@ vec2 sdiff(float dd, vec2 xy, vec2 ref) {
 
 void main(void) {
    vec2 xy = gl_Vertex.xy;
-   vec2 tc = vec2(xy.x/size.x, xy.y/size.y);
    const vec4 Clip = vec4(2.,2.,2.,1.);
 
-   float d = depth(tc);
+   float d = depth(xy);
    if (is_far(d)) { gl_Position = Clip; return; }
-   gl_Position = pos(tc, d);
+   gl_Position = pos(xy, d);
 
-   vec4 color = texture2D(col, tc);
-   gl_FrontColor = color;
+   gl_FrontColor = sampleColor(xy);
 
    vec2 spos = screenpos(gl_Position);
-   float dx = 1./size.x;
-   float dy = 1./size.y;
-   vec2 dxp = sdiff(d, tc+vec2(dx,0.), spos);
-   vec2 dyp = sdiff(d, tc+vec2(0.,dy), spos);
-   vec2 dxm = sdiff(d, tc+vec2(-dx,0.), spos);
-   vec2 dym = sdiff(d, tc+vec2(0.,-dy), spos);
+   vec2 dxp = sdiff(d, xy+vec2(1.,0.), spos);
+   vec2 dyp = sdiff(d, xy+vec2(0.,1.), spos);
+   vec2 dxm = sdiff(d, xy+vec2(-1.,0.), spos);
+   vec2 dym = sdiff(d, xy+vec2(0.,-1.), spos);
    vec2 dmax = max(max(dxp,dxm),max(dyp,dym));
    float ps = max(dmax.x, dmax.y);
 
