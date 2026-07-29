@@ -348,6 +348,7 @@ TARGET_LINK_LIBRARIES(coVRML
     coNet
     coOpenConfig
     coVRAudio
+    coVRBClient
     ${COVISE_UTIL_LIBRARY}
     ${EXTRA_LIBS}
     ${CMAKE_THREAD_LIBS_INIT}

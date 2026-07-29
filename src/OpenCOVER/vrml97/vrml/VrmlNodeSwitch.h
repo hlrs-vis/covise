@@ -22,6 +22,11 @@
 
 #include "VrmlNodeChild.h"
 
+
+namespace vrb{
+template<typename T>
+class SharedState;    
+}
 namespace vrml
 {
 
@@ -34,7 +39,8 @@ public:
     static const char *typeName();
 
     VrmlNodeSwitch(VrmlScene *);
-
+    VrmlNodeSwitch(const VrmlNodeSwitch &);
+    ~VrmlNodeSwitch();
     void cloneChildren(VrmlNamespace *);
 
     virtual bool isModified() const;
@@ -61,6 +67,8 @@ public:
 protected:
     VrmlMFNode d_choice;
     VrmlSFInt d_whichChoice;
+    VrmlSFBool d_shared;
+    std::unique_ptr<vrb::SharedState<int>> sharedState;
     bool firstTime;
 };
 }

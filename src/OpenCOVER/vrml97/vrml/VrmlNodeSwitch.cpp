@@ -17,6 +17,9 @@
 #include "Viewer.h"
 #include "System.h"
 
+#include <vrb/client/SharedState.h>
+
+
 using namespace vrml;
 
 void VrmlNodeSwitch::initFields(VrmlNodeSwitch *node, VrmlNodeType *t)
@@ -25,7 +28,13 @@ void VrmlNodeSwitch::initFields(VrmlNodeSwitch *node, VrmlNodeType *t)
     initFieldsHelper(node, t,
                      exposedField("choice", node->d_choice),
                      exposedField("children", node->d_choice),
-                     exposedField("whichChoice", node->d_whichChoice));
+                     exposedField("shared", node->d_shared),
+                     exposedField("whichChoice", node->d_whichChoice, [node](auto f) {
+                         if (node->sharedState)
+                         {
+                             *node->sharedState = node->d_whichChoice.get();
+                         }
+                     }));
 }
 
 const char *VrmlNodeSwitch::typeName() { return "Switch"; }
@@ -38,6 +47,16 @@ VrmlNodeSwitch::VrmlNodeSwitch(VrmlScene *scene)
     firstTime = true;
     forceTraversal(false);
 }
+
+VrmlNodeSwitch::VrmlNodeSwitch(const VrmlNodeSwitch &other)
+    : VrmlNodeChild(other)
+    , d_whichChoice(other.d_whichChoice)
+{
+    firstTime = true;
+    forceTraversal(false);
+}
+
+VrmlNodeSwitch::~VrmlNodeSwitch(){}
 
 void VrmlNodeSwitch::cloneChildren(VrmlNamespace *ns)
 {
@@ -108,6 +127,20 @@ void VrmlNodeSwitch::render(Viewer *viewer)
     if (firstTime && (System::the->getPreloadSwitch() || (w != -1)))
     {
         firstTime = false;
+        
+        std::string sName(std::string(typeName()) + "." + name());
+
+        sharedState.reset(new vrb::SharedState<int>(sName, d_whichChoice.get()));
+        sharedState->setUpdateFunction([this]() {
+            if (d_shared.get())
+            {
+                d_whichChoice = sharedState->value();
+                eventOut(System::the->time(), "whichChoice", d_whichChoice);
+                d_modified = true;
+            }
+            });
+        
+        
         int n;
         for (n = 0; n < d_choice.size(); ++n)
         {
