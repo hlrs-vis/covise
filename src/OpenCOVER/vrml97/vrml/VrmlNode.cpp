@@ -252,7 +252,8 @@ std::ostream &operator<<(std::ostream &os, const VrmlNode &f)
 
 void VrmlNode::initFields(VrmlNode *node, VrmlNodeType *t)
 {
-    initFieldsHelper(node, t,
+    if (node)
+        initFieldsHelper(node, t,
                      exposedField("metadata", node->d_metadata));
 }
 
