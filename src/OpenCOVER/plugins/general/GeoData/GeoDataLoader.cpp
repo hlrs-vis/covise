@@ -752,6 +752,7 @@ std::optional<PlaceLabelGroup> GeoDataLoader::loadLabels(const std::string &file
 
     std::vector<std::shared_ptr<PlaceLabel>> labels;
     osg::ref_ptr<osg::Group> node = new osg::Group;
+    auto font = configString("General", "font", "arial.ttf")->value();
 
     for (OGRLayer *layer : dataset->GetLayers())
     {
@@ -776,7 +777,7 @@ std::optional<PlaceLabelGroup> GeoDataLoader::loadLabels(const std::string &file
             osg::Vec3d global(poPoint->getX(), poPoint->getY(), altitude);
             auto local = GeoData::instance()->globalToReference(global);
 
-            labels.emplace_back(std::make_shared<PlaceLabel>(name, local, node, size));
+            labels.emplace_back(std::make_shared<PlaceLabel>(name, local, node, font, size));
         }
     }
 

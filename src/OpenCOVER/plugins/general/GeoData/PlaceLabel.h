@@ -34,6 +34,7 @@
 
 #include <util/coExport.h>
 #include <cover/coBillboard.h>
+#include <string>
 
 namespace osg
 {
@@ -50,7 +51,7 @@ class Text;
 class PlaceLabel
 {
 public:
-    PlaceLabel(const std::string &value, const osg::Vec3 &position, osg::ref_ptr<osg::Group> parent, int size = 0);
+    PlaceLabel(const std::string &value, const osg::Vec3 &position, osg::ref_ptr<osg::Group> parent, const std::string &font, int size = 0);
 
     void reposition();
 
