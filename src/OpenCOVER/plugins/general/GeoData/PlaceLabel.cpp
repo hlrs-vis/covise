@@ -64,7 +64,7 @@ PlaceLabel::PlaceLabel(const std::string &value, const osg::Vec3 &position, osg:
     text = new osgText::Text();
     text->setAlignment(osgText::Text::CENTER_BASE_LINE);
     text->setColor(color);
-    text->setFont(font.data());
+    text->setFont(font);
     text->setCharacterSize(fontSize);
     text->setText(value, osgText::String::ENCODING_UTF8);
     text->setPosition(osg::Vec3(0, lineLength, 0));
