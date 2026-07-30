@@ -112,33 +112,39 @@ void ConnectorSumo::getSimulationState(SimulationState &state)
 
     subscribeToSimulation();
     auto vehicles = client.vehicle.getAllSubscriptionResults();
-    // auto persons = client.person.getAllSubscriptionResults();
-    //
+    auto persons = client.person.getAllSubscriptionResults();
+
     for (const auto &[key, item] : vehicles)
     {
         const auto &pos = std::dynamic_pointer_cast<const libsumo::TraCIPosition>(item.at(VAR_POSITION3D));
         const double speed = std::dynamic_pointer_cast<const libsumo::TraCIDouble>(item.at(VAR_SPEED))->value;
         const double angle = std::dynamic_pointer_cast<const libsumo::TraCIDouble>(item.at(VAR_ANGLE))->value;
+        std::string vehicleClass = std::dynamic_pointer_cast<const libsumo::TraCIString>(item.at(VAR_VEHICLECLASS))->value;
 
         state.vehicles.push_back(VehicleState {
             key,
-            std::dynamic_pointer_cast<const libsumo::TraCIString>(item.at(VAR_VEHICLECLASS))->value,
+            vehicleClass,
             osg::Vec3d(pos->x, pos->y, pos->z),
             sumoAngleToMath(angle),
             speed,
         });
     }
-    //
-    // for (const auto &[key, item]: persons) {
-    //     const auto& pos = std::dynamic_pointer_cast<const libsumo::TraCIPosition>(item.at(VAR_POSITION3D));
-    //
-    //     state.vehicles.push_back(VehicleState{
-    //         key,
-    //         std::dynamic_pointer_cast<const libsumo::TraCIString>(item.at(VAR_VEHICLECLASS))->value,
-    //         osg::Vec3d(pos->x, pos->y, pos->z),
-    //         std::dynamic_pointer_cast<const libsumo::TraCIDouble>(item.at(VAR_ANGLE))->value
-    //     });
-    // }
+
+    for (const auto &[key, item] : persons)
+    {
+        const auto &pos = std::dynamic_pointer_cast<const libsumo::TraCIPosition>(item.at(VAR_POSITION3D));
+        const double speed = std::dynamic_pointer_cast<const libsumo::TraCIDouble>(item.at(VAR_SPEED))->value;
+        const double angle = std::dynamic_pointer_cast<const libsumo::TraCIDouble>(item.at(VAR_ANGLE))->value;
+        std::string vehicleClass = std::dynamic_pointer_cast<const libsumo::TraCIString>(item.at(VAR_VEHICLECLASS))->value;
+
+        state.vehicles.push_back(VehicleState {
+            key,
+            vehicleClass,
+            osg::Vec3d(pos->x, pos->y, pos->z),
+            sumoAngleToMath(angle),
+            speed,
+        });
+    }
 }
 
 void ConnectorSumo::subscribeToSimulation()

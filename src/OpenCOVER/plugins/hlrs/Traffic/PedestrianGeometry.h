@@ -40,7 +40,7 @@ public:
     PedestrianGeometry(Vehicle &vehicle, osg::Group *parentNode);
     ~PedestrianGeometry();
 
-    void update(double deltaTime);
+    void update(double deltaTime, double simulationDeltaTime) override;
 
 protected:
     Vehicle &vehicle;
@@ -52,9 +52,6 @@ protected:
 
     void removeFromSceneGraph();
     void setWalkingSpeed(double speed);
-    void executeLook(double factor = 1.0);
-    void executeWave(double factor = 1.0);
-    void executeAction(int idx, double factor = 1.0);
 
     bool activeState = true;
 
@@ -63,10 +60,9 @@ protected:
     osg::ref_ptr<osg::Group> groupNode;
     osg::ref_ptr<osg::MatrixTransform> transformNode;
     osg::ref_ptr<osg::LOD> lodNode;
-    osg::ref_ptr<osg::MatrixTransform> scaleNode;
 
     osg::ref_ptr<osgCal::Model> model;
-    osg::ref_ptr<osgCal::BasicMeshAdder> meshAdder;
+    osg::ref_ptr<osgCal::Model> staticModel;
 };
 
 #endif

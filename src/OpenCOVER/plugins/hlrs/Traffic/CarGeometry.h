@@ -24,7 +24,7 @@ public:
     ~CarGeometry();
 
     void updateTrajectory();
-    void update(double deltaTime);
+    void update(double deltaTime, double simulationDeltaTime);
 
 protected:
     Vehicle &vehicle;

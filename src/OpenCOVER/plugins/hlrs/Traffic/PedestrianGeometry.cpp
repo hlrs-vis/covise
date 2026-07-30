@@ -11,20 +11,17 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
+#include <cover/VRSceneGraph.h>
 #include <osg/Vec3>
+#include <osgDB/FileNameUtils>
 
+#include "traffic_utils.h"
 #include "Traffic.h"
 
 using namespace opencover;
 
-// inline double lerp(double a, double b, double f)
-// {
-//     return a + (b - a) * f;
-// }
-inline double unlerp(double a, double b, double f)
-{
-    return (f - a) / (b - a);
-}
+constexpr double LOD_RANGE = 500;
+constexpr double LOD_RANGE_ANIMATED = 150;
 
 osg::ref_ptr<osgCal::CoreModel> PedestrianGeometry::loadFile(const std::string &file)
 {
@@ -36,14 +33,14 @@ osg::ref_ptr<osgCal::CoreModel> PedestrianGeometry::loadFile(const std::string &
     if (cache.find(file) == cache.end())
     {
         // Load core model
-        osg::ref_ptr<osgCal::CoreModel> model = new osgCal::CoreModel();
+        osg::ref_ptr<osgCal::CoreModel> coreModel = new osgCal::CoreModel();
         osg::ref_ptr<osgCal::MeshParameters> meshParams = new osgCal::MeshParameters;
         meshParams->useDepthFirstMesh = false;
         meshParams->software = false;
 
         try
         {
-            model->load(file, meshParams.get());
+            coreModel->load(file, meshParams.get());
         }
         catch (std::exception &e)
         {
@@ -52,10 +49,19 @@ osg::ref_ptr<osgCal::CoreModel> PedestrianGeometry::loadFile(const std::string &
             return nullptr;
         }
 
-        cache[file] = model;
+        cache[file] = coreModel;
     }
 
     return cache[file];
+}
+
+osg::ref_ptr<osg::Node> addScaleNode(osg::ref_ptr<osg::Node> node, double scale)
+{
+    auto scaleNode = new osg::MatrixTransform();
+    scaleNode->setName("scalePedestrian");
+    scaleNode->setMatrix(osg::Matrix::scale(scale, scale, scale));
+    scaleNode->addChild(node);
+    return scaleNode;
 }
 
 /**
@@ -75,23 +81,23 @@ PedestrianGeometry::PedestrianGeometry(Vehicle &vehicle, osg::Group *parentNode)
     // Create a new LOD, set range, and add it to the transform
     lodNode = new osg::LOD();
     transformNode->addChild(lodNode);
-    lodNode->setRange(0, 0.0, 500.0); // TODO: maybe randomize lod range a little to "fade" crowds in?
 
-    // Create a new transform only for scaling the rendered model
-    double s = vehicle.model->scale;
-    scaleNode = new osg::MatrixTransform();
-    scaleNode->setName("scalePedestrian");
-    scaleNode->setMatrix(osg::Matrix::scale(s, s, s));
-    lodNode->addChild(scaleNode);
-
-    // Create a new instance of the core model, add it to the LOD
-    model = new osgCal::Model();
-    meshAdder = new osgCal::DefaultMeshAdder;
-    osg::ref_ptr<osgCal::CoreModel> coreModel = loadFile(vehicle.model->path);
+    auto coreModel = loadFile(vehicle.model->path);
     if (coreModel)
     {
+        auto meshAdder = new osgCal::DefaultMeshAdder();
+        model = new osgCal::Model();
         model->load(coreModel, meshAdder);
-        scaleNode->addChild(model);
+        model->setNodeMask(model->getNodeMask() & ~Isect::Update); // we update ourselves
+
+        meshAdder = new osgCal::DefaultMeshAdder();
+        staticModel = new osgCal::Model();
+        staticModel->load(coreModel, meshAdder);
+        staticModel->blendCycle(ANIMATION_INDEX_IDLE, 1.0, 0.0, 0.0);
+
+        // TODO: maybe randomize lod range a little to "fade" crowds in?
+        lodNode->addChild(addScaleNode(model, vehicle.model->scale), 0.0, LOD_RANGE_ANIMATED);
+        lodNode->addChild(addScaleNode(staticModel, vehicle.model->scale), LOD_RANGE_ANIMATED, LOD_RANGE);
     }
 
     transformNode->setNodeMask(transformNode->getNodeMask() & ~(Isect::Intersection | Isect::Collision | Isect::Walk));
@@ -110,23 +116,33 @@ void PedestrianGeometry::removeFromSceneGraph()
     }
 }
 
-void PedestrianGeometry::update(double deltaTime)
+void PedestrianGeometry::update(double deltaTime, double simulationDeltaTime)
 {
-    auto matrix = osg::Matrix::rotate(vehicle.heading, osg::Vec3d(0, 0, 1)) * osg::Matrix::translate(vehicle.position);
+    vehicle.timeSinceSource += simulationDeltaTime;
+    float t = std::clamp(vehicle.timeSinceSource / vehicle.timeFromSourceToTarget, 0.0, 1.05);
+
+    auto position = lerp(vehicle.sourcePosition, vehicle.targetPosition, t);
+
+    auto difference = previousPosition - position;
+    double distance = difference.length();
+    auto heading = distance > 0 ? atan2(difference.y(), difference.x()) : vehicle.heading;
+    vehicle.heading = lerp_angle(vehicle.heading, heading, deltaTime * 3.f);
+    previousPosition = position;
+
+    auto matrix = osg::Matrix::rotate(vehicle.heading - M_PI_2, osg::Vec3d(0, 0, 1)) * osg::Matrix::translate(position);
     transformNode->setMatrix(matrix);
 
-    double distance = (previousPosition - vehicle.position).length();
-    previousPosition = vehicle.position;
-
-    if (deltaTime > 0)
+    if (simulationDeltaTime > 0)
     {
-        double speed = distance / deltaTime;
-        smoothedWalkSpeed = std::lerp(smoothedWalkSpeed, speed, deltaTime * 5.0);
-        setWalkingSpeed(smoothedWalkSpeed);
+        double speed = distance / simulationDeltaTime;
+        smoothedWalkSpeed = std::lerp(smoothedWalkSpeed, speed, deltaTime * 2.0);
     }
+    setWalkingSpeed(smoothedWalkSpeed);
 
-    model->update(deltaTime);
+    model->update(simulationDeltaTime);
 }
+
+#define UC(a, b) std::clamp(unlerp(a, b, speed), 0.0, 1.0)
 
 /**
  * Adjust the geometry's animation settings to match the given speed, according to the geometry's animation mapping
@@ -137,61 +153,15 @@ void PedestrianGeometry::setWalkingSpeed(double speed)
     speed = std::abs(speed);
 
     // Compute which movement animation we're in to which amount
-    double idleAmount = std::clamp(unlerp(SPEED_SLOW, SPEED_IDLE, speed), 0.0, 1.0);
-    double slowAmount = std::clamp(unlerp(SPEED_IDLE, SPEED_SLOW, speed), 0.0, 1.0) * std::clamp(unlerp(SPEED_SLOW, SPEED_WALK, speed), 0.0, 1.0);
-    double walkAmount = std::clamp(unlerp(SPEED_SLOW, SPEED_WALK, speed), 0.0, 1.0) * std::clamp(unlerp(SPEED_WALK, SPEED_RUN, speed), 0.0, 1.0);
-    double runAmount = std::clamp(unlerp(SPEED_WALK, SPEED_WALK, speed), 0.0, 1.0);
+    double idleAmount = UC(SPEED_SLOW, SPEED_IDLE);
+    double slowAmount = std::min(UC(SPEED_IDLE, SPEED_SLOW), UC(SPEED_WALK, SPEED_SLOW));
+    double walkAmount = std::min(UC(SPEED_WALK, SPEED_SLOW), UC(SPEED_WALK, SPEED_RUN));
+    double runAmount = UC(SPEED_RUN, SPEED_WALK);
 
     model->blendCycle(ANIMATION_INDEX_IDLE, idleAmount, ANIMATION_BLEND_TIME);
-    model->blendCycle(ANIMATION_INDEX_SLOW, slowAmount, ANIMATION_BLEND_TIME);
-    model->blendCycle(ANIMATION_INDEX_WALK, walkAmount, ANIMATION_BLEND_TIME);
-    model->blendCycle(ANIMATION_INDEX_RUN, runAmount, ANIMATION_BLEND_TIME);
+    model->blendCycle(ANIMATION_INDEX_SLOW, slowAmount, ANIMATION_BLEND_TIME, speed / SPEED_SLOW);
+    model->blendCycle(ANIMATION_INDEX_WALK, walkAmount, ANIMATION_BLEND_TIME, speed / SPEED_WALK);
+    model->blendCycle(ANIMATION_INDEX_RUN, runAmount, ANIMATION_BLEND_TIME, speed / SPEED_RUN);
 
-    // Mix the time scales for each movement animation by the weights -- this
-    // might be stupid, let's check :)
-    double slowTimeScale = speed / SPEED_SLOW;
-    double walkTimeScale = speed / SPEED_WALK;
-    double runTimeScale = speed / SPEED_RUN;
-    double timeScale = 1.0 * idleAmount + slowTimeScale * slowAmount + walkTimeScale * walkAmount + runTimeScale * runAmount;
-    model->setTimeFactor(timeScale);
-
-    // TODO: What special handling do bicycles need?
-    // if (pedGroup->getName().find("bicycle") != std::string::npos) {
-    //     if (speed <= anim.slowVel) {
-    //         model->clearCycle(0, ANIMATION_BLEND_TIME );
-    //     } else {
-    //         model->blendCycle(0, 2*speed, ANIMATION_BLEND_TIME );
-    //         if (!PedestrianUtils::floatEq(timeFactorScale, 1.0)) {
-    //             timeFactorScale = 1.0;
-    //             model->setTimeFactor(timeFactorScale);
-    //         }
-    //     }
-    // }
-    //
-}
-
-/**
- * Perform the one-time action to "look both ways before crossing the street"
- * (i.e., turn head left and right)
- */
-void PedestrianGeometry::executeLook(double factor)
-{
-    model->executeAction(ANIMATION_INDEX_LOOK, factor);
-}
-
-/**
- * Perform the one-time action to "wave" (e.g., when approaching a fellow pedestrian)
- */
-void PedestrianGeometry::executeWave(double factor)
-{
-    model->executeAction(ANIMATION_INDEX_WAVE, factor);
-}
-
-/**
- * Perform a one-time action, where idx is its position in the Cal3d .cfg
- * file's animation list (first item has idx 0)
- */
-void PedestrianGeometry::executeAction(int idx, double factor)
-{
-    model->executeAction(idx, 0.0, 0.0, 1.0, false, factor);
+    // TODO: can we let bicycles roll out without pedaling when they are slowing down?
 }

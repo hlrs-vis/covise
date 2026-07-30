@@ -49,7 +49,7 @@ osg::Node *CarGeometry::loadFile(const std::string &file)
 
     if (cache.find(file) == cache.end())
     {
-        osg::Node *node = opencover::coVRFileManager::instance()->loadFile(file.c_str(), nullptr, dummyParent);
+        osg::Node *node = opencover::coVRFileManager::instance()->loadFile(file.c_str(), nullptr, dummyParent, nullptr, true);
         if (!node)
         {
             return nullptr;
@@ -103,7 +103,7 @@ void CarGeometry::updateTrajectory()
     p2.z() = std::lerp(p0.z(), p3.z(), distanceRatio(toVec2(p2 - p0), toVec2(p3 - p0)));
 }
 
-void CarGeometry::update(double deltaTime)
+void CarGeometry::update(double deltaTime, double simulationDeltaTime)
 {
     vehicle.timeSinceSource += deltaTime;
 

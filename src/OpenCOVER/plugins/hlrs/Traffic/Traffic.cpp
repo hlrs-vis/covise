@@ -55,11 +55,11 @@ Traffic::Traffic()
 
     // Don't use the update traversal on pedestrians, they are updated manually
     // when in range.
-    auto &pedestrianGroup = vehicleClassGroups["pedestrian"];
-    if (pedestrianGroup)
-    {
-        pedestrianGroup->setNodeMask(pedestrianGroup->getNodeMask() & ~opencover::Isect::Update);
-    }
+    // auto &pedestrianGroup = vehicleClassGroups["pedestrian"];
+    // if (pedestrianGroup)
+    // {
+    //     pedestrianGroup->setNodeMask(pedestrianGroup->getNodeMask() & ~opencover::Isect::Update);
+    // }
 }
 
 // void Traffic::loadConfig(const std::string &configFileName) {
@@ -307,12 +307,13 @@ void Traffic::processNewResults()
 
 void Traffic::interpolateVehiclePosition(double deltaTime)
 {
+    const double simulationSpeed = pauseButton->state() ? 0.0 : simulationSpeedSlider->value();
+
     // Loop over all entities and compute their new position
     for (auto &[_, vehicle] : vehicles)
     {
-
         // Update position of the geometry
-        vehicle.geometry->update(deltaTime);
+        vehicle.geometry->update(deltaTime, deltaTime * simulationSpeed);
     }
 }
 
