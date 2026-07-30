@@ -54,13 +54,16 @@ struct ViewData
     osg::ref_ptr<osg::Geometry> reprojGeo;
     osg::ref_ptr<osg::Vec2Array> pointCoord, quadCoord;
     osg::ref_ptr<osg::DrawArrays> pointArr, quadArr;
+    osg::ref_ptr<osg::Vec2Array> meshVertices;
+    osg::ref_ptr<osg::DrawElementsUInt> meshIdx;
     osg::ref_ptr<osg::Uniform> size;
     osg::ref_ptr<osg::Uniform> pixelOffset;
     osg::ref_ptr<osg::Uniform> withNeighbors;
     osg::ref_ptr<osg::Uniform> withHoles;
     osg::ref_ptr<osg::Program> reprojConstProgram;
     osg::ref_ptr<osg::Program> reprojAdaptProgram;
-    osg::ref_ptr<osg::Program> reprojMeshProgram;
+    osg::ref_ptr<osg::Program> reprojMeshProgram;   // vertex shader only
+    osg::ref_ptr<osg::Program> reprojMeshHolesProgram;      // geometry shader (withHoles)
 
     std::vector<ViewChannelData *> viewChan;
 

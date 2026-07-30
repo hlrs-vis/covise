@@ -4,23 +4,10 @@
   <uniform name="dep" type="sampler2D" value="1"/>
 
   <vertexProgram>
-void main(void) {
-   gl_Position = vec4(gl_Vertex.xy, 0., 1.);
-}
-  </vertexProgram>
-
-  <geometryProgram numVertices="4" inputType="POINTS" outputType="TRIANGLE_STRIP">
-#version 120
-#extension GL_EXT_geometry_shader4 : enable
-
 uniform sampler2D col;
 uniform sampler2D dep;
 uniform vec2 size;
 uniform mat4 ReprojectionMatrix;
-uniform bool withHoles;
-uniform vec2 offset;
-uniform vec2 off[] = vec2[4]( vec2(0,0), vec2(0,1), vec2(1,0), vec2(1,1) );
-const float tolerance = 10.f;
 
 // normalized texture coordinates in [0,1] for a pixel coordinate
 vec2 texcoord(vec2 xy) {
@@ -46,51 +33,20 @@ vec4 pos(vec2 xy, float d) {
    return ReprojectionMatrix * p;
 }
 
-vec2 screenpos(vec4 p) {
-   return p.xy/p.w*size.xy*0.5+offset;
-}
+void main(void) {
+   vec2 xy = gl_Vertex.xy;
 
-vec2 pos2d(vec2 xy) {
    float d = depth(xy);
-   return screenpos(pos(xy, d));
-}
-
-void createVertex(vec2 xy) {
-   float d = depth(xy);
-   if (is_far(d)) return;
+   if (is_far(d)) {
+      // NaN makes GL discard any primitive containing this vertex
+      gl_Position = vec4(2., 2., 2., 0./0.);
+      return;
+   }
 
    gl_FrontColor = sampleColor(xy);
    gl_Position = pos(xy, d);
-   EmitVertex();
 }
-
-void main() {
-   vec2 xy = gl_PositionIn[0].xy;
-
-   bool render = true;
-   if (withHoles) {
-      vec2 p[4];
-      for (int i=0; i&lt;4; ++i)
-         p[i] = pos2d(xy+off[i]);
-      float mindist = distance(p[0],p[1]), maxdist=mindist;
-      for (int i=1; i&lt;4; ++i) {
-          for (int j=0; j&lt;i; ++j) {
-              float dist = distance(p[i],p[j]);
-              mindist = min(mindist, dist);
-              maxdist = max(maxdist, dist);
-          }
-      }
-      if (maxdist &lt; 0.001 || mindist*tolerance &lt; maxdist) {
-         render = false;
-      }
-   }
-   if (render) {
-      for (int i=0; i&lt;4; ++i)
-         createVertex(xy+off[i]);
-   }
-   EndPrimitive();
-}
-  </geometryProgram>
+  </vertexProgram>
 
   <fragmentProgram>
 void main(void) {

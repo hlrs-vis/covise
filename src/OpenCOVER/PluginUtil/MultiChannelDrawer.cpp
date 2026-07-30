@@ -11,6 +11,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <algorithm>
+#include <vector>
 
 #include <osg/Depth>
 #include <osg/Geometry>
@@ -457,6 +458,15 @@ void MultiChannelDrawer::createGeometry(ViewData &vd)
       }
 
       {
+          coVRShader *shader = coVRShaderList::instance()->get("MultiChannelDrawerReprojectMeshHoles");
+          if (shader)
+          {
+              shader->apply(stateSet);
+              vd.reprojMeshHolesProgram = shader->getProgram();
+          }
+      }
+
+      {
           coVRShader *shader = coVRShaderList::instance()->get("MultiChannelDrawerReprojectMesh");
           if (shader)
           {
@@ -754,13 +764,55 @@ void MultiChannelDrawer::updateGeoForView(ViewData &vd) {
     vd.quadCoord->dirty();
     vd.quadArr = new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, (w - 1)*(h - 1));
 
-    osg::ref_ptr<osg::DrawArrays> arr = (m_mode == ReprojectMesh || m_mode == ReprojectMeshWithHoles) ? vd.quadArr : vd.pointArr;
+    // CPU-generated quad mesh for geometry-shader-free ReprojectMesh
+    vd.meshVertices = new osg::Vec2Array(w * h);
+    for (int y = 0; y < h; ++y) {
+        for (int x = 0; x < w; ++x) {
+            (*vd.meshVertices)[y * w + x].set(x + 0.5f, m_flipped ? y + 0.5f : h - y + 0.5f);
+        }
+    }
+    vd.meshVertices->dirty();
 
-    auto updateGeo = [arr](osg::Geometry *geo){
+    size_t numTris = (size_t)(w - 1) * (h - 1) * 6;
+    std::vector<GLuint> idxData(numTris);
+    idx = 0;
+    for (int y = 0; y < h - 1; ++y) {
+        for (int x = 0; x < w - 1; ++x) {
+            GLuint a = static_cast<GLuint>(y * w + x);
+            GLuint b = static_cast<GLuint>(y * w + x + 1);
+            GLuint c = static_cast<GLuint>((y + 1) * w + x);
+            GLuint d = static_cast<GLuint>((y + 1) * w + x + 1);
+            idxData[idx++] = a; idxData[idx++] = c; idxData[idx++] = b;
+            idxData[idx++] = b; idxData[idx++] = c; idxData[idx++] = d;
+        }
+    }
+    vd.meshIdx = new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, numTris, idxData.data());
+
+    // pick vertex array + primitive set for the current mode
+    osg::ref_ptr<osg::Array> curVA;
+    osg::ref_ptr<osg::DrawArrays> curArr = vd.pointArr;
+    osg::ref_ptr<osg::PrimitiveSet> curPset;
+    if (m_mode == ReprojectMesh) {
+        curVA = vd.meshVertices;
+        curPset = vd.meshIdx.get();
+    } else if (m_mode == ReprojectMeshWithHoles) {
+        curVA = vd.quadCoord;
+        curArr = vd.quadArr;
+    }
+
+    auto updateGeo = [&curVA, &curArr, &curPset](osg::Geometry *geo){
+        if (curVA)
+            geo->setVertexArray(curVA);
         if (geo->getNumPrimitiveSets() > 0) {
-            geo->setPrimitiveSet(0, arr);
+            if (curPset)
+                geo->setPrimitiveSet(0, curPset);
+            else if (curArr)
+                geo->setPrimitiveSet(0, curArr);
         } else {
-            geo->addPrimitiveSet(arr);
+            if (curPset)
+                geo->addPrimitiveSet(curPset);
+            else if (curArr)
+                geo->addPrimitiveSet(curArr);
         }
         geo->dirtyDisplayList();
     };
@@ -907,7 +959,17 @@ void MultiChannelDrawer::setMode(MultiChannelDrawer::Mode mode) {
                 }
                 break;
             }
-            case ReprojectMesh:
+            case ReprojectMesh: {
+                geo->setVertexArray(vd.meshVertices);
+                osg::ref_ptr<osg::PrimitiveSet> pset = vd.meshIdx.get();
+                if (pset) {
+                    if (geo->getNumPrimitiveSets() > 0)
+                        geo->setPrimitiveSet(0, pset);
+                    else
+                        geo->addPrimitiveSet(pset);
+                }
+                break;
+            }
             case ReprojectMeshWithHoles:
                 geo->setVertexArray(vd.quadCoord);
                 if (vd.quadArr) {
@@ -933,6 +995,7 @@ void MultiChannelDrawer::setMode(MultiChannelDrawer::Mode mode) {
             state->setMode(GL_PROGRAM_POINT_SIZE, osg::StateAttribute::OFF);
             state->setAttributeAndModes(vd.reprojAdaptProgram, osg::StateAttribute::OFF);
             state->setAttributeAndModes(vd.reprojMeshProgram, osg::StateAttribute::OFF);
+            state->setAttributeAndModes(vd.reprojMeshHolesProgram, osg::StateAttribute::OFF);
             state->setAttributeAndModes(vd.reprojConstProgram, osg::StateAttribute::ON);
             break;
         case ReprojectAdaptive:
@@ -940,16 +1003,24 @@ void MultiChannelDrawer::setMode(MultiChannelDrawer::Mode mode) {
             state->setMode(GL_PROGRAM_POINT_SIZE, osg::StateAttribute::ON);
             state->setAttributeAndModes(vd.reprojConstProgram, osg::StateAttribute::OFF);
             state->setAttributeAndModes(vd.reprojMeshProgram, osg::StateAttribute::OFF);
+            state->setAttributeAndModes(vd.reprojMeshHolesProgram, osg::StateAttribute::OFF);
             state->setAttributeAndModes(vd.reprojAdaptProgram, osg::StateAttribute::ON);
             vd.withNeighbors->set(mode == ReprojectAdaptiveWithNeighbors ? true : false);
             break;
         case ReprojectMesh:
+            state->setMode(GL_PROGRAM_POINT_SIZE, osg::StateAttribute::OFF);
+            state->setAttributeAndModes(vd.reprojConstProgram, osg::StateAttribute::OFF);
+            state->setAttributeAndModes(vd.reprojAdaptProgram, osg::StateAttribute::OFF);
+            state->setAttributeAndModes(vd.reprojMeshHolesProgram, osg::StateAttribute::OFF);
+            state->setAttributeAndModes(vd.reprojMeshProgram, osg::StateAttribute::ON);
+            break;
         case ReprojectMeshWithHoles:
             state->setMode(GL_PROGRAM_POINT_SIZE, osg::StateAttribute::OFF);
             state->setAttributeAndModes(vd.reprojConstProgram, osg::StateAttribute::OFF);
             state->setAttributeAndModes(vd.reprojAdaptProgram, osg::StateAttribute::OFF);
-            state->setAttributeAndModes(vd.reprojMeshProgram, osg::StateAttribute::ON);
-            vd.withHoles->set(mode == ReprojectMeshWithHoles ? true : false);
+            state->setAttributeAndModes(vd.reprojMeshProgram, osg::StateAttribute::OFF);
+            state->setAttributeAndModes(vd.reprojMeshHolesProgram, osg::StateAttribute::ON);
+            vd.withHoles->set(true);
             break;
         }
     }
