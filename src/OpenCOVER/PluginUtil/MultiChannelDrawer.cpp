@@ -579,8 +579,8 @@ void MultiChannelDrawer::swapFrame() {
 #ifdef HAVE_CUDA
       if (m_useCuda)
       {
-          vd.colorTex->dirty();
-          vd.depthTex->dirty();
+          vd.colorTex->dirtyTextureObject();
+          vd.depthTex->dirtyTextureObject();
       }
       else
 #endif
