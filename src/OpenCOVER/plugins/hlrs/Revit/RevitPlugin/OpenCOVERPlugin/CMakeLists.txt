@@ -62,7 +62,7 @@ SettingsDialog.Designer.cs
 SettingsDialog.resx
 
 )
-set_property(TARGET OpenCOVERPlugin PROPERTY VS_DOTNET_TARGET_FRAMEWORK_VERSION "v4.8")
+set_property(TARGET OpenCOVERPlugin PROPERTY VS_DOTNET_TARGET_FRAMEWORK "net8.0-windows")
 #set_property(TARGET OpenCOVERPlugin PROPERTY WIN32_EXECUTABLE TRUE)
 
 set_property(TARGET OpenCOVERPlugin PROPERTY VS_DOTNET_REFERENCES
