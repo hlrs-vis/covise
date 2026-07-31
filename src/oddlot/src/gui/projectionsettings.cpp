@@ -198,8 +198,10 @@ void ProjectionSettings::transform(double &x, double &y, double &z)
    
     PJ_COORD c;
 
-    c.lpzt.lam = x;
-    c.lpzt.phi = y;
+    //c.lpzt.lam = x;
+    //c.lpzt.phi = y;
+    c.lpzt.lam = x * 180.0 / M_PI; // radians -> degrees
+    c.lpzt.phi = y * 180.0 / M_PI; // radians -> degrees
     c.lpzt.z = z;
 
     PJ_COORD c_out = proj_trans(projectData_->getProjReference(), PJ_FWD, c);
