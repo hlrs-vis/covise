@@ -301,7 +301,7 @@ extern double errbarper;
 
 extern char fname[];
 extern int nsets;
-extern char buf[];
+extern char buf[1024];
 
 extern char *curprint;
 
