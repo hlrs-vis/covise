@@ -190,7 +190,7 @@ protected:
 
     VrmlSFInt d_messageID;
 
-    static const int NUM_FIELDS = 16;
+    static const size_t NUM_FIELDS = 16;
 
     std::array<VrmlSFFloat, NUM_FIELDS> d_floatValues;
     std::array<VrmlSFInt, NUM_FIELDS> d_intValues;

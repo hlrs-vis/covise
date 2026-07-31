@@ -28,18 +28,18 @@ using namespace vrml;
 void VrmlNodeAppearance::initFields(VrmlNodeAppearance *node, vrml::VrmlNodeType *t)
 {
     initFieldsHelper(node, t,
-                     exposedField("material", node->d_material));
+                     exposedField("material", &VrmlNodeAppearance::d_material));
     for (size_t i = 0; i < node->MAX_TEXTURES; i++)
     {
         std::string suffix = i == 0 ? std::string() : std::to_string(i + 1);
         initFieldsHelper(node, t,
-                         exposedField("texture" + suffix, node->d_textures[i],
+                         exposedField("texture" + suffix, &VrmlNodeAppearance::d_textures, i,
                                       [node, i](const VrmlSFNode *)
                                       {
                                           if (i >= node->d_numTextures)
                                               node->d_numTextures = i + 1;
                                       }),
-                         exposedField("textureTransform" + suffix, node->d_textureTransforms[i]));
+                         exposedField("textureTransform" + suffix, &VrmlNodeAppearance::d_textureTransforms, i));
     }
     VrmlNodeChild::initFields(node, t);
 }

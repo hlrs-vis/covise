@@ -20,7 +20,7 @@ DLabPlugin *DLabPlugin::plugin = NULL;
 void VrmlNodeDLab::initFields(VrmlNodeDLab *node, vrml::VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t);
-    initFieldsHelper(node, t, exposedField("enabled", node->d_enabled));
+    initFieldsHelper(node, t, exposedField("enabled", &VrmlNodeDLab::d_enabled));
 
     if (t)
     {

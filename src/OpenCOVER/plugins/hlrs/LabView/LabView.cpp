@@ -19,7 +19,7 @@ LabViewPlugin *LabViewPlugin::plugin = NULL;
 void VrmlNodeLabView::initFields(VrmlNodeLabView *node, vrml::VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t);
-    initFieldsHelper(node, t, exposedField("enabled", node->d_enabled));
+    initFieldsHelper(node, t, exposedField("enabled", &VrmlNodeLabView::d_enabled));
 
     if(t)
     {

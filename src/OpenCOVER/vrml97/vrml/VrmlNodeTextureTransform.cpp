@@ -22,10 +22,10 @@ using namespace vrml;
 void VrmlNodeTextureTransform::initFields(VrmlNodeTextureTransform *node, VrmlNodeType *t)
 {
     VrmlNode::initFieldsHelper(node, t,
-                                       exposedField("center", node->d_center),
-                                       exposedField("rotation", node->d_rotation),
-                                       exposedField("scale", node->d_scale),
-                                       exposedField("translation", node->d_translation));
+                                       exposedField("center", &VrmlNodeTextureTransform::d_center),
+                                       exposedField("rotation", &VrmlNodeTextureTransform::d_rotation),
+                                       exposedField("scale", &VrmlNodeTextureTransform::d_scale),
+                                       exposedField("translation", &VrmlNodeTextureTransform::d_translation));
 }
 
 const char *VrmlNodeTextureTransform::typeName() 

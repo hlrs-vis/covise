@@ -21,15 +21,15 @@ using namespace vrml;
 void VrmlNodeFontStyle::initFields(VrmlNodeFontStyle *node, VrmlNodeType *t)
 {
     VrmlNode::initFieldsHelper(node, t,
-                                       exposedField("family", node->d_family),
-                                       exposedField("horizontal", node->d_horizontal),
-                                       exposedField("justify", node->d_justify),
-                                       exposedField("language", node->d_language),
-                                       exposedField("leftToRight", node->d_leftToRight),
-                                       exposedField("size", node->d_size),
-                                       exposedField("spacing", node->d_spacing),
-                                       exposedField("style", node->d_style),
-                                       exposedField("topToBottom", node->d_topToBottom));
+                                       exposedField("family", &VrmlNodeFontStyle::d_family),
+                                       exposedField("horizontal", &VrmlNodeFontStyle::d_horizontal),
+                                       exposedField("justify", &VrmlNodeFontStyle::d_justify),
+                                       exposedField("language", &VrmlNodeFontStyle::d_language),
+                                       exposedField("leftToRight", &VrmlNodeFontStyle::d_leftToRight),
+                                       exposedField("size", &VrmlNodeFontStyle::d_size),
+                                       exposedField("spacing", &VrmlNodeFontStyle::d_spacing),
+                                       exposedField("style", &VrmlNodeFontStyle::d_style),
+                                       exposedField("topToBottom", &VrmlNodeFontStyle::d_topToBottom));
 }
 
 const char *VrmlNodeFontStyle::typeName() { return "FontStyle"; }

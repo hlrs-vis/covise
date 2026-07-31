@@ -22,7 +22,7 @@ using namespace vrml;
 void VrmlNodeSphere::initFields(VrmlNodeSphere *node, VrmlNodeType *t)
 {
     VrmlNodeGeometry::initFields(node, t); 
-    initFieldsHelper(node, t, field("radius", node->d_radius));
+    initFieldsHelper(node, t, field("radius", &VrmlNodeSphere::d_radius));
 }
 
 const char *VrmlNodeSphere::typeName() { return "Sphere"; }

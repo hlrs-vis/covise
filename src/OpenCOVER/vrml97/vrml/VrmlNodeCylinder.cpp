@@ -23,11 +23,11 @@ void VrmlNodeCylinder::initFields(VrmlNodeCylinder *node, VrmlNodeType *t)
 {
     VrmlNodeGeometry::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-                     field("bottom", node->d_bottom),
-                     field("height", node->d_height),
-                     field("radius", node->d_radius),
-                     field("side", node->d_side),
-                     field("top", node->d_top));
+                     field("bottom", &VrmlNodeCylinder::d_bottom),
+                     field("height", &VrmlNodeCylinder::d_height),
+                     field("radius", &VrmlNodeCylinder::d_radius),
+                     field("side", &VrmlNodeCylinder::d_side),
+                     field("top", &VrmlNodeCylinder::d_top));
 }
 
 const char *VrmlNodeCylinder::typeName() { return "Cylinder"; }

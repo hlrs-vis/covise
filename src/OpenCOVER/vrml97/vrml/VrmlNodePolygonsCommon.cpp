@@ -31,13 +31,13 @@ void VrmlNodePolygonsCommon::initFields(VrmlNodePolygonsCommon *node, VrmlNodeTy
 {
     VrmlNodeColoredSet::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-                     exposedField("normal", node->d_normal),
-                     exposedField("texCoord", node->d_texCoord),
-                     exposedField("fogCoord", node->d_fogCoord),
-                     exposedField("attrib", node->d_attrib),
-                     field("ccw", node->d_ccw),
-                     field("normalPerVertex", node->d_normalPerVertex),
-                     field("solid", node->d_solid));
+                     exposedField("normal", &VrmlNodePolygonsCommon::d_normal),
+                     exposedField("texCoord", &VrmlNodePolygonsCommon::d_texCoord),
+                     exposedField("fogCoord", &VrmlNodePolygonsCommon::d_fogCoord),
+                     exposedField("attrib", &VrmlNodePolygonsCommon::d_attrib),
+                     field("ccw", &VrmlNodePolygonsCommon::d_ccw),
+                     field("normalPerVertex", &VrmlNodePolygonsCommon::d_normalPerVertex),
+                     field("solid", &VrmlNodePolygonsCommon::d_solid));
 }
 
 VrmlNodePolygonsCommon::VrmlNodePolygonsCommon(VrmlScene *scene, const std::string &name)

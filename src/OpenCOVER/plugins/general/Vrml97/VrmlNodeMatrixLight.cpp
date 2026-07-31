@@ -71,10 +71,10 @@ void VrmlNodeMatrixLight::initFields(VrmlNodeMatrixLight *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t,
-                     exposedField("lightNumber", node->d_lightNumber),
-                     exposedField("numRows", node->d_numRows),
-                     exposedField("numColumns", node->d_numColumns),
-                     exposedField("IESFile", node->d_IESFile, [node](auto f){
+                     exposedField("lightNumber", &VrmlNodeMatrixLight::d_lightNumber),
+                     exposedField("numRows", &VrmlNodeMatrixLight::d_numRows),
+                     exposedField("numColumns", &VrmlNodeMatrixLight::d_numColumns),
+                     exposedField("IESFile", &VrmlNodeMatrixLight::d_IESFile, [node](auto f){
                          node->iesFile = new coIES(node->d_IESFile.get());
                         //float my_texture[] = iesFile->getTexture();
                         osg::ref_ptr<osg::Texture2D> lightTexture = new osg::Texture2D();

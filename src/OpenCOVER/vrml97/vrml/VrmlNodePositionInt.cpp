@@ -24,8 +24,8 @@ void VrmlNodePositionInt::initFields(VrmlNodePositionInt *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t,
-                     exposedField("key", node->d_key),
-                     exposedField("keyValue", node->d_keyValue));
+                     exposedField("key", &VrmlNodePositionInt::d_key),
+                     exposedField("keyValue", &VrmlNodePositionInt::d_keyValue));
     if (t)
     {
         t->addEventIn("set_fraction", VrmlField::SFFLOAT);

@@ -39,12 +39,12 @@ void VrmlNodeSpaceSensor::initFields(VrmlNodeSpaceSensor *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-                     exposedField("autoOffset", node->d_autoOffset),
-                     exposedField("enabled", node->d_enabled),
-                     exposedField("rotationEnabled", node->d_rotationEnabled),
-                     exposedField("maxPosition", node->d_maxPosition),
-                     exposedField("minPosition", node->d_minPosition),
-                     exposedField("offset", node->d_offset));
+                     exposedField("autoOffset", &VrmlNodeSpaceSensor::d_autoOffset),
+                     exposedField("enabled", &VrmlNodeSpaceSensor::d_enabled),
+                     exposedField("rotationEnabled", &VrmlNodeSpaceSensor::d_rotationEnabled),
+                     exposedField("maxPosition", &VrmlNodeSpaceSensor::d_maxPosition),
+                     exposedField("minPosition", &VrmlNodeSpaceSensor::d_minPosition),
+                     exposedField("offset", &VrmlNodeSpaceSensor::d_offset));
     if(t)
     {
         t->addEventOut("isActive", VrmlField::SFBOOL);

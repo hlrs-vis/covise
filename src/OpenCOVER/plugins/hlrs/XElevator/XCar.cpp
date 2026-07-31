@@ -24,12 +24,12 @@ void VrmlNodeXCar::initFields(VrmlNodeXCar *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t, 
-                    exposedField("carNumber", node->d_carNumber),
-                    exposedField("carPos", node->d_carPos),
-                    exposedField("carOffset", node->d_carOffset),
-                    exposedField("stationList", node->d_stationList),
-                    exposedField("stationOpenTime", node->d_stationOpenTime),
-                    exposedField("currentLanding", node->d_currentLanding));
+                    exposedField("carNumber", &VrmlNodeXCar::d_carNumber),
+                    exposedField("carPos", &VrmlNodeXCar::d_carPos),
+                    exposedField("carOffset", &VrmlNodeXCar::d_carOffset),
+                    exposedField("stationList", &VrmlNodeXCar::d_stationList),
+                    exposedField("stationOpenTime", &VrmlNodeXCar::d_stationOpenTime),
+                    exposedField("currentLanding", &VrmlNodeXCar::d_currentLanding));
     if(t)
     {
         t->addEventOut("carTransformPos", VrmlField::SFVEC3F);

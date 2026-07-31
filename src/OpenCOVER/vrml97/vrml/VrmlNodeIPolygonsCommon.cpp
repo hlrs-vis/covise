@@ -31,7 +31,7 @@ void VrmlNodeIPolygonsCommon::initFields(VrmlNodeIPolygonsCommon *node, VrmlNode
 {
     VrmlNodePolygonsCommon::initFields(node, t);
     initFieldsHelper(node, t,
-                        field("index", node->d_index));
+                        field("index", &VrmlNodeIPolygonsCommon::d_index));
     if(t)
         t->addEventIn("set_index", VrmlField::MFINT32);
 

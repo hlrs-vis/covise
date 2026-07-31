@@ -62,7 +62,7 @@ void VrmlNodeOffice::initFields(VrmlNodeOffice *node, vrml::VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t,
-                     exposedField("applicationType", node->d_applicationType, [node](auto f){
+                     exposedField("applicationType", &VrmlNodeOffice::d_applicationType, [node](auto f){
                         for(officeList::iterator it = OfficePlugin::instance()->officeConnections.begin();it !=OfficePlugin::instance()->officeConnections.end();it++)
                         {
                             if((*it)->applicationType == node->d_applicationType.get() || (*it)->productName == node->d_applicationType.get())
@@ -71,7 +71,7 @@ void VrmlNodeOffice::initFields(VrmlNodeOffice *node, vrml::VrmlNodeType *t)
                             }
                         }                           
                      }), 
-                     exposedField("command", node->d_command, [node](auto f){
+                     exposedField("command", &VrmlNodeOffice::d_command, [node](auto f){
                         if(node->officeConnection==NULL)
                         {
                             for(officeList::iterator it = OfficePlugin::instance()->officeConnections.begin();it !=OfficePlugin::instance()->officeConnections.end();it++)
@@ -92,7 +92,7 @@ void VrmlNodeOffice::initFields(VrmlNodeOffice *node, vrml::VrmlNodeType *t)
                             node->officeConnection->sendMessage(message);
                         }
                      }),
-                     eventInCallBack("events", node->d_events));
+                     eventInCallBack("events", &VrmlNodeOffice::d_events));
 }
 
 const char *VrmlNodeOffice::typeName() 

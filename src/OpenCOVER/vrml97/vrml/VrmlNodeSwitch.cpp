@@ -26,10 +26,10 @@ void VrmlNodeSwitch::initFields(VrmlNodeSwitch *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-                     exposedField("choice", node->d_choice),
-                     exposedField("children", node->d_choice),
-                     exposedField("shared", node->d_shared),
-                     exposedField("whichChoice", node->d_whichChoice, [node](auto f) {
+                     exposedField("choice", &VrmlNodeSwitch::d_choice),
+                     exposedField("children", &VrmlNodeSwitch::d_choice),
+                     exposedField("shared", &VrmlNodeSwitch::d_shared),
+                     exposedField("whichChoice", &VrmlNodeSwitch::d_whichChoice, [node](auto f) {
                          if (node->sharedState)
                          {
                              *node->sharedState = node->d_whichChoice.get();

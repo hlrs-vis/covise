@@ -20,10 +20,10 @@ void VrmlNodeRemoteVehicle::initFields(VrmlNodeRemoteVehicle *node, VrmlNodeType
 {
     VrmlNodeChild::initFields(node, t); 
     initFieldsHelper(node, t,
-                    exposedField("carRotation", node->d_carRotation),
-                    exposedField("carTranslation", node->d_carTranslation),
-                    exposedField("carBodyRotation", node->d_carBodyRotation),
-                    exposedField("carBodyTranslation", node->d_carBodyTranslation));
+                    exposedField("carRotation", &VrmlNodeRemoteVehicle::d_carRotation),
+                    exposedField("carTranslation", &VrmlNodeRemoteVehicle::d_carTranslation),
+                    exposedField("carBodyRotation", &VrmlNodeRemoteVehicle::d_carBodyRotation),
+                    exposedField("carBodyTranslation", &VrmlNodeRemoteVehicle::d_carBodyTranslation));
 }
 
 const char *VrmlNodeRemoteVehicle::typeName() 

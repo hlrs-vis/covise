@@ -44,11 +44,11 @@ static VrmlNode *creator(VrmlScene *s) { return new VrmlNodeGroup(s); }
 
 void VrmlNodeGroup::initFields(VrmlNodeGroup *node, VrmlNodeType *t) {
     initFieldsHelper(node, t,
-        exposedField("children", node->d_children, [node](auto children){
+        exposedField("children", &VrmlNodeGroup::d_children, [node](auto children){
             node->childrenChanged();
         }),
-        field("bboxCenter", node->d_bboxCenter),
-        field("bboxSize", node->d_bboxSize)
+        field("bboxCenter", &VrmlNodeGroup::d_bboxCenter),
+        field("bboxSize", &VrmlNodeGroup::d_bboxSize)
     );
     if(t)
     {

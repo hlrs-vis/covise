@@ -56,12 +56,12 @@ void VrmlNodeCOVERBody::initFields(VrmlNodeCOVERBody *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t,
-                     exposedField("position", node->d_position),
-                     exposedField("orientation", node->d_orientation),
-                     exposedField("name", node->d_name, [node](auto f){
+                     exposedField("position", &VrmlNodeCOVERBody::d_position),
+                     exposedField("orientation", &VrmlNodeCOVERBody::d_orientation),
+                     exposedField("name", &VrmlNodeCOVERBody::d_name, [node](auto f){
                             node->body=Input::instance()->getBody(node->d_name.get());
                      }),
-                     exposedField("vrmlCoordinates", node->d_vrmlCoordinates));
+                     exposedField("vrmlCoordinates", &VrmlNodeCOVERBody::d_vrmlCoordinates));
 }
 
 const char *VrmlNodeCOVERBody::typeName() 

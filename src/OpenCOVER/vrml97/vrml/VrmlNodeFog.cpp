@@ -36,9 +36,9 @@ static VrmlNode *creator(VrmlScene *scene)
 void VrmlNodeFog::initFields(VrmlNodeFog *node, VrmlNodeType *t)
 {
     initFieldsHelper(node, t,
-                     field("color", node->d_color),
-                     field("fogType", node->d_fogType),
-                     field("visibilityRange", node->d_visibilityRange));
+                     field("color", &VrmlNodeFog::d_color),
+                     field("fogType", &VrmlNodeFog::d_fogType),
+                     field("visibilityRange", &VrmlNodeFog::d_visibilityRange));
     if(t)
     {
         t->addEventIn("set_bind", VrmlField::SFBOOL);

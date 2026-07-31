@@ -54,30 +54,30 @@ void VrmlNodeMultiTouchSensor::initFields(VrmlNodeMultiTouchSensor *node, VrmlNo
 {
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t,
-                     exposedField("trackObjects", node->d_trackObjects),
-                     exposedField("freeze", node->d_freeze),
-                     exposedField("adjustHeight", node->d_adjustHeight),
-                     exposedField("adjustOrientation", node->d_adjustOrientation),
-                     exposedField("enabled", node->d_enabled),
-                     exposedField("currentCamera", node->d_currentCamera),
-                     exposedField("headingOnly", node->d_headingOnly),
-                     exposedField("size", node->d_size),
-                     exposedField("minPosition", node->d_minPosition, [node](auto f){
+                     exposedField("trackObjects", &VrmlNodeMultiTouchSensor::d_trackObjects),
+                     exposedField("freeze", &VrmlNodeMultiTouchSensor::d_freeze),
+                     exposedField("adjustHeight", &VrmlNodeMultiTouchSensor::d_adjustHeight),
+                     exposedField("adjustOrientation", &VrmlNodeMultiTouchSensor::d_adjustOrientation),
+                     exposedField("enabled", &VrmlNodeMultiTouchSensor::d_enabled),
+                     exposedField("currentCamera", &VrmlNodeMultiTouchSensor::d_currentCamera),
+                     exposedField("headingOnly", &VrmlNodeMultiTouchSensor::d_headingOnly),
+                     exposedField("size", &VrmlNodeMultiTouchSensor::d_size),
+                     exposedField("minPosition", &VrmlNodeMultiTouchSensor::d_minPosition, [node](auto f){
                         node->recalcMatrix();
                      }),
-                     exposedField("markerPosition", node->d_markerPosition, [node](auto f){
+                     exposedField("markerPosition", &VrmlNodeMultiTouchSensor::d_markerPosition, [node](auto f){
                         node->recalcMatrix();
                      }),
-                     exposedField("markerRotation", node->d_markerRotation, [node](auto f){
+                     exposedField("markerRotation", &VrmlNodeMultiTouchSensor::d_markerRotation, [node](auto f){
                         node->recalcMatrix();
                      }),
-                     exposedField("orientation", node->d_orientation, [node](auto f){
+                     exposedField("orientation", &VrmlNodeMultiTouchSensor::d_orientation, [node](auto f){
                         node->recalcMatrix();
                      }),
-                     exposedField("orientationThreshold", node->d_orientationThreshold),
-                     exposedField("positionThreshold", node->d_positionThreshold),
-                     exposedField("invisiblePosition", node->d_invisiblePosition),
-                     exposedField("markerName", node->d_markerName, [node](auto f){
+                     exposedField("orientationThreshold", &VrmlNodeMultiTouchSensor::d_orientationThreshold),
+                     exposedField("positionThreshold", &VrmlNodeMultiTouchSensor::d_positionThreshold),
+                     exposedField("invisiblePosition", &VrmlNodeMultiTouchSensor::d_invisiblePosition),
+                     exposedField("markerName", &VrmlNodeMultiTouchSensor::d_markerName, [node](auto f){
                         node->markerID = coVRTouchTable::instance()->ttInterface->getMarker(node->d_markerName.get());
                      }));
 

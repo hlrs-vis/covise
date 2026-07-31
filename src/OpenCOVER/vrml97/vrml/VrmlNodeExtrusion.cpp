@@ -24,16 +24,16 @@ void VrmlNodeExtrusion::initFields(VrmlNodeExtrusion *node, VrmlNodeType *t)
     VrmlNodeGeometry::initFields(node, t); // Parent class
 
     initFieldsHelper(node, t,
-                     field("beginCap", node->d_beginCap),
-                     field("ccw", node->d_ccw),
-                     field("convex", node->d_convex),
-                     field("creaseAngle", node->d_creaseAngle),
-                     field("crossSection", node->d_crossSection),
-                     field("endCap", node->d_endCap),
-                     field("orientation", node->d_orientation),
-                     field("scale", node->d_scale),
-                     field("solid", node->d_solid),
-                     field("spine", node->d_spine));
+                     field("beginCap", &VrmlNodeExtrusion::d_beginCap),
+                     field("ccw", &VrmlNodeExtrusion::d_ccw),
+                     field("convex", &VrmlNodeExtrusion::d_convex),
+                     field("creaseAngle", &VrmlNodeExtrusion::d_creaseAngle),
+                     field("crossSection", &VrmlNodeExtrusion::d_crossSection),
+                     field("endCap", &VrmlNodeExtrusion::d_endCap),
+                     field("orientation", &VrmlNodeExtrusion::d_orientation),
+                     field("scale", &VrmlNodeExtrusion::d_scale),
+                     field("solid", &VrmlNodeExtrusion::d_solid),
+                     field("spine", &VrmlNodeExtrusion::d_spine));
     if(t)
     {   
         t->addEventIn("set_crossSection", VrmlField::MFVEC2F);

@@ -21,7 +21,7 @@ using namespace vrml;
 void VrmlNodeColor::initFields(VrmlNodeColor *node, VrmlNodeType *t)
 {
     initFieldsHelper(node, t,
-                     exposedField("color", node->d_color));
+                     exposedField("color", &VrmlNodeColor::d_color));
 }
 
 const char *VrmlNodeColor::typeName() { return "Color"; }

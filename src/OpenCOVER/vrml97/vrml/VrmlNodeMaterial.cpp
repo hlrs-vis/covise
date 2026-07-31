@@ -23,12 +23,12 @@ using namespace vrml;
 void VrmlNodeMaterial::initFields(VrmlNodeMaterial *node, VrmlNodeType *t)
 {
     VrmlNode::initFieldsHelper(node, t,
-                                       exposedField("ambientIntensity", node->d_ambientIntensity),
-                                       exposedField("diffuseColor", node->d_diffuseColor),
-                                       exposedField("emissiveColor", node->d_emissiveColor),
-                                       exposedField("shininess", node->d_shininess),
-                                       exposedField("specularColor", node->d_specularColor),
-                                       exposedField("transparency", node->d_transparency));
+                                       exposedField("ambientIntensity", &VrmlNodeMaterial::d_ambientIntensity),
+                                       exposedField("diffuseColor", &VrmlNodeMaterial::d_diffuseColor),
+                                       exposedField("emissiveColor", &VrmlNodeMaterial::d_emissiveColor),
+                                       exposedField("shininess", &VrmlNodeMaterial::d_shininess),
+                                       exposedField("specularColor", &VrmlNodeMaterial::d_specularColor),
+                                       exposedField("transparency", &VrmlNodeMaterial::d_transparency));
 
 }
 

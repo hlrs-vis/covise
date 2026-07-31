@@ -106,7 +106,7 @@ void VrmlNodeSensor::initFields(VrmlNodeSensor *node, VrmlNodeType *t)
     for (size_t i = 0; i < numSensors; i++)
     {
         initFieldsHelper(node, t,
-                        eventInCallBack("sensor" + std::to_string(i), node->d_sensor[i]));
+                        eventInCallBack("sensor" + std::to_string(i), &VrmlNodeSensor::d_sensor, i));
     }
 }
 

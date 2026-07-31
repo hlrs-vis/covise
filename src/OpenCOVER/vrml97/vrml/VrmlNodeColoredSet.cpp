@@ -35,9 +35,9 @@ void VrmlNodeColoredSet::initFields(VrmlNodeColoredSet *node, VrmlNodeType *t)
     VrmlNodeGeometry::initFields(node, t); // Parent class
 
     initFieldsHelper(node, t,
-                     exposedField("color", node->d_color),
-                     field("colorPerVertex", node->d_colorPerVertex),
-                     exposedField("coord", node->d_coord));
+                     exposedField("color", &VrmlNodeColoredSet::d_color),
+                     field("colorPerVertex", &VrmlNodeColoredSet::d_colorPerVertex),
+                     exposedField("coord", &VrmlNodeColoredSet::d_coord));
 }
 
 VrmlNodeColoredSet::VrmlNodeColoredSet(VrmlScene *scene, const std::string &name)

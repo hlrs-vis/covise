@@ -30,9 +30,9 @@ void VrmlNodeCollision::initFields(VrmlNodeCollision *node, VrmlNodeType *t)
 {
     VrmlNodeGroup::initFields(node, t);
     initFieldsHelper(node, t,
-                     exposedField("collide", node->d_collide),
-                     exposedField("enabled", node->d_collide),
-                     field("proxy", node->d_proxy));
+                     exposedField("collide", &VrmlNodeCollision::d_collide),
+                     exposedField("enabled", &VrmlNodeCollision::d_collide),
+                     field("proxy", &VrmlNodeCollision::d_proxy));
     if (t)
         t->addEventOut("collideTime", VrmlField::SFTIME);                
                      

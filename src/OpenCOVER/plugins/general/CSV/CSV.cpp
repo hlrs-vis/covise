@@ -27,8 +27,8 @@ void VrmlNodeCSV::initFields(VrmlNodeCSV *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t,
-                     exposedField("enabled", node->d_enabled),
-                     exposedField("row", node->d_row, [node](auto f){
+                     exposedField("enabled", &VrmlNodeCSV::d_enabled),
+                     exposedField("row", &VrmlNodeCSV::d_row, [node](auto f){
                         double timeStamp = System::the->time();
                         if (node->d_row.get() < node->rows.size())
                         {
@@ -36,13 +36,13 @@ void VrmlNodeCSV::initFields(VrmlNodeCSV *node, VrmlNodeType *t)
                             node->eventOut(timeStamp, "floats_changed", node->d_floats);
                         }
                      }),
-                     exposedField("fileName", node->d_fileName, [node](auto f){
+                     exposedField("fileName", &VrmlNodeCSV::d_fileName, [node](auto f){
                         node->loadFile(node->d_fileName.get());
                      }),
-                     exposedField("labelFileName", node->d_labelFileName, [node](auto f){
+                     exposedField("labelFileName", &VrmlNodeCSV::d_labelFileName, [node](auto f){
                         node->loadLabelFile(node->d_labelFileName.get());
                      }),
-                     exposedField("gpsFileName", node->d_gpsFileName, [node](auto f){
+                     exposedField("gpsFileName", &VrmlNodeCSV::d_gpsFileName, [node](auto f){
                         node->loadGPSFile(node->d_gpsFileName.get());
                      }));
 

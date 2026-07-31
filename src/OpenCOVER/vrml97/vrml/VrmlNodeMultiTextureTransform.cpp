@@ -22,7 +22,7 @@ using namespace vrml;
 
 void VrmlNodeMultiTextureTransform::initFields(VrmlNodeMultiTextureTransform *node, VrmlNodeType *t)
 {
-    initFieldsHelper(node, t, exposedField("textureTransform", node->d_textureTransform));
+    initFieldsHelper(node, t, exposedField("textureTransform", &VrmlNodeMultiTextureTransform::d_textureTransform));
 }
 
 const char *VrmlNodeMultiTextureTransform::typeName() 

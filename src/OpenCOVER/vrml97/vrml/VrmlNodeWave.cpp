@@ -30,20 +30,20 @@ void VrmlNodeWave::initFields(VrmlNodeWave *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-                     exposedField("fraction", node->d_fraction),
-                     exposedField("speed1", node->d_speed1),
-                     exposedField("speed2", node->d_speed2),
-                     exposedField("freq1", node->d_freq1),
-                     exposedField("height1", node->d_height1),
-                     exposedField("damping1", node->d_damping1),
-                     exposedField("dir1", node->d_dir1),
-                     exposedField("freq2", node->d_freq2),
-                     exposedField("height2", node->d_height2),
-                     exposedField("damping2", node->d_damping2),
-                     exposedField("dir2", node->d_dir2),
-                     exposedField("coeffSin", node->d_coeffSin),
-                     exposedField("coeffCos", node->d_coeffCos),
-                     exposedField("fileName", node->d_fileName));
+                     exposedField("fraction", &VrmlNodeWave::d_fraction),
+                     exposedField("speed1", &VrmlNodeWave::d_speed1),
+                     exposedField("speed2", &VrmlNodeWave::d_speed2),
+                     exposedField("freq1", &VrmlNodeWave::d_freq1),
+                     exposedField("height1", &VrmlNodeWave::d_height1),
+                     exposedField("damping1", &VrmlNodeWave::d_damping1),
+                     exposedField("dir1", &VrmlNodeWave::d_dir1),
+                     exposedField("freq2", &VrmlNodeWave::d_freq2),
+                     exposedField("height2", &VrmlNodeWave::d_height2),
+                     exposedField("damping2", &VrmlNodeWave::d_damping2),
+                     exposedField("dir2", &VrmlNodeWave::d_dir2),
+                     exposedField("coeffSin", &VrmlNodeWave::d_coeffSin),
+                     exposedField("coeffCos", &VrmlNodeWave::d_coeffCos),
+                     exposedField("fileName", &VrmlNodeWave::d_fileName));
 }
 
 const char *VrmlNodeWave::typeName() { return "Wave"; }

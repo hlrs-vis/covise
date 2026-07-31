@@ -43,18 +43,18 @@ void VrmlNodeMultiTexture::initFields(VrmlNodeMultiTexture *node, VrmlNodeType *
     VrmlNodeTexture::initFields(node, t);
 
     initFieldsHelper(node, t,
-                     exposedField("alpha", node->d_alpha, [](auto value){
+                     exposedField("alpha", &VrmlNodeMultiTexture::d_alpha, [](auto value){
                             cerr << "Sorry: MultiTexture.alpha is not supported yet" << endl;
                      }),
-                     exposedField("color", node->d_color),
-                     exposedField("function", node->d_function, [](auto value){
+                     exposedField("color", &VrmlNodeMultiTexture::d_color),
+                     exposedField("function", &VrmlNodeMultiTexture::d_function, [](auto value){
                             cerr << "Sorry: MultiTexture.function is not supported yet" << endl;
                      }),
-                     exposedField("mode", node->d_mode),
-                     exposedField("source", node->d_source, [](auto value){
+                     exposedField("mode", &VrmlNodeMultiTexture::d_mode),
+                     exposedField("source", &VrmlNodeMultiTexture::d_source, [](auto value){
                             cerr << "Sorry: MultiTexture.source is not supported yet" << endl;
                      }),
-                     exposedField("texture", node->d_texture));
+                     exposedField("texture", &VrmlNodeMultiTexture::d_texture));
 }
 
 const char *VrmlNodeMultiTexture::typeName() { return "MultiTexture"; }

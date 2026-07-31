@@ -26,9 +26,9 @@ void VrmlNodeSphereSensor::initFields(VrmlNodeSphereSensor *node, VrmlNodeType *
 {
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t,
-                     exposedField("autoOffset", node->d_autoOffset),
-                     exposedField("enabled", node->d_enabled),
-                     exposedField("offset", node->d_offset));
+                     exposedField("autoOffset", &VrmlNodeSphereSensor::d_autoOffset),
+                     exposedField("enabled", &VrmlNodeSphereSensor::d_enabled),
+                     exposedField("offset", &VrmlNodeSphereSensor::d_offset));
     if (t)
     {
         t->addEventOut("isActive", VrmlField::SFBOOL);

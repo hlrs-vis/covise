@@ -28,9 +28,9 @@ void VrmlNodeVisibilitySensor::initFields(VrmlNodeVisibilitySensor *node, VrmlNo
 {
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t,
-                     exposedField("center", node->d_center),
-                     exposedField("enabled", node->d_enabled),
-                     exposedField("size", node->d_size));
+                     exposedField("center", &VrmlNodeVisibilitySensor::d_center),
+                     exposedField("enabled", &VrmlNodeVisibilitySensor::d_enabled),
+                     exposedField("size", &VrmlNodeVisibilitySensor::d_size));
     if(t)
     {
         t->addEventOut("enterTime", VrmlField::SFTIME);

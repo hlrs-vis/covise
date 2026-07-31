@@ -29,12 +29,12 @@ void VrmlNodeSpotLight::initFields(VrmlNodeSpotLight *node, VrmlNodeType *t)
 {
     VrmlNodeLight::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-                     exposedField("attenuation", node->d_attenuation),
-                     exposedField("beamWidth", node->d_beamWidth),
-                     exposedField("cutOffAngle", node->d_cutOffAngle),
-                     exposedField("direction", node->d_direction),
-                     exposedField("location", node->d_location),
-                     exposedField("radius", node->d_radius));
+                     exposedField("attenuation", &VrmlNodeSpotLight::d_attenuation),
+                     exposedField("beamWidth", &VrmlNodeSpotLight::d_beamWidth),
+                     exposedField("cutOffAngle", &VrmlNodeSpotLight::d_cutOffAngle),
+                     exposedField("direction", &VrmlNodeSpotLight::d_direction),
+                     exposedField("location", &VrmlNodeSpotLight::d_location),
+                     exposedField("radius", &VrmlNodeSpotLight::d_radius));
 }
 
 const char *VrmlNodeSpotLight::typeName() { return "SpotLight"; }

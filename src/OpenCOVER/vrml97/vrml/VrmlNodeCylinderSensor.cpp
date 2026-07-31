@@ -33,12 +33,12 @@ static VrmlNode *creator(VrmlScene *scene)
 void VrmlNodeCylinderSensor::initFields(VrmlNodeCylinderSensor *node, VrmlNodeType *t)
 {
     initFieldsHelper(node, t,
-                     exposedField("autoOffset", node->d_autoOffset),
-                     exposedField("diskAngle", node->d_diskAngle),
-                     exposedField("enabled", node->d_enabled),
-                     exposedField("maxAngle", node->d_maxAngle),
-                     exposedField("minAngle", node->d_minAngle),
-                     exposedField("offset", node->d_offset));
+                     exposedField("autoOffset", &VrmlNodeCylinderSensor::d_autoOffset),
+                     exposedField("diskAngle", &VrmlNodeCylinderSensor::d_diskAngle),
+                     exposedField("enabled", &VrmlNodeCylinderSensor::d_enabled),
+                     exposedField("maxAngle", &VrmlNodeCylinderSensor::d_maxAngle),
+                     exposedField("minAngle", &VrmlNodeCylinderSensor::d_minAngle),
+                     exposedField("offset", &VrmlNodeCylinderSensor::d_offset));
     if (t)
     {
         t->addEventOut("isActive", VrmlField::SFBOOL);

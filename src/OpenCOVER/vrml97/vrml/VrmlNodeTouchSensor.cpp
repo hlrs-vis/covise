@@ -36,7 +36,7 @@ void VrmlNodeTouchSensor::initFields(VrmlNodeTouchSensor *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-                     exposedField("enabled", node->d_enabled));
+                     exposedField("enabled", &VrmlNodeTouchSensor::d_enabled));
     if(t)
     {
         t->addEventOut("hitNormal_changed", VrmlField::SFVEC3F);

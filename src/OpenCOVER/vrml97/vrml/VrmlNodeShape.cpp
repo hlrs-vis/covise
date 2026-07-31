@@ -32,9 +32,9 @@ void VrmlNodeShape::initFields(VrmlNodeShape *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-                     exposedField("appearance", node->d_appearance),
-                     exposedField("geometry", node->d_geometry),
-                     exposedField("effect", node->d_effect));
+                     exposedField("appearance", &VrmlNodeShape::d_appearance),
+                     exposedField("geometry", &VrmlNodeShape::d_geometry),
+                     exposedField("effect", &VrmlNodeShape::d_effect));
 }
 
 const char *VrmlNodeShape::typeName() { return "Shape"; }

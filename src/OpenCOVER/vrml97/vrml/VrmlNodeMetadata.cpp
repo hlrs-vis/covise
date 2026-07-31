@@ -23,8 +23,8 @@ using namespace vrml;
 void VrmlNodeMetadata::initFields(VrmlNodeMetadata *node, VrmlNodeType *t)
 {
     initFieldsHelper(node, t, 
-                        field("name", node->d_name),
-                        field("reference", node->d_reference));
+                        field("name", &VrmlNodeMetadata::d_name),
+                        field("reference", &VrmlNodeMetadata::d_reference));
 }
 
 const char *VrmlNodeMetadata::typeName() { return "Metadata"; }

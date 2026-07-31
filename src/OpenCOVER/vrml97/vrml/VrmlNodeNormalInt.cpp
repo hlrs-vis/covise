@@ -34,8 +34,8 @@ void VrmlNodeNormalInt::initFields(VrmlNodeNormalInt *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t,
-                     exposedField("key", node->d_key),
-                     exposedField("keyValue", node->d_keyValue));
+                     exposedField("key", &VrmlNodeNormalInt::d_key),
+                     exposedField("keyValue", &VrmlNodeNormalInt::d_keyValue));
     if (t)
     {
         t->addEventIn("set_fraction", VrmlField::SFFLOAT);

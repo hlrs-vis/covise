@@ -55,7 +55,7 @@ void VrmlNodeVariant::initFields(VrmlNodeVariant *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t,
-                     exposedField("variant", node->d_variant, [](auto f){
+                     exposedField("variant", &VrmlNodeVariant::d_variant, [](auto f){
                         VariantPlugin::plugin->setVariant(f->get());
                      }));
 }

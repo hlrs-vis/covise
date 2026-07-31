@@ -106,10 +106,10 @@ void Cal3dCore::initFields(Cal3dCore *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-                     exposedField("modelName", node->d_modelName, [node](auto f){
+                     exposedField("modelName", &Cal3dCore::d_modelName, [node](auto f){
                         node->loadCore(f->get());
                      }),
-                     exposedField("scale", node->d_scale));
+                     exposedField("scale", &Cal3dCore::d_scale));
 }
 
 const char *Cal3dCore::typeName() 
@@ -172,14 +172,14 @@ void Cal3dNode::initFields(Cal3dNode *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-                     exposedField("core", node->d_core, [node](auto f){
+                     exposedField("core", &Cal3dNode::d_core, [node](auto f){
                         node->loadModel((Cal3dCore *)f->get());
                      }),
-                     exposedField("materialSet", node->d_materialSet),
-                     exposedField("executeAction", node->d_executeAction,[node](auto f){
+                     exposedField("materialSet", &Cal3dNode::d_materialSet),
+                     exposedField("executeAction", &Cal3dNode::d_executeAction,[node](auto f){
                         node->model->executeAction(node->d_executeAction.get(), node->d_fadeInTime.get(), node->d_fadeOutTime.get());
                      }),
-                     exposedField("animationId", node->d_animationId, [node](auto f){
+                     exposedField("animationId", &Cal3dNode::d_animationId, [node](auto f){
                         if (node->currentAnimation != -1)
                         {
                             node->model->clearCycle(node->currentAnimation, node->d_animationBlendTime.get()); // clear in 1sec
@@ -191,14 +191,14 @@ void Cal3dNode::initFields(Cal3dNode *node, VrmlNodeType *t)
                         }
                         node->model->blendCycle(node->currentAnimation, node->d_animationWeight.get(), node->d_animationBlendTime.get());
                      }),
-                     exposedField("animationOffset", node->d_animationOffset, [node](auto f){
+                     exposedField("animationOffset", &Cal3dNode::d_animationOffset, [node](auto f){
                         osgCal::ModelData *md = (osgCal::ModelData *)node->model->getModelData();
                         md->getCalMixer()->updateAnimation(node->d_animationOffset.get());
                      }),
-                     exposedField("animationWeight", node->d_animationWeight),
-                     exposedField("animationBlendTime", node->d_animationBlendTime),
-                     exposedField("fadeInTime", node->d_fadeInTime),
-                     exposedField("fadeOutTime", node->d_fadeOutTime));
+                     exposedField("animationWeight", &Cal3dNode::d_animationWeight),
+                     exposedField("animationBlendTime", &Cal3dNode::d_animationBlendTime),
+                     exposedField("fadeInTime", &Cal3dNode::d_fadeInTime),
+                     exposedField("fadeOutTime", &Cal3dNode::d_fadeOutTime));
     if(t)
     {
         t->addEventIn("startCycle", VrmlField::SFTIME);

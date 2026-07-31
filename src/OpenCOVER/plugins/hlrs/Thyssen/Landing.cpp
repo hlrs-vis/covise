@@ -20,7 +20,7 @@ using namespace covise;
 void VrmlNodeLanding::initFields(VrmlNodeLanding *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t);
-    initFieldsHelper(node, t, exposedField("LandingNumber", node->d_LandingNumber));
+    initFieldsHelper(node, t, exposedField("LandingNumber", &VrmlNodeLanding::d_LandingNumber));
     if(t)
     {
         t->addEventOut("doorClose", VrmlField::SFTIME);

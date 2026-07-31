@@ -31,7 +31,7 @@ void VrmlNodeTriangleFanSet::initFields(VrmlNodeTriangleFanSet *node, VrmlNodeTy
 {
     VrmlNodePolygonsCommon::initFields(node, t); // Parent class
     initFieldsHelper(node, t, 
-                    exposedField("fanCount", node->d_fanCount));
+                    exposedField("fanCount", &VrmlNodeTriangleFanSet::d_fanCount));
 
 }
 

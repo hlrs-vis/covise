@@ -33,8 +33,8 @@ void VrmlNodeOrientationInt::initFields(VrmlNodeOrientationInt *node, VrmlNodeTy
 {
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-                     exposedField("key", node->d_key),
-                     exposedField("keyValue", node->d_keyValue));
+                     exposedField("key", &VrmlNodeOrientationInt::d_key),
+                     exposedField("keyValue", &VrmlNodeOrientationInt::d_keyValue));
     if (t)
     {
         t->addEventIn("set_fraction", VrmlField::SFFLOAT);

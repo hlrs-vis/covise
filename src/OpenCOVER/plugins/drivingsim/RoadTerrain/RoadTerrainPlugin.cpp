@@ -42,11 +42,11 @@ void VrmlNodeRoadTerrain::initFields(VrmlNodeRoadTerrain *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t,
-                     exposedField("url", node->d_url),
-                     exposedField("layersUrl", node->d_layersUrl),
-                     exposedField("offset", node->d_offset),
-                     exposedField("minPositions", node->d_minPositions),
-                     exposedField("maxPositions", node->d_maxPositions));
+                     exposedField("url", &VrmlNodeRoadTerrain::d_url),
+                     exposedField("layersUrl", &VrmlNodeRoadTerrain::d_layersUrl),
+                     exposedField("offset", &VrmlNodeRoadTerrain::d_offset),
+                     exposedField("minPositions", &VrmlNodeRoadTerrain::d_minPositions),
+                     exposedField("maxPositions", &VrmlNodeRoadTerrain::d_maxPositions));
 }
 
 const char *VrmlNodeRoadTerrain::typeName() { return "RoadTerrain"; }

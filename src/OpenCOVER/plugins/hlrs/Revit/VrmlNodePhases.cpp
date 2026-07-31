@@ -53,11 +53,11 @@ void VrmlNodePhases::initFields(VrmlNodePhases *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t,
-                     exposedField("numPhases", node->d_numPhases),
-                     exposedField("phase", node->d_Phase, [](auto f){
+                     exposedField("numPhases", &VrmlNodePhases::d_numPhases),
+                     exposedField("phase", &VrmlNodePhases::d_Phase, [](auto f){
                          RevitPlugin::instance()->setPhase(f->get());
                      }),
-                     exposedField("phaseName", node->d_PhaseName));
+                     exposedField("phaseName", &VrmlNodePhases::d_PhaseName));
 }
 
 const char *VrmlNodePhases::typeName() { return "Phases"; }

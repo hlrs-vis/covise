@@ -29,20 +29,20 @@ void VrmlNodeElevationGrid::initFields(VrmlNodeElevationGrid *node, VrmlNodeType
 {
     VrmlNodeGeometry::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-                    exposedField("color", node->d_color),
-                    exposedField("normal", node->d_normal),
-                    exposedField("texCoord", node->d_texCoord),
-                    field("ccw", node->d_ccw),
-                    field("colorPerVertex", node->d_colorPerVertex),
-                    field("creaseAngle", node->d_creaseAngle),
-                    field("height", node->d_height),
-                    field("normalPerVertex", node->d_normalPerVertex),
-                    field("solid", node->d_solid),
-                    field("xDimension", node->d_xDimension),
-                    field("xSpacing", node->d_xSpacing),
-                    field("zDimension", node->d_zDimension),
-                    field("zSpacing", node->d_zSpacing), 
-                    eventInCallBack("set_height", node->d_height));
+                    exposedField("color", &VrmlNodeElevationGrid::d_color),
+                    exposedField("normal", &VrmlNodeElevationGrid::d_normal),
+                    exposedField("texCoord", &VrmlNodeElevationGrid::d_texCoord),
+                    field("ccw", &VrmlNodeElevationGrid::d_ccw),
+                    field("colorPerVertex", &VrmlNodeElevationGrid::d_colorPerVertex),
+                    field("creaseAngle", &VrmlNodeElevationGrid::d_creaseAngle),
+                    field("height", &VrmlNodeElevationGrid::d_height),
+                    field("normalPerVertex", &VrmlNodeElevationGrid::d_normalPerVertex),
+                    field("solid", &VrmlNodeElevationGrid::d_solid),
+                    field("xDimension", &VrmlNodeElevationGrid::d_xDimension),
+                    field("xSpacing", &VrmlNodeElevationGrid::d_xSpacing),
+                    field("zDimension", &VrmlNodeElevationGrid::d_zDimension),
+                    field("zSpacing", &VrmlNodeElevationGrid::d_zSpacing), 
+                    eventInCallBack("set_height", &VrmlNodeElevationGrid::d_height));
 
 }
 

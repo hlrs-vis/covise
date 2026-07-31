@@ -20,8 +20,8 @@ using namespace vrml;
 void VrmlNodeTextureCoordinateGenerator::initFields(VrmlNodeTextureCoordinateGenerator *node, VrmlNodeType *t)
 {
     VrmlNode::initFieldsHelper(node, t, 
-        exposedField("mode", node->d_mode), 
-        exposedField("parameter", node->d_parameter));
+        exposedField("mode", &VrmlNodeTextureCoordinateGenerator::d_mode), 
+        exposedField("parameter", &VrmlNodeTextureCoordinateGenerator::d_parameter));
 }
 
 const char *VrmlNodeTextureCoordinateGenerator::typeName() 

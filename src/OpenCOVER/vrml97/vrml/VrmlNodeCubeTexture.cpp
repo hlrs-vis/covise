@@ -34,33 +34,33 @@ void VrmlNodeCubeTexture::initFields(VrmlNodeCubeTexture *node, VrmlNodeType *t)
 {
     VrmlNodeTexture::initFields(node, t);
     initFieldsHelper(node, t,
-                        exposedField("urlXP", node->d_urlXP, [node](auto value){
+                        exposedField("urlXP", &VrmlNodeCubeTexture::d_urlXP, [node](auto value){
                             delete node->d_imageXP;
                             node->d_imageXP = nullptr;
                         }),
-                        exposedField("urlXN", node->d_urlXN, [node](auto value){
+                        exposedField("urlXN", &VrmlNodeCubeTexture::d_urlXN, [node](auto value){
                             delete node->d_imageXN;
                             node->d_imageXN = nullptr;
                         }),
-                        exposedField("urlYP", node->d_urlYP, [node](auto value){
+                        exposedField("urlYP", &VrmlNodeCubeTexture::d_urlYP, [node](auto value){
                             delete node->d_imageYP;
                             node->d_imageYP = nullptr;
                         }),
-                        exposedField("urlYN", node->d_urlYN, [node](auto value){
+                        exposedField("urlYN", &VrmlNodeCubeTexture::d_urlYN, [node](auto value){
                             delete node->d_imageYN;
                             node->d_imageYN = nullptr;
                         }),
-                        exposedField("urlZP", node->d_urlZP, [node](auto value){
+                        exposedField("urlZP", &VrmlNodeCubeTexture::d_urlZP, [node](auto value){
                             delete node->d_imageYN;
                             node->d_imageYN = nullptr;
                         }),
-                        exposedField("urlZN", node->d_urlZN, [node](auto value){
+                        exposedField("urlZN", &VrmlNodeCubeTexture::d_urlZN, [node](auto value){
                             delete node->d_imageYN;
                             node->d_imageYN = nullptr;
                         }),
-                        field("repeatS", node->d_repeatS),
-                        field("repeatT", node->d_repeatT),
-                        field("blendMode", node->d_blendMode));
+                        field("repeatS", &VrmlNodeCubeTexture::d_repeatS),
+                        field("repeatT", &VrmlNodeCubeTexture::d_repeatT),
+                        field("blendMode", &VrmlNodeCubeTexture::d_blendMode));
 
 }
 

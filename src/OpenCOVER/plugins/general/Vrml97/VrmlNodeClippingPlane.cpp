@@ -45,11 +45,11 @@ void VrmlNodeClippingPlane::initFields(VrmlNodeClippingPlane *node, vrml::VrmlNo
 {
     VrmlNodeGroup::initFields(node, t);
     initFieldsHelper(node, t,
-        exposedField("global", node->d_global),
-        exposedField("enabled", node->d_enabled),
-        exposedField("position", node->d_position),
-        exposedField("orientation", node->d_orientation),
-        exposedField("number", node->d_number));
+        exposedField("global", &VrmlNodeClippingPlane::d_global),
+        exposedField("enabled", &VrmlNodeClippingPlane::d_enabled),
+        exposedField("position", &VrmlNodeClippingPlane::d_position),
+        exposedField("orientation", &VrmlNodeClippingPlane::d_orientation),
+        exposedField("number", &VrmlNodeClippingPlane::d_number));
 }
 
 const char *VrmlNodeClippingPlane::typeName() 

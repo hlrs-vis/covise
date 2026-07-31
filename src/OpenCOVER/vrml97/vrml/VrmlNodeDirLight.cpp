@@ -28,7 +28,7 @@ static VrmlNode *creator(VrmlScene *s) { return new VrmlNodeDirLight(s); }
 void VrmlNodeDirLight::initFields(VrmlNodeDirLight *node, VrmlNodeType *t)
 {
     initFieldsHelper(node, t,
-                     exposedField("direction", node->d_direction));
+                     exposedField("direction", &VrmlNodeDirLight::d_direction));
     VrmlNodeLight::initFields(node, t);
 }
 

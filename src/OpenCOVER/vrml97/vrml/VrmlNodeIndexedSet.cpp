@@ -23,8 +23,8 @@ void VrmlNodeIndexedSet::initFields(VrmlNodeIndexedSet *node, VrmlNodeType *t)
     VrmlNodeColoredSet::initFields(node, t); // Parent class
 
     initFieldsHelper(node, t,
-                     field("colorIndex", node->d_colorIndex),
-                     field("coordIndex", node->d_coordIndex));
+                     field("colorIndex", &VrmlNodeIndexedSet::d_colorIndex),
+                     field("coordIndex", &VrmlNodeIndexedSet::d_coordIndex));
 
     if (t)
     {

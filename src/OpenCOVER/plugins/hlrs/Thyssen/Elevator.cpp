@@ -24,8 +24,8 @@ void VrmlNodeElevator::initFields(VrmlNodeElevator *node, vrml::VrmlNodeType *t)
 {
     VrmlNodeGroup::initFields(node, t);
     initFieldsHelper(node, t, 
-        exposedField("landingHeights", node->d_landingHeights),
-        exposedField("shaftPositions", node->d_shaftPositions));
+        exposedField("landingHeights", &VrmlNodeElevator::d_landingHeights),
+        exposedField("shaftPositions", &VrmlNodeElevator::d_shaftPositions));
 }
 
 const char *VrmlNodeElevator::typeName() 

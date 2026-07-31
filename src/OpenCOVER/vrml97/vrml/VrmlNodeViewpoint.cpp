@@ -28,17 +28,17 @@ void VrmlNodeViewpoint::initFields(VrmlNodeViewpoint *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-                     exposedField("fieldOfView", node->d_fieldOfView),
-                     exposedField("jump", node->d_jump),
-                     exposedField("orientation", node->d_orientation, [node](auto fieldValue){
+                     exposedField("fieldOfView", &VrmlNodeViewpoint::d_fieldOfView),
+                     exposedField("jump", &VrmlNodeViewpoint::d_jump),
+                     exposedField("orientation", &VrmlNodeViewpoint::d_orientation, [node](auto fieldValue){
                             node->d_lastOrientation = *fieldValue;
                      }),
-                     exposedField("centerOfRotation", node->d_centerOfRotation),
-                     exposedField("position", node->d_position, [node](auto fieldValue){
+                     exposedField("centerOfRotation", &VrmlNodeViewpoint::d_centerOfRotation),
+                     exposedField("position", &VrmlNodeViewpoint::d_position, [node](auto fieldValue){
                             node->d_lastPosition = *fieldValue;
                      }),
-                     exposedField("type", node->d_type),
-                     field("description", node->d_description));
+                     exposedField("type", &VrmlNodeViewpoint::d_type),
+                     field("description", &VrmlNodeViewpoint::d_description));
     
     if (t)
     {

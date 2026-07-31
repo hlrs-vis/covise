@@ -33,8 +33,8 @@ static VrmlNode *creator(VrmlScene *scene)
 void VrmlNodeBooleanSequencer::initFields(VrmlNodeBooleanSequencer *node, VrmlNodeType *t)
 {
     initFieldsHelper(node, t,
-                     exposedField("key", node->d_key),
-                     exposedField("keyValue", node->d_keyValue));
+                     exposedField("key", &VrmlNodeBooleanSequencer::d_key),
+                     exposedField("keyValue", &VrmlNodeBooleanSequencer::d_keyValue));
     if(t)
     {
         t->addEventIn("next", VrmlField::SFBOOL);

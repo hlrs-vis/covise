@@ -27,8 +27,8 @@ void VrmlNodePointSet::initFields(VrmlNodePointSet *node, VrmlNodeType *t)
 {
     VrmlNodeGeometry::initFields(node, t); 
     initFieldsHelper(node, t,
-                        exposedField("color", node->d_color),
-                        exposedField("coord", node->d_coord));
+                        exposedField("color", &VrmlNodePointSet::d_color),
+                        exposedField("coord", &VrmlNodePointSet::d_coord));
 
 }
 

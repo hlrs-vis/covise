@@ -37,9 +37,9 @@ void VrmlNodeProximitySensor::initFields(VrmlNodeProximitySensor *node, VrmlNode
 {
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t,
-                     exposedField("center", node->d_center),
-                     exposedField("enabled", node->d_enabled),
-                     exposedField("size", node->d_size));
+                     exposedField("center", &VrmlNodeProximitySensor::d_center),
+                     exposedField("enabled", &VrmlNodeProximitySensor::d_enabled),
+                     exposedField("size", &VrmlNodeProximitySensor::d_size));
     if (t)
     {
         t->addEventOut("enterTime", VrmlField::SFTIME);

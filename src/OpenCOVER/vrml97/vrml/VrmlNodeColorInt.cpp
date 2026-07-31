@@ -32,8 +32,8 @@ static VrmlNode *creator(VrmlScene *scene)
 void VrmlNodeColorInt::initFields(VrmlNodeColorInt *node, VrmlNodeType *t)
 {
     initFieldsHelper(node, t,
-                     exposedField("key", node->d_key),
-                     exposedField("keyValue", node->d_keyValue));
+                     exposedField("key", &VrmlNodeColorInt::d_key),
+                     exposedField("keyValue", &VrmlNodeColorInt::d_keyValue));
     if(t)
     {
         t->addEventIn("set_fraction", VrmlField::SFFLOAT);

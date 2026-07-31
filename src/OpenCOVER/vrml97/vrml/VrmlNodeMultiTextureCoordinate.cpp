@@ -19,7 +19,7 @@ using namespace vrml;
 
 void VrmlNodeMultiTextureCoordinate::initFields(VrmlNodeMultiTextureCoordinate *node, VrmlNodeType *t)
 {
-    initFieldsHelper(node, t, exposedField("texCoord", node->d_texCoord));
+    initFieldsHelper(node, t, exposedField("texCoord", &VrmlNodeMultiTextureCoordinate::d_texCoord));
 }
 
 const char *VrmlNodeMultiTextureCoordinate::typeName() 

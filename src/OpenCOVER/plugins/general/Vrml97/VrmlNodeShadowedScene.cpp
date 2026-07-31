@@ -49,11 +49,11 @@ void VrmlNodeShadowedScene::initFields(VrmlNodeShadowedScene *node, VrmlNodeType
 {
     VrmlNodeGroup::initFields(node, t);
     initFieldsHelper(node, t,
-                    exposedField("technique", node->d_technique),
-                    exposedField("shadowLight", node->d_shadowLight),
-                    exposedField("jitteringScale", node->d_jitterScale),
-                    exposedField("softnessWidth", node->d_softnessWidth),
-                    exposedField("textureSize", node->d_textureSize));
+                    exposedField("technique", &VrmlNodeShadowedScene::d_technique),
+                    exposedField("shadowLight", &VrmlNodeShadowedScene::d_shadowLight),
+                    exposedField("jitteringScale", &VrmlNodeShadowedScene::d_jitterScale),
+                    exposedField("softnessWidth", &VrmlNodeShadowedScene::d_softnessWidth),
+                    exposedField("textureSize", &VrmlNodeShadowedScene::d_textureSize));
 
 }
 

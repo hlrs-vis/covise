@@ -25,11 +25,11 @@ void VrmlNodeCar::initFields(VrmlNodeCar *node, vrml::VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t, 
-        exposedField("carNumber", node->d_carNumber),
-        exposedField("carPos", node->d_carPos),
-        exposedField("stationList", node->d_stationList),
-        exposedField("stationOpenTime", node->d_stationOpenTime),
-        exposedField("currentStationIndex", node->d_currentStationIndex));
+        exposedField("carNumber", &VrmlNodeCar::d_carNumber),
+        exposedField("carPos", &VrmlNodeCar::d_carPos),
+        exposedField("stationList", &VrmlNodeCar::d_stationList),
+        exposedField("stationOpenTime", &VrmlNodeCar::d_stationOpenTime),
+        exposedField("currentStationIndex", &VrmlNodeCar::d_currentStationIndex));
     
     
     if (t)

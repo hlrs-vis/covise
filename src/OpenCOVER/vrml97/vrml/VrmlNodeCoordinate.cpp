@@ -20,7 +20,7 @@ using namespace vrml;
 void VrmlNodeCoordinate::initFields(VrmlNodeCoordinate *node, VrmlNodeType *t)
 {
     VrmlNode::initFieldsHelper(node, t,
-                                       exposedField("point", node->d_point));
+                                       exposedField("point", &VrmlNodeCoordinate::d_point));
 }
 
 const char *VrmlNodeCoordinate::typeName() { return "Coordinate"; }

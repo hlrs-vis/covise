@@ -54,12 +54,12 @@ void VrmlNodeMirrorCamera::initFields(VrmlNodeMirrorCamera *node, vrml::VrmlNode
 {
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t,
-                     exposedField("hFov", node->d_hFov),
-                     exposedField("vFov", node->d_vFov),
-                     exposedField("far", node->d_far),
-                     exposedField("near", node->d_near),
-                     exposedField("enabled", node->d_enabled),
-                     exposedField("cameraID", node->d_cameraID));
+                     exposedField("hFov", &VrmlNodeMirrorCamera::d_hFov),
+                     exposedField("vFov", &VrmlNodeMirrorCamera::d_vFov),
+                     exposedField("far", &VrmlNodeMirrorCamera::d_far),
+                     exposedField("near", &VrmlNodeMirrorCamera::d_near),
+                     exposedField("enabled", &VrmlNodeMirrorCamera::d_enabled),
+                     exposedField("cameraID", &VrmlNodeMirrorCamera::d_cameraID));
 }
 
 const char *VrmlNodeMirrorCamera::typeName() 

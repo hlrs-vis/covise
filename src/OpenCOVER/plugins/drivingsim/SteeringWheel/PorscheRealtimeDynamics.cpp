@@ -956,17 +956,17 @@ void VrmlNodePorscheVFP::initFields(VrmlNodePorscheVFP *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t, 
-        exposedField("targetIP", node->d_targetIP),
-        exposedField("targetPort", node->d_targetPort),
-        exposedField("messageID", node->d_messageID),
-        exposedField("messageIDIn", node->d_messageIDIn));
-    for (int i = 0; i < NUM_FIELDS; i++)
+        exposedField("targetIP", &VrmlNodePorscheVFP::d_targetIP),
+        exposedField("targetPort", &VrmlNodePorscheVFP::d_targetPort),
+        exposedField("messageID", &VrmlNodePorscheVFP::d_messageID),
+        exposedField("messageIDIn", &VrmlNodePorscheVFP::d_messageIDIn));
+    for (size_t i = 0; i < NUM_FIELDS; i++)
     {
         initFieldsHelper(node, t, 
-            exposedField("floatValue" + std::to_string(i), node->d_floatValues[i]),
-            exposedField("floatValueIn" + std::to_string(i), node->d_floatValueIn[i]),
-            exposedField("intValue" + std::to_string(i), node->d_intValues[i]),
-            exposedField("intValueIn" + std::to_string(i), node->d_intValueIn[i]));
+            exposedField("floatValue" + std::to_string(i), &VrmlNodePorscheVFP::d_floatValues, i),
+            exposedField("floatValueIn" + std::to_string(i), &VrmlNodePorscheVFP::d_floatValueIn, i),
+            exposedField("intValue" + std::to_string(i), &VrmlNodePorscheVFP::d_intValues, i),
+            exposedField("intValueIn" + std::to_string(i), &VrmlNodePorscheVFP::d_intValueIn, i));
     }
 
     if(t)

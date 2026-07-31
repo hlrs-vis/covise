@@ -51,19 +51,19 @@ void VrmlNodeARSensor::initFields(VrmlNodeARSensor *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-        exposedField("trackObjects", node->d_trackObjects),
-        exposedField("freeze", node->d_freeze),
-        exposedField("enabled", node->d_enabled),
-        exposedField("currentCamera", node->d_currentCamera),
-        exposedField("headingOnly", node->d_headingOnly),
-        exposedField("maxPosition", node->d_maxPosition),
-        exposedField("minPosition", node->d_minPosition),
-        exposedField("orientationThreshold", node->d_orientationThreshold),
-        exposedField("positionThreshold", node->d_positionThreshold),
-        exposedField("invisiblePosition", node->d_invisiblePosition),
-        exposedField("cameraPosition", node->d_cameraPosition),
-        exposedField("cameraOrientation", node->d_cameraOrientation),
-        exposedField("markerName", node->d_markerName));
+        exposedField("trackObjects", &VrmlNodeARSensor::d_trackObjects),
+        exposedField("freeze", &VrmlNodeARSensor::d_freeze),
+        exposedField("enabled", &VrmlNodeARSensor::d_enabled),
+        exposedField("currentCamera", &VrmlNodeARSensor::d_currentCamera),
+        exposedField("headingOnly", &VrmlNodeARSensor::d_headingOnly),
+        exposedField("maxPosition", &VrmlNodeARSensor::d_maxPosition),
+        exposedField("minPosition", &VrmlNodeARSensor::d_minPosition),
+        exposedField("orientationThreshold", &VrmlNodeARSensor::d_orientationThreshold),
+        exposedField("positionThreshold", &VrmlNodeARSensor::d_positionThreshold),
+        exposedField("invisiblePosition", &VrmlNodeARSensor::d_invisiblePosition),
+        exposedField("cameraPosition", &VrmlNodeARSensor::d_cameraPosition),
+        exposedField("cameraOrientation", &VrmlNodeARSensor::d_cameraOrientation),
+        exposedField("markerName", &VrmlNodeARSensor::d_markerName));
     
     if(t)
     {

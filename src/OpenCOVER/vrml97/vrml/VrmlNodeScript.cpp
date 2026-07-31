@@ -37,10 +37,10 @@ void VrmlNodeScript::initFields(VrmlNodeScript *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t,
-                     exposedField("url", node->d_url),
-                     field("directOutput", node->d_directOutput),
-                     field("mustEvaluate", node->d_mustEvaluate),
-                     field("myself", node->d_myself));
+                     exposedField("url", &VrmlNodeScript::d_url),
+                     field("directOutput", &VrmlNodeScript::d_directOutput),
+                     field("mustEvaluate", &VrmlNodeScript::d_mustEvaluate),
+                     field("myself", &VrmlNodeScript::d_myself));
 }
 
 const char *VrmlNodeScript::typeName() { return "Script"; }
@@ -375,10 +375,13 @@ void VrmlNodeScript::addField(const char *ename, VrmlField::VrmlFieldType t,
     if (val)
     {
         set(d_fields, ename, val);
-        auto f = field(ename, *(*fieldIter)->value);
-        // initFieldsHelper(this, nullptr, field(ename, *(*fieldIter)->value), [this, fieldIter](){
-        //     set(d_fields, (*fieldIter)->name, (*fieldIter)->value);
-        // });
+        VrmlFieldGetter<VrmlField> getter = [this, fieldIter](VrmlNode *node) -> VrmlField* {
+            return (*fieldIter)->value;
+        };
+        VrmlNode::NameValueStruct<VrmlField, VrmlNode::FieldAccessibility::Private> nvs{ename, getter};
+        // auto f = field(ename, *(*fieldIter)->value);
+        initFieldsHelper(this, nullptr, nvs);
+
     }
 }
 

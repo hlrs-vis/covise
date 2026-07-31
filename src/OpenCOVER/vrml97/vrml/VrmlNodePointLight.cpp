@@ -25,9 +25,9 @@ void VrmlNodePointLight::initFields(VrmlNodePointLight *node, VrmlNodeType *t)
 {
     VrmlNodeLight::initFields(node, t); 
     initFieldsHelper(node, t,
-        exposedField("attenuation", node->d_attenuation),
-        exposedField("location", node->d_location),
-        exposedField("radius", node->d_radius)
+        exposedField("attenuation", &VrmlNodePointLight::d_attenuation),
+        exposedField("location", &VrmlNodePointLight::d_location),
+        exposedField("radius", &VrmlNodePointLight::d_radius)
     );
 }
 

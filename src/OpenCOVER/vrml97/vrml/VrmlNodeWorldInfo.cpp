@@ -24,12 +24,12 @@ void VrmlNodeWorldInfo::initFields(VrmlNodeWorldInfo *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t,
-                     field("info", node->d_info),
-                     field("title", node->d_title),
-                     field("correctBackFaceCulling", node->d_correctBackFaceCulling, [](auto correctBackFaceCulling) {
+                     field("info", &VrmlNodeWorldInfo::d_info),
+                     field("title", &VrmlNodeWorldInfo::d_title),
+                     field("correctBackFaceCulling", &VrmlNodeWorldInfo::d_correctBackFaceCulling, [](auto correctBackFaceCulling) {
                          System::the->enableCorrectBackFaceCulling(correctBackFaceCulling->get());
                      }),
-                     field("correctSpatializedAudio", node->d_correctSpatializedAudio, [](auto correctSpatializedAudio) {
+                     field("correctSpatializedAudio", &VrmlNodeWorldInfo::d_correctSpatializedAudio, [](auto correctSpatializedAudio) {
                          System::the->enableCorrectSpatializedAudio(correctSpatializedAudio->get());
                      }));
 }

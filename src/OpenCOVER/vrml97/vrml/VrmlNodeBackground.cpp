@@ -40,16 +40,16 @@ void VrmlNodeBackground::initFields(VrmlNodeBackground *node, VrmlNodeType *t)
     VrmlNodeChild::initFields(node, t);
     
     initFieldsHelper(node, t,
-                     exposedField("groundAngle", node->d_groundAngle),
-                     exposedField("groundColor", node->d_groundColor),
-                     exposedField("backUrl", node->d_backUrl),
-                     exposedField("bottomUrl", node->d_bottomUrl),
-                     exposedField("frontUrl", node->d_frontUrl),
-                     exposedField("leftUrl", node->d_leftUrl),
-                     exposedField("rightUrl", node->d_rightUrl),
-                     exposedField("topUrl", node->d_topUrl),
-                     exposedField("skyAngle", node->d_skyAngle),
-                     exposedField("skyColor", node->d_skyColor));
+                     exposedField("groundAngle", &VrmlNodeBackground::d_groundAngle),
+                     exposedField("groundColor", &VrmlNodeBackground::d_groundColor),
+                     exposedField("backUrl", &VrmlNodeBackground::d_backUrl),
+                     exposedField("bottomUrl", &VrmlNodeBackground::d_bottomUrl),
+                     exposedField("frontUrl", &VrmlNodeBackground::d_frontUrl),
+                     exposedField("leftUrl", &VrmlNodeBackground::d_leftUrl),
+                     exposedField("rightUrl", &VrmlNodeBackground::d_rightUrl),
+                     exposedField("topUrl", &VrmlNodeBackground::d_topUrl),
+                     exposedField("skyAngle", &VrmlNodeBackground::d_skyAngle),
+                     exposedField("skyColor", &VrmlNodeBackground::d_skyColor));
     
     if (t)
     {

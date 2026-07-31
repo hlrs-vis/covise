@@ -12,17 +12,17 @@ void VrmlNodeSolarSystem::initFields(VrmlNodeSolarSystem *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t,
-        eventOutCallBack("venusRotation", node->d_venusRotation),
-        eventOutCallBack("venusTranslation", node->d_venusTranslation),
-        eventOutCallBack("marsRotation", node->d_marsRotation),
-        eventOutCallBack("marsTranslation", node->d_marsTranslation),
-        eventOutCallBack("earthRotation", node->d_earthRotation),
-        eventOutCallBack("earthTranslation", node->d_earthTranslation),
-        eventOutCallBack("saturnRotation", node->d_saturnRotation),
-        eventOutCallBack("saturnTranslation", node->d_saturnTranslation),
-        eventOutCallBack("jupiterRotation", node->d_jupiterRotation),
-        eventOutCallBack("jupiterTranslation", node->d_jupiterTranslation),
-        eventOutCallBack("planetScale", node->d_planetScale)
+        eventOutCallBack("venusRotation", &VrmlNodeSolarSystem::d_venusRotation),
+        eventOutCallBack("venusTranslation", &VrmlNodeSolarSystem::d_venusTranslation),
+        eventOutCallBack("marsRotation", &VrmlNodeSolarSystem::d_marsRotation),
+        eventOutCallBack("marsTranslation", &VrmlNodeSolarSystem::d_marsTranslation),
+        eventOutCallBack("earthRotation", &VrmlNodeSolarSystem::d_earthRotation),
+        eventOutCallBack("earthTranslation", &VrmlNodeSolarSystem::d_earthTranslation),
+        eventOutCallBack("saturnRotation", &VrmlNodeSolarSystem::d_saturnRotation),
+        eventOutCallBack("saturnTranslation", &VrmlNodeSolarSystem::d_saturnTranslation),
+        eventOutCallBack("jupiterRotation", &VrmlNodeSolarSystem::d_jupiterRotation),
+        eventOutCallBack("jupiterTranslation", &VrmlNodeSolarSystem::d_jupiterTranslation),
+        eventOutCallBack("planetScale", &VrmlNodeSolarSystem::d_planetScale)
     );
 }
 

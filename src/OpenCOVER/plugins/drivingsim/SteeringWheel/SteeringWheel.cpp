@@ -65,8 +65,8 @@ void VrmlNodeSteeringWheel::initFields(VrmlNodeSteeringWheel *node, VrmlNodeType
 {
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-                     exposedField("enabled", node->d_enabled),
-                     exposedField("joystickNumber", node->d_joystickNumber));
+                     exposedField("enabled", &VrmlNodeSteeringWheel::d_enabled),
+                     exposedField("joystickNumber", &VrmlNodeSteeringWheel::d_joystickNumber));
     if(t)
     {
         t->addEventIn("set_time", VrmlField::SFTIME);

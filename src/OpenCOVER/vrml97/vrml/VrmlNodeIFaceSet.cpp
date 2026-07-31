@@ -29,25 +29,25 @@ void VrmlNodeIFaceSet::initFields(VrmlNodeIFaceSet *node, VrmlNodeType *t)
 {
     VrmlNodeIndexedSet::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-                     field("ccw", node->d_ccw),
-                     field("convex", node->d_convex),
-                     field("creaseAngle", node->d_creaseAngle),
-                     exposedField("normal", node->d_normal),
-                     field("normalIndex", node->d_normalIndex),
-                     field("normalPerVertex", node->d_normalPerVertex),
-                     field("solid", node->d_solid));
+                     field("ccw", &VrmlNodeIFaceSet::d_ccw),
+                     field("convex", &VrmlNodeIFaceSet::d_convex),
+                     field("creaseAngle", &VrmlNodeIFaceSet::d_creaseAngle),
+                     exposedField("normal", &VrmlNodeIFaceSet::d_normal),
+                     field("normalIndex", &VrmlNodeIFaceSet::d_normalIndex),
+                     field("normalPerVertex", &VrmlNodeIFaceSet::d_normalPerVertex),
+                     field("solid", &VrmlNodeIFaceSet::d_solid));
 
     for (size_t i = 0; i < MAX_TEXCOORDS; i++)
     {
         std::string suffix = i == 0 ? std::string() : std::to_string(i + 1);
         initFieldsHelper(node, t,
-                         exposedField("texCoord" + suffix, node->d_texCoords[i],
+                         exposedField("texCoord" + suffix, &VrmlNodeIFaceSet::d_texCoords, i,
                                       [node, i](const VrmlSFNode *)
                                       {
                                           if (i >= node->d_numTexCoords)
                                               node->d_numTexCoords = i + 1;
                                       }),
-                         field("texCoordIndex" + suffix, node->d_texCoordIndices[i]));
+                         field("texCoordIndex" + suffix, &VrmlNodeIFaceSet::d_texCoordIndices, i));
         if(t)
         {
             t->addEventIn(("set_texCoordIndex" + suffix).c_str(), VrmlField::MFINT32);

@@ -21,7 +21,7 @@ void VrmlNodeExchanger::initFields(VrmlNodeExchanger *node, vrml::VrmlNodeType *
 {
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-                     exposedField("LandingNumber", node->d_LandingNumber));
+                     exposedField("LandingNumber", &VrmlNodeExchanger::d_LandingNumber));
 
     if(t)
     {

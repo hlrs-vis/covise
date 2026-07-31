@@ -19,7 +19,7 @@ using namespace vrml;
 
 void VrmlNodeNormal::initFields(VrmlNodeNormal *node, VrmlNodeType *t)
 {
-    initFieldsHelper(node, t, exposedField("vector", node->d_vector));
+    initFieldsHelper(node, t, exposedField("vector", &VrmlNodeNormal::d_vector));
 }
 
 const char *VrmlNodeNormal::typeName() { return "Normal"; }

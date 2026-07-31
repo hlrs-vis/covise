@@ -40,18 +40,18 @@ void VrmlNodeSound::initFields(VrmlNodeSound *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-        exposedField("direction", node->d_direction),
-        exposedField("intensity", node->d_intensity),
-        exposedField("location", node->d_location),
-        exposedField("maxBack", node->d_maxBack),
-        exposedField("maxFront", node->d_maxFront),
-        exposedField("minBack", node->d_minBack),
-        exposedField("minFront", node->d_minFront),
-        exposedField("priority", node->d_priority),
-        exposedField("source", node->d_source, [node](auto value)
+        exposedField("direction", &VrmlNodeSound::d_direction),
+        exposedField("intensity", &VrmlNodeSound::d_intensity),
+        exposedField("location", &VrmlNodeSound::d_location),
+        exposedField("maxBack", &VrmlNodeSound::d_maxBack),
+        exposedField("maxFront", &VrmlNodeSound::d_maxFront),
+        exposedField("minBack", &VrmlNodeSound::d_minBack),
+        exposedField("minFront", &VrmlNodeSound::d_minFront),
+        exposedField("priority", &VrmlNodeSound::d_priority),
+        exposedField("source", &VrmlNodeSound::d_source, [node](auto value)
             { node->source = nullptr; }),
-        field("spatialize", node->d_spatialize),
-        exposedField("doppler", node->d_doppler));
+        field("spatialize", &VrmlNodeSound::d_spatialize),
+        exposedField("doppler", &VrmlNodeSound::d_doppler));
 }
 
 const char *VrmlNodeSound::typeName() { return "Sound"; }

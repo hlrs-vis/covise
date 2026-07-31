@@ -37,16 +37,16 @@ void VrmlNodeNavigationInfo::initFields(VrmlNodeNavigationInfo *node, VrmlNodeTy
 {
     VrmlNodeChild::initFields(node, t); 
     initFieldsHelper(node, t,
-                     exposedField("avatarSize", node->d_avatarSize),
-                     exposedField("headlight", node->d_headlight),
-                     exposedField("speed", node->d_speed),
-                     exposedField("scale", node->d_scale),
-                     exposedField("near", node->d_near),
-                     exposedField("far", node->d_far),
-                     exposedField("type", node->d_type),
-                     exposedField("transitionType", node->d_transitionType),
-                     exposedField("transitionTime", node->d_transitionTime),
-                     exposedField("visibilityLimit", node->d_visibilityLimit));
+                     exposedField("avatarSize", &VrmlNodeNavigationInfo::d_avatarSize),
+                     exposedField("headlight", &VrmlNodeNavigationInfo::d_headlight),
+                     exposedField("speed", &VrmlNodeNavigationInfo::d_speed),
+                     exposedField("scale", &VrmlNodeNavigationInfo::d_scale),
+                     exposedField("near", &VrmlNodeNavigationInfo::d_near),
+                     exposedField("far", &VrmlNodeNavigationInfo::d_far),
+                     exposedField("type", &VrmlNodeNavigationInfo::d_type),
+                     exposedField("transitionType", &VrmlNodeNavigationInfo::d_transitionType),
+                     exposedField("transitionTime", &VrmlNodeNavigationInfo::d_transitionTime),
+                     exposedField("visibilityLimit", &VrmlNodeNavigationInfo::d_visibilityLimit));
     if(t)
     {
         t->addEventIn("set_bind", VrmlField::SFBOOL);

@@ -35,17 +35,17 @@ void VrmlNodeSky::initFields(VrmlNodeSky *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-        field("skyName", node->d_skyName, [node](auto f)
+        field("skyName", &VrmlNodeSky::d_skyName, [node](auto f)
             { Sky::instance()->setSky(node->d_skyName.get()); }),
-        field("top", node->d_top, [node](auto f)
+        field("top", &VrmlNodeSky::d_top, [node](auto f)
             { Sky::instance()->setTop(node->d_top.get()); }),
-        field("bottom", node->d_bottom, [node](auto f)
+        field("bottom", &VrmlNodeSky::d_bottom, [node](auto f)
             { Sky::instance()->setBottom(node->d_bottom.get()); }),
-        field("ephemeris", node->d_ephemeris, [node](auto f)
+        field("ephemeris", &VrmlNodeSky::d_ephemeris, [node](auto f)
             { Sky::instance()->setSkyEphemeris(node->d_ephemeris.get()); }),
-        field("hour", node->d_hour, [node](auto f)
+        field("hour", &VrmlNodeSky::d_hour, [node](auto f)
             { Sky::instance()->setHour(node->d_hour.get()); }),
-        field("floorColor", node->d_floorColor, [node](auto f)
+        field("floorColor", &VrmlNodeSky::d_floorColor, [node](auto f)
             { Sky::instance()->setFloorColor(osg::Vec4(node->d_floorColor.get()[0], node->d_floorColor.get()[1], node->d_floorColor.get()[2], node->d_floorColor.get()[3])); }));
    
 }

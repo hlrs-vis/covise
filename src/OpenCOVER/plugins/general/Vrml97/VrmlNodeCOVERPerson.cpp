@@ -57,10 +57,10 @@ void VrmlNodeCOVERPerson::initFields(VrmlNodeCOVERPerson *node, vrml::VrmlNodeTy
 {
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t, 
-        exposedField("activePerson", node->d_activePerson, [](auto f){
+        exposedField("activePerson", &VrmlNodeCOVERPerson::d_activePerson, [](auto f){
             Input::instance()->setActivePerson(f->get());
         }),
-        exposedField("eyeDistance", node->d_eyeDistance, [](auto f){
+        exposedField("eyeDistance", &VrmlNodeCOVERPerson::d_eyeDistance, [](auto f){
             VRViewer::instance()->setSeparation(f->get());
         }));
 }

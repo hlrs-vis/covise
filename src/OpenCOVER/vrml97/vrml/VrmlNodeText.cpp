@@ -25,10 +25,10 @@ void VrmlNodeText::initFields(VrmlNodeText *node, VrmlNodeType *t)
 {
     VrmlNodeGeometry::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-                     exposedField("string", node->d_string),
-                     exposedField("fontStyle", node->d_fontStyle),
-                     exposedField("length", node->d_length),
-                     exposedField("maxExtent", node->d_maxExtent));
+                     exposedField("string", &VrmlNodeText::d_string),
+                     exposedField("fontStyle", &VrmlNodeText::d_fontStyle),
+                     exposedField("length", &VrmlNodeText::d_length),
+                     exposedField("maxExtent", &VrmlNodeText::d_maxExtent));
 }
 const char *VrmlNodeText::typeName() { return "Text"; }
 

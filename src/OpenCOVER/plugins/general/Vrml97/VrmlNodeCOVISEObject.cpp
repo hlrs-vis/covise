@@ -52,7 +52,7 @@ void VrmlNodeCOVISEObject::initFields(VrmlNodeCOVISEObject *node, vrml::VrmlNode
 {
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t,
-                     exposedField("objectName", node->d_objectName));
+                     exposedField("objectName", &VrmlNodeCOVISEObject::d_objectName));
 }
 
 const char *VrmlNodeCOVISEObject::typeName() 

@@ -40,7 +40,7 @@ void VrmlNodeInline::initFields(VrmlNodeInline *node, VrmlNodeType *t)
 {
     VrmlNodeGroup::initFields(node, t);
     initFieldsHelper(node, t,
-                     exposedField("url", node->d_url));
+                     exposedField("url", &VrmlNodeInline::d_url));
 
 }
 

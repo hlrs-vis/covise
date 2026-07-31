@@ -22,7 +22,7 @@ void VrmlNodeSimulink::initFields(VrmlNodeSimulink *node, vrml::VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t,
-                     exposedField("enabled", node->d_enabled));
+                     exposedField("enabled", &VrmlNodeSimulink::d_enabled));
     if(t)
     {
         t->addEventOut("ints_changed", VrmlField::MFINT32);

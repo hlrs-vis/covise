@@ -27,7 +27,7 @@ using namespace vrml;
     void VrmlNodeMetadata##typename::initFields(VrmlNodeMetadata##typename *node, VrmlNodeType *t) \
     { \
         VrmlNodeMetadata::initFields(node, t); \
-        initFieldsHelper(node, t, exposedField("value", node->d_value)); \
+        initFieldsHelper(node, t, exposedField("value", &VrmlNodeMetadata##typename::d_value)); \
     } \
     const char *VrmlNodeMetadata##typename::typeName() { return EXPAND_AND_STRINGIFY(CONCATENATE(Metadata, typename)); } \
     VrmlNodeMetadata##typename::VrmlNodeMetadata##typename(VrmlScene *scene) \

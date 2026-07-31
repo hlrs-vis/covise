@@ -48,9 +48,9 @@ void VrmlNodePrecipitation::initFields(VrmlNodePrecipitation *node, vrml::VrmlNo
 {
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t,
-                     exposedField("numPrecipitation", node->d_numPrecipitation),
-                     exposedField("enabled", node->d_enabled),
-                     exposedField("loop", node->d_loop));
+                     exposedField("numPrecipitation", &VrmlNodePrecipitation::d_numPrecipitation),
+                     exposedField("enabled", &VrmlNodePrecipitation::d_enabled),
+                     exposedField("loop", &VrmlNodePrecipitation::d_loop));
     if (t)
     {
         t->addEventOut("fraction_changed", VrmlField::SFFLOAT);

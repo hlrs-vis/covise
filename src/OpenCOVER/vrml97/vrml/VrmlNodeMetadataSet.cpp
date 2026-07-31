@@ -24,7 +24,7 @@ using namespace vrml;
 void VrmlNodeMetadataSet::initFields(VrmlNodeMetadataSet *node, VrmlNodeType *t)
 {
     VrmlNodeMetadata::initFields(node, t);
-    initFieldsHelper(node, t, exposedField("value", node->d_value));
+    initFieldsHelper(node, t, exposedField("value", &VrmlNodeMetadataSet::d_value));
 }
 
 const char *VrmlNodeMetadataSet::typeName() { return "MetadataSet"; }

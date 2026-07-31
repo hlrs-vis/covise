@@ -35,16 +35,16 @@ void VrmlNodeImageTexture::initFields(VrmlNodeImageTexture *node, VrmlNodeType *
 {
     VrmlNodeTexture::initFields(node, t);
     initFieldsHelper(node, t,
-                     exposedField("url", node->d_url, [node](auto f){
+                     exposedField("url", &VrmlNodeImageTexture::d_url, [node](auto f){
                         delete node->d_image;
                         node->d_image = nullptr;
                      }),
-                     field("repeatS", node->d_repeatS),
-                     field("repeatT", node->d_repeatT),
-                     field("environment", node->d_environment),
-                     field("blendMode", node->d_blendMode),
-                     field("filterMode", node->d_filterMode),
-                     field("anisotropy", node->d_anisotropy));
+                     field("repeatS", &VrmlNodeImageTexture::d_repeatS),
+                     field("repeatT", &VrmlNodeImageTexture::d_repeatT),
+                     field("environment", &VrmlNodeImageTexture::d_environment),
+                     field("blendMode", &VrmlNodeImageTexture::d_blendMode),
+                     field("filterMode", &VrmlNodeImageTexture::d_filterMode),
+                     field("anisotropy", &VrmlNodeImageTexture::d_anisotropy));
     
     
     if(t)

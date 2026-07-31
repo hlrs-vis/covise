@@ -86,12 +86,12 @@ void VrmlNodeAudioClip::update(VrmlSFTime &now)
 void VrmlNodeAudioClip::initFields(VrmlNodeAudioClip *node, VrmlNodeType *t)
 {
     initFieldsHelper(node, t,
-        exposedField("description", node->d_description),
-        exposedField("loop", node->d_loop),
-        exposedField("pitch", node->d_pitch),
-        exposedField("startTime", node->d_startTime),
-        exposedField("stopTime", node->d_stopTime),
-        exposedField("url", node->d_url, [node](const VrmlMFString *field)
+        exposedField("description", &VrmlNodeAudioClip::d_description),
+        exposedField("loop", &VrmlNodeAudioClip::d_loop),
+        exposedField("pitch", &VrmlNodeAudioClip::d_pitch),
+        exposedField("startTime", &VrmlNodeAudioClip::d_startTime),
+        exposedField("stopTime", &VrmlNodeAudioClip::d_stopTime),
+        exposedField("url", &VrmlNodeAudioClip::d_url, [node](const VrmlMFString *field)
             {
                         node->d_url_modified = true;
                         node->setModified(); }));

@@ -124,11 +124,11 @@ void VrmlNodePhotometricLight::initFields(VrmlNodePhotometricLight *node, vrml::
 {
 	VrmlNodeChild::initFields(node, t);
 	initFieldsHelper(node, t, 
-		exposedField("lightNumber", node->d_lightNumber),
-		exposedField("MLBFile", node->d_MLBFile, [node](auto f){
+		exposedField("lightNumber", &VrmlNodePhotometricLight::d_lightNumber),
+		exposedField("MLBFile", &VrmlNodePhotometricLight::d_MLBFile, [node](auto f){
 			node->handleMLBFile();
 		}),
-		exposedField("IESFile", node->d_IESFile, [node](auto f){
+		exposedField("IESFile", &VrmlNodePhotometricLight::d_IESFile, [node](auto f){
 			node->handleIESFile();
 		}));
 

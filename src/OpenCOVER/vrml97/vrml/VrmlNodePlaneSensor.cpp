@@ -33,11 +33,11 @@ static VrmlNode *creator(VrmlScene *scene)
 void VrmlNodePlaneSensor::initFields(VrmlNodePlaneSensor *node, VrmlNodeType *t)
 {
     initFieldsHelper(node, t,
-                     exposedField("autoOffset", node->d_autoOffset),
-                     exposedField("enabled", node->d_enabled),
-                     exposedField("maxPosition", node->d_maxPosition),
-                     exposedField("minPosition", node->d_minPosition),
-                     exposedField("offset", node->d_offset));
+                     exposedField("autoOffset", &VrmlNodePlaneSensor::d_autoOffset),
+                     exposedField("enabled", &VrmlNodePlaneSensor::d_enabled),
+                     exposedField("maxPosition", &VrmlNodePlaneSensor::d_maxPosition),
+                     exposedField("minPosition", &VrmlNodePlaneSensor::d_minPosition),
+                     exposedField("offset", &VrmlNodePlaneSensor::d_offset));
     if(t)
     {
         t->addEventOut("isActive", VrmlField::SFBOOL);

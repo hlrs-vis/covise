@@ -24,7 +24,7 @@ void VrmlNodeColorRGBA::initFields(VrmlNodeColorRGBA *node, VrmlNodeType *t)
         t = node->nodeType();
 
     VrmlNode::initFieldsHelper(node, t,
-                                       exposedField("color", node->d_color));
+                                       exposedField("color", &VrmlNodeColorRGBA::d_color));
 }
 
 const char *VrmlNodeColorRGBA::typeName() { return "ColorRGBA"; }

@@ -25,7 +25,7 @@ static VrmlNode *creator(VrmlScene *s) { return new VrmlNodeBillboard(s); }
 void VrmlNodeBillboard::initFields(VrmlNodeBillboard *node, vrml::VrmlNodeType *t)
 {
     initFieldsHelper(node, t,
-                     exposedField("axisOfRotation", node->d_axisOfRotation));
+                     exposedField("axisOfRotation", &VrmlNodeBillboard::d_axisOfRotation));
     VrmlNodeGroup::initFields(node, t);
 }
 

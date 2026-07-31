@@ -13,11 +13,11 @@ std::set<ToolChangerNode *> toolChangers;
 
 void ToolChangerNode::initFields(ToolChangerNode *node, VrmlNodeType *t) {
     initFieldsHelper(node, t,
-        field("arm", node->arm),
-        field("changer", node->changer),
-        field("cover", node->cover),
-        field("toolHeadNode", node->toolHead),
-        field("toolMagazineName", node->toolMagazineName)
+        field("arm", &ToolChangerNode::arm),
+        field("changer", &ToolChangerNode::changer),
+        field("cover", &ToolChangerNode::cover),
+        field("toolHeadNode", &ToolChangerNode::toolHead),
+        field("toolMagazineName", &ToolChangerNode::toolMagazineName)
     );
 }
 

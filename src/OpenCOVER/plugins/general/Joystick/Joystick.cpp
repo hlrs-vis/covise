@@ -17,9 +17,9 @@ void VrmlNodeJoystick::initFields(VrmlNodeJoystick* node, VrmlNodeType* t)
 {
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t,
-        exposedField("enabled", node->d_enabled),
-        exposedField("joystickNumber", node->d_joystickNumber),
-        exposedField("joystickName", node->d_joystickName));
+        exposedField("enabled", &VrmlNodeJoystick::d_enabled),
+        exposedField("joystickNumber", &VrmlNodeJoystick::d_joystickNumber),
+        exposedField("joystickName", &VrmlNodeJoystick::d_joystickName));
 
     if (t)
     {

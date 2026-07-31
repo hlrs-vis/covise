@@ -63,17 +63,17 @@ void VrmlNodeTimesteps::initFields(VrmlNodeTimesteps *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t, 
-                     exposedField("numTimesteps", node->d_numTimesteps, [node](auto f){
+                     exposedField("numTimesteps", &VrmlNodeTimesteps::d_numTimesteps, [node](auto f){
                             coVRAnimationManager::instance()->setNumTimesteps(node->d_numTimesteps.get(), node);
                      }),
-                     exposedField("enabled", node->d_enabled, [](auto f){
+                     exposedField("enabled", &VrmlNodeTimesteps::d_enabled, [](auto f){
                             coVRAnimationManager::instance()->enableAnimation(f->get());
                      }),
-                     exposedField("timestep", node->d_currentTimestep, [](auto f){
+                     exposedField("timestep", &VrmlNodeTimesteps::d_currentTimestep, [](auto f){
                             coVRAnimationManager::instance()->requestAnimationFrame(f->get());
                      }),
-                     exposedField("loop", node->d_loop),
-                     exposedField("maxFrameRate", node->d_maxFrameRate, [](auto f){
+                     exposedField("loop", &VrmlNodeTimesteps::d_loop),
+                     exposedField("maxFrameRate", &VrmlNodeTimesteps::d_maxFrameRate, [](auto f){
                             coVRAnimationManager::instance()->setMaxFrameRate(f->get());
                      }));
     

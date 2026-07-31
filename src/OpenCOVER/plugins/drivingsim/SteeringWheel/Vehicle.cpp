@@ -29,68 +29,68 @@ void VrmlNodeVehicle::initFields(VrmlNodeVehicle *node, vrml::VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-                     exposedField("carRotation", node->d_carRotation, [node](auto f) {
+                     exposedField("carRotation", &VrmlNodeVehicle::d_carRotation, [node](auto f) {
                          node->recalcMatrix();
                      }),
-                     exposedField("carTranslation", node->d_carTranslation, [node](auto f) {
+                     exposedField("carTranslation", &VrmlNodeVehicle::d_carTranslation, [node](auto f) {
                          node->recalcMatrix();
                      }),
-                     exposedField("carBodyRotation", node->d_carBodyRotation),
-                     exposedField("carBodyTranslation", node->d_carBodyTranslation),
-                     exposedField("axle1Rotation", node->d_axle1Rotation),
-                     exposedField("axle1Translation", node->d_axle1Translation),
-                     exposedField("axle2Rotation", node->d_axle2Rotation),
-                     exposedField("axle2Translation", node->d_axle2Translation),
+                     exposedField("carBodyRotation", &VrmlNodeVehicle::d_carBodyRotation),
+                     exposedField("carBodyTranslation", &VrmlNodeVehicle::d_carBodyTranslation),
+                     exposedField("axle1Rotation", &VrmlNodeVehicle::d_axle1Rotation),
+                     exposedField("axle1Translation", &VrmlNodeVehicle::d_axle1Translation),
+                     exposedField("axle2Rotation", &VrmlNodeVehicle::d_axle2Rotation),
+                     exposedField("axle2Translation", &VrmlNodeVehicle::d_axle2Translation),
 
-                     exposedField("wheelFLRotation", node->d_wheelFLRotation),
-                     exposedField("wheelFLTranslation", node->d_wheelFLTranslation),
-                     exposedField("wheelFRRotation", node->d_wheelFRRotation),
-                     exposedField("wheelFRTranslation", node->d_wheelFRTranslation),
-                     exposedField("wheelRLRotation", node->d_wheelRLRotation),
-                     exposedField("wheelRLTranslation", node->d_wheelRLTranslation),
-                     exposedField("wheelRRRotation", node->d_wheelRRRotation),
-                     exposedField("wheelRRTranslation", node->d_wheelRRTranslation),
+                     exposedField("wheelFLRotation", &VrmlNodeVehicle::d_wheelFLRotation),
+                     exposedField("wheelFLTranslation", &VrmlNodeVehicle::d_wheelFLTranslation),
+                     exposedField("wheelFRRotation", &VrmlNodeVehicle::d_wheelFRRotation),
+                     exposedField("wheelFRTranslation", &VrmlNodeVehicle::d_wheelFRTranslation),
+                     exposedField("wheelRLRotation", &VrmlNodeVehicle::d_wheelRLRotation),
+                     exposedField("wheelRLTranslation", &VrmlNodeVehicle::d_wheelRLTranslation),
+                     exposedField("wheelRRRotation", &VrmlNodeVehicle::d_wheelRRRotation),
+                     exposedField("wheelRRTranslation", &VrmlNodeVehicle::d_wheelRRTranslation),
 
-                     exposedField("cameraRotation", node->d_cameraRotation),
-                     exposedField("cameraTranslation", node->d_cameraTranslation),
-                     exposedField("mirrorLRotation", node->d_mirrorLRotation),
-                     exposedField("mirrorMRotation", node->d_mirrorMRotation),
-                     exposedField("mirrorRRotation", node->d_mirrorRRotation),
+                     exposedField("cameraRotation", &VrmlNodeVehicle::d_cameraRotation),
+                     exposedField("cameraTranslation", &VrmlNodeVehicle::d_cameraTranslation),
+                     exposedField("mirrorLRotation", &VrmlNodeVehicle::d_mirrorLRotation),
+                     exposedField("mirrorMRotation", &VrmlNodeVehicle::d_mirrorMRotation),
+                     exposedField("mirrorRRotation", &VrmlNodeVehicle::d_mirrorRRotation),
 
-                     exposedField("offsetLoc", node->d_offsetLoc),
-                     exposedField("offsetRot", node->d_offsetRot),
+                     exposedField("offsetLoc", &VrmlNodeVehicle::d_offsetLoc),
+                     exposedField("offsetRot", &VrmlNodeVehicle::d_offsetRot),
     
-                     exposedField("numCars", node->d_numCars),
-                     exposedField("followTerrain", node->d_followTerrain),
+                     exposedField("numCars", &VrmlNodeVehicle::d_numCars),
+                     exposedField("followTerrain", &VrmlNodeVehicle::d_followTerrain),
 
-                     exposedField("ffz1Rotation", node->d_ffz1Rotation),
-                     exposedField("ffz1Translation", node->d_ffz1Translation),
-                     eventInCallBack("vMax", node->d_vMax), 
-                     eventInCallBack("aMax", node->d_aMax),
-                     eventInCallBack("reset", node->d_reset),
-                     eventInCallBack("offsetLoc", node->d_offsetLoc),
-                     eventInCallBack("offsetRot", node->d_offsetRot),
-                     eventInCallBack("setOffset", node->d_setOffset),
-                     eventInCallBack("printTransformation", node->d_printTransformation)
+                     exposedField("ffz1Rotation", &VrmlNodeVehicle::d_ffz1Rotation),
+                     exposedField("ffz1Translation", &VrmlNodeVehicle::d_ffz1Translation),
+                     eventInCallBack("vMax", &VrmlNodeVehicle::d_vMax), 
+                     eventInCallBack("aMax", &VrmlNodeVehicle::d_aMax),
+                     eventInCallBack("reset", &VrmlNodeVehicle::d_reset),
+                     eventInCallBack("offsetLoc", &VrmlNodeVehicle::d_offsetLoc),
+                     eventInCallBack("offsetRot", &VrmlNodeVehicle::d_offsetRot),
+                     eventInCallBack("setOffset", &VrmlNodeVehicle::d_setOffset),
+                     eventInCallBack("printTransformation", &VrmlNodeVehicle::d_printTransformation)
                      );
 
     for (size_t i = 0; i < NUM_WHEELS; i++)
     {
         initFieldsHelper(node, t,
-                         exposedField("wheel" + std::to_string(i) + "Rotation", node->d_wheelRotations[i]),
-                         exposedField("wheel" + std::to_string(i) + "Translation", node->d_wheelTranslations[i]));
+                         exposedField("wheel" + std::to_string(i) + "Rotation", &VrmlNodeVehicle::d_wheelRotations, i),
+                         exposedField("wheel" + std::to_string(i) + "Translation", &VrmlNodeVehicle::d_wheelTranslations, i));
     }
     
     for (size_t i = 0; i < 15; i++)
     {
         initFieldsHelper(node, t,
-            eventInCallBack("carTranslation_" + std::to_string(i), node->d_carTranslations[i]));
+            eventInCallBack("carTranslation_" + std::to_string(i), &VrmlNodeVehicle::d_carTranslations, i));
     }
     for (size_t i = 0; i < 10; i++)
     {
         initFieldsHelper(node, t,
-            eventInCallBack("float_value" + std::to_string(i), node->d_float_values[i]),
-            eventInCallBack("int_value" + std::to_string(i), node->d_int_values[i]));
+            eventInCallBack("float_value" + std::to_string(i), &VrmlNodeVehicle::d_float_values, i),
+            eventInCallBack("int_value" + std::to_string(i), &VrmlNodeVehicle::d_int_values, i));
     }
     if(t)
     {

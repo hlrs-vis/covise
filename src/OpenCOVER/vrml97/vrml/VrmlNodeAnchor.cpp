@@ -31,9 +31,9 @@ void VrmlNodeAnchor::initFields(VrmlNodeAnchor *node, VrmlNodeType *t)
 {
     VrmlNodeGroup::initFields(node, t);
     initFieldsHelper(node, t,
-                     exposedField("description", node->d_description),
-                     exposedField("parameter", node->d_parameter),
-                     exposedField("url", node->d_url));
+                     exposedField("description", &VrmlNodeAnchor::d_description),
+                     exposedField("parameter", &VrmlNodeAnchor::d_parameter),
+                     exposedField("url", &VrmlNodeAnchor::d_url));
 }
 
 const char *VrmlNodeAnchor::typeName() { return "Anchor"; }

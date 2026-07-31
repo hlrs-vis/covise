@@ -113,17 +113,17 @@ void VrmlNodeCOVER::initFields(VrmlNodeCOVER *node, VrmlNodeType *t)
     for (size_t i = 0; i < NUM_POSITIONS; i++)
     {
         initFieldsHelper(node, t,
-            exposedField("position" + std::to_string(i + 1), node->d_positions[i]),
-            exposedField("orientation" + std::to_string(i + 1), node->d_orientations[i]));
+            exposedField("position" + std::to_string(i + 1), &VrmlNodeCOVER::d_positions, i),
+            exposedField("orientation" + std::to_string(i + 1), &VrmlNodeCOVER::d_orientations, i));
     }
     initFieldsHelper(node, t,
-        exposedField("animationTimeStep", node->d_animationTimeStep, [](auto fieldValue)
+        exposedField("animationTimeStep", &VrmlNodeCOVER::d_animationTimeStep, [](auto fieldValue)
             { System::the->setTimeStep(theCOVER->d_animationTimeStep.get()); }),
-        exposedField("activePerson", node->d_activePerson, [](auto fieldValue)
+        exposedField("activePerson", &VrmlNodeCOVER::d_activePerson, [](auto fieldValue)
             { System::the->setActivePerson(theCOVER->d_activePerson.get()); }),
-        exposedField("loadPlugin", node->d_loadPlugin, [](auto fieldValue)
+        exposedField("loadPlugin", &VrmlNodeCOVER::d_loadPlugin, [](auto fieldValue)
             { System::the->loadPlugin(theCOVER->d_loadPlugin.get()); }),
-        exposedField("set_loadPlugin", node->d_loadPlugin, [](auto fieldValue)
+        exposedField("set_loadPlugin", &VrmlNodeCOVER::d_loadPlugin, [](auto fieldValue)
             {
                 System::the->loadPlugin(theCOVER->d_loadPlugin.get());
                 // this could be a hack to make the plugin load immediately or it is a mistake

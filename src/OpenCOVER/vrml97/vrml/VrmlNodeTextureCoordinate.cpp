@@ -19,7 +19,7 @@ using namespace vrml;
 
 void VrmlNodeTextureCoordinate::initFields(VrmlNodeTextureCoordinate *node, VrmlNodeType *t)
 {
-    initFieldsHelper(node, t, exposedField("point", node->d_point));
+    initFieldsHelper(node, t, exposedField("point", &VrmlNodeTextureCoordinate::d_point));
 }
 
 const char *VrmlNodeTextureCoordinate::typeName() 

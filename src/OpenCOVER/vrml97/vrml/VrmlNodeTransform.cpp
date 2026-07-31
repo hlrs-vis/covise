@@ -26,11 +26,11 @@ void VrmlNodeTransform::initFields(VrmlNodeTransform *node, VrmlNodeType *t)
 {
     VrmlNodeGroup::initFields(node, t);
     initFieldsHelper(node, t,
-        exposedField("center", node->d_center),
-        exposedField("rotation", node->d_rotation),
-        exposedField("scale", node->d_scale),
-        exposedField("scaleOrientation", node->d_scaleOrientation),
-        exposedField("translation", node->d_translation)
+        exposedField("center", &VrmlNodeTransform::d_center),
+        exposedField("rotation", &VrmlNodeTransform::d_rotation),
+        exposedField("scale", &VrmlNodeTransform::d_scale),
+        exposedField("scaleOrientation", &VrmlNodeTransform::d_scaleOrientation),
+        exposedField("translation", &VrmlNodeTransform::d_translation)
     );
 }
 

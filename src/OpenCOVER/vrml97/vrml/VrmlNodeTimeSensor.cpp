@@ -35,11 +35,11 @@ void VrmlNodeTimeSensor::initFields(VrmlNodeTimeSensor *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t,
-                     exposedField("cycleInterval", node->d_cycleInterval),
-                     exposedField("enabled", node->d_enabled),
-                     exposedField("loop", node->d_loop),
-                     exposedField("startTime", node->d_startTime),
-                     exposedField("stopTime", node->d_stopTime));
+                     exposedField("cycleInterval", &VrmlNodeTimeSensor::d_cycleInterval),
+                     exposedField("enabled", &VrmlNodeTimeSensor::d_enabled),
+                     exposedField("loop", &VrmlNodeTimeSensor::d_loop),
+                     exposedField("startTime", &VrmlNodeTimeSensor::d_startTime),
+                     exposedField("stopTime", &VrmlNodeTimeSensor::d_stopTime));
     if(t)
     {
         t->addEventOut("cycleTime", VrmlField::SFTIME);

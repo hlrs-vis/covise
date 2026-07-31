@@ -23,10 +23,10 @@ void VrmlNodeCone::initFields(VrmlNodeCone *node, VrmlNodeType *t)
 {
     VrmlNodeGeometry::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-                        field("bottom", node->d_bottom),
-                        field("bottomRadius", node->d_bottomRadius),
-                        field("height", node->d_height),
-                        field("side", node->d_side));
+                        field("bottom", &VrmlNodeCone::d_bottom),
+                        field("bottomRadius", &VrmlNodeCone::d_bottomRadius),
+                        field("height", &VrmlNodeCone::d_height),
+                        field("side", &VrmlNodeCone::d_side));
 }
 
 const char *VrmlNodeCone::typeName() { return "Cone"; }

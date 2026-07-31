@@ -22,7 +22,7 @@ void VrmlNodeXLanding::initFields(VrmlNodeXLanding *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-        exposedField("LandingNumber", node->d_LandingNumber));
+        exposedField("LandingNumber", &VrmlNodeXLanding::d_LandingNumber));
     if(t)
     {
         t->addEventIn("callButton", VrmlField::SFTIME);

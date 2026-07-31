@@ -119,10 +119,10 @@ void VrmlNodeBicycle::initFields(VrmlNodeBicycle *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-                     exposedField("bikeRotation", node->d_bikeRotation, [node](auto f){
+                     exposedField("bikeRotation", &VrmlNodeBicycle::d_bikeRotation, [node](auto f){
                          node->recalcMatrix();
                      }),
-                     exposedField("bikeTranslation", node->d_bikeTranslation, [node](auto f){
+                     exposedField("bikeTranslation", &VrmlNodeBicycle::d_bikeTranslation, [node](auto f){
                          node->recalcMatrix();
                      }), 
                      eventInCallBack<VrmlSFBool>("thermal", [node](auto fieldValue){

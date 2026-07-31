@@ -17,11 +17,11 @@ void VrmlNodeBillboardSwitch::initFields(VrmlNodeBillboardSwitch *node, VrmlNode
 {
     VrmlNodeBillboard::initFields(node, t);
     initFieldsHelper(node, t,
-                     exposedField("choice", node->d_choice),
-                     exposedField("alternative", node->d_alternative),
-                     exposedField("axisOfRotation", node->d_axisOfRotation),
-                     field("angle", node->d_angle),
-                     eventOutCallBack("activeChildChanged", node->d_activeChild));
+                     exposedField("choice", &VrmlNodeBillboardSwitch::d_choice),
+                     exposedField("alternative", &VrmlNodeBillboardSwitch::d_alternative),
+                     exposedField("axisOfRotation", &VrmlNodeBillboardSwitch::d_axisOfRotation),
+                     field("angle", &VrmlNodeBillboardSwitch::d_angle),
+                     eventOutCallBack("activeChildChanged", &VrmlNodeBillboardSwitch::d_activeChild));
 }
 
 const char *VrmlNodeBillboardSwitch::typeName() 

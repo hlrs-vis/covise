@@ -26,7 +26,7 @@ void ScriptVrmlNode::initFields(vrml::VrmlNodeChild *node, vrml::VrmlNodeType *t
 {
     VrmlNodeChild::initFields(node, t);
     initFieldsHelper(node, t,
-                     exposedField("command", node->d_command, [node](auto t){
+                     exposedField("command", &ScriptVrmlNode::d_command, [node](auto t){
                         executeCommand(t);
                      }));
     if(t)

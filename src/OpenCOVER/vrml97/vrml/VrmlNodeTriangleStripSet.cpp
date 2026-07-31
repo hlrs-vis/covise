@@ -30,7 +30,7 @@ using namespace vrml;
 void VrmlNodeTriangleStripSet::initFields(VrmlNodeTriangleStripSet *node, VrmlNodeType *t)
 {
     VrmlNodePolygonsCommon::initFields(node, t); // Parent class
-    initFieldsHelper(node, t, exposedField("stripCount", node->d_stripCount));
+    initFieldsHelper(node, t, exposedField("stripCount", &VrmlNodeTriangleStripSet::d_stripCount));
 
 }
 

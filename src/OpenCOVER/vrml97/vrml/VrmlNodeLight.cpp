@@ -23,10 +23,10 @@ using namespace vrml;
 void VrmlNodeLight::initFields(VrmlNodeLight *node, VrmlNodeType *t)
 {
     initFieldsHelper(node, t,
-                     exposedField("ambientIntensity", node->d_ambientIntensity),
-                     exposedField("color", node->d_color),
-                     exposedField("intensity", node->d_intensity),
-                     exposedField("on", node->d_on));
+                     exposedField("ambientIntensity", &VrmlNodeLight::d_ambientIntensity),
+                     exposedField("color", &VrmlNodeLight::d_color),
+                     exposedField("intensity", &VrmlNodeLight::d_intensity),
+                     exposedField("on", &VrmlNodeLight::d_on));
     VrmlNodeChild::initFields(node, t);                     
 }
 

@@ -31,10 +31,10 @@ void VrmlNodeLOD::initFields(VrmlNodeLOD *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-                     exposedField("level", node->d_level),
-                     exposedField("children", node->d_level),
-                     field("center", node->d_center),
-                     field("range", node->d_range));
+                     exposedField("level", &VrmlNodeLOD::d_level),
+                     exposedField("children", &VrmlNodeLOD::d_level),
+                     field("center", &VrmlNodeLOD::d_center),
+                     field("range", &VrmlNodeLOD::d_range));
 }
 
 const char *VrmlNodeLOD::typeName() { return "LOD"; }

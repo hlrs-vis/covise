@@ -33,10 +33,10 @@ void VrmlNodePixelTexture::initFields(VrmlNodePixelTexture *node, VrmlNodeType *
 {
     VrmlNodeTexture::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-                     exposedField("image", node->d_image),
-                     field("repeatS", node->d_repeatS),
-                     field("repeatT", node->d_repeatT),
-                     field("blendMode", node->d_blendMode));
+                     exposedField("image", &VrmlNodePixelTexture::d_image),
+                     field("repeatS", &VrmlNodePixelTexture::d_repeatS),
+                     field("repeatT", &VrmlNodePixelTexture::d_repeatT),
+                     field("blendMode", &VrmlNodePixelTexture::d_blendMode));
 }
 
 const char *VrmlNodePixelTexture::typeName() { return "PixelTexture"; }

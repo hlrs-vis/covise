@@ -32,8 +32,8 @@ void VrmlNodeScalarInt::initFields(VrmlNodeScalarInt *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-                     exposedField("key", node->d_key),
-                     exposedField("keyValue", node->d_keyValue));
+                     exposedField("key", &VrmlNodeScalarInt::d_key),
+                     exposedField("keyValue", &VrmlNodeScalarInt::d_keyValue));
     if (t)
     {
         t->addEventIn("set_fraction", VrmlField::SFFLOAT);

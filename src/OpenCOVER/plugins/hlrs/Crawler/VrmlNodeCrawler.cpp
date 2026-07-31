@@ -44,25 +44,25 @@ void VrmlNodeCrawler::initFields(VrmlNodeCrawler* node, vrml::VrmlNodeType* t)
 {
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-        exposedField("speed", node->d_speed, [node](auto f) {
+        exposedField("speed", &VrmlNodeCrawler::d_speed, [node](auto f) {
             }),
-        exposedField("lademodus", node->d_lademodus, [node](auto f) {
+        exposedField("lademodus", &VrmlNodeCrawler::d_lademodus, [node](auto f) {
             }),
-        eventOutCallBack("position", node->d_position, [node](auto f) {
+        eventOutCallBack("position", &VrmlNodeCrawler::d_position, [node](auto f) {
             }),
-        eventOutCallBack("rotation", node->d_rotation, [node](auto f) {
+        eventOutCallBack("rotation", &VrmlNodeCrawler::d_rotation, [node](auto f) {
             }),
-        eventOutCallBack("main0Angle", node->d_main0Angle, [node](auto f) {
+        eventOutCallBack("main0Angle", &VrmlNodeCrawler::d_main0Angle, [node](auto f) {
             }),
-        eventOutCallBack("main1Angle", node->d_main1Angle, [node](auto f) {
+        eventOutCallBack("main1Angle", &VrmlNodeCrawler::d_main1Angle, [node](auto f) {
             }),
-        eventOutCallBack("main2Angle", node->d_main2Angle, [node](auto f) {
+        eventOutCallBack("main2Angle", &VrmlNodeCrawler::d_main2Angle, [node](auto f) {
             }),
-        eventOutCallBack("sec0Angle", node->d_sec0Angle, [node](auto f) {
+        eventOutCallBack("sec0Angle", &VrmlNodeCrawler::d_sec0Angle, [node](auto f) {
             }),
-        eventOutCallBack("sec1Angle", node->d_sec1Angle, [node](auto f) {
+        eventOutCallBack("sec1Angle", &VrmlNodeCrawler::d_sec1Angle, [node](auto f) {
             }),
-        eventOutCallBack("sec2Angle", node->d_sec2Angle, [node](auto f) {
+        eventOutCallBack("sec2Angle", &VrmlNodeCrawler::d_sec2Angle, [node](auto f) {
             })
         );
     if (t)

@@ -30,17 +30,17 @@ void VrmlNodeMovieTexture::initFields(VrmlNodeMovieTexture *node, VrmlNodeType *
 {
     VrmlNodeTexture::initFields(node, t);
     initFieldsHelper(node, t,
-                     exposedField("loop", node->d_loop),
-                     exposedField("speed", node->d_speed),
-                     exposedField("startTime", node->d_startTime),
-                     exposedField("stopTime", node->d_stopTime),
-                     exposedField("url", node->d_url),
-                     field("repeatS", node->d_repeatS),
-                    field("repeatT", node->d_repeatT),
-                    field("blendMode", node->d_blendMode),
-                    field("environment", node->d_environment),
-                    field("anisotropy", node->d_anisotropy),
-                    field("filter", node->d_filter));
+                     exposedField("loop", &VrmlNodeMovieTexture::d_loop),
+                     exposedField("speed", &VrmlNodeMovieTexture::d_speed),
+                     exposedField("startTime", &VrmlNodeMovieTexture::d_startTime),
+                     exposedField("stopTime", &VrmlNodeMovieTexture::d_stopTime),
+                     exposedField("url", &VrmlNodeMovieTexture::d_url),
+                     field("repeatS", &VrmlNodeMovieTexture::d_repeatS),
+                    field("repeatT", &VrmlNodeMovieTexture::d_repeatT),
+                    field("blendMode", &VrmlNodeMovieTexture::d_blendMode),
+                    field("environment", &VrmlNodeMovieTexture::d_environment),
+                    field("anisotropy", &VrmlNodeMovieTexture::d_anisotropy),
+                    field("filter", &VrmlNodeMovieTexture::d_filter));
                     
     if (t)
     {

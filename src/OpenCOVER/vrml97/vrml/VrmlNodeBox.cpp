@@ -25,7 +25,7 @@ void VrmlNodeBox::initFields(VrmlNodeBox *node, VrmlNodeType *t)
 {
     VrmlNodeGeometry::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-                     field("size", node->d_size));
+                     field("size", &VrmlNodeBox::d_size));
 }
 
 const char *VrmlNodeBox::typeName() 
