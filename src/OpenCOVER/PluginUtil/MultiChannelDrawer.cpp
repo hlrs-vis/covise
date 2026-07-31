@@ -576,7 +576,7 @@ void MultiChannelDrawer::swapFrame() {
       if (!haveEye(vd.eye))
           continue;
 
-#ifdef HAVE_CUDA
+#ifdef _NOT_NEEDED_HAVE_CUDA // texture2d dirty is not available, you have to dirty the image instead as done below.
       if (m_useCuda)
       {
           vd.colorTex->dirtyTextureObject();
