@@ -14,6 +14,7 @@
 #include <cover/VRSceneGraph.h>
 #include <osg/Vec3>
 #include <osgDB/FileNameUtils>
+#include <regex>
 
 #include "traffic_utils.h"
 #include "Traffic.h"
@@ -22,6 +23,14 @@ using namespace opencover;
 
 constexpr double LOD_RANGE = 500;
 constexpr double LOD_RANGE_ANIMATED = 150;
+
+#define _REGEX_FLAGS std::regex_constants::ECMAScript | std::regex_constants::icase
+static std::regex regexIdle("idle|stand(ing)?", _REGEX_FLAGS);
+static std::regex regexSlow("stru[dt]", _REGEX_FLAGS);
+static std::regex regexWalk("walk(ing)?", _REGEX_FLAGS);
+static std::regex regexRun("jog(ging)?", _REGEX_FLAGS);
+static std::regex regexLook("look(ing)?", _REGEX_FLAGS);
+static std::regex regexWave("wav(e|ing)", _REGEX_FLAGS);
 
 osg::ref_ptr<osgCal::CoreModel> PedestrianGeometry::loadFile(const std::string &file)
 {
@@ -82,7 +91,7 @@ PedestrianGeometry::PedestrianGeometry(Vehicle &vehicle, osg::Group *parentNode)
     lodNode = new osg::LOD();
     transformNode->addChild(lodNode);
 
-    auto coreModel = loadFile(vehicle.model->path);
+    coreModel = loadFile(vehicle.model->path);
     if (coreModel)
     {
         auto meshAdder = new osgCal::DefaultMeshAdder();
@@ -90,10 +99,13 @@ PedestrianGeometry::PedestrianGeometry(Vehicle &vehicle, osg::Group *parentNode)
         model->load(coreModel, meshAdder);
         model->setNodeMask(model->getNodeMask() & ~Isect::Update); // we update ourselves
 
+        identifyAnimations(vehicle.model->path);
+
         meshAdder = new osgCal::DefaultMeshAdder();
         staticModel = new osgCal::Model();
         staticModel->load(coreModel, meshAdder);
-        staticModel->blendCycle(ANIMATION_INDEX_IDLE, 1.0, 0.0, 0.0);
+        if (animationIndexIdle > 0)
+            staticModel->blendCycle(animationIndexIdle, 1.0, 0.0, 0.0);
 
         // TODO: maybe randomize lod range a little to "fade" crowds in?
         lodNode->addChild(addScaleNode(model, vehicle.model->scale), 0.0, LOD_RANGE_ANIMATED);
@@ -106,6 +118,38 @@ PedestrianGeometry::PedestrianGeometry(Vehicle &vehicle, osg::Group *parentNode)
 PedestrianGeometry::~PedestrianGeometry()
 {
     removeFromSceneGraph();
+}
+
+void PedestrianGeometry::identifyAnimations(std::string_view filename)
+{
+    const auto names = coreModel->getAnimationNames();
+    for (size_t i = 0; i < names.size(); i++)
+    {
+        std::string name = names[i];
+
+        if (animationIndexIdle == -1 && std::regex_search(name, regexIdle))
+            animationIndexIdle = i;
+        else if (animationIndexSlow == -1 && std::regex_search(name, regexSlow))
+            animationIndexSlow = i;
+        else if (animationIndexWalk == -1 && std::regex_search(name, regexWalk))
+            animationIndexWalk = i;
+        else if (animationIndexRun == -1 && std::regex_search(name, regexRun))
+            animationIndexRun = i;
+        else if (animationIndexLook == -1 && std::regex_search(name, regexLook))
+            animationIndexLook = i;
+        else if (animationIndexWave == -1 && std::regex_search(name, regexWave))
+            animationIndexWave = i;
+        else
+        {
+            std::cout << "Unidentified animation name: " << name << " (" << filename << ")" << std::endl;
+        }
+    }
+
+    if (animationIndexIdle == -1)
+    {
+        std::cout << "Idle animation not found for model " << filename << ", using first animation." << std::endl;
+        animationIndexIdle = 0;
+    }
 }
 
 void PedestrianGeometry::removeFromSceneGraph()
@@ -158,10 +202,14 @@ void PedestrianGeometry::setWalkingSpeed(double speed)
     double walkAmount = std::min(UC(SPEED_WALK, SPEED_SLOW), UC(SPEED_WALK, SPEED_RUN));
     double runAmount = UC(SPEED_RUN, SPEED_WALK);
 
-    model->blendCycle(ANIMATION_INDEX_IDLE, idleAmount, ANIMATION_BLEND_TIME);
-    model->blendCycle(ANIMATION_INDEX_SLOW, slowAmount, ANIMATION_BLEND_TIME, speed / SPEED_SLOW);
-    model->blendCycle(ANIMATION_INDEX_WALK, walkAmount, ANIMATION_BLEND_TIME, speed / SPEED_WALK);
-    model->blendCycle(ANIMATION_INDEX_RUN, runAmount, ANIMATION_BLEND_TIME, speed / SPEED_RUN);
+    if (animationIndexIdle > 0)
+        model->blendCycle(animationIndexIdle, idleAmount, ANIMATION_BLEND_TIME);
+    if (animationIndexSlow > 0)
+        model->blendCycle(animationIndexSlow, slowAmount, ANIMATION_BLEND_TIME, speed / SPEED_SLOW);
+    if (animationIndexWalk > 0)
+        model->blendCycle(animationIndexWalk, walkAmount, ANIMATION_BLEND_TIME, speed / SPEED_WALK);
+    if (animationIndexRun > 0)
+        model->blendCycle(animationIndexRun, runAmount, ANIMATION_BLEND_TIME, speed / SPEED_RUN);
 
     // TODO: can we let bicycles roll out without pedaling when they are slowing down?
 }

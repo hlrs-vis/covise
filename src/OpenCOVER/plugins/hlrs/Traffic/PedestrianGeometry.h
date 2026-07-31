@@ -18,13 +18,6 @@
 
 #include "Geometry.h"
 
-constexpr int ANIMATION_INDEX_IDLE = 0;
-constexpr int ANIMATION_INDEX_SLOW = 1;
-constexpr int ANIMATION_INDEX_WALK = 2;
-constexpr int ANIMATION_INDEX_RUN = 3;
-constexpr int ANIMATION_INDEX_LOOK = 4;
-constexpr int ANIMATION_INDEX_WAVE = 5;
-
 constexpr double SPEED_IDLE = 0.0f;
 constexpr double SPEED_SLOW = 0.6f;
 constexpr double SPEED_WALK = 1.5f;
@@ -41,6 +34,7 @@ public:
     ~PedestrianGeometry();
 
     void update(double deltaTime, double simulationDeltaTime) override;
+    void identifyAnimations(std::string_view filename);
 
 protected:
     Vehicle &vehicle;
@@ -57,12 +51,20 @@ protected:
 
     std::string geometryName;
 
+    osg::ref_ptr<osgCal::CoreModel> coreModel;
     osg::ref_ptr<osg::Group> groupNode;
     osg::ref_ptr<osg::MatrixTransform> transformNode;
     osg::ref_ptr<osg::LOD> lodNode;
 
     osg::ref_ptr<osgCal::Model> model;
     osg::ref_ptr<osgCal::Model> staticModel;
+
+    int animationIndexIdle = -1;
+    int animationIndexSlow = -1;
+    int animationIndexWalk = -1;
+    int animationIndexRun = -1;
+    int animationIndexLook = -1;
+    int animationIndexWave = -1;
 };
 
 #endif
