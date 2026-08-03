@@ -9,15 +9,15 @@ using namespace vrml;
 void VrmlNodeThermal::initFields(VrmlNodeThermal *node, VrmlNodeType *t)
 {
     initFieldsHelper(node, t,
-        exposedField("direction", node->d_direction),
-        exposedField("location", node->d_location),
-        exposedField("maxBack", node->d_maxBack),
-        exposedField("maxFront", node->d_maxFront),
-        exposedField("minBack", node->d_minBack),
-        exposedField("minFront", node->d_minFront),
-        exposedField("height", node->d_height),
-        exposedField("velocity", node->d_velocity),
-        exposedField("turbulence", node->d_turbulence));
+        exposedField("direction", &VrmlNodeThermal::d_direction),
+        exposedField("location", &VrmlNodeThermal::d_location),
+        exposedField("maxBack", &VrmlNodeThermal::d_maxBack),
+        exposedField("maxFront", &VrmlNodeThermal::d_maxFront),
+        exposedField("minBack", &VrmlNodeThermal::d_minBack),
+        exposedField("minFront", &VrmlNodeThermal::d_minFront),
+        exposedField("height", &VrmlNodeThermal::d_height),
+        exposedField("velocity", &VrmlNodeThermal::d_velocity),
+        exposedField("turbulence", &VrmlNodeThermal::d_turbulence));
 }
 
 const char *VrmlNodeThermal::typeName()
