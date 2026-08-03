@@ -55,7 +55,7 @@ TrajectoryPoint::TrajectoryPoint(Trajectory *trajectory_)
         i++;
     }
 
-    sensor = new SelectableSensor(&(AuralRealityPlugin::instance()->selection()), trajectory, groupNode.get());
+    sensor = new SelectableSensor(&(AuralRealityPlugin::instance()->selection()), this, groupNode.get());
 
     updateSelection();
 }

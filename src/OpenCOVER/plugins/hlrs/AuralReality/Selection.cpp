@@ -32,9 +32,11 @@ void Selection::selectSingle(Selectable *selectable)
         if (i != selectable)
         {
             i->deselect();
-            m_selected.erase(i);
         }
     }
+
+    std::erase_if(m_selected, [&](Selectable *i)
+        { return i != selectable; });
 
     addToSelection(selectable);
 }
@@ -87,7 +89,7 @@ SelectableSensor::~SelectableSensor()
 }
 void SelectableSensor::activate()
 {
-    selection->addToSelection(selectable);
+    selection->selectSingle(selectable);
 }
 
 void SelectableSensor::disactivate()

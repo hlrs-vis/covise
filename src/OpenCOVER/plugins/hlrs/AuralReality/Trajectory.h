@@ -76,13 +76,13 @@ public:
 
     virtual void updateSelection()
     {
-        for (auto &p : points)
-        {
-            if (isSelected())
-                p->select();
-            else
-                p->deselect();
-        }
+        // for (auto &p : points)
+        // {
+        //     if (isSelected())
+        //         p->select();
+        //     else
+        //         p->deselect();
+        // }
     }
 
     void pointChanged();

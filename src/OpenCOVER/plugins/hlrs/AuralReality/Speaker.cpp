@@ -92,12 +92,10 @@ void Speaker::updateSelection()
     {
         interactor.show();
         interactor.enableIntersection();
-        interactor.attach(icon);
     }
     else
     {
         interactor.hide();
         interactor.disableIntersection();
-        interactor.detach();
     }
 }
