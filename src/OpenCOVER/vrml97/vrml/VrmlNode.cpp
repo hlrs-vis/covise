@@ -112,9 +112,9 @@ private:
     };
     template<typename VrmlType>
     struct VrmlTypeStruct : public VrmlTypeStructBase{
-        VrmlTypeStruct(const std::string &name, const VrmlNode::VrmlFieldGetter<VrmlType> &getField, const VrmlNode::FieldUpdateCallback<VrmlType> &updateCb)
+        VrmlTypeStruct(const std::string &name, VrmlType *field, const VrmlNode::FieldUpdateCallback<VrmlType> &updateCb)
         : VrmlTypeStructBase(name)
-        , m_getField(getField)
+        , m_field(field)
         , m_updateCb(updateCb)
         {}
         
@@ -125,7 +125,7 @@ private:
                     fieldValue.fieldTypeName(), name.c_str());
                 return;
             }
-            *m_getField(node) = *val;
+            *m_field = *val;
             initialized = true;
             if(m_updateCb){
                 m_updateCb(val);
@@ -133,20 +133,19 @@ private:
         }
 
         const VrmlField *getField(VrmlNode *node) const override {
-            return m_getField(node);
+            return m_field;
         }
 
         void print(VrmlNode *node, std::ostream &os) const override {
-            os << *m_getField(node);
+            os << *m_field;
         }
 
         std::unique_ptr<VrmlTypeStructBase> copy() const override {
             return std::make_unique<VrmlTypeStruct<VrmlType>>(*this);
         }
         //use pointers to avoid memory overhead for arrays
-        VrmlNode::VrmlFieldGetter<VrmlType> m_getField;
+        VrmlType *m_field = nullptr;
         VrmlNode::FieldUpdateCallback<VrmlType> m_updateCb;
-        // const VrmlType defaultValue;
     };
 
     std::vector<std::unique_ptr<VrmlTypeStructBase>> m_fields;
@@ -185,17 +184,17 @@ public:
     }
 
     template<typename VrmlType>
-    void registerField(const std::string& name, const VrmlNode::VrmlFieldGetter<VrmlType> &getField, const VrmlNode::FieldUpdateCallback<VrmlType> &updateCb = VrmlNode::FieldUpdateCallback<VrmlType>{}){
+    void registerField(const std::string& name, VrmlType *field, const VrmlNode::FieldUpdateCallback<VrmlType> &updateCb = VrmlNode::FieldUpdateCallback<VrmlType>{}){
         auto it = std::find_if(m_fields.begin(), m_fields.end(), [&name](const auto& f){
             return f->name == name;
         });
         if(it != m_fields.end()){
             VrmlTypeStructBase* base = it->get();
             auto v = dynamic_cast<VrmlTypeStruct<VrmlType>*>(base);
-            v->m_getField = getField;
+            v->m_field = field;
             v->m_updateCb = updateCb;
         } else
-            m_fields.push_back(std::make_unique<VrmlTypeStruct<VrmlType>>(name, getField, updateCb));
+            m_fields.push_back(std::make_unique<VrmlTypeStruct<VrmlType>>(name, field, updateCb));
     }
 
     bool initialized(const std::string& name){
@@ -894,9 +893,9 @@ bool VrmlNode::isOnStack(VrmlNode *node)
 }
 
 template<typename VrmlType>
-void VrmlNode::registerField(VrmlNode *node, const std::string& name, const VrmlFieldGetter<VrmlType> &getField, const FieldUpdateCallback<VrmlType> &updateCb)
+void VrmlNode::registerField(VrmlNode *node, const std::string& name, VrmlType *field, const FieldUpdateCallback<VrmlType> &updateCb)
 {
-    return node->m_impl->registerField<VrmlType>(name, getField, updateCb);
+    return node->m_impl->registerField<VrmlType>(name, field, updateCb);
 }
 
 template <typename VrmlType>
@@ -909,44 +908,68 @@ void addExposedField(VrmlNodeType *t, const std::string &name, VrmlType &field) 
     t->addExposedField(name.c_str(), toEnumType<std::remove_reference_t<VrmlType>>());
 }
 //todo: make them one template
-template <typename VrmlType>
-void VrmlNode::initFieldsHelperImpl(VrmlNode *node, VrmlNodeType *t, const NameValueStruct<VrmlType, FieldAccessibility::Private> &field)
-{
-    if (node)
-        registerField(node, field.name, field.getValue, field.updateCb);
-    if (t)
-        t->addField(field.name.c_str(), toEnumType<std::remove_reference_t<VrmlType>>());
+
+
+template<VrmlNode::FieldAccessibility FT>
+void VrmlNode::addField(VrmlNodeType *t, const std::string &name, VrmlField::VrmlFieldType type) {
+    if constexpr (FT == VrmlNode::FieldAccessibility::Private) {
+        t->addField(name.c_str(), type);
+    } else if constexpr (FT == VrmlNode::FieldAccessibility::Exposed) {
+        t->addExposedField(name.c_str(), type);
+    } else if constexpr (FT == VrmlNode::FieldAccessibility::EventIn) {
+        t->addEventIn(name.c_str(), type);
+    } else if constexpr (FT == VrmlNode::FieldAccessibility::EventOut) {
+        t->addEventOut(name.c_str(), type);
+    }
 }
 
-template <typename VrmlType>
-void VrmlNode::initFieldsHelperImpl(VrmlNode *node, VrmlNodeType *t, const NameValueStruct<VrmlType, FieldAccessibility::Exposed> &field)
+template <typename VrmlType, VrmlNode::FieldAccessibility FT>
+void VrmlNode::initFieldsHelperImpl(VrmlNode *node, VrmlNodeType *t, const NameValueStruct<VrmlType, FT> &field)
 {
     if (node)
-        registerField(node, field.name, field.getValue, field.updateCb);
+        registerField(node, field.name, field.getValue ?  field.getValue(node) : nullptr, field.updateCb);
     if (t)
-        t->addExposedField(field.name.c_str(), toEnumType<std::remove_reference_t<VrmlType>>());
+        addField<FT>(t, field.name, toEnumType<VrmlType>());
 }
 
-template <typename VrmlType>
-void VrmlNode::initFieldsHelperImpl(VrmlNode *node, VrmlNodeType *t, const NameValueStruct<VrmlType, FieldAccessibility::EventIn> &field)
-{
-    if (node)
-        registerField(node, field.name, field.getValue, field.updateCb);
-    if (t)
-        t->addEventIn(field.name.c_str(), toEnumType<VrmlType>());
-}
+// template <typename VrmlType>
+// void VrmlNode::initFieldsHelperImpl(VrmlNode *node, VrmlNodeType *t, const NameValueStruct<VrmlType, FieldAccessibility::Private> &field)
+// {
+//     if (node)
+//         registerField(node, field.name, field.getValue(node), field.updateCb);
+//     if (t)
+//         t->addField(field.name.c_str(), toEnumType<std::remove_reference_t<VrmlType>>());
+// }
 
-template <typename VrmlType>
-void VrmlNode::initFieldsHelperImpl(VrmlNode *node, VrmlNodeType *t, const NameValueStruct<VrmlType, FieldAccessibility::EventOut> &field)
-{
-    if (node)
-        registerField(node, field.name, field.getValue, field.updateCb);
-    if (t)
-        t->addEventOut(field.name.c_str(), toEnumType<VrmlType>());
-}
+// template <typename VrmlType>
+// void VrmlNode::initFieldsHelperImpl(VrmlNode *node, VrmlNodeType *t, const NameValueStruct<VrmlType, FieldAccessibility::Exposed> &field)
+// {
+//     if (node)
+//         registerField(node, field.name, field.getValue(node), field.updateCb);
+//     if (t)
+//         t->addExposedField(field.name.c_str(), toEnumType<std::remove_reference_t<VrmlType>>());
+// }
+
+// template <typename VrmlType>
+// void VrmlNode::initFieldsHelperImpl(VrmlNode *node, VrmlNodeType *t, const NameValueStruct<VrmlType, FieldAccessibility::EventIn> &field)
+// {
+//     if (node)
+//         registerField(node, field.name, field.getValue ?  field.getValue(node) : nullptr, field.updateCb);
+//     if (t)
+//         t->addEventIn(field.name.c_str(), toEnumType<VrmlType>());
+// }
+
+// template <typename VrmlType>
+// void VrmlNode::initFieldsHelperImpl(VrmlNode *node, VrmlNodeType *t, const NameValueStruct<VrmlType, FieldAccessibility::EventOut> &field)
+// {
+//     if (node)
+//         registerField(node, field.name, field.getValue(node), field.updateCb);
+//     if (t)
+//         t->addEventOut(field.name.c_str(), toEnumType<VrmlType>());
+// }
 
 #define VRMLNODECHILD2_TEMPLATE_IMPL(VrmlType) \
-template void VRMLEXPORT VrmlNode::registerField<VrmlType>(VrmlNode *node, const std::string& name, const VrmlFieldGetter<VrmlType> &getField, const FieldUpdateCallback<VrmlType> &updateCb);
+template void VRMLEXPORT VrmlNode::registerField<VrmlType>(VrmlNode *node, const std::string& name, VrmlType *field, const FieldUpdateCallback<VrmlType> &updateCb);
 FOR_ALL_VRML_TYPES(VRMLNODECHILD2_TEMPLATE_IMPL)
 
 #define TO_VRML_FIELD_TYPES_IMPL(VrmlType) \
