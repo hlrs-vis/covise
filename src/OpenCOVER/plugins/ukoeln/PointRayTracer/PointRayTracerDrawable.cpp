@@ -13,8 +13,6 @@
 
 #include <PluginUtil/MultiChannelDrawer.h>
 
-using namespace visionaray;
-
 visionaray::mat4 osg_cast(osg::Matrixd const &m)
 {
     float arr[16];
@@ -22,12 +20,12 @@ visionaray::mat4 osg_cast(osg::Matrixd const &m)
     return visionaray::mat4(arr);
 }
 
-struct RenderTarget : render_target, opencover::MultiChannelDrawer
+struct RenderTarget : visionaray::render_target, opencover::MultiChannelDrawer
 {
-    using ref_type = render_target_ref<PF_RGBA8, PF_DEPTH32F>;
-    using color_type = typename pixel_traits<PF_RGBA8>::type;
-    using depth_type = typename pixel_traits<PF_DEPTH32F>::type;
-    using accum_type = typename pixel_traits<PF_UNSPECIFIED>::type;
+    using ref_type = visionaray::render_target_ref<visionaray::PF_RGBA8, visionaray::PF_DEPTH32F>;
+    using color_type = typename visionaray::pixel_traits<visionaray::PF_RGBA8>::type;
+    using depth_type = typename visionaray::pixel_traits<visionaray::PF_DEPTH32F>::type;
+    using accum_type = typename visionaray::pixel_traits<visionaray::PF_UNSPECIFIED>::type;
 
     RenderTarget(bool cuda=false) : MultiChannelDrawer(false, cuda)
     {
@@ -196,7 +194,7 @@ void PointRayTracerDrawable::expandBoundingSphere(osg::BoundingSphere &bs)
     if (!m_impl->host_bvh_vector)
         return;
 
-    aabb bounds(vec3(std::numeric_limits<float>::max()), -vec3(std::numeric_limits<float>::max()));
+    visionaray::aabb bounds(visionaray::vec3(std::numeric_limits<float>::max()), -visionaray::vec3(std::numeric_limits<float>::max()));
 
     for(int i = 0; i < m_impl->host_bvh_vector->size(); i++){
 
