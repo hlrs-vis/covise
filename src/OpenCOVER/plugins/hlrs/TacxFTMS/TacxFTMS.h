@@ -56,7 +56,7 @@ struct FTMSControlData
 
 struct AlpineData
 {
-    float steering_angle;
+    float steering_angle = 0.0;
 };
 
 #pragma pack(pop)
