@@ -54,6 +54,14 @@
       }
     },
     {
+      "name": "clang-cl",
+      "hidden": true,
+      "cacheVariables": { 
+        "CMAKE_C_COMPILER": "clang-cl",
+        "CMAKE_CXX_COMPILER": "clang-cl" 
+      }
+    },
+    {
       "name": "lld",
       "hidden": true,
       "displayName": "Use LLD Linker",
@@ -61,6 +69,16 @@
         "CMAKE_LINKER_TYPE": "LLD",
         "CMAKE_C_USING_LINKER_LLD": "-fuse-ld=lld",
         "CMAKE_CXX_USING_LINKER_LLD": "-fuse-ld=lld"
+      }
+    },
+    {
+      "name": "lld-win",
+      "hidden": true,
+      "displayName": "Use LLD Linker clang-cl",
+      "cacheVariables": {
+        "CMAKE_EXE_LINKER_FLAGS": "/lld",
+        "CMAKE_SHARED_LINKER_FLAGS": "/lld",
+        "CMAKE_MODULE_LINKER_FLAGS": "/lld"
       }
     },
     {
@@ -93,9 +111,14 @@
       "inherits": [ "msvc-buildtools-18"]
     },
     {
+      "name": "msvc_18_buildtools-clang",
+      "displayName": "MSVC 18 Buildtools with clang-cl",
+      "inherits": [ "msvc-buildtools-18", "clang-cl"]
+    },
+    {
       "name": "msvc_18_buildtools-llvm",
-      "displayName": "MSVC 18 Buildtools with LLVM (clang, lld)",
-      "inherits": [ "msvc-buildtools-18", "clang", "lld"]
+      "displayName": "MSVC 18 Buildtools with LLVM (clang-cl, lld)",
+      "inherits": [ "msvc-buildtools-18", "clang-cl", "lld-win"]
     }
   ],
   "buildPresets": [
