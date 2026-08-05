@@ -88,8 +88,14 @@
       "inherits": [ "ninja", "gcc", "ccache"]
     },
     {
-      "name": "msvc-18",
+      "name": "msvc_18_buildtools",
+      "displayName": "MSVC 18 Buildtools",
       "inherits": [ "msvc-buildtools-18"]
+    },
+    {
+      "name": "msvc_18_buildtools-llvm",
+      "displayName": "MSVC 18 Buildtools with LLVM (clang, lld)",
+      "inherits": [ "msvc-buildtools-18", "clang", "lld"]
     }
   ],
   "buildPresets": [
@@ -109,18 +115,33 @@
       "configuration": "RelWithDebInfo"
     },
     {
-      "name": "msvc-18-relwithdeb-build",
-      "configurePreset": "msvc-18",
+      "name": "msvc_18-relwithdeb-build",
+      "configurePreset": "msvc_18_buildtools",
       "configuration": "RelWithDebInfo"
     },
     {
-      "name": "msvc-18-release-build",
-      "configurePreset": "msvc-18",
+      "name": "msvc_18-release-build",
+      "configurePreset": "msvc_18_buildtools",
       "configuration": "Release"
     },
     {
-      "name": "msvc-18-debug-build",
-      "configurePreset": "msvc-18",
+      "name": "msvc_18-debug-build",
+      "configurePreset": "msvc_18_buildtools",
+      "configuration": "Debug"
+    },
+    {
+      "name": "msvc_18-llvm-relwithdeb-build",
+      "configurePreset": "msvc_18_buildtools-llvm",
+      "configuration": "RelWithDebInfo"
+    },
+    {
+      "name": "msvc_18-llvm-release-build",
+      "configurePreset": "msvc_18_buildtools-llvm",
+      "configuration": "Release"
+    },
+    {
+      "name": "msvc_18-llvm-debug-build",
+      "configurePreset": "msvc_18_buildtools-llvm",
       "configuration": "Debug"
     }
   ]
