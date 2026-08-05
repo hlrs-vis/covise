@@ -20,6 +20,16 @@
       }
     },
     {
+      "name": "msvc-buildtools-18",
+      "generator": "Visual Studio 18 2026",
+      "hidden": true,
+      "displayName": "Use MSVC Build Tools 18",
+      "binaryDir": "${sourceDir}/build/msvc-buildtools-18",
+      "cacheVariables": {
+        "CMAKE_CONFIGURATION_TYPES": "Debug;Release;RelWithDebInfo"
+      }
+    },
+    {
       "name": "ccache",
       "hidden": true,
       "cacheVariables": { 
@@ -76,8 +86,11 @@
     {
       "name": "ninja-ccache-gcc",
       "inherits": [ "ninja", "gcc", "ccache"]
+    },
+    {
+      "name": "msvc-18",
+      "inherits": [ "msvc-buildtools-18"]
     }
-
   ],
   "buildPresets": [
     {
@@ -94,6 +107,21 @@
       "name": "relwithdeb-build",
       "configurePreset": "ninja-multi-ccache-clang-lld",
       "configuration": "RelWithDebInfo"
+    },
+    {
+      "name": "msvc-18-relwithdeb-build",
+      "configurePreset": "msvc-18",
+      "configuration": "RelWithDebInfo"
+    },
+    {
+      "name": "msvc-18-release-build",
+      "configurePreset": "msvc-18",
+      "configuration": "Release"
+    },
+    {
+      "name": "msvc-18-debug-build",
+      "configurePreset": "msvc-18",
+      "configuration": "Debug"
     }
   ]
 }
