@@ -117,32 +117,38 @@
     {
       "name": "msvc_18-relwithdeb-build",
       "configurePreset": "msvc_18_buildtools",
-      "configuration": "RelWithDebInfo"
+      "configuration": "RelWithDebInfo",
+      "jobs": 0
     },
     {
       "name": "msvc_18-release-build",
       "configurePreset": "msvc_18_buildtools",
-      "configuration": "Release"
+      "configuration": "Release",
+      "jobs": 0
     },
     {
       "name": "msvc_18-debug-build",
       "configurePreset": "msvc_18_buildtools",
-      "configuration": "Debug"
+      "configuration": "Debug",
+      "jobs": 0
     },
     {
       "name": "msvc_18-llvm-relwithdeb-build",
       "configurePreset": "msvc_18_buildtools-llvm",
-      "configuration": "RelWithDebInfo"
+      "configuration": "RelWithDebInfo",
+      "jobs": 0
     },
     {
       "name": "msvc_18-llvm-release-build",
       "configurePreset": "msvc_18_buildtools-llvm",
-      "configuration": "Release"
+      "configuration": "Release",
+      "jobs": 0
     },
     {
       "name": "msvc_18-llvm-debug-build",
       "configurePreset": "msvc_18_buildtools-llvm",
-      "configuration": "Debug"
+      "configuration": "Debug",
+      "jobs": 0
     }
   ]
 }
