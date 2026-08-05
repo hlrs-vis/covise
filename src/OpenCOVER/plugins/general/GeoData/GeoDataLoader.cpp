@@ -382,7 +382,6 @@ bool GeoDataLoader::init()
 
     selectionName = new ui::Label(editGroup, "name");
     selectionName->setText("nothing is selected");
-    shader = coVRShaderList::instance()->get("Brightness");
 
     return true;
 }
@@ -414,20 +413,19 @@ void GeoDataLoader::setRegionEnabled(const std::string &region_name, bool enable
     {
         if (loadedTerrains.find(region_name) == loadedTerrains.end() && !region.terrain_path.empty())
         {
-            auto terrainNode = loadTerrain(region.terrain_path, osg::Vec3d(0, 0, 0));
+            auto terrainNode = loadTerrain(region.terrain_path, true);
             if (terrainNode)
             {
                 loadedTerrains[region_name] = terrainNode;
                 terrainRoot->addChild(terrainNode);
                 terrainNode->setName(region_name);
                 terrainNode->setNodeMask(showTerrain ? 0xffffffff : 0x0);
-		shader->apply(terrainNode);
             }
         }
 
         if (loadedBuildings.find(region_name) == loadedBuildings.end() && !region.lod_path.empty())
         {
-            auto buildingNode = loadTerrain(region.lod_path, osg::Vec3d(0, 0, 0));
+            auto buildingNode = loadTerrain(region.lod_path, false);
             if (buildingNode)
             {
                 loadedBuildings[region_name] = buildingNode;
@@ -516,7 +514,7 @@ void GeoDataLoader::message(int toWhom, int type, int length, const void *data)
 {
     const char *messageData = (const char *)data;
     if (type == PluginMessageTypes::LoadTerrain)
-        loadTerrain(messageData + 20, osg::Vec3d(0, 0, 0)); // 20= opencover://terrain/
+        loadTerrain(messageData + 20, true); // 20= opencover://terrain/
     else if (type == PluginMessageTypes::GeoDataSetRegionEnabled)
         setRegionEnabled(std::string(messageData), true);
 }
@@ -657,7 +655,7 @@ GeoDataLoader *GeoDataLoader::instance()
     return s_instance;
 }
 
-osg::ref_ptr<osg::Node> GeoDataLoader::loadTerrain(std::string filename, osg::Vec3d localOffset)
+osg::ref_ptr<osg::Node> GeoDataLoader::loadTerrain(std::string filename, bool isTerrain)
 {
     VRViewer *viewer = VRViewer::instance();
     osgDB::DatabasePager *pager = viewer->getDatabasePager();
@@ -704,8 +702,21 @@ osg::ref_ptr<osg::Node> GeoDataLoader::loadTerrain(std::string filename, osg::Ve
         terrain->setDataVariance(osg::Object::DYNAMIC);
 
         osg::StateSet *terrainStateSet = terrain->getOrCreateStateSet();
-        terrainStateSet->setMode(GL_LIGHTING, osg::StateAttribute::ON);
-        terrainStateSet->setMode(GL_LIGHT0, osg::StateAttribute::ON);
+        terrainStateSet->setMode(GL_LIGHTING, isTerrain ? osg::StateAttribute::OFF : osg::StateAttribute::ON);
+        terrainStateSet->setMode(GL_LIGHT0, isTerrain ? osg::StateAttribute::OFF : osg::StateAttribute::ON);
+
+        if (isTerrain)
+        {
+            osg::Material *material = new osg::Material();
+            material->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+            material->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(1, 1, 1, 1));
+            material->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(0, 0, 0, 1));
+            material->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0, 0, 0, 1));
+            material->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0, 0, 0, 1));
+            material->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
+            material->setAlpha(osg::Material::FRONT_AND_BACK, 1.0f);
+            terrainStateSet->setAttribute(material, osg::StateAttribute::ON);
+        }
 
         terrain->setNodeMask(terrain->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
     }
