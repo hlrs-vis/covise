@@ -31,9 +31,9 @@ void VrmlNodeGeoData::initFields(VrmlNodeGeoData *node, VrmlNodeType *t)
 {
     VrmlNodeChild::initFields(node, t); // Parent class
     initFieldsHelper(node, t,
-        field("offset", &VrmlNodeGeoData::d_offset, [node](auto f)
+        exposedField("offset", &VrmlNodeGeoData::d_offset, [node](auto f)
             { opencover::GeoData::instance()->setProjectOffset(osg::Vec3(node->d_offset.get()[0], node->d_offset.get()[1], node->d_offset.get()[2])); }),
-        field("offsetName", &VrmlNodeGeoData::d_offsetName, [node](auto f)
+        exposedField("offsetName", &VrmlNodeGeoData::d_offsetName, [node](auto f)
             {
         auto loader = GeoDataLoader::instance();
         auto datasets = loader->getDatasets();
@@ -46,7 +46,7 @@ void VrmlNodeGeoData::initFields(VrmlNodeGeoData *node, VrmlNodeType *t)
                 }
                 osg::Vec3 origin = osg::Vec3(dataset->easting, dataset->northing, dataset->altitude);
                 opencover::GeoData::instance()->setProjectOffset(origin); }),
-        field("regions", &VrmlNodeGeoData::d_regions, [node](auto f)
+        exposedField("regions", &VrmlNodeGeoData::d_regions, [node](auto f)
             {
         auto geoData = GeoDataLoader::instance();
         for (int i = 0; i < node->d_regions.size(); i++)
@@ -58,11 +58,11 @@ void VrmlNodeGeoData::initFields(VrmlNodeGeoData *node, VrmlNodeType *t)
             }
             geoData->setRegionEnabled(s, true);
         } }),
-        field("showTerrain", &VrmlNodeGeoData::d_showTerrain, [node](auto f)
-            { GeoDataLoader::instance()->setShowBuildings(node->d_showTerrain.get()); }),
-        field("showLabels", &VrmlNodeGeoData::d_showLabels, [node](auto f)
+        exposedField("showTerrain", &VrmlNodeGeoData::d_showTerrain, [node](const VrmlSFBool *value)
+            { GeoDataLoader::instance()->setShowTerrain(node->d_showTerrain.get()); }),
+        exposedField("showLabels", &VrmlNodeGeoData::d_showLabels, [node](auto f)
             { GeoDataLoader::instance()->setShowLabels(node->d_showLabels.get()); }),
-        field("showBuildings", &VrmlNodeGeoData::d_showBuildings, [node](auto f)
+        exposedField("showBuildings", &VrmlNodeGeoData::d_showBuildings, [node](auto f)
             { GeoDataLoader::instance()->setShowBuildings(node->d_showBuildings.get()); }));
 }
 
