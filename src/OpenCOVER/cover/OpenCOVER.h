@@ -26,6 +26,7 @@
 #include <vrb/client/VrbCredentials.h>
 
 #include <memory>
+#include <array>
 #ifdef HAS_MPI
 #include <mpi.h>
 #ifdef __APPLE__
@@ -112,7 +113,8 @@ public:
     double beginAppTraversal;
     double endAppTraversal;
     double lastUpdateTime = -1.0, lastFrameTime = -1.0;
-    std::deque<double> frameDurations;
+    std::array<double, 20> m_frameDurations;
+    int m_frameDurationIndex;
     void setIgnoreMouseEvents(bool ign)
     {
         ignoreMouseEvents = ign;

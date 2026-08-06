@@ -187,6 +187,7 @@ OpenCOVER *OpenCOVER::s_instance = NULL;
 OpenCOVER::OpenCOVER()
     : m_visPlugin(NULL)
     , m_forceMpi(false)
+    , m_frameDurationIndex(0)
 #ifdef HAS_MPI
     , m_comm(MPI_COMM_WORLD)
 #endif
@@ -1458,16 +1459,16 @@ bool OpenCOVER::frame()
     double frameTime = VRViewer::instance()->elapsedTime();
     double frameDuration = frameTime - lastFrameTime;
     lastFrameTime = frameTime;
-    frameDurations.push_back(frameDuration);
-    if (frameDurations.size() > 20)
-        frameDurations.pop_front();
+
+        m_frameDurations[m_frameDurationIndex] = frameDuration;
+        m_frameDurationIndex = (m_frameDurationIndex + 1) % m_frameDurations.size();
 
     if (VRViewer::instance()->getViewerStats() && VRViewer::instance()->getViewerStats()->collectStats("frame_rate"))
     {
         auto stats = VRViewer::instance()->getViewerStats();
         int fn = VRViewer::instance()->getFrameStamp()->getFrameNumber();
         double maxDuration = -1.;
-        for (auto &d: frameDurations) {
+        for (auto &d: m_frameDurations)
             maxDuration = std::max(maxDuration, d);
         }
         stats->setAttribute(fn, "Max frame duration", maxDuration);
