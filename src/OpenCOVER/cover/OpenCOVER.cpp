@@ -1160,6 +1160,13 @@ bool OpenCOVER::frame()
     //cerr << "-- OpenCOVER::frame" << endl;
 
     DeletionManager::the()->run();
+    auto* viewer = VRViewer::instance();
+    auto* window = VRWindow::instance();
+    auto* input = Input::instance();
+    auto* viewerStats = viewer->getViewerStats();
+    auto* pluginList = coVRPluginList::instance();
+    auto* msController = coVRMSController::instance();
+    auto* sharedStateManager = vrb::SharedStateManager::instance();
 
     bool render = m_renderNext;
     m_renderNext = false;
@@ -1168,21 +1175,20 @@ bool OpenCOVER::frame()
 
     cover->updateTime();
 
-    if (VRViewer::instance()->getViewerStats() && VRViewer::instance()->getViewerStats()->collectStats("frame_rate"))
+    if (viewerStats && viewerStats->collectStats("frame_rate"))
     {
-        auto stats = VRViewer::instance()->getViewerStats();
-        int fn = VRViewer::instance()->getFrameStamp()->getFrameNumber();
-        double updateTime = VRViewer::instance()->elapsedTime();
+        double updateTime = viewer->elapsedTime();
         double deltaUpdateTime = updateTime - lastUpdateTime;
         lastUpdateTime = updateTime;
-        stats->setAttribute(fn, "Update duration", deltaUpdateTime);
-        stats->setAttribute(fn, "Update rate", 1.0/deltaUpdateTime);
+
+        int frameNumber = viewer->getFrameStamp()->getFrameNumber();
+        viewerStats->setAttribute(frameNumber, "Update duration", deltaUpdateTime);
+        viewerStats->setAttribute(frameNumber, "Update rate", 1.0/deltaUpdateTime);
     }
 
-
     // update window size and process events
-    VRWindow::instance()->update();
-    if (VRViewer::instance()->handleEvents())
+    window->update();
+    if (viewer->handleEvents())
     {
         if (cover->debugLevel(4))
             std::cerr << "OpenCOVER::frame: rendering because of mouse input" << std::endl;
@@ -1190,15 +1196,15 @@ bool OpenCOVER::frame()
         render = true;
         m_renderNext = true; // for possible delayed button release
     }
-    if (Input::instance()->update())
+    if (input->update())
     {
         if (cover->debugLevel(4))
             std::cerr << "OpenCOVER::frame: rendering because of input" << std::endl;
         render = true;
     }
-    if (Input::instance()->hasRelative() && Input::instance()->isRelativeValid())
+    if (input->hasRelative() && input->isRelativeValid())
     {
-        const auto &mat = Input::instance()->getRelativeMat();
+        const auto &mat = input->getRelativeMat();
         if (!mat.isIdentity())
         {
             if (cover->debugLevel(4))
@@ -1226,19 +1232,18 @@ bool OpenCOVER::frame()
     VRSceneGraph::instance()->update();
     if (coVRCollaboration::instance()->update())
     {
-        
         if (cover->debugLevel(4))
             std::cerr << "OpenCOVER::frame: rendering because of collaborative action" << std::endl;
         render = true;
     }
-    if (vrb::SharedStateManager::instance())
+    if (sharedStateManager)
     {
-        vrb::SharedStateManager::instance()->frame(cover->frameTime());
+        sharedStateManager->frame(cover->frameTime());
     }
     // update viewer position and channels
     if (cover->isViewerGrabbed())
     {
-        if (coVRPluginList::instance()->viewerGrabber()->updateViewer())
+        if (pluginList->viewerGrabber()->updateViewer())
         {
             if (cover->debugLevel(4))
                 std::cerr << "OpenCOVER::frame: rendering because of plugin updated viewer" << std::endl;
@@ -1247,20 +1252,20 @@ bool OpenCOVER::frame()
     }
     else
     {
-        if (Input::instance()->hasHead() && Input::instance()->isHeadValid())
+        if (input->hasHead() && input->isHeadValid())
         {
             if (cover->debugLevel(4))
                 std::cerr << "OpenCOVER::frame: rendering because of head tracking" << std::endl;
             render = true;
-            VRViewer::instance()->updateViewerMat(Input::instance()->getHeadMat()); // view 0 is the active person, all the others are always the same
+            viewer->updateViewerMat(input->getHeadMat()); // view 0 is the active person, all the others are always the same
             for (int i = 1; i < coVRConfig::instance()->numViews; i++)
             {
-                VRViewer::instance()->updateViewerMat(Input::instance()->getPerson(i)->getHeadMat(), i);
+                viewer->updateViewerMat(input->getPerson(i)->getHeadMat(), i);
             }
 
         }
     }
-    if (VRViewer::instance()->update())
+    if (viewer->update())
     {
         if (cover->debugLevel(4))
             std::cerr << "OpenCOVER::frame: rendering because of VRViewer" << std::endl;
@@ -1304,10 +1309,10 @@ bool OpenCOVER::frame()
         render = true;
     }
 
-	double beginPluginTime = VRViewer::instance()->elapsedTime();
+	double beginPluginTime = viewer->elapsedTime();
     if (frameNum > 2)
     {
-        if (coVRPluginList::instance()->update())
+        if (pluginList->update())
         {
             if (cover->debugLevel(4))
                 std::cerr << "OpenCOVER::frame: rendering because of plugins" << std::endl;
@@ -1319,14 +1324,14 @@ bool OpenCOVER::frame()
         render = true;
     }
 
-    if (VRViewer::instance()->getRunFrameScheme() != osgViewer::Viewer::ON_DEMAND)
+    if (viewer->getRunFrameScheme() != osgViewer::Viewer::ON_DEMAND)
     {
         if (cover->debugLevel(4))
             std::cerr << "OpenCOVER::frame: rendering because getRunFrameScheme()!=ON_DEMAND" << std::endl;
         render = true;
     }
 
-    if (VRViewer::instance()->checkNeedToDoFrame())
+    if (viewer->checkNeedToDoFrame())
     {
         if (cover->debugLevel(4))
             std::cerr << "OpenCOVER::frame: rendering because checkNeedToDoFrame()==true" << std::endl;
@@ -1340,14 +1345,14 @@ bool OpenCOVER::frame()
         render = true;
     }
 
-    if (coVRMSController::instance()->syncVRBMessages())
+    if (msController->syncVRBMessages())
     {
         if (cover->debugLevel(4))
             std::cerr << "OpenCOVER::frame: rendering because of VRB message" << std::endl;
         render = true;
     }
 
-    render = coVRMSController::instance()->syncBool(render);
+    render = msController->syncBool(render);
     if (!render)
     {
         int maxfd = -1;
@@ -1367,7 +1372,7 @@ bool OpenCOVER::frame()
                 std::cerr << "OpenCOVER::frame: rendering because of filedescriptor activity" << std::endl;
             render = true;
         }
-        render = coVRMSController::instance()->syncBool(render);
+        render = msController->syncBool(render);
     }
 
     if (!render)
@@ -1377,22 +1382,24 @@ bool OpenCOVER::frame()
 
     if (frameNum > 2)
     {
-        double beginPreFrameTime = VRViewer::instance()->elapsedTime();
+        double beginPreFrameTime = viewer->elapsedTime();
 
         // call preFrame for all plugins
-        coVRPluginList::instance()->preFrame();
+        pluginList->preFrame();
 
-        if (VRViewer::instance()->getViewerStats() && VRViewer::instance()->getViewerStats()->collectStats("plugin"))
+        if (viewerStats && viewerStats->collectStats("plugin"))
         {
-            int fn = VRViewer::instance()->getFrameStamp()->getFrameNumber();
-            double endTime = VRViewer::instance()->elapsedTime();
-            VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin begin time", beginPluginTime);
-            VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin end time", endTime);
-            VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin time taken", endTime - beginPluginTime);
+            int fn = viewer->getFrameStamp()->getFrameNumber();
+            double endTime = viewer->elapsedTime();
 
-            VRViewer::instance()->getViewerStats()->setAttribute(fn, "preframe begin time", beginPreFrameTime);
-            VRViewer::instance()->getViewerStats()->setAttribute(fn, "preframe end time", endTime);
-            VRViewer::instance()->getViewerStats()->setAttribute(fn, "preframe time taken", endTime - beginPreFrameTime);
+            int frameNumber = viewer->getFrameStamp()->getFrameNumber();
+            viewerStats->setAttribute(frameNumber, "Plugin begin time", beginPluginTime);
+            viewerStats->setAttribute(frameNumber, "Plugin end time", endTime);
+            viewerStats->setAttribute(frameNumber, "Plugin time taken", endTime - beginPluginTime);
+
+            viewerStats->setAttribute(frameNumber, "preframe begin time", beginPreFrameTime);
+            viewerStats->setAttribute(frameNumber, "preframe end time", endTime);
+            viewerStats->setAttribute(frameNumber, "preframe time taken", endTime - beginPreFrameTime);
         }
     }
     MarkerTracking::instance()->update();
@@ -1410,7 +1417,7 @@ bool OpenCOVER::frame()
     if (sum_time > 5.0)
     {
 
-        if (!coVRMSController::instance()->isSlave())
+        if (!msController->isSlave())
         {
             if (printFPS)
             {
@@ -1424,11 +1431,11 @@ bool OpenCOVER::frame()
     }
     old_fl_time = fl_time;
 
-    coVRMSController::instance()->barrierApp(frameNum++);
+    msController->barrierApp(frameNum++);
 
     // NO MODIFICATION OF SCENEGRAPH DATA AFTER THIS POINT
 
-    if (coVRMSController::instance()->isMaster() && cover->frameRealTime() < Input::instance()->mouse()->eventTime() + 1.5)
+    if (msController->isMaster() && cover->frameRealTime() < input->mouse()->eventTime() + 1.5)
     {
         cover->setCursorVisible(coVRConfig::instance()->mouseNav());
     }
@@ -1439,39 +1446,37 @@ bool OpenCOVER::frame()
 
     coVRShaderList::instance()->update();
 
-    if (VRViewer::instance()->getViewerStats() && VRViewer::instance()->getViewerStats()->collectStats("opencover"))
+    if (viewerStats && viewerStats->collectStats("opencover"))
     {
-        int fn = VRViewer::instance()->getFrameStamp()->getFrameNumber();
-        endAppTraversal = VRViewer::instance()->elapsedTime();
-        VRViewer::instance()->getViewerStats()->setAttribute(fn, "opencover begin time", beginAppTraversal);
-        VRViewer::instance()->getViewerStats()->setAttribute(fn, "opencover end time", endAppTraversal);
-        VRViewer::instance()->getViewerStats()->setAttribute(fn, "opencover time taken", endAppTraversal - beginAppTraversal);
+        endAppTraversal = viewer->elapsedTime();
+        int frameNumber = viewer->getFrameStamp()->getFrameNumber();
+        viewerStats->setAttribute(frameNumber, "opencover begin time", beginAppTraversal);
+        viewerStats->setAttribute(frameNumber, "opencover end time", endAppTraversal);
+        viewerStats->setAttribute(frameNumber, "opencover time taken", endAppTraversal - beginAppTraversal);
         // update current frames stats
     }
-    VRViewer::instance()->frame();
-    beginAppTraversal = VRViewer::instance()->elapsedTime();
+    viewer->frame();
+    beginAppTraversal = viewer->elapsedTime();
     if (frameNum > 2)
-        coVRPluginList::instance()->postFrame();
+        pluginList->postFrame();
 
     if (hud->update())
         m_renderNext = true;
 
-    double frameTime = VRViewer::instance()->elapsedTime();
-    double frameDuration = frameTime - lastFrameTime;
-    lastFrameTime = frameTime;
+    if (viewerStats && viewerStats->collectStats("frame_rate"))
+    {
+        double frameTime = viewer->elapsedTime();
+        double frameDuration = frameTime - lastFrameTime;
+        lastFrameTime = frameTime;
 
         m_frameDurations[m_frameDurationIndex] = frameDuration;
         m_frameDurationIndex = (m_frameDurationIndex + 1) % m_frameDurations.size();
 
-    if (VRViewer::instance()->getViewerStats() && VRViewer::instance()->getViewerStats()->collectStats("frame_rate"))
-    {
-        auto stats = VRViewer::instance()->getViewerStats();
-        int fn = VRViewer::instance()->getFrameStamp()->getFrameNumber();
         double maxDuration = -1.;
         for (auto &d: m_frameDurations)
             maxDuration = std::max(maxDuration, d);
-        }
-        stats->setAttribute(fn, "Max frame duration", maxDuration);
+
+        viewerStats->setAttribute(viewer->getFrameStamp()->getFrameNumber(), "Max frame duration", maxDuration);
     }
 
     //cerr << "OpenCOVER::frame EMD " << frameCount << endl;
