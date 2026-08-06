@@ -187,7 +187,6 @@ OpenCOVER *OpenCOVER::s_instance = NULL;
 OpenCOVER::OpenCOVER()
     : m_visPlugin(NULL)
     , m_forceMpi(false)
-    , m_frameDurationIndex(0)
 #ifdef HAS_MPI
     , m_comm(MPI_COMM_WORLD)
 #endif

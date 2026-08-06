@@ -114,7 +114,7 @@ public:
     double endAppTraversal;
     double lastUpdateTime = -1.0, lastFrameTime = -1.0;
     std::array<double, 20> m_frameDurations;
-    int m_frameDurationIndex;
+    int m_frameDurationIndex = 0;
     void setIgnoreMouseEvents(bool ign)
     {
         ignoreMouseEvents = ign;
