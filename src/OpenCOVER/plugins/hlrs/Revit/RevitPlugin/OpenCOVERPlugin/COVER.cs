@@ -1835,556 +1835,405 @@ namespace OpenCOVERPlugin
             }
             return -1;
         }
-        /// <summary>
-        /// Draw geometry of element.
-        /// </summary>
-        /// <param name="elementGeom"></param>
-        /// <remarks></remarks>
+
         private void SendElement(GeometryElement elementGeom, Element elem)
         {
-
-
-
-
-            if (elementGeom == null /*|| elem.CreatedPhaseId != null && elem.CreatedPhaseId.Value==-1*/)
-            {
+            if (elementGeom == null)
                 return;
-            }
-            FamilyInstance fi = elem as FamilyInstance;
-            if (fi != null && fi.Symbol.Name == "ARMarker")
-            {
-                int MarkerID = getInt(fi, "MarkerID");
-                if (MarkerID > 0)
-                {
-                    FamilyInstance hfi = fi.Host as FamilyInstance;
-                    Transform t = fi.GetTransform();
-                    Transform ht;
-                    if (hfi != null)
-                    {
-                        ht = hfi.GetTransform();
-                    }
-                    else
-                    {
-                        ht = Transform.Identity;
-                    }
-                    Double Size = getDouble(fi, "MarkerSize");
-                    Double Offset = getDouble(fi, "Offset");
-                    Double Angle = getDouble(fi, "Angle");
-                    String MarkerType = getString(fi, "MarkerType");
-                    XYZ pos = GetElementLocation(elem);
-                    XYZ hostPos = GetElementLocation(fi.Host);
-                    MessageBuffer mb = new();
-                    mb.add(elem.Id.Value);
-                    mb.add(DocumentID);
-                    mb.add(elem.Name + "_" + elem.Id.Value.ToString());
-                    mb.add(t.Origin);
-                    mb.add(t.BasisX);
-                    mb.add(t.BasisY);
-                    mb.add(t.BasisZ);
-                    mb.add(ht.Origin);
-                    mb.add(ht.BasisX);
-                    mb.add(ht.BasisY);
-                    mb.add(ht.BasisZ);
-                    mb.add(MarkerID);
-                    mb.add(Offset);
-                    mb.add(Angle);
-                    if (fi.Host == null)
-                        mb.add(0);
-                    else
-                        mb.add(fi.Host.Id.Value);
-                    mb.add(Size);
-                    mb.add(MarkerType);
-                    sendMessage(mb.buf, MessageTypes.NewARMarker);
-                }
-            }
-            int num = 0;
-            // check if subobject is an instance
-            BoundingBoxXYZ bb = new();
-            bb.Min = new XYZ(100000, 100000, 100000);
-            bb.Max = new XYZ(-100000, -100000, -100000);
-            BoundingBoxXYZ bbL = new();
-            bbL.Min = new XYZ(100000, 100000, 100000);
-            bbL.Max = new XYZ(-100000, -100000, -100000);
-            BoundingBoxXYZ bbR = new();
-            bbR.Min = new XYZ(100000, 100000, 100000);
-            bbR.Max = new XYZ(-100000, -100000, -100000);
-            //bool hasStyle = false;
-            bool hasIK = false;
-            bool doWalk = false;
-            IList<Parameter> ps = elem.GetParameters("doWalk");
-            if ((ps.Count > 0) && (ps[0] != null))
-            {
-                doWalk = ps[0].AsInteger() != 0;
-            }
-            if (fi != null)
-            {
-                FamilySymbol family = fi.Symbol;
-                if (family != null)
-                {
 
-                    bool hasGeometry = false;
-                    IEnumerator<GeometryObject> Objects = elementGeom.GetEnumerator();
-                    if (Objects.MoveNext())
-                    {
-                        GeometryObject geomObject = Objects.Current;
-                        if (!(geomObject is GeometryInstance))
-                        {
-                            hasGeometry = true;
-                        }
-                    }
-                    String Name = family.FamilyName;
-                    if (hasGeometry && Name.Contains("Kinematics"))
-                    {
-                        // This object contains kinematics information
-                        // search for lines representing axis
+            FamilyInstance familyInstance = elem as FamilyInstance;
 
-                        Options geometryOptions = new();
-                        geometryOptions.IncludeNonVisibleObjects = true;
-                        geometryOptions.ComputeReferences = true;
-                        List<AxisInfo> rotationAxis = new();
-                        GeometryElement geom = elem.get_Geometry(geometryOptions);
-                        if ((geom != null) && (geom.ElementAt(0) is GeometryInstance))
-                        {
-                            GeometryInstance geomInst = geom.ElementAt(0) as GeometryInstance;
-                            if (geomInst != null)
-                            {
-                                GeometryElement geom2 = geomInst.GetSymbolGeometry();
-                                IEnumerator<GeometryObject> lineObjects = geom2.GetEnumerator();
-                                while (lineObjects.MoveNext())
-                                {
-                                    GeometryObject geomObject = lineObjects.Current;
-                                    if (geomObject is Line)
-                                    {
-                                        Line l = geomObject as Line;
-                                        GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as GraphicsStyle;
-                                        if (graphicsStyle != null)
-                                        {
-                                            if (graphicsStyle.Name.StartsWith("Axis") == true)
-                                            {
-                                                int axisnumber = 0;
-                                                int length = 1;
-                                                int numberStart = 4;
-                                                AxisInfo.AxisType type = AxisInfo.AxisType.Rot;
-                                                if (graphicsStyle.Name[numberStart] == 'T')
-                                                {
-                                                    type = AxisInfo.AxisType.Trans;
-                                                    numberStart++;
-                                                }
-                                                if (graphicsStyle.Name[numberStart] == 'S')
-                                                {
-                                                    type = AxisInfo.AxisType.Scale;
-                                                    numberStart++;
-                                                }
-
-                                                if (graphicsStyle.Name.Length > numberStart + 1 && graphicsStyle.Name[numberStart + 1] >= '0' && graphicsStyle.Name[numberStart + 1] <= '9')
-                                                    length = 2;
-                                                if (Int32.TryParse(graphicsStyle.Name.Substring(numberStart, length), out axisnumber))
-                                                {
-                                                    // you know that the parsing attempt
-                                                    // was successful
-                                                    //we found a rotation axis
-                                                    AxisInfo ai = new();
-                                                    ai.origin = l.Origin;
-                                                    ai.direction = l.Direction;
-                                                    ai.min = 0;
-                                                    ai.max = 0;
-                                                    ai.level = axisnumber;
-                                                    ai.type = type;
-                                                    rotationAxis.Add(ai);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        if (rotationAxis.Count > 0)
-                        {
-                            MessageBuffer mb = new();
-                            mb.add(elem.Id.Value);
-                            mb.add(DocumentID);
-                            mb.add(rotationAxis.Count);
-
-                            foreach (AxisInfo ai in rotationAxis)
-                            {
-                                mb.add(ai.level);
-                                mb.add(ai.origin);
-                                mb.add(ai.direction);
-                                mb.add(ai.min);
-                                mb.add(ai.max);
-                                mb.add((int)ai.type);
-                            }
-                            sendMessage(mb.buf, MessageTypes.IKInfo);
-                            hasIK = true;
-                        }
-                    }
-                }
-            }
-            if (elem.Category != null)
+            // 1. Process AR Markers
+            if (familyInstance?.Symbol?.Name == "ARMarker")
             {
-                if (elem.Category.Id.Value == (int)BuiltInCategory.OST_LegendComponents)
-                    return;
-                if (elem.Category.Id.Value == (int)BuiltInCategory.OST_Stairs)
-                {
-                    //hasStyle = false;
-                    doWalk = true;
-                }
-                else if (elem.Category.Id.Value == (int)BuiltInCategory.OST_Topography)
-                {
-                    doWalk = true;
-                }
-                else if (elem.Category.Id.Value == (int)BuiltInCategory.OST_StairsRuns)
-                {
-                    doWalk = true;
-                }
-                else if (elem.Category.Id.Value == (int)BuiltInCategory.OST_StairsLandings)
-                {
-                    doWalk = true;
-                }
-                else if (elem.Category.Id.Value == (int)BuiltInCategory.OST_StairsTrisers)
-                {
-                    doWalk = true;
-                }
-                else if (elem.Category.Id.Value == (int)BuiltInCategory.OST_Ramps)
-                {
-                    doWalk = true;
-                }
-                else if (elem.Category.Id.Value == (int)BuiltInCategory.OST_Floors)
-                {
-                    doWalk = true;
-                }
-                else if (elem.Category.Id.Value == (int)BuiltInCategory.OST_Doors)
-                {
-                    if (elementGeom != null && elementGeom.Any())
-                    {
-                        GeometryObject geomObject = elementGeom.First();
-                    }
-                    
-                }
+                ProcessARMarker(familyInstance, elem);
             }
 
-            /* check if this object is just a geometry instance , then the actual door comes later down the hierarchy */
-            int numElements=0;
-            IEnumerator<GeometryObject> CountObjects = elementGeom.GetEnumerator();
-            while (CountObjects.MoveNext())
+            // 2. Check Kinematics / Inverse Kinematics
+            bool hasIK = ProcessKinematics(elementGeom, elem, familyInstance);
+
+            // 3. Determine Walkability based on parameters or category
+            bool doWalk = DetermineDoWalk(elem);
+
+            // 4. Handle early returns or category checks
+            BuiltInCategory? category = elem.Category != null 
+                ? (BuiltInCategory)elem.Category.Id.Value 
+                : null;
+
+            if (category == BuiltInCategory.OST_LegendComponents)
+                return;
+
+            // 5. Evaluate Geometry Characteristics
+            bool isGeometryInstance = elementGeom.Count() == 1 && elementGeom.First() is GeometryInstance;
+    
+            string elevatorName = GetElevatorName(familyInstance);
+            bool isElevatorDoor = (familyInstance != null) && 
+                                (category == BuiltInCategory.OST_Doors) && 
+                                !isGeometryInstance && 
+                                !string.IsNullOrEmpty(elevatorName);
+
+            // 6. Route to Specialized Processing or Standard Geometry Export
+            if (category == BuiltInCategory.OST_SpecialityEquipment || isElevatorDoor)
             {
-                numElements++;
+                ProcessSpecialityOrElevator(elementGeom, elem, familyInstance, elevatorName, doWalk);
             }
-            bool isGeometryInstance=false;
-            CountObjects.Reset();
-            if (numElements == 1)
+            else if (category == BuiltInCategory.OST_Doors && !isGeometryInstance)
             {
-                CountObjects.MoveNext();
-                if(CountObjects.Current is GeometryInstance)
-                    isGeometryInstance = true;
-
-            }
-            bool isElevatorDoor = false;
-            if ((fi != null) && elem.Category.Id.Value == (int)BuiltInCategory.OST_Doors && !isGeometryInstance)
-            {
-                ParameterSet para = fi.Parameters;
-                foreach (Parameter p in para)
-                {
-                    if (p.Definition.Name == "elevatorName")
-                    {
-                        isElevatorDoor = true;
-                    }
-                }
-
-            }
-            if (elem.Category != null && elem.Category.Id.Value == (int)BuiltInCategory.OST_SpecialityEquipment || isElevatorDoor)
-            {
-
-                String elevatorName = "noname";
-                ParameterSet para = fi.Parameters;
-                foreach (Parameter p in para)
-                {
-                    if (p.Definition.Name == "elevatorName")
-                    {
-
-                        elevatorName = p.AsString();
-                    }
-                }
-                if (elevatorName != "noname")
-                {
-
-                    if (fi != null && fi.Symbol.Name.Substring(0, 5) == "Cabin")
-                    {
-                        BasePoint projectBasePoint = BasePoint.GetProjectBasePoint(elem.Document);
-
-                        // BasePoint surveyPoint =
-                        //                      BasePoint.GetSurveyPoint(doc);
-
-                        XYZ pbp = projectBasePoint.Position;
-                        //add another transform for the whole cabin
-                        MessageBuffer mb = new();
-                        mb.add(elem.Id.Value);
-                        mb.add(DocumentID);
-                        mb.add(elem.Name + "_elev_" + num.ToString());
-                        mb.add(elevatorName);
-                        mb.add("elevatorCabin");
-                        Level level = elem.Document.GetElement(elem.LevelId) as Level;
-                        if (level != null)
-                        {
-                            mb.add(level.Name);
-                            mb.add(level.Elevation);
-                        }
-                        else
-                        {
-                            mb.add("undefined");
-                            mb.add((double)0.0);
-                        }
-                        addParameter(elem, "elevatorSpeed", mb);
-                        addParameter(elem, "elevatorAcceleration", mb);
-                        addParameter(elem, "elevatorOpening", mb);
-                        //mb.add(pbp);
-                        mb.add("end");
-                        sendMessage(mb.buf, MessageTypes.ElevatorPart);
-                    }
-                    // doors are sorted into fixed and moving parts
-                    IEnumerator<GeometryObject> Objects = elementGeom.GetEnumerator();
-                    while (Objects.MoveNext())
-                    {
-                        GeometryObject geomObject = Objects.Current;
-
-                        GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as GraphicsStyle;
-                        if (graphicsStyle != null)
-                        {
-                            BoundingBoxXYZ ebb = new();
-                            ebb.Min = new XYZ(100000, 100000, 100000);
-                            ebb.Max = new XYZ(-100000, -100000, -100000);
-
-                            Solid solid = geomObject as Solid;
-                            if (solid != null)
-                            {
-                                extendBB(ebb, solid.GetBoundingBox());
-                            }
-                            doWalk = false;
-                            if (graphicsStyle.Name.Substring(0, 6) == "doWalk")
-                            {
-                                doWalk = true;
-                            }
-                            if (graphicsStyle.Name.Substring(0, 8) == "elevator")
-                            {
-                                sendElevatorGeomElement(elevatorName, graphicsStyle.Name, elem, num, geomObject, false, doWalk);
-                            }
-                            else
-                            {
-                                sendGeomElement(elem, num, geomObject, false, doWalk);
-                            }
-                        }
-                        else // no style --> will be treated as static parts
-                        {
-                            sendGeomElement(elem, num, geomObject, false, false);
-                        }
-                        num++;
-                    }
-                    if (fi != null && fi.Symbol.Name.Substring(0, 5) == "Cabin")
-                    {
-                        MessageBuffer mb = new MessageBuffer();
-                        sendMessage(mb.buf, MessageTypes.EndGroup);
-                    }
-                }
-
-            }
-            else if ((fi != null) && elem.Category.Id.Value == (int)BuiltInCategory.OST_Doors && !isGeometryInstance)
-            {
-                bool hasLeft = false;
-                bool hasRight = false;
-                // doors are sorted into fixed and moving parts
-                IEnumerator<GeometryObject> Objects = elementGeom.GetEnumerator();
-                while (Objects.MoveNext())
-                {
-                    GeometryObject geomObject = Objects.Current;
-
-                    GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as GraphicsStyle;
-                    if (graphicsStyle != null)
-                    {
-                        if (graphicsStyle.Name == "Frame/Mullion" || graphicsStyle.Name == "Rahmen/Pfosten")
-                        {
-                            sendGeomElement(elem, num, geomObject, false, false);
-                        }
-                        if (graphicsStyle.Name.Length > 5 && graphicsStyle.Name.Substring(graphicsStyle.Name.Length - 5) == "_Left")
-                        {
-                            hasLeft = true;
-                        }
-                        if (graphicsStyle.Name.Length > 6 && graphicsStyle.Name.Substring(graphicsStyle.Name.Length - 6) == "_Right")
-                        {
-                            hasRight = true;
-                        }
-                        Solid solid = geomObject as Solid;
-                        if (solid != null)
-                        {
-                            if (graphicsStyle.Name == "Panel"|| graphicsStyle.Name == "Element")
-                            {
-                                extendBB(bb, solid.GetBoundingBox());
-                            }
-                            if (graphicsStyle.Name == "Panel_Left")
-                            {
-                                extendBB(bbL, solid.GetBoundingBox());
-                            }
-                            if (graphicsStyle.Name == "Panel_Right")
-                            {
-                                extendBB(bbR, solid.GetBoundingBox());
-                            }
-                        }
-                    }
-                    else // no style --> will be treated as moving parts
-                    {
-                        //sendGeomElement(elem, num, geomObject, false, false);
-                    }
-                    num++;
-                }
-                if (bb.Min.X == 100000)
-                {
-                    bb.Min = new XYZ(-1, -0.01, -1);
-                    bb.Max = new XYZ(1, 0.01, 1);
-                }
-                if (bbL.Min.X == 100000)
-                {
-                    bbL.Min = new XYZ(-2, -0.01, -1);
-                    bbL.Max = new XYZ(0, 0.01, 1);
-                }
-                if (bbR.Min.X == 100000)
-                {
-                    bbR.Min = new XYZ(0, -0.01, -1);
-                    bbR.Max = new XYZ(2, 0.01, 1);
-                }
-
-
-                XYZ CenterLeft = new(10000, 0, 0);
-                XYZ CenterRight = new(10000, 0, 0);
-
-                // try to find arcs with GraphicsStype _Left or _Right
-                Options geometryOptionsArc = new();
-                geometryOptionsArc.IncludeNonVisibleObjects = true;
-                geometryOptionsArc.ComputeReferences = true;
-                List<AxisInfo> rotationAxis = new();
-                GeometryElement geomArc = elem.get_Geometry(geometryOptionsArc);
-                if ((geomArc != null) && (geomArc.ElementAt(0) is GeometryInstance))
-                {
-                    GeometryInstance geomInst = geomArc.ElementAt(0) as GeometryInstance;
-                    if (geomInst != null)
-                    {
-                        GeometryElement geom2 = geomInst.GetSymbolGeometry();
-                        IEnumerator<GeometryObject> arcObjects = geom2.GetEnumerator();
-                        while (arcObjects.MoveNext())
-                        {
-                            GeometryObject geomObject = arcObjects.Current;
-                            if (geomObject is Arc)
-                            {
-                                Arc a = geomObject as Arc;
-                                XYZ c = a.Center;
-                                GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as GraphicsStyle;
-                                if (graphicsStyle != null)
-                                {
-                                    if (graphicsStyle.Name.EndsWith("_Left"))
-                                        CenterLeft = c;
-                                    if (graphicsStyle.Name.EndsWith("_Right"))
-                                        CenterRight = c;
-                                }
-                                if (CenterLeft.X == 10000)
-                                {
-                                    CenterLeft = c;
-                                }
-                                if (CenterLeft != c && CenterRight.X == 10000)
-                                {
-                                    CenterRight = c;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (CenterLeft.X == 10000)
-                {
-                    // find arcs in floor plan
-                    ViewPlan arbitaryFloorPlan = new FilteredElementCollector(elem.Document).OfClass(typeof(ViewPlan)).Cast<ViewPlan>().Where(x => !x.IsTemplate).FirstOrDefault();
-                    Options geometryOptions = new();
-                    geometryOptions.IncludeNonVisibleObjects = true;
-                    geometryOptions.ComputeReferences = true;
-                    geometryOptions.View = arbitaryFloorPlan;
-                    GeometryElement geom = elem.get_Geometry(geometryOptions);
-                    if ((geom != null) && (geom.ElementAt(0) is GeometryInstance))
-                    {
-                        GeometryInstance geomInst = geom.ElementAt(0) as GeometryInstance;
-                        if (geomInst != null)
-                        {
-                            GeometryElement geom2 = geomInst.GetSymbolGeometry();
-                            IEnumerator<GeometryObject> arcObjects = geom2.GetEnumerator();
-                            while (arcObjects.MoveNext())
-                            {
-                                GeometryObject geomObject = arcObjects.Current;
-                                if (geomObject is Arc)
-                                {
-                                    Arc a = geomObject as Arc;
-                                    XYZ c = a.Center;
-
-                                    GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as GraphicsStyle;
-                                    if (graphicsStyle != null)
-                                    {
-                                        if (graphicsStyle.Name.EndsWith("_Left"))
-                                            CenterLeft = c;
-                                        if (graphicsStyle.Name.EndsWith("_Right"))
-                                            CenterRight = c;
-                                    }
-                                    if (CenterLeft.X == 10000)
-                                    {
-                                        CenterLeft = c;
-                                    }
-                                    if (CenterLeft != c && CenterRight.X == 10000)
-                                    {
-                                        CenterRight = c;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                num = 0;
-                if (hasLeft && hasRight)
-                {
-                    SendDoorPart(elementGeom, elem, fi, bbL, "_Left", CenterLeft);
-                    SendDoorPart(elementGeom, elem, fi, bbR, "_Right", CenterRight);
-                }
-                else if (hasRight)
-                {
-                    SendDoorPart(elementGeom, elem, fi, bbR, "_Right", CenterRight);
-                }
-                else
-                {
-                    SendDoorPart(elementGeom, elem, fi, bb, "", CenterLeft);
-                }
-
+                ProcessDoorElement(elementGeom, elem, familyInstance);
             }
             else
             {
+                ProcessStandardGeometry(elementGeom, elem, doWalk, hasIK);
+            }
+        }
 
-                if (hasIK)
-                {
-                    MessageBuffer mb = new();
-                    mb.add(elem.Id.Value);
-                    mb.add(DocumentID);
-                    mb.add(elem.Name);
-                    sendMessage(mb.buf, MessageTypes.NewGroup);
-                }
-                IEnumerator<GeometryObject> Objects = elementGeom.GetEnumerator();
-                while (Objects.MoveNext())
-                {
+        private void ProcessARMarker(FamilyInstance fi, Element elem)
+        {
+            int markerID = getInt(fi, "MarkerID");
+            if (markerID <= 0) return;
 
-                    GeometryObject geomObject = Objects.Current;
-                    sendGeomElement(elem, num, geomObject, false, doWalk);
-                    num++;
+            FamilyInstance hostFi = fi.Host as FamilyInstance;
+            Transform t = fi.GetTransform();
+            Transform ht = hostFi?.GetTransform() ?? Transform.Identity;
 
-                }
-                if (hasIK)
+            MessageBuffer mb = new();
+            mb.add(elem.Id.Value);
+            mb.add(DocumentID);
+            mb.add($"{elem.Name}_{elem.Id.Value}");
+            mb.add(t.Origin);
+            mb.add(t.BasisX);
+            mb.add(t.BasisY);
+            mb.add(t.BasisZ);
+            mb.add(ht.Origin);
+            mb.add(ht.BasisX);
+            mb.add(ht.BasisY);
+            mb.add(ht.BasisZ);
+            mb.add(markerID);
+            mb.add(getDouble(fi, "Offset"));
+            mb.add(getDouble(fi, "Angle"));
+            mb.add(fi.Host?.Id.Value ?? 0);
+            mb.add(getDouble(fi, "MarkerSize"));
+            mb.add(getString(fi, "MarkerType"));
+
+            sendMessage(mb.buf, MessageTypes.NewARMarker);
+        }
+
+        private bool ProcessKinematics(GeometryElement elementGeom, Element elem, FamilyInstance fi)
+        {
+            if (fi?.Symbol == null) return false;
+
+            // Check if the family name contains "Kinematics" and if there is any geometry that is not a GeometryInstance
+            bool hasGeometry = elementGeom.Any(geomObj => !(geomObj is GeometryInstance));
+            if (!hasGeometry || !fi.Symbol.FamilyName.Contains("Kinematics")) 
+                return false;
+
+            List<AxisInfo> rotationAxis = GetRotationAxes(elem);
+            if (rotationAxis.Count == 0) return false;
+
+            MessageBuffer mb = new();
+            mb.add(elem.Id.Value);
+            mb.add(DocumentID);
+            mb.add(rotationAxis.Count);
+
+            foreach (AxisInfo ai in rotationAxis)
+            {
+                mb.add(ai.level);
+                mb.add(ai.origin);
+                mb.add(ai.direction);
+                mb.add(ai.min);
+                mb.add(ai.max);
+                mb.add((int)ai.type);
+            }
+
+            sendMessage(mb.buf, MessageTypes.IKInfo);
+            return true;
+        }
+
+        private List<AxisInfo> GetRotationAxes(Element elem)
+        {
+            List<AxisInfo> axes = new();
+            Options opts = new() { IncludeNonVisibleObjects = true, ComputeReferences = true };
+    
+            GeometryElement geom = elem.get_Geometry(opts);
+            if (geom?.FirstOrDefault() is GeometryInstance geomInst)
+            {
+                foreach (GeometryObject geomObj in geomInst.GetSymbolGeometry())
                 {
-                    MessageBuffer mb = new();
-                    mb.add(elem.Id.Value);
-                    mb.add(DocumentID);
-                    mb.add(elem.Name);
-                    sendMessage(mb.buf, MessageTypes.EndGroup);
+                    if (geomObj is Line line && 
+                        elem.Document.GetElement(geomObj.GraphicsStyleId) is GraphicsStyle graphicsStyle && 
+                        graphicsStyle.Name?.StartsWith("Axis") == true)
+                    {
+                        ParseAxisStyle(line, graphicsStyle.Name, axes);
+                    }
                 }
+            }
+            return axes;
+        }
+
+        private void ParseAxisStyle(Line line, string styleName, List<AxisInfo> axes)
+        {
+            int numberStart = 4;
+            AxisInfo.AxisType type = AxisInfo.AxisType.Rot;
+
+            if (styleName[numberStart] == 'T') { type = AxisInfo.AxisType.Trans; numberStart++; }
+            if (styleName[numberStart] == 'S') { type = AxisInfo.AxisType.Scale; numberStart++; }
+
+            int length = (styleName.Length > numberStart + 1 && char.IsDigit(styleName[numberStart + 1])) ? 2 : 1;
+
+            if (int.TryParse(styleName.Substring(numberStart, length), out int axisNumber))
+            {
+                axes.Add(new AxisInfo
+                {
+                    origin = line.Origin,
+                    direction = line.Direction,
+                    min = 0,
+                    max = 0,
+                    level = axisNumber,
+                    type = type
+                });
+            }
+        }
+
+        private bool DetermineDoWalk(Element elem)
+        {
+            IList<Parameter> ps = elem.GetParameters("doWalk");
+            if (ps.Count > 0 && ps[0] != null && ps[0].AsInteger() != 0)
+            {
+                return true;
+            }
+
+            if (elem.Category == null) return false;
+
+            BuiltInCategory category = (BuiltInCategory)elem.Category.Id.Value;
+            return category switch
+            {
+                BuiltInCategory.OST_Stairs or 
+                BuiltInCategory.OST_Topography or 
+                BuiltInCategory.OST_StairsRuns or 
+                BuiltInCategory.OST_StairsLandings or 
+                BuiltInCategory.OST_StairsTrisers or 
+                BuiltInCategory.OST_Ramps or 
+                BuiltInCategory.OST_Floors => true,
+                _ => false
+            };
+        }
+
+        private string GetElevatorName(FamilyInstance fi)
+        {
+            if (fi == null) return string.Empty;
+            foreach (Parameter p in fi.Parameters)
+            {
+                if (p.Definition.Name == "elevatorName")
+                    return p.AsString();
+            }
+            return string.Empty;
+        }
+
+        private BoundingBoxXYZ CreateEmptyBoundingBox()
+        {
+            return new BoundingBoxXYZ
+            {
+                Min = new XYZ(100000, 100000, 100000),
+                Max = new XYZ(-100000, -100000, -100000)
+            };
+        }
+
+        private void ProcessSpecialityOrElevator(GeometryElement elementGeom, Element elem, FamilyInstance fi, string elevatorName, bool defaultDoWalk)
+        {
+            bool isCabin = fi?.Symbol?.Name?.StartsWith("Cabin") == true;
+
+            if (!string.IsNullOrEmpty(elevatorName) && isCabin)
+            {
+                MessageBuffer mb = new();
+                mb.add(elem.Id.Value);
+                mb.add(DocumentID);
+                mb.add($"{elem.Name}_elev_0");
+                mb.add(elevatorName);
+                mb.add("elevatorCabin");
+
+                if (elem.Document.GetElement(elem.LevelId) is Level level)
+                {
+                    mb.add(level.Name);
+                    mb.add(level.Elevation);
+                }
+                else
+                {
+                    mb.add("undefined");
+                    mb.add(0.0);
+                }
+
+                addParameter(elem, "elevatorSpeed", mb);
+                addParameter(elem, "elevatorAcceleration", mb);
+                addParameter(elem, "elevatorOpening", mb);
+                mb.add("end");
+                sendMessage(mb.buf, MessageTypes.ElevatorPart);
+            }
+
+            // doors are sorted into fixed and moving parts
+            int num = 0;
+            foreach (GeometryObject geomObject in elementGeom)
+            {
+                if (elem.Document.GetElement(geomObject.GraphicsStyleId) is GraphicsStyle graphicsStyle)
+                {
+                    BoundingBoxXYZ ebb = CreateEmptyBoundingBox();
+                    if (geomObject is Solid solid)
+                    {
+                        extendBB(ebb, solid.GetBoundingBox());
+                    }
+
+                    bool itemDoWalk = graphicsStyle.Name.StartsWith("doWalk");
+
+                    if (graphicsStyle.Name.StartsWith("elevator"))
+                    {
+                        sendElevatorGeomElement(elevatorName, graphicsStyle.Name, elem, num, geomObject, false, itemDoWalk);
+                    }
+                    else
+                    {
+                        sendGeomElement(elem, num, geomObject, false, itemDoWalk);
+                    }
+                }
+                else
+                {
+                    sendGeomElement(elem, num, geomObject, false, false);
+                }
+                num++;
+            }
+
+            if (!string.IsNullOrEmpty(elevatorName) && isCabin)
+            {
+                sendMessage(new MessageBuffer().buf, MessageTypes.EndGroup);
+            }
+        }
+
+        private void ProcessDoorElement(GeometryElement elementGeom, Element elem, FamilyInstance fi)
+        {
+            if (fi == null) return;
+
+            bool hasLeft = false;
+            bool hasRight = false;
+
+            BoundingBoxXYZ bb = CreateEmptyBoundingBox();
+            BoundingBoxXYZ bbL = CreateEmptyBoundingBox();
+            BoundingBoxXYZ bbR = CreateEmptyBoundingBox();
+
+            int num = 0;
+            foreach (GeometryObject geomObject in elementGeom)
+            {
+                if (elem.Document.GetElement(geomObject.GraphicsStyleId) is GraphicsStyle graphicsStyle)
+                {
+                    if (graphicsStyle.Name is "Frame/Mullion" or "Rahmen/Pfosten")
+                    {
+                        sendGeomElement(elem, num, geomObject, false, false);
+                    }
+
+                    if (graphicsStyle.Name.EndsWith("_Left")) hasLeft = true;
+                    if (graphicsStyle.Name.EndsWith("_Right")) hasRight = true;
+
+                    if (geomObject is Solid solid)
+                    {
+                        if (graphicsStyle.Name is "Panel" or "Element") extendBB(bb, solid.GetBoundingBox());
+                        if (graphicsStyle.Name == "Panel_Left") extendBB(bbL, solid.GetBoundingBox());
+                        if (graphicsStyle.Name == "Panel_Right") extendBB(bbR, solid.GetBoundingBox());
+                    }
+                }
+                num++;
+            }
+
+            // Assign defaults if boxes remain unadjusted
+            if (bb.Min.X == 100000) bb = new BoundingBoxXYZ { Min = new XYZ(-1, -0.01, -1), Max = new XYZ(1, 0.01, 1) };
+            if (bbL.Min.X == 100000) bbL = new BoundingBoxXYZ { Min = new XYZ(-2, -0.01, -1), Max = new XYZ(0, 0.01, 1) };
+            if (bbR.Min.X == 100000) bbR = new BoundingBoxXYZ { Min = new XYZ(0, -0.01, -1), Max = new XYZ(2, 0.01, 1) };
+
+            (XYZ centerLeft, XYZ centerRight) = FindDoorArcCenters(elem);
+
+            if (hasLeft && hasRight)
+            {
+                SendDoorPart(elementGeom, elem, fi, bbL, "_Left", centerLeft);
+                SendDoorPart(elementGeom, elem, fi, bbR, "_Right", centerRight);
+            }
+            else if (hasRight)
+            {
+                SendDoorPart(elementGeom, elem, fi, bbR, "_Right", centerRight);
+            }
+            else
+            {
+                SendDoorPart(elementGeom, elem, fi, bb, "", centerLeft);
+            }
+        }
+
+        private (XYZ centerLeft, XYZ centerRight) FindDoorArcCenters(Element elem)
+        {
+            XYZ centerLeft = new(10000, 0, 0);
+            XYZ centerRight = new(10000, 0, 0);
+
+            // 1. Try default geometry options
+            Options geomOpts = new() { IncludeNonVisibleObjects = true, ComputeReferences = true };
+            SearchArcCenters(elem.get_Geometry(geomOpts), elem, ref centerLeft, ref centerRight);
+
+            // 2. Fall back to floor plan view geometry if not found
+            if (centerLeft.X == 10000)
+            {
+                ViewPlan floorPlan = new FilteredElementCollector(elem.Document)
+                    .OfClass(typeof(ViewPlan))
+                    .Cast<ViewPlan>()
+                    .FirstOrDefault(x => !x.IsTemplate);
+
+                if (floorPlan != null)
+                {
+                    geomOpts.View = floorPlan;
+                    SearchArcCenters(elem.get_Geometry(geomOpts), elem, ref centerLeft, ref centerRight);
+                }
+            }
+
+            return (centerLeft, centerRight);
+        }
+
+        private void SearchArcCenters(GeometryElement geom, Element elem, ref XYZ centerLeft, ref XYZ centerRight)
+        {
+            if (geom?.FirstOrDefault() is not GeometryInstance geomInst) return;
+
+            foreach (GeometryObject geomObj in geomInst.GetSymbolGeometry())
+            {
+                if (geomObj is Arc arc)
+                {
+                    XYZ center = arc.Center;
+                    if (elem.Document.GetElement(geomObj.GraphicsStyleId) is GraphicsStyle graphicsStyle)
+                    {
+                        if (graphicsStyle.Name.EndsWith("_Left")) centerLeft = center;
+                        if (graphicsStyle.Name.EndsWith("_Right")) centerRight = center;
+                    }
+
+                    if (centerLeft.X == 10000) centerLeft = center;
+                    if (centerLeft != center && centerRight.X == 10000) centerRight = center;
+                }
+            }
+        }
+
+        private void ProcessStandardGeometry(GeometryElement elementGeom, Element elem, bool doWalk, bool hasIK)
+        {
+            if (hasIK)
+            {
+                MessageBuffer mb = new();
+                mb.add(elem.Id.Value);
+                mb.add(DocumentID);
+                mb.add(elem.Name);
+                sendMessage(mb.buf, MessageTypes.NewGroup);
+            }
+
+            int num = 0;
+            foreach (GeometryObject geomObject in elementGeom)
+            {
+                sendGeomElement(elem, num, geomObject, false, doWalk);
+                num++;
+            }
+
+            if (hasIK)
+            {
+                MessageBuffer mb = new();
+                mb.add(elem.Id.Value);
+                mb.add(DocumentID);
+                mb.add(elem.Name);
+                sendMessage(mb.buf, MessageTypes.EndGroup);
             }
         }
 
