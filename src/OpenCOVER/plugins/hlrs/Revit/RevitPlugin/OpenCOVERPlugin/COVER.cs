@@ -132,31 +132,36 @@ namespace OpenCOVERPlugin
         private Dictionary<ElementId, int> phaseDict;
         public void updateVisibility(Document doc)
         {
-
             ElementId activeOptId = Autodesk.Revit.DB.DesignOption.GetActiveDesignOptionId(doc);
+            if (activeOptId == null || activeOptId == ElementId.InvalidElementId)
+            {
+                activeOptId = oldDesignOption;
+            }
+            else
+            {
+                bool activeExists = designOptionSets.Any(os => os.designOptions.Any(des => des.des.Id == activeOptId));
+                if (activeExists)
+                {
+                    oldDesignOption = activeOptId;
+                }
+                else
+                {
+                    activeOptId = oldDesignOption;
+                }
+            }
+
             foreach (cDesignOptionSet os in designOptionSets)
             {
+                bool hasActiveOption = activeOptId != null && activeOptId != ElementId.InvalidElementId && os.designOptions.Any(des => des.des.Id == activeOptId);
                 foreach (cDesignOption des in os.designOptions)
                 {
-                    if (des.des.Id == activeOptId) // this optionSet contains the activeOptionId, disable all other DesignOptions in this set
+                    if (hasActiveOption)
                     {
-                        des.visible = true;
-                        foreach (cDesignOption designoption in os.designOptions)
-                        {
-                            if (designoption != des)
-                            {
-                                designoption.visible = false;
-                            }
-                        }
-                        break;
-                    }
-                    if (des.des.IsPrimary)
-                    {
-                        des.visible = true;
+                        des.visible = (des.des.Id == activeOptId);
                     }
                     else
                     {
-                        des.visible = false;
+                        des.visible = des.des.IsPrimary;
                     }
                 }
             }
@@ -174,6 +179,30 @@ namespace OpenCOVERPlugin
             return false;
         }
 
+        private void SendDesignOptionSets(Document doc)
+        {
+            if (doc == null)
+            {
+                return;
+            }
+
+            MessageBuffer mb = new();
+            mb.add(DocumentID);
+            mb.add(designOptionSets.Count);
+            foreach (cDesignOptionSet os in designOptionSets)
+            {
+                mb.add(os.ID.Value);
+                mb.add(os.name);
+                mb.add(os.designOptions.Count);
+                foreach (cDesignOption des in os.designOptions)
+                {
+                    mb.add(des.des.Id.Value);
+                    mb.add(des.des.Name);
+                    mb.add(des.visible);
+                }
+            }
+            sendMessage(mb.buf, MessageTypes.DesignOptionSets);
+        }
 
         private EventHandler<Autodesk.Revit.UI.Events.IdlingEventArgs> idlingHandler;
         // DLL imports from user32.dll to set focus to
@@ -477,22 +506,7 @@ namespace OpenCOVERPlugin
             }
 
             updateVisibility(doc);
-            MessageBuffer mb = new();
-            mb.add(DocumentID);
-            mb.add(designOptionSets.Count);
-            foreach (cDesignOptionSet os in designOptionSets)
-            {
-                mb.add(os.ID.Value);
-                mb.add(os.name);
-                mb.add(os.designOptions.Count);
-                foreach (cDesignOption des in os.designOptions)
-                {
-                    mb.add(des.des.Id.Value);
-                    mb.add(des.des.Name);
-                    mb.add(des.visible);
-                }
-            }
-            sendMessage(mb.buf, MessageTypes.DesignOptionSets);
+            SendDesignOptionSets(doc);
 
             
 
@@ -694,6 +708,18 @@ namespace OpenCOVERPlugin
         public void designOptionsChanged(Document doc, DesignOption des)
         {
             ElementId activeOptId = Autodesk.Revit.DB.DesignOption.GetActiveDesignOptionId(doc);
+            if (activeOptId == null || activeOptId == ElementId.InvalidElementId)
+            {
+                if (des != null)
+                {
+                    activeOptId = des.Id;
+                }
+                else
+                {
+                    activeOptId = oldDesignOption;
+                }
+            }
+
             if (activeOptId != oldDesignOption)
             {
                 oldDesignOption = activeOptId;
@@ -715,6 +741,7 @@ namespace OpenCOVERPlugin
                     }
                 }
                 updateVisibility(doc);
+                SendDesignOptionSets(doc);
                 foreach (cDesignOptionSet os in designOptionSets)
                 {
                     foreach (cDesignOption des2 in os.designOptions)
