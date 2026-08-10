@@ -66,6 +66,7 @@ private:
     osg::ref_ptr<osg::Geode> geode;
     osg::ref_ptr<osgText::Text> text;
     osg::ref_ptr<osg::Geometry> lineGeometry;
+    osg::ref_ptr<osg::LOD> lod;
 
     float lineLength = 200.f; // meters
     float fontSize = 20.f; // meters
