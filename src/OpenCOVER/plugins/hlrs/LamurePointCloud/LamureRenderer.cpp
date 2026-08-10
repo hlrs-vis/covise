@@ -2069,25 +2069,25 @@ void LamureRenderer::updateActiveClipPlanes()
 void LamureRenderer::enableClipDistances()
 {
     const int desired = (std::min)(m_clip_plane_count, kMaxClipPlanes);
-    for (int i = 0; i < desired; ++i)
-        glEnable(GL_CLIP_DISTANCE0 + i);
+   // for (int i = 0; i < desired; ++i)
+   //     glEnable(GL_CLIP_DISTANCE0 + i);
     m_enabled_clip_distances = desired;
 }
 
 void LamureRenderer::disableClipDistances()
 {
-    for (int i = 0; i < m_enabled_clip_distances; ++i)
-        glDisable(GL_CLIP_DISTANCE0 + i);
+    //for (int i = 0; i < m_enabled_clip_distances; ++i)
+    //    glDisable(GL_CLIP_DISTANCE0 + i);
     m_enabled_clip_distances = 0;
 }
 
 void LamureRenderer::uploadClipPlanes(GLint countLocation, GLint dataLocation) const
 {
-    const GLint planeCount = (std::min)(m_clip_plane_count, kMaxClipPlanes);
+    /* const GLint planeCount = (std::min)(m_clip_plane_count, kMaxClipPlanes);
     if (countLocation >= 0)
         glUniform1i(countLocation, planeCount);
     if (dataLocation >= 0 && planeCount > 0)
-        glUniform4fv(dataLocation, planeCount, reinterpret_cast<const GLfloat*>(m_clip_planes.data()));
+        glUniform4fv(dataLocation, planeCount, reinterpret_cast<const GLfloat*>(m_clip_planes.data()));*/
 }
 
 LamureRenderer::ContextResources& LamureRenderer::getResources(int ctxId)

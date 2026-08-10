@@ -1,5 +1,6 @@
 #ifndef VIS_CLIP_UTIL_GLSL
 #define VIS_CLIP_UTIL_GLSL
+don't use
 
 const int LAMURE_MAX_CLIP_PLANES = 6;
 

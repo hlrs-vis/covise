@@ -1,4 +1,4 @@
-#version 420 core
+#version 420 compatibility
 INCLUDE vis_surfel_util.glsl
 
 layout(location = 0)  in vec3  in_position;
@@ -48,4 +48,5 @@ void main() {
     VertexOut.pass_radius_ws   = r_ws;
 
     gl_Position = mvp_matrix * vec4(in_position, 1.0);
+    gl_ClipVertex = gl_ModelViewMatrix * vec4(in_position, 1.0);
 }

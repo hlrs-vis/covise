@@ -1,10 +1,6 @@
-#version 420 core
+#version 420 compatibility
 
 INCLUDE vis_point_util.glsl
-INCLUDE vis_clip_util.glsl
-
-uniform int clip_plane_count;
-uniform vec4 clip_planes[LAMURE_MAX_CLIP_PLANES];
 uniform mat4 model_matrix;
 
 out VertexData {
@@ -42,17 +38,6 @@ void main() {
         gl_PointSize = 0.0;
         return;
     }
-
-    if (clip_plane_count > 0)
-    {
-        vec4 world_pos = model_matrix * vec4(in_position, 1.0);
-        lamure_apply_clip_planes(world_pos, clip_plane_count, clip_planes);
-    }
-    else
-    {
-        lamure_apply_clip_planes(vec4(0.0), 0, clip_planes);
-    }
-
     float r_ws = calc_world_radius(in_radius, max_radius_cut, scale_radius_gamma, scale_radius, min_radius, max_radius);
 
     vec4 clip = mvp_matrix * vec4(in_position, 1.0);
@@ -70,5 +55,6 @@ void main() {
         : calc_diameter_px_iso(clip, r_ws, scale_projection, min_screen_size, max_screen_size);
 
     gl_Position = clip;
+  gl_ClipVertex = gl_ModelViewMatrix * vec4(in_position, 1.0);
     gl_PointSize = (pointSize > UTIL_EPS) ? pointSize : 0.0;
 }
