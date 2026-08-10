@@ -1505,7 +1505,6 @@ namespace OpenCOVERPlugin
         }
         private void addParameter(Element elem,String name, MessageBuffer mb)
         {
-            bool found = false;
             foreach (Parameter para in elem.Parameters)
             {
                 if (para.Definition.Name != null && para.Definition.Name.Length >= name.Length && para.Definition.Name.Substring(0,name.Length) == name)
@@ -1537,7 +1536,6 @@ namespace OpenCOVERPlugin
                             mb.add("Unknown Parameter Storage Type");
                             break;
                     }
-                    found = true;
                     break;
                 }
             }
@@ -1574,7 +1572,6 @@ namespace OpenCOVERPlugin
                             mb.add("Unknown Parameter Storage Type");
                             break;
                     }
-                    found = true;
                     break;
                 }
             }
