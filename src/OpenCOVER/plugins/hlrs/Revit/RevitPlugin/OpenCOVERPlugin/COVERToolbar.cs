@@ -373,10 +373,10 @@ namespace OpenCOVERPlugin
             pushButtonConnectToAnyHost.LargeImage = new BitmapImage(new Uri(Path.Combine(COVER.Instance.ButtonIconsFolder, "prompt.png"), UriKind.Absolute));
 
 
-            PushButton settingsButton = ribbonPanelPushButtons.AddItem(new PushButtonData("SettingsButton", "Settings", dllName,
-                 "OpenCOVERPlugin.SettingsButton")) as Autodesk.Revit.UI.PushButton;
-            settingsButton.ToolTip = "VR Settings";
-            settingsButton.LargeImage = new BitmapImage(new Uri(Path.Combine(COVER.Instance.ButtonIconsFolder, "settings.png"), UriKind.Absolute));
+            // PushButton settingsButton = ribbonPanelPushButtons.AddItem(new PushButtonData("SettingsButton", "Settings", dllName,
+            //      "OpenCOVERPlugin.SettingsButton")) as Autodesk.Revit.UI.PushButton;
+            // settingsButton.ToolTip = "VR Settings";
+            // settingsButton.LargeImage = new BitmapImage(new Uri(Path.Combine(COVER.Instance.ButtonIconsFolder, "settings.png"), UriKind.Absolute));
 
 
 
