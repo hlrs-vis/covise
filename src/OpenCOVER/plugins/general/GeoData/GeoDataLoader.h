@@ -146,6 +146,7 @@ private:
     std::map<std::string, regionEntry> regions;
     std::map<std::string, opencover::ui::Button *> regionButtons;
 
+    std::map<std::string, std::string> replacements;
     bool showTerrain = true;
     bool showBuildings = true;
     bool showLabels = false;

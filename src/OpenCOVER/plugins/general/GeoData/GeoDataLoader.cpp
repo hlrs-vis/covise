@@ -136,6 +136,17 @@ bool GeoDataLoader::init()
         datasetList->append(dataset.name);
     }
 
+    auto replacementEntries = configFile->array<opencover::config::Section>("", "replacements");
+
+    for (size_t i = 0; i < replacementEntries->size(); i++)
+    {
+        opencover::config::Section entry = (*replacementEntries)[i];
+
+        std::string fileName = entry.value<std::string>("", "fileName")->value();
+        std::string replacementFileName = entry.value<std::string>("", "replaceBy")->value();
+        replacements[fileName] = replacementFileName;
+    }
+
     datasetList->select(0, true); // select "None" by default
     datasetList->setCallback([this](int selection)
         {
@@ -695,7 +706,15 @@ osg::ref_ptr<osg::Node> GeoDataLoader::loadTerrain(std::string filename, bool is
         std::cout << "\t conservative time ratio: " << coop->getConservativeTimeRatio() << std::endl;
     }
 
-    osg::Node *terrain = osgDB::readNodeFile(filename);
+    osg::Node *terrain = nullptr;
+    if (auto replacementFileName = replacements.find(filename); replacementFileName != replacements.end())
+    {
+        terrain = osgDB::readNodeFile(replacementFileName->second);
+    }
+    else
+    {
+        terrain = osgDB::readNodeFile(filename);
+    }
 
     if (terrain)
     {
