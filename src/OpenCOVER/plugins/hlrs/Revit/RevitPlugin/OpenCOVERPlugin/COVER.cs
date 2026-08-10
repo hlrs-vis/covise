@@ -478,19 +478,19 @@ namespace OpenCOVERPlugin
                 Parameter para = des.get_Parameter(BuiltInParameter.OPTION_SET_ID);
                 if (para != null)
                 {
-                    bool found = false;
                     ElementId osID = para.AsElementId();
+                    bool existingSet = false;
                     foreach (cDesignOptionSet os in designOptionSets)
                     {
                         if (os.ID == osID)
                         {
-                            found = true;
+                            existingSet = true;
                             cdes.designOptionSet = os;
                             os.designOptions.Add(cdes);
                             break;
                         }
                     }
-                    if (!found)
+                    if (!existingSet)
                     {
                         cDesignOptionSet os = new();
                         os.designOptions.Add(cdes);
