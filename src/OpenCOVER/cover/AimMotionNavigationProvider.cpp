@@ -116,8 +116,6 @@ inline T lerp(T a, T b, float f) { return a + (b - a) * f; }
 
 double AimMotionNavigationProvider::measureHeightAboveFloor() const
 {
-    float floorHeight = VRSceneGraph::instance()->floorHeight();
-
     osg::Matrix viewer = cover->getViewerMat();
     osg::Vec3 pos = viewer.getTrans();
 
@@ -135,7 +133,7 @@ double AimMotionNavigationProvider::measureHeightAboveFloor() const
 
     if (!intersector->containsIntersections())
         return 0.0;
-    return -(intersector->getFirstIntersection().getWorldIntersectPoint()[2] - floorHeight);
+    return -intersector->getFirstIntersection().getWorldIntersectPoint()[2];
 }
 
 bool AimMotionNavigationProvider::update()
