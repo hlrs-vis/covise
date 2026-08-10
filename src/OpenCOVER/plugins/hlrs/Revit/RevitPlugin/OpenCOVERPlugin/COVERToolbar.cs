@@ -395,7 +395,8 @@ namespace OpenCOVERPlugin
         /// <param name="e"></param>
         void CtrlApp_DocumentChanged(object sender, Autodesk.Revit.DB.Events.DocumentChangedEventArgs e)
         {
-            if(OpenCOVERPlugin.COVER.Instance.isConnected())
+            var cover = OpenCOVERPlugin.COVER.Instance;
+            if(cover.isConnected())
             {
                 // get the current document.
                 Document doc = e.GetDocument();
@@ -406,13 +407,13 @@ namespace OpenCOVERPlugin
                 ICollection<Autodesk.Revit.DB.ElementId> addedElem = e.GetAddedElementIds();
                 foreach (ElementId id in addedElem)
                 {
-                    OpenCOVERPlugin.COVER.Instance.SendElement(doc.GetElement(id));
+                    cover.SendElement(doc.GetElement(id));
                 }
 
                 ICollection<Autodesk.Revit.DB.ElementId> deletedElem = e.GetDeletedElementIds();
                 foreach (ElementId id in deletedElem)
                 {
-                    OpenCOVERPlugin.COVER.Instance.deleteElement(id);
+                    cover.deleteElement(id);
                 }
 
                 ICollection<ElementId> modifiedElem = e.GetModifiedElementIds();
@@ -422,17 +423,18 @@ namespace OpenCOVERPlugin
                     if (el is Autodesk.Revit.DB.DesignOption)
                     {
                         // design option changed // resend only changes
-                        OpenCOVERPlugin.COVER.Instance.designOptionsChanged(doc, (Autodesk.Revit.DB.DesignOption)el);
+                        cover.designOptionsChanged(doc, (Autodesk.Revit.DB.DesignOption)el);
                     }
                     else
                     {
-                        OpenCOVERPlugin.COVER.Instance.deleteElement(id);
-                        OpenCOVERPlugin.COVER.Instance.SendElement(el);
+                        cover.deleteElement(id);
+                        cover.SendElement(el);
                     }
                 }
             }
 
         }
+
         public void application_DocumentOpened(object sender, DocumentOpenedEventArgs args)
         {
             // get document from event args.
