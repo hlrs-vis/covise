@@ -76,6 +76,7 @@ AimMotionNavigationProvider::AimMotionNavigationProvider()
     : coVRNavigationProvider("AimMotion", nullptr)
     , interactionPoint(vrui::coInteraction::ButtonA, "ProbeMode", vrui::coInteraction::Navigation)
     , interactionTurn(vrui::coInteraction::ButtonB, "ProbeMode", vrui::coInteraction::Navigation)
+    , interactionReverse(vrui::coInteraction::ButtonC, "ProbeMode", vrui::coInteraction::Navigation)
     , triggerMouse(vrui::coInteraction::ButtonA, "MouseAimMotion")
     , rotateTrigger(Input::instance()->getValuator("RightJoyX"))
 {
@@ -97,12 +98,14 @@ void AimMotionNavigationProvider::setEnabled(bool enabled)
     if (enabled)
     {
         vrui::coInteractionManager::the()->registerInteraction(&interactionPoint);
+        vrui::coInteractionManager::the()->registerInteraction(&interactionReverse);
         vrui::coInteractionManager::the()->registerInteraction(&interactionTurn);
         vrui::coInteractionManager::the()->registerInteraction(&triggerMouse);
     }
     else
     {
         vrui::coInteractionManager::the()->unregisterInteraction(&interactionPoint);
+        vrui::coInteractionManager::the()->unregisterInteraction(&interactionReverse);
         vrui::coInteractionManager::the()->unregisterInteraction(&interactionTurn);
         vrui::coInteractionManager::the()->unregisterInteraction(&triggerMouse);
     }
@@ -175,6 +178,13 @@ bool AimMotionNavigationProvider::update()
         runningDuration += deltaTime;
 
         auto targetVelocity = dir;
+        velocity = lerp(velocity, targetVelocity, deltaTime * 5.0);
+    }
+    else if (interactionReverse.isRunning())
+    {
+        runningDuration += deltaTime;
+
+        auto targetVelocity = -dir;
         velocity = lerp(velocity, targetVelocity, deltaTime * 5.0);
     }
     else

@@ -55,6 +55,7 @@ private:
     float runningDuration = 0.0;
 
     vrui::coNavInteraction interactionPoint;
+    vrui::coNavInteraction interactionReverse;
     vrui::coNavInteraction interactionTurn;
     vrui::coMouseButtonInteraction triggerMouse;
     ValuatorTrigger rotateTrigger;
