@@ -193,6 +193,7 @@ void coVRNavigationManager::init()
     setNavMode(XForm);
 
     registerNavigationProvider(&teleportNavigationProvider);
+    registerNavigationProvider(&aimMotionNavigationProvider);
 }
 
 coVRNavigationManager::~coVRNavigationManager()
@@ -201,6 +202,7 @@ coVRNavigationManager::~coVRNavigationManager()
         fprintf(stderr, "\ndelete coVRNavigationManager\n");
 
     unregisterNavigationProvider(&teleportNavigationProvider);
+    unregisterNavigationProvider(&aimMotionNavigationProvider);
 
     if (interactionA->isRegistered())
     {
@@ -1594,6 +1596,7 @@ void coVRNavigationManager::update()
     }
 
     teleportNavigationProvider.update();
+    aimMotionNavigationProvider.update();
 }
 
 void coVRNavigationManager::setNavMode(std::string modeName)
