@@ -422,17 +422,20 @@ namespace OpenCOVERPlugin
                     Element el = doc.GetElement(id);
                     if (el is Autodesk.Revit.DB.DesignOption option)
                     {
-                        cover.pendingDesignOption = option.Id;
-                        cover.hasPendingDesignOption = true;
+                        continue;
                     }
-                    else
-                    {
-                        cover.deleteElement(id);
-                        cover.SendElement(el);
-                    }
+
+                    cover.deleteElement(id);
+                    cover.SendElement(el);
+                }
+
+                var activeOptionId = Autodesk.Revit.DB.DesignOption.GetActiveDesignOptionId(doc);
+                if (activeOptionId != ElementId.InvalidElementId)
+                {
+                    cover.pendingDesignOption = activeOptionId;
+                    cover.hasPendingDesignOption = true;
                 }
             }
-
         }
 
         public void application_DocumentOpened(object sender, DocumentOpenedEventArgs args)
