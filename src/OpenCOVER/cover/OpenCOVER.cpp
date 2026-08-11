@@ -1355,20 +1355,36 @@ bool OpenCOVER::frame()
     if (!render)
     {
         int maxfd = -1;
-        fd_set fds;
-        FD_ZERO(&fds);
-        for (const auto &fd: m_watchedFds) {
-            FD_SET(fd, &fds);
-            if (maxfd < fd)
-                maxfd = fd;
+        fd_set rfds, wfds, efds;
+        for (auto *fds: {&rfds, &wfds, &efds}) {
+            FD_ZERO(fds);
+            for (const auto &fd: m_watchedFds) {
+                FD_SET(fd, fds);
+                if (maxfd < fd)
+                    maxfd = fd;
+            }
         }
-        struct timeval tenms {0, 10000};
-        int nready = select(maxfd+1, &fds, &fds, &fds, &tenms);
+        struct timeval waittime {0, 100000};
+        int nready = select(maxfd+1, &rfds, &wfds, &efds, &waittime);
 
         if (nready > 0)
         {
             if (cover->debugLevel(4))
-                std::cerr << "OpenCOVER::frame: rendering because of filedescriptor activity" << std::endl;
+            {
+                auto countfd = [this](auto &fds){ unsigned n=0; for (const auto &fd: m_watchedFds) {if (FD_ISSET(fd, &fds))++n; }return n;};
+                auto nread = countfd(rfds);
+                auto nwrite = countfd(wfds);
+                auto nerr = countfd(efds);
+                std::cerr << "OpenCOVER::frame: rendering because of activity on " << nready << " of " << m_watchedFds.size() << " file descriptors: " << nread << " read, " << nwrite << " write, " << nerr << " error" << std::endl;
+            }
+            render = true;
+        }
+        else if (nready < 0)
+        {
+            if (cover->debugLevel(2))
+            {
+                std::cerr << "OpenCOVER::frame: rendering because of errror in select on watched file descriptors" << std::endl;
+            }
             render = true;
         }
         render = msController->syncBool(render);
