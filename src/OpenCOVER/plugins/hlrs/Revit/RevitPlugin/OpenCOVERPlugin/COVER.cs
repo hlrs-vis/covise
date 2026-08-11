@@ -129,32 +129,33 @@ namespace OpenCOVERPlugin
         public Schema ConnectionInfoSchema = null;
 
         public List<cDesignOptionSet> designOptionSets;
+        public Dictionary<ElementId, cDesignOption> designOptionById;
         private DesignOptionModifier.Switcher designoptionMod;
 
         private Dictionary<ElementId, int> phaseDict;
         public void updateVisibility(Document doc, ElementId activeOptId)
         {
-            activeDesignOption = activeOptId;
-
-            foreach (cDesignOptionSet optionSet in designOptionSets)
+            if (activeDesignOption != ElementId.InvalidElementId &&
+                designOptionById.TryGetValue(activeDesignOption, out cDesignOption oldOption))
             {
-                foreach (cDesignOption option in optionSet.designOptions)
-                {
-                    option.visible = (option.des.Id == activeOptId);
-                }
+                oldOption.visible = false;
             }
+
+            if (designOptionById.TryGetValue(activeOptId, out cDesignOption newOption))
+            {
+                newOption.visible = true;
+            }
+            else
+            {
+                activeDesignOption = ElementId.InvalidElementId;
+                return;
+            }
+
+            activeDesignOption = activeOptId;
         }
         public bool isVisible(ElementId id)
         {
-            foreach (cDesignOptionSet os in designOptionSets)
-            {
-                foreach (cDesignOption des in os.designOptions)
-                {
-                    if (des.des.Id == id)
-                        return des.visible;
-                }
-            }
-            return false;
+            return designOptionById.TryGetValue(id, out cDesignOption option) && option.visible;
         }
 
         private void SendDesignOptionSetsMetaData(Document doc)
@@ -286,6 +287,7 @@ namespace OpenCOVERPlugin
 
             documentList = new List<Document>();
             designOptionSets = new List<cDesignOptionSet>();
+            designOptionById = new Dictionary<ElementId, cDesignOption>();
 
             phaseDict = new Dictionary<ElementId, int>();
 
@@ -430,6 +432,7 @@ namespace OpenCOVERPlugin
                 if (uidoc != null) // this is a child document don't clear
             {
                 designOptionSets.Clear();
+                designOptionById.Clear();
                 MessageBuffer mbc = new();
                 if (MaterialInfos == null)
                     MaterialInfos = new Dictionary<ElementId, bool>();
@@ -470,6 +473,7 @@ namespace OpenCOVERPlugin
                             existingSet = true;
                             new_option.designOptionSet = optionSet;
                             optionSet.designOptions.Add(new_option);
+                            designOptionById[found_option.Id] = new_option;
                             break;
                         }
                     }
@@ -484,6 +488,7 @@ namespace OpenCOVERPlugin
                         new_optionSet.ID = osID;
                         new_option.designOptionSet = new_optionSet;
                         designOptionSets.Add(new_optionSet);
+                        designOptionById[found_option.Id] = new_option;
                     }
                 }
             }
@@ -688,14 +693,24 @@ namespace OpenCOVERPlugin
         }
         public void designOptionsChanged(Document doc, ElementId designOptionId)
         {
-            foreach (cDesignOptionSet optionSet in designOptionSets)
+            if (activeDesignOption != ElementId.InvalidElementId &&
+                designOptionById.TryGetValue(activeDesignOption, out cDesignOption activeOption))
             {
-                foreach (cDesignOption option in optionSet.designOptions)
+                FilteredElementCollector elements = new(doc);
+                elements.ContainedInDesignOption(activeOption.des.Id);
+
+                foreach (Element el in elements)
+                {
+                    deleteElement(el.Id);
+                }
+            }
+            else
+            {
+                foreach (cDesignOption option in designOptionById.Values)
                 {
                     if (option.visible)
                     {
                         FilteredElementCollector elements = new(doc);
-
                         elements.ContainedInDesignOption(option.des.Id);
 
                         foreach (Element el in elements)
