@@ -28,7 +28,5 @@ void main (void)
         texColor, 
         smoothstep(bottom, top, texcoord.y)
     );
-
-    gl_FragDepth = 0.9999999;
 }
 </fragmentProgram></_skySphere>

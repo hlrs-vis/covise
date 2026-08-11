@@ -34,6 +34,7 @@
 #include <config/CoviseConfig.h>
 #include <geodata/GeoData.h>
 
+#include <osg/Depth>
 #include <osg/Math>
 #include <osgDB/ReadFile>
 #include <osgDB/WriteFile>
@@ -509,8 +510,17 @@ void Sky::setSkyEntry(SkyEntry &sky, bool manualSelection)
         sky.texture->setWrap(osg::Texture::WRAP_T, osg::Texture::REPEAT);
         sky.texture->setResizeNonPowerOfTwoHint(false);
     }
+
+    texturedSphere->setCullingActive(false);
     osg::StateSet *stateset = texturedSphere->getOrCreateStateSet();
     stateset->setTextureAttributeAndModes(0, sky.texture, osg::StateAttribute::ON);
+
+    stateset->setRenderBinDetails(-10000, "RenderBin");
+
+    osg::ref_ptr<osg::Depth> depth = new osg::Depth;
+    depth->setWriteMask(false);
+    depth->setFunction(osg::Depth::ALWAYS); // or ALWAYS if you disable depth
+    stateset->setAttributeAndModes(depth, osg::StateAttribute::ON);
 
     shader = coVRShaderList::instance()->get("skySphere");
     shader->apply(stateset);
@@ -615,9 +625,8 @@ SkyEntry *Sky::findClosestSky(const osg::Vec3 &globalPosition)
 
 bool Sky::update()
 {
-    float nearValue = coVRConfig::instance()->nearClip();
-    float farValue = coVRConfig::instance()->farClip();
-    float scale = nearValue + (farValue - nearValue) * 0.5; // scale the sphere just between the clipping distances, depth is set by shader
+    // for some reason, bigger values sometimes cause (full-triangle) clipping
+    float scale = coVRConfig::instance()->farClip() * 0.2;
 
     const osg::Matrix &m = cover->getObjectsXform()->getMatrix();
 
