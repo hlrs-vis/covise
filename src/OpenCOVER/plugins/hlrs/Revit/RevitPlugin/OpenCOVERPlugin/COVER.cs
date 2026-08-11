@@ -121,7 +121,9 @@ namespace OpenCOVERPlugin
         private Document document;
         private UIControlledApplication cApplication;
         public Queue<COVERMessage> messageQueue;
-        public ElementId oldDesignOption = null;
+        public ElementId activeDesignOption = ElementId.InvalidElementId;
+        public ElementId pendingDesignOption = ElementId.InvalidElementId;
+        public bool hasPendingDesignOption = false;
         public FilteredElementCollector coordinateSystems;
         public DataStorage ConnectionInfo = null;
         public Schema ConnectionInfoSchema = null;
@@ -130,39 +132,15 @@ namespace OpenCOVERPlugin
         private DesignOptionModifier.Switcher designoptionMod;
 
         private Dictionary<ElementId, int> phaseDict;
-        public void updateVisibility(Document doc)
+        public void updateVisibility(Document doc, ElementId activeOptId)
         {
-            ElementId activeOptId = Autodesk.Revit.DB.DesignOption.GetActiveDesignOptionId(doc);
-            if (activeOptId == null || activeOptId == ElementId.InvalidElementId)
-            {
-                activeOptId = oldDesignOption;
-            }
-            else
-            {
-                bool activeExists = designOptionSets.Any(os => os.designOptions.Any(des => des.des.Id == activeOptId));
-                if (activeExists)
-                {
-                    oldDesignOption = activeOptId;
-                }
-                else
-                {
-                    activeOptId = oldDesignOption;
-                }
-            }
+            activeDesignOption = activeOptId;
 
-            foreach (cDesignOptionSet os in designOptionSets)
+            foreach (cDesignOptionSet optionSet in designOptionSets)
             {
-                bool hasActiveOption = activeOptId != null && activeOptId != ElementId.InvalidElementId && os.designOptions.Any(des => des.des.Id == activeOptId);
-                foreach (cDesignOption des in os.designOptions)
+                foreach (cDesignOption option in optionSet.designOptions)
                 {
-                    if (hasActiveOption)
-                    {
-                        des.visible = (des.des.Id == activeOptId);
-                    }
-                    else
-                    {
-                        des.visible = des.des.IsPrimary;
-                    }
+                    option.visible = (option.des.Id == activeOptId);
                 }
             }
         }
@@ -179,7 +157,7 @@ namespace OpenCOVERPlugin
             return false;
         }
 
-        private void SendDesignOptionSets(Document doc)
+        private void SendDesignOptionSetsMetaData(Document doc)
         {
             if (doc == null)
             {
@@ -469,46 +447,49 @@ namespace OpenCOVERPlugin
 
             collector.OfCategory(BuiltInCategory.OST_DesignOptions);
 
-            foreach (DesignOption des in collector)
+            foreach (DesignOption found_option in collector)
             {
-                cDesignOption cdes = new();
-                cdes.des = des;
-                cdes.name = des.Name;
-                cdes.visible = false;
-                Parameter para = des.get_Parameter(BuiltInParameter.OPTION_SET_ID);
+                cDesignOption new_option = new();
+                new_option.des = found_option;
+                new_option.name = found_option.Name;
+                // if there is no active design option, the primary will be used (same as in autodesk revit default settings)
+                bool isPrimary = found_option.IsPrimary;
+                new_option.visible = isPrimary;
+                if (isPrimary)
+                    activeDesignOption = found_option.Id;
+
+                Parameter para = found_option.get_Parameter(BuiltInParameter.OPTION_SET_ID);
                 if (para != null)
                 {
                     ElementId osID = para.AsElementId();
                     bool existingSet = false;
-                    foreach (cDesignOptionSet os in designOptionSets)
+                    foreach (cDesignOptionSet optionSet in designOptionSets)
                     {
-                        if (os.ID == osID)
+                        if (optionSet.ID == osID)
                         {
                             existingSet = true;
-                            cdes.designOptionSet = os;
-                            os.designOptions.Add(cdes);
+                            new_option.designOptionSet = optionSet;
+                            optionSet.designOptions.Add(new_option);
                             break;
                         }
                     }
                     if (!existingSet)
                     {
-                        cDesignOptionSet os = new();
-                        os.designOptions.Add(cdes);
+                        cDesignOptionSet new_optionSet = new();
+                        new_optionSet.designOptions.Add(new_option);
                         Element el = doc.GetElement(osID);
                         Parameter paraName = el.get_Parameter(BuiltInParameter.OPTION_SET_NAME);
-                        String OptionSetName = paraName.AsString();
-                        os.name = OptionSetName;
-                        os.ID = osID;
-                        cdes.designOptionSet = os;
-                        designOptionSets.Add(os);
+                        String optionSetName = paraName.AsString();
+                        new_optionSet.name = optionSetName;
+                        new_optionSet.ID = osID;
+                        new_option.designOptionSet = new_optionSet;
+                        designOptionSets.Add(new_optionSet);
                     }
                 }
             }
 
-            updateVisibility(doc);
-            SendDesignOptionSets(doc);
-
-            
+            // updateVisibility(doc);
+            SendDesignOptionSetsMetaData(doc);
 
             ProjectPosition projectPos = doc.ActiveProjectLocation.GetProjectPosition(XYZ.Zero);
             double ProjectNorthAngle = projectPos.Angle;
@@ -705,61 +686,33 @@ namespace OpenCOVERPlugin
             mb.add(DocumentID);
             sendMessage(mb.buf, MessageTypes.DeleteElement);
         }
-        public void designOptionsChanged(Document doc, DesignOption des)
+        public void designOptionsChanged(Document doc, ElementId designOptionId)
         {
-            ElementId activeOptId = Autodesk.Revit.DB.DesignOption.GetActiveDesignOptionId(doc);
-            if (activeOptId == null || activeOptId == ElementId.InvalidElementId)
+            foreach (cDesignOptionSet optionSet in designOptionSets)
             {
-                if (des != null)
+                foreach (cDesignOption option in optionSet.designOptions)
                 {
-                    activeOptId = des.Id;
-                }
-                else
-                {
-                    activeOptId = oldDesignOption;
+                    if (option.visible)
+                    {
+                        FilteredElementCollector elements = new(doc);
+
+                        elements.ContainedInDesignOption(option.des.Id);
+
+                        foreach (Element el in elements)
+                        {
+                            deleteElement(el.Id);
+                        }
+                    }
                 }
             }
+            updateVisibility(doc, designOptionId);
+            SendDesignOptionSetsMetaData(doc);
+            FilteredElementCollector new_elements = new(doc);
 
-            if (activeOptId != oldDesignOption)
+            new_elements.ContainedInDesignOption(designOptionId);
+            foreach (Element el in new_elements)
             {
-                oldDesignOption = activeOptId;
-                foreach (cDesignOptionSet os in designOptionSets)
-                {
-                    foreach (cDesignOption des2 in os.designOptions)
-                    {
-                        if (des2.visible)
-                        {
-                            FilteredElementCollector designOptionElements = new(doc);
-
-                            designOptionElements.ContainedInDesignOption(des2.des.Id);
-
-                            foreach (Element el in designOptionElements)
-                            {
-                                deleteElement(el.Id);
-                            }
-                        }
-                    }
-                }
-                updateVisibility(doc);
-                SendDesignOptionSets(doc);
-                foreach (cDesignOptionSet os in designOptionSets)
-                {
-                    foreach (cDesignOption des2 in os.designOptions)
-                    {
-                        if (des2.visible)
-                        {
-                            FilteredElementCollector designOptionElements = new(doc);
-
-                            designOptionElements.ContainedInDesignOption(des2.des.Id);
-
-                            foreach (Element el in designOptionElements)
-                            {
-                                OpenCOVERPlugin.COVER.Instance.SendElement(el);
-                            }
-                        }
-                    }
-                }
-
+                SendElement(el);
             }
         }
 
@@ -1181,8 +1134,6 @@ namespace OpenCOVERPlugin
 
             else
             {
-
-
                 if (View3D != null)
                 {
                     mOptions.DetailLevel = View3D.DetailLevel;
@@ -3787,6 +3738,7 @@ namespace OpenCOVERPlugin
                     return FailureProcessingResult.Continue;
             }
         }
+
         public void idleUpdate(object sender, Autodesk.Revit.UI.Events.IdlingEventArgs e)
         {
             UIApplication uiapp = sender as UIApplication;
@@ -3799,13 +3751,23 @@ namespace OpenCOVERPlugin
                 if (!toCOVER.Connected)
                     cApplication.Idling -= idlingHandler;
 
-                while (COVER.Instance.messageQueue.Count > 0)
+                if (hasPendingDesignOption)
                 {
-                    COVERMessage m = COVER.Instance.messageQueue.Dequeue();
+                    if (pendingDesignOption != ElementId.InvalidElementId)
+                    {
+                        designOptionsChanged(doc, pendingDesignOption);
+                        pendingDesignOption = ElementId.InvalidElementId;
+                    }
+                    hasPendingDesignOption = false;
+                }
+
+                while (messageQueue.Count > 0)
+                {
+                    COVERMessage m = messageQueue.Dequeue();
 
                     if ((MessageTypes)m.messageType == MessageTypes.AvatarPosition || (MessageTypes)m.messageType == MessageTypes.SetView || (MessageTypes)m.messageType == MessageTypes.Resend)//read only messages
                     {
-                        COVER.Instance.HandleMessage(m.message, m.messageType, doc, uidoc, uiapp);
+                        HandleMessage(m.message, m.messageType, doc, uidoc, uiapp);
                     }
                     else
                     {
@@ -3819,7 +3781,7 @@ namespace OpenCOVERPlugin
 
                         if (transaction.Start("changeParameters") == TransactionStatus.Started)
                         {
-                            COVER.Instance.HandleMessage(m.message, m.messageType, doc, uidoc, uiapp);
+                            HandleMessage(m.message, m.messageType, doc, uidoc, uiapp);
                             if (TransactionStatus.Committed != transaction.Commit())
                             {
                                 // Autodesk.Revit.UI.TaskDialog.Show("Failure", "Transaction could not be committed");

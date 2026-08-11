@@ -420,10 +420,10 @@ namespace OpenCOVERPlugin
                 foreach (ElementId id in modifiedElem)
                 {
                     Element el = doc.GetElement(id);
-                    if (el is Autodesk.Revit.DB.DesignOption)
+                    if (el is Autodesk.Revit.DB.DesignOption option)
                     {
-                        // design option changed // resend only changes
-                        cover.designOptionsChanged(doc, (Autodesk.Revit.DB.DesignOption)el);
+                        cover.pendingDesignOption = option.Id;
+                        cover.hasPendingDesignOption = true;
                     }
                     else
                     {
