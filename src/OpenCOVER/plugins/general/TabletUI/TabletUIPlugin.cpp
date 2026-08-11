@@ -133,7 +133,7 @@ bool TabletUIPlugin::init()
     }
 #endif
 
-    for (auto fd: {m_tuiFds[0], m_tuiFds[1], m_tuiSgFds[0], m_tuiSgFds[1]})
+    for (auto fd: {m_tuiFds[0], m_tuiSgFds[0]})
     {
         cover->watchFileDescriptor(fd);
     }
@@ -171,7 +171,7 @@ bool TabletUIPlugin::destroy()
 {
     coTabletUI::instance()->init();
 
-    for (auto fd: {m_tuiFds[0], m_tuiFds[1], m_tuiSgFds[0], m_tuiSgFds[1]})
+    for (auto fd: {m_tuiFds[0], m_tuiSgFds[0]})
     {
         if (fd != -1)
         {
