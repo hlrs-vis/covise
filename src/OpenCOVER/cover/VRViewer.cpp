@@ -271,7 +271,9 @@ bool VRViewer::handleEvents()
 //OpenCOVER
 bool VRViewer::update()
 {
-    bool again = false;
+    bool again = m_requireUpdate;
+    m_requireUpdate = false;
+
     if (cover->debugLevel(5))
         fprintf(stderr, "VRViewer::update\n");
 
@@ -654,7 +656,7 @@ void VRViewer::createViewportCameras(int i)
                 lookupTex->setImage(lookupTexImage);
                 state->setTextureAttributeAndModes(5, lookupTex);
 
-                osg::Program *lookupProgram = new osg::Program;                                                                          
+                osg::Program *lookupProgram = new osg::Program;
                 osg::Shader *lookupFrag = new osg::Shader(osg::Shader::FRAGMENT);
                 lookupProgram->addShader(lookupFrag);
                 lookupFrag->setShaderSource(
@@ -810,7 +812,7 @@ void VRViewer::createBlendingCameras(int i)
             }
             state->setTextureAttributeAndModes(0, blendTex);
         }
-        
+
     geode->addDrawable(geometry);
         geode->setStateSet(state.get());
 
@@ -1377,7 +1379,7 @@ VRViewer::createChannels(int i)
         cam->setCullMask(~0 & ~(Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible
         cam->setCullMaskLeft(~0 & ~(Isect::Right|Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible and not right
         cam->setCullMaskRight(~0 & ~(Isect::Left|Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible and not Left
-       
+
         //cam->getGraphicsContext()->getState()->checkGLErrors(osg::State::ONCE_PER_ATTRIBUTE);
     }
     else
@@ -1458,7 +1460,7 @@ void VRViewer::forceCompile()
     for(int i=0;i<coVRConfig::instance()->channels.size();i++)
     {
         osg::GraphicsOperation *rop = coVRConfig::instance()->channels[i].camera->getRenderer();
-        coVRRenderer *r = dynamic_cast<coVRRenderer *>(rop); 
+        coVRRenderer *r = dynamic_cast<coVRRenderer *>(rop);
         if(r)
         {
             r->setCompileOnNextDraw(true);
@@ -1488,7 +1490,10 @@ VRViewer::setClearColor(const osg::Vec4 &color)
     for (int i = 0; i < coVRConfig::instance()->numChannels(); ++i)
     {
 		if(coVRConfig::instance()->channels[i].camera!=NULL)
+		{
+            m_requireUpdate = true;
             coVRConfig::instance()->channels[i].camera->setClearColor(color);
+		}
     }
 }
 
@@ -2254,13 +2259,13 @@ void VRViewer::startThreading()
         }
     }
 
-#if 0    
-    if (affinity) 
+#if 0
+    if (affinity)
     {
         OpenThreads::SetProcessorAffinityOfCurrentThread(-1);
         if (_scene.valid() && _scene->getDatabasePager())
         {
-#if 0        
+#if 0
             _scene->getDatabasePager()->setProcessorAffinity(1);
 #else
             _scene->getDatabasePager()->setProcessorAffinity(0);
@@ -2583,7 +2588,7 @@ void VRViewer::renderingTraversals()
     }
 
     // osg::notify(osg::NOTICE)<<"Joing _endRenderingDispatchBarrier block "<<_endRenderingDispatchBarrier.get()<<std::endl;
-    
+
     // wait till the rendering dispatch is done.
     if (_endRenderingDispatchBarrier.valid())
         _endRenderingDispatchBarrier->block();
@@ -2604,7 +2609,7 @@ void VRViewer::renderingTraversals()
             makeCurrent(*itr);
 
             glContextOperation(*itr);
-	    
+
             double beginFinish = elapsedTime();
             if (m_requireGlFinish)
             {

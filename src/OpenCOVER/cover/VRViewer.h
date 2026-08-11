@@ -240,6 +240,7 @@ public:
     InitGLOperation *m_initGlOp = nullptr;
 
     bool m_requireGlFinish = true;
+    bool m_requireUpdate = true;
 };
 
 std::pair<osg::Matrix, osg::Matrix> COVEREXPORT computeViewProjFixedScreen(const osg::Matrix &viewerMat, osg::Vec3 eye, const osg::Vec3 &xyz, const osg::Vec3 &hpr, const osg::Vec2 &size, double near, double far, bool ortho=false, double worldAngle=0.f);
