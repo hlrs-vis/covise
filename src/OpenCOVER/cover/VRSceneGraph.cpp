@@ -1358,8 +1358,15 @@ VRSceneGraph::loadHandLine()
 
         verts->push_back(osg::Vec3(0, 0, 0));
         verts->push_back(osg::Vec3(0, 100000000.f, 0));
-        colors->push_back(osg::Vec4(0.5, 0.7, 1.0, 0.7));
-        colors->push_back(osg::Vec4(0.5, 0.7, 1.0, 0.7));
+
+        float r, g, b, a;
+        r = coCoviseConfig::getFloat("r", "COVER.PointerAppearance.Color", 0.5f);
+        g = coCoviseConfig::getFloat("g", "COVER.PointerAppearance.Color", 0.7f);
+        b = coCoviseConfig::getFloat("b", "COVER.PointerAppearance.Color", 1.0f);
+        a = coCoviseConfig::getFloat("a", "COVER.PointerAppearance.Color", 0.7f);
+
+        colors->push_back(osg::Vec4(r, g, b, a));
+        colors->push_back(osg::Vec4(r, g, b, a));
 
         osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry();
         geometry->setVertexArray(verts.get());
@@ -1370,6 +1377,11 @@ VRSceneGraph::loadHandLine()
         osg::ref_ptr<osg::StateSet> ss = geometry->getOrCreateStateSet();
         ss->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
         ss->setMode(GL_ALPHA_TEST, osg::StateAttribute::ON);
+        float width = coCoviseConfig::getFloat("COVER.PointerAppearance.Width", 0.0);
+        if (width > 0)
+        {
+            ss->setAttributeAndModes(new osg::LineWidth(width));
+        }
 
         geode->addDrawable(geometry.get());
 
