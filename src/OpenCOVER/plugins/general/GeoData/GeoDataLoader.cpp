@@ -20,6 +20,7 @@
 
 #include "GeoDataLoader.h"
 
+#include <algorithm>
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
 #include <cover/coVRFileManager.h>
@@ -327,6 +328,12 @@ bool GeoDataLoader::init()
     labelsVisibilityButton->setCallback([this](bool state)
         { setShowLabels(state); });
 
+    autoViewDistanceButton = new ui::Button(visibilityGroup, "autoViewDistance");
+    autoViewDistanceButton->setText("Automatic view distance");
+    autoViewDistanceButton->setState(autoViewDistance);
+    autoViewDistanceButton->setCallback([this](bool state)
+        { setAutoViewDistance(state); });
+
     // create Button for each region in config
     geoObjectGroup = new ui::Group(geoDataMenu, "GeoObjects");
     geoObjectGroup->setText("Geo-Objects");
@@ -521,6 +528,12 @@ void GeoDataLoader::setShowLabels(bool state)
     }
 }
 
+void GeoDataLoader::setAutoViewDistance(bool state)
+{
+    autoViewDistance = state;
+    autoViewDistanceButton->setState(state);
+}
+
 void GeoDataLoader::message(int toWhom, int type, int length, const void *data)
 {
     const char *messageData = (const char *)data;
@@ -532,6 +545,20 @@ void GeoDataLoader::message(int toWhom, int type, int length, const void *data)
 
 bool GeoDataLoader::update()
 {
+    if (autoViewDistance)
+    {
+        double scale = cover->getScale();
+        osg::Matrix currentObjectsTransform = cover->getObjectsXform()->getMatrix();
+        double z = std::abs(currentObjectsTransform.getTrans().z()) * scale;
+
+        double far = 10 * z; // see 10 times as far as we're high
+        far = std::clamp(far, 1e7, 1e10); // see at least 10km and at most 10_000 km
+
+        double near = far / 1e6;
+        near = std::clamp(near, 10.0, 500.0);
+        coVRConfig::instance()->setNearFar(near, far);
+    }
+
     if (editInteraction->isRunning())
     {
         // get the intersected node

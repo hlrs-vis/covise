@@ -39,13 +39,13 @@ void VrmlNodeGeoData::initFields(VrmlNodeGeoData *node, VrmlNodeType *t)
         auto datasets = loader->getDatasets();
         auto dataset = std::find_if(datasets.begin(), datasets.end(), [node](const GeoDataLoader::DatasetInfo &d)
             { return d.name == node->d_offsetName.get(); });
-                if (dataset == datasets.end())
-                {
-                    std::cerr << "[VrmlNodeGeoData::initFields] GeoData: invalid offsetName '" << node->d_offsetName.get() << "'." << std::endl;
-                    return;
-                }
-                osg::Vec3 origin = osg::Vec3(dataset->easting, dataset->northing, dataset->altitude);
-                opencover::GeoData::instance()->setProjectOffset(origin); }),
+        if (dataset == datasets.end())
+        {
+            std::cerr << "[VrmlNodeGeoData::initFields] GeoData: invalid offsetName '" << node->d_offsetName.get() << "'." << std::endl;
+            return;
+        }
+        osg::Vec3 origin = osg::Vec3(dataset->easting, dataset->northing, dataset->altitude);
+        opencover::GeoData::instance()->setProjectOffset(origin); }),
         exposedField("regions", &VrmlNodeGeoData::d_regions, [node](auto f)
             {
         auto geoData = GeoDataLoader::instance();
@@ -63,7 +63,9 @@ void VrmlNodeGeoData::initFields(VrmlNodeGeoData *node, VrmlNodeType *t)
         exposedField("showLabels", &VrmlNodeGeoData::d_showLabels, [node](auto f)
             { GeoDataLoader::instance()->setShowLabels(node->d_showLabels.get()); }),
         exposedField("showBuildings", &VrmlNodeGeoData::d_showBuildings, [node](auto f)
-            { GeoDataLoader::instance()->setShowBuildings(node->d_showBuildings.get()); }));
+            { GeoDataLoader::instance()->setShowBuildings(node->d_showBuildings.get()); }),
+        exposedField("autoViewDistance", &VrmlNodeGeoData::d_autoViewDistance, [node](auto f)
+            { GeoDataLoader::instance()->setAutoViewDistance(node->d_autoViewDistance.get()); }));
 }
 
 const char *VrmlNodeGeoData::typeName()

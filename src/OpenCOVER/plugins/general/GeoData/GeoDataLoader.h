@@ -129,6 +129,7 @@ public:
     void setShowBuildings(bool state);
     void setShowTerrain(bool state);
     void setShowLabels(bool state);
+    void setAutoViewDistance(bool state);
 
     std::optional<PlaceLabelGroup> loadLabels(const std::string &file);
 
@@ -172,6 +173,7 @@ private:
     opencover::ui::Button *terrainVisibilityButton;
     opencover::ui::Button *buildingsVisibilityButton;
     opencover::ui::Button *labelsVisibilityButton;
+    opencover::ui::Button *autoViewDistanceButton;
 
     opencover::ui::Group *originGroup;
     opencover::ui::SelectionList *datasetList;
@@ -192,5 +194,7 @@ private:
     std::string tempNorthingText;
     std::string tempAltitudeText;
     std::string tempTrueNorthText;
+
+    bool autoViewDistance = false;
 };
 #endif

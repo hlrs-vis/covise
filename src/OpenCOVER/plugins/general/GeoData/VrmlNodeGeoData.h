@@ -43,5 +43,6 @@ private:
     VrmlSFBool d_showTerrain;
     VrmlSFBool d_showLabels;
     VrmlSFBool d_showBuildings;
+    VrmlSFBool d_autoViewDistance;
 };
 #endif //_VRMLNODEGeoData_
