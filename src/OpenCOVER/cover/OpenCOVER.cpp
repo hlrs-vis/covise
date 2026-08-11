@@ -1356,7 +1356,7 @@ bool OpenCOVER::frame()
     {
         int maxfd = -1;
         fd_set rfds, wfds, efds;
-        for (auto *fds: {&rfds, &wfds, &efds}) {
+        for (auto *fds: {&rfds, &efds}) {
             FD_ZERO(fds);
             for (const auto &fd: m_watchedFds) {
                 FD_SET(fd, fds);
@@ -1365,7 +1365,7 @@ bool OpenCOVER::frame()
             }
         }
         struct timeval waittime {0, 100000};
-        int nready = select(maxfd+1, &rfds, &wfds, &efds, &waittime);
+        int nready = select(maxfd+1, &rfds, nullptr, &efds, &waittime);
 
         if (nready > 0)
         {
@@ -1373,9 +1373,8 @@ bool OpenCOVER::frame()
             {
                 auto countfd = [this](auto &fds){ unsigned n=0; for (const auto &fd: m_watchedFds) {if (FD_ISSET(fd, &fds))++n; }return n;};
                 auto nread = countfd(rfds);
-                auto nwrite = countfd(wfds);
                 auto nerr = countfd(efds);
-                std::cerr << "OpenCOVER::frame: rendering because of activity on " << nready << " of " << m_watchedFds.size() << " file descriptors: " << nread << " read, " << nwrite << " write, " << nerr << " error" << std::endl;
+                std::cerr << "OpenCOVER::frame: rendering because of activity on " << nready << " of " << m_watchedFds.size() << " file descriptors: " << nread << " read, " << nerr << " error" << std::endl;
             }
             render = true;
         }
