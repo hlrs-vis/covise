@@ -1,0 +1,181 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+    <GLOBAL>
+        <COVER>
+            <NavigationMode value="AimMotion" />
+
+            <CheckForOpenGLErrors value="true" />
+            <UseVertexBufferObjects value="false" />
+            <UseDisplayLists value="true" />
+            <StencilBits value="8" />
+            <Stencil value="true" />
+            <FloorHeight value="-1150" />
+
+            <Input>
+                <MouseNav value="ON" />
+                <Device>
+                    <joystick driver="joystick" device="/dev/input/js"/>
+                    <Vive driver="Vive">
+                        <ButtonsPerController value="6" />
+
+                        <CalibrationPoint x="-1000" y="-300" z="-1000" info="left_front" name="0"/>
+                        <CalibrationPoint x="1000" y="-300" z="-1000" info="right_front" name="1"/>
+                        <CalibrationPoint x="-1000" y="-2000" z="-1000" info="left_back" name="2"/>
+
+                        <!-- Meta Quest 3, with controllers, no hands -->
+                        <Device serial="WMHD315M3010GV" index="0" controllerID="18446744073709551615" name="3" />
+                        <Device serial="1WMHH000X00000_Controller_Left" index="4" controllerID="0" name="4" />
+                        <Device serial="1WMHH000X00000_Controller_Right" index="3" controllerID="1" name="5" />
+                        <!-- Meta Quest 3 ALVR+SteamVR Hands -->
+                        <Device serial="WMHD315M3010GV_Controller_Left" index="5" controllerID="2" name="6" />
+                        <Device serial="WMHD315M3010GV_Controller_Right" index="6" controllerID="3" name="7" />
+
+                        <!-- <TransformOriginToCamera value="FALSE" /> -->
+
+                        <Offset x="78" y="-200" z="-1000" />
+                        <Orientation h="0" p="90" r="0" />
+                        <!-- <Orientation h="-90" p="90" r="120" /> -->
+                    </Vive>
+                </Device>
+
+                <Body>
+                    <ConstHead>
+                        <Offset x="0" y="-2000" z="0" />
+                        <Orientation h="0" p="0" r="0" />
+                    </ConstHead>
+
+                    <ViveHead device="Vive" bodyIndex="0">
+                        <Offset x="0" y="0" z="0" />
+                        <Orientation h="0" p="-90" r="0" />
+                    </ViveHead>
+
+                    <ViveHand device="Vive" bodyIndex="3">
+                        <Offset x="-15" y="0" z="40" />
+                        <Orientation h="0" p="-127" r="0" />
+                    </ViveHand>
+
+                    <ViveHandLeft device="Vive" bodyIndex="4">
+                        <Offset x="15" y="0" z="40" />
+                        <Orientation h="0" p="-127" r="0" />
+                    </ViveHandLeft>
+
+                    <JoyRight device="Vive">
+                        <!--AssembleX valuator="10" scale="-300" shift="0" /-->
+                        <AssembleY valuator="11" scale="-300" shift="0" />
+                        <AssembleH valuator="10" scale="0.5" shift="0" />
+                    </JoyRight>
+
+                    <JoyLeft device="Vive">
+                        <!--AssembleX valuator="10" scale="-300" shift="0" /-->
+                        <AssembleY valuator="1" scale="-300" shift="0" />
+                        <AssembleH valuator="0" scale="0.5" shift="0" />
+                    </JoyLeft>
+
+                    <JoyCombined device="Vive">
+                        <!-- <AssembleX valuator="0" scale="-300" shift="0" /> -->
+                        <!-- <AssembleY valuator="11" scale="-300" shift="0" /> -->
+                        <!-- <AssembleZ valuator="1" scale="-300" shift="0" /> -->
+                        <!-- <AssembleH valuator="10" scale="0.5" shift="0" /> -->
+                        <AssembleX valuator="10" scale="-300" shift="0" />
+                        <AssembleY valuator="11" scale="-300" shift="0" />
+                        <AssembleZ valuator="1" scale="-300" shift="0" />
+                        <AssembleH valuator="0" scale="0.5" shift="0" />
+                    </JoyCombined>
+                </Body>
+
+                <Buttons>
+                <!-- 0-3: 1st controller, 4-7: 2nd controller, 8-9: extra buttons 1st controller, 10-11: extra 2nd -->
+                    <ViveRight device="Vive" >
+                        <Map name="6" value="ACTION_BUTTON" comment="Trigger right" />
+                        <Map name="9" value="XFORM_BUTTON" comment="Grip right" />
+                        <Map name="10" value="DRIVE_BUTTON" comment="A" />
+                        <Map name="8" value="MENU_BUTTON" comment="B" />
+                        <Map name="7" value="PERSON_PREV" comment="press joystick right" />
+                        <Map name="11" value="NO_BUTTON" comment="not used"/>
+
+                        <Map name="0" value="ACTION_BUTTON" comment="Trigger left" />
+                        <Map name="3" value="XFORM_BUTTON" comment="Grip left" />
+                        <Map name="4" value="DRIVE_BUTTON" comment="X" />
+                        <Map name="2" value="MENU_BUTTON" coment="Y" />
+                        <Map name="1" value="PERSON_NEXT" comment="press joystick left" />
+                        <Map name="5" value="NO_BUTTON" comment="not used" />
+                    </ViveRight>
+                    <ViveLeft device="Vive" >
+                        <Map name="0" value="ACTION_BUTTON" />
+                        <Map name="3" value="XFORM_BUTTON" />
+                        <Map name="4" value="DRIVE_BUTTON" />
+                        <Map name="2" value="MENU_BUTTON" />
+                        <Map name="1" value="PERSON_NEXT" />
+                        <Map name="5" value="NO_BUTTON" />
+
+                        <Map name="6" value="ACTION_BUTTON" />
+                        <Map name="9" value="XFORM_BUTTON" />
+                        <Map name="10" value="DRIVE_BUTTON" />
+                        <Map name="8" value="MENU_BUTTON" />
+                        <Map name="7" value="PERSON_PREV" />
+                        <Map name="11" value="NO_BUTTON" />
+                    </ViveLeft>
+                </Buttons>
+
+                <Valuator>
+                    <LeftJoyX device="Vive" valuatorIndex="0" />
+                    <LeftJoyY device="Vive" valuatorIndex="1" />
+                    <LeftTriggerX device="Vive" valuatorIndex="2" />
+                    <LeftGripX device="Vive" valuatorIndex="4" />
+
+                    <RightJoyX device="Vive" valuatorIndex="10" />
+                    <RightJoyY device="Vive" valuatorIndex="11" />
+                    <RightTriggerX device="Vive" valuatorIndex="12" />
+                    <RightGripX device="Vive" valuatorIndex="14" />
+                </Valuator>
+
+                <Persons>
+                    <Person default="true"  name="Vive"     head="ViveHead" hand="ViveHand"     secondHand="ViveHandLeft" buttons="ViveRight" relative="JoyCombined" eyeDistance="64" />
+                    <Person                 name="ViveLeft" head="ViveHead" hand="ViveHandLeft" secondHand="ViveHand"     buttons="ViveLeft" relative="JoyCombined" eyeDistance="64" />
+                    <Person name="Const" head="ConstHead" hand="ViveHand" buttons="ViveRight" relative="JoyCombined" />
+                </Persons>
+            </Input>
+
+            <Plugin>
+                <Vive value="on" trackingOnly="false"/>
+            </Plugin>
+
+            <HMD distance="1000" tracked="true" />
+            <Menu>
+                <Position x="500" y="000" z="500" />
+                <Orientation h="-60" r="0" p="30" />
+            </Menu>
+
+            <ViewerPosition x="0" y="-2500" z="0" />
+            <Stereo value="true" />
+
+            <PipeConfig>
+                <Pipe name="0" useDISPLAY="true" />
+            </PipeConfig>
+
+            <WindowConfig>
+                <!-- <Window width="2880" comment="FRONT" window="0" pipeIndex="0" height="1600" left="0" top="40" name="0" decoration="true" /> -->
+                <Window width="1440" comment="FRONT" window="0" pipeIndex="0" height="800" left="0" top="40" name="0" decoration="true" />
+            </WindowConfig>
+
+            <ScreenConfig>
+                <Screen width="2880" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="1600" p="0.0" r="0.0" name="0" screen="0" />
+            </ScreenConfig>
+
+            <ViewportConfig>
+                <Viewport width="1" height="1" left="0" bottom="0" windowIndex="0" channelIndex="0" name="0"  />
+            </ViewportConfig>
+
+            <NumWindows value="1" />
+            <NumChannels value="2" />
+
+            <ChannelConfig>
+                <Channel comment="MAINL" channel="0" stereoMode="LEFT" windowIndex="0" PBOIndex="0" name="0" screenIndex="0"/>
+                <Channel comment="MAINR" channel="1" stereoMode="RIGHT" windowIndex="0" PBOIndex="1" name="1" screenIndex="0"/>
+            </ChannelConfig> 
+        </COVER>
+    </GLOBAL>
+
+    <INCLUDE global="1" configname="colormap">config.paul.general.xml</INCLUDE>
+</COCONFIG>

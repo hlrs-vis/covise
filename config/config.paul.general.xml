@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+    <GLOBAL>
+        <COVER>
+            <PointerAppearance>
+                <IconName value="line"/>
+                <Width value="10"/>
+                <Length value="1500"/>
+                <!-- interscetion length is used also for mouse, it needs to be long enough to intersect far objects -->
+                <Intersection value="15000" />
+            </PointerAppearance>
+
+            <UI>
+                <VRUI toolbar="false" />
+                <NavigationManager>
+                    <Navigation>
+                        <!--MoveWorld parent="" /-->
+                        <ViewAll parent="" />
+                        <Snap parent="" />
+                        <Modes>
+                            <Scale parent="" />
+                            <SelectInteract parent="" />
+                            <!--Drive parent="" /-->
+                        </Modes>
+                    </Navigation>
+                </NavigationManager>
+                <Manager>
+                    <ViewOptions>
+                        <TrackHead parent="" />
+                        <!--Lighting parent="" /-->
+                    </ViewOptions>
+                </Manager>
+            </UI>
+
+            <!--GLVersion value="3.0" /-->
+            <SnapDegrees value="5" />
+            <DebugTUI value="OFF" />
+
+            <DepthPeeling value="false" />
+            <LODScale value="1" />
+
+            <SyncToVBlank value="OFF" device="DFP-0" />
+
+            <CheckForOpenGLErrors value="true" />
+            <NavigationMode value="XForm" />
+            <AnimationSpeed min="0.0" max="25.0" default="24.0" />
+            <MultiThreaded value="off" />
+            <FramebufferSRGB value="false" />
+            <StencilBits value="8" />
+            <Stencil value="true" />
+
+            <ConstantInteractorSize value="false"/>
+            <!-- <IconSize value="50"/> -->
+            <!-- <IconOffset value="0"/> -->
+
+            <Plugin>
+                <GeoData      value="on"  menu="true" />
+                <GeoCoding    value="on"  menu="true" />
+                <Sky          value="on"  menu="true" />
+                <ViewPoint    value="on"  menu="true" />
+                <SGBrowser    value="on"  menu="true" />
+                <AuralReality value="off" menu="true" />
+                <TabletUI     value="off" menu="true" />
+                <Video        value="off" menu="true" />
+                <JSBSim       value="off" menu="true" />
+                <TabletUI     value="off" menu="true" />
+                <Measure      value="off" menu="true" />
+                <Move         value="off" menu="true" />
+                <Vrml97       value="on"  menu="true">
+                    <Audio value="disable" />
+                    <ViewpointType value="standardNoFov"/>
+                    <UseFieldOfViewForScaling value="off" />
+                </Vrml97>
+            </Plugin>
+        </COVER>
+    </GLOBAL>
+</COCONFIG>

@@ -3,199 +3,32 @@
 <COCONFIG version="1" >
     <GLOBAL>
         <COVER>
-            <PointerAppearance>
-                <IconName value="line"/>
-                <Width value="10"/>
-                <Length value="1500"/>
-                <!-- interscetion length is used also for mouse, it needs to be long enough to intersect far objects -->
-                <Intersection value="15000" />
-            </PointerAppearance>
-
-            <UI>
-                <VRUI toolbar="false" />
-                <NavigationManager>
-                    <Navigation>
-                        <!--MoveWorld parent="" /-->
-                        <ViewAll parent="" />
-                        <Snap parent="" />
-                        <Modes>
-                            <Scale parent="" />
-                            <SelectInteract parent="" />
-                            <!--Drive parent="" /-->
-                        </Modes>
-                    </Navigation>
-                </NavigationManager>
-                <Manager>
-                    <ViewOptions>
-                        <TrackHead parent="" />
-                        <!--Lighting parent="" /-->
-                    </ViewOptions>
-                </Manager>
-            </UI>
-
-            <!--GLVersion value="3.0" /-->
-            <SnapDegrees value="5" />
-            <DebugTUI value="OFF" />
-
-            <DepthPeeling value="false" />
-            <LODScale value="1" />
-
-            <SyncToVBlank value="OFF" device="DFP-0" />
-
-            <CheckForOpenGLErrors value="true" />
             <NavigationMode value="XForm" />
-            <AnimationSpeed min="0.0" max="25.0" default="24.0" />
-            <MultiThreaded value="off" />
-            <FramebufferSRGB value="false" />
-            <StencilBits value="8" />
-            <Stencil value="true" />
 
             <Input>
                 <MouseNav value="ON" />
-
                 <Device>
                     <joystick driver="joystick" device="/dev/input/js"/>
                 </Device>
             </Input>
 
-            <Plugin>
-                <GeoData menu="true" />
-                <TabletUI value="off" menu="true" />
-                <GeoCoding menu="true" value="on" />
-                <Sky menu="true" value="on" />
-                <Video menu="true" />
-                <JSBSim menu="true" />
-
-                <CompositorIceT menu="false" />
-                <ViewPoint value="true" />
-                <AuralReality menu="true" />
-                <Measure menu="true" />
-                <Vrml97 value="on" >    
-                    <ViewpointType value = "standardNoFov"/>
-                    <Audio value="disable">
-                        <!-- <Host value="localhost" port="8000" /> -->
-                    </Audio>
-                    <ViewpointType value = "standardNoFov"/>
-                    <!--<UseFieldOfViewForScaling value="on" />-->
-                </Vrml97>
-                <Move value="false" menu="true" />
-                <Traffic>
-                    <VehicleClasses>
-                        <pedestrian>
-                            <GeometryType value="character" />
-
-                            <Models>
-                                <CH02_01 value="0.04" />
-                                <CH02_02 value="0.04" />
-                                <CH02_03 value="0.04" />
-                                <CH02_04 value="0.04" />
-                                <CH02_05 value="0.04" />
-                                <CH02_06 value="0.04" />
-                                <CH02_07 value="0.04" />
-                                <CH02_08 value="0.04" />
-                                <CH02_09 value="0.04" />
-                                <CH02_10 value="0.04" />
-
-                                <CP01_01 value="0.02" />
-                                <CP01_02 value="0.04" />
-                                <CP01_03 value="0.04" />
-                                <CP01_04 value="0.04" />
-                                <CP01_05 value="0.04" />
-                                <CP01_06 value="0.04" />
-                                <CP01_07 value="0.04" />
-                                <CP01_08 value="0.04" />
-                                <CP01_09 value="0.04" />
-                                <CP01_10 value="0.04" />
-
-                                <CW_01 value="0.04" />
-                                <CW_02 value="0.04" />
-                                <CW_03 value="0.04" />
-                                <CW_04 value="0.04" />
-                                <CW_05 value="0.04" />
-                                <CW_06 value="0.04" />
-                                <CW_07 value="0.04" />
-                                <CW_08 value="0.04" />
-                                <CW_09 value="0.04" />
-                                <CW_10 value="0.04" />
-
-                                <ST01_01 value="0.04" />
-                                <ST01_02 value="0.04" />
-                                <ST01_03 value="0.04" />
-                                <ST01_04 value="0.04" />
-                                <ST01_05 value="0.04" />
-                                <ST01_06 value="0.04" />
-                                <ST01_07 value="0.04" />
-                                <ST01_08 value="0.04" />
-                                <ST01_09 value="0.04" />
-                                <ST01_10 value="0.04" />
-                            </Models>
-                        </pedestrian>
-
-                        <bicycle>
-                            <Models>
-                                <bicycle value="/data/vehicles/bicycle/bicycle.glb" />
-                            </Models>
-                        </bicycle>
-
-                        <passenger>
-                            <Models>
-                                <audi_a4 value="/data/vehicles/car/audi_a4.glb" />
-                                <audi_r8 value="/data/vehicles/car/audi_r8.glb" />
-                                <audi_tt value="/data/vehicles/car/audi_tt.glb" />
-                                <bmw_z3 value="/data/vehicles/car/bmw_z3.glb" />
-                                <ford_ka value="/data/vehicles/car/ford_ka.glb" />
-                                <honda_civic value="/data/vehicles/car/honda_civic.glb" />
-                                <renault_clio value="/data/vehicles/car/renault_clio.glb" />
-                                <seat_ibiza value="/data/vehicles/car/seat_ibiza.glb" />
-                                <smart value="/data/vehicles/car/smart.glb" />
-                                <toyota_landcruiser value="/data/vehicles/car/toyota_landcruiser.glb" />
-                                <volvo value="/data/vehicles/car/volvo.glb" />
-                                <vw_golf3 value="/data/vehicles/car/vw_golf3.glb" />
-                            </Models>
-                        </passenger>
-
-                        <truck>
-                            <Models>
-                                <daf_low value="/data/vehicles/truck/daf_low.glb" />
-                            </Models>
-                        </truck>
-
-                        <bus>
-                            <Models>
-                                <shuttle value="/data/vehicles/bus/shuttle.glb" />
-                                <citaro value="/data/vehicles/bus/citaro.glb" />
-                            </Models>
-                        </bus>
-
-                        <escooter>
-                            <Models>
-                                <ElectricScooter value="/data/campus/Scooter/scooterOnly.WRL"/>
-                                <ElectricScooter_ST01_09 value="/data/campus/Scooter/scooterFemaleRiderScaleNew.WRL"/>
-                            </Models>
-                        </escooter>
-                    </VehicleClasses>
-                </Traffic>
-            </Plugin>
-
+            <SceneSize value="100" />
             <Menu>
                 <Position x="50" y="-300" z="25" />
             </Menu>
             <ViewerPosition x="0" y="-400" z="0" />
-            <SceneSize value="100" />
-            <DebugLevel value="1" />
             <Stereo value="false" />
-            <FPS value="true" />
 
             <PipeConfig>
                 <Pipe name="0" useDISPLAY="true" />
             </PipeConfig>
 
             <WindowConfig>
-                <Window type="Qt" width="1024" comment="FRONT" window="0" pipeIndex="0" height="576" left="100" top="100" name="0" embedded="false" decoration="true" />
+                <Window type="Qt" width="1800" comment="FRONT" window="0" pipeIndex="0" height="1200" left="100" top="100" name="0" embedded="false" decoration="true" />
             </WindowConfig>
 
             <ScreenConfig>
-                <Screen width="595" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="335" p="0.0" r="0.0" name="0" screen="0" />
+                <Screen width="600" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="400" p="0.0" r="0.0" name="0" screen="0" />
             </ScreenConfig>
 
             <ViewportConfig>
@@ -205,6 +38,5 @@
         </COVER>
     </GLOBAL>
 
-    <INCLUDE global="1" configname="sumo" >config-sumo.xml</INCLUDE>
-    <INCLUDE global="1" configname="colormap">config-colormaps.xml</INCLUDE>
+    <INCLUDE global="1" configname="paul">config.paul.general.xml</INCLUDE>
 </COCONFIG>
