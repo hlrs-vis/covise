@@ -1426,7 +1426,7 @@ RevitPlugin::RevitPlugin()
     setViewpoint = true;
 	bool avail = false;
 	ignoreDepthOnly = coCoviseConfig::isOn("ignoreDepthOnly", "COVER.Plugin.Revit", false,&avail);
-	int port = coCoviseConfig::getInt("port", "COVER.Plugin.Revit.Server", 31821);
+	int port = coCoviseConfig::getInt("port", "COVER.Plugin.Revit", 31821);
     textureDir = coCoviseConfig::getEntry("textures", "COVER.Plugin.Revit", "C:/Program Files (x86)/Common Files/Autodesk Shared/Materials/Textures");
     localTextureDir = coCoviseConfig::getEntry("localTextures", "COVER.Plugin.Revit", "c:/tmp");
 	toRevit = NULL;
