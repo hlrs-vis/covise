@@ -225,10 +225,10 @@ void coBillboard::accept(NodeVisitor &nv)
                 _cachedInvMatrix.set(rotMat * axisNormal);
                 _cachedMatrix.set(Matrix::inverse(_cachedInvMatrix));
             }
-            else if (_mode == POINT_ROT_EYE)
+            else if (_mode == POINT_ROT_EYE || _mode == POINT_ROT_VIEWER)
             {
-
-                osg::Vec3 PosToEye = eyePoint;
+                osg::Vec3 pos = cs->getModelViewMatrix()->getTrans();
+                osg::Vec3 PosToEye = _mode == POINT_ROT_EYE ? eyePoint : (osg::Vec3(cover->getViewerMat().getTrans()) - pos);
                 PosToEye.normalize();
                 osg::Matrix matrix;
                 osg::Matrix modelview;

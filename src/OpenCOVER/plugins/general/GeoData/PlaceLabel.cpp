@@ -156,7 +156,7 @@ PlaceLabel::PlaceLabel(const std::string &value, const osg::Vec3 &position, osg:
     // billboarding label
     billboard = new coBillboard();
     billboard->setNodeMask(billboard->getNodeMask() & ~Isect::Intersection & ~Isect::Pick);
-    billboard->setMode(coBillboard::POINT_ROT_EYE);
+    billboard->setMode(coBillboard::POINT_ROT_VIEWER);
     billboard->setAxis(osg::Vec3(0, 1, 0));
     billboard->setNormal(osg::Vec3(0, 0, 1));
     ds->addChild(billboard);

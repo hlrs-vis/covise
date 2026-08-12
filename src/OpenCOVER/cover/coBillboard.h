@@ -109,7 +109,8 @@ public:
         STOP_ROT = 0,
         AXIAL_ROT,
         POINT_ROT_EYE,
-        POINT_ROT_WORLD
+        POINT_ROT_WORLD,
+        POINT_ROT_VIEWER
     };
 
     // rotation mode
