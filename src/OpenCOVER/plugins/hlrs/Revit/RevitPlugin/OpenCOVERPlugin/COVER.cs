@@ -284,6 +284,10 @@ namespace OpenCOVERPlugin
             {
             }
 
+            if (CAVEHost == null || CAVEHost.Length == 0)
+            {
+                CAVEHost = "visent.hlrs.de";
+            }
 
             documentList = new List<Document>();
             designOptionSets = new List<cDesignOptionSet>();
