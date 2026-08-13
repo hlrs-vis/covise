@@ -420,20 +420,13 @@ namespace OpenCOVERPlugin
             }
             return null;
         }
-        public static uint SwapUnsignedInt(uint source)
-        {
-            return (uint)((((source & 0x000000FF) << 24)
-            | ((source & 0x0000FF00) << 8)
-            | ((source & 0x00FF0000) >> 8)
-            | ((source & 0xFF000000) >> 24)));
-        }
 
         public void SendGeometry(FilteredElementIterator iter, UIDocument uidoc, Document doc)
         {
 
             // document might have changed so set it again.
             document = doc;
-                if (uidoc != null) // this is a child document don't clear
+            if (uidoc != null) // this is a child document don't clear
             {
                 designOptionSets.Clear();
                 designOptionById.Clear();

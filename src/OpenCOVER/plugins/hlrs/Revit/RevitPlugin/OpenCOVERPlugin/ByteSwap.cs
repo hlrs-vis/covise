@@ -22,6 +22,15 @@ namespace OpenCOVERPlugin
          ((0x000000FF & input) << 24)));
       }
 
+      // public static uint swap(uint source)
+      // {
+      //     return (uint)((
+      //       ((source & 0x000000FF) << 24)
+      //     | ((source & 0x0000FF00) << 8)
+      //     | ((source & 0x00FF0000) >> 8)
+      //     | ((source & 0xFF000000) >> 24)));
+      // }
+
       public static void swapTo(int input, Array dest, int pos)
       {
          swapTo((uint)input, dest, pos);
@@ -68,5 +77,6 @@ namespace OpenCOVERPlugin
          tmpOut[7] = tmpIn[0];
          return BitConverter.ToDouble(tmpOut, 0);
       }
+
    }
 }
