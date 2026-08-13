@@ -38,31 +38,56 @@ AvFramePtr alloc_picture(AVPixelFormat pix_fmt, const FFmpegEncoder::Resolution 
     return std::move(picture);
 }
 
-int getMatchingSupportedFramerate(const AVCodec *codec, int targetFramerate)
+AVRational getMatchingSupportedFramerate(const AVCodec *codec, int targetFramerate)
 {
-    int diff = 1000000;
-    int replacement = targetFramerate;
-    for (auto framerate = codec->supported_framerates; framerate && framerate->den == 0; framerate++)
+    AVRational replacement = {1, targetFramerate};
+
+    const AVRational *framerates = nullptr;
+    #if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 13, 0)
+    int ret = avcodec_get_supported_config(
+    nullptr,
+        codec,
+        AV_CODEC_CONFIG_FRAME_RATE, // Selector for framerates
+        0,          // Flags
+        (const void **)&framerates, // Output pointer
+        nullptr         // Optional count
+    );
+    #else
+    framerates = codec->supported_framerates;
+    #endif
+
+    double diff = 1000000;
+    bool replaced = false;
+    for (auto framerate = framerates; framerate && framerate->den != 0; framerate++)
     {
-        auto d = std::abs(targetFramerate - framerate->num);
+        double rate = framerate->num / (double)framerate->den;
+        auto d = std::abs(rate - 1./targetFramerate);
         if (d <= diff)
         {
             diff = d;
-            replacement = framerate->den;
+            replacement = *framerate;
+            replaced = true;
         }
     }
-    if (replacement != targetFramerate)
-        std::cerr << "Framerate " << targetFramerate << " not supportded by " << codec->long_name << ": using framerate of " << replacement << " instead." << std::endl;
+    if (replaced)
+        std::cerr << "Framerate " << targetFramerate << " not supportded by " << codec->long_name << ": using framerate of " << replacement.num << "/" << replacement.den << " (" << replacement.num/(double)replacement.den << ") instead." << std::endl;
     return replacement;
 }
 
 AVCodecContext *createCodecContext(const AVCodec *codec, const FFmpegEncoder::VideoFormat &format)
 {
+    const AVPixelFormat *pix_fmts = nullptr;
+  #if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 13, 0)
+    avcodec_get_supported_config(nullptr, codec,
+              AV_CODEC_CONFIG_PIX_FORMAT, 0, (const void **) &pix_fmts, NULL);
+  #else
+    pix_fmts = codec->pix_fmts;
+  #endif
     auto codecContext = avcodec_alloc_context3(codec);
     // use default color format of not set
     auto ocf = format.colorFormat;
-    if (ocf == AV_PIX_FMT_NONE)
-        ocf = codec->pix_fmts[0];
+    if (ocf == AV_PIX_FMT_NONE && pix_fmts)
+        ocf = pix_fmts[0];
     if (ocf == AV_PIX_FMT_NONE)
     {
         std::cerr << "automatic video pixel format determination failed" << std::endl;
@@ -79,7 +104,7 @@ AVCodecContext *createCodecContext(const AVCodec *codec, const FFmpegEncoder::Vi
     codecContext->width = format.resolution.w;
     codecContext->height = format.resolution.h;
     /* frames per second */
-    codecContext->time_base = AVRational{1, getMatchingSupportedFramerate(codec, format.fps)};
+    codecContext->time_base = getMatchingSupportedFramerate(codec, format.fps);
     // codecContext->gop_size = 10; /* emit one intra frame every ten frames */
     // codecContext->max_b_frames = 1;
 

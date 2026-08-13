@@ -240,7 +240,19 @@ int VideoStream::audioDecodeFrame(VideoStream *vStream, uint8_t *buffer, int siz
     static int audioPktSize = 0;
     int len1, bytesDecoded;
     static double diff = 0.0;
-    int bps = av_get_bytes_per_sample(vStream->audioCodecCtx->codec->sample_fmts[0]);
+
+    const AVSampleFormat *sample_fmts = nullptr;
+  #if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 13, 0)
+    avcodec_get_supported_config(nullptr, vStream->audioCodecCtx->codec,
+              AV_CODEC_CONFIG_PIX_FORMAT, 0, (const void **) &sample_fmts, nullptr);
+  #else
+    sample_fmts = vStream->audioCodecCtx->codec->sample_fmts;
+  #endif
+
+  if (!sample_fmts)
+      return -1;
+
+  int bps = av_get_bytes_per_sample(sample_fmts[0]);
 
     for (;;)
     {
