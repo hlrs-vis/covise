@@ -15,9 +15,9 @@ struct SimulationState;
 class Connector
 {
 public:
-    bool update(double deltaTime, double simulationDeltaTime); // returns whether new data is there
-    void getSimulationState(SimulationState &state);
-    bool isConnected() const;
+    virtual bool update(double deltaTime, double simulationDeltaTime) = 0; // returns whether new data is there
+    virtual void getSimulationState(SimulationState &state) = 0;
+    virtual bool isConnected() const = 0;
 };
 
 #endif

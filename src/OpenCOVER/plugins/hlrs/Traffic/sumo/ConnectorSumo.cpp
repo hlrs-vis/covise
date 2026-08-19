@@ -121,13 +121,13 @@ void ConnectorSumo::getSimulationState(SimulationState &state)
         const double angle = std::dynamic_pointer_cast<const libsumo::TraCIDouble>(item.at(VAR_ANGLE))->value;
         std::string vehicleClass = std::dynamic_pointer_cast<const libsumo::TraCIString>(item.at(VAR_VEHICLECLASS))->value;
 
-        state.vehicles.push_back(VehicleState {
+        state.vehicles[key] = VehicleState {
             key,
             vehicleClass,
             osg::Vec3d(pos->x, pos->y, pos->z),
             sumoAngleToMath(angle),
             speed,
-        });
+        };
     }
 
     for (const auto &[key, item] : persons)
@@ -137,13 +137,13 @@ void ConnectorSumo::getSimulationState(SimulationState &state)
         const double angle = std::dynamic_pointer_cast<const libsumo::TraCIDouble>(item.at(VAR_ANGLE))->value;
         std::string vehicleClass = std::dynamic_pointer_cast<const libsumo::TraCIString>(item.at(VAR_VEHICLECLASS))->value;
 
-        state.vehicles.push_back(VehicleState {
+        state.vehicles[key] = VehicleState {
             key,
             vehicleClass,
             osg::Vec3d(pos->x, pos->y, pos->z),
             sumoAngleToMath(angle),
             speed,
-        });
+        };
     }
 }
 

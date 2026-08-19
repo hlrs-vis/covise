@@ -108,6 +108,7 @@ public:
         LoadTerrain = 10701,
         setSky = 10702,
         GeoDataSetRegionEnabled = 10703,
+        TrafficLoadSimulation = 10704,
 
         // Calit2 plugins start with 20000 --------------------------------------
         Calit2_FileBrowserRegisterExt = 20001,

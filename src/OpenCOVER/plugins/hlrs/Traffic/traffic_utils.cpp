@@ -3,7 +3,10 @@
 osg::Vec2 toVec2(osg::Vec3 v) { return osg::Vec2(v.x(), v.y()); }
 float distanceRatio(osg::Vec2 x, osg::Vec2 y)
 {
-    return (x * y) / y.length2();
+    auto l = y.length2();
+    if (l == 0)
+        return 0.0;
+    return (x * y) / l;
 }
 
 /* utils for rotating angles the shortest way */

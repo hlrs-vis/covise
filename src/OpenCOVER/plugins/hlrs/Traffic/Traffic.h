@@ -37,7 +37,7 @@ struct VehicleState
 
 struct SimulationState
 {
-    std::vector<VehicleState> vehicles;
+    std::map<std::string, VehicleState> vehicles;
 };
 
 struct VehicleModel
@@ -113,7 +113,17 @@ public:
     ~Traffic();
     static Traffic *instance() { return thisPlugin; };
 
+    bool init() override;
+
+    static int handleLoadFcd(const char *filename, osg::Group *loadParent, const char *ck = "");
+    static int handleUnloadFcd(const char *filename, const char *ck = "");
+
+    void loadSimulation(const std::string &filename);
+    void unloadSimulation();
+
     void preFrame() override;
+
+    void message(int toWhom, int type, int length, const void *data) override;
 
 private:
     bool initUI();
@@ -129,7 +139,7 @@ private:
     SimulationState previousSimulationState;
     std::map<std::string, Vehicle> vehicles;
 
-    ConnectorSumo connector;
+    std::unique_ptr<Connector> connector;
 
     // References to OSG nodes
     osg::ref_ptr<osg::Switch> trafficGroup;
