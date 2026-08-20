@@ -113,7 +113,7 @@ void ConnectorFcd::startElement(const XMLCh *const uri,
         m_parseTimestep = time;
         m_timesteps.insert(time);
 
-        if (m_timesteps.size() % 100 == 0)
+        if (m_timesteps.size() % 1000 == 0)
         {
             opencover::OpenCOVER::instance()->hud->setText3(std::format("Loading Traffic Simulation ({:.1f} s)", m_parseTimestep));
             opencover::OpenCOVER::instance()->hud->redraw();
@@ -121,8 +121,8 @@ void ConnectorFcd::startElement(const XMLCh *const uri,
     }
     else if (XMLString::equals(localname, TAG_vehicle))
     {
-        std::string id = getString(attrs, ATTR_id);
-        std::string type = getString(attrs, ATTR_type);
+        vehicle_id_t id(getString(attrs, ATTR_id));
+        vehicle_class_t vehicleClass(getString(attrs, ATTR_type));
         double x = getDouble(attrs, ATTR_x);
         double y = getDouble(attrs, ATTR_y);
         double z = getDouble(attrs, ATTR_z);
@@ -132,7 +132,7 @@ void ConnectorFcd::startElement(const XMLCh *const uri,
         auto &state = m_simulationStates[m_parseTimestep];
         state.vehicles[id] = VehicleState {
             id,
-            type,
+            vehicleClass,
             osg::Vec3d(x, y, z),
             sumoAngleToMath2(angle),
             speed,

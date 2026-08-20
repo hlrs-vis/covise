@@ -16,6 +16,7 @@
 
 #include <osg/MatrixTransform>
 #include <osg/ShapeDrawable>
+#include <boost/flyweight.hpp>
 
 #include <random>
 #include <vector>
@@ -26,10 +27,14 @@
 
 // #define TRAFFIC_DEBUG_DRAW
 
+typedef boost::flyweight<std::string> str;
+typedef boost::flyweight<std::string> vehicle_class_t;
+typedef boost::flyweight<std::string> vehicle_id_t;
+
 struct VehicleState
 {
-    std::string id;
-    std::string vehicleClass;
+    vehicle_id_t id;
+    vehicle_class_t vehicleClass;
     osg::Vec3d position;
     double angle = 0.0;
     double speed = 0.0;
@@ -37,7 +42,7 @@ struct VehicleState
 
 struct SimulationState
 {
-    std::map<std::string, VehicleState> vehicles;
+    std::map<vehicle_id_t, VehicleState> vehicles;
 };
 
 struct VehicleModel
@@ -68,14 +73,14 @@ enum GeometryType : uint8_t
 
 struct VehicleClass
 {
-    std::string name;
+    vehicle_class_t name;
     GeometryType geometryType = GeometryType::VEHICLE;
     std::vector<VehicleModel> models;
 };
 
 struct Vehicle
 {
-    std::string id;
+    vehicle_id_t id;
     std::unique_ptr<Geometry> geometry;
     const VehicleModel *model;
 
@@ -137,17 +142,17 @@ private:
     // Simulation data, to be partially moved to subclass for connector
     SimulationState currentSimulationState;
     SimulationState previousSimulationState;
-    std::map<std::string, Vehicle> vehicles;
+    std::map<vehicle_id_t, Vehicle> vehicles;
 
     std::unique_ptr<Connector> connector;
 
     // References to OSG nodes
     osg::ref_ptr<osg::Switch> trafficGroup;
-    std::map<std::string, osg::ref_ptr<osg::Switch>> vehicleClassGroups;
+    std::map<vehicle_class_t, osg::ref_ptr<osg::Switch>> vehicleClassGroups;
 
     double interpolateAngles(double lambda, double pastAngle, double futureAngle);
 
-    std::map<std::string, VehicleClass> vehicleClasses;
+    std::map<vehicle_class_t, VehicleClass> vehicleClasses;
     void loadVehicleClasses();
 
     bool update() override;
@@ -163,7 +168,7 @@ private:
     int uniqueIDValue = 0;
 
     void processNewResults();
-    Vehicle &createVehicle(const std::string &id, const VehicleClass &vehicleClass);
+    Vehicle &createVehicle(const vehicle_id_t &id, const VehicleClass &vehicleClass);
     void interpolateVehiclePosition(double deltaTime);
     osg::Vec3d interpolatePositions(double lambda, osg::Vec3d pastPosition, osg::Vec3d futurePosition);
     void sendSimResults();

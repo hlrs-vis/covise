@@ -7,7 +7,6 @@
 
 #include "Traffic.h"
 
-#include <cmath>
 #include <cover/VRSceneGraph.h>
 #include <iostream>
 #include <random>
@@ -424,7 +423,7 @@ osg::Vec4 colors[] = {
     { 0, 1, 1, 1 },
 };
 
-Vehicle &Traffic::createVehicle(const std::string &id, const VehicleClass &vehicleClass)
+Vehicle &Traffic::createVehicle(const vehicle_id_t &id, const VehicleClass &vehicleClass)
 {
     static std::mt19937 gen2(0);
 
@@ -478,7 +477,7 @@ void Traffic::loadVehicleClasses()
 
         opencover::config::Section entry = vehicleClassesSection.value<opencover::config::Section>("", vehicleClassName)->value();
 
-        auto &vehicleClass = vehicleClasses[vehicleClassName];
+        auto &vehicleClass = vehicleClasses[vehicle_class_t(vehicleClassName)];
         vehicleClass.name = vehicleClassName;
 
         std::string geometryType = entry.value<std::string>("", "type", "vehicle")->value();
@@ -518,7 +517,7 @@ void Traffic::loadVehicleClasses()
         // construct temporary geometry objects to preload models
         for (auto &model : vehicleClass.models)
         {
-            Vehicle dummy { "dummy", nullptr, &model };
+            Vehicle dummy { vehicle_class_t("dummy"), nullptr, &model };
 
             switch (vehicleClass.geometryType)
             {
