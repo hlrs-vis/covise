@@ -99,6 +99,7 @@ thermal.cpp
 switch.cpp
 tabletui.cpp
 timer.cpp
+timeSteps.cpp
 touch.cpp
 TUIParam.cpp
 uselod.cpp
@@ -152,6 +153,7 @@ switch.h
 tabletui.h
 target.h
 timer.h
+timeSteps.h
 touch.h
 TUIParam.h
 veroverrides.h

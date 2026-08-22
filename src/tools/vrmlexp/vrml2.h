@@ -615,6 +615,7 @@ Matrix3 GetLocalTM(INode *node, TimeValue t);
     BOOL VrmlOutProxSensor(INode *node, ProxSensorObject *obj, int level);
     BOOL VrmlOutBillboard(INode *node, Object *obj, int level);
     void VrmlOutTimeSensor(INode *node, TimeSensorObject *obj, int level);
+    void VrmlOutTimesteps(INode *node, TimestepsObject *obj, int level);
     //void VrmlAnchorHeader(INode* node, MrBlueObject* obj,
     //                      VRBL_TriggerType type, BOOL fromParent, int level);
     //BOOL VrmlOutMrBlue(INode* node, INode* parent, MrBlueObject* obj,

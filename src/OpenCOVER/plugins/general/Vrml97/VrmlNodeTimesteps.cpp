@@ -73,8 +73,7 @@ void VrmlNodeTimesteps::initFields(VrmlNodeTimesteps *node, VrmlNodeType *t)
                             coVRAnimationManager::instance()->requestAnimationFrame(f->get());
                      }),
                      exposedField("loop", &VrmlNodeTimesteps::d_loop),
-                     exposedField("maxFrameRate", &VrmlNodeTimesteps::d_maxFrameRate, [](auto f){
-                            coVRAnimationManager::instance()->setMaxFrameRate(f->get());
+                     exposedField("speed", &VrmlNodeTimesteps::d_maxFrameRate, [](auto f){ coVRAnimationManager::instance()->setAnimationSpeed(f->get());
                      }));
     
     if(t)

@@ -34,6 +34,7 @@
 #include "vrmlexp.h"
 #include "appd.h"
 #include "timer.h"
+#include "timeSteps.h"
 #include "navinfo.h"
 #include "backgrnd.h"
 #include "fog.h"

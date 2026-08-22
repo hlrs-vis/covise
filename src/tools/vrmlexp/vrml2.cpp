@@ -48,6 +48,7 @@
 #include "vrmlexp.h"
 #include "decomp.h"
 #include "timer.h"
+#include "timeSteps.h"
 #include "navinfo.h"
 #include "backgrnd.h"
 #include "fog.h"
@@ -4762,7 +4763,9 @@ VRML2Export::VrmlOutCOVER(INode *node, COVERObject *obj, int level)
 					break;
 				INode *top;
 				if (o->ClassID() == TimeSensorClassID)
-					top = animObj->node;
+                    top = animObj->node;
+                else if (o->ClassID() == TimestepsClassID)
+                    top = animObj->node;
 				else if (o->ClassID() == OnOffSwitchClassID)
 					top = animObj->node;
 				else if (o->ClassID() == SwitchClassID)
@@ -4816,6 +4819,8 @@ VRML2Export::VrmlOutTUIButton(TabletUIElement *el, INode *node, int level)
 			break;
 		INode *top;
 		if (o->ClassID() == TimeSensorClassID)
+			top = animObj->node;
+		else if (o->ClassID() == TimestepsClassID)
 			top = animObj->node;
 		else if (o->ClassID() == SwitchClassID)
 			top = animObj->node;
@@ -4914,7 +4919,14 @@ VRML2Export::VrmlOutTUIElement(TabletUIElement *el, INode *node, int level)
 						if (!obj->vrmlWritten)
 							VrmlOutTimeSensor(el->objects[j]->node, obj, 0);
 						static_cast<TUIParamToggleButton *>(el->paramRollout)->PrintObjects(mStream, el->objects[j]);
-					}
+                    }
+                    else if (o->ClassID() == TimestepsClassID)
+                    {
+                        TimestepsObject *obj = (TimestepsObject *)o;
+                        if (!obj->vrmlWritten)
+                            VrmlOutTimesteps(el->objects[j]->node, obj, 0);
+                        static_cast<TUIParamToggleButton *>(el->paramRollout)->PrintObjects(mStream, el->objects[j]);
+                    }
 				}
 				break;
 				default:
@@ -5006,7 +5018,17 @@ BOOL VRML2Export::AddChildObjRoutes(INode *node, INode *animNode, Tab<Class_ID> 
 				for (int j = 0; j < numChildren; j++)
 					if (!AddChildObjRoutes(node, to->TimeSensorObjects[j]->node, grandChildClass, otop, vrmlObjName, type1, type2, level, false))
 						break;
-			}
+            }
+            else if (childClass[k] == TimestepsClassID)
+            {
+                top = animNode;
+                Tab<Class_ID> grandChildClass;
+                TimestepsObject *to = (TimestepsObject *)o;
+                int numChildren = to->TimestepsObjects.Count();
+                for (int j = 0; j < numChildren; j++)
+                    if (!AddChildObjRoutes(node, to->TimestepsObjects[j]->node, grandChildClass, otop, vrmlObjName, type1, type2, level, false))
+                        break;
+            }
 			else if (childClass[k] == OnOffSwitchClassID)
 				top = animNode;
 			else if (childClass[k] == SwitchClassID)
@@ -5080,9 +5102,9 @@ VRML2Export::VrmlOutProxSensor(INode *node, ProxSensorObject *obj,
 		vrmlObjName = VrmlParent(node);
 		INode *otop = NULL;
 
-		Class_ID tmp[3] = { TimeSensorClassID, OnOffSwitchClassID, NavInfoClassID };
+		Class_ID tmp[4] = { TimeSensorClassID, TimestepsClassID, OnOffSwitchClassID, NavInfoClassID };
 		Tab<Class_ID> childClass;
-		childClass.Append(3, tmp);
+		childClass.Append(4, tmp);
 
 		int numObjs = obj->objects.Count();
 		for (int i = 0; i < numObjs; i++)
@@ -5177,6 +5199,31 @@ VRML2Export::VrmlOutTimeSensor(INode *node, TimeSensorObject *obj, int level)
 		obj->vrmlWritten = TRUE;
 }
 
+void VRML2Export::VrmlOutTimesteps(INode *node, TimestepsObject *obj, int level)
+{
+
+    if (!doExport(node))
+        return;
+    int numTS, loop;
+    float speed;
+    obj->pblock->GetValue(PB_NUMTIMESTEPS, mStart, numTS, FOREVER);
+    obj->pblock->GetValue(PB_LOOP, mStart, loop, FOREVER);
+    obj->pblock->GetValue(PB_TS_SPEED, mStart, speed, FOREVER);
+    obj->needsScript = false;
+
+    Indent(level);
+    MSTREAMPRINTF("DEF %s-TIMER Timesteps {\n"), mNodes.GetNodeName(node));
+    Indent(level + 1);
+    MSTREAMPRINTF("numTimesteps %d\n"), numTS);
+    Indent(level + 1);
+    MSTREAMPRINTF("speed %s\n"), floatVal(speed));
+    Indent(level + 1);
+    MSTREAMPRINTF("loop %s\n"), loop ? _T("TRUE") : _T("FALSE"));
+    Indent(level + 1);
+    MSTREAMPRINTF("}\n"));
+
+    obj->vrmlWritten = TRUE;
+}
 BOOL
 VRML2Export::VrmlOutPointLight(INode *node, LightObject *light, int level)
 {
@@ -6028,9 +6075,10 @@ VRML2Export::VrmlOutCoordinateInterpolator(INode *node, Object *obj,
 
 	for (l = mTimerList; l; l = l->GetNext())
 	{
-		TimeSensorObject *tso = (TimeSensorObject *)
-			l->GetNode()->EvalWorldState(mStart)
-			.obj;
+        HelperObject *ho = (HelperObject *)l->GetNode()->EvalWorldState(mStart).obj;
+        if (ho->ClassID() != TimeSensorClassID)
+        {
+		TimeSensorObject *tso = (TimeSensorObject *)ho;
 
 		// find the timesensor closest to the node in the hierarchy
 		for (int j = 0; j < tso->TimeSensorObjects.Count(); j++)
@@ -6050,39 +6098,95 @@ VRML2Export::VrmlOutCoordinateInterpolator(INode *node, Object *obj,
 				}
 			}
 		}
+        }
+        else
+        {
+            TimestepsObject *tso = (TimestepsObject *)ho;
+
+            // find the timesensor closest to the node in the hierarchy
+            for (int j = 0; j < tso->TimestepsObjects.Count(); j++)
+            {
+                INode *anim = tso->TimestepsObjects[j]->node;
+                if (anim)
+                {
+                    int dist = NodeIsChildOf(node, anim, 0);
+                    if (dist >= 0) // we have a timesensor
+                    {
+                        if (dist < mindistance) // it animates a group closer to the node we want to animate than the last one
+                        {
+                            minTS = j;
+                            minl = l;
+                            mindistance = dist;
+                        }
+                    }
+                }
+            }
+        }
+
 	}
 	if (minTS >= 0) // now add all Timesensors with same distance
 	{
 		for (l = mTimerList; l; l = l->GetNext())
-		{
-			TimeSensorObject *tso = (TimeSensorObject *)
-				l->GetNode()->EvalWorldState(mStart)
-				.obj;
+            {
+                HelperObject *ho = (HelperObject *)l->GetNode()->EvalWorldState(mStart).obj;
+                if (ho->ClassID() != TimeSensorClassID)
+                {
+                    TimeSensorObject *tso = (TimeSensorObject *)ho;
 
-			// find the timesensor closest to the node in the hierarchy
-			for (int j = 0; j < tso->TimeSensorObjects.Count(); j++)
-			{
-				INode *anim = tso->TimeSensorObjects[j]->node;
-				if (anim)
-				{
-					int dist = NodeIsChildOf(node, anim, 0);
-					if (dist >= 0) // we have a timesensor
-					{
-						if (dist == mindistance) // it animates a group closer to the node we want to animate than the last one
-						{
+                    // find the timesensor closest to the node in the hierarchy
+                    for (int j = 0; j < tso->TimeSensorObjects.Count(); j++)
+                    {
+                        INode *anim = tso->TimeSensorObjects[j]->node;
+                        if (anim)
+                        {
+                            int dist = NodeIsChildOf(node, anim, 0);
+                            if (dist >= 0) // we have a timesensor
+                            {
+                                if (dist == mindistance) // it animates a group closer to the node we want to animate than the last one
+                                {
 
-							TSTR oTimer = mTimer;
-							TCHAR timer[MAX_PATH];
-							_stprintf(timer, _T("%s"), mNodes.GetNodeName(l->GetNode()));
-							foundTimeSensor = true;
-							if (tso->needsScript)
-								AddInterpolator(name, KEY_TIMER_SCRIPT, timer, l->GetNode());
-							else
-								AddInterpolator(name, KEY_TIMER, timer, l->GetNode());
-						}
-					}
-				}
-			}
+                                    TSTR oTimer = mTimer;
+                                    TCHAR timer[MAX_PATH];
+                                    _stprintf(timer, _T("%s"), mNodes.GetNodeName(l->GetNode()));
+                                    foundTimeSensor = true;
+                                    if (tso->needsScript)
+                                        AddInterpolator(name, KEY_TIMER_SCRIPT, timer, l->GetNode());
+                                    else
+                                        AddInterpolator(name, KEY_TIMER, timer, l->GetNode());
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    TimestepsObject *tso = (TimestepsObject *)ho;
+
+                    // find the timesensor closest to the node in the hierarchy
+                    for (int j = 0; j < tso->TimestepsObjects.Count(); j++)
+                    {
+                        INode *anim = tso->TimestepsObjects[j]->node;
+                        if (anim)
+                        {
+                            int dist = NodeIsChildOf(node, anim, 0);
+                            if (dist >= 0) // we have a timesensor
+                            {
+                                if (dist == mindistance) // it animates a group closer to the node we want to animate than the last one
+                                {
+
+                                    TSTR oTimer = mTimer;
+                                    TCHAR timer[MAX_PATH];
+                                    _stprintf(timer, _T("%s"), mNodes.GetNodeName(l->GetNode()));
+                                    foundTimeSensor = true;
+                                    if (tso->needsScript)
+                                        AddInterpolator(name, KEY_TIMER_SCRIPT, timer, l->GetNode());
+                                    else
+                                        AddInterpolator(name, KEY_TIMER, timer, l->GetNode());
+                                }
+                            }
+                        }
+                    }
+                }
 		}
 	}
 	//if(!foundTimeSensor)
@@ -6914,7 +7018,7 @@ VRML2Export::WriteAnimRoutes()
 			_stprintf(from, _T("%s-SENSOR.touchTime"), mAnimRoutes[i].mFromName.data());
 		BOOL isCamera = IsCamera(toNode);
 		ts = NodeNeedsTimeSensor(toNode);
-		if (ts != 0 || toObj->ClassID() == TimeSensorClassID || (toObj->ClassID() == OnOffSwitchClassID))
+                if (ts != 0 || toObj->ClassID() == TimeSensorClassID || toObj->ClassID() == TimestepsClassID || (toObj->ClassID() == OnOffSwitchClassID))
 		{
 			if (toObj->ClassID() == AudioClipClassID)
 				_stprintf(to, _T("%s.startTime"), toName);
@@ -7794,6 +7898,30 @@ VRML2Export::WriteControllerData(INode *node,
 										}
 									}
 							}
+							if (o->ClassID() == TimestepsClassID)
+							{
+								TimestepsObject *ts = static_cast<TimestepsObject *>(o);
+								int l = 0;
+								for (; l < ts->TimestepsObjects.Count(); l++)
+									if (ts->TimestepsObjects[l]->node == node)
+									{
+										int routes = mInterpRoutes.Count();
+										for (int l = 0; l < routes; l++)
+										{
+											if (mInterpRoutes[l].mNodeName == nd->NodeName())
+												if (mInterpRoutes[l].mType == KEY_TIMER)
+												{
+													AddInterpolator(mInterpRoutes[l].mInterp.data(), KEY_TABLETUI_SLIDER, th->elements[i]->name.data(), nd);
+												}
+												else if (mInterpRoutes[l].mType == KEY_TIMER_SCRIPT)
+												{
+													AddInterpolator(th->elements[i]->name.data(), KEY_TABLETUI_SLIDER_SCRIPT, nd->NodeName().data(), nd);
+												}
+												else if ((mInterpRoutes[l].mType == (KEY_TIMER | KEY_TABLETUI_TOGGLE)) || (mInterpRoutes[l].mType == (KEY_TIMER_SCRIPT | KEY_TABLETUI_TOGGLE)))
+													AddInterpolator(mInterpRoutes[l].mInterp.data(), KEY_TABLETUI, th->elements[i]->name.data(), nd);
+										}
+									}
+							}
 						}
 						else if ((th->elements[i]->type == TUIToggleButton) && (o->ClassID() == TimeSensorClassID))
 						{
@@ -7801,6 +7929,28 @@ VRML2Export::WriteControllerData(INode *node,
 							int l = 0;
 							for (; l < ts->TimeSensorObjects.Count(); l++)
 								if (ts->TimeSensorObjects[l]->node == node)
+								{
+									int k = 0;
+									for (; k < mInterpRoutes.Count(); k++)
+										if ((mInterpRoutes[k].mInterp == th->elements[i]->name) && (mInterpRoutes[k].mNodeName == nd->NodeName()))
+											break;
+									if (k == mInterpRoutes.Count())
+										AddInterpolator(th->elements[i]->name.data(), KEY_TABLETUI_TOGGLE, nd->NodeName().data(), nd);
+								}
+							int routes = mInterpRoutes.Count();
+							for (l = 0; l < routes; l++)
+								if (mInterpRoutes[l].mNodeName == nd->NodeName())
+									if ((mInterpRoutes[l].mType == KEY_TIMER) || (mInterpRoutes[l].mType == KEY_TIMER_SCRIPT))
+										mInterpRoutes[l].mType = mInterpRoutes[l].mType | KEY_TABLETUI_TOGGLE;
+									else if (mInterpRoutes[l].mType == KEY_TABLETUI)
+										AddInterpolator(mInterpRoutes[l].mInterp.data(), KEY_TIMER | KEY_TABLETUI_TOGGLE, mInterpRoutes[l].mNodeName.data(), nd);
+						}
+						else if ((th->elements[i]->type == TUIToggleButton) && (o->ClassID() == TimestepsClassID))
+						{
+							TimestepsObject *ts = static_cast<TimestepsObject *>(o);
+							int l = 0;
+							for (; l < ts->TimestepsObjects.Count(); l++)
+								if (ts->TimestepsObjects[l]->node == node)
 								{
 									int k = 0;
 									for (; k < mInterpRoutes.Count(); k++)
@@ -9390,6 +9540,16 @@ VRML2Export::OutputTabletUIScripts(INode *node, int level)
 						BindCamera(NULL, to->TimeSensorObjects[j]->node, VRMLName(tuielem->name), KEY_TOUCHSENSOR_BIND | KEY_TABLETUI_BUTTON, level);
 				}
 			}
+			else if (o->ClassID() == TimestepsClassID)
+			{
+				TimestepsObject *to = (TimestepsObject *)o;
+				int numChildren = to->TimestepsObjects.Count();
+				for (int j = 0; j < numChildren; j++)
+				{
+					if (to->TimestepsObjects[j]->node->EvalWorldState(mStart).obj->SuperClassID() == CAMERA_CLASS_ID)
+						BindCamera(NULL, to->TimestepsObjects[j]->node, VRMLName(tuielem->name), KEY_TOUCHSENSOR_BIND | KEY_TABLETUI_BUTTON, level);
+				}
+			}
 			else
 				BindCamera(NULL, node, VRMLName(tuielem->name), KEY_TOUCHSENSOR_BIND | KEY_TABLETUI_BUTTON, level);
 		}
@@ -9639,6 +9799,20 @@ VRML2Export::TraverseNode(INode *node)
 				}
 			}
 		}
+		if (id == TimestepsClassID)
+		{
+			TimestepsObject *ts = (TimestepsObject *)obj;
+			int ct;
+			INode *nd;
+			for (ct = ts->TimestepsObjects.Count() - 1; ct >= 0; ct--)
+			{
+				nd = ts->TimestepsObjects[ct]->node;
+				if (nd)
+				{
+					nd->SetNodeLong(nd->GetNodeLong() | RUN_BY_TIME_SENSOR);
+				}
+			}
+		}
 		if (id == TabletUIClassID)
 		{
 			TabletUIObject *th = (TabletUIObject *)obj;
@@ -9654,12 +9828,12 @@ VRML2Export::TraverseNode(INode *node)
 						Class_ID o_id = o->ClassID();
 						if (th->elements[i]->type == TUIFloatSlider)
 							nd->SetNodeLong(nd->GetNodeLong() | RUN_BY_TABLETUI_SENSOR);
-						else if ((th->elements[i]->type == TUIButton) && (o_id == Class_ID(SIMPLE_CAM_CLASS_ID, 0) || o_id == Class_ID(LOOKAT_CAM_CLASS_ID, 0) || (o_id == TimeSensorClassID) || o_id == NavInfoClassID))
+                        else if ((th->elements[i]->type == TUIButton) && (o_id == Class_ID(SIMPLE_CAM_CLASS_ID, 0) || o_id == Class_ID(LOOKAT_CAM_CLASS_ID, 0) || (o_id == TimeSensorClassID) || (o_id == TimestepsClassID) || o_id == NavInfoClassID))
 						{
 							mSensorTable.AddSensor(nd, NULL, th->elements[i]);
 							nd->SetNodeLong(nd->GetNodeLong() | RUN_BY_TOUCH_SENSOR);
 						}
-						else if (o_id != TimeSensorClassID)
+						else if (o_id != TimeSensorClassID && o_id != TimestepsClassID)
 							nd->SetNodeLong(nd->GetNodeLong() | RUN_BY_TOUCH_SENSOR);
 					}
 				}
@@ -9708,6 +9882,13 @@ VRML2Export::ComputeWorldBoundBox(INode *node, ViewExp *vpt)
 			TimeSensorObject *tso = (TimeSensorObject *)obj;
 			if (!tso->vrmlWritten)
 				VrmlOutTimeSensor(node, tso, 0);
+			mTimerList = mTimerList->AddNode(node);
+		}
+		if (id == TimestepsClassID)
+		{
+			TimestepsObject *tso = (TimestepsObject *)obj;
+			if (!tso->vrmlWritten)
+				VrmlOutTimesteps(node, tso, 0);
 			mTimerList = mTimerList->AddNode(node);
 		}
 		else if (doExport(node) && (id == TabletUIClassID))
@@ -10318,7 +10499,18 @@ VRML2Export::~VRML2Export()
 		TimeSensorObject *tso = (TimeSensorObject *)
 			l->GetNode()->EvalWorldState(mStart)
 			.obj;
-		tso->vrmlWritten = false;
+        if (tso->ClassID() == TimeSensorClassID)
+        {
+             tso->vrmlWritten = false;
+        }
+        else
+        {
+            TimestepsObject *tso = (TimestepsObject *)
+                                        l->GetNode()
+                                            ->EvalWorldState(mStart)
+                                           .obj;
+            tso->vrmlWritten = false;
+        }
 	}
 	if (mTimerList != NULL)
 		delete mTimerList;

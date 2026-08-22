@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ generated include file.
-// Used by vrmlexp.rc
+// Von Microsoft Visual C++ generierte Includedatei.
+// Verwendet durch vrmlexp.rc
 //
 #define IDS_DB_TRIGGER_DIST             1
 #define IDS_ANIM_PICK_MODE              2
@@ -103,6 +103,9 @@
 #define IDS_COVISEOBJECT_CLASS          96
 #define IDS_COVISEOBJECT_CLASS2         97
 #define IDS_COVISEOBJECT                97
+#define IDS_TIMESTEPS_SENSOR            98
+#define IDS_TimeSteps_PICK_MODE         99
+#define IDS_TIMESTEPS_SENSOR_CLASS      100
 #define IDD_PANEL                       101
 #define IDD_CPPOUT_PANEL                103
 #define IDD_LOD                         116
@@ -119,6 +122,8 @@
 #define IDD_PROGRESSDLG                 131
 #define IDS_SKY                         132
 #define IDS_SKY_CLASS                   133
+#define IDD_THERMAL                     138
+#define IDD_TUISPINFIELD                139
 #define IDC_CROSS_HAIR                  156
 #define IDD_POLYCOUNT                   329
 #define IDC_CLOSEBUTTON                 1000
@@ -161,7 +166,8 @@
 #define IDD_INS1                        1062
 #define IDD_COVISEOOBJECT               1062
 #define IDC_FLIPBOOK_ONCE               1063
-#define IDD_THERMAL                     1063
+#define IDD_SOUND1                      1063
+#define IDD_TimeSteps                   1063
 #define IDC_URL                         1068
 #define IDC_URL_PREFIX                  1068
 #define IDC_TITLE                       1068
@@ -459,22 +465,31 @@
 #define IDC_MAX_POLY_SPIN               1350
 #define IDC_VZ_EDIT                     1350
 #define IDC_MAX_SELECTED_EDIT           1351
-#define IDC_VX_EDIT4                    1351
 #define IDC_MAX_SELECTED_SPIN           1352
 #define IDC_VX_SPIN                     1352
 #define IDC_NEAR_EDIT                   1353
 #define IDC_TURBULENCE_SPIN             1353
 #define IDC_NEAR_SPIN                   1354
+#define IDC_NumTimesteps                1354
 #define IDC_FAR_EDIT                    1355
+#define IDC_MaxFrameRate                1355
+#define IDC_Speed                       1355
 #define IDC_FAR_SPIN                    1356
+#define IDC_NT_EDIT                     1356
 #define IDC_COVISEOOBJECT_URL           1357
+#define IDC_MF_EDIT                     1357
 #define IDC_COVISEOOBJECT_SIZE          1358
+#define IDC_NT_SPIN                     1358
 #define IDC_COVISEOOBJECT_SIZE_SPINNER  1359
+#define IDC_MF_SPIN                     1359
 #define IDC_COVISEOOBJECT_BBOX_SIZE     1360
+#define IDC_TimeSteps_PICK              1360
 #define IDC_COVISEOOBJECT_BBOX_DEF      1361
-#ifndef _MSC_VER
+#define IDC_TimeSteps_LIST              1361
+#define IDC_TimeSteps_DEL               1362
+#define IDC_TimeSteps_SIZE              1363
+#define IDC_TimeSteps_SIZE_SPINNER      1364
 #define _MSC_VER                        1900
-#endif
 #define IDS_PANELTITLE                  5012
 #define IDS_TUIPARAM_EDITOR             5017
 #define IDS_DS_CREATE                   10008
@@ -552,9 +567,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        137
+#define _APS_NEXT_RESOURCE_VALUE        140
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1354
+#define _APS_NEXT_CONTROL_VALUE         1365
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

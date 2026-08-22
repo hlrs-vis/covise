@@ -15,7 +15,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// English (United States) resources
+// Englisch (USA) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
@@ -896,6 +896,25 @@ BEGIN
     CONTROL         "",IDC_HEIGHT_SPIN,"SpinnerControl",0x0,95,116,7,10
 END
 
+IDD_TimeSteps DIALOGEX 0, 0, 108, 199
+STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    CONTROL         "Loop",IDC_LOOP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,9,4,33,12
+    LTEXT           "NumTimesteps:",IDC_NumTimesteps,9,34,51,9
+    CONTROL         "",IDC_NT_EDIT,"CustEdit",WS_TABSTOP,59,32,36,10
+    CONTROL         "",IDC_NT_SPIN,"SpinnerControl",0x0,95,32,7,10
+    LTEXT           "Speed:",IDC_Speed,9,45,49,9
+    CONTROL         "",IDC_MF_EDIT,"CustEdit",WS_TABSTOP,59,44,36,10
+    CONTROL         "",IDC_MF_SPIN,"SpinnerControl",0x0,95,44,7,10
+    CONTROL         "Pick Objects",IDC_TimeSteps_PICK,"CustButton",WS_TABSTOP,18,80,68,11
+    LISTBOX         IDC_TimeSteps_LIST,5,99,100,57,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Delete",IDC_TimeSteps_DEL,28,163,50,14
+    LTEXT           "Icon Size:",-1,9,183,42,8
+    CONTROL         "",IDC_TimeSteps_SIZE,"CustEdit",WS_TABSTOP,59,183,36,10
+    CONTROL         "",IDC_TimeSteps_SIZE_SPINNER,"SpinnerControl",0x0,95,183,7,10
+END
+
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -1025,6 +1044,10 @@ BEGIN
         BOTTOMMARGIN, 151
     END
 
+    IDD_ABOUT, DIALOG
+    BEGIN
+    END
+
     IDD_TUISPLITTER, DIALOG
     BEGIN
         BOTTOMMARGIN, 90
@@ -1042,6 +1065,11 @@ BEGIN
     IDD_THERMAL, DIALOG
     BEGIN
     END
+
+    IDD_TimeSteps, DIALOG
+    BEGIN
+        BOTTOMMARGIN, 182
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -1057,6 +1085,11 @@ BEGIN
 END
 
 IDD_THERMAL AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_TimeSteps AFX_DIALOG_LAYOUT
 BEGIN
     0
 END
@@ -1330,6 +1363,9 @@ STRINGTABLE
 BEGIN
     IDS_COVISEOBJECT_CLASS  "COVISEObject"
     IDS_COVISEOBJECT        "COVISEObject"
+    IDS_TIMESTEPS_SENSOR    "Timesteps"
+    IDS_TimeSteps_PICK_MODE "Pick an object to add to theTimeSteps list"
+    IDS_TIMESTEPS_SENSOR_CLASS "Timesteps"
 END
 
 STRINGTABLE
@@ -1337,7 +1373,7 @@ BEGIN
     IDS_THERMAL_CLASS       "Thermal"
 END
 
-#endif    // English (United States) resources
+#endif    // Englisch (USA) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

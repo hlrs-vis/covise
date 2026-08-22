@@ -36,6 +36,7 @@ extern ClassDesc *GetDirLightDesc();
 extern ClassDesc *GetFSpotLightDesc();
 extern ClassDesc *GetPolyCounterDesc();
 extern ClassDesc *GetTimeSensorDesc();
+extern ClassDesc *GetTimestepsDesc();
 extern ClassDesc *GetNavInfoDesc();
 extern ClassDesc *GetBackgroundDesc();
 extern ClassDesc *GetFogDesc();
@@ -116,9 +117,9 @@ __declspec(dllexport) const TCHAR *LibDescription()
 }
 
 #ifndef NO_UTILITY_POLYGONCOUNTER // russom - 12/04/01
-#define NUM_BASE_CLASSES 26
+#define NUM_BASE_CLASSES 27
 #else
-#define NUM_BASE_CLASSES 25
+#define NUM_BASE_CLASSES 26
 #endif
 
 #ifdef _DEBUG
@@ -187,8 +188,10 @@ __declspec(dllexport) ClassDesc *LibClassDesc(int i)
         return GetVRMLCOVISEObjectDesc();
     case 24:
         return GetThermalDesc();
-#ifndef NO_UTILITY_POLYGONCOUNTER // russom - 12/04/01
     case 25:
+        return GetTimestepsDesc();
+#ifndef NO_UTILITY_POLYGONCOUNTER // russom - 12/04/01
+    case 26:
         return GetPolyCounterDesc();
 #endif
 //case 15: return GetMrBlueDesc();
