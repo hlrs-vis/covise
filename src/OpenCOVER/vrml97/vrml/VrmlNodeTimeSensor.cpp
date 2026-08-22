@@ -112,6 +112,7 @@ void VrmlNodeTimeSensor::update(VrmlSFTime &inTime)
         if (d_lastTime > inTime.get())
             d_lastTime = inTime.get();
 
+        double f, cycleInt = d_cycleInterval.get();
         // Become active at startTime if either the valid stopTime hasn't
         // passed or we are looping.
         if (!d_isActive.get() && d_startTime.get() <= d_time.get() && d_startTime.get() != d_lastStartTime && ((d_stopTime.get() < d_startTime.get() || d_stopTime.get() > d_time.get()) || d_loop.get()))
@@ -124,7 +125,23 @@ void VrmlNodeTimeSensor::update(VrmlSFTime &inTime)
             eventOut(d_time.get(), "isActive", d_isActive);
 
             eventOut(d_time.get(), "time", d_time);
-            d_fraction.set(0.0);
+            if (cycleInt > 0.0 && d_time.get() > d_startTime.get())
+            {
+                if (!d_loop.get())
+                {
+                    if ((d_time.get() - d_startTime.get()) > cycleInt)
+                        f = cycleInt;
+                    else
+                        f = (d_time.get() - d_startTime.get());
+                }
+                else
+                {
+                    f = fmod(d_time.get() - d_startTime.get(), cycleInt);
+                }
+            }
+            else
+                f = 0.0;
+            d_fraction.set(FPZERO(f) ? 1.0f : (float)(f / cycleInt));
             eventOut(d_time.get(), "fraction_changed", d_fraction);
             eventOut(d_time.get(), "cycleTime", d_time);
         }
@@ -132,7 +149,6 @@ void VrmlNodeTimeSensor::update(VrmlSFTime &inTime)
         // Running (active and enabled)
         else if (d_isActive.get())
         {
-            double f, cycleInt = d_cycleInterval.get();
             bool deactivate = false;
 
             // Are we done? Choose min of stopTime or start + single cycle.
@@ -149,7 +165,8 @@ void VrmlNodeTimeSensor::update(VrmlSFTime &inTime)
                 //d_lastTime = d_time.get();
 
                 deactivate = true;
-                d_startTime = 0.0;
+                // don't do this, thes will screw up fraction computation
+                // if we need it, we have to do it after f has been calculated.d_startTime = 0.0;
             }
 
             if (cycleInt > 0.0 && d_time.get() > d_startTime.get())
