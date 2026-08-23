@@ -447,8 +447,9 @@ Source: {#EXTERNLIBS}\collada\lib\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDi
 Source: {#EXTERNLIBS}\cudpp\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB};  Flags: skipifsourcedoesntexist; Components: core
 Source: {#EXTERNLIBS}\vtk\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Components: core
 Source: {#AUDIOFILE}\lib\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
-Source: {#FFTW}\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
+Source: {#FFTW}\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover 
 Source: {#GDAL}\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
+Source: {#EXTERNLIBS}\sqlite3\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
 Source: {#TIFF}\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover
 Source: {#JPEG}\lib\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
 Source: {#ZLIB}\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover
