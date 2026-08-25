@@ -1004,8 +1004,16 @@ int coVRMSController::readMaster(void *c, int n, bool mcastOverTCP)
         if (syncMode == SYNC_MPI)
     {
         MPI_Status status;
+#ifdef DEBUG_MESSAGES
+        int checkZize = 0;
+        MPI_Recv(&checkZize, sizeof(checkZize), MPI_BYTE, 0, AppTag, appComm, &status);
+        MPI_Recv(&debugMessageCounter, sizeof(debugMessageCounter), MPI_BYTE, 0, AppTag, appComm, &status);
+        assert(checkZize == n);
+        assert(debugMessageCounter == debugMessageCounter);
+        MPI_Send(&n, sizeof(n), MPI_BYTE, 0, AppTag, appComm);
+        debugMessageCounter++;
+#endif
         MPI_Recv(c, n, MPI_BYTE, 0, AppTag, appComm, &status);
-
         if (m_drawStatistics)
         {
             networkRecv += cover->currentTime() - startTime;
