@@ -2524,30 +2524,16 @@ std::string coVRMSController::syncString(const std::string &s)
 {
     if (numSlaves == 0)
         return s;
-
-    size_t sz = 0;
-    if (isMaster())
+    size_t len = s.length();
+    syncData(&len, sizeof(len));
+    if(isMaster())
     {
-        sz = s.size();
-        sendSlaves(&sz, sizeof(sz));
-        if (sz > 0)
-            sendSlaves(s.c_str(), sz);
+        syncData(const_cast<char *>(s.data()), len);
         return s;
-    }
-    else
-    {
-        readMaster(&sz, sizeof(sz));
-        if (sz > 0)
-        {
-            std::vector<char> v(sz);
-            readMaster(&v[0], sz);
-            std::string r(&v[0], sz);
-            return r;
-        }
-        else
-        {
-            return std::string();
-        }
+    } else {
+        std::string result = std::string(len, '\0');
+        syncData(result.data(), len);
+        return result;
     }
 }
 
