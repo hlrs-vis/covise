@@ -2359,7 +2359,7 @@ int coVRMSController::syncData(void *data, int size)
 #if defined(HAS_MPI) && defined(MPI_BCAST)
     if (syncMode == SYNC_MPI)
     {
-        shmBarrier();
+        shmBarrier(); // prevent busy wait
         MPI_Bcast(data, size, MPI_BYTE, 0, appComm);
         return size;
     }
