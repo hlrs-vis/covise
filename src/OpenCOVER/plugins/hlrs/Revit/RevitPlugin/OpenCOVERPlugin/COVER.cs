@@ -116,6 +116,7 @@ namespace OpenCOVERPlugin
         public bool doRotate=false;
         public RevitLinkInstance CurrentLink = null;
         public int LinkedDocumentID = 0;
+        public int RevitVersion = 0;
         public List<Document> documentList = null;
         public int DocumentID = 0;
         private Document document;
@@ -127,12 +128,22 @@ namespace OpenCOVERPlugin
         public FilteredElementCollector coordinateSystems;
         public DataStorage ConnectionInfo = null;
         public Schema ConnectionInfoSchema = null;
-
         public List<cDesignOptionSet> designOptionSets;
         public Dictionary<ElementId, cDesignOption> designOptionById;
         private DesignOptionModifier.Switcher designoptionMod;
 
         private Dictionary<ElementId, int> phaseDict;
+        // Default walkable surface categories
+        private HashSet<BuiltInCategory> WalkableSurfaceCategories = new(){
+            BuiltInCategory.OST_Stairs,
+            BuiltInCategory.OST_Topography,
+            BuiltInCategory.OST_StairsRuns,
+            BuiltInCategory.OST_StairsLandings,
+            BuiltInCategory.OST_StairsTrisers,
+            BuiltInCategory.OST_Ramps,
+            BuiltInCategory.OST_Floors
+        };
+
         public void updateVisibility(Document doc, ElementId activeOptId)
         {
             if (activeDesignOption != ElementId.InvalidElementId &&
@@ -1981,6 +1992,18 @@ namespace OpenCOVERPlugin
             }
         }
 
+
+        private BuiltInCategory GetBuiltInCategory(in Element elem)
+        {
+            BuiltInCategory category;
+            if (RevitVersion < 2024)
+            {
+                // unsafe to cast long to enum because long can exceed max int => runtime error
+                return (BuiltInCategory)elem.Category.Id.Value;
+            }
+            return category = elem.Category.BuiltInCategory;
+        }
+
         private bool DetermineDoWalk(Element elem)
         {
             IList<Parameter> ps = elem.GetParameters("doWalk");
@@ -1991,18 +2014,8 @@ namespace OpenCOVERPlugin
 
             if (elem.Category == null) return false;
 
-            BuiltInCategory category = (BuiltInCategory)elem.Category.Id.Value;
-            return category switch
-            {
-                BuiltInCategory.OST_Stairs or 
-                BuiltInCategory.OST_Topography or 
-                BuiltInCategory.OST_StairsRuns or 
-                BuiltInCategory.OST_StairsLandings or 
-                BuiltInCategory.OST_StairsTrisers or 
-                BuiltInCategory.OST_Ramps or 
-                BuiltInCategory.OST_Floors => true,
-                _ => false
-            };
+            var category = GetBuiltInCategory(elem);
+            return WalkableSurfaceCategories.Contains(category);
         }
 
         private string GetElevatorName(FamilyInstance fi)
@@ -3708,10 +3721,30 @@ namespace OpenCOVERPlugin
                 }
             }
         }
+        private int GetAppVersion()
+        {
+            string versionStr = cApplication.ControlledApplication.VersionNumber;
+            if (int.TryParse(versionStr, out int version))
+                return version;
+            return 0;
+        }
+        private void InitVersionViaApp()
+        {
+            RevitVersion = GetAppVersion(); 
+        }
+        private void InitWalkableSurfaceCategories()
+        {
+            if (RevitVersion >= 2024)
+            {
+                WalkableSurfaceCategories.Add(BuiltInCategory.OST_Toposolid);
+            }
+        }
         public void startup(UIControlledApplication application)
         {
             idlingHandler = new EventHandler<Autodesk.Revit.UI.Events.IdlingEventArgs>(idleUpdate);
             cApplication = application;
+            InitVersionViaApp();
+            InitWalkableSurfaceCategories();
         }
         public void shutdown(UIControlledApplication application)
         {
