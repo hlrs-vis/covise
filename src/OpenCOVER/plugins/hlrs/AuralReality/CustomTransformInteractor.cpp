@@ -103,9 +103,17 @@ void CustomTransformInteractor::createGeometry()
     geometryNode = axisTransform.get();
 
     osg::ref_ptr<osg::Group> dummy = new osg::Group;
-    auto icon = coVRFileManager::instance()->loadFile("share/covise/icons/cursors.glb", nullptr, dummy, "", true);
-    icon->setNodeMask(icon->getNodeMask() | Isect::Pick | Isect::Intersection | Isect::Visible);
-    axisTransform->addChild(icon);
+    auto fileManager = coVRFileManager::instance();
+    auto fileName = fileManager->getName("share/covise/icons/cursors.glb");
+    if (fileName)
+    {
+        auto icon = fileManager->loadFile(fileName, nullptr, dummy, "", true);
+        if (icon)
+        {
+            icon->setNodeMask(icon->getNodeMask() | Isect::Pick | Isect::Intersection | Isect::Visible);
+            axisTransform->addChild(icon);
+        }
+    }
 
     m_debugTarget = new osg::MatrixTransform;
     cover->getObjectsRoot()->addChild(m_debugTarget);

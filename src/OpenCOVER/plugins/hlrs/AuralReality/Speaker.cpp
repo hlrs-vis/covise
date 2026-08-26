@@ -37,8 +37,13 @@ Speaker::Speaker(const std::string &id)
     transform->addChild(transform2);
 
     // Attach the speaker icon to the transform
-    icon = coVRFileManager::instance()->loadFile("share/covise/icons/speaker.glb", nullptr, transform2, "", true);
-    icon->setStateSet(VRSceneGraph::instance()->loadDefaultGeostate(osg::Material::AMBIENT_AND_DIFFUSE));
+    auto fileManager = coVRFileManager::instance();
+    auto fileName = fileManager->getName("share/covise/icons/speaker.glb");
+    if (fileName)
+    {
+        auto icon = coVRFileManager::instance()->loadFile(fileName, nullptr, transform2, "", true);
+        icon->setStateSet(VRSceneGraph::instance()->loadDefaultGeostate(osg::Material::AMBIENT_AND_DIFFUSE));
+    }
 
     sensor = new SelectableSensor(&(AuralRealityPlugin::instance()->selection()), this, transform.get());
 }
