@@ -1995,13 +1995,12 @@ namespace OpenCOVERPlugin
 
         private BuiltInCategory GetBuiltInCategory(in Element elem)
         {
-            BuiltInCategory category;
             if (RevitVersion < 2024)
             {
                 // unsafe to cast long to enum because long can exceed max int => runtime error
                 return (BuiltInCategory)elem.Category.Id.Value;
             }
-            return category = elem.Category.BuiltInCategory;
+            return elem.Category.BuiltInCategory;
         }
 
         private bool DetermineDoWalk(Element elem)
