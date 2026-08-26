@@ -18,8 +18,6 @@
 #include <map>
 #include <memory>
 #include <string>
-#include <grpc/grpc.h>
-#include <grpcpp/channel.h>
 
 #include "CustomTransformInteractor.h"
 #include "Selection.h"

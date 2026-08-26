@@ -6,29 +6,34 @@
  * License: LGPL 2+ */
 
 #include "AuralRealityPlugin.h"
+#include "arrpc/arrpc_future.h"
+#include "arrpc/arrpc_status.h"
+#include "arrpc/message_header.pb.h"
+#include "arrpc/utils.pb.h"
 
+#include <absl/strings/str_format.h>
+#include <chrono>
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRFileManager.h>
 #include <cover/coVRPluginSupport.h>
 #include <boost/uuid/uuid_io.hpp>
 
 #include <map>
+#include <memory>
 #include <osg/PolygonOffset>
 #include <osg/ShapeDrawable>
 #include <utility>
 
-#include <grpc/grpc.h>
-#include <grpcpp/grpcpp.h>
-#include <grpcpp/channel.h>
-#include <grpcpp/client_context.h>
-#include <grpcpp/create_channel.h>
-#include <grpcpp/security/credentials.h>
 #include <osg/MatrixTransform>
 #include <osg/TexEnv>
 #include <osg/Material>
 #include <osg/io_utils>
 
 #include <cover/ui/Action.h>
+
+#include <arrpc/message_header.pb.h>
+#include <zmq.hpp>
+#include <zmq_addon.hpp>
 
 AuralRealityPlugin *AuralRealityPlugin::plugin = NULL;
 
@@ -39,6 +44,9 @@ namespace ui = opencover::ui;
 AuralRealityPlugin::AuralRealityPlugin()
     : coVRPlugin(COVER_PLUGIN_NAME)
     , ui::Owner("AuralRealityPlugin", cover->ui)
+    , socket(context, zmq::socket_type::dealer)
+    , channel(socket)
+    , client(channel)
 
 {
     plugin = this;
@@ -50,24 +58,24 @@ AuralRealityPlugin::AuralRealityPlugin()
     new_speaker->setCallback([this]()
         { createSpeaker(); });
 
-    // connect
-    channel = grpc::CreateChannel("[::]:9999", grpc::InsecureChannelCredentials());
-    service = ar::TMTService::NewStub(channel);
+    socket.connect("tcp://127.0.0.1:9999");
 
-    ar::Id request, response;
+    ar::Id request;
     request.set_id("hello");
+    ar::Id request2;
+    request2.set_id("hello2");
 
-    grpc::ClientContext context;
-    grpc::Status status = service->Ping(&context, request, &response);
-    if (status.ok())
-    {
-        std::cerr << "RPC pong: " << response.id() << std::endl;
-    }
-    else
-    {
-        std::cerr << "RPC failed: " << status.error_message() << std::endl
-                  << "Error code: " << status.error_code() << std::endl;
-    }
+    client.Ping(request).then([](rpc::RpcResult<ar::Id> res)
+        {
+            auto id = res.value();
+            auto i = id.id();
+            std::cout << "Ping 1 response: " << i << std::endl; });
+
+    client.Ping(request2).then([](rpc::RpcResult<ar::Id> res)
+        {
+            auto id = res.value();
+            auto i = id.id();
+            std::cout << "Ping 2 response: " << i << std::endl; });
 
     sync();
 
@@ -99,6 +107,8 @@ AuralRealityPlugin::~AuralRealityPlugin()
 
 void AuralRealityPlugin::preFrame()
 {
+    channel.poll();
+
     for (auto &[_, s] : speakers)
         s->preFrame();
 
@@ -112,35 +122,44 @@ bool contains(std::map<Key, Value> map, const Key &key)
     return map.find(key) != map.end();
 }
 
+template <typename T>
+std::function<void(rpc::RpcResult<T>)> handleError(std::function<void(T t)> callback)
+{
+    return [callback](rpc::RpcResult<T> res)
+    {
+        if (!res.ok())
+        {
+            std::cerr << "RPC failed: " << res.status().message << std::endl
+                      << "Error code: " << res.status().code << std::endl;
+            return;
+        }
+        else
+        {
+            callback(res.take_value());
+        }
+    };
+}
+
 void AuralRealityPlugin::sync()
 {
     syncSpeakers();
 }
 void AuralRealityPlugin::syncSpeakers()
 {
-    ar::Empty request;
-    ar::IdList response;
-    grpc::ClientContext context;
-    grpc::Status status = service->GetSpeakerIds(&context, request, &response);
-
-    if (!status.ok())
-    {
-        std::cerr << "RPC failed: " << status.error_message() << std::endl
-                  << "Error code: " << status.error_code() << std::endl;
-        return;
-    }
-
-    for (const auto &id : response.ids())
-    {
-        std::cout << " Found speaker " << id << std::endl;
-        if (!contains(speakers, id))
+    client.GetSpeakerIds().then(handleError<ar::IdList>(
+        [&](ar::IdList response)
         {
-            speakers[id] = std::make_shared<Speaker>(id);
-        }
-        fetchSpeaker(speakers[id]);
-    }
+        for (const auto &id : response.ids())
+        {
+            std::cout << " Found speaker " << id << std::endl;
+            if (!contains(speakers, id))
+            {
+                speakers[id] = std::make_shared<Speaker>(id);
+            }
+            fetchSpeaker(speakers[id]);
 
-    // TODO: delete removed speakers
+            // TODO: delete removed speakers
+        } }));
 }
 
 osg::Matrix tmt_transform_to_matrix(const ar::Transform &t)
@@ -171,6 +190,10 @@ osg::Matrix tmt_transform_to_matrix(const ar::Transform &t)
         m2.makeRotate(osg::Quat(quat.x(), quat.y(), quat.z(), quat.w()));
         break;
     }
+    case ar::Rotation::ContentCase::CONTENT_NOT_SET:
+    default:
+        m2.makeIdentity();
+        break;
     }
 
     float s = t.has_scale() ? t.scale() : 1.0;
@@ -213,30 +236,22 @@ void matrix_to_tmt_transform(const osg::Matrix &m, ar::Transform *result)
 void AuralRealityPlugin::fetchSpeaker(std::shared_ptr<Speaker> speaker)
 {
     ar::Id request;
-    ar::Speaker response;
     request.set_id(speaker->getId());
-    grpc::ClientContext context;
-    grpc::Status status = service->GetSpeaker(&context, request, &response);
 
-    if (!status.ok())
-    {
-        std::cerr << "RPC failed: " << status.error_message() << std::endl
-                  << "Error code: " << status.error_code() << std::endl;
-        return;
-    }
+    client.GetSpeaker(request).then(handleError<ar::Speaker>([&](ar::Speaker response)
+        {
+            speaker->setTransform(tmt_transform_to_matrix(response.transform()));
 
-    speaker->setTransform(tmt_transform_to_matrix(response.transform()));
+            SpeakerProperties p;
+            p.dispersion_horizontal = response.dispersion_horizontal();
+            p.dispersion_vertical = response.dispersion_vertical();
+            p.cutoff_frequency_low = response.cutoff_frequency_low();
+            p.cutoff_frequency_high = response.cutoff_frequency_high();
+            p.maximum_sound_pressure_level = response.maximum_sound_pressure_level();
+            p.power_handling = response.power_handling();
+            speaker->setProperties(p);
 
-    SpeakerProperties p;
-    p.dispersion_horizontal = response.dispersion_horizontal();
-    p.dispersion_vertical = response.dispersion_vertical();
-    p.cutoff_frequency_low = response.cutoff_frequency_low();
-    p.cutoff_frequency_high = response.cutoff_frequency_high();
-    p.maximum_sound_pressure_level = response.maximum_sound_pressure_level();
-    p.power_handling = response.power_handling();
-    speaker->setProperties(p);
-
-    std::cout << " Updated speaker " << speaker->getId() << std::endl;
+            std::cout << " Updated speaker " << speaker->getId() << std::endl; }));
 }
 
 void AuralRealityPlugin::pushSpeaker(const std::string &id)
@@ -263,17 +278,10 @@ void AuralRealityPlugin::pushSpeaker(const Speaker *speaker)
     request.set_maximum_sound_pressure_level(p.maximum_sound_pressure_level);
     request.set_power_handling(p.power_handling);
 
-    grpc::ClientContext context;
-    grpc::Status status = service->UpdateSpeaker(&context, request, &response);
-
-    if (!status.ok())
-    {
-        std::cerr << "RPC failed: " << status.error_message() << std::endl
-                  << "Error code: " << status.error_code() << std::endl;
-        return;
-    }
-
-    // TODO: parse response again?
+    client.UpdateSpeaker(request).then(handleError<ar::Speaker>([](ar::Speaker response)
+        {
+            // TODO: parse response?
+        }));
 }
 
 osg::Matrix unscale(osg::Matrix v)

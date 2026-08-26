@@ -18,8 +18,6 @@
 #include "CustomTransformInteractor.h"
 #include "Selection.h"
 
-#include "tmt_service.grpc.pb.h"
-
 struct SpeakerProperties
 {
     float dispersion_horizontal = 0.0;

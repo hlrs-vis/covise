@@ -16,20 +16,21 @@
 #include <map>
 #include <memory>
 #include <string>
-#include <grpc/grpc.h>
-#include <grpcpp/channel.h>
 
 #include <cover/ui/Menu.h>
 
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 
-#include "CustomTransformInteractor.h"
+#include <arrpc/tmt_service.rpc.h>
+
 #include "Selection.h"
 #include "Speaker.h"
 #include "Trajectory.h"
+#include "ZeroMqRpcChannel.h"
 
-#include "tmt_service.grpc.pb.h"
+#include <zmq.hpp>
+#include <zmq_addon.hpp>
 
 class AuralRealityPlugin : public opencover::coVRPlugin,
                            public opencover::ui::Owner
@@ -56,8 +57,12 @@ private:
     std::map<std::string, std::shared_ptr<Speaker>> speakers;
     std::map<std::string, std::shared_ptr<Trajectory>> trajectories;
 
-    std::shared_ptr<grpc::Channel> channel;
-    std::unique_ptr<auralreality::TMTService::Stub> service;
+    // std::shared_ptr<grpc::Channel> channel;
+    // zmq_command_socket(zmq_context, zmq::socket_type::rep)
+    zmq::context_t context;
+    zmq::socket_t socket;
+    ZeroMqRpcChannel channel;
+    auralreality::TMTServiceClient client;
 
     opencover::ui::Menu *menu;
 
