@@ -80,3 +80,6 @@ set_property(TARGET OpenCOVERPlugin PROPERTY VS_DOTNET_REFERENCES
     "System.Xaml"
     "System.Xml"
     "WindowsBase")
+
+# REVIT_DEFINES definitions from FindRevit
+target_compile_definitions(OpenCOVERPlugin PRIVATE ${REVIT_DEFINES})

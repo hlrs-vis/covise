@@ -140,6 +140,10 @@ namespace OpenCOVERPlugin
             BuiltInCategory.OST_StairsRuns,
             BuiltInCategory.OST_StairsLandings,
             BuiltInCategory.OST_StairsTrisers,
+#if REVIT_2024_OR_GREATER
+            BuiltInCategory.OST_Toposolid,
+            BuiltInCategory.OST_Subdivision,
+#endif
             BuiltInCategory.OST_Ramps,
             BuiltInCategory.OST_Floors
         };
@@ -817,10 +821,10 @@ namespace OpenCOVERPlugin
                     mb.add(para.Id.Value);
                     mb.add(para.Definition.Name);
                     mb.add((int)para.StorageType);
-#if REVIT2019 || REVIT2020 || REVIT2021
-                    mb.add("Undefined");
-#else
+#if REVIT_2022_OR_GREATER
                     mb.add(para.Definition.GetDataType().ToString());
+#else
+                    mb.add("Undefined");
 #endif
                     switch (para.StorageType)
                     {
@@ -877,10 +881,10 @@ namespace OpenCOVERPlugin
                     mb.add(para.Id.Value);
                     mb.add(para.Definition.Name);
                     mb.add((int)para.StorageType);
-#if REVIT2019 || REVIT2020 || REVIT2021
-                    mb.add("Undefined");
-#else
+#if REVIT_2022_OR_GREATER
                     mb.add(para.Definition.GetDataType().ToString());
+#else 
+                    mb.add("Undefined");
 #endif
                     switch (para.StorageType)
                     {
@@ -1390,10 +1394,10 @@ namespace OpenCOVERPlugin
                             else if (subproperty.Name == "texture_RealWorldScaleX")
                             {
                                 AssetPropertyDistance val = subproperty as AssetPropertyDistance;
-#if REVIT2019 || REVIT2020
-                                ti.sx = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
-#else
+#if REVIT_2021_OR_GREATER
                                 ti.sx = UnitUtils.ConvertFromInternalUnits(val.Value, UnitTypeId.Feet);
+#else
+                                ti.sx = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
 #endif
                             }
                             else if (subproperty.Name == "texture_UScale")
@@ -1409,28 +1413,28 @@ namespace OpenCOVERPlugin
                             else if (subproperty.Name == "texture_RealWorldScaleY")
                             {
                                 AssetPropertyDistance val = subproperty as AssetPropertyDistance;
-#if REVIT2019 || REVIT2020
-                                ti.sy = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
-#else
+#if REVIT_2021_OR_GREATER
                                 ti.sy = UnitUtils.ConvertFromInternalUnits(val.Value, UnitTypeId.Feet);
+#else
+                                ti.sy = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
 #endif
                             }
                             else if (subproperty.Name == "texture_RealWorldOffsetX")
                             {
                                 AssetPropertyDistance val = subproperty as AssetPropertyDistance;
-#if REVIT2019 || REVIT2020
-                                ti.ox = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
-#else
+#if REVIT_2021_OR_GREATER
                                 ti.ox = UnitUtils.ConvertFromInternalUnits(val.Value, UnitTypeId.Feet);
+#else
+                                ti.ox = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
 #endif
                             }
                             else if (subproperty.Name == "texture_RealWorldOffsetY")
                             {
                                 AssetPropertyDistance val = subproperty as AssetPropertyDistance;
-#if REVIT2019 || REVIT2020
-                                ti.oy = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
-#else
+#if REVIT_2021_OR_GREATER
                                 ti.oy = UnitUtils.ConvertFromInternalUnits(val.Value, UnitTypeId.Feet);
+#else
+                                ti.oy = UnitUtils.Convert(val.Value, val.DisplayUnitType, DisplayUnitType.DUT_DECIMAL_FEET);
 #endif
                             }
                             else if (subproperty.Name == "texture_WAngle")
@@ -1485,10 +1489,10 @@ namespace OpenCOVERPlugin
                 {
                     mb.add(para.Definition.Name);
                     mb.add((int)para.StorageType);
-#if REVIT2019 || REVIT2020 || REVIT2021
-                    mb.add("Undefined");
-#else
+#if REVIT_2022_OR_GREATER
                     mb.add(para.Definition.GetDataType().ToString());
+#else
+                    mb.add("Undefined");
 #endif
                     switch (para.StorageType)
                     {
@@ -1521,10 +1525,10 @@ namespace OpenCOVERPlugin
                 {
                     mb.add(para.Definition.Name);
                     mb.add((int)para.StorageType);
-#if REVIT2019 || REVIT2020 || REVIT2021
-                    mb.add("Undefined");
-#else
+#if REVIT_2022_OR_GREATER
                     mb.add(para.Definition.GetDataType().ToString());
+#else
+                    mb.add("Undefined");
 #endif
                     switch (para.StorageType)
                     {
@@ -1992,15 +1996,14 @@ namespace OpenCOVERPlugin
             }
         }
 
-
         private BuiltInCategory GetBuiltInCategory(in Element elem)
         {
-            if (RevitVersion < 2024)
-            {
-                // unsafe to cast long to enum because long can exceed max int => runtime error
-                return (BuiltInCategory)elem.Category.Id.Value;
-            }
+#if REVIT_2024_OR_GREATER
             return elem.Category.BuiltInCategory;
+#else
+            // unsafe to cast long to enum because long can exceed max int => runtime error
+            return (BuiltInCategory)elem.Category.Id.Value;
+#endif
         }
 
         private bool DetermineDoWalk(Element elem)
@@ -3309,12 +3312,11 @@ namespace OpenCOVERPlugin
                             mb.add(param.Id.Value);
                             mb.add(param.Definition.Name);
                             mb.add((int)param.StorageType);
-#if REVIT2019 || REVIT2020 || REVIT2021
-                    mb.add("Undefined");
-#else
+#if REVIT_2022_OR_GREATER
                             //mb.add(param.Definition.GetDataType().ToString());
                             mb.add(param.Definition.GetDataType().TypeId);
-
+#else
+                            mb.add("Undefined");
 #endif
                             switch (param.StorageType)
                             {
@@ -3731,19 +3733,12 @@ namespace OpenCOVERPlugin
         {
             RevitVersion = GetAppVersion(); 
         }
-        private void InitWalkableSurfaceCategories()
-        {
-            if (RevitVersion >= 2024)
-            {
-                WalkableSurfaceCategories.Add(BuiltInCategory.OST_Toposolid);
-            }
-        }
+
         public void startup(UIControlledApplication application)
         {
             idlingHandler = new EventHandler<Autodesk.Revit.UI.Events.IdlingEventArgs>(idleUpdate);
             cApplication = application;
             InitVersionViaApp();
-            InitWalkableSurfaceCategories();
         }
         public void shutdown(UIControlledApplication application)
         {
