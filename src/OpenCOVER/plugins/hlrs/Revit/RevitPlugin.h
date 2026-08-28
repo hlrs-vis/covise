@@ -40,15 +40,10 @@
 #include "Doors.h"
 #include "Elevators.h"
 
-
-
-
-
-#define REVIT_FEET_TO_M 0.304799999536704
-#define REVIT_M_TO_FEET 3.2808399
-
 #include <PluginUtil/coSensor.h>
 
+constexpr double REVIT_FEET_TO_M{0.304799999536704};
+constexpr double REVIT_M_TO_FEET{3.2808399};
 
 class RevitInfo : public vrui::vruiUserData
 {
