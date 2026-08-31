@@ -84,8 +84,8 @@ public:
     void config();
     void showCollaborative(bool visible);
     void showAvatars(bool visible);
+    bool showAvatar() const;
     static coVRCollaboration *instance();
-    bool showAvatar;
     vrb::SharedState<float> scaleFactor;
     float getSyncInterval();
     // returns collaboration mode
@@ -107,6 +107,7 @@ public:
     ui::SelectionList *m_collaborationMode = nullptr;
     ui::Menu *menu() const;
     ui::Group *partnerGroup() const;
+    
 
     bool updateCollaborativeMenu();
     void syncModeChanged(int mode);

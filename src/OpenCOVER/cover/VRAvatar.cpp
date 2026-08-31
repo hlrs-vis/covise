@@ -94,7 +94,7 @@ bool PartnerAvatar::init(const std::string &hostAdress)
             return false;
         initialized = true;
 
-        if (coVRCollaboration::instance()->showAvatar)
+        if (coVRCollaboration::instance()->showAvatar())
         {
             cover->getObjectsRoot()->addChild(avatarNodes.get());
         }

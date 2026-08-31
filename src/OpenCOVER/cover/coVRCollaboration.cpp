@@ -72,7 +72,6 @@ coVRCollaboration::coVRCollaboration()
     : ui::Owner("coVRCollaboration", cover->ui)
     , syncXform(0)
     , syncInterval(0.3)
-    , showAvatar(1)
     , syncMode("coVRCollaboration_syncMode", LooseCoupling, ALWAYS_SHARE)
     , avatarPosition("coVRCollaboration_avatarPosition", osg::Matrix())
     , scaleFactor("coVRCollaboration_scaleFactor", 1)
@@ -190,18 +189,14 @@ void coVRCollaboration::initCollMenu()
     m_showAvatar->setText("Show avatars");
     m_showAvatar->setState(true);
     m_showAvatar->setCallback([this](bool state){
-        showAvatar = state;
         if (state)
             coVRPartnerList::instance()->showAvatars();
         else
             coVRPartnerList::instance()->hideAvatars();
-        covise::TokenBuffer tb;
-        tb << vrb::SYNC_MODE;
-        tb << showAvatar;
-        covise::Message msg(tb);
-        msg.type = covise::COVISE_MESSAGE_VRB_MESSAGE;
-        cover->sendVrbMessage(&msg);
+        updated = true;
     });
+
+    // merged show-slaves into show-avatar; showSlavesState removed
 
     m_syncInterval = new ui::Slider(m_collaborativeMenu, "SyncInterval");
     m_syncInterval->setPresentation(ui::Slider::AsDial);
@@ -274,8 +269,7 @@ bool coVRCollaboration::update()
     //sync avatar position 
 	static double lastAvatarUpdateTime = 0.0;
     if (m_visible
-        && (thisTime > lastAvatarUpdateTime + syncInterval)
-        && (syncMode == LooseCoupling))
+        && (thisTime > lastAvatarUpdateTime + syncInterval))
     {
         coVRPartnerList::instance()->sendAvatarMessage();
         lastAvatarUpdateTime = thisTime;
@@ -333,10 +327,12 @@ void coVRCollaboration::setSyncMode(const char *mode)
 
     if (strcmp(mode, "SHOW_AVATAR") == 0)
     {
+        m_showAvatar->setState(true);
         coVRPartnerList::instance()->showAvatars();
     }
     else if (strcmp(mode, "HIDE_AVATAR") == 0)
     {
+        m_showAvatar->setState(false);
         coVRPartnerList::instance()->hideAvatars();
     }
 }
@@ -367,9 +363,9 @@ void coVRCollaboration::showCollaborative(bool visible)
 {
     m_visible = visible;
 
-    if (visible && syncMode == LooseCoupling)
+    if (visible)
     {
-        if (showAvatar)
+        if (m_showAvatar->state())
             coVRPartnerList::instance()->showAvatars();
     }
     else
@@ -431,12 +427,17 @@ void coVRCollaboration::syncModeChanged(int mode)
     switch (mode)
     {
     case LooseCoupling:
-        if (showAvatar)
+        // show avatars if the local show-avatar toggle is on
+        if (m_showAvatar->state())
             coVRPartnerList::instance()->showAvatars();
         break;
     case MasterSlaveCoupling:
     case TightCoupling:
-        coVRPartnerList::instance()->hideAvatars();
+        // respect local show-avatar toggle
+        if (m_showAvatar->state())
+            coVRPartnerList::instance()->showAvatars();
+        else
+            coVRPartnerList::instance()->hideAvatars();
         break;
     }
     updateSharedStates();
@@ -451,30 +452,21 @@ void coVRCollaboration::setSyncInterval()
 
 void coVRCollaboration::showAvatars(bool visible)
 {
-    showAvatar = visible;
+    m_showAvatar->setState(visible);
     updateUi();
+}
+
+bool coVRCollaboration::showAvatar() const
+{
+    return m_showAvatar->state();
 }
 
 void coVRCollaboration::updateUi()
 {
-    switch (syncMode)
-    {
-    case LooseCoupling:
-        m_showAvatar->setEnabled(m_visible);
-        m_master->setEnabled(false);
-        m_returnToMaster->setEnabled(false);
-        break;
-    case MasterSlaveCoupling:
-        m_showAvatar->setEnabled(m_visible);
-        m_master->setEnabled(m_visible && !isMaster());
-        m_returnToMaster->setEnabled(!isMaster());
-        break;
-    case TightCoupling:
-        m_showAvatar->setEnabled(false);
-        m_master->setEnabled(false);
-        m_returnToMaster->setEnabled(false);
-        break;
-    }
+    m_showAvatar->setVisible(true);
+    m_showAvatar->setEnabled(true);
+    m_master->setEnabled(m_visible && !isMaster());
+    m_returnToMaster->setEnabled(!isMaster());
 
     if (isMaster())
     {
@@ -484,7 +476,6 @@ void coVRCollaboration::updateUi()
     {
         m_master->setText("Become master");
     }
-    m_showAvatar->setState(showAvatar);
 
     if (m_collaborativeMenu)
         m_collaborativeMenu->setVisible(m_visible);
