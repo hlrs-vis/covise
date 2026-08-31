@@ -101,7 +101,50 @@ namespace OpenCOVERPlugin
     public sealed class COVER
     {
 
-        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup, File, Finished, DocumentInfo, NewPointCloud, NewARMarker, DesignOptionSets, SelectDesignOption, IKInfo, Phases, ViewPhase, AddRoomInfo, ObjectInfo, Flip, SelectType, ElevatorPart };
+        public enum MessageTypes { 
+            NewObject = 500, 
+            DeleteObject, 
+            ClearAll, 
+            UpdateObject, 
+            NewGroup, 
+            NewTransform, 
+            EndGroup, 
+            AddView, 
+            DeleteElement, 
+            NewParameters, 
+            SetParameter, 
+            NewMaterial, 
+            NewPolyMesh, 
+            NewInstance, 
+            EndInstance, 
+            SetTransform, 
+            UpdateView, 
+            AvatarPosition, 
+            RoomInfo, 
+            NewAnnotation, 
+            ChangeAnnotation, 
+            ChangeAnnotationText, 
+            NewAnnotationID, 
+            Views, 
+            SetView, 
+            Resend, 
+            NewDoorGroup, 
+            File, 
+            Finished, 
+            DocumentInfo, 
+            NewPointCloud, 
+            NewARMarker, 
+            DesignOptionSets, 
+            SelectDesignOption, 
+            IKInfo, 
+            Phases, 
+            ViewPhase, 
+            AddRoomInfo, 
+            ObjectInfo, 
+            Flip, 
+            SelectType, 
+            ElevatorPart 
+        };
         public enum ObjectTypes { Mesh = 1, Curve, Instance, Solid, RenderElement, Polymesh, Inline };
         public enum TextureTypes { Diffuse = 1, Bump };
         private Thread messageThread;
