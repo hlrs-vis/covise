@@ -1543,8 +1543,9 @@ int Covise::deleteConnection()
 
 void Covise::addInteractor(coDistributedObject *obj, const char *name, const char *value)
 {
-    char *buf = new char[strlen(name) + strlen(value) + strlen(Covise::get_module()) + strlen(Covise::get_host()) + 200];
-    snprintf(buf, sizeof(buf), "X%s\n%s\n%s\n%s\n%s", Covise::get_module(), Covise::get_instance(), Covise::get_host(), name, value);
+    size_t buflen = strlen(name) + strlen(value) + strlen(Covise::get_module()) + strlen(Covise::get_host()) + 200;
+    char *buf = new char[buflen];
+    snprintf(buf, buflen, "X%s\n%s\n%s\n%s\n%s", Covise::get_module(), Covise::get_instance(), Covise::get_host(), name, value);
     obj->addAttribute("INTERACTOR", buf);
     delete[] buf;
 }
