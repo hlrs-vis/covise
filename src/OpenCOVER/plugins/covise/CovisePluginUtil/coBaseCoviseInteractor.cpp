@@ -96,6 +96,14 @@ coBaseCoviseInteractor::coBaseCoviseInteractor(const char *n, RenderObject *o, c
     {
         d_numUser = 0;
         d_numPara = 0;
+
+        d_param = new paraRec[d_numPara + 1]; // +1 for illegal
+        d_user = new char *[d_numUser + 1];
+
+        d_param[d_numPara].name = "ILLEGAL";
+        d_param[d_numPara].type = "NO TYPE";
+        d_param[d_numPara].value = "NO VALUE";
+        d_user[d_numUser] = (char *)"NO USER STRING";
     }
     // ok, copy and split the string
     else
