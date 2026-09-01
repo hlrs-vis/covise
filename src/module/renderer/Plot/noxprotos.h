@@ -166,7 +166,7 @@ void leavegraphics(void);
 void drawaxes(int gno);
 void drawxaxisbar(int gno, int caxis);
 void drawyaxisbar(int gno, int caxis);
-void create_ticklabel(int form, int prec, double loc, char *s);
+void create_ticklabel(int form, int prec, double loc, char *s, int size);
 void drawxticklabels(int gno, int caxis);
 void drawyticklabels(int gno, int caxis);
 void drawxtickmarks(int gno, int caxis);

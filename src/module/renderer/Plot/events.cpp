@@ -605,9 +605,9 @@ void getpoints(int x, int y)
             char s1[30], s2[30];
             int form = g[cg].fx;
 
-            create_ticklabel(form, g[cg].px, wx, s1);
+            create_ticklabel(form, g[cg].px, wx, s1, sizeof(s1));
             form = g[cg].fy;
-            create_ticklabel(form, g[cg].py, wy, s2);
+            create_ticklabel(form, g[cg].py, wy, s2, sizeof(s2));
             snprintf(buf, sizeof(buf), "G%1d: X, Y = [%s, %s]", cg, s1, s2);
         }
         break;
@@ -769,7 +769,7 @@ void update_text_cursor(char *s, int x, int y)
 
 #include <time.h>
 
-void set_default_message(char *buf)
+void set_default_message(char *buf, int size)
 {
     char *str, hbuf[256];
     struct tm tm; //, *localtime();
@@ -781,7 +781,7 @@ void set_default_message(char *buf)
 
     gethostname(hbuf, 256);
 
-    snprintf(buf, sizeof(buf), "%s, %s, %s", hbuf, DisplayString(disp), str);
+    snprintf(buf, size, "%s, %s, %s", hbuf, DisplayString(disp), str);
 }
 
 /*
@@ -1034,7 +1034,7 @@ void set_action(int act)
         break;
     case 0:
         set_cursor(-1);
-        set_default_message(buf);
+        set_default_message(buf, sizeof(buf));
         set_left_footer(buf);
 
         if (rectflag)

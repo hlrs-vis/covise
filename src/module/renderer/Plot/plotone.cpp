@@ -1210,7 +1210,7 @@ void drawval(plotarr p)
         if (symok(x[j], y[j]))
         {
             loc = z[j];
-            create_ticklabel(p.format, p.prec, loc, s1);
+            create_ticklabel(p.format, p.prec, loc, s1, sizeof(s2) - 1);
             if (p.sym)
             {
                 writestr(x[j], y[j], 0, 0, s1 - 1);
@@ -1378,7 +1378,7 @@ void drawsetbar(int gno, int setno, double cset, double bsize)
                     if (symok(x[j], y[j]))
                     {
                         loc = z[j];
-                        create_ticklabel(g[gno].p[setno].format, g[gno].p[setno].prec, loc, s1);
+                        create_ticklabel(g[gno].p[setno].format, g[gno].p[setno].prec, loc, s1, sizeof(s2) - 1);
                         if (g[gno].p[setno].sym)
                         {
                             writestr(x[j] + (cset + 0.5) * bsize * 0.5, y[j], 0, 0, s1 - 1);

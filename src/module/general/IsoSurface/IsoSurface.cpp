@@ -152,11 +152,12 @@ void IsoSurface::preHandleObjects(coInputPort **InPorts)
             int len = 0;
             if (species)
                 len += (int)strlen(species) + 3;
-            char *buf = new char[len + 64];
+            const size_t buflen = len + 64;
+            char *buf = new char[buflen];
             if (species)
-                snprintf(buf, sizeof(buf), "Iso-%s:%s", get_instance(), species);
+                snprintf(buf, buflen, "Iso-%s:%s", get_instance(), species);
             else
-                snprintf(buf, sizeof(buf), "Iso-%s", get_instance());
+                snprintf(buf, buflen, "Iso-%s", get_instance());
             setTitle(buf);
             delete[] buf;
         }

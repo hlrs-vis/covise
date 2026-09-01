@@ -20,13 +20,13 @@ ResultFloatParam::ResultFloatParam(const char *name, float f, int precission)
     prec_ = precission;
 
     char val[1024];
-    fillValString(val);
+    fillValString(val, sizeof(val));
 
     setLabel(name, val);
 }
 
 void
-ResultFloatParam::fillValString(char *val)
+ResultFloatParam::fillValString(char *val, int size)
 {
     char format[100], prec[10];
     strcpy(format, "%1.");
@@ -34,7 +34,7 @@ ResultFloatParam::fillValString(char *val)
     strcat(format, prec);
     strcat(format, "e");
 
-    snprintf(val, sizeof(val), format, val_);
+    snprintf(val, size, format, val_);
 }
 
 void
@@ -43,7 +43,7 @@ ResultFloatParam::setValue(float f)
     val_ = f;
 
     char val[1024];
-    fillValString(val);
+    fillValString(val, sizeof(val));
 
     setLabel(val);
 }

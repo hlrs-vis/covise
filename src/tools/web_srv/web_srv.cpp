@@ -1076,8 +1076,9 @@ void WebSrv::register_vrml(CMessage *msg)
         WHost *host = get_host(hostname);
         if (host != NULL)
             host->set_ports(cport, wport);
-        snprintf(buff, sizeof(buff), "%s(%s).cgi-rnd", name, hostname);
-        msg->m_conn->set_connid(buff);
+        char connid[512]; // separate buffer: name and hostname alias buff
+        snprintf(connid, sizeof(connid), "%s(%s).cgi-rnd", name, hostname);
+        msg->m_conn->set_connid(connid);
         //new vrml - update
         m_connList->broadcast_usr(" 3 /", msg->m_data);
     }

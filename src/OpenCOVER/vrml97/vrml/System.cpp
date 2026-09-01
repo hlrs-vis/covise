@@ -176,14 +176,15 @@ bool System::loadUrl(const char *url, int np, char **parameters)
 {
     if (!url)
         return false;
-    char *buf = new char[strlen(url) + 200];
+    const size_t buflen = strlen(url) + 200;
+    char *buf = new char[buflen];
     int result = 1;
 #ifndef _WIN32
     if (np)
-        snprintf(buf, sizeof(buf), "/bin/csh -c \"netscape -remote 'openURL(%s, %s)'\" &",
+        snprintf(buf, buflen, "/bin/csh -c \"netscape -remote 'openURL(%s, %s)'\" &",
                 url, parameters[0]);
     else
-        snprintf(buf, sizeof(buf), "/bin/csh -c \"netscape -remote 'openURL(%s)'\" &", url);
+        snprintf(buf, buflen, "/bin/csh -c \"netscape -remote 'openURL(%s)'\" &", url);
     result = system(buf);
     fprintf(stderr, "%s\n", buf);
 #else

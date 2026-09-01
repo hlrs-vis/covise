@@ -25,6 +25,6 @@ private:
     float val_;
     int prec_;
 
-    void fillValString(char *val);
+    void fillValString(char *val, int size);
 };
 #endif

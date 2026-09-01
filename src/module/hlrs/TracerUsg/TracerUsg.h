@@ -306,7 +306,7 @@ private:
     void createDummies(const char *Lines, const char *DataOut,
                        const char *VelOut,
                        ia<const coDistributedObject *> &returnObject,
-                       char *buf);
+                       char *buf, int size);
 
     class HandleTimeSteps
     {

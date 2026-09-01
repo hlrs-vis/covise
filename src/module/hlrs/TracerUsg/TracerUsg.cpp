@@ -733,7 +733,7 @@ void Application::compute(void *)
 
             if (startcell_count == 0)
             {
-                createDummies(Lines, DataOut, VelOut, returnObject, buf);
+                createDummies(Lines, DataOut, VelOut, returnObject, buf, sizeof(buf));
                 Covise::sendInfo("INFO:  No startpoints found");
                 timeSteps.addToTArrays(&returnObject[0]);
                 continue;
@@ -3900,7 +3900,7 @@ void Application::HandleTimeSteps::createOutput(ia<const coDistributedObject *> 
 void Application::createDummies(const char *Lines, const char *DataOut,
                                 const char *VelOut,
                                 ia<const coDistributedObject *> &returnObject,
-                                char *buf)
+                                char *buf, int size)
 {
     int *zahlen = 0;
     float *zero_f = 0;
@@ -3934,12 +3934,12 @@ void Application::createDummies(const char *Lines, const char *DataOut,
     switch (startStyle)
     {
     case 2: // plane
-        snprintf(buf, sizeof(buf), "P%s\n%s\n%s\n", Covise::get_module(),
+        snprintf(buf, size, "P%s\n%s\n%s\n", Covise::get_module(),
                 Covise::get_instance(), Covise::get_host());
         break;
 
     default: // line
-        snprintf(buf, sizeof(buf), "T%s\n%s\n%s\n", Covise::get_module(),
+        snprintf(buf, size, "T%s\n%s\n%s\n", Covise::get_module(),
                 Covise::get_instance(), Covise::get_host());
         break;
     }

@@ -704,6 +704,7 @@ void CoviseBase::getname(char *buf, const char *file, const char *addpath)
 
 bool CoviseBase::getnameinpath(char *buf, const char *file, const char *path)
 {
+    char full[800]; // same size as the local buffers in fopen()/open()/opendir()
     char *pathbuf = new char[strlen(path) + 1];
     strcpy(pathbuf, path);
 #ifdef _WIN32
@@ -713,10 +714,11 @@ bool CoviseBase::getnameinpath(char *buf, const char *file, const char *path)
 #endif
     while (dirname != NULL)
     {
-        snprintf(buf, sizeof(buf), "%s/%s", dirname, file);
-        FILE *fp = ::fopen(buf, "r");
+        snprintf(full, sizeof(full), "%s/%s", dirname, file);
+        FILE *fp = ::fopen(full, "r");
         if (fp != NULL)
         {
+            strcpy(buf, full);
             delete[] pathbuf;
             fclose(fp);
             return true;
@@ -730,10 +732,11 @@ bool CoviseBase::getnameinpath(char *buf, const char *file, const char *path)
                 break;
             }
         }
-        snprintf(buf, sizeof(buf), "%s/%s", dirname, file);
-        fp = ::fopen(buf, "r");
+        snprintf(full, sizeof(full), "%s/%s", dirname, file);
+        fp = ::fopen(full, "r");
         if (fp != NULL)
         {
+            strcpy(buf, full);
             delete[] pathbuf;
             fclose(fp);
             return true;

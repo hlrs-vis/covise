@@ -143,7 +143,7 @@ static void windowCloseCB(Widget, int num, XmAnyCallbackStruct *);
 
 extern void savewidget(Widget w);
 extern int get_pagelayout(int p);
-extern void set_default_message(char *buf);
+extern void set_default_message(char *buf, int size);
 extern void read_image(char *fname);
 extern void excovise_cmd(char *s);
 
@@ -1227,7 +1227,7 @@ void do_main_loop(void)
     XtManageChild(frbot);
     /* formbot = XmCreateForm(frbot, "form", NULL, 0); */
     formbot = XmCreateRowColumn(frbot, (char *)"rc", NULL, 0);
-    set_default_message(buf);
+    set_default_message(buf, sizeof(buf));
     statstring = XmStringCreateLtoR(buf, charset);
     statlab = XtVaCreateManagedWidget("statlab", xmLabelWidgetClass, formbot,
                                       XmNlabelString, statstring,

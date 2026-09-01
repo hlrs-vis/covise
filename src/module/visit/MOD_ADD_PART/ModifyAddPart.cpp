@@ -556,7 +556,7 @@ int ModifyAddPart::compute()
     }
     l += 100; // "VENTDIRS 2 vent_box vent_cyl"
     str = new char[l + 1];
-    snprintf(str, sizeof(str), "VENTDIRS %d", numVentDirs - 1);
+    snprintf(str, l + 1, "VENTDIRS %d", numVentDirs - 1);
     for (i = 1; i < numVentDirs; i++)
     {
         strcat(str, " ");
