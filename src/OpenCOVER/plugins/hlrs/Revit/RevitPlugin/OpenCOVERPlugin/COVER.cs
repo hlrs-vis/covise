@@ -28,15 +28,17 @@ using Bitmap = System.Drawing.Bitmap;
 using BoundarySegment = Autodesk.Revit.DB.BoundarySegment;
 using ComponentManager = Autodesk.Windows.ComponentManager;
 using Document = Autodesk.Revit.DB.Document;
+using Pipe = Autodesk.Revit.DB.Plumbing.Pipe;
 using IWin32Window = System.Windows.Forms.IWin32Window;
 using Panel = Autodesk.Revit.DB.Panel;
 using TaskDialog = Autodesk.Revit.UI.TaskDialog;
 using View = Autodesk.Revit.DB.View;
+using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 //using System.Windows.Media.Media3D;
 
 namespace OpenCOVERPlugin
 {
-
     public class COVERMessage
     {
 
@@ -143,7 +145,7 @@ namespace OpenCOVERPlugin
             ObjectInfo, 
             Flip, 
             SelectType, 
-            ElevatorPart 
+            ElevatorPart
         };
         public enum ObjectTypes { Mesh = 1, Curve, Instance, Solid, RenderElement, Polymesh, Inline };
         public enum TextureTypes { Diffuse = 1, Bump };
@@ -190,6 +192,13 @@ namespace OpenCOVERPlugin
             BuiltInCategory.OST_Ramps,
             BuiltInCategory.OST_Floors
         };
+
+        private HashSet<ElementId> UniqueSystemTypes = new(){};
+        public HashSet<ElementId> GetSystemTypes(){ return UniqueSystemTypes; }
+        public void ClearSystemTypes()
+        {
+            UniqueSystemTypes.Clear();
+        }
 
         public void updateVisibility(Document doc, ElementId activeOptId)
         {
@@ -746,6 +755,14 @@ namespace OpenCOVERPlugin
             mb.add(DocumentID);
             sendMessage(mb.buf, MessageTypes.DeleteElement);
         }
+        private void DeleteElements(FilteredElementCollector elements)
+        {
+            foreach (Element el in elements)
+            {   
+                deleteElement(el.Id);
+            }
+        }
+
         public void designOptionsChanged(Document doc, ElementId designOptionId)
         {
             if (activeDesignOption != ElementId.InvalidElementId &&
@@ -753,11 +770,7 @@ namespace OpenCOVERPlugin
             {
                 FilteredElementCollector elements = new(doc);
                 elements.ContainedInDesignOption(activeOption.des.Id);
-
-                foreach (Element el in elements)
-                {
-                    deleteElement(el.Id);
-                }
+                DeleteElements(elements);
             }
             else
             {
@@ -767,14 +780,15 @@ namespace OpenCOVERPlugin
                     {
                         FilteredElementCollector elements = new(doc);
                         elements.ContainedInDesignOption(option.des.Id);
-
-                        foreach (Element el in elements)
-                        {
-                            deleteElement(el.Id);
-                        }
+                        DeleteElements(elements);
                     }
                 }
             }
+
+            foreach (var id in UniqueSystemTypes)
+                deleteElement(id);
+
+            ClearSystemTypes();
             updateVisibility(doc, designOptionId);
             SendDesignOptionSetsMetaData(doc);
             FilteredElementCollector new_elements = new(doc);
@@ -896,8 +910,6 @@ namespace OpenCOVERPlugin
             }
         }
 
-
-
         public void sendParameters(Element elem)
         {
             // iterate element's parameters
@@ -954,16 +966,75 @@ namespace OpenCOVERPlugin
                 sendMessage(mb.buf, MessageTypes.NewParameters);
             }
         }
+
+        private IEnumerable<Element> GetAllPipesOfSystem(Document doc, ElementId systemTypeId, List<BuiltInCategory> filterList = null)
+        {
+            filterList ??= new(){
+                BuiltInCategory.OST_PipeCurves,           // Pipes
+                BuiltInCategory.OST_PipeInsulations,      // Insulations
+                BuiltInCategory.OST_PipeCurvesInsulation, // Insulation for Pipes curves
+                BuiltInCategory.OST_PipeFitting,          // Elbows, Tees, Unions, Reducers
+                BuiltInCategory.OST_PipeFittingInsulation,          // Insulation for Elbows, Tees, Unions, Reducers
+            };
+            ElementMulticategoryFilter categoryFilter = new(filterList);
+
+            return new FilteredElementCollector(doc)
+                .WherePasses(categoryFilter)
+                .WhereElementIsNotElementType()
+                .Where(sysElem => sysElem.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM)?.AsElementId() == systemTypeId);
+        }
+
+        private MessageBuffer CreateMatrixTransformBuffer(ElementId id, string name, Transform matrix)
+        {
+            var mb = new MessageBuffer();
+            mb.add(id.Value);
+            mb.add(DocumentID);
+            mb.add(name);
+            mb.add(matrix.BasisX);
+            mb.add(matrix.BasisY);
+            mb.add(matrix.BasisZ);
+            mb.add(matrix.Origin);
+            return mb;
+        }
+
+        private void SendPipeSystem(Document doc, MEPSystem mepSystem)
+        {
+            var systemTypeId = mepSystem.GetTypeId();
+            if (UniqueSystemTypes.Contains(systemTypeId))
+                return;
+
+            UniqueSystemTypes.Add(systemTypeId);
+
+            var systemType = doc.GetElement(systemTypeId);
+            string systemTypeName = systemType.Name;
+
+            var connectedPipes = GetAllPipesOfSystem(doc, systemTypeId);
+
+            var mb = CreateMatrixTransformBuffer(systemTypeId, systemTypeName, Transform.Identity);
+            sendMessage(mb.buf, MessageTypes.NewTransform);
+
+            foreach (var pipe in connectedPipes) {
+               if (pipe.get_Geometry(mOptions) is GeometryElement g)
+               {
+                    if (activeDesignOption != ElementId.InvalidElementId)
+                    {
+                        var designOption = pipe.DesignOption;
+                        if (designOption != null)
+                            if (designOption.Id != activeDesignOption)
+                                continue;
+                    }
+                    SendElement(g, pipe);
+               }
+            }
+            sendMessage(new byte[0], MessageTypes.EndGroup);
+        }
+
         // Note: Some element does not expose geometry, for example, curtain wall and dimension.
         // In case of a curtain wall, try selecting a whole wall by a window/box instead of a single pick.
         // It will then select internal components and be able to display its geometry.
         //
         public void SendElement(Element elem)
         {
-            /* if (elem.GetType() == typeof(Autodesk.Revit.DB.Element))
-            {
-                return;
-            }*/
             if (elem is View)
             {
                 sendViewpoint(elem);
@@ -1180,6 +1251,12 @@ namespace OpenCOVERPlugin
 
 
             }
+            else if (elem is Pipe { MEPSystem: not null } pipe)
+            {
+                var mepSystem = pipe.MEPSystem;
+                var doc = pipe.Document;
+                SendPipeSystem(doc, mepSystem);
+            }
             // if it is a Group. we will need to look at its components.
             else if (elem is Group)
             {
@@ -1210,7 +1287,7 @@ namespace OpenCOVERPlugin
                 }
                 // not a group. look at the geom data.
                 GeometryElement geom = elem.get_Geometry(mOptions);
-                if ((geom != null))
+                if (geom != null)
                 {
                     SendElement(geom, elem);
                 }
