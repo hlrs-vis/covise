@@ -714,37 +714,6 @@ bool OpenCOVER::init()
     coVRNavigationManager::instance();
     cover->setScale(coCoviseConfig::getFloat("COVER.DefaultScaleFactor", 1.f));
 
-    if (m_loadVistlePlugin)
-    {
-        loadFiles = false;
-        m_visPlugin = coVRPluginList::instance()->addPlugin(m_vistlePlugin.c_str(), coVRPluginList::Vis);
-        if (!m_visPlugin)
-        {
-            fprintf(stderr, "failed to load Vistle plugin %s\n", m_vistlePlugin.c_str());
-            exit(1);
-        }
-    }
-    else
-    {
-        loadCovisePlugin = coVRMSController::instance()->syncBool(loadCovisePlugin);
-        if (loadCovisePlugin)
-        {
-            m_visPlugin = coVRPluginList::instance()->addPlugin("COVISE", coVRPluginList::Vis);
-            if (!m_visPlugin)
-            {
-                fprintf(stderr, "failed to load COVISE plugin\n");
-                exit(1);
-            }
-
-            auto mapeditorTui = new coTabletUI("localhost", 31803);
-            auto mapeditorVrTui = new coVRTui(mapeditorTui);
-            mapeditorVrTui->config();
-            pushTui(mapeditorTui, mapeditorVrTui);
-            tab = tuiTab(numTuis() - 1);
-            cover->ui->addView(new ui::TabletView("mapeditor", tab));
-        }
-    }
-
     string welcomeMessage = coCoviseConfig::getEntry("value", "COVER.WelcomeMessage", "Welcome to OpenCOVER at HLRS");
     hud->setText1(welcomeMessage.c_str());
 
@@ -836,6 +805,37 @@ bool OpenCOVER::init()
     hud->redraw();
 
     coVRPluginList::instance()->init();
+
+    if (m_loadVistlePlugin)
+    {
+        loadFiles = false;
+        m_visPlugin = coVRPluginList::instance()->addPlugin(m_vistlePlugin.c_str(), coVRPluginList::Vis);
+        if (!m_visPlugin)
+        {
+            fprintf(stderr, "failed to load Vistle plugin %s\n", m_vistlePlugin.c_str());
+            exit(1);
+        }
+    }
+    else
+    {
+        loadCovisePlugin = coVRMSController::instance()->syncBool(loadCovisePlugin);
+        if (loadCovisePlugin)
+        {
+            m_visPlugin = coVRPluginList::instance()->addPlugin("COVISE", coVRPluginList::Vis);
+            if (!m_visPlugin)
+            {
+                fprintf(stderr, "failed to load COVISE plugin\n");
+                exit(1);
+            }
+
+            auto mapeditorTui = new coTabletUI("localhost", 31803);
+            auto mapeditorVrTui = new coVRTui(mapeditorTui);
+            mapeditorVrTui->config();
+            pushTui(mapeditorTui, mapeditorVrTui);
+            tab = tuiTab(numTuis() - 1);
+            cover->ui->addView(new ui::TabletView("mapeditor", tab));
+        }
+    }
 
     hud->redraw();
 
