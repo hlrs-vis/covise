@@ -249,7 +249,6 @@
     <Joystick>
       <Device value="/dev/input/porschepedal" />
     </Joystick>
-    <Vrml97 value="on">
 
      <Lights value="ON" />
      <Audio value="AServer" >
