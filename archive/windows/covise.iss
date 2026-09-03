@@ -354,8 +354,9 @@ Source: {#QT}\bin\*3D.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Com
 Source: {#QT}\bin\QtWebEngineProcess*.exe; DestDir: {#DBIN}; Components: core
 Source: {#QT}\plugins\*.dll; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}\plugins; Flags: recursesubdirs; Components: core
 Source: {#QT}\resources\*; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}\resources; Flags: recursesubdirs; Components: core
-Source: {#QT}\translations\*; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}\translations; Flags: recursesubdirs; Components: core
+Source: {#QT}\translations\*; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}\translations; Flags: recursesubdirs; Components: core  
 Source: {#EXTERNLIBS}\icu\bin\*.dll; DestDir: {#DLIB}; Components: core                             
+Source: {#EXTERNLIBS}\iconv\bin\*.dll; DestDir: {#DLIB}; Components: core                             
 Source: {#EXTERNLIBS}\all\archive.dll; DestDir: {#DLIB}; Components: core                   
 Source: {#EXTERNLIBS}\glfw\bin\*.dll; DestDir: {#DLIB}; Components: core  
 Source: {#EXTERNLIBS}\tbb\bin\intel64\vc11\*.dll; DestDir: {#DBIN}; Flags: skipifsourcedoesntexist; Components: core
