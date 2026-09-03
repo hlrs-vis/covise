@@ -42,6 +42,7 @@ class Slider;
 
 #include "coVRNavigationProvider.h"
 #include "TeleportNavigationProvider.h"
+#include "AimMotionNavigationProvider.h"
 
 namespace vrui
 {
@@ -377,6 +378,7 @@ private:
     osg::Vec3 mouseNavCenter;
 
     TeleportNavigationProvider teleportNavigationProvider;
+    AimMotionNavigationProvider aimMotionNavigationProvider;
 };
 }
 #endif

@@ -84,6 +84,7 @@ SET(COVER_HEADERS
   VRVruiRenderInterface.h
   VRWindow.h
   TeleportNavigationProvider.h
+  AimMotionNavigationProvider.h
 )
 
 SET(COVER_SOURCES
@@ -157,6 +158,7 @@ SET(COVER_SOURCES
   VRVruiRenderInterface.cpp
   VRWindow.cpp
   TeleportNavigationProvider.cpp
+  AimMotionNavigationProvider.cpp
   #coVRDePee.cpp
   #coVRDePeePass.cpp
 )
