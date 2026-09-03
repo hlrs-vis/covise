@@ -1,5 +1,5 @@
 using(osgcal)
-
+USING(XERCESC)
 
 set(HEADERS
     Traffic.h
@@ -7,6 +7,8 @@ set(HEADERS
     PedestrianGeometry.h
     CarGeometry.h
     Connector.h
+    traffic_utils.h
+    ConnectorFcd.h
     sumo/ConnectorSumo.h
     sumo/socket.h
     sumo/storage.h
@@ -21,6 +23,8 @@ set(SOURCES
     Geometry.cpp
     PedestrianGeometry.cpp
     CarGeometry.cpp
+    traffic_utils.cpp
+    ConnectorFcd.cpp
     sumo/ConnectorSumo.cpp
     sumo/socket.cpp
     sumo/storage.cpp

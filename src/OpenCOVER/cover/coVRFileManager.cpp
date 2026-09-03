@@ -988,6 +988,15 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
                 plugin->message(coVRPluginSupport::TO_ALL, PluginMessageTypes::setSky, skyName.size() + 1, skyName.c_str());
             }
         }
+        else if (url.authority() == "traffic")
+        {
+            coVRPlugin *plugin = coVRPluginList::instance()->addPlugin("Traffic");
+            if (plugin)
+            {
+                std::string fileName = std::regex_replace(url.path(), std::regex("^[/\\\\]?"), "");
+                plugin->message(coVRPluginSupport::TO_ALL, PluginMessageTypes::TrafficLoadSimulation, fileName.size() + 1, fileName.c_str());
+            }
+        }
         return nullptr;
     }
     else if (url.scheme() == "file")

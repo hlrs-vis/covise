@@ -7,10 +7,10 @@
 
 #include "Traffic.h"
 
-#include <cmath>
 #include <cover/VRSceneGraph.h>
 #include <iostream>
 #include <random>
+#include <boost/locale.hpp>
 
 #include <PluginUtil/PluginMessageTypes.h>
 #include <boost/algorithm/string.hpp>
@@ -18,6 +18,7 @@
 #include <cover/coVRMSController.h>
 #include <cover/coVRPluginSupport.h>
 #include <net/tokenbuffer.h>
+#include <regex>
 #include <util/unixcompat.h>
 
 #include <cover/ui/Button.h>
@@ -27,6 +28,7 @@
 #include <osg/Switch>
 
 #include "CarGeometry.h"
+#include "ConnectorFcd.h"
 #include "PedestrianGeometry.h"
 
 Traffic *Traffic::thisPlugin = nullptr;
@@ -36,6 +38,7 @@ Traffic::Traffic()
     , opencover::ui::Owner("Traffic", opencover::cover->ui)
 {
     thisPlugin = this;
+
     initUI();
 
     trafficGroup = new osg::Switch;
@@ -55,11 +58,11 @@ Traffic::Traffic()
 
     // Don't use the update traversal on pedestrians, they are updated manually
     // when in range.
-    auto &pedestrianGroup = vehicleClassGroups["pedestrian"];
-    if (pedestrianGroup)
-    {
-        pedestrianGroup->setNodeMask(pedestrianGroup->getNodeMask() & ~opencover::Isect::Update);
-    }
+    // auto &pedestrianGroup = vehicleClassGroups["pedestrian"];
+    // if (pedestrianGroup)
+    // {
+    //     pedestrianGroup->setNodeMask(pedestrianGroup->getNodeMask() & ~opencover::Isect::Update);
+    // }
 }
 
 // void Traffic::loadConfig(const std::string &configFileName) {
@@ -77,6 +80,19 @@ Traffic::Traffic()
 //     }
 // }
 
+static opencover::FileHandler file_handler = {
+    NULL,
+    Traffic::handleLoadFcd,
+    Traffic::handleUnloadFcd,
+    "fcd"
+};
+
+bool Traffic::init()
+{
+    opencover::coVRFileManager::instance()->registerFileHandler(&file_handler);
+    return true;
+}
+
 Traffic::~Traffic()
 {
     // TODO: check cleanup
@@ -89,14 +105,62 @@ Traffic::~Traffic()
     opencover::cover->getScene()->removeChild(trafficGroup);
 }
 
+void Traffic::message(int toWhom, int type, int length, const void *data)
+{
+    if (type == opencover::PluginMessageTypes::TrafficLoadSimulation)
+    {
+        // TODO:
+        loadSimulation((const char *)data);
+    }
+}
+
+int Traffic::handleLoadFcd(const char *filename, osg::Group *loadParent, const char *)
+{
+#ifdef WIN32
+    std::string utf8_filename = boost::locale::conv::to_utf<char>(filename, "ISO-8859-1"); // we hope  the system locale is Latin1
+#else
+    std::string utf8_filename(filename); // we hope it is utf8 already
+#endif
+
+    instance()->loadSimulation(utf8_filename);
+
+    return 0;
+}
+int Traffic::handleUnloadFcd(const char *filename, const char *)
+{
+    instance()->unloadSimulation();
+    return 0;
+}
+
+void Traffic::loadSimulation(const std::string &filename)
+{
+    std::cout << "Traffic: Load simulation from path: " << filename << std::endl;
+    if (filename == "sumo")
+    {
+        connector = std::make_unique<ConnectorSumo>();
+    }
+    else if (std::regex_search(filename, std::regex("\\.(fcd|xml|fcd\\.xml)$", std::regex_constants::icase)))
+    {
+        connector = std::make_unique<ConnectorFcd>(filename);
+    }
+    else
+    {
+        std::cerr << "Traffic: Cannot load simulation from path: " << filename << std::endl;
+    }
+}
+void Traffic::unloadSimulation()
+{
+    connector = nullptr;
+}
+
 void Traffic::getSimulationResults(double deltaTime)
 {
     if (opencover::coVRMSController::instance()->isMaster())
     {
-        if (connector.isConnected())
+        if (connector && connector->isConnected())
         {
             previousSimulationState = currentSimulationState; // TODO: is this copy?
-            connector.getSimulationState(currentSimulationState);
+            connector->getSimulationState(currentSimulationState);
         }
 
         // sendSimResults();
@@ -132,11 +196,16 @@ bool Traffic::initUI()
 
 bool Traffic::update()
 {
-    return connector.isConnected();
+    return connector && connector->isConnected();
 }
 
 void Traffic::preFrame()
 {
+    if (!connector)
+    {
+        return;
+    }
+
     double deltaTime = opencover::cover->frameDuration();
 
     if (deltaTime <= 0.0)
@@ -146,7 +215,7 @@ void Traffic::preFrame()
 
     const double simulationSpeed = pauseButton->state() ? 0.0 : simulationSpeedSlider->value();
 
-    if (connector.update(deltaTime, deltaTime * simulationSpeed))
+    if (connector->update(deltaTime, deltaTime * simulationSpeed))
     {
         getSimulationResults(deltaTime);
         processNewResults();
@@ -241,7 +310,7 @@ void Traffic::readSimResults()
 
 void Traffic::processNewResults()
 {
-    for (auto &vehicleState : currentSimulationState.vehicles)
+    for (auto &[_, vehicleState] : currentSimulationState.vehicles)
     {
         auto currentEntity = vehicles.find(vehicleState.id);
 
@@ -307,12 +376,13 @@ void Traffic::processNewResults()
 
 void Traffic::interpolateVehiclePosition(double deltaTime)
 {
+    const double simulationSpeed = pauseButton->state() ? 0.0 : simulationSpeedSlider->value();
+
     // Loop over all entities and compute their new position
     for (auto &[_, vehicle] : vehicles)
     {
-
         // Update position of the geometry
-        vehicle.geometry->update(deltaTime);
+        vehicle.geometry->update(deltaTime, deltaTime * simulationSpeed);
     }
 }
 
@@ -353,7 +423,7 @@ osg::Vec4 colors[] = {
     { 0, 1, 1, 1 },
 };
 
-Vehicle &Traffic::createVehicle(const std::string &id, const VehicleClass &vehicleClass)
+Vehicle &Traffic::createVehicle(const vehicle_id_t &id, const VehicleClass &vehicleClass)
 {
     static std::mt19937 gen2(0);
 
@@ -407,7 +477,7 @@ void Traffic::loadVehicleClasses()
 
         opencover::config::Section entry = vehicleClassesSection.value<opencover::config::Section>("", vehicleClassName)->value();
 
-        auto &vehicleClass = vehicleClasses[vehicleClassName];
+        auto &vehicleClass = vehicleClasses[vehicle_class_t(vehicleClassName)];
         vehicleClass.name = vehicleClassName;
 
         std::string geometryType = entry.value<std::string>("", "type", "vehicle")->value();
@@ -447,7 +517,7 @@ void Traffic::loadVehicleClasses()
         // construct temporary geometry objects to preload models
         for (auto &model : vehicleClass.models)
         {
-            Vehicle dummy { "dummy", nullptr, &model };
+            Vehicle dummy { vehicle_class_t("dummy"), nullptr, &model };
 
             switch (vehicleClass.geometryType)
             {
