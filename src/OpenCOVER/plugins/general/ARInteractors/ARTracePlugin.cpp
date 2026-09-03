@@ -181,11 +181,8 @@ void TraceModule::tabletEvent(coTUIElement *tUIItem)
     {
         startpointOffset2[2] = p2Z->getValue();
     }
-    if (tUIItem == p1X)
-    {
-        startpointOffset1[0] = p1X->getValue();
-    }
 }
+
 void TraceModule::menuEvent(coMenuItem *menuItem)
 {
     if (menuItem == enabledToggle)
