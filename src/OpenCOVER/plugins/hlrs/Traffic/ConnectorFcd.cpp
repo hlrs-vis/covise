@@ -4,7 +4,6 @@
 
 #include <algorithm>
 #include <cover/OpenCOVER.h>
-#include <format>
 #include <xercesc/sax2/Attributes.hpp>
 #include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/dom/DOMDocumentType.hpp>
@@ -115,7 +114,7 @@ void ConnectorFcd::startElement(const XMLCh *const uri,
 
         if (m_timesteps.size() % 1000 == 0)
         {
-            opencover::OpenCOVER::instance()->hud->setText3(std::format("Loading Traffic Simulation ({:.1f} s)", m_parseTimestep));
+            opencover::OpenCOVER::instance()->hud->setText3("Loading Traffic Simulation...");
             opencover::OpenCOVER::instance()->hud->redraw();
         }
     }
