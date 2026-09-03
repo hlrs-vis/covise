@@ -551,12 +551,12 @@ bool GeoDataLoader::update()
         osg::Matrix currentObjectsTransform = cover->getObjectsXform()->getMatrix();
         double z = std::abs(currentObjectsTransform.getTrans().z()) * scale;
 
-        double far = 10 * z; // see 10 times as far as we're high
-        far = std::clamp(far, 1e7, 1e10); // see at least 10km and at most 10_000 km
+        double farValue = 10 * z; // see 10 times as far as we're high
+        farValue = std::clamp(farValue, 1e7, 1e10); // see at least 10km and at most 10_000 km
 
-        double near = far / 1e6;
-        near = std::clamp(near, 10.0, 500.0);
-        coVRConfig::instance()->setNearFar(near, far);
+        double nearValue    = farValue / 1e6;
+        nearValue = std::clamp(nearValue, 10.0, 500.0);
+        coVRConfig::instance()->setNearFar(nearValue, farValue);
     }
 
     if (editInteraction->isRunning())
