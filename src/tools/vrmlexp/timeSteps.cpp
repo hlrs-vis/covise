@@ -376,8 +376,8 @@ static ParamUIDesc descParam[] = {
         PB_NUMTIMESTEPS,
         EDITTYPE_INT,
         IDC_NT_EDIT, IDC_NT_SPIN,
-        0, 10,
-        100000),
+        0, 10000,
+        SPIN_AUTOSCALE),
 
     // Speed
     ParamUIDesc(
