@@ -964,21 +964,16 @@ namespace OpenCOVERPlugin
 
         private IEnumerable<Element> GetAllPipesOfSystem(Document doc, ElementId systemTypeId, List<BuiltInCategory> filterList = null)
         {
-            filterList ??= new(){
-                BuiltInCategory.OST_PipeSegments,           // Pipes Curves
-                BuiltInCategory.OST_PipeCurves,           // Pipes Curves
-                BuiltInCategory.OST_PipeCurvesDrop,           // Pipes Curves Drop
-                BuiltInCategory.OST_PipeCurvesRiseDrop,           // Pipes Curves Rise Drop
-                BuiltInCategory.OST_PipeInsulations,      // Insulations
-                BuiltInCategory.OST_PipeCurvesInsulation, // Insulation for Pipes curves
-                BuiltInCategory.OST_PipeFitting,          // Elbows, Tees, Unions, Reducers
-                BuiltInCategory.OST_PipeFittingInsulation,          // Insulation for Elbows, Tees, Unions, Reducers
-                BuiltInCategory.OST_PipeAccessory         // Valves, Flanges, Caps, Plugs
-            };
-            ElementMulticategoryFilter categoryFilter = new(filterList);
+            if (filterList != null)
+            {
+                categoryFilter = new ElementMulticategoryFilter(filterList);
+                return new FilteredElementCollector(doc)
+                    .WherePasses(categoryFilter)
+                    .WhereElementIsNotElementType()
+                    .Where(sysElem => sysElem.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM)?.AsElementId() == systemTypeId);
+            }
 
             return new FilteredElementCollector(doc)
-                .WherePasses(categoryFilter)
                 .WhereElementIsNotElementType()
                 .Where(sysElem => sysElem.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM)?.AsElementId() == systemTypeId);
         }
@@ -1005,6 +1000,19 @@ namespace OpenCOVERPlugin
 
             var systemType = doc.GetElement(systemTypeId);
             var systemTypeName = systemType.Name;
+            // var filterList = new(){
+            //     BuiltInCategory.OST_PipeSegments,           // Pipes Curves
+            //     BuiltInCategory.OST_FlexPipeCurves,           // Flex Pipes Curves
+            //     BuiltInCategory.OST_FlexPipeCurvesInsulation,           // Flex Pipes Curves Insulation
+            //     BuiltInCategory.OST_PipeCurves,           // Pipes Curves
+            //     BuiltInCategory.OST_PipeCurvesDrop,           // Pipes Curves Drop
+            //     BuiltInCategory.OST_PipeCurvesRiseDrop,           // Pipes Curves Rise Drop
+            //     BuiltInCategory.OST_PipeInsulations,      // Insulations
+            //     BuiltInCategory.OST_PipeCurvesInsulation, // Insulation for Pipes curves
+            //     BuiltInCategory.OST_PipeFitting,          // Elbows, Tees, Unions, Reducers
+            //     BuiltInCategory.OST_PipeFittingInsulation,          // Insulation for Elbows, Tees, Unions, Reducers
+            //     BuiltInCategory.OST_PipeAccessory         // Valves, Flanges, Caps, Plugs
+            // };
             var connectedPipes = GetAllPipesOfSystem(doc, systemTypeId);
             
             if (!sent) {
