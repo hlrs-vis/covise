@@ -962,7 +962,7 @@ namespace OpenCOVERPlugin
             }
         }
 
-        private IEnumerable<Element> GetAllSystemElements(Document doc, ElementId systemTypeId, List<BuiltInCategory> filterList = null)
+        private IEnumerable<Element> GetAllSystemElements(Document doc, ElementId systemTypeId, List<BuiltInCategory> filterList = null, BuiltInParameter systemTypeParam = BuiltInParameter.RBS_PIPING_SSTEM_TYPE_PARAM)
         {
             if (filterList != null)
             {
@@ -970,12 +970,12 @@ namespace OpenCOVERPlugin
                 return new FilteredElementCollector(doc)
                     .WherePasses(categoryFilter)
                     .WhereElementIsNotElementType()
-                    .Where(sysElem => sysElem.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM)?.AsElementId() == systemTypeId);
+                    .Where(sysElem => sysElem.get_Parameter(systemTypeParam)?.AsElementId() == systemTypeId);
             }
 
             return new FilteredElementCollector(doc)
                 .WhereElementIsNotElementType()
-                .Where(sysElem => sysElem.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM)?.AsElementId() == systemTypeId);
+                .Where(sysElem => sysElem.get_Parameter(systemTypeParam)?.AsElementId() == systemTypeId);
         }
 
         private MessageBuffer CreateMatrixTransformBuffer(ElementId id, string name, Transform matrix)
