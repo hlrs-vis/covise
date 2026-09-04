@@ -763,7 +763,7 @@ namespace OpenCOVERPlugin
             }
         }
 
-        public void designOptionsChanged(Document doc, ElementId designOptionId)
+        public void DesignOptionChanged(Document doc, ElementId designOptionId)
         {
             FilteredElementCollector elements = new(doc);
             if (activeDesignOption != ElementId.InvalidElementId &&
@@ -3916,7 +3916,7 @@ namespace OpenCOVERPlugin
                 {
                     if (pendingDesignOption != ElementId.InvalidElementId)
                     {
-                        designOptionsChanged(doc, pendingDesignOption);
+                        DesignOptionChanged(doc, pendingDesignOption);
                         pendingDesignOption = ElementId.InvalidElementId;
                     }
                     hasPendingDesignOption = false;
