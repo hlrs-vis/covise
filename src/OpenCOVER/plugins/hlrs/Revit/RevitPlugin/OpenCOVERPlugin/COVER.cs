@@ -4150,11 +4150,10 @@ namespace OpenCOVERPlugin
                     }
 
                     List<View3D> views = new(
-        new FilteredElementCollector(doc)
-          .OfClass(typeof(View3D))
-          .Cast<View3D>()
-          .Where(v =>
-            v.CanBePrinted && !v.IsTemplate));
+                        new FilteredElementCollector(doc)
+                            .OfClass(typeof(View3D))
+                            .Cast<View3D>()
+                            .Where(v => v.CanBePrinted && !v.IsTemplate));
                     int n = views.Count;
 
                     if (0 == n)
