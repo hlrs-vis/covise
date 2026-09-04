@@ -66,6 +66,7 @@
 #include <net/tokenbuffer.h>
 #include <config/CoviseConfig.h>
 #include <util/unixcompat.h>
+#include <cstring>
 
 #include "VrmlNodePhases.h"
 
@@ -770,11 +771,12 @@ ElementInfo::~ElementInfo()
 	}
 	delete group;
 };
+
 void ElementInfo::addParameter(RevitParameter *p)
 {
 	if (group == NULL)
 	{
-		group = new ui::Group(RevitPlugin::instance()->parameterMenu,name);
+		group = new ui::Group(RevitPlugin::instance()->parameterMenu, name);
 	}
 	yPos++;
 	p->createUI(group, parameters.size());
@@ -2100,6 +2102,7 @@ RevitPlugin::handleMessage(Message *m)
 						}
 					}
 				}
+
 				while (n->getNumParents())
 				{
 					n->getParent(0)->removeChild(n);
@@ -2677,6 +2680,7 @@ RevitPlugin::handleMessage(Message *m)
 		annotationIDs[annotationID] = ID;
 		// check if we have cached changes for this Annotation and send it to Revit.
 	}
+	break;
 	case MSG_NewMaterial:
 	{
 		TokenBuffer tb(m);
@@ -2755,8 +2759,10 @@ RevitPlugin::handleMessage(Message *m)
 			ElementIDMap[docID][ID] = ei;
 			//fprintf(stderr, "NewID: %d\n", ID);
 		}
-		const char *name;
+		const char *name, *parentName;
+		// const char *name;
 		tb >> name;
+		tb >> parentName;
 		ei->name = name;
 		ei->ID = ID;
 		ei->DocumentID = docID;
@@ -2992,7 +2998,24 @@ RevitPlugin::handleMessage(Message *m)
 			}
 			else
 			{
-				currentGroup.top()->addChild(geode);
+				// currentGroup.top()->addChild(geode);
+				// for attaching to existing transforms
+				if (std::strcmp(parentName, "NULL") != 0)
+				{
+					for (uint i = 0; i < revitGroup->getNumChildren(); ++i)
+					{
+						osg::Node *parentNode = revitGroup->getChild(i);
+						if (parentNode && parentNode->getName() == parentName)
+						{
+							parentNode->asGroup()->addChild(geode);
+							break;
+						}
+					}
+				}
+				if (geode->getNumParents() == 0)
+				{
+					currentGroup.top()->addChild(geode);
+				}
 			}
 			setPhaseVisible(ei);
 		}
