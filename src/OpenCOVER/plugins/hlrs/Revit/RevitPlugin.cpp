@@ -1546,6 +1546,19 @@ bool RevitPlugin::sendMessage(Message &m)
     return false;
 }
 
+void RevitPlugin::deleteChildlessParent(osg::Group *parent) {
+	// if the parent has children, it's not a childless parent
+	if (parent->getNumChildren() != 0)
+		return; 
+
+	while (parent->getNumParents() > 0) {
+		osg::Group *grandparent = parent->getParent(0);
+		grandparent->removeChild(parent);
+		parent = grandparent;
+		if (parent->getNumChildren() != 0 || parent == revitGroup)
+			return; // stop if the parent has children
+	}
+}
 
 void RevitPlugin::message(int toWhom, int type, int len, const void *buf)
 {
@@ -2105,7 +2118,9 @@ RevitPlugin::handleMessage(Message *m)
 
 				while (n->getNumParents())
 				{
-					n->getParent(0)->removeChild(n);
+					auto parent = n->getParent(0);
+					parent->removeChild(n);
+					deleteChildlessParent(parent);
 				}
 				//fprintf(stderr, "DeleteID: %d\n", ID);
 			}

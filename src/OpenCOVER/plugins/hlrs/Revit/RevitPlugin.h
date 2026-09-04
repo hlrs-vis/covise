@@ -532,6 +532,7 @@ public:
     void changeAnnotation(int id, AnnotationMessage *am);
     void setPhase(std::string phaseName);
     void setPhase(int phase);
+    void deleteChildlessParent(osg::Group *parent);
     /// <summary>
     /// set visibility depending on current selected phase
     /// </summary>
