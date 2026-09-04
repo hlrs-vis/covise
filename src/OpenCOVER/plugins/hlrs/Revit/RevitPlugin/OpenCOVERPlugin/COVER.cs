@@ -962,7 +962,7 @@ namespace OpenCOVERPlugin
             }
         }
 
-        private IEnumerable<Element> GetAllSystemElements(Document doc, ElementId systemTypeId, List<BuiltInCategory> filterList = null, BuiltInParameter systemTypeParam = BuiltInParameter.RBS_PIPING_SSTEM_TYPE_PARAM)
+        private IEnumerable<Element> GetAllSystemElements(Document doc, ElementId systemTypeId, List<BuiltInCategory> filterList = null, BuiltInParameter systemTypeParam = BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM)
         {
             if (filterList != null)
             {
