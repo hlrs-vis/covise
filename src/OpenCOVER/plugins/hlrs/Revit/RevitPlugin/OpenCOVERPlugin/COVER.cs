@@ -962,11 +962,11 @@ namespace OpenCOVERPlugin
             }
         }
 
-        private IEnumerable<Element> GetAllPipesOfSystem(Document doc, ElementId systemTypeId, List<BuiltInCategory> filterList = null)
+        private IEnumerable<Element> GetAllSystemElements(Document doc, ElementId systemTypeId, List<BuiltInCategory> filterList = null)
         {
             if (filterList != null)
             {
-                categoryFilter = new ElementMulticategoryFilter(filterList);
+                var categoryFilter = new ElementMulticategoryFilter(filterList);
                 return new FilteredElementCollector(doc)
                     .WherePasses(categoryFilter)
                     .WhereElementIsNotElementType()
@@ -1013,7 +1013,7 @@ namespace OpenCOVERPlugin
             //     BuiltInCategory.OST_PipeFittingInsulation,          // Insulation for Elbows, Tees, Unions, Reducers
             //     BuiltInCategory.OST_PipeAccessory         // Valves, Flanges, Caps, Plugs
             // };
-            var connectedPipes = GetAllPipesOfSystem(doc, systemTypeId);
+            var connectedPipes = GetAllSystemElements(doc, systemTypeId);
             
             if (!sent) {
                 var mb = CreateMatrixTransformBuffer(systemTypeId, systemTypeName, Transform.Identity);
