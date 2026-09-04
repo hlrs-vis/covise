@@ -1547,6 +1547,8 @@ bool RevitPlugin::sendMessage(Message &m)
 }
 
 void RevitPlugin::deleteChildlessParent(osg::Group *parent) {
+	if (!parent)
+		return;
 	// if the parent has children, it's not a childless parent
 	if (parent->getNumChildren() != 0)
 		return; 
