@@ -150,7 +150,6 @@ namespace OpenCOVERPlugin
         public enum ObjectTypes { Mesh = 1, Curve, Instance, Solid, RenderElement, Polymesh, Inline };
         public enum TextureTypes { Diffuse = 1, Bump };
         private Thread messageThread;
-
         private TcpClient toCOVER;
         private Options mOptions;
         public View3D View3D;
@@ -193,12 +192,10 @@ namespace OpenCOVERPlugin
             BuiltInCategory.OST_Floors
         };
 
-        private HashSet<ElementId> UniqueSystemTypes = new(){};
-        public HashSet<ElementId> GetSystemTypes(){ return UniqueSystemTypes; }
-        public void ClearSystemTypes()
-        {
-            UniqueSystemTypes.Clear();
-        }
+        public HashSet<ElementId> SystemTypeCache { get; set; } = new(){};
+
+        // Cache for elements sent to OpenCOVER (Currently used to avoid sending the same element multiple times).
+        public HashSet<ElementId> ElementCache { get; set; } = new(){};
 
         public void updateVisibility(Document doc, ElementId activeOptId)
         {
@@ -753,6 +750,8 @@ namespace OpenCOVERPlugin
             MessageBuffer mb = new();
             mb.add(ID.Value);
             mb.add(DocumentID);
+            if (ElementCache.Contains(ID))
+                ElementCache.Remove(ID);
             sendMessage(mb.buf, MessageTypes.DeleteElement);
         }
         private void DeleteElements(FilteredElementCollector elements)
@@ -784,10 +783,7 @@ namespace OpenCOVERPlugin
                 }
             }
 
-            foreach (var id in UniqueSystemTypes)
-                deleteElement(id);
-
-            ClearSystemTypes();
+            // SystemTypeCache.Clear();
             updateVisibility(doc, designOptionId);
             SendDesignOptionSetsMetaData(doc);
             FilteredElementCollector new_elements = new(doc);
@@ -851,6 +847,7 @@ namespace OpenCOVERPlugin
                 mb.add(elem.Id.Value);
                 mb.add(DocumentID);
                 mb.add(elem.Name + "_FamilySymbol");
+                mb.add("NULL"); // no parent
                 mb.add((int)ObjectTypes.Mesh);
                 mb.add(false);//doWalk
                 addPhases(mb, elem);
@@ -1002,18 +999,18 @@ namespace OpenCOVERPlugin
         private void SendPipeSystem(Document doc, MEPSystem mepSystem)
         {
             var systemTypeId = mepSystem.GetTypeId();
-            if (UniqueSystemTypes.Contains(systemTypeId))
-                return;
+            bool sent = SystemTypeCache.Contains(systemTypeId);
 
-            UniqueSystemTypes.Add(systemTypeId);
+            SystemTypeCache.Add(systemTypeId);
 
             var systemType = doc.GetElement(systemTypeId);
-            string systemTypeName = systemType.Name;
-
+            var systemTypeName = systemType.Name;
             var connectedPipes = GetAllPipesOfSystem(doc, systemTypeId);
-
-            var mb = CreateMatrixTransformBuffer(systemTypeId, systemTypeName, Transform.Identity);
-            sendMessage(mb.buf, MessageTypes.NewTransform);
+            
+            if (!sent) {
+                var mb = CreateMatrixTransformBuffer(systemTypeId, systemTypeName, Transform.Identity);
+                sendMessage(mb.buf, MessageTypes.NewTransform);
+            }
 
             foreach (var pipe in connectedPipes) {
                if (pipe.get_Geometry(mOptions) is GeometryElement g)
@@ -1025,10 +1022,14 @@ namespace OpenCOVERPlugin
                             if (designOption.Id != activeDesignOption)
                                 continue;
                     }
-                    SendElement(g, pipe);
+                    SendElement(g, pipe, systemTypeName);
+                    ElementCache.Add(pipe.Id);
                }
             }
-            sendMessage(new byte[0], MessageTypes.EndGroup);
+
+            if (!sent) {
+                sendMessage(new byte[0], MessageTypes.EndGroup);
+            }
         }
 
         // Note: Some element does not expose geometry, for example, curtain wall and dimension.
@@ -1255,6 +1256,8 @@ namespace OpenCOVERPlugin
             }
             else if (elem is Pipe { MEPSystem: not null } pipe)
             {
+                if (ElementCache.Contains(pipe.Id))
+                    return;
                 var mepSystem = pipe.MEPSystem;
                 var doc = pipe.Document;
                 SendPipeSystem(doc, mepSystem);
@@ -1283,6 +1286,11 @@ namespace OpenCOVERPlugin
 
             else
             {
+                // don't send elements already sent
+                if (ElementCache.Contains(elem.Id))
+                {
+                    return;
+                }
                 if (View3D != null)
                 {
                     mOptions.DetailLevel = View3D.DetailLevel;
@@ -1294,8 +1302,6 @@ namespace OpenCOVERPlugin
                     SendElement(geom, elem);
                 }
             }
-
-
         }
 
         private void sendMaterial(Material materialElement, Element elem)
@@ -1724,7 +1730,7 @@ namespace OpenCOVERPlugin
             }
             sendGeomElement(elem, num, geomObject, createGroups, doWalk);
         }
-        private void sendGeomElement(Element elem, int num, GeometryObject geomObject, bool createGroups, bool doWalk)
+        private void sendGeomElement(Element elem, int num, GeometryObject geomObject, bool createGroups, bool doWalk, string parentName = "NULL")
         {
             if (geomObject.Visibility == Autodesk.Revit.DB.Visibility.Visible)
             {
@@ -1764,6 +1770,7 @@ namespace OpenCOVERPlugin
                     mb.add(elem.Id.Value);
                     mb.add(DocumentID);
                     mb.add(elem.Name + "_m_" + num.ToString());
+                    mb.add(parentName);
                     mb.add((int)ObjectTypes.Mesh);
                     mb.add(doWalk);
                     addPhases(mb, elem);
@@ -1831,7 +1838,7 @@ namespace OpenCOVERPlugin
                             {
                                 sendMessage(mb.buf, MessageTypes.NewGroup);
                             }
-                            SendSolid(prefix, (Solid)geomObject, elem, doWalk);
+                            SendSolid(prefix, (Solid)geomObject, elem, doWalk, parentName);
                             mb = new MessageBuffer();
                             if (createGroups)
                             {
@@ -1883,6 +1890,7 @@ namespace OpenCOVERPlugin
                     mb.add(elem.Id.Value);
                     mb.add(DocumentID);
                     mb.add(elem.Name);
+                    mb.add("NULL"); // parentName
                     mb.add((int)ObjectTypes.Inline);
                     mb.add(false);//doWalk
                     addPhases(mb, elem);
@@ -1960,7 +1968,7 @@ namespace OpenCOVERPlugin
             return -1;
         }
 
-        private void SendElement(GeometryElement elementGeom, Element elem)
+        private void SendElement(GeometryElement elementGeom, Element elem, string parentName = "NULL")
         {
             if (elementGeom == null)
                 return;
@@ -2007,7 +2015,7 @@ namespace OpenCOVERPlugin
             }
             else
             {
-                ProcessStandardGeometry(elementGeom, elem, doWalk, hasIK);
+                ProcessStandardGeometry(elementGeom, elem, doWalk, hasIK, parentName);
             }
         }
 
@@ -2333,7 +2341,7 @@ namespace OpenCOVERPlugin
             }
         }
 
-        private void ProcessStandardGeometry(GeometryElement elementGeom, Element elem, bool doWalk, bool hasIK)
+        private void ProcessStandardGeometry(GeometryElement elementGeom, Element elem, bool doWalk, bool hasIK, string parentName = "NULL")
         {
             if (hasIK)
             {
@@ -2347,7 +2355,7 @@ namespace OpenCOVERPlugin
             int num = 0;
             foreach (GeometryObject geomObject in elementGeom)
             {
-                sendGeomElement(elem, num, geomObject, false, doWalk);
+                sendGeomElement(elem, num, geomObject, false, doWalk, parentName);
                 num++;
             }
 
@@ -2588,6 +2596,7 @@ namespace OpenCOVERPlugin
                     mbpc.add(elem.Id.Value);
                     mbpc.add(DocumentID);
                     mbpc.add(elem.Name);
+                    mbpc.add("NULL"); // parentName
                     mbpc.add((int)ObjectTypes.Inline);
                     mbpc.add(false);//doWalk
                     addPhases(mb, elem);
@@ -2620,7 +2629,8 @@ namespace OpenCOVERPlugin
             }
             return false;
         }
-        private void SendSolid(string prefix, Solid geomSolid, Element elem, bool doWalk)
+
+        private void SendSolid(string prefix, Solid geomSolid, Element elem, bool doWalk, string parentName = "NULL")
         {
             if (elem.Name == "")
                 return;
@@ -2745,6 +2755,7 @@ namespace OpenCOVERPlugin
                 mb.add(elem.Id.Value);
                 mb.add(DocumentID);
                 mb.add(prefix + elem.Name + "_combined");
+                mb.add(parentName);
                 mb.add((int)ObjectTypes.Mesh);
                 mb.add(doWalk);
                 addPhases(mb, elem);
@@ -2819,6 +2830,7 @@ namespace OpenCOVERPlugin
                                     mb.add(elem.Id.Value);
                                     mb.add(DocumentID);
                                     mb.add(prefix + elem.Name + "_f_" + num.ToString());
+                                    mb.add(parentName); // parentName
                                     mb.add((int)ObjectTypes.Mesh);
                                     mb.add(doWalk);
                                     addPhases(mb, elem);
@@ -2859,6 +2871,7 @@ namespace OpenCOVERPlugin
                             mb.add(elem.Id.Value);
                             mb.add(DocumentID);
                             mb.add(prefix + elem.Name + "_f_" + num.ToString());
+                            mb.add(parentName); // parentName
                             mb.add((int)ObjectTypes.Mesh);
                             mb.add(doWalk);
                             addPhases(mb, elem);

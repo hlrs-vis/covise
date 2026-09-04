@@ -41,6 +41,8 @@ namespace OpenCOVERPlugin
                     COVER.Instance.LinkedDocumentID = 0;
                     COVER.Instance.DocumentID = 0;
                     COVER.Instance.documentList.Clear();
+                    COVER.Instance.SystemTypeCache.Clear();
+                    COVER.Instance.ElementCache.Clear();
 
                     COVER.Instance.documentList.Add(commandData.Application.ActiveUIDocument.Document);
                     Autodesk.Revit.DB.FilteredElementCollector collector = new Autodesk.Revit.DB.FilteredElementCollector(commandData.Application.ActiveUIDocument.Document);
