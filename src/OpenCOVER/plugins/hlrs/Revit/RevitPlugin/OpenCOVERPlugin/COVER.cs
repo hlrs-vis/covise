@@ -970,11 +970,15 @@ namespace OpenCOVERPlugin
         private IEnumerable<Element> GetAllPipesOfSystem(Document doc, ElementId systemTypeId, List<BuiltInCategory> filterList = null)
         {
             filterList ??= new(){
-                BuiltInCategory.OST_PipeCurves,           // Pipes
+                BuiltInCategory.OST_PipeSegments,           // Pipes Curves
+                BuiltInCategory.OST_PipeCurves,           // Pipes Curves
+                BuiltInCategory.OST_PipeCurvesDrop,           // Pipes Curves Drop
+                BuiltInCategory.OST_PipeCurvesRiseDrop,           // Pipes Curves Rise Drop
                 BuiltInCategory.OST_PipeInsulations,      // Insulations
                 BuiltInCategory.OST_PipeCurvesInsulation, // Insulation for Pipes curves
                 BuiltInCategory.OST_PipeFitting,          // Elbows, Tees, Unions, Reducers
                 BuiltInCategory.OST_PipeFittingInsulation,          // Insulation for Elbows, Tees, Unions, Reducers
+                BuiltInCategory.OST_PipeAccessory         // Valves, Flanges, Caps, Plugs
             };
             ElementMulticategoryFilter categoryFilter = new(filterList);
 
