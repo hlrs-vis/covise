@@ -1000,6 +1000,7 @@ namespace OpenCOVERPlugin
 
             var systemType = doc.GetElement(systemTypeId);
             var systemTypeName = systemType.Name;
+            // NOTE: e.g.
             // var filterList = new(){
             //     BuiltInCategory.OST_PipeSegments,           // Pipes Curves
             //     BuiltInCategory.OST_FlexPipeCurves,           // Flex Pipes Curves
