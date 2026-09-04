@@ -765,10 +765,10 @@ namespace OpenCOVERPlugin
 
         public void designOptionsChanged(Document doc, ElementId designOptionId)
         {
+            FilteredElementCollector elements = new(doc);
             if (activeDesignOption != ElementId.InvalidElementId &&
                 designOptionById.TryGetValue(activeDesignOption, out cDesignOption activeOption))
             {
-                FilteredElementCollector elements = new(doc);
                 elements.ContainedInDesignOption(activeOption.des.Id);
                 DeleteElements(elements);
             }
@@ -778,7 +778,6 @@ namespace OpenCOVERPlugin
                 {
                     if (option.visible)
                     {
-                        FilteredElementCollector elements = new(doc);
                         elements.ContainedInDesignOption(option.des.Id);
                         DeleteElements(elements);
                     }
@@ -792,7 +791,6 @@ namespace OpenCOVERPlugin
             updateVisibility(doc, designOptionId);
             SendDesignOptionSetsMetaData(doc);
             FilteredElementCollector new_elements = new(doc);
-
             new_elements.ContainedInDesignOption(designOptionId);
             foreach (Element el in new_elements)
             {
