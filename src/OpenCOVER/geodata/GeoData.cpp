@@ -22,6 +22,7 @@ GeoData::GeoData()
     cover->getObjectsRoot()->addChild(m_transformRoot);
 
     m_terrainRoot = new osg::Group;
+    m_terrainRoot->setName("terrainRoot");
     m_transformRoot->addChild(m_terrainRoot);
 
     setProjection(GEODATA_DEFAULT_PROJECTION_PROJECT);
