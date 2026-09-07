@@ -7,7 +7,6 @@
 
 #include "TeleportNavigationProvider.h"
 #include "input/input.h"
-#include "input/inputdevice.h"
 #include <OpenVRUI/coInteractionManager.h>
 #include <cmath>
 #include <cover/VRSceneGraph.h>
@@ -35,16 +34,26 @@ TeleportNavigationProvider::TeleportNavigationProvider()
 {
     triggerMouse.setGroup(vrui::coInteraction::GroupNavigation);
 
-    switch_ = new osg::Switch;
-    cover->getObjectsRoot()->addChild(switch_);
+    switchTarget = new osg::Switch;
+    cover->getObjectsRoot()->addChild(switchTarget);
+
+    switchTrajectory = new osg::Switch;
+    cover->getScene()->addChild(switchTrajectory);
 
     transform = new osg::MatrixTransform;
-    switch_->addChild(transform);
+    switchTarget->addChild(transform);
 
     icon = coVRFileManager::instance()->loadIcon("teleport_target");
     transform->addChild(icon);
 
+    linesGeode = new osg::Geode();
+    switchTrajectory->addChild(linesGeode);
+
+    linesGeometry = new osg::Geometry();
+    linesGeode->addDrawable(linesGeometry);
+
     setVisible(false);
+    setTargetVisible(false);
 }
 
 TeleportNavigationProvider::~TeleportNavigationProvider()
@@ -117,23 +126,31 @@ osg::Matrix computeNewObjectsTransform(const osg::Matrix &targetTransform, bool 
 
 bool TeleportNavigationProvider::update()
 {
-    bool enabledAndValid = isEnabledAndValid();
-    setVisible(enabledAndValid);
-
-    if (!enabledAndValid)
-    {
-        return true;
+    if (!isEnabled()) {
+        setVisible(false);
+        return false;
     }
+
+    setVisible(true);
+
+    bool hasTarget = buildTrajectory();
+    setTargetVisible(hasTarget);
+
+    auto valuatorSpeed = Input::instance()->getValuator("RightJoyY");
+    if (valuatorSpeed)
+        speed *= (1.0 * cover->frameDuration() * valuatorSpeed->getValue()) + 1.0;
+
+    if (!hasTarget)
+        return true;
+
 
     // Adjust turn angle based on the mouse wheel
     turn_angle += triggerWheel.getWheelCount() * M_PI / 8;
 
     // Adjust turn angle using the joystick
-    auto valuator = Input::instance()->getValuator("CaveJoyX");
-    if (valuator)
-    {
-        turn_angle -= valuator->getValue() * cover->frameDuration() * 10.f;
-    }
+    auto valuatorAngle = Input::instance()->getValuator("RightJoyX");
+    if (valuatorAngle)
+        turn_angle -= valuatorAngle->getValue() * cover->frameDuration() * 10.f;
 
     // Adjust turn angle based using pointer secondary action and swipe left/right
     if (interactionTurn.wasStarted())
@@ -167,7 +184,8 @@ bool TeleportNavigationProvider::update()
     // (relative) turn.
     float target_angle = current_angle + turn_angle;
 
-    osg::Vec3 position = cover->getIntersectionHitPointWorld();
+    // osg::Vec3 position = cover->getIntersectionHitPointWorld();
+    osg::Vec3 position = worldPosition;
 
     // The intersection position is relative to the world (stage), so we need
     // to turn it into object coordinates, as we attached the indicator to the object root.
@@ -196,38 +214,101 @@ bool TeleportNavigationProvider::update()
     return true;
 }
 
-bool TeleportNavigationProvider::isEnabledAndValid()
+osg::Vec4 LINE_COLOR(0.8, 0.9, 0.2, 1.0);
+#include <osg/io_utils>
+
+bool TeleportNavigationProvider::buildTrajectory()
 {
-    if (!isEnabled())
-        return false;
-
-    if (!cover->getIntersectedNode())
-        return false;
-
-    osg::Vec3 normal = cover->getIntersectionHitPointWorldNormal();
-    normal.normalize();
-
     // Get and decompose the object's space transform
     osg::Matrix objectsRootTransform = osg::computeWorldToLocal(cover->getObjectsRoot()->getParentalNodePaths().at(0));
     osg::Vec3f translation, scale;
     osg::Quat rotation, so;
     objectsRootTransform.decompose(translation, rotation, scale, so);
 
-    // Rotate the normal into object space
-    normal = rotation * normal;
 
-    // If the normal in object space doesn't roughly point upwards, we don't
-    // want to teleport there.
-    if (normal * UP < 0.9f)
-        return false;
+    /// Generate trajectory curve
+    float pointDistance = 100.f;
+    float dt = pointDistance / speed;
+    auto hand =  cover->getPointerMat();
+    osg::Vec3 dir = /* rotation * */ (hand.getRotate() * osg::Vec3(0, speed, 0));
+    osg::Vec3 pos = hand.getTrans(); // * objectsRootTransform;
 
-    return true;
+    osg::ref_ptr<osg::Vec3Array> verts = new osg::Vec3Array();
+    osg::ref_ptr<osg::Vec4Array> colors = new osg::Vec4Array();
+
+    bool hit = false;
+
+    for (int i = 0; i < 100; i++) {
+        osg::Vec3 end = pos + dir * dt;
+        verts->push_back(pos);
+        verts->push_back(end);
+        colors->push_back(LINE_COLOR);
+        colors->push_back(LINE_COLOR);
+
+        // Do the ray cast
+        osg::ref_ptr<osgUtil::IntersectorGroup> igroup = new osgUtil::IntersectorGroup;
+        osg::ref_ptr<osgUtil::LineSegmentIntersector> intersector = coIntersection::instance()->newIntersector(pos, end);
+        igroup->addIntersector(intersector);
+
+        osgUtil::IntersectionVisitor visitor(igroup);
+        visitor.setTraversalMask(Isect::Walk);
+        VRSceneGraph::instance()->getTransform()->accept(visitor);
+
+        if (intersector->containsIntersections()) {
+            // auto normal = intersector->getFirstIntersection().getWorldIntersectNormal();
+            worldPosition = intersector->getFirstIntersection().getWorldIntersectPoint();
+            hit = true;
+            break;
+        }
+
+        pos = end;
+        dir = dir + osg::Vec3(0, 0, -981.0) * dt; // gravity
+    }
+
+    
+    linesGeometry->setVertexArray(verts.get());
+    linesGeometry->setColorArray(colors.get(), osg::Array::BIND_PER_VERTEX);
+    linesGeometry->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+    while (linesGeometry->getNumPrimitiveSets() >0) {
+        linesGeometry->removePrimitiveSet(0);
+    }
+    linesGeometry->addPrimitiveSet(new osg::DrawArrays(GL_LINES, 0, verts->size()));
+
+    osg::ref_ptr<osg::StateSet> ss = linesGeometry->getOrCreateStateSet();
+    osg::ref_ptr<osg::LineWidth> lw = new osg::LineWidth(8.0);
+    ss->setAttributeAndModes(lw, osg::StateAttribute::ON);
+    ss->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+    ss->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
+    ss->setAttributeAndModes(new osg::PolygonOffset(-1.0f, -1.0f), osg::StateAttribute::ON);
+
+    // osg::Vec3 normal = cover->getIntersectionHitPointWorldNormal();
+    // normal.normalize();
+    //
+    // // Rotate the normal into object space
+    // normal = rotation * normal;
+    //
+    // // If the normal in object space doesn't roughly point upwards, we don't
+    // // want to teleport there.
+    // if (normal * UP < 0.9f)
+    //     return false;
+    //
+    return hit;
 }
 
 void TeleportNavigationProvider::setVisible(bool visible)
 {
+    if (visible) {
+        switchTrajectory->setAllChildrenOn();
+    } else {
+        switchTrajectory->setAllChildrenOff();
+        switchTarget->setAllChildrenOff();
+    }
+}
+
+void TeleportNavigationProvider::setTargetVisible(bool visible)
+{
     if (visible)
-        switch_->setAllChildrenOn();
+        switchTarget->setAllChildrenOn();
     else
-        switch_->setAllChildrenOff();
+        switchTarget->setAllChildrenOff();
 }

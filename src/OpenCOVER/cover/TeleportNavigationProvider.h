@@ -29,14 +29,22 @@ public:
     bool update();
 
 private:
-    bool isEnabledAndValid();
-    void setVisible(bool visible);
+    bool buildTrajectory();
 
-    osg::ref_ptr<osg::Switch> switch_;
+    void setVisible(bool visible);
+    void setTargetVisible(bool visible);
+
+    osg::ref_ptr<osg::Switch> switchTrajectory;
+    osg::ref_ptr<osg::Switch> switchTarget;
     osg::ref_ptr<osg::MatrixTransform> transform;
     osg::ref_ptr<osg::Node> icon;
     float turn_angle = 0.0;
     bool was_visible = false;
+
+    osg::Vec3 worldPosition;
+
+    osg::ref_ptr<osg::Geode> linesGeode;
+    osg::ref_ptr<osg::Geometry> linesGeometry;
 
     vrui::coNavInteraction interactionPoint;
     vrui::coNavInteraction interactionTurn;
@@ -44,6 +52,8 @@ private:
     vrui::coMouseButtonInteraction triggerWheel; ///< adjust turn angle
 
     osg::Matrix oldHandMatrix;
+
+    float speed = 2000.f;
 };
 
 }
