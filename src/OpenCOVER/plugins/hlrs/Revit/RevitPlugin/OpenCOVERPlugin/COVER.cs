@@ -193,6 +193,8 @@ namespace OpenCOVERPlugin
         };
 
         public HashSet<ElementId> SystemTypeCache { get; set; } = new(){};
+        public Dictionary<ElementId, int> SystemElementCount { get; set; } = new(){};
+        public Dictionary<ElementId, HashSet<ElementId>> SystemElementMap { get; set; } = new(){};
 
         // Cache for elements sent to OpenCOVER (Currently used to avoid sending the same element multiple times).
         public HashSet<ElementId> ElementCache { get; set; } = new(){};
@@ -745,6 +747,23 @@ namespace OpenCOVERPlugin
                 sendParameters(iter.Current as Element);
             }
         }
+
+        // Returns systemTypeId containing given Element else InvalidElementId and true or false if the element has been found.
+        private bool TryGetMEPSystemTypeId(ElementId id, out ElementId systemTypeId)
+        {
+            foreach (var systemId in SystemElementMap.Keys)
+            {
+                if (SystemElementMap[systemId].Contains(id))
+                {
+                    systemTypeId = systemId;
+                    return true;
+                }
+            }
+
+            systemTypeId = ElementId.InvalidElementId;
+            return false;
+        }
+
         public void deleteElement(ElementId ID)
         {
             MessageBuffer mb = new();
@@ -752,13 +771,31 @@ namespace OpenCOVERPlugin
             mb.add(DocumentID);
             if (ElementCache.Contains(ID))
                 ElementCache.Remove(ID);
+
+            if (TryGetMEPSystemTypeId(ID, out ElementId systemTypeId))
+            {
+                SystemElementMap[systemTypeId].Remove(ID);
+                SystemElementCount[systemTypeId]--;
+            }
             sendMessage(mb.buf, MessageTypes.DeleteElement);
         }
+
         private void DeleteElements(FilteredElementCollector elements)
         {
             foreach (Element el in elements)
             {   
                 deleteElement(el.Id);
+            }
+        }
+
+        private void CheckForMEPSystemUpdate()
+        {
+            foreach (var systemTypeId in SystemTypeCache)
+            {
+                if (!SystemElementCount.TryGetValue(systemTypeId, out int count) || count == 0)
+                {
+                    SystemTypeCache.Remove(systemTypeId);
+                }
             }
         }
 
@@ -783,7 +820,7 @@ namespace OpenCOVERPlugin
                 }
             }
 
-            // SystemTypeCache.Clear();
+            CheckForMEPSystemUpdate();
             updateVisibility(doc, designOptionId);
             SendDesignOptionSetsMetaData(doc);
             FilteredElementCollector new_elements = new(doc);
@@ -1021,6 +1058,8 @@ namespace OpenCOVERPlugin
                 sendMessage(mb.buf, MessageTypes.NewTransform);
             }
 
+            HashSet<ElementId> visiblePipes = new(){};
+
             foreach (var pipe in connectedPipes) {
                if (pipe.get_Geometry(mOptions) is GeometryElement g)
                {
@@ -1032,9 +1071,11 @@ namespace OpenCOVERPlugin
                                 continue;
                     }
                     SendElement(g, pipe, systemTypeName);
-                    ElementCache.Add(pipe.Id);
+                    visiblePipes.Add(pipe.Id);
                }
             }
+            SystemElementCount[systemTypeId] = visiblePipes.Count;
+            SystemElementMap[systemTypeId] = visiblePipes;
 
             if (!sent) {
                 sendMessage(new byte[0], MessageTypes.EndGroup);
@@ -1047,6 +1088,12 @@ namespace OpenCOVERPlugin
         //
         public void SendElement(Element elem)
         {
+            // don't send elements already sent
+            if (ElementCache.Contains(elem.Id) 
+                || TryGetMEPSystemTypeId(elem.Id, out ElementId systemTypeId))
+            {
+                return;
+            }
             if (elem is View)
             {
                 sendViewpoint(elem);
@@ -1265,8 +1312,6 @@ namespace OpenCOVERPlugin
             }
             else if (elem is Pipe { MEPSystem: not null } pipe)
             {
-                if (ElementCache.Contains(pipe.Id))
-                    return;
                 var mepSystem = pipe.MEPSystem;
                 var doc = pipe.Document;
                 SendPipeSystem(doc, mepSystem);
@@ -1295,11 +1340,6 @@ namespace OpenCOVERPlugin
 
             else
             {
-                // don't send elements already sent
-                if (ElementCache.Contains(elem.Id))
-                {
-                    return;
-                }
                 if (View3D != null)
                 {
                     mOptions.DetailLevel = View3D.DetailLevel;
@@ -1309,6 +1349,7 @@ namespace OpenCOVERPlugin
                 if (geom != null)
                 {
                     SendElement(geom, elem);
+                    ElementCache.Add(elem.Id);
                 }
             }
         }

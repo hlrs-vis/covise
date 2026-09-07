@@ -42,6 +42,8 @@ namespace OpenCOVERPlugin
                     COVER.Instance.DocumentID = 0;
                     COVER.Instance.documentList.Clear();
                     COVER.Instance.SystemTypeCache.Clear();
+                    COVER.Instance.SystemElementMap.Clear();
+                    COVER.Instance.SystemElementCount.Clear();
                     COVER.Instance.ElementCache.Clear();
 
                     COVER.Instance.documentList.Add(commandData.Application.ActiveUIDocument.Document);
