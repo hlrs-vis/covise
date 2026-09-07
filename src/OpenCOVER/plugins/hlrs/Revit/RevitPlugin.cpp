@@ -73,6 +73,50 @@
 using covise::TokenBuffer;
 using covise::coCoviseConfig;
 
+namespace {
+	class FindNodeByNameVisitor : public osg::NodeVisitor
+	{
+	public:
+	    FindNodeByNameVisitor(const std::string& name)
+	        : osg::NodeVisitor(osg::NodeVisitor::TRAVERSE_ALL_CHILDREN),
+	          _targetName(name)
+	    {}
+
+	    void apply(osg::Node& node) override
+	    {
+	        if (node.getName() == _targetName)
+	        {
+	            _foundNodes.push_back(&node);
+	        }
+
+	        traverse(node);
+	    }
+
+		void apply(osg::MatrixTransform& mt) override {
+			if (mt.getName() == _targetName) 
+			{
+				_foundNodes.push_back(&mt);
+			}
+			traverse(mt);
+		}
+
+	    // Getters for retrieved results
+	    osg::ref_ptr<osg::Node> getFirstFound() const 
+	    { 
+	        return _foundNodes.empty() ? nullptr : _foundNodes.front(); 
+	    }
+
+	    const std::vector<osg::ref_ptr<osg::Node>>& getFoundNodes() const 
+	    { 
+	        return _foundNodes; 
+	    }
+
+	private:
+	    std::string _targetName;
+	    std::vector<osg::ref_ptr<osg::Node>> _foundNodes;
+	};
+}
+
 int ElementInfo::yPos = 3;
 IKAxisInfo::IKAxisInfo()
 {
@@ -1312,6 +1356,11 @@ void RevitPlugin::createMenu()
 
 	objectInfoGroup = new ui::ButtonGroup(objectInfoMenu, "ObjectInfoGroup");
 
+	highlightMenu = new ui::Menu(revitMenu, "Highlight");
+	highlightMenu->setText("Highlight");
+
+	// highlightSystemMenu= new ui::Menu(highlightMenu, "HighlightSystem");
+	// highlightSystemMenu->setText("System");
 
 	typesMenu = new ui::Menu(objectInfoMenu, "Types");
 	typesMenu->setText("Types");
@@ -1803,8 +1852,7 @@ void RevitPlugin::message(int toWhom, int type, int len, const void *buf)
 }
 
 RevitPlugin *RevitPlugin::plugin = NULL;
-void
-RevitPlugin::handleMessage(Message *m)
+void RevitPlugin::handleMessage(Message *m)
 {
 	//cerr << "got Message" << endl;
 	//m->print();
@@ -1827,7 +1875,86 @@ RevitPlugin::handleMessage(Message *m)
 		viewsCombo->setList(items);
 	}
 	break;
-	
+        case MSG_HighlightElement:
+        {
+            TokenBuffer tb(m);
+            const char *nodeName, *menuName;
+            unsigned char r, g, b;
+            tb >> nodeName;
+            tb >> menuName;
+            tb >> r;
+            tb >> g;
+            tb >> b;
+
+            std::array<float, 3> color { r / 255.0f, g / 255.0f, b / 255.0f };
+            // assert(!highlightMenu && "Need to initialize hightlightMenu before using it.");
+            FindNodeByNameVisitor finder(nodeName);
+            revitGroup->accept(finder);
+
+            auto foundNodes = finder.getFoundNodes();
+            if (foundNodes.empty())
+            {
+                std::cout << "[ERROR] Cannot highlight " << nodeName << " send by COVERToolbar.\n";
+                return;
+            }
+
+			for (auto node : foundNodes) {
+				_highlightedNodes.insert(node);
+			}
+
+            ui::Menu *menu { nullptr };
+            for (size_t i = 0; i < highlightMenu->numChildren(); ++i)
+            {
+                if (auto child = highlightMenu->child(i))
+                {
+                    if (child->text() == menuName)
+                    {
+                        menu = dynamic_cast<ui::Menu *>(child);
+                        break;
+                    }
+                }
+            }
+            if (!menu)
+            {
+                menu = new ui::Menu(highlightMenu, menuName);
+                menu->setText("System");
+            }
+
+            ui::Button *button { nullptr };
+            for (size_t i = 0; i < menu->numChildren(); ++i)
+            {
+                if (auto child = menu->child(i))
+                {
+                    if (child->text() == nodeName)
+                    {
+                        button = dynamic_cast<ui::Button *>(child);
+                        break;
+                    }
+                }
+            }
+
+            if (!button)
+            {
+                button = new ui::Button(menu, nodeName);
+                button->setText(nodeName);
+                button->setCallback([foundNodes, color](bool on)
+                    {
+            	auto selectionManager = coVRSelectionManager::instance();
+				for (auto node : foundNodes) {
+					if (on) {
+						if (node->getNumParents() > 0 ) {
+							selectionManager->setSelectionColor(color[0], color[1], color[2]);
+							selectionManager->addSelection(node->getParent(0)->asGroup(), node);
+						}
+					} else {
+						selectionManager->removeNode(node);
+					}
+				} });
+            }
+
+            menu->add(button);
+        }
+        break;
     case MSG_Finished:
     {
         for (auto Mat = MaterialInfos.begin(); Mat != MaterialInfos.end(); Mat++)
@@ -2116,6 +2243,11 @@ RevitPlugin::handleMessage(Message *m)
 							break;
 						}
 					}
+				}
+
+				if (_highlightedNodes.contains(n)) {
+					_highlightedNodes.erase(n);
+					coVRSelectionManager::instance()->removeNode(n);
 				}
 
 				while (n->getNumParents())

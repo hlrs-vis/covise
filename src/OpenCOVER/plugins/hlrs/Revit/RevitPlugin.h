@@ -18,6 +18,7 @@
 #include <osg/Group>
 #include <stack>
 #include <map>
+#include <set>
 #include <cover/coTabletUI.h>
 #include <OpenVRUI/sginterface/vruiActionUserData.h>
 #include <OpenVRUI/coCombinedButtonInteraction.h>
@@ -495,7 +496,8 @@ public:
         MSG_ObjectInfo = 538,
         MSG_Flip = 539,
         MSG_SelectType = 540,
-        MSG_ElevatorPart = 541
+        MSG_ElevatorPart = 541,
+        MSG_HighlightElement = 542
     };
 
     enum ObjectTypes
@@ -572,7 +574,6 @@ public:
     ui::Menu* phaseMenu = nullptr;
     ui::Menu* objectInfoMenu = nullptr;
     ui::Menu* highlightMenu = nullptr;
-    ui::Menu* highlightSystemMenu = nullptr;
     ui::ButtonGroup* PhaseGroup = nullptr;
     ui::ButtonGroup* objectInfoGroup = nullptr;
     ui::Action* selectObject = nullptr;
@@ -609,6 +610,7 @@ protected:
     std::vector<int> annotationIDs;
 	std::map<int, MaterialInfo *> MaterialInfos;
 	std::map<std::string, osg::ref_ptr<osg::Node>> inlineNodes;
+    std::set<osg::ref_ptr<osg::Node>> _highlightedNodes;
     std::stack<osg::Group *> currentGroup;
 
     osg::Matrix invStartMoveMat;

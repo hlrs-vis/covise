@@ -29,6 +29,7 @@ using BoundarySegment = Autodesk.Revit.DB.BoundarySegment;
 using ComponentManager = Autodesk.Windows.ComponentManager;
 using Document = Autodesk.Revit.DB.Document;
 using Pipe = Autodesk.Revit.DB.Plumbing.Pipe;
+using PipingSystemType = Autodesk.Revit.DB.Plumbing.PipingSystemType;
 using IWin32Window = System.Windows.Forms.IWin32Window;
 using Panel = Autodesk.Revit.DB.Panel;
 using TaskDialog = Autodesk.Revit.UI.TaskDialog;
@@ -145,8 +146,10 @@ namespace OpenCOVERPlugin
             ObjectInfo, 
             Flip, 
             SelectType, 
-            ElevatorPart
+            ElevatorPart,
+            HighlightElement
         };
+        private enum HighlightMenu { System };
         public enum ObjectTypes { Mesh = 1, Curve, Instance, Solid, RenderElement, Polymesh, Inline };
         public enum TextureTypes { Diffuse = 1, Bump };
         private Thread messageThread;
@@ -1028,57 +1031,76 @@ namespace OpenCOVERPlugin
             return mb;
         }
 
+        private MessageBuffer CreateHightlightBuffer(string nodeName, HighlightMenu menu, in Color rgb)
+        {
+            var mb = new MessageBuffer();
+            mb.add(nodeName);
+            mb.add(menu.ToString());
+            mb.add(rgb);
+            return mb;
+        }
+
+        private void HighlightSystem(MEPSystemType systemType)
+        {
+            var mb = CreateHightlightBuffer(systemType.Name, HighlightMenu.System, systemType.LineColor);
+            sendMessage(mb.buf, MessageTypes.HighlightElement);
+        }
+
         private void SendPipeSystem(Document doc, MEPSystem mepSystem)
         {
             var systemTypeId = mepSystem.GetTypeId();
-            bool sent = SystemTypeCache.Contains(systemTypeId);
 
-            SystemTypeCache.Add(systemTypeId);
+            if ( doc.GetElement(systemTypeId) is MEPSystemType systemType) {
+                bool sent = SystemTypeCache.Contains(systemTypeId);
+                SystemTypeCache.Add(systemTypeId);
 
-            var systemType = doc.GetElement(systemTypeId);
-            var systemTypeName = systemType.Name;
-            // NOTE: e.g.
-            // var filterList = new(){
-            //     BuiltInCategory.OST_PipeSegments,           // Pipes Curves
-            //     BuiltInCategory.OST_FlexPipeCurves,           // Flex Pipes Curves
-            //     BuiltInCategory.OST_FlexPipeCurvesInsulation,           // Flex Pipes Curves Insulation
-            //     BuiltInCategory.OST_PipeCurves,           // Pipes Curves
-            //     BuiltInCategory.OST_PipeCurvesDrop,           // Pipes Curves Drop
-            //     BuiltInCategory.OST_PipeCurvesRiseDrop,           // Pipes Curves Rise Drop
-            //     BuiltInCategory.OST_PipeInsulations,      // Insulations
-            //     BuiltInCategory.OST_PipeCurvesInsulation, // Insulation for Pipes curves
-            //     BuiltInCategory.OST_PipeFitting,          // Elbows, Tees, Unions, Reducers
-            //     BuiltInCategory.OST_PipeFittingInsulation,          // Insulation for Elbows, Tees, Unions, Reducers
-            //     BuiltInCategory.OST_PipeAccessory         // Valves, Flanges, Caps, Plugs
-            // };
-            var connectedPipes = GetAllSystemElements(doc, systemTypeId);
+                var systemTypeName = systemType.Name;
+                // var color = ((PipingSystemType)systemType).LineColor;
+                // NOTE: e.g.
+                // var filterList = new(){
+                //     BuiltInCategory.OST_PipeSegments,           // Pipes Curves
+                //     BuiltInCategory.OST_FlexPipeCurves,           // Flex Pipes Curves
+                //     BuiltInCategory.OST_FlexPipeCurvesInsulation,           // Flex Pipes Curves Insulation
+                //     BuiltInCategory.OST_PipeCurves,           // Pipes Curves
+                //     BuiltInCategory.OST_PipeCurvesDrop,           // Pipes Curves Drop
+                //     BuiltInCategory.OST_PipeCurvesRiseDrop,           // Pipes Curves Rise Drop
+                //     BuiltInCategory.OST_PipeInsulations,      // Insulations
+                //     BuiltInCategory.OST_PipeCurvesInsulation, // Insulation for Pipes curves
+                //     BuiltInCategory.OST_PipeFitting,          // Elbows, Tees, Unions, Reducers
+                //     BuiltInCategory.OST_PipeFittingInsulation,          // Insulation for Elbows, Tees, Unions, Reducers
+                //     BuiltInCategory.OST_PipeAccessory         // Valves, Flanges, Caps, Plugs
+                // };
+                var connectedPipes = GetAllSystemElements(doc, systemTypeId);
             
-            if (!sent) {
-                var mb = CreateMatrixTransformBuffer(systemTypeId, systemTypeName, Transform.Identity);
-                sendMessage(mb.buf, MessageTypes.NewTransform);
-            }
+                if (!sent) {
+                    var mb = CreateMatrixTransformBuffer(systemTypeId, systemTypeName, Transform.Identity);
+                    sendMessage(mb.buf, MessageTypes.NewTransform);
+                }
+                // Highlight possible after creating Transform
+                HighlightSystem(systemType);
 
-            HashSet<ElementId> visiblePipes = new(){};
+                HashSet<ElementId> visiblePipes = new(){};
 
-            foreach (var pipe in connectedPipes) {
-               if (pipe.get_Geometry(mOptions) is GeometryElement g)
-               {
-                    if (activeDesignOption != ElementId.InvalidElementId)
-                    {
-                        var designOption = pipe.DesignOption;
-                        if (designOption != null)
-                            if (designOption.Id != activeDesignOption)
-                                continue;
-                    }
-                    SendElement(g, pipe, systemTypeName);
-                    visiblePipes.Add(pipe.Id);
-               }
-            }
-            SystemElementCount[systemTypeId] = visiblePipes.Count;
-            SystemElementMap[systemTypeId] = visiblePipes;
+                foreach (var pipe in connectedPipes) {
+                   if (pipe.get_Geometry(mOptions) is GeometryElement g)
+                   {
+                        if (activeDesignOption != ElementId.InvalidElementId)
+                        {
+                            var designOption = pipe.DesignOption;
+                            if (designOption != null)
+                                if (designOption.Id != activeDesignOption)
+                                    continue;
+                        }
+                        SendElement(g, pipe, systemTypeName);
+                        visiblePipes.Add(pipe.Id);
+                   }
+                }
+                SystemElementCount[systemTypeId] = visiblePipes.Count;
+                SystemElementMap[systemTypeId] = visiblePipes;
 
-            if (!sent) {
-                sendMessage(new byte[0], MessageTypes.EndGroup);
+                if (!sent) {
+                    sendMessage(new byte[0], MessageTypes.EndGroup);
+                }
             }
         }
 
