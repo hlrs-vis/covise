@@ -20,6 +20,8 @@
 #include "lamure/pvs/grid_irregular_compressed.h"
 #include "lamure/pvs/grid_bounding.h"
 
+#include <util/threadname.h>
+
 #include <iostream>
 
 namespace lamure
@@ -301,6 +303,8 @@ create_grid_by_type(const std::string& grid_type, const size_t& num_cells_x, con
 
 void pvs_database::
 loading_thread_loop() {
+
+    covise::setThreadName("lam:pvs_db:load");
 
   while (true) {
   

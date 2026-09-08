@@ -7,6 +7,7 @@
 
 #include <lamure/vt/ren/CutDatabase.h>
 #include <lamure/vt/ren/CutUpdate.h>
+#include <util/threadname.h>
 
 namespace vt
 {
@@ -34,6 +35,8 @@ void CutUpdate::start()
 
 void CutUpdate::run()
 {
+    covise::setThreadName("lam:CutUpdate");
+
     while(!_should_stop.load())
     {
         std::unique_lock<std::mutex> lk(_dispatch_lock, std::defer_lock);

@@ -6,6 +6,7 @@
 // http://www.uni-weimar.de/medien/vr
 
 #include <lamure/ren/ooc_pool.h>
+#include <util/threadname.h>
 
 namespace lamure
 {
@@ -161,6 +162,8 @@ void ooc_pool::end_measure()
 
 void ooc_pool::run()
 {
+    covise::setThreadName("lam:ooc_pool");
+
     if (lod_files_.empty() || node_stride_by_model_.empty() ||
         (_data_provenance.get_size_in_bytes() > 0 &&
             (prov_files_.empty() || prims_per_node_by_model_.empty())))

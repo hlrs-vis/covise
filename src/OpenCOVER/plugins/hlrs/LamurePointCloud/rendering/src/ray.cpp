@@ -6,6 +6,7 @@
 // http://www.uni-weimar.de/medien/vr
 
 #include <lamure/ren/ray.h>
+#include <util/threadname.h>
 
 namespace lamure
 {
@@ -88,6 +89,8 @@ const bool ray::intersect(const float aabb_scale, scm::math::vec3f &ray_up_vecto
     for(unsigned int i = 0; i < num_threads; ++i)
     {
         threads.push_back(std::thread([&] {
+
+            covise::setThreadName("lam:ray_jobs");
 
             while(true)
             {

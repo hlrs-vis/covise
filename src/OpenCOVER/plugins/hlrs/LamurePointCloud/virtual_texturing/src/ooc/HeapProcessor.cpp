@@ -6,6 +6,7 @@
 // http://www.uni-weimar.de/medien/vr
 
 #include <lamure/vt/ooc/HeapProcessor.h>
+#include <util/threadname.h>
 
 namespace vt {
     namespace ooc {
@@ -38,6 +39,8 @@ namespace vt {
         }
 
         void HeapProcessor::run(){
+            covise::setThreadName("lam:HeapProcessor");
+
             beforeStart();
 
             while(_running.load()){
