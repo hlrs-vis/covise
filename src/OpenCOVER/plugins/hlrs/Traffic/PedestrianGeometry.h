@@ -31,7 +31,7 @@ class PedestrianGeometry : public Geometry
 {
 public:
     PedestrianGeometry(Vehicle &vehicle, osg::Group *parentNode);
-    ~PedestrianGeometry();
+    virtual ~PedestrianGeometry();
 
     void update(double deltaTime, double simulationDeltaTime) override;
     void identifyAnimations(std::string_view filename);

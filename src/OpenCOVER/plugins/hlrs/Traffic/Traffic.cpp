@@ -310,9 +310,12 @@ void Traffic::readSimResults()
 
 void Traffic::processNewResults()
 {
+    std::set<vehicle_id_t> existing_ids;
+
     for (auto &[_, vehicleState] : currentSimulationState.vehicles)
     {
         auto currentEntity = vehicles.find(vehicleState.id);
+        existing_ids.insert(vehicleState.id);
 
         if (currentEntity == vehicles.end())
         { // not found, create new one
@@ -372,6 +375,10 @@ void Traffic::processNewResults()
 #endif
         }
     }
+
+    // Remove vehicles that are gone
+    std::erase_if(vehicles, [&](auto &it)
+        { return existing_ids.find(it.first) == existing_ids.end(); });
 }
 
 void Traffic::interpolateVehiclePosition(double deltaTime)
@@ -433,7 +440,7 @@ Vehicle &Traffic::createVehicle(const vehicle_id_t &id, const VehicleClass &vehi
 
     osg::Group *parent = vehicleClassGroups.at(vehicleClass.name);
 
-    auto &v = vehicles.emplace(id, Vehicle { id, nullptr, &model }).first->second;
+    auto &v = vehicles.try_emplace(id, id, &model).first->second;
 
     switch (vehicleClass.geometryType)
     {
@@ -517,7 +524,7 @@ void Traffic::loadVehicleClasses()
         // construct temporary geometry objects to preload models
         for (auto &model : vehicleClass.models)
         {
-            Vehicle dummy { vehicle_class_t("dummy"), nullptr, &model };
+            Vehicle dummy(vehicle_class_t("dummy"), &model);
 
             switch (vehicleClass.geometryType)
             {

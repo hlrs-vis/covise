@@ -78,8 +78,15 @@ struct VehicleClass
     std::vector<VehicleModel> models;
 };
 
-struct Vehicle
+class Vehicle
 {
+public:
+    Vehicle(vehicle_id_t id, const VehicleModel *model)
+        : id(id)
+        , model(model)
+    {
+    }
+
     vehicle_id_t id;
     std::unique_ptr<Geometry> geometry;
     const VehicleModel *model;

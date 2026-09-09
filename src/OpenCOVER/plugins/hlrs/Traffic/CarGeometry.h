@@ -21,7 +21,7 @@ class CarGeometry : public Geometry
 {
 public:
     CarGeometry(Vehicle &vehicle, osg::Group *parentNode);
-    ~CarGeometry();
+    virtual ~CarGeometry();
 
     void updateTrajectory();
     void update(double deltaTime, double simulationDeltaTime);
