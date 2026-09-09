@@ -182,7 +182,7 @@ coVRMSController::coVRMSController(int AmyID, const char *addr, int port)
     if (numSlaves==0 && myID>0)
     {
         fprintf(stderr, "coVRMSController: id=%d>0 but numSlaves=0\n", myID);
-        exit(1);
+        _exit(1);
     }
     assert(myID==0 || numSlaves>0);
 
@@ -397,7 +397,7 @@ coVRMSController::coVRMSController(int AmyID, const char *addr, int port)
                 if (multicast->init() != Rel_Mcast::RM_OK)
                 {
                     delete multicast;
-                    exit(0);
+                    _exit(1);
                 }
             }
 #endif
@@ -442,7 +442,7 @@ coVRMSController::coVRMSController(int AmyID, const char *addr, int port)
                 if (multicast->init() != Rel_Mcast::RM_OK)
                 {
                     delete multicast;
-                    exit(0);
+                    _exit(1);
                 }
             }
 #endif
@@ -451,7 +451,7 @@ coVRMSController::coVRMSController(int AmyID, const char *addr, int port)
         }
         stats[0] = NULL;
     }
-	
+
     if (covise::coConfigConstants::getRank() != myID) {
         std::cerr << "coVRMSController: coConfigConstants::getRank()=" << covise::coConfigConstants::getRank() << ", myID=" << myID << std::endl;
     }
@@ -718,7 +718,7 @@ void coVRMSController::sendSlaves(const Message *msg)
         if (multicast->write_mcast(header, headerSize) != Rel_Mcast::RM_OK)
         {
             delete multicast;
-            exit(0);
+            _exit(1);
         }
 
         // Write data via multicast (split up into pieces if necessary)
@@ -733,14 +733,14 @@ void coVRMSController::sendSlaves(const Message *msg)
             if (multicast->write_mcast(msg->data.data() + multicastMaxLength * (curMsg - 1), multicastMaxLength) != Rel_Mcast::RM_OK)
             {
                 delete multicast;
-                exit(0);
+                _exit(1);
             }
         }
         // Write numMsg message
         if (multicast->write_mcast(msg->data.data() + multicastMaxLength * (curMsg - 1), msg->data.length() % multicastMaxLength) != Rel_Mcast::RM_OK)
         {
             delete multicast;
-            exit(0);
+            _exit(1);
         }
 #endif
     }
@@ -779,7 +779,7 @@ int coVRMSController::readMaster(Message *msg)
         if (multicast->read_mcast(header, headerSize) != Rel_Mcast::RM_OK)
         {
             delete multicast;
-            exit(0);
+            _exit(1);
         }
 
         // Parse header, prepare data
@@ -801,14 +801,14 @@ int coVRMSController::readMaster(Message *msg)
             if (multicast->read_mcast(msg->data.accessData() + multicastMaxLength * (curMsg - 1), multicastMaxLength) != Rel_Mcast::RM_OK)
             {
                 delete multicast;
-                exit(0);
+                _exit(1);
             }
         }
         // Read numMsg message
         if (multicast->read_mcast(msg->data.accessData() + multicastMaxLength * (curMsg - 1), msg->data.length() % multicastMaxLength) != Rel_Mcast::RM_OK)
         {
             delete multicast;
-            exit(0);
+            _exit(1);
         }
 
         // Return size
@@ -993,7 +993,7 @@ int coVRMSController::readMaster(void *c, int n, bool mcastOverTCP)
         {
             cerr << "multicast read failed" << endl;
             delete multicast;
-            exit(0);
+            _exit(1);
         }
         else
             return n;
@@ -1195,7 +1195,7 @@ int coVRMSController::readMasterDraw(void *c, int n, bool mcastOverTCP)
         {
             cerr << "multicast read failed" << endl;
             delete multicast;
-            exit(0);
+            _exit(1);
         }
         else
             return n;
@@ -1295,7 +1295,7 @@ void coVRMSController::sendSlavesDraw(const void *c, int n)
         if (multicast->write_mcast(c, n) != Rel_Mcast::RM_OK)
         {
             delete multicast;
-            exit(0);
+            _exit(1);
         }
     }
 #endif
@@ -1318,7 +1318,7 @@ void coVRMSController::waitForSlavesDraw()
         if (readSlavesDraw(buf, 1) < 0) // wait for all slaves
         {
             cerr << "sync_exit1 myID=" << myID << endl;
-            exit(0);
+            _exit(1);
         }
         MARK0("done");
     }
@@ -1353,7 +1353,7 @@ void coVRMSController::sendGoDraw()
         if (readMasterDraw(buf, 1) < 1)
         {
             cerr << "sync_exit2 myID=" << myID << endl;
-            exit(0);
+            _exit(1);
         }
         MARK0("done");
     }
@@ -1542,7 +1542,7 @@ void coVRMSController::sendSlaves(const void *c, int n)
         if (multicast->write_mcast(c, n) != Rel_Mcast::RM_OK)
         {
             delete multicast;
-            exit(0);
+            _exit(1);
         }
     }
     else
@@ -1620,7 +1620,7 @@ void coVRMSController::waitForSlaves()
         if (readSlaves(&result) < 0) // wait for all slaves
         {
             cerr << "sync_exit1 myID=" << myID << endl;
-            exit(0);
+            _exit(1);
         }
         MARK0("done");
     }
@@ -1679,7 +1679,7 @@ void coVRMSController::sendGo()
         if (readMaster(buf, 1) < 1)
         {
             cerr << "sync_exit2 myID=" << myID << endl;
-            exit(0);
+            _exit(1);
         }
         MARK0("done");
     }
@@ -2074,12 +2074,12 @@ void coVRMSController::barrierApp(int frameNum)
         {
             cerr << "bcould not read message from Master" << endl;
             cerr << "sync_exit15a myID=" << myID << endl;
-            exit(0);
+            _exit(1);
         }
         if (masterFrameNum != frameNum)
         {
             cerr << "myId=" << myID << ": frame numbers differ: master=" << masterFrameNum << ", me=" << frameNum << std::endl;
-            exit(0);
+            _exit(1);
         }
     }
     if (barrierProcess != SYNC_APP)
@@ -2112,7 +2112,7 @@ void coVRMSController::agreeInt(int value)
         {
             cerr << "bcould not read message from Master" << endl;
             cerr << "agreeInt_exit15a myID=" << myID << endl;
-            exit(0);
+            _exit(1);
         }
         if (masterValue != value)
         {
@@ -2142,7 +2142,7 @@ void coVRMSController::agreeFloat(float value)
         {
             cerr << "bcould not read message from Master" << endl;
             cerr << "agreeInt_exit15a myID=" << myID << endl;
-            exit(0);
+            _exit(1);
         }
         if (masterValue != value)
         {
@@ -2177,7 +2177,7 @@ void coVRMSController::agreeString(std::string s)
         {
             cerr << "bcould not read message from Master" << endl;
             cerr << "agreeInt_exit15a myID=" << myID << endl;
-            exit(0);
+            _exit(1);
         }
         if (masterValue != s.length())
         {
@@ -2193,10 +2193,10 @@ char *buf = new char[masterValue+1];
         {
             cerr << "bcould not read message from Master" << endl;
             cerr << "agreeInt_exit15a myID=" << myID << endl;
-            exit(0);
+            _exit(1);
         }
 	str = std::string(buf);
-	
+
         if (str != s)
         {
             cerr << "values differ master:" << str << "me:" << s <<endl;
@@ -2334,7 +2334,7 @@ void coVRMSController::syncTime()
         {
             cerr << "ccould not read message from Master" << endl;
             cerr << "sync_exit14 myID=" << myID << endl;
-            exit(0);
+            _exit(1);
         }
         cover->setFrameTime(frameTime);
         cover->setFrameRealTime(frameRealTime);
@@ -2375,7 +2375,7 @@ int coVRMSController::syncData(void *data, int size)
         {
             cerr << "dcould not read message from Master" << endl;
             cerr << "sync_exit15b myID=" << myID << endl;
-            exit(0);
+            _exit(1);
         }
     }
     return size;
@@ -2537,7 +2537,7 @@ std::string coVRMSController::syncString(const std::string &s)
     }
 }
 
-template<typename T> 
+template<typename T>
 typename std::enable_if<std::is_pod<T>::value, std::vector<T>>::type coVRMSController::syncVector(const std::vector<T> &vec)
 {
     std::vector<T> retval = vec;
@@ -2547,7 +2547,7 @@ typename std::enable_if<std::is_pod<T>::value, std::vector<T>>::type coVRMSContr
     if(s == 0)
         return retval;
     syncData(retval.data(), s * sizeof(T));
-    return retval; 
+    return retval;
 }
 
 #define INSTANTIATE_SYNCVECTOR(type)\
@@ -2576,7 +2576,7 @@ std::vector<std::string> coVRMSController::syncVector(const std::vector<std::str
     {
         retval[i] = syncString(retval[i]);
     }
-    return retval; 
+    return retval;
 }
 
 bool coVRMSController::syncVRBMessages()
@@ -2672,7 +2672,7 @@ bool coVRMSController::syncVRBMessages()
 		if (readMaster(&numVrbMessages, sizeof(int)) < 0)
 		{
 			cerr << "sync_exit16 myID=" << myID << endl;
-			exit(0);
+			_exit(1);
 		}
 		//cerr << "numSlaveMSGS " <<  numVrbMessages << endl;
         for (int i = 0; i < numVrbMessages; i++)
@@ -2680,14 +2680,14 @@ bool coVRMSController::syncVRBMessages()
             if (readMaster(vrbMsg) < 0)
 			{
 				cerr << "sync_exit17 myID=" << myID << endl;
-				exit(0);
+				_exit(1);
 			}
 			coVRCommunication::instance()->handleVRB(*vrbMsg);
         }
         if (readMaster(&numUdpMessages, sizeof(int)) < 0)
 		{
 			cerr << "sync_exit160 myID=" << myID << endl;
-			exit(0);
+			_exit(1);
 		}
 		//cerr << "numSlaveMSGS " <<  numVrbMessages << endl;
         for (int i = 0; i < numUdpMessages; i++)
@@ -2695,7 +2695,7 @@ bool coVRMSController::syncVRBMessages()
             if (readMaster(udpMsg) < 0)
 			{
 				cerr << "sync_exit170 myID=" << myID << endl;
-				exit(0);
+				_exit(1);
 			}
 			coVRCommunication::instance()->handleUdp(udpMsg);
         }
