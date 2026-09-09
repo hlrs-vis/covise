@@ -21,6 +21,7 @@
 
 #include "CustomTransformInteractor.h"
 #include "Selection.h"
+#include "TmtEntity.h"
 
 class Trajectory;
 class TrajectoryPoint : public Selectable
@@ -33,6 +34,7 @@ public:
     void preFrame();
 
     void setTransforms(const osg::Matrix &anchor_, const osg::Vec3 &controlPointIn_, const osg::Vec3 &controlPointOut_);
+    void setTime(double time);
 
 protected:
     virtual void updateSelection() override;
@@ -50,6 +52,8 @@ private:
     CustomTransformInteractor controlPointOutInteractor;
     CustomTransformInteractor scaleInteractor;
 
+    double m_time;
+
     osg::Matrix anchor;
     osg::Vec3 controlPointIn;
     osg::Vec3 controlPointOut;
@@ -58,11 +62,11 @@ private:
     SelectableSensor *sensor;
 };
 
-class Trajectory : public Selectable
+class Trajectory : public Selectable, public TmtEntity, public TmtEntityTransformMixin
 {
 
 public:
-    Trajectory();
+    Trajectory(const std::string &id);
     ~Trajectory();
     void preFrame()
     {

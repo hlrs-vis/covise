@@ -43,12 +43,19 @@ public:
 
     Selection &selection() { return m_selection; }
 
-    void sync();
-    void syncSpeakers();
+    void fetchAll();
+
+    void fetchSpeakers();
     void fetchSpeaker(std::shared_ptr<Speaker> speaker);
     void pushSpeaker(const Speaker *speaker);
     void pushSpeaker(const std::string &id);
     void createSpeaker();
+
+    void fetchTrajectories();
+    void fetchTrajectory(std::shared_ptr<Trajectory> trajectory);
+    void pushTrajectory(const Trajectory *trajectory);
+    void pushTrajectory(const std::string &id);
+    void createTrajectory();
 
 private:
     static AuralRealityPlugin *plugin;

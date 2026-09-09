@@ -31,7 +31,7 @@ TrajectoryPoint::TrajectoryPoint(Trajectory *trajectory_)
     scaleInteractor.setModes(CustomTransformInteractor::TRANSLATE);
 
     groupNode = new osg::Group;
-    cover->getObjectsRoot()->addChild(groupNode);
+    trajectory->getTransformNode()->addChild(groupNode);
 
     std::vector<osg::ref_ptr<osg::MatrixTransform> *> nodes = { &anchorNode, &controlPointInNode, &controlPointOutNode };
     int i = 0;
@@ -157,6 +157,10 @@ void TrajectoryPoint::setTransforms(const osg::Matrix &anchor_, const osg::Vec3 
 
     scaleInteractor.updateTransform(anchor * scale_offset);
 }
+void TrajectoryPoint::setTime(double time)
+{
+    m_time = time;
+}
 
 void TrajectoryPoint::updateSelection()
 {
@@ -190,10 +194,11 @@ void TrajectoryPoint::updateSelection()
     }
 }
 
-Trajectory::Trajectory()
+Trajectory::Trajectory(const std::string &id)
+    : TmtEntity(id)
 {
     linesGeode = new osg::Geode();
-    cover->getObjectsRoot()->addChild(linesGeode);
+    getTransformNode()->addChild(linesGeode);
 
     linesGeometry = new osg::Geometry();
     linesGeode->addDrawable(linesGeometry);

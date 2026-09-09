@@ -6,6 +6,7 @@
  * License: LGPL 2+ */
 
 #include "AuralRealityPlugin.h"
+#include "Trajectory.h"
 #include "arrpc/arrpc_future.h"
 #include "arrpc/arrpc_status.h"
 #include "arrpc/message_header.pb.h"
@@ -77,23 +78,23 @@ AuralRealityPlugin::AuralRealityPlugin()
             auto i = id.id();
             std::cout << "Ping 2 response: " << i << std::endl; });
 
-    sync();
+    fetchAll();
 
-    auto t = std::make_shared<Trajectory>();
-    trajectories["test"] = t;
+    // auto t = std::make_shared<Trajectory>();
+    // trajectories["test"] = t;
+    //
+    // for (int i = 3; i < 6; i++)
+    // {
+    //     auto p = std::make_shared<TrajectoryPoint>(t.get());
+    //     p->setTransforms(osg::Matrix::translate(i, 3, 1), osg::Vec3(i, 2, 1.2), osg::Vec3(i, 4, 0.8));
+    //     t->points.push_back(p);
+    // }
+    //
+    // t->updateSelection();
+    // t->rebuildGeometry();
 
-    for (int i = 3; i < 6; i++)
-    {
-        auto p = std::make_shared<TrajectoryPoint>(t.get());
-        p->setTransforms(osg::Matrix::translate(i, 3, 1), osg::Vec3(i, 2, 1.2), osg::Vec3(i, 4, 0.8));
-        t->points.push_back(p);
-    }
-
-    t->updateSelection();
-    t->rebuildGeometry();
-
-    for (auto &[_, s] : speakers)
-        m_selection.addToSelection(s.get());
+    // for (auto &[_, s] : speakers)
+    //     m_selection.addToSelection(s.get());
 }
 
 bool AuralRealityPlugin::update()
@@ -139,11 +140,28 @@ std::function<void(rpc::RpcResult<T>)> handleError(std::function<void(T t)> call
     };
 }
 
-void AuralRealityPlugin::sync()
+template <typename T>
+rpc::RpcFuture<T> handleError(rpc::RpcFuture<T> future)
 {
-    syncSpeakers();
+    rpc::RpcPromise<T> promise;
+
+    future.then([](rpc::RpcResult<T> r)
+        {
+        if (!r.ok())
+        {
+            std::cerr << "RPC failed: " << r.status().message << std::endl;
+            return;
+        }
+        return r.take_value(); });
 }
-void AuralRealityPlugin::syncSpeakers()
+
+void AuralRealityPlugin::fetchAll()
+{
+    fetchSpeakers();
+    fetchTrajectories();
+}
+
+void AuralRealityPlugin::fetchSpeakers()
 {
     client.GetSpeakerIds().then(handleError<ar::IdList>(
         [&](ar::IdList response)
@@ -157,7 +175,25 @@ void AuralRealityPlugin::syncSpeakers()
             }
             fetchSpeaker(speakers[id]);
 
-            // TODO: delete removed speakers
+            // TODO: delete removed
+        } }));
+}
+
+void AuralRealityPlugin::fetchTrajectories()
+{
+    client.GetTrajectoryIds().then(handleError<ar::IdList>(
+        [&](ar::IdList response)
+        {
+        for (const auto &id : response.ids())
+        {
+            std::cout << " Found trajectory " << id << std::endl;
+            if (!contains(trajectories, id))
+            {
+                trajectories[id] = std::make_shared<Trajectory>(id);
+            }
+            fetchTrajectory(trajectories[id]);
+
+            // TODO: delete removed 
         } }));
 }
 
@@ -201,6 +237,44 @@ osg::Matrix tmt_transform_to_matrix(const ar::Transform &t)
     return m2 * m1 * m3; // TODO: check order ;)
 }
 
+inline osg::Vec3 tmt_vector_to_osg(const ar::Vector &v)
+{
+    return osg::Vec3(v.x(), v.y(), v.z());
+}
+
+osg::Matrix tmt_anchor_and_rotation_to_matrix(const ar::Vector &p, const ar::Rotation &r)
+{
+    osg::Matrix m1;
+    osg::Matrix m2;
+
+    m1.makeTranslate(p.x(), p.y(), p.z());
+
+    switch (r.content_case())
+    {
+    case ar::Rotation::ContentCase::kEuler:
+    {
+        auto euler = r.euler();
+        m2.makeRotate(
+            euler.x(), osg::Vec3(1, 0, 0),
+            euler.y(), osg::Vec3(0, 1, 0),
+            euler.z(), osg::Vec3(0, 0, 1));
+        break;
+    }
+    case ar::Rotation::ContentCase::kQuaternion:
+    {
+        auto quat = r.quaternion();
+        m2.makeRotate(osg::Quat(quat.x(), quat.y(), quat.z(), quat.w()));
+        break;
+    }
+    case ar::Rotation::ContentCase::CONTENT_NOT_SET:
+    default:
+        m2.makeIdentity();
+        break;
+    }
+
+    return m2 * m1;
+}
+
 void matrix_to_tmt_transform(const osg::Matrix &m, ar::Transform *result)
 {
     osg::Vec3d translation;
@@ -241,15 +315,6 @@ void AuralRealityPlugin::fetchSpeaker(std::shared_ptr<Speaker> speaker)
         {
             speaker->setTransform(tmt_transform_to_matrix(response.transform()));
 
-            SpeakerProperties p;
-            p.dispersion_horizontal = response.dispersion_horizontal();
-            p.dispersion_vertical = response.dispersion_vertical();
-            p.cutoff_frequency_low = response.cutoff_frequency_low();
-            p.cutoff_frequency_high = response.cutoff_frequency_high();
-            p.maximum_sound_pressure_level = response.maximum_sound_pressure_level();
-            p.power_handling = response.power_handling();
-            speaker->setProperties(p);
-
             std::cout << " Updated speaker " << speaker->getId() << std::endl; }));
 }
 
@@ -269,15 +334,56 @@ void AuralRealityPlugin::pushSpeaker(const Speaker *speaker)
     request.set_id(speaker->getId());
     matrix_to_tmt_transform(speaker->getTransform(), request.mutable_transform());
 
-    auto p = speaker->getProperties();
-    request.set_dispersion_horizontal(p.dispersion_horizontal);
-    request.set_dispersion_vertical(p.dispersion_vertical);
-    request.set_cutoff_frequency_low(p.cutoff_frequency_low);
-    request.set_cutoff_frequency_high(p.cutoff_frequency_high);
-    request.set_maximum_sound_pressure_level(p.maximum_sound_pressure_level);
-    request.set_power_handling(p.power_handling);
-
     client.UpdateSpeaker(request).then(handleError<ar::Speaker>([](ar::Speaker response)
+        {
+            // TODO: parse response?
+        }));
+}
+
+void AuralRealityPlugin::fetchTrajectory(std::shared_ptr<Trajectory> trajectory)
+{
+    ar::Id request;
+    request.set_id(trajectory->getId());
+
+    std::cout << "fetching trajectory " << trajectory->getId() << std::endl;
+    client.GetTrajectory(request).then(handleError<ar::Trajectory>([&](ar::Trajectory response)
+        {
+            trajectory->setTransform(tmt_transform_to_matrix(response.transform()));
+            trajectory->points.clear();
+
+            for (auto point : response.points())
+            {
+                auto p = std::make_shared<TrajectoryPoint>(trajectory.get());
+                p->setTransforms(tmt_anchor_and_rotation_to_matrix(point.anchor(), point.rotation()),
+                        tmt_vector_to_osg(point.control_before()),
+                        tmt_vector_to_osg(point.control_after()));
+                // p->setTime(point.time());
+                trajectory->points.push_back(p);
+            }
+
+            trajectory->updateSelection();
+            trajectory->rebuildGeometry();
+
+            std::cout << " Updated trajectory " << trajectory->getId() << std::endl; }));
+}
+
+void AuralRealityPlugin::pushTrajectory(const std::string &id)
+{
+    if (trajectories.find(id) == trajectories.end())
+    {
+        return;
+    }
+
+    pushTrajectory(trajectories[id].get());
+}
+
+void AuralRealityPlugin::pushTrajectory(const Trajectory *trajectory)
+{
+    ar::Trajectory request, response;
+    request.set_id(trajectory->getId());
+    matrix_to_tmt_transform(trajectory->getTransform(), request.mutable_transform());
+
+    client.UpdateTrajectory(request).then(handleError<ar::Trajectory>([](ar::Trajectory response)
         {
             // TODO: parse response?
         }));

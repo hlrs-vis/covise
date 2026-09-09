@@ -14,34 +14,19 @@
 #include <cover/VRSceneGraph.h>
 
 #include "AuralRealityPlugin.h"
+#include "TmtEntity.h"
 
 using namespace opencover;
 
 Speaker::Speaker(const std::string &id)
-    : id(id)
-    , interactor(osg::Matrix::identity(), 1000.0, vrui::coInteraction::ButtonA, "hand", "speakerInteractor", vrui::coInteraction::Medium)
+    : TmtEntity(id)
 {
-    interactor.hide();
-    interactor.disableIntersection();
-
-    offset.makeTranslate(0.0, 0.0, 0);
-    offset_i.invert(offset);
-
-    transform = new osg::MatrixTransform;
-    cover->getObjectsRoot()->addChild(transform);
-
-    auto transform2 = new osg::MatrixTransform;
-    osg::Matrix m;
-    // m.makeScale(0.001, 0.001, 0.001);
-    transform2->setMatrix(m);
-    transform->addChild(transform2);
-
     // Attach the speaker icon to the transform
     auto fileManager = coVRFileManager::instance();
     auto fileName = fileManager->getName("share/covise/icons/speaker.glb");
     if (fileName)
     {
-        auto icon = coVRFileManager::instance()->loadFile(fileName, nullptr, transform2, "", true);
+        auto icon = coVRFileManager::instance()->loadFile(fileName, nullptr, transform, "", true);
         icon->setStateSet(VRSceneGraph::instance()->loadDefaultGeostate(osg::Material::AMBIENT_AND_DIFFUSE));
     }
 
@@ -56,51 +41,14 @@ Speaker::~Speaker()
 void Speaker::preFrame()
 {
     sensor->update();
-    interactor.preFrame();
 
-    if (interactor.isRunning())
+    if (checkTransformChanged())
     {
-        osg::Matrix m = offset_i * interactor.getMatrix();
-        transform->setMatrix(m);
-
-        AuralRealityPlugin::instance()->pushSpeaker(id);
+        AuralRealityPlugin::instance()->pushSpeaker(getId());
     }
-}
-
-const std::string &Speaker::getId() const
-{
-    return id;
-}
-
-void Speaker::setTransform(osg::Matrix transform)
-{
-    this->transform->setMatrix(transform);
-    interactor.updateTransform(offset * transform);
-}
-osg::Matrix Speaker::getTransform() const
-{
-    return transform->getMatrix();
-}
-
-void Speaker::setProperties(SpeakerProperties properties)
-{
-    this->properties = properties;
-}
-const SpeakerProperties &Speaker::getProperties() const
-{
-    return properties;
 }
 
 void Speaker::updateSelection()
 {
-    if (isSelected())
-    {
-        interactor.show();
-        interactor.enableIntersection();
-    }
-    else
-    {
-        interactor.hide();
-        interactor.disableIntersection();
-    }
+    showInteractor(isSelected());
 }

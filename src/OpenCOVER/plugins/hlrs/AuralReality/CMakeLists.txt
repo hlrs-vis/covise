@@ -12,8 +12,9 @@ endif()
 SET(HEADERS
     AuralRealityPlugin.h
     CustomTransformInteractor.h
-    Speaker.h
     Selection.h
+    Speaker.h
+    TmtEntity.h
     Trajectory.h
     ZeroMqRpcChannel.h
 )
@@ -21,8 +22,9 @@ SET(HEADERS
 SET(SOURCES
     AuralRealityPlugin.cpp
     CustomTransformInteractor.cpp
-    Speaker.cpp
     Selection.cpp
+    Speaker.cpp
+    TmtEntity.cpp
     Trajectory.cpp
     ZeroMqRpcChannel.cpp
 )

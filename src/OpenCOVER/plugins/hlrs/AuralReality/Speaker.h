@@ -15,44 +15,20 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 
-#include "CustomTransformInteractor.h"
+#include "TmtEntity.h"
 #include "Selection.h"
 
-struct SpeakerProperties
-{
-    float dispersion_horizontal = 0.0;
-    float dispersion_vertical = 0.0;
-    float cutoff_frequency_low = 0.0;
-    float cutoff_frequency_high = 0.0;
-    float maximum_sound_pressure_level = 0.0;
-    float power_handling = 0.0;
-};
-
-class Speaker : public Selectable
+class Speaker : public Selectable, public TmtEntity, public TmtEntityTransformMixin
 {
 public:
     Speaker(const std::string &id);
     ~Speaker();
     void preFrame();
 
-    const std::string &getId() const;
-    void setTransform(osg::Matrix transform);
-    osg::Matrix getTransform() const;
-    void setProperties(SpeakerProperties properties);
-    const SpeakerProperties &getProperties() const;
-
 protected:
     virtual void updateSelection();
 
 private:
-    std::string id;
-    CustomTransformInteractor interactor;
-    osg::ref_ptr<osg::MatrixTransform> transform;
-    SpeakerProperties properties;
-
-    osg::Matrix offset;
-    osg::Matrix offset_i;
-
     SelectableSensor *sensor;
 };
 
