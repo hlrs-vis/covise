@@ -63,11 +63,19 @@ void ZeroMqRpcChannel::poll()
         zmq::message_t header_message;
         if (!socket_.recv(header_message, zmq::recv_flags::dontwait))
         {
+            // No error, there is just no message here (`dontwait`).
             return;
         }
+
+        if (!header_message.more()) {
+            std::cerr << "ZeroMqRpcChannel: expected more after header." << std::endl;
+            continue;
+        }
+
         zmq::message_t content_message;
         if (!socket_.recv(content_message))
         {
+            std::cerr << "ZeroMqRpcChannel: failed to read content frame" << std::endl;
             return;
         }
 

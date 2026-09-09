@@ -58,7 +58,7 @@ AuralRealityPlugin::AuralRealityPlugin()
     new_speaker->setCallback([this]()
         { createSpeaker(); });
 
-    socket.connect("tcp://127.0.0.1:9999");
+    socket.connect("tcp://127.0.0.1:17419");
 
     ar::Id request;
     request.set_id("hello");
