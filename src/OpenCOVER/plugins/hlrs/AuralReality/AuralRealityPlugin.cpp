@@ -129,8 +129,7 @@ std::function<void(rpc::RpcResult<T>)> handleError(std::function<void(T t)> call
     {
         if (!res.ok())
         {
-            std::cerr << "RPC failed: " << res.status().message << std::endl
-                      << "Error code: " << res.status().code << std::endl;
+            std::cerr << "RPC failed: " << res.status().message << std::endl;
             return;
         }
         else

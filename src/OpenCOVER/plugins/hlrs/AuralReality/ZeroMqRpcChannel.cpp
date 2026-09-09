@@ -1,6 +1,9 @@
 #include "ZeroMqRpcChannel.h"
+#include "arrpc/message_header.pb.h"
+#include <string>
 
 namespace ar = auralreality;
+using std::cout, std::cerr, std::endl;
 
 ZeroMqRpcChannel::ZeroMqRpcChannel(zmq::socket_t &socket)
     : socket_(socket)
@@ -22,7 +25,7 @@ rpc::RpcFuture<std::string> ZeroMqRpcChannel::perform_request(rpc::RpcId rpc_id,
     std::string header_string;
     if (!header.SerializeToString(&header_string))
     {
-        std::cerr << "Failed to serialize header" << std::endl;
+        cerr << "Failed to serialize header" << endl;
         promise.failure(rpc::RpcStatus::error(rpc::RpcStatus::Code::InternalError, "failed to serialize message header"));
         return promise.future();
     }
@@ -34,7 +37,7 @@ rpc::RpcFuture<std::string> ZeroMqRpcChannel::perform_request(rpc::RpcId rpc_id,
 
     if (!zmq::send_multipart(socket_, send_msgs))
     {
-        std::cerr << "Failed to send zmq message" << std::endl;
+        cerr << "Failed to send zmq message" << endl;
         promise.failure(rpc::RpcStatus::error(rpc::RpcStatus::Code::InternalError, "failed to send zmq message"));
     }
     else
@@ -60,51 +63,66 @@ void ZeroMqRpcChannel::poll()
 {
     while (true)
     {
-        zmq::message_t header_message;
-        if (!socket_.recv(header_message, zmq::recv_flags::dontwait))
+        zmq::message_t message;
+
+        if (!socket_.recv(message, zmq::recv_flags::dontwait))
         {
             // No error, there is just no message here (`dontwait`).
             return;
         }
 
-        if (!header_message.more()) {
-            std::cerr << "ZeroMqRpcChannel: expected more after header." << std::endl;
-            continue;
-        }
-
-        zmq::message_t content_message;
-        if (!socket_.recv(content_message))
-        {
-            std::cerr << "ZeroMqRpcChannel: failed to read content frame" << std::endl;
-            return;
-        }
-
         ar::MessageHeader header;
-        if (!header.ParseFromArray(header_message.data(), header_message.size()))
+        if (!header.ParseFromArray(message.data(), message.size()))
         {
-            std::cerr << "Failed to parse header" << std::endl;
-            continue;
-        }
-        auto rpc_id = header.rpc_id();
-
-        auto it = message_promises_.find(rpc_id);
-        if (it == message_promises_.end())
-        {
+            cerr << "Failed to parse header, skipping message" << endl;
             continue;
         }
 
         auto status_code = header.status_code();
+        auto request_id = header.request_id();
+
+        bool expect_more = status_code == ar::StatusCode::Ok;
+
+        if (expect_more && !message.more())
+        {
+            cerr << "ZeroMqRpcChannel: expected more after success header." << endl;
+            continue;
+        }
+
+        // Consume all message parts, only the last one will stay in `message`
+        while (message.more())
+        {
+            if (!socket_.recv(message))
+            {
+                cerr << "ZeroMqRpcChannel: failed to read multipart content frame" << endl;
+                return;
+            }
+        }
+
+        auto it = message_promises_.find(request_id);
+        if (it == message_promises_.end())
+        {
+            cerr << "ZeroMqRpcChannel: got response to message " << request_id << ", but this message is not known" << endl;
+            continue;
+        }
+
         if (status_code == ar::StatusCode::Ok)
         {
-            it->second.success(content_message.to_string());
+            it->second.success(message.to_string());
         }
         else
         {
             std::string text = status_code >= 0 && status_code <= 7 ? STATUS_CODE_TEXTS[status_code] : "Unknown";
-            it->second.failure(rpc::RpcStatus::error(status_code,
-                std::string("Error response from server: ") + text + " (" + std::to_string((int)status_code) + ")"));
+            std::string message = std::string("Error response from server: ") + text + " (" + std::to_string((int)status_code) + ")";
+            if (header.has_error_message())
+            {
+                message += ": ";
+                message += header.error_message();
+            }
+
+            it->second.failure(rpc::RpcStatus::error(status_code, message));
         }
 
-        message_promises_.erase(rpc_id);
+        message_promises_.erase(request_id);
     }
 }
