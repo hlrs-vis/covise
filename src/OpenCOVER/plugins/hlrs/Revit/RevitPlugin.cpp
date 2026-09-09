@@ -1920,6 +1920,20 @@ void RevitPlugin::handleMessage(Message *m)
                 menu->setText("System");
             }
 
+			auto btnCallback = [foundNodes, color](bool on) {
+            	auto selectionManager = coVRSelectionManager::instance();
+				for (auto node : foundNodes) {
+					if (on) {
+						if (node->getNumParents() > 0 ) {
+							selectionManager->setSelectionColor(color[0], color[1], color[2]);
+							selectionManager->addSelection(node->getParent(0), node);
+						}
+					} else {
+						selectionManager->removeNode(node);
+					}
+				} 
+			};
+
             ui::Button *button { nullptr };
             for (size_t i = 0; i < menu->numChildren(); ++i)
             {
@@ -1928,30 +1942,20 @@ void RevitPlugin::handleMessage(Message *m)
                     if (child->text() == nodeName)
                     {
                         button = dynamic_cast<ui::Button *>(child);
-                        break;
+						button->setCallback(btnCallback);
+						// button->setVisible(true);
+						// button->setEnabled(true);
+						break;
                     }
                 }
             }
 
-            if (!button)
-            {
+			if (button)
+				return;
+
                 button = new ui::Button(menu, nodeName);
                 button->setText(nodeName);
-                button->setCallback([foundNodes, color](bool on)
-                    {
-            	auto selectionManager = coVRSelectionManager::instance();
-				for (auto node : foundNodes) {
-					if (on) {
-						if (node->getNumParents() > 0 ) {
-							selectionManager->setSelectionColor(color[0], color[1], color[2]);
-							selectionManager->addSelection(node->getParent(0)->asGroup(), node);
-						}
-					} else {
-						selectionManager->removeNode(node);
-					}
-				} });
-            }
-
+            button->setCallback(btnCallback);
             menu->add(button);
         }
         break;
