@@ -330,7 +330,8 @@ public:
 
     osg::Node* makeMesh(const tinygltf::Model &model, const tinygltf::Mesh& mesh, const Env& env) const
     {
-        osg::Group *group = new osg::Group;
+        osg::Geode *geode = new osg::Geode;
+        geode->setName(mesh.name);
 
         std::vector< osg::ref_ptr< osg::Array > > arrays;
         extractArrays(model, arrays);
@@ -350,7 +351,7 @@ public:
             osg::ref_ptr< osg::Geometry > geom = new osg::Geometry;
             geom->setUseVertexBufferObjects(true);
 
-            group->addChild(geom.get());
+            geode->addChild(geom.get());
 
             // The base color factor of the material
             osg::Vec4 baseColorFactor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -599,7 +600,7 @@ public:
             //osgEarth::Registry::shaderGenerator().run(geom.get());
         }
 
-        return group;
+        return geode;
     } // Turn all of the accessors and turn them into arrays
     void extractArrays(const tinygltf::Model &model, std::vector<osg::ref_ptr<osg::Array>> &arrays) const
     {
