@@ -2538,7 +2538,7 @@ std::string coVRMSController::syncString(const std::string &s)
 }
 
 template<typename T>
-typename std::enable_if<std::is_pod<T>::value, std::vector<T>>::type coVRMSController::syncVector(const std::vector<T> &vec)
+typename std::enable_if<std::is_standard_layout<T>::value && std::is_trivial<T>::value, std::vector<T>>::type coVRMSController::syncVector(const std::vector<T> &vec)
 {
     std::vector<T> retval = vec;
     auto s = retval.size();
