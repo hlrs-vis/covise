@@ -4,5 +4,8 @@ enum MessageTypes
     {
         MSG_GetHeight = 500, // this must be the first Message
         MSG_GetMap = 501,
+        MSG_SetModules = 502,
+        MSG_DeleteModules = 503,
+        MSG_ClearAllModules = 504
     };
 #endif

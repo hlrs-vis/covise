@@ -14,18 +14,19 @@
 #include "cover/coVRTui.h"
 #include <cover/coVRRenderer.h>
 #include <cover/VRViewer.h>
+#include <cover/coIntersection.h>
 #include <OpenVRUI/coCheckboxMenuItem.h>
 #include <OpenVRUI/coButtonMenuItem.h>
 #include <OpenVRUI/coSubMenuItem.h>
 #include <OpenVRUI/coRowMenu.h>
 #include <OpenVRUI/coCheckboxGroup.h>
-#include <OpenVRUI/coButtonMenuItem.h>
 #include <OpenVRUI/osg/OSGVruiUserDataCollection.h>
 #include <OpenVRUI/osg/mathUtils.h>
+#include <geodata/GeoData.h>
+#include <iostream>
 
 
 #include <PluginUtil/PluginMessageTypes.h>
-
 
 #include <osg/Geode>
 #include <osg/Switch>
@@ -35,16 +36,44 @@
 #include <osg/CullFace>
 #include <osg/MatrixTransform>
 #include <osg/LineSegment>
-#include <cover/coIntersection.h>
+#include <osg/Node>
+#include <osg/Vec3d>
+#include <osg/ref_ptr>
+#include <osg/Shape>
+#include <osg/ShapeDrawable>
+#include <osg/LineWidth>
+#include <osg/StateSet>
+#include <osg/ComputeBoundsVisitor>
+#include <osg/Matrix>
 
 
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
 #include <net/tokenbuffer.h>
 #include <config/CoviseConfig.h>
+#include <array>
+#include <unordered_map>
+
 
 using covise::TokenBuffer;
 using covise::coCoviseConfig;
+
+void printMatrix(const char *name, const osg::Matrix &m)
+{
+    std::cerr << name << std::endl;
+
+    for (int row = 0; row < 4; ++row)
+    {
+        std::cerr << "  ";
+
+        for (int col = 0; col < 4; ++col)
+        {
+            std::cerr << m(row, col) << " ";
+        }
+
+        std::cerr << std::endl;
+    }
+}
 
 
 void DrawCallback::operator()(const osg::Camera &cam) const
@@ -103,8 +132,46 @@ void MapLinkPlugin::destroyMenu()
     delete addCameraTUIButton;
     delete updateCameraTUIButton;*/
     delete MapLinkTab;
+    MapLinkTab = nullptr;
 }
 
+
+void MapLinkPlugin::showLocationMarker(double x, double y, const osg::Vec4 &color)
+{
+    osg::ref_ptr<osg::Geode> geode = new osg::Geode();
+    osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry();
+
+    osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array();
+    vertices->push_back(osg::Vec3(x, y, 400000.0));
+    vertices->push_back(osg::Vec3(x, y, 520000.0));
+
+    geometry->setVertexArray(vertices.get());
+    geometry->addPrimitiveSet(
+        new osg::DrawArrays(osg::PrimitiveSet::LINES, 0, 2));
+
+    osg::ref_ptr<osg::Vec4Array> colors = new osg::Vec4Array();
+    colors->push_back(color);
+
+    geometry->setColorArray(colors.get());
+    geometry->setColorBinding(osg::Geometry::BIND_OVERALL);
+
+    osg::StateSet *stateSet = geometry->getOrCreateStateSet();
+    stateSet->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+
+    osg::ref_ptr<osg::LineWidth> lineWidth = new osg::LineWidth();
+    lineWidth->setWidth(8.0f);
+    stateSet->setAttributeAndModes(
+        lineWidth.get(),
+        osg::StateAttribute::ON);
+
+    geode->addDrawable(geometry.get());
+    cover->getObjectsXform()->addChild(geode.get());
+
+    std::cerr << "LOCATION MARKER added:"
+              << " x=" << x
+              << " y=" << y
+              << std::endl;
+}
 
 osg::Matrixd MapLinkPlugin::computeLeftEyeProjection(const osg::Matrixd &projection) const
 {
@@ -207,22 +274,28 @@ bool MapLinkPlugin::init()
 // this is called if the plugin is removed at runtime
 MapLinkPlugin::~MapLinkPlugin()
 {
-    destroyMenu();
     if (serverConn && serverConn->getSocket())
         cover->unwatchFileDescriptor(serverConn->getSocket()->get_id());
-    delete serverConn;
-    serverConn = NULL;
+
     if (toMapLink && toMapLink->getSocket())
         cover->unwatchFileDescriptor(toMapLink->getSocket()->get_id());
+
+    destroyMenu();
+
+    delete serverConn;
+    serverConn = nullptr;
+
     delete msg;
-    
+    msg = nullptr;
+
     if (camera.get())
     {
         camera->detach(osg::Camera::COLOR_BUFFER);
-        camera->setGraphicsContext(NULL);
+        camera->setGraphicsContext(nullptr);
         VRViewer::instance()->removeCamera(camera.get());
     }
-    toMapLink = NULL;
+
+    toMapLink.reset();
 }
 
 void MapLinkPlugin::setProjection(float xPos, float yPos, float width, float height)
@@ -346,72 +419,134 @@ MapLinkPlugin::handleMessage(Message *m)
             {
             case MSG_GetHeight:
             {
-                    std::cerr << "entered MSG_GetHeight" << std::endl;
-                    osg::Matrix oldXformMat=cover->getXformMat();
-                    cover->setXformMat(osg::Matrix());
-                    int numPoints;
-                    std::cerr << "before reading numPoints" << std::endl;
-                    tb >> numPoints;
-                    std::cerr << "after reading numPoints" << std::endl;
-                    std::cerr << "numPoints: " << numPoints << std::endl;
-                    TokenBuffer rtb;
-                    rtb << MSG_GetHeight;
-                    rtb << numPoints;
-                    for(int i=0;i<numPoints;i++)
+                std::cerr << "MSG_GetHeight received" << std::endl;
+
+                const osg::Matrix oldXformMat = cover->getXformMat();
+                cover->setXformMat(osg::Matrix());
+
+                int numPoints;
+                tb >> numPoints;
+
+                TokenBuffer rtb;
+                rtb << MSG_GetHeight;
+                rtb << numPoints;
+
+                // Production_OSG-Georeferenzierung aus praesentation_26.wrl
+                constexpr double MODEL_EASTING = 507297.0;
+                constexpr double MODEL_NORTHING = 5398513.0;
+
+                // Production_OSG -> OpenCOVER, aus osg::computeLocalToWorld ermittelt
+                constexpr double MODEL_SCALE = 1000.0;
+                constexpr double MODEL_WORLD_OFFSET_X = 225900.0;
+                constexpr double MODEL_WORLD_OFFSET_Y = 87640.1;
+
+                for (int i = 0; i < numPoints; ++i)
+                {
+                    float longitude;
+                    float latitude;
+
+                    tb >> longitude;
+                    tb >> latitude;
+
+                    // Eingang: EPSG:4326
+                    const osg::Vec3d globalPosition(
+                        static_cast<double>(longitude),
+                        static_cast<double>(latitude),
+                        0.0);
+
+                    // EPSG:4326 -> EPSG:25832
+                    const osg::Vec3d referencePosition = GeoData::instance()->globalToReference(globalPosition);
+
+                    // Nur zum Vergleich mit dem bisherigen GeoData-Projektraum
+                    const osg::Vec3d projectPosition = GeoData::instance()->globalToProject(globalPosition);
+
+                    // UTM -> lokale Koordinaten des Production_OSG
+                    const double modelX = referencePosition.x() - MODEL_EASTING;
+
+                    const double modelY = referencePosition.y() - MODEL_NORTHING;
+
+                    // Production_OSG lokal -> OpenCOVER-Weltraum
+                    const double rayX = modelX * MODEL_SCALE + MODEL_WORLD_OFFSET_X;
+
+                    const double rayY = modelY * MODEL_SCALE + MODEL_WORLD_OFFSET_Y;
+
+                    std::cerr
+                        << "Point " << i
+                        << " | LonLat=(" << longitude << ", " << latitude << ")"
+                        << " | UTM=(" << referencePosition.x()
+                        << ", " << referencePosition.y() << ")"
+                        << " | GeoDataProject=(" << projectPosition.x()
+                        << ", " << projectPosition.y() << ")"
+                        << " | ModelLocal=(" << modelX
+                        << ", " << modelY << ")"
+                        << " | Ray=(" << rayX
+                        << ", " << rayY << ")"
+                        << std::endl;
+
+          
+                    const osg::Vec3 rayP(
+                        rayX,
+                        rayY,
+                        9999999.0);
+
+                    const osg::Vec3 rayQ(
+                        rayX,
+                        rayY,
+                        -9999999.0);
+
+                    coIntersector *isect = coIntersection::instance()->newIntersector(rayP, rayQ);
+
+                    osgUtil::IntersectionVisitor visitor(isect);
+                    visitor.setTraversalMask(~0u);
+
+                    cover->getObjectsXform()->accept(visitor);
+
+                    if (!isect->containsIntersections())
                     {
-                        float x; float y;
-                        tb >> x;
-                        tb >> y;
+                        std::cerr
+                            << "  -> NO INTERSECTION"
+                            << std::endl;
 
-                        std::cerr << "point " << i << ": x=" << x << " y=" << y << std::endl;
-
-                        x*=(1000.0);
-                        y*=(1000.0);
-
-                        double minHeightValue = 100000000.0;
-                        double maxHeightValue = -100000000.0;
-
-
-                        osg::Vec3 rayP = osg::Vec3(x, y, 9999999);
-                        osg::Vec3 rayQ = osg::Vec3(x, y, -9999999);
-
-                        coIntersector* isect = coIntersection::instance()->newIntersector(rayP, rayQ);
-                        osgUtil::IntersectionVisitor visitor(isect);
-                        visitor.setTraversalMask(Isect::Collision);
-
-                        cover->getObjectsXform()->accept(visitor);
-
-                        //std::cerr << "Hits ray num: " << num1 << ", down (" << ray->start()[0] << ", " << ray->start()[1] <<  ", " << ray->start()[2] << "), up (" << ray->end()[0] << ", " << ray->end()[1] <<  ", " << ray->end()[2] << ")" <<  std::endl;
-                        if (!isect->containsIntersections())
-                        {
-                            rtb << 0.0f;
-                        }
-                        else
-                        {
-                            auto results = isect->getFirstIntersection();
-
-                            osg::Vec3d terrainHeight = results.getWorldIntersectPoint();
-
-                            double height = terrainHeight.z() / 1000.0;
-                            if (height < minHeightValue)
-                            {
-                                minHeightValue = height;
-                            }
-                            if (height > maxHeightValue)
-                            {
-                                maxHeightValue = height;
-                            }
-
-                            rtb << (float)height;
-                        }
+                        rtb << 0.0f;
+                        continue;
                     }
-                    Message m(rtb);
-                    m.type = PluginMessageTypes::HLRS_MapLink_Message;
-                    std::cerr << "sending height response" << std::endl;
-                    sendMessage(m);
-                    cover->setXformMat(oldXformMat);
+
+                    const auto result = isect->getFirstIntersection();
+                    const osg::Vec3d worldPoint = result.getWorldIntersectPoint();
+
+                    const double height = worldPoint.z() / 1000.0;
+
+                    // Bei Punkt 0 eine rote Säule exakt an der neuen Raycast-Position
+                    if (i == 0)
+                    {
+                        showLocationMarker(
+                            rayX,
+                            rayY,
+                            osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f));
+                    }
+
+
+                    std::cerr
+                        << "  -> HIT=("
+                        << worldPoint.x() << ", "
+                        << worldPoint.y() << ", "
+                        << worldPoint.z() << ")"
+                        << " | height=" << height << " m"
+                        << std::endl;
+
+                    rtb << static_cast<float>(height);
                 }
-                break;
+
+                Message m(rtb);
+                m.type = PluginMessageTypes::HLRS_MapLink_Message;
+
+                std::cerr << "sending height response" << std::endl;
+                sendMessage(m);
+
+                cover->setXformMat(oldXformMat);
+            }
+            break;
+
             case MSG_GetMap:
                 {
                     tb >> x;
@@ -422,6 +557,156 @@ MapLinkPlugin::handleMessage(Message *m)
                     tb >> yRes;
                     fprintf(stderr," x: %f  y: %f width: %f height: %f\n",x,y,width,height);
                     setProjection(x,y,width,height);
+                }
+                break;
+
+            case MSG_SetModules:
+                {
+                    int numModules;
+                    tb >> numModules;
+
+                    std::cerr
+                        << "MSG_SetModules received: "
+                        << numModules
+                        << " modules"
+                        << std::endl;
+
+                    for (int moduleIndex = 0;
+                        moduleIndex < numModules;
+                        ++moduleIndex)
+                    {
+                        int moduleId;
+                        tb >> moduleId;
+
+                        std::array<osg::Vec3d, 4> projectCorners;
+
+                        for (int cornerIndex = 0;
+                            cornerIndex < 4;
+                            ++cornerIndex)
+                        {
+                            float longitude;
+                            float latitude;
+                            float height;
+
+                            tb >> longitude;
+                            tb >> latitude;
+                            tb >> height;
+
+                            const osg::Vec3d globalCorner(
+                                longitude,
+                                latitude,
+                                height);
+
+                            projectCorners[cornerIndex] = GeoData::instance()->globalToProject(
+                                globalCorner);
+
+                            // DEBUG: empfangene globale Koordinaten
+                            std::cerr
+                                << "Module " << moduleId
+                                << ", corner " << cornerIndex
+                                << ": lon=" << longitude
+                                << ", lat=" << latitude
+                                << ", height=" << height
+                                << std::endl;
+
+                            // DEBUG: transformierte COVISE-/Projektkoordinaten
+                            std::cerr
+                                << "  -> project: x="
+                                << projectCorners[cornerIndex].x()
+                                << ", y="
+                                << projectCorners[cornerIndex].y()
+                                << ", z="
+                                << projectCorners[cornerIndex].z()
+                                << std::endl;
+                        }
+
+                        std::cerr
+                            << "Module " << moduleId
+                            << " received and transformed"
+                            << std::endl;
+
+                        // createModule(moduleId, projectCorners);
+                        m_modules[moduleId] = projectCorners;
+
+                        std::cerr
+                            << "Stored modules: "
+                            << m_modules.size()
+                            << std::endl;
+                    }
+
+                    TokenBuffer rtb;
+                    rtb << MSG_SetModules;
+                    rtb << numModules;
+
+                    Message response(rtb);
+                    response.type = PluginMessageTypes::HLRS_MapLink_Message;
+
+                    sendMessage(response);
+
+                    break;
+                }
+
+            case MSG_DeleteModules:
+                {
+                    int numModules;
+                    tb >> numModules;
+
+                    std::cerr
+                        << "MSG_DeleteModules received: "
+                        << numModules
+                        << " modules"
+                        << std::endl;
+
+                    for (int i = 0; i < numModules; ++i)
+                    {
+                        int moduleId;
+                        tb >> moduleId;
+
+                        std::cerr
+                            << "Delete module ID: "
+                            << moduleId
+                            << std::endl;
+
+                        // deleteModule(moduleId);
+                        const auto erased = m_modules.erase(moduleId);
+
+                        if (erased > 0)
+                        {
+                            std::cerr
+                                << "Module "
+                                << moduleId
+                                << " deleted"
+                                << std::endl;
+                        }
+                        else
+                        {
+                            std::cerr
+                                << "Module "
+                                << moduleId
+                                << " not found"
+                                << std::endl;
+                        }
+                    }
+
+                    std::cerr
+                        << "Remaining modules: "
+                        << m_modules.size()
+                        << std::endl;
+                }
+                break;
+
+            case MSG_ClearAllModules:
+                {
+                    std::cerr
+                        << "MSG_ClearAllModules received"
+                        << std::endl;
+
+                    m_modules.clear();
+
+                    std::cerr
+                        << "All modules cleared. Remaining modules: "
+                        << m_modules.size()
+                        << std::endl;
                 }
                 break;
 

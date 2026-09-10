@@ -21,6 +21,9 @@
 #include <cover/coVRSceneView.h>
 #include <OpenVRUI/sginterface/vruiActionUserData.h>
 #include "MapLinkMessageTypes.h"
+#include <array>
+
+std::map<int, std::array<osg::Vec3d, 4>> m_modules;
 
 namespace vrui
 {
@@ -83,8 +86,10 @@ public:
     
     void message(int toWhom, int type, int len, const void *buf) override;
     void sendImage();
+
 protected:
 
+    void showLocationMarker(double x, double y, const osg::Vec4 &color);
 	osg::Matrixd computeLeftEyeProjection(const osg::Matrixd &projection) const override;
 	osg::Matrixd computeLeftEyeView(const osg::Matrixd &view) const override;
 	osg::Matrixd computeRightEyeProjection(const osg::Matrixd &projection) const override;
@@ -94,7 +99,7 @@ protected:
 
     ServerConnection *serverConn;
     std::unique_ptr<ServerConnection> toMapLink;
-    coTUITab *MapLinkTab;
+    coTUITab *MapLinkTab = nullptr;
     osg::ref_ptr<osg::Camera> camera;
     osg::ref_ptr<osg::Image> image;
     osg::ref_ptr<DrawCallback> drawCallback;
