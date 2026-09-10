@@ -21,6 +21,7 @@
 #define QT_NO_EMIT
 
 #include <algorithm>
+// #include <ranges>
 
 #include "RevitPlugin.h"
 #include <cover/coVRPluginSupport.h>
@@ -67,6 +68,7 @@
 #include <config/CoviseConfig.h>
 #include <util/unixcompat.h>
 #include <cstring>
+// #include <functional>
 
 #include "VrmlNodePhases.h"
 
@@ -1595,19 +1597,82 @@ bool RevitPlugin::sendMessage(Message &m)
     return false;
 }
 
-void RevitPlugin::deleteChildlessParent(osg::Group *parent) {
-	if (!parent)
-		return;
-	// if the parent has children, it's not a childless parent
-	if (parent->getNumChildren() != 0)
-		return; 
+bool RevitPlugin::isHighlightedNode(osg::ref_ptr<osg::Node> node) {
+	return node && _highlightedNodes.contains(node);
+}
 
-	while (parent->getNumParents() > 0) {
-		osg::Group *grandparent = parent->getParent(0);
+bool RevitPlugin::isButtonWithName(const std::string& name, ui::Button* btn) {
+	if(!btn)
+		return false;
+	return btn->text() == name;	
+}
+
+void RevitPlugin::disableHighlightedNodeButton(osg::ref_ptr<osg::Node> node) {
+	if (!node)
+		return;
+	// for (const auto &highlight_child : highlightMenu) {
+	// 	auto submenu = dynamic_cast<ui::Menu*>(highlight_child);
+	// 	if (!submenu)
+	// 		continue;
+	// 	auto buttonIt = std::find_if(submenu.begin(), submenu.end(), std::bind_front(&isButtonWithName, node->getName()));
+	// 	if (buttonIt != submenu.end()) {
+	// 		auto button = buttonIt->second();
+	// 		button->setState(false);
+	// 		button->triggerImplementation();
+	// 		button->setVisible(false);
+	// 	}
+	// }
+	for (size_t i = 0; i < highlightMenu->numChildren(); ++i) {
+		auto child = highlightMenu->child(i);
+		if (!child)
+			continue;
+
+		auto subMenu = dynamic_cast<ui::Menu*>(child);
+		if (!subMenu)
+			continue;
+
+		for (size_t j = 0; j < subMenu->numChildren(); ++j) {
+			auto subMenuChild = subMenu->child(j);
+			if (!subMenuChild)
+				continue;
+			if (subMenuChild->text() == node->getName()) {
+				if (auto button = dynamic_cast<ui::Button*>(subMenuChild)) {
+					button->setState(false);
+					button->triggerImplementation();
+					button->setVisible(false);
+				}
+			}
+		}
+	}
+}
+
+void RevitPlugin::removeHighlightedNode(osg::ref_ptr<osg::Node> node) {
+	if (!isHighlightedNode(node))
+		return;
+	disableHighlightedNodeButton(node);
+	_highlightedNodes.erase(node);
+}
+
+bool RevitPlugin::isChildlessParent(osg::ref_ptr<osg::Group> parent) {
+	if (!parent)
+		return false;
+	return parent->getNumChildren() == 0;
+}
+
+bool RevitPlugin::hasParent(osg::ref_ptr<osg::Group> parent) {
+	if (!parent)
+		return false;
+	return parent->getNumParents() > 0;
+}
+
+void RevitPlugin::deleteChildlessParent(osg::ref_ptr<osg::Group> parent) {
+	while (isChildlessParent(parent)
+			&& hasParent(parent)
+			&& parent != revitGroup) {
+		removeHighlightedNode(parent);
+		osg::ref_ptr<osg::Group> grandparent = parent->getParent(0);
 		grandparent->removeChild(parent);
 		parent = grandparent;
-		if (parent->getNumChildren() != 0 || parent == revitGroup)
-			return; // stop if the parent has children
 	}
 }
 
@@ -1851,6 +1916,14 @@ void RevitPlugin::message(int toWhom, int type, int len, const void *buf)
 
 }
 
+void RevitPlugin::clickButton(ui::Button* btn) {
+	if (!btn)
+		return;
+	
+	btn->setState(!btn->state());
+	btn->triggerImplementation();
+}
+
 RevitPlugin *RevitPlugin::plugin = NULL;
 void RevitPlugin::handleMessage(Message *m)
 {
@@ -1887,7 +1960,6 @@ void RevitPlugin::handleMessage(Message *m)
             tb >> b;
 
             std::array<float, 3> color { r / 255.0f, g / 255.0f, b / 255.0f };
-            // assert(!highlightMenu && "Need to initialize hightlightMenu before using it.");
             FindNodeByNameVisitor finder(nodeName);
             revitGroup->accept(finder);
 
@@ -1942,9 +2014,12 @@ void RevitPlugin::handleMessage(Message *m)
                     if (child->text() == nodeName)
                     {
                         button = dynamic_cast<ui::Button *>(child);
+						bool previousState = button->state();
+						if (previousState)
+							// untoggle
+							clickButton(button);
 						button->setCallback(btnCallback);
-						// button->setVisible(true);
-						// button->setEnabled(true);
+						button->setVisible(true);
 						break;
                     }
                 }
@@ -1953,8 +2028,8 @@ void RevitPlugin::handleMessage(Message *m)
 			if (button)
 				return;
 
-                button = new ui::Button(menu, nodeName);
-                button->setText(nodeName);
+            button = new ui::Button(menu, nodeName);
+            button->setText(nodeName);
             button->setCallback(btnCallback);
             menu->add(button);
         }
@@ -2249,14 +2324,11 @@ void RevitPlugin::handleMessage(Message *m)
 					}
 				}
 
-				if (_highlightedNodes.contains(n)) {
-					_highlightedNodes.erase(n);
-					coVRSelectionManager::instance()->removeNode(n);
-				}
+				removeHighlightedNode(n);
 
 				while (n->getNumParents())
 				{
-					auto parent = n->getParent(0);
+					osg::ref_ptr<osg::Group> parent = n->getParent(0);
 					parent->removeChild(n);
 					deleteChildlessParent(parent);
 				}

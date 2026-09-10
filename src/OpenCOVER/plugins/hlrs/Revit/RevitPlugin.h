@@ -534,7 +534,6 @@ public:
     void changeAnnotation(int id, AnnotationMessage *am);
     void setPhase(std::string phaseName);
     void setPhase(int phase);
-    void deleteChildlessParent(osg::Group *parent);
     /// <summary>
     /// set visibility depending on current selected phase
     /// </summary>
@@ -645,6 +644,17 @@ protected:
     bool setViewpoint;
     bool firstDocument=true;
 	bool ignoreDepthOnly = false;
+
+private:
+    bool isChildlessParent(osg::ref_ptr<osg::Group> parent);
+    bool hasParent(osg::ref_ptr<osg::Group> parent);
+    bool isHighlightedNode(osg::ref_ptr<osg::Node> node);
+    bool isButtonWithName(const std::string& name, ui::Button* btn);
+    void clickButton(ui::Button* btn);
+    void deleteChildlessParent(osg::ref_ptr<osg::Group> parent);
+    void removeHighlightedNode(osg::ref_ptr<osg::Node> node);
+    void disableHighlightedNodeButton(osg::ref_ptr<osg::Node> node);
+
 };
 
 
