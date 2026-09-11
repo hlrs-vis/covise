@@ -136,6 +136,24 @@ namespace {
 	    std::string menuName;
 	    Revit::Color color;
 	};
+    
+    struct CoviseHighlighter {
+    public:
+        explicit CoviseHighlighter(coVRSelectionManager& manager) : _selectionManager(&manager) {}
+
+        void operator()(Revit::Node node, const Revit::Color& color, bool highlight) {
+            if (highlight) {
+                if (node->getNumParents() == 0)
+                    return;
+	        	_selectionManager->setSelectionColor(color.red, color.green, color.blue);
+	        	_selectionManager->addSelection(node->getParent(0), node);
+            } else {
+                _selectionManager->removeNode(node);
+            }
+        }
+    private:
+        coVRSelectionManager* _selectionManager;
+    };
 }
 
 int ElementInfo::yPos = 3;
@@ -1445,7 +1463,7 @@ void RevitPlugin::destroyMenu()
 RevitPlugin::RevitPlugin() 
 : coVRPlugin(COVER_PLUGIN_NAME)
 , ui::Owner("RevitPlugin", cover->ui)
-, _highlightmanager(*coVRSelectionManager::instance())
+, _highlightmanager(CoviseHighlighter(*(coVRSelectionManager::instance())))
 {
 	fprintf(stderr, "RevitPlugin::RevitPlugin\n");
 
