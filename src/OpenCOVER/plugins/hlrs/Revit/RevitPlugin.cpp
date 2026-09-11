@@ -58,6 +58,9 @@
 #include <osg/Array>
 #include <osg/CullFace>
 #include <osg/MatrixTransform>
+#include <osg/CopyOp>
+#include <osg/StateSet>
+#include <osg/Depth>
 
 #include <osgDB/ReadFile>
 #include "GenNormals.h"
@@ -140,7 +143,6 @@ namespace {
     struct CoviseHighlighter {
     public:
         explicit CoviseHighlighter(coVRSelectionManager& manager) : _selectionManager(&manager) {}
-
         void operator()(Revit::Node node, const Revit::Color& color, bool highlight) {
             if (highlight) {
                 if (node->getNumParents() == 0)
@@ -154,6 +156,67 @@ namespace {
     private:
         coVRSelectionManager* _selectionManager;
     };
+
+	struct OSGXRay {
+	public:
+		OSGXRay(std::span<osg::ref_ptr<osg::Node>> xrayedNodes,  CoviseHighlighter highlighter)
+			: _defaultStateSets{}, _highlighter(highlighter) {
+				for (auto node : xrayedNodes)
+					_defaultStateSets[node] = node->getOrCreateStateSet();
+			}
+
+		void operator()(Revit::Node node, const Revit::Color& color, bool highlight) {
+			if (highlight) {
+
+				////////////////////// BUILDING /////////
+				// TODO: iterate through each geode individually and override the stateset in the same order the hierachy has been created. Otherwise it will mess up the default depth hierachy.
+				for (auto& [xrayedNode, _]: _defaultStateSets) {
+					auto ss = xrayedNode->getOrCreateStateSet();
+					// Enable Alpha Blending for translucency
+    				ss->setMode(GL_BLEND, osg::StateAttribute::ON);
+    				osg::BlendFunc* blendFunc = new osg::BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    				ss->setAttributeAndModes(blendFunc, osg::StateAttribute::ON);
+
+    				// Disable Depth Writing so internal pipes remain visible through inner walls
+    				osg::Depth* depth = new osg::Depth(osg::Depth::LESS, 0.0, 1.0, false); // false = depth write off
+    				ss->setAttributeAndModes(depth, osg::StateAttribute::ON);
+
+    				// Apply faint grey translucent color
+    				osg::Material* material = new osg::Material();
+    				material->setDiffuse(osg::Material::FRONT, osg::Vec4(0.8f, 0.8f, 0.8f, 0.5f)); // 20% alpha
+    				material->setAmbient(osg::Material::FRONT, osg::Vec4(0.4f, 0.4f, 0.4f, 0.5f));
+    				ss->setAttributeAndModes(material, osg::StateAttribute::ON);
+
+    				// Place building in the TRANSPARENT render bin so it draws in correct depth order
+    				ss->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+				}
+
+				////////////////////// NODE /////////
+				auto stateset = node->getOrCreateStateSet();
+				_defaultStateSets[node] = stateset;
+				osg::ref_ptr<osg::StateSet> ss = dynamic_cast<osg::StateSet*>(stateset->clone(osg::CopyOp::DEEP_COPY_ALL));
+
+    			osg::Depth* depth = new osg::Depth(osg::Depth::LESS, 0.0, 1.0, true);
+    			ss->setAttributeAndModes(depth, osg::StateAttribute::ON);
+
+    			// osg::Material* material = new osg::Material();
+    			// material->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.1f, 0.1f, 1.0f));
+    			// material->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.4f, 0.0f, 0.0f, 1.0f));
+    			// ss->setAttributeAndModes(material, osg::StateAttribute::ON);
+
+    			// Draw AFTER the transparent building shell to ensure write order
+    			ss->setRenderBinDetails(11, "RenderBin");
+				_highlighter(node, color, highlight);
+			} else {
+
+				_defaultStateSets.erase(node);
+			}
+		}
+
+	private:
+		std::map<osg::ref_ptr<osg::Node>, osg::ref_ptr<osg::StateSet>> _defaultStateSets;
+		CoviseHighlighter _highlighter;
+	};
 }
 
 int ElementInfo::yPos = 3;
@@ -1982,6 +2045,9 @@ void RevitPlugin::handleMessage(Message *m)
 
 			auto foundNodes = findNodesByName(msg.nodeName);
 			_highlightmanager.add(foundNodes, msg.color);
+			auto haus = findNodesByName("Winterhalde_Haus.rvt : 5 : location <Not Shared>__b249c548-e82f-46b0-bc8e-371916c6fedb-00712fb3");
+
+			_highlightmanager.setHighlighter(OSGXRay(haus, CoviseHighlighter(*(coVRSelectionManager::instance()))));
 
             ui::Menu *menu { nullptr };
             for (auto child : *highlightMenu)
