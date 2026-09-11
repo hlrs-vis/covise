@@ -8,6 +8,7 @@ SET(HEADERS
   Elevators.h
   GenNormals.h
   VrmlNodePhases.h
+  HighlightManager.h
 IK/CJacobianTranspose.h
 IK/CJacobian.h
 IK/CJoint.h
@@ -31,6 +32,7 @@ SET(SOURCES
   VrmlNodePhases.cpp
   Doors.cpp
   Elevators.cpp
+  HighlightManager.cpp
 IK/CMatrixFactory.cpp
 IK/CAlgoFactory.cpp
 IK/CLink.cpp
