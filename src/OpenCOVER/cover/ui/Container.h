@@ -30,8 +30,10 @@ class COVER_UI_EXPORT Container {
     size_t numChildren() const;
     Element *child(size_t index) const;
     int index(const Element *elem) const;
+    auto begin() { return m_children.begin(); }
+    auto end() { return m_children.end(); }
 
- protected:
+protected:
     struct Child
     {
         Child(Element *elem, int where)
