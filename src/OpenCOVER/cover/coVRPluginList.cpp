@@ -137,6 +137,9 @@ coVRPluginList::~coVRPluginList()
 {
     for (int d=0; d<NumPluginDomains; ++d)
         unloadAllPlugins(static_cast<PluginDomain>(d));
+    // unload plugins on both m_unloadQueue and m_unloadNext
+    unloadQueued();
+    unloadQueued();
     delete PluginMenu::instance();
     singleton = NULL;
 }
@@ -281,7 +284,7 @@ void coVRPluginList::loadDefault()
     auto browserDefaultUrl = getenv("COVISE_BROWSER_INIT_URL");
     if(browserDefaultUrl)
         plugins.push_back("Browser");
-        
+
     std::vector<std::string> failed;
     for (size_t i = 0; i < plugins.size(); ++i)
     {
@@ -348,8 +351,8 @@ void coVRPluginList::unloadQueued()
     {
         coVRDynLib::dlclose(*it);
     }
-    m_unloadNext = m_unloadQueue;
-    m_unloadQueue.clear();
+    m_unloadNext.clear();
+    std::swap(m_unloadQueue, m_unloadNext);
 }
 
 void coVRPluginList::manage(coVRPlugin *plugin, PluginDomain domain)
