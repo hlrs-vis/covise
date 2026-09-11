@@ -11,7 +11,7 @@
 /*! \file
  \brief  dynamic library loading
 
- \author (C) 
+ \author (C)
          Computer Centre University of Stuttgart,
          Allmandring 30,
          D-70550 Stuttgart,
@@ -31,9 +31,6 @@ typedef HINSTANCE CO_SHLIB_HANDLE;
 typedef void *CO_SHLIB_HANDLE;
 #endif
 
-#ifndef _WIN32
-#define SVR4_DYNAMIC_LINKING
-#endif
 namespace opencover
 {
 //

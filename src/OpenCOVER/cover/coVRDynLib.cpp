@@ -7,20 +7,21 @@
 
 #include <errno.h>
 #include <util/common.h>
-
-#ifndef _WIN32
-#include <strings.h>
-#endif
-
 #include <util/environment.h>
-
-#if defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__)
-#include <dlfcn.h>
-#endif
 
 #include "coVRDynLib.h"
 #include "coVRPluginSupport.h"
 #include <sstream>
+
+#ifndef _WIN32
+#include <strings.h>
+
+#define SVR4_DYNAMIC_LINKING
+#endif
+
+#ifdef SVR4_DYNAMIC_LINKING
+#include <dlfcn.h>
+#endif
 
 //
 using namespace covise;
@@ -72,26 +73,15 @@ const char *coVRDynLib::dlerror(void)
 #endif
 }
 
-CO_SHLIB_HANDLE coVRDynLib::dlopen(const std::string &filename, bool showErrors)
-{
-    return dlopen(filename.c_str(), showErrors);
-}
-
 CO_SHLIB_HANDLE try_dlopen(const char *filename, bool showErrors)
 {
     const int mode = RTLD_LAZY;
 
     CO_SHLIB_HANDLE handle = 0;
-#if defined(SGIDLADD)
-    handle = ::sgidladd(filename, mode);
-#elif defined(SVR4_DYNAMIC_LINKING)
+#if defined(SVR4_DYNAMIC_LINKING)
     handle = ::dlopen(filename, mode);
 #elif defined(_WIN32)
     handle = LoadLibraryA(filename);
-#elif defined(__GNUC__) || __cplusplus >= 199707L
-    handle = shl_load(filename, mode, 0L);
-#else
-    handle = cxxshl_load(filename, mode, 0L);
 #endif
 
     if (handle == NULL)
@@ -109,6 +99,10 @@ CO_SHLIB_HANDLE try_dlopen(const char *filename, bool showErrors)
 }
 
 
+CO_SHLIB_HANDLE coVRDynLib::dlopen(const std::string &filename, bool showErrors)
+{
+    return dlopen(filename.c_str(), showErrors);
+}
 
 CO_SHLIB_HANDLE coVRDynLib::dlopen(const char *filename, bool showErrors)
 {
@@ -179,24 +173,7 @@ void *coVRDynLib::dlsym(CO_SHLIB_HANDLE handle, const char *symbolname)
 {
 
 #if defined(SVR4_DYNAMIC_LINKING)
-
-#if defined(LACKS_POSIX_PROTOTYPES)
-    return ::dlsym(handle, (char *)symbolname);
-#elif defined(ASM_SYMBOL_IN_DLSYM)
-    int l = strlen(symbolname) + 2;
-    char *asm_symbolname;
-    asm_symbolname = new char[l];
-    strcpy(asm_symbolname, "_");
-    strcpy(asm_symbolname + 1, symbolname);
-    void *_result;
-    _result = ::dlsym(handle, asm_symbolname);
-    delete[] asm_symbolname;
-    return _result;
-
-#else
     return ::dlsym(handle, symbolname);
-#endif /* LACKS_POSIX_PROTOTYPES */
-
 #elif defined(_WIN32)
     return (void *)::GetProcAddress(handle, symbolname);
 
