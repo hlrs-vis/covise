@@ -18,6 +18,8 @@
  * OpenSceneGraph Public License for more details.
 */
 
+#include <pthread.h>
+#include <set>
 #include <sstream>
 #include <iomanip>
 #include <limits>
@@ -1257,6 +1259,7 @@ struct PagerCallback : public virtual osg::NodeCallback
     {
         if (_dp.valid())
         {
+            std::cerr << "PagerCallback(): node=" << node->getName() << "\n";
             double value = _dp->getAverageTimeToMergeTiles();
             if (value >= 0.0 && value <= 1000)
             {
@@ -1368,6 +1371,7 @@ osg::Geometry *coVRStatsDisplay::createTick(const osg::Vec3 &pos, float height, 
 void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
 {
     _switch = new osg::Switch;
+    _switch->setName("stats-switch");
 
     _camera->addChild(_switch.get());
 
@@ -1464,11 +1468,13 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
     // frame rate stats
     {
         osg::Geode *geode = new osg::Geode();
+        geode->setName("frameRateStats");
         _frameRateChildNum = _switch->getNumChildren();
         _switch->addChild(geode, false);
 
         osg::ref_ptr<osgText::Text> frameRateLabel = new osgText::Text;
         geode->addDrawable(frameRateLabel.get());
+        frameRateLabel->setName("frameRateLabel");
         frameRateLabel->setColor(colorFR);
         frameRateLabel->setFont(font);
         frameRateLabel->setCharacterSize(characterSize);
@@ -1479,6 +1485,7 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
 
         osg::ref_ptr<osgText::Text> frameRateValue = new osgText::Text;
         geode->addDrawable(frameRateValue.get());
+        frameRateValue->setName("frameRateValue");
         frameRateValue->setColor(colorFR);
         frameRateValue->setFont(font);
         frameRateValue->setCharacterSize(characterSize);
@@ -1489,6 +1496,7 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
 
         osg::ref_ptr<osgText::Text> label = new osgText::Text;
         geode->addDrawable(label.get());
+        label->setName("frameRateLabel");
         label->setColor(colorFR);
         label->setFont(font);
         label->setCharacterSize(characterSize);
@@ -1499,6 +1507,7 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
 
         osg::ref_ptr<osgText::Text> value = new osgText::Text;
         geode->addDrawable(value.get());
+        value->setName("frameRateValue");
         value->setColor(colorFR);
         value->setFont(font);
         value->setCharacterSize(characterSize);
@@ -1513,11 +1522,13 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
     // GPU utilization
     {
         osg::Geode *geode = new osg::Geode();
+        geode->setName("gpuUtilization");
         _gpuUtilChildNum = _switch->getNumChildren();
         _switch->addChild(geode, false);
 
         osg::ref_ptr<osgText::Text> label = new osgText::Text;
         geode->addDrawable(label.get());
+        label->setName("gpuUtilLabel");
 
         label->setColor(colorGpuUtil);
         label->setFont(font);
@@ -1530,6 +1541,7 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
         osg::ref_ptr<osgText::Text> value = new osgText::Text;
         geode->addDrawable(value.get());
 
+        value->setName("gpuUtilValue");
         value->setColor(colorGpuUtil);
         value->setFont(font);
         value->setCharacterSize(characterSize);
