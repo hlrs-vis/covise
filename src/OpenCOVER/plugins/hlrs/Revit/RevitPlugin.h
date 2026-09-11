@@ -40,6 +40,7 @@
 #include "IK/CAlgoFactory.h"
 #include "Doors.h"
 #include "Elevators.h"
+#include "HighlightManager.h"
 
 #include <PluginUtil/coSensor.h>
 
@@ -609,7 +610,6 @@ protected:
     std::vector<int> annotationIDs;
 	std::map<int, MaterialInfo *> MaterialInfos;
 	std::map<std::string, osg::ref_ptr<osg::Node>> inlineNodes;
-    std::set<osg::ref_ptr<osg::Node>> _highlightedNodes;
     std::stack<osg::Group *> currentGroup;
 
     osg::Matrix invStartMoveMat;
@@ -648,13 +648,14 @@ protected:
 private:
     bool isChildlessParent(osg::ref_ptr<osg::Group> parent);
     bool hasParent(osg::ref_ptr<osg::Group> parent);
-    bool isHighlightedNode(osg::ref_ptr<osg::Node> node);
     bool isButtonWithName(const std::string& name, ui::Button* btn);
     void clickButton(ui::Button* btn);
     void deleteChildlessParent(osg::ref_ptr<osg::Group> parent);
     void removeHighlightedNode(osg::ref_ptr<osg::Node> node);
     void disableHighlightedNodeButton(osg::ref_ptr<osg::Node> node);
+    auto findNodesByName(const std::string& name);
 
+    Revit::HighlightManager _highlightmanager;
 };
 
 

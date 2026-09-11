@@ -68,7 +68,6 @@
 #include <config/CoviseConfig.h>
 #include <util/unixcompat.h>
 #include <cstring>
-// #include <functional>
 
 #include "VrmlNodePhases.h"
 
@@ -76,10 +75,10 @@ using covise::TokenBuffer;
 using covise::coCoviseConfig;
 
 namespace {
-	class FindNodeByNameVisitor : public osg::NodeVisitor
+	class FindNodesByName : public osg::NodeVisitor
 	{
 	public:
-	    FindNodeByNameVisitor(const std::string& name)
+	    FindNodesByName(const std::string& name)
 	        : osg::NodeVisitor(osg::NodeVisitor::TRAVERSE_ALL_CHILDREN),
 	          _targetName(name)
 	    {}
@@ -116,6 +115,26 @@ namespace {
 	private:
 	    std::string _targetName;
 	    std::vector<osg::ref_ptr<osg::Node>> _foundNodes;
+	};
+
+	struct HighlightMessage {
+	    explicit HighlightMessage(Message* m) {
+			if (!m)
+				return;
+			TokenBuffer tb(m);
+	        tb >> nodeName; 
+	        tb >> menuName;
+	        unsigned char r, g, b;
+	        tb >> r;
+	        tb >> g;
+	        tb >> b;
+	        color.red = r / 255.0f;
+	        color.green = g / 255.0f; 
+	        color.blue = b / 255.0f;
+	    }
+	    std::string nodeName;
+	    std::string menuName;
+	    Revit::Color color;
 	};
 }
 
@@ -1426,6 +1445,7 @@ void RevitPlugin::destroyMenu()
 RevitPlugin::RevitPlugin() 
 : coVRPlugin(COVER_PLUGIN_NAME)
 , ui::Owner("RevitPlugin", cover->ui)
+, _highlightmanager(*coVRSelectionManager::instance())
 {
 	fprintf(stderr, "RevitPlugin::RevitPlugin\n");
 
@@ -1597,10 +1617,6 @@ bool RevitPlugin::sendMessage(Message &m)
     return false;
 }
 
-bool RevitPlugin::isHighlightedNode(osg::ref_ptr<osg::Node> node) {
-	return node && _highlightedNodes.contains(node);
-}
-
 bool RevitPlugin::isButtonWithName(const std::string& name, ui::Button* btn) {
 	if(!btn)
 		return false;
@@ -1610,33 +1626,21 @@ bool RevitPlugin::isButtonWithName(const std::string& name, ui::Button* btn) {
 void RevitPlugin::disableHighlightedNodeButton(osg::ref_ptr<osg::Node> node) {
 	if (!node)
 		return;
-	// for (const auto &highlight_child : highlightMenu) {
-	// 	auto submenu = dynamic_cast<ui::Menu*>(highlight_child);
-	// 	if (!submenu)
-	// 		continue;
-	// 	auto buttonIt = std::find_if(submenu.begin(), submenu.end(), std::bind_front(&isButtonWithName, node->getName()));
-	// 	if (buttonIt != submenu.end()) {
-	// 		auto button = buttonIt->second();
-	// 		button->setState(false);
-	// 		button->triggerImplementation();
-	// 		button->setVisible(false);
-	// 	}
-	// }
-	for (size_t i = 0; i < highlightMenu->numChildren(); ++i) {
-		auto child = highlightMenu->child(i);
-		if (!child)
+
+	for (auto child : *highlightMenu) {
+		if (!child.elem)
 			continue;
 
-		auto subMenu = dynamic_cast<ui::Menu*>(child);
+		auto subMenu = dynamic_cast<ui::Menu*>(child.elem);
 		if (!subMenu)
 			continue;
 
-		for (size_t j = 0; j < subMenu->numChildren(); ++j) {
-			auto subMenuChild = subMenu->child(j);
-			if (!subMenuChild)
+		for (auto subMenuChild : *subMenu) {
+			auto subMenu = subMenuChild.elem;
+			if (!subMenu)
 				continue;
-			if (subMenuChild->text() == node->getName()) {
-				if (auto button = dynamic_cast<ui::Button*>(subMenuChild)) {
+			if (subMenu->text() == node->getName()) {
+				if (auto button = dynamic_cast<ui::Button*>(subMenu)) {
 					button->setState(false);
 					button->triggerImplementation();
 					button->setVisible(false);
@@ -1647,10 +1651,10 @@ void RevitPlugin::disableHighlightedNodeButton(osg::ref_ptr<osg::Node> node) {
 }
 
 void RevitPlugin::removeHighlightedNode(osg::ref_ptr<osg::Node> node) {
-	if (!isHighlightedNode(node))
+	if (!_highlightmanager.isHighlightedNode(node))
 		return;
 	disableHighlightedNodeButton(node);
-	_highlightedNodes.erase(node);
+	_highlightmanager.remove(node);
 }
 
 bool RevitPlugin::isChildlessParent(osg::ref_ptr<osg::Group> parent) {
@@ -1924,6 +1928,12 @@ void RevitPlugin::clickButton(ui::Button* btn) {
 	btn->triggerImplementation();
 }
 
+auto RevitPlugin::findNodesByName(const std::string& name) {
+    FindNodesByName finder(name);
+    revitGroup->accept(finder);
+    return finder.getFoundNodes();
+}
+
 RevitPlugin *RevitPlugin::plugin = NULL;
 void RevitPlugin::handleMessage(Message *m)
 {
@@ -1950,70 +1960,41 @@ void RevitPlugin::handleMessage(Message *m)
 	break;
         case MSG_HighlightElement:
         {
-            TokenBuffer tb(m);
-            const char *nodeName, *menuName;
-            unsigned char r, g, b;
-            tb >> nodeName;
-            tb >> menuName;
-            tb >> r;
-            tb >> g;
-            tb >> b;
+            HighlightMessage msg{m};
 
-            std::array<float, 3> color { r / 255.0f, g / 255.0f, b / 255.0f };
-            FindNodeByNameVisitor finder(nodeName);
-            revitGroup->accept(finder);
-
-            auto foundNodes = finder.getFoundNodes();
-            if (foundNodes.empty())
-            {
-                std::cout << "[ERROR] Cannot highlight " << nodeName << " send by COVERToolbar.\n";
-                return;
-            }
-
-			for (auto node : foundNodes) {
-				_highlightedNodes.insert(node);
-			}
+			auto foundNodes = findNodesByName(msg.nodeName);
+			_highlightmanager.add(foundNodes, msg.color);
 
             ui::Menu *menu { nullptr };
-            for (size_t i = 0; i < highlightMenu->numChildren(); ++i)
+            for (auto child : *highlightMenu)
             {
-                if (auto child = highlightMenu->child(i))
+                if (auto elem = child.elem)
                 {
-                    if (child->text() == menuName)
+                    if (elem->text() == msg.menuName)
                     {
-                        menu = dynamic_cast<ui::Menu *>(child);
+                        menu = dynamic_cast<ui::Menu *>(elem);
                         break;
                     }
                 }
             }
             if (!menu)
             {
-                menu = new ui::Menu(highlightMenu, menuName);
+                menu = new ui::Menu(highlightMenu, msg.menuName);
                 menu->setText("System");
             }
-
-			auto btnCallback = [foundNodes, color](bool on) {
-            	auto selectionManager = coVRSelectionManager::instance();
-				for (auto node : foundNodes) {
-					if (on) {
-						if (node->getNumParents() > 0 ) {
-							selectionManager->setSelectionColor(color[0], color[1], color[2]);
-							selectionManager->addSelection(node->getParent(0), node);
-						}
-					} else {
-						selectionManager->removeNode(node);
-					}
-				} 
+			auto btnCallback = [&, foundNodes](bool on) {
+				for (auto node : foundNodes)
+					_highlightmanager.highlight(node, on);
 			};
 
             ui::Button *button { nullptr };
-            for (size_t i = 0; i < menu->numChildren(); ++i)
+            for (auto child : *menu)
             {
-                if (auto child = menu->child(i))
+				if (auto elem = child.elem)
                 {
-                    if (child->text() == nodeName)
+                    if (elem->text() == msg.nodeName)
                     {
-                        button = dynamic_cast<ui::Button *>(child);
+                        button = dynamic_cast<ui::Button *>(elem);
 						bool previousState = button->state();
 						if (previousState)
 							// untoggle
@@ -2028,8 +2009,8 @@ void RevitPlugin::handleMessage(Message *m)
 			if (button)
 				return;
 
-            button = new ui::Button(menu, nodeName);
-            button->setText(nodeName);
+            button = new ui::Button(menu, msg.nodeName);
+            button->setText(msg.nodeName);
             button->setCallback(btnCallback);
             menu->add(button);
         }
