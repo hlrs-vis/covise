@@ -311,7 +311,7 @@ void AuralRealityPlugin::fetchSpeaker(std::shared_ptr<Speaker> speaker)
     ar::Id request;
     request.set_id(speaker->getId());
 
-    client.GetSpeaker(request).then(handleError<ar::Speaker>([&](ar::Speaker response)
+    client.GetSpeaker(request).then(handleError<ar::Speaker>([&, speaker](ar::Speaker response)
         {
             speaker->setTransform(tmt_transform_to_matrix(response.transform()));
 
@@ -345,8 +345,7 @@ void AuralRealityPlugin::fetchTrajectory(std::shared_ptr<Trajectory> trajectory)
     ar::Id request;
     request.set_id(trajectory->getId());
 
-    std::cout << "fetching trajectory " << trajectory->getId() << std::endl;
-    client.GetTrajectory(request).then(handleError<ar::Trajectory>([&](ar::Trajectory response)
+    client.GetTrajectory(request).then(handleError<ar::Trajectory>([&, trajectory](ar::Trajectory response)
         {
             trajectory->setTransform(tmt_transform_to_matrix(response.transform()));
             trajectory->points.clear();
@@ -355,16 +354,14 @@ void AuralRealityPlugin::fetchTrajectory(std::shared_ptr<Trajectory> trajectory)
             {
                 auto p = std::make_shared<TrajectoryPoint>(trajectory.get());
                 p->setTransforms(tmt_anchor_and_rotation_to_matrix(point.anchor(), point.rotation()),
-                        tmt_vector_to_osg(point.control_before()),
-                        tmt_vector_to_osg(point.control_after()));
+                    tmt_vector_to_osg(point.control_before()),
+                    tmt_vector_to_osg(point.control_after()));
                 // p->setTime(point.time());
                 trajectory->points.push_back(p);
             }
 
             trajectory->updateSelection();
-            trajectory->rebuildGeometry();
-
-            std::cout << " Updated trajectory " << trajectory->getId() << std::endl; }));
+            trajectory->rebuildGeometry(); }));
 }
 
 void AuralRealityPlugin::pushTrajectory(const std::string &id)

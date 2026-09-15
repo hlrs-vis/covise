@@ -76,7 +76,7 @@ public:
         }
     }
 
-    virtual void updateSelection()
+    virtual void updateSelection() override
     {
         // for (auto &p : points)
         // {

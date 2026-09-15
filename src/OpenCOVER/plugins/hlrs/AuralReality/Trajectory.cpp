@@ -196,6 +196,7 @@ void TrajectoryPoint::updateSelection()
 
 Trajectory::Trajectory(const std::string &id)
     : TmtEntity(id)
+    , TmtEntityTransformMixin()
 {
     linesGeode = new osg::Geode();
     getTransformNode()->addChild(linesGeode);
