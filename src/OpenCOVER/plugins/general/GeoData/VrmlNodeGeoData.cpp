@@ -45,7 +45,7 @@ void VrmlNodeGeoData::initFields(VrmlNodeGeoData *node, VrmlNodeType *t)
             return;
         }
         osg::Vec3 origin = osg::Vec3(dataset->easting, dataset->northing, dataset->altitude);
-        opencover::GeoData::instance()->setProjectOffset(origin); }),
+        opencover::GeoData::instance()->setProjectTransform(origin,dataset->trueNorth); }),
         exposedField("regions", &VrmlNodeGeoData::d_regions, [node](auto f)
             {
         auto geoData = GeoDataLoader::instance();
