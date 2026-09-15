@@ -10,7 +10,10 @@
 #include "arrpc/arrpc_future.h"
 #include "arrpc/arrpc_status.h"
 #include "arrpc/message_header.pb.h"
+#include "arrpc/quaternion.pb.h"
+#include "arrpc/rotation.pb.h"
 #include "arrpc/utils.pb.h"
+#include "arrpc/vector.pb.h"
 
 #include <absl/strings/str_format.h>
 #include <chrono>
@@ -41,6 +44,88 @@ AuralRealityPlugin *AuralRealityPlugin::plugin = NULL;
 using namespace opencover;
 namespace ar = auralreality;
 namespace ui = opencover::ui;
+
+osg::Quat from_proto(const ar::Quaternion &quat)
+{
+    return osg::Quat(quat.x(), quat.y(), quat.z(), quat.w());
+}
+
+osg::Quat from_proto(const ar::Rotation &r)
+{
+    switch (r.content_case())
+    {
+    case ar::Rotation::ContentCase::kEuler:
+    {
+        auto euler = r.euler();
+        return osg::Quat(
+            euler.x(), osg::Vec3(1, 0, 0),
+            euler.y(), osg::Vec3(0, 1, 0),
+            euler.z(), osg::Vec3(0, 0, 1));
+    }
+    case ar::Rotation::ContentCase::kQuaternion:
+    {
+        return from_proto(r.quaternion());
+    }
+    case ar::Rotation::ContentCase::CONTENT_NOT_SET:
+    default:
+        return osg::Quat();
+    }
+}
+inline osg::Vec3 from_proto(const ar::Vector &v)
+{
+    return osg::Vec3(v.x(), v.y(), v.z());
+}
+
+osg::Matrix from_proto(const ar::Transform &t)
+{
+    float s = t.has_scale() ? t.scale() : 1.0;
+    return osg::Matrix::rotate(from_proto(t.rotation())) * osg::Matrix::translate(from_proto(t.position())) * osg::Matrix::scale(s, s, s);
+}
+
+void to_proto(const osg::Vec3 &vec, ar::Vector *out)
+{
+    out->set_x(vec.x());
+    out->set_y(vec.y());
+    out->set_z(vec.z());
+}
+void to_proto(const osg::Quat &quat, ar::Rotation *out)
+{
+    auto q = out->mutable_quaternion();
+    q->set_w(quat.w());
+    q->set_x(quat.x());
+    q->set_y(quat.y());
+    q->set_z(quat.z());
+}
+void to_proto(const osg::Matrix &m, ar::Transform *result)
+{
+    osg::Vec3d translation;
+    osg::Quat rotation;
+    osg::Vec3d scale;
+    osg::Quat so;
+    m.decompose(translation, rotation, scale, so);
+
+    ar::Vector *position = result->mutable_position();
+    position->set_x(translation.x());
+    position->set_y(translation.y());
+    position->set_z(translation.z());
+
+    ar::Rotation *rot = result->mutable_rotation();
+    ar::Quaternion *quat = rot->mutable_quaternion();
+    quat->set_x(rotation.x());
+    quat->set_y(rotation.y());
+    quat->set_z(rotation.z());
+    quat->set_w(rotation.w());
+
+    // TODO: scale?
+    if (scale.length2() != 1)
+    {
+        if (scale.x() == scale.y() && scale.x() == scale.z())
+        {
+            // Only allow uniform scales, ignore otherwise
+            result->set_scale(scale.x());
+        }
+    }
+}
 
 AuralRealityPlugin::AuralRealityPlugin()
     : coVRPlugin(COVER_PLUGIN_NAME)
@@ -141,18 +226,9 @@ std::function<void(rpc::RpcResult<T>)> handleError(std::function<void(T t)> call
 }
 
 template <typename T>
-rpc::RpcFuture<T> handleError(rpc::RpcFuture<T> future)
+std::function<void(rpc::RpcResult<T>)> handleError()
 {
-    rpc::RpcPromise<T> promise;
-
-    future.then([](rpc::RpcResult<T> r)
-        {
-        if (!r.ok())
-        {
-            std::cerr << "RPC failed: " << r.status().message << std::endl;
-            return;
-        }
-        return r.take_value(); });
+    return handleError<T>([](T t) { });
 }
 
 void AuralRealityPlugin::fetchAll()
@@ -168,7 +244,6 @@ void AuralRealityPlugin::fetchSpeakers()
         {
         for (const auto &id : response.ids())
         {
-            std::cout << " Found speaker " << id << std::endl;
             if (!contains(speakers, id))
             {
                 speakers[id] = std::make_shared<Speaker>(id);
@@ -186,7 +261,6 @@ void AuralRealityPlugin::fetchTrajectories()
         {
         for (const auto &id : response.ids())
         {
-            std::cout << " Found trajectory " << id << std::endl;
             if (!contains(trajectories, id))
             {
                 trajectories[id] = std::make_shared<Trajectory>(id);
@@ -195,51 +269,6 @@ void AuralRealityPlugin::fetchTrajectories()
 
             // TODO: delete removed 
         } }));
-}
-
-osg::Matrix tmt_transform_to_matrix(const ar::Transform &t)
-{
-    auto p = t.position();
-    auto r = t.rotation();
-
-    osg::Matrix m1;
-    osg::Matrix m2;
-    osg::Matrix m3;
-
-    m1.makeTranslate(p.x(), p.y(), p.z());
-
-    switch (r.content_case())
-    {
-    case ar::Rotation::ContentCase::kEuler:
-    {
-        auto euler = r.euler();
-        m2.makeRotate(
-            euler.x(), osg::Vec3(1, 0, 0),
-            euler.y(), osg::Vec3(0, 1, 0),
-            euler.z(), osg::Vec3(0, 0, 1));
-        break;
-    }
-    case ar::Rotation::ContentCase::kQuaternion:
-    {
-        auto quat = r.quaternion();
-        m2.makeRotate(osg::Quat(quat.x(), quat.y(), quat.z(), quat.w()));
-        break;
-    }
-    case ar::Rotation::ContentCase::CONTENT_NOT_SET:
-    default:
-        m2.makeIdentity();
-        break;
-    }
-
-    float s = t.has_scale() ? t.scale() : 1.0;
-    m3.makeScale(s, s, s);
-
-    return m2 * m1 * m3; // TODO: check order ;)
-}
-
-inline osg::Vec3 tmt_vector_to_osg(const ar::Vector &v)
-{
-    return osg::Vec3(v.x(), v.y(), v.z());
 }
 
 osg::Matrix tmt_anchor_and_rotation_to_matrix(const ar::Vector &p, const ar::Rotation &r)
@@ -275,47 +304,13 @@ osg::Matrix tmt_anchor_and_rotation_to_matrix(const ar::Vector &p, const ar::Rot
     return m2 * m1;
 }
 
-void matrix_to_tmt_transform(const osg::Matrix &m, ar::Transform *result)
-{
-    osg::Vec3d translation;
-    osg::Quat rotation;
-    osg::Vec3d scale;
-    osg::Quat so;
-    m.decompose(translation, rotation, scale, so);
-
-    ar::Vector *position = result->mutable_position();
-    position->set_x(translation.x());
-    position->set_y(translation.y());
-    position->set_z(translation.z());
-
-    ar::Rotation *rot = result->mutable_rotation();
-    ar::Quaternion *quat = rot->mutable_quaternion();
-    quat->set_x(rotation.x());
-    quat->set_y(rotation.y());
-    quat->set_z(rotation.z());
-    quat->set_w(rotation.w());
-
-    // TODO: scale?
-    if (scale.length2() != 1)
-    {
-        if (scale.x() == scale.y() && scale.x() == scale.z())
-        {
-            // Only allow uniform scales, ignore otherwise
-            result->set_scale(scale.x());
-        }
-    }
-}
-
 void AuralRealityPlugin::fetchSpeaker(std::shared_ptr<Speaker> speaker)
 {
     ar::Id request;
     request.set_id(speaker->getId());
 
     client.GetSpeaker(request).then(handleError<ar::Speaker>([&, speaker](ar::Speaker response)
-        {
-            speaker->setTransform(tmt_transform_to_matrix(response.transform()));
-
-            std::cout << " Updated speaker " << speaker->getId() << std::endl; }));
+        { speaker->setTransform(from_proto(response.transform())); }));
 }
 
 void AuralRealityPlugin::pushSpeaker(const std::string &id)
@@ -332,7 +327,7 @@ void AuralRealityPlugin::pushSpeaker(const Speaker *speaker)
 {
     ar::Speaker request, response;
     request.set_id(speaker->getId());
-    matrix_to_tmt_transform(speaker->getTransform(), request.mutable_transform());
+    to_proto(speaker->getTransform(), request.mutable_transform());
 
     client.UpdateSpeaker(request).then(handleError<ar::Speaker>([](ar::Speaker response)
         {
@@ -347,15 +342,19 @@ void AuralRealityPlugin::fetchTrajectory(std::shared_ptr<Trajectory> trajectory)
 
     client.GetTrajectory(request).then(handleError<ar::Trajectory>([&, trajectory](ar::Trajectory response)
         {
-            trajectory->setTransform(tmt_transform_to_matrix(response.transform()));
+            trajectory->setTransform(from_proto(response.transform()));
             trajectory->points.clear();
+            trajectory->closed = response.closed();
 
             for (auto point : response.points())
             {
                 auto p = std::make_shared<TrajectoryPoint>(trajectory.get());
-                p->setTransforms(tmt_anchor_and_rotation_to_matrix(point.anchor(), point.rotation()),
-                    tmt_vector_to_osg(point.control_before()),
-                    tmt_vector_to_osg(point.control_after()));
+                p->setTransforms(
+                        from_proto(point.anchor()),
+                        from_proto(point.control_before()),
+                        from_proto(point.control_after()),
+                        from_proto(point.rotation())
+                    );
                 // p->setTime(point.time());
                 trajectory->points.push_back(p);
             }
@@ -378,12 +377,20 @@ void AuralRealityPlugin::pushTrajectory(const Trajectory *trajectory)
 {
     ar::Trajectory request, response;
     request.set_id(trajectory->getId());
-    matrix_to_tmt_transform(trajectory->getTransform(), request.mutable_transform());
+    to_proto(trajectory->getTransform(), request.mutable_transform());
 
-    client.UpdateTrajectory(request).then(handleError<ar::Trajectory>([](ar::Trajectory response)
-        {
-            // TODO: parse response?
-        }));
+    request.set_closed(trajectory->closed);
+    for (const auto &point : trajectory->points)
+    {
+        auto p = request.add_points();
+        to_proto(point->getAnchor(), p->mutable_anchor());
+        to_proto(point->getRotation(), p->mutable_rotation());
+        to_proto(point->getControlPointIn(), p->mutable_control_before());
+        to_proto(point->getControlPointOut(), p->mutable_control_after());
+        // TODO: time
+    }
+
+    client.UpdateTrajectory(request).then(handleError<ar::Trajectory>());
 }
 
 osg::Matrix unscale(osg::Matrix v)

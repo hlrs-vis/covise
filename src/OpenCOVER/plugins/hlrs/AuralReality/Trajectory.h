@@ -31,13 +31,20 @@ class TrajectoryPoint : public Selectable
 public:
     TrajectoryPoint(Trajectory *trajectory_);
     ~TrajectoryPoint();
-    void preFrame();
+    bool checkForChanges();
 
-    void setTransforms(const osg::Matrix &anchor_, const osg::Vec3 &controlPointIn_, const osg::Vec3 &controlPointOut_);
+    void setTransforms(const osg::Vec3 &anchor_, const osg::Vec3 &controlPointIn_, const osg::Vec3 &controlPointOut_, const osg::Quat &rotation_);
     void setTime(double time);
+
+    const osg::Vec3 getAnchor() const { return anchor; }
+    const osg::Quat getRotation() const { return rotation; }
+    const osg::Vec3 getControlPointIn() const { return controlPointIn; }
+    const osg::Vec3 getControlPointOut() const { return controlPointOut; }
 
 protected:
     virtual void updateSelection() override;
+
+    void updateNodeTransforms(bool includeScaleInteractor = true);
 
 private:
     Trajectory *trajectory;
@@ -54,9 +61,14 @@ private:
 
     double m_time;
 
-    osg::Matrix anchor;
+    // The control points are locations relative to the anchor location in 3D
+    // space. The rotation affects neither of the points and only gives
+    // directionality of the moving entity (usually a sound).
+    osg::Vec3 anchor;
     osg::Vec3 controlPointIn;
     osg::Vec3 controlPointOut;
+    osg::Quat rotation;
+
     float scaleInteractorDistance;
 
     SelectableSensor *sensor;
@@ -68,13 +80,7 @@ class Trajectory : public Selectable, public TmtEntity, public TmtEntityTransfor
 public:
     Trajectory(const std::string &id);
     ~Trajectory();
-    void preFrame()
-    {
-        for (auto &p : points)
-        {
-            p->preFrame();
-        }
-    }
+    void preFrame();
 
     virtual void updateSelection() override
     {
@@ -87,13 +93,13 @@ public:
         // }
     }
 
-    void pointChanged();
     void rebuildGeometry();
 
     std::vector<std::shared_ptr<TrajectoryPoint>> points;
     osg::ref_ptr<osg::Geode> linesGeode;
     osg::ref_ptr<osg::Geometry> linesGeometry;
     osg::ref_ptr<osg::Geometry> bezierGeometry;
+    bool closed = false;
 };
 
 #endif

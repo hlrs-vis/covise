@@ -65,7 +65,7 @@ TrajectoryPoint::~TrajectoryPoint()
     delete sensor;
 }
 
-void TrajectoryPoint::preFrame()
+bool TrajectoryPoint::checkForChanges()
 {
     bool changed = false;
     sensor->update();
@@ -73,17 +73,17 @@ void TrajectoryPoint::preFrame()
     anchorInteractor.preFrame();
     if (anchorInteractor.isRunning())
     {
-        osg::Matrix before = anchor;
-        anchor = anchorInteractor.getMatrix();
-        anchorNode->setMatrix(anchor);
+        // osg::Matrix before = anchor;
+        anchor = anchorInteractor.getMatrix().getTrans();
+        rotation = anchorInteractor.getMatrix().getRotate();
 
-        controlPointIn = (osg::Matrix::translate(controlPointIn) * osg::Matrix::inverse(before) * anchor).getTrans();
-        controlPointInNode->setMatrix(osg::Matrix::translate(controlPointIn));
-        controlPointInInteractor.updateTransform(osg::Matrix::translate(controlPointIn));
-
-        controlPointOut = (osg::Matrix::translate(controlPointOut) * osg::Matrix::inverse(before) * anchor).getTrans();
-        controlPointOutNode->setMatrix(osg::Matrix::translate(controlPointOut));
-        controlPointOutInteractor.updateTransform(osg::Matrix::translate(controlPointOut));
+        // controlPointIn = (osg::Matrix::translate(controlPointIn) * osg::Matrix::inverse(before) * anchor).getTrans();
+        // controlPointInNode->setMatrix(osg::Matrix::translate(controlPointIn));
+        // controlPointInInteractor.updateTransform(osg::Matrix::translate(controlPointIn));
+        //
+        // controlPointOut = (osg::Matrix::translate(controlPointOut) * osg::Matrix::inverse(before) * anchor).getTrans();
+        // controlPointOutNode->setMatrix(osg::Matrix::translate(controlPointOut));
+        // controlPointOutInteractor.updateTransform(osg::Matrix::translate(controlPointOut));
 
         changed = true;
     }
@@ -91,75 +91,75 @@ void TrajectoryPoint::preFrame()
     controlPointInInteractor.preFrame();
     if (controlPointInInteractor.isRunning())
     {
-        controlPointIn = controlPointInInteractor.getMatrix().getTrans();
-        controlPointInNode->setMatrix(osg::Matrix::translate(controlPointIn));
+        controlPointIn = controlPointInInteractor.getMatrix().getTrans() - anchor;
         changed = true;
     }
 
     controlPointOutInteractor.preFrame();
     if (controlPointOutInteractor.isRunning())
     {
-        controlPointOut = controlPointOutInteractor.getMatrix().getTrans();
-        controlPointOutNode->setMatrix(osg::Matrix::translate(controlPointOut));
+        controlPointOut = controlPointOutInteractor.getMatrix().getTrans() - anchor;
         changed = true;
     }
 
     scaleInteractor.preFrame();
     if (scaleInteractor.wasStarted())
     {
-        scaleInteractorDistance = (scaleInteractor.getMatrix().getTrans() - anchor.getTrans()).length();
+        scaleInteractorDistance = (scaleInteractor.getMatrix().getTrans() - anchor).length();
     }
     else if (scaleInteractor.isRunning())
     {
-        float distance = (scaleInteractor.getMatrix().getTrans() - anchor.getTrans()).length();
+        float distance = (scaleInteractor.getMatrix().getTrans() - anchor).length();
         float scaleFactor = distance / scaleInteractorDistance;
         scaleInteractorDistance = distance;
 
-        controlPointIn = anchor.getTrans() + (controlPointIn - anchor.getTrans()) * scaleFactor;
-        controlPointInNode->setMatrix(osg::Matrix::translate(controlPointIn));
-        controlPointInInteractor.updateTransform(osg::Matrix::translate(controlPointIn));
-
-        controlPointOut = anchor.getTrans() + (controlPointOut - anchor.getTrans()) * scaleFactor;
-        controlPointOutNode->setMatrix(osg::Matrix::translate(controlPointOut));
-        controlPointOutInteractor.updateTransform(osg::Matrix::translate(controlPointOut));
+        controlPointIn *= scaleFactor;
+        controlPointOut *= scaleFactor;
 
         changed = true;
     }
     else if (scaleInteractor.wasStopped())
     {
-        scaleInteractor.updateTransform(anchor * scale_offset);
+        scaleInteractor.updateTransform(scale_offset * anchorNode->getMatrix());
     }
 
     if (changed)
     {
-        trajectory->pointChanged();
-
-        if (!scaleInteractor.isRunning())
-        {
-            scaleInteractor.updateTransform(anchor * scale_offset);
-        }
+        updateNodeTransforms(!scaleInteractor.isRunning());
     }
+
+    return changed;
 }
 
-void TrajectoryPoint::setTransforms(const osg::Matrix &anchor_, const osg::Vec3 &controlPointIn_, const osg::Vec3 &controlPointOut_)
+void TrajectoryPoint::setTransforms(const osg::Vec3 &anchor_, const osg::Vec3 &controlPointIn_, const osg::Vec3 &controlPointOut_, const osg::Quat &rotation_)
 {
     anchor = anchor_;
     controlPointIn = controlPointIn_;
     controlPointOut = controlPointOut_;
-
-    anchorNode->setMatrix(anchor);
-    controlPointInNode->setMatrix(osg::Matrix::translate(controlPointIn));
-    controlPointOutNode->setMatrix(osg::Matrix::translate(controlPointOut));
-
-    anchorInteractor.updateTransform(anchorNode->getMatrix());
-    controlPointInInteractor.updateTransform(controlPointInNode->getMatrix());
-    controlPointOutInteractor.updateTransform(controlPointOutNode->getMatrix());
-
-    scaleInteractor.updateTransform(anchor * scale_offset);
+    rotation = rotation_;
+    updateNodeTransforms();
 }
+
 void TrajectoryPoint::setTime(double time)
 {
     m_time = time;
+}
+
+void TrajectoryPoint::updateNodeTransforms(bool includeScaleInteractor)
+{
+    auto anchorMatrix = osg::Matrix::rotate(rotation) * osg::Matrix::translate(anchor);
+    anchorNode->setMatrix(anchorMatrix);
+    controlPointInNode->setMatrix(osg::Matrix::translate(anchor + controlPointIn));
+    controlPointOutNode->setMatrix(osg::Matrix::translate(anchor + controlPointOut));
+
+    anchorInteractor.updateTransform(anchorMatrix);
+    controlPointInInteractor.updateTransform(controlPointInNode->getMatrix());
+    controlPointOutInteractor.updateTransform(controlPointOutNode->getMatrix());
+
+    if (includeScaleInteractor)
+    {
+        scaleInteractor.updateTransform(scale_offset * anchorMatrix);
+    }
 }
 
 void TrajectoryPoint::updateSelection()
@@ -211,9 +211,22 @@ Trajectory::Trajectory(const std::string &id)
 }
 Trajectory::~Trajectory() { }
 
-void Trajectory::pointChanged()
+void Trajectory::preFrame()
 {
-    rebuildGeometry();
+    bool changed = false;
+
+    for (auto &p : points)
+    {
+        changed |= p->checkForChanges();
+    }
+
+    changed |= checkTransformChanged();
+
+    if (changed)
+    {
+        rebuildGeometry();
+        AuralRealityPlugin::instance()->pushTrajectory(getId());
+    }
 }
 
 osg::Vec4 GRAY(0.5, 0.5, 0.5, 0.5);
@@ -235,24 +248,23 @@ void Trajectory::rebuildGeometry()
         if (!first)
         {
             verts->push_back(prev);
-            verts->push_back(p->controlPointIn);
+            verts->push_back(p->anchor + p->controlPointIn);
             colors->push_back(GRAY);
             colors->push_back(GRAY);
         }
-        auto a = p->anchor.getTrans();
 
-        verts->push_back(p->controlPointIn);
-        verts->push_back(a);
+        verts->push_back(p->anchor + p->controlPointIn);
+        verts->push_back(p->anchor);
         colors->push_back(GREEN);
         colors->push_back(GREEN);
 
-        verts->push_back(a);
-        verts->push_back(p->controlPointOut);
+        verts->push_back(p->anchor);
+        verts->push_back(p->anchor + p->controlPointOut);
         colors->push_back(RED);
         colors->push_back(RED);
 
         first = false;
-        prev = p->controlPointOut;
+        prev = p->anchor + p->controlPointOut;
     }
 
     linesGeometry->setVertexArray(verts.get());
@@ -270,12 +282,13 @@ void Trajectory::rebuildGeometry()
     verts = new osg::Vec3Array();
     colors = new osg::Vec4Array();
 
-    for (int i = 1; i < points.size(); i++)
+    for (int i = closed ? 0 : 1; i < points.size(); i++)
     {
-        const auto &p0 = points[i - 1]->anchor.getTrans();
-        const auto &p1 = points[i - 1]->controlPointOut;
-        const auto &p2 = points[i]->controlPointIn;
-        const auto &p3 = points[i]->anchor.getTrans();
+        int i0 = (i == 0 ? points.size() : i) - 1;
+        const auto &p0 = points[i0]->anchor;
+        const auto &p3 = points[i]->anchor;
+        const auto &p1 = p0 + points[i0]->controlPointOut;
+        const auto &p2 = p3 + points[i]->controlPointIn;
 
         auto pP = p0;
         float dt = 1.0 / 32;
