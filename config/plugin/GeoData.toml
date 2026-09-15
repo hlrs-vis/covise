@@ -124,3 +124,11 @@ name = "Stuttgart Stadium"
 easting = 517045.2404890087
 northing = 5404388.2771713715
 altitude = 226
+
+[[datasets]]
+name = "Neckarwelle"
+easting = 518034
+northing = 5402970
+altitude = 216
+trueNorth = -23.5
+
