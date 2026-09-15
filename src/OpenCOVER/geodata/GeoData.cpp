@@ -18,6 +18,7 @@ GeoData::GeoData()
 #endif
 
     m_transformRoot = new osg::MatrixTransform;
+    m_transformRoot->setName("terrainTransform");
     m_transformRoot->setMatrix(osg::Matrixd::identity());
     cover->getObjectsRoot()->addChild(m_transformRoot);
 
