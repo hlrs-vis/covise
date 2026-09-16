@@ -7,7 +7,7 @@ we switched to visual Studio 2026
 old: -G "Visual Studio 17 2022"
 
 #COVISE
-cmake .. -G "Visual Studio 18 2026" -A x64 -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/GEOS;c:/src/externlibs/zebu/V8;c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv;c:/src/externlibs/zebu/hdf5;c:/src/externlibs/zebu/netcdf
+cmake .. -G "Visual Studio 18 2026" -A x64  -DPROTOBUF_USE_DLLS=true -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/protobuf;c:/src/externlibs/zebu/cppzmq;c:/src/externlibs/zebu/libzmq;c:/src/externlibs/zebu/GEOS;c:/src/externlibs/zebu/Gc:/src/externlibs/zebu/V8;c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv;c:/src/externlibs/zebu/hdf5;c:/src/externlibs/zebu/netcdf
 
 #tiff
 cmake -G "Visual Studio 18 2026" -A x64 -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/tiff -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/nlohmann_json;c:/src/externlibs/zebu/GEOS;c:/src/externlibs/zebu/V8;c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff ..
@@ -496,6 +496,10 @@ mkdir build
 cd build
 cmake .. -G "Visual Studio 18 2026" -A x64 -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/protobuf -Dprotobuf_MSVC_STATIC_RUNTIME=TRUE -Dprotobuf_BUILD_SHARED_LIBS=TRUE -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/GEOS;c:/src/externlibs/zebu/V8;c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv
 
+abseil-cpp
+cmake .. -G "Visual Studio 18 2026" -A x64 -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/abseil-cpp -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/GEOS;c:/src/externlibs/zebu/V8;c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal;c:/src/externlibs/zebu/opencv
+
+
 #grpc
 # switching protobuf and absl to package instead of module did lead to incompatibility issues, thus don't
 git submodule update --init --recursive
@@ -838,6 +842,14 @@ cmake .. -G "Visual Studio 18 2026" -A x64  -DU3D_SHARED:BOOL=ON -DCMAKE_INSTALL
 vistle
 cmake .. -G "Visual Studio 18 2026" -A x64 -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/botan;c:/src/externlibs/zebu/proj4;c:/src/externlibs/zebu/zsd;c:/src/externlibs/zebu/gmp;c:/src/externlibs/zebu/mpfr;c:/src/externlibs/zebu/tbb
 
+
+###
+libzmq
+cmake .. -G "Visual Studio 18 2026" -A x64 -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/libzmq -DBUILD_TESTING=false -DCPPZMQ_BUILD_TESTS=false  -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/botan;c:/src/externlibs/zebu/proj4;c:/src/externlibs/zebu/zsd
+
+###
+cppzmq
+cmake .. -G "Visual Studio 18 2026" -A x64 -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/cppzmq -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/libzmq;c:/src/externlibs/zebu/botan;c:/src/externlibs/zebu/proj4;c:/src/externlibs/zebu/zsd
 
 
 ###
