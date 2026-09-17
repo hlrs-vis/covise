@@ -24,6 +24,7 @@
 #include <OpenVRUI/osg/mathUtils.h>
 #include <geodata/GeoData.h>
 #include <iostream>
+#include <limits>
 
 
 #include <PluginUtil/PluginMessageTypes.h>
@@ -57,6 +58,41 @@
 
 using covise::TokenBuffer;
 using covise::coCoviseConfig;
+
+// Parameter für die Transformation für das .wrl Modell
+namespace
+{
+struct ModelTransformConfig
+{
+    double modelEasting;
+    double modelNorthing;
+    double scale;
+    double worldOffsetX;
+    double worldOffsetY;
+};
+
+const ModelTransformConfig modelTransform {
+    507297.0,
+    5398513.0,
+    1000.0,
+    225900.0,
+    87640.1
+};
+}
+
+//Funktion für die Trafo von GeoData-Koordinaten zum tats. 3D-Modell
+osg::Vec2d referenceToModelWorldXY(const osg::Vec3d &referencePosition)
+{
+    const double modelX = referencePosition.x() - modelTransform.modelEasting;
+
+    const double modelY = referencePosition.y() - modelTransform.modelNorthing;
+
+    const double worldX = modelX * modelTransform.scale + modelTransform.worldOffsetX;
+
+    const double worldY = modelY * modelTransform.scale + modelTransform.worldOffsetY;
+
+    return osg::Vec2d(worldX, worldY);
+}
 
 void printMatrix(const char *name, const osg::Matrix &m)
 {
@@ -461,14 +497,11 @@ MapLinkPlugin::handleMessage(Message *m)
                     const osg::Vec3d projectPosition = GeoData::instance()->globalToProject(globalPosition);
 
                     // UTM -> lokale Koordinaten des Production_OSG
-                    const double modelX = referencePosition.x() - MODEL_EASTING;
+                    const osg::Vec2d modelWorldPosition = referenceToModelWorldXY(referencePosition);
 
-                    const double modelY = referencePosition.y() - MODEL_NORTHING;
+                    const double rayX = modelWorldPosition.x();
+                    const double rayY = modelWorldPosition.y();
 
-                    // Production_OSG lokal -> OpenCOVER-Weltraum
-                    const double rayX = modelX * MODEL_SCALE + MODEL_WORLD_OFFSET_X;
-
-                    const double rayY = modelY * MODEL_SCALE + MODEL_WORLD_OFFSET_Y;
 
                     std::cerr
                         << "Point " << i
@@ -477,8 +510,6 @@ MapLinkPlugin::handleMessage(Message *m)
                         << ", " << referencePosition.y() << ")"
                         << " | GeoDataProject=(" << projectPosition.x()
                         << ", " << projectPosition.y() << ")"
-                        << " | ModelLocal=(" << modelX
-                        << ", " << modelY << ")"
                         << " | Ray=(" << rayX
                         << ", " << rayY << ")"
                         << std::endl;
@@ -503,11 +534,8 @@ MapLinkPlugin::handleMessage(Message *m)
 
                     if (!isect->containsIntersections())
                     {
-                        std::cerr
-                            << "  -> NO INTERSECTION"
-                            << std::endl;
-
-                        rtb << 0.0f;
+                        std::cerr << "  -> NO INTERSECTION: height unavailable" << std::endl;
+                        rtb << std::numeric_limits<float>::quiet_NaN();
                         continue;
                     }
 
@@ -560,15 +588,15 @@ MapLinkPlugin::handleMessage(Message *m)
                 }
                 break;
 
-            case MSG_SetModules:
+                case MSG_SetModules:
                 {
                     int numModules;
                     tb >> numModules;
 
                     std::cerr
-                        << "MSG_SetModules received: "
+                        << "MSG_SetModules: "
                         << numModules
-                        << " modules"
+                        << " modules received"
                         << std::endl;
 
                     for (int moduleIndex = 0;
@@ -578,7 +606,7 @@ MapLinkPlugin::handleMessage(Message *m)
                         int moduleId;
                         tb >> moduleId;
 
-                        std::array<osg::Vec3d, 4> projectCorners;
+                        std::array<osg::Vec3d, 4> worldCorners;
 
                         for (int cornerIndex = 0;
                             cornerIndex < 4;
@@ -592,47 +620,44 @@ MapLinkPlugin::handleMessage(Message *m)
                             tb >> latitude;
                             tb >> height;
 
+                            // EPSG:4326
                             const osg::Vec3d globalCorner(
-                                longitude,
-                                latitude,
-                                height);
+                                static_cast<double>(longitude),
+                                static_cast<double>(latitude),
+                                0.0);
 
-                            projectCorners[cornerIndex] = GeoData::instance()->globalToProject(
-                                globalCorner);
+                            // EPSG:4326 -> EPSG:25832
+                            const osg::Vec3d referenceCorner = GeoData::instance()->globalToReference(globalCorner);
 
-                            // DEBUG: empfangene globale Koordinaten
+                            // EPSG:25832 -> OpenCOVER-Modellkoordinaten
+                            const osg::Vec2d modelWorldXY = referenceToModelWorldXY(referenceCorner);
+
+                            // Höhe aus GetHeight wieder ins OpenCOVER-World-System
+                            const double worldZ = static_cast<double>(height) * 1000.0;
+
+                            worldCorners[cornerIndex] = osg::Vec3d(
+                                modelWorldXY.x(),
+                                modelWorldXY.y(),
+                                worldZ);
+
                             std::cerr
                                 << "Module " << moduleId
                                 << ", corner " << cornerIndex
-                                << ": lon=" << longitude
-                                << ", lat=" << latitude
-                                << ", height=" << height
-                                << std::endl;
-
-                            // DEBUG: transformierte COVISE-/Projektkoordinaten
-                            std::cerr
-                                << "  -> project: x="
-                                << projectCorners[cornerIndex].x()
-                                << ", y="
-                                << projectCorners[cornerIndex].y()
-                                << ", z="
-                                << projectCorners[cornerIndex].z()
+                                << " -> world=("
+                                << worldCorners[cornerIndex].x() << ", "
+                                << worldCorners[cornerIndex].y() << ", "
+                                << worldCorners[cornerIndex].z() << ")"
                                 << std::endl;
                         }
 
-                        std::cerr
-                            << "Module " << moduleId
-                            << " received and transformed"
-                            << std::endl;
-
-                        // createModule(moduleId, projectCorners);
-                        m_modules[moduleId] = projectCorners;
-
-                        std::cerr
-                            << "Stored modules: "
-                            << m_modules.size()
-                            << std::endl;
+                        // createModule(moduleId, worldCorners);
+                        m_modules[moduleId] = worldCorners;
                     }
+
+                    std::cerr
+                        << "Stored modules: "
+                        << m_modules.size()
+                        << std::endl;
 
                     TokenBuffer rtb;
                     rtb << MSG_SetModules;
