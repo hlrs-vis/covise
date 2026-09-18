@@ -2137,6 +2137,21 @@ void RevitPlugin::handleMessage(Message *m)
 		info->DocumentID = docID;
 		OSGVruiUserDataCollection::setUserData(newTrans, "RevitInfo", info);
 		currentGroup.push(newTrans);
+
+        std::map<int, ElementInfo *>::iterator it = ElementIDMap[docID].find(ID);
+        if (it != ElementIDMap[docID].end())
+        {
+            ElementInfo *ei = it->second;
+            ei->nodes.push_back(newTrans);
+        }
+        else
+        {
+            ElementInfo *ei = new ElementInfo();
+            ElementIDMap[docID][ID] = ei;
+            ei->name = name;
+            ei->ID = ID;
+            ei->DocumentID = docID;
+        }
 	}
 	break;
 	case MSG_ElevatorPart:
@@ -2175,6 +2190,20 @@ void RevitPlugin::handleMessage(Message *m)
             info->DocumentID = docID;
             OSGVruiUserDataCollection::setUserData(newTrans, "RevitInfo", info);
             currentGroup.push(newTrans);
+            std::map<int, ElementInfo *>::iterator it = ElementIDMap[docID].find(ID);
+            if (it != ElementIDMap[docID].end())
+            {
+                ElementInfo *ei = it->second;
+                ei->nodes.push_back(newTrans);
+            }
+            else
+            {
+                ElementInfo *ei = new ElementInfo();
+                ElementIDMap[docID][ID] = ei;
+                ei->name = name;
+                ei->ID = ID;
+                ei->DocumentID = docID;
+            }
         }
 	break;
 	case MSG_NewARMarker:
@@ -2303,6 +2332,7 @@ void RevitPlugin::handleMessage(Message *m)
 							break;
 						}
 					}
+                    continue; // do not delete this group as it would delete all otherelements in this list
 				}
 
 				removeHighlightedNode(n);
