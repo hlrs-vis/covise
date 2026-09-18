@@ -14,7 +14,7 @@
 #include <net/tokenbuffer.h>
 #include <net/tokenbuffer_serializer.h>
 
-class PLUGIN_UTILEXPORT CustomTransformInteractor : public opencover::coVRIntersectionInteractor
+class CustomTransformInteractor : public opencover::coVRIntersectionInteractor
 
 {
 public:
