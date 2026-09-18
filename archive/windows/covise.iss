@@ -430,7 +430,7 @@ Source: {#EXTERNLIBS}\protobuf\bin\*.dll; Excludes: "*d.dll,*.BIN,*.pdb"; DestDi
 Source: {#EXTERNLIBS}\botan\bin\*.dll; Excludes: "*d.dll,*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover    
 Source: {#EXTERNLIBS}\zstd\bin\*.dll; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover       
 Source: {#EXTERNLIBS}\lz4\bin\*.dll; Excludes: "*d.dll,*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover
-Source: \windows\system32\libomp140.x86_64.dll;  DestDir: {#DLIB}; Components: opencover   
+Source: {#EXTERNLIBS}\msmpi\libomp140.x86_64.dll;  DestDir: {#DLIB}; Components: opencover   
 Source: {#EXTERNLIBS}\libzmq\bin\*.dll; Excludes: "*d.dll,*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover   
 Source: {#EXTERNLIBS}\brotli\bin\*.dll; Excludes: "*d.dll,*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover
 Source: {#EXTERNLIBS}\PDAL\bin\*.dll; Excludes: "*d.dll,*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover
