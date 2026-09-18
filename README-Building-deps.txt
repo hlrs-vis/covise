@@ -842,6 +842,10 @@ cmake .. -G "Visual Studio 18 2026" -A x64  -DU3D_SHARED:BOOL=ON -DCMAKE_INSTALL
 vistle
 cmake .. -G "Visual Studio 18 2026" -A x64 -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/botan;c:/src/externlibs/zebu/proj4;c:/src/externlibs/zebu/zsd;c:/src/externlibs/zebu/gmp;c:/src/externlibs/zebu/mpfr;c:/src/externlibs/zebu/tbb
 
+####
+catch2
+cmake .. -G "Visual Studio 18 2026" -A x64 -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/catch2 -DBUILD_TESTING=false  -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/botan;c:/src/externlibs/zebu/proj4;c:/src/externlibs/zebu/zsd
+
 
 ###
 libzmq

@@ -424,14 +424,18 @@ Source: C:\Program Files\NVIDIA Corporation\NVSMI\nvml.dll; Excludes: "*d.dll, *
 Source: {#EXTERNLIBS}\Proj\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
 Source: {#EXTERNLIBS}\embree\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover  
 Source: {#EXTERNLIBS}\exiv2\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover 
-Source: {#EXTERNLIBS}\expat\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover    
-Source: {#EXTERNLIBS}\grpc\bin\*.dll; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover   
+Source: {#EXTERNLIBS}\expat\bin\*.dll; Excludes: "*d.dll, *.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover   
 Source: {#EXTERNLIBS}\geotiff\bin\*.dll; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover
-Source: {#EXTERNLIBS}\protobuf\bin\*.dll; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover    
-Source: {#EXTERNLIBS}\brotli\bin\*.dll; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover
-Source: {#EXTERNLIBS}\PDAL\bin\*.dll; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover
-Source: {#EXTERNLIBS}\ALVAR\bin\*.dll; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover
-Source: {#EXTERNLIBS}\ALVAR\bin\alvarplugins\*.dll; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}\alvarplugins; Components: opencover
+Source: {#EXTERNLIBS}\protobuf\bin\*.dll; Excludes: "*d.dll,*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover  
+Source: {#EXTERNLIBS}\botan\bin\*.dll; Excludes: "*d.dll,*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover    
+Source: {#EXTERNLIBS}\zstd\bin\*.dll; Excludes: "*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover       
+Source: {#EXTERNLIBS}\lz4\bin\*.dll; Excludes: "*d.dll,*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover
+Source: \windows\system32\libomp140.x86_64.dll;  DestDir: {#DLIB}; Components: opencover   
+Source: {#EXTERNLIBS}\libzmq\bin\*.dll; Excludes: "*d.dll,*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover   
+Source: {#EXTERNLIBS}\brotli\bin\*.dll; Excludes: "*d.dll,*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover
+Source: {#EXTERNLIBS}\PDAL\bin\*.dll; Excludes: "*d.dll,*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover
+Source: {#EXTERNLIBS}\ALVAR\bin\*.dll; Excludes: "*d.dll,*.BIN,*.pdb"; DestDir: {#DLIB}; Components: opencover
+Source: {#EXTERNLIBS}\ALVAR\bin\alvarplugins\*.dll; Excludes: "*d.dll,*.BIN,*.pdb"; DestDir: {#DLIB}\alvarplugins; Components: opencover
 ;Source: {#EXTERNLIBS}\opencv\build\x64\vc10\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
 ;Source: {#EXTERNLIBS}\opencv3\x64\vc11\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
 Source: {#EXTERNLIBS}\OpenCV2\x64\vc14\bin\*.dll;  Excludes: "*d.dll, *.BIN,*.pdb"; Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover  
