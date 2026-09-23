@@ -21,6 +21,7 @@
 #include <cover/ui/TabletView.h>
 #include <cover/coTabletUI.h>
 #include <cover/coVRTui.h>
+#include "tui/TUIStyleSheet.h"
 
 #include <QtGlobal>
 #include <QMenuBar>
@@ -105,7 +106,8 @@ bool TabletUIPlugin::init()
         QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
         new QApplication(coCommandLine::argc(), coCommandLine::argv());
         qApp->setWindowIcon(QIcon(":/icons/cover.ico"));
-        //qApp->setAttribute(Qt::AA_PluginApplication);
+        qApp->setStyleSheet(QString::fromStdString(TUI_STYLESHEET));
+        // qApp->setAttribute(Qt::AA_PluginApplication);
         qApp->setAttribute(Qt::AA_MacDontSwapCtrlAndMeta);
         qApp->setAttribute(Qt::AA_DontCheckOpenGLContextThreadAffinity);
 #ifdef __APPLE__

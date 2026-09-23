@@ -35,6 +35,7 @@
 #include <cover/ui/Action.h>
 #include <cover/ui/Button.h>
 #include <cover/ui/Menu.h>
+#include <tui/TUIStyleSheet.h>
 
 #include <QtGlobal>
 #include <QMenuBar>
@@ -227,6 +228,7 @@ bool WindowTypeQtPlugin::windowCreate(int i)
         // qApp->setAttribute(Qt::AA_PluginApplication);
         qApp->setAttribute(Qt::AA_MacDontSwapCtrlAndMeta);
         qApp->setAttribute(Qt::AA_DontCheckOpenGLContextThreadAffinity);
+        qApp->setStyleSheet(QString::fromStdString(TUI_STYLESHEET));
 #ifdef __APPLE__
         qApp->setAttribute(Qt::AA_DontShowIconsInMenus);
 #endif
@@ -414,7 +416,6 @@ bool WindowTypeQtPlugin::windowCreate(int i)
         format.setStencilBufferSize(conf.numStencilBits());
     format.setStereo(conf.windows[i].stereo);
 
-
     // sRGB color space: disable on Wayland (limited EGL config support)
     bool found = false;
     bool sRGB = covise::coCoviseConfig::isOn("srgb", "COVER.Framebuffer", false, &found);
@@ -456,9 +457,9 @@ bool WindowTypeQtPlugin::windowCreate(int i)
 
     // std::cerr << "window " << i << ": ctx=" << coVRConfig::instance()->windows[i].context << std::endl;
 
-    if(qApp)
+    if (qApp)
         qApp->sendPostedEvents();
-    if(qApp)
+    if (qApp)
         qApp->processEvents();
 
     return true;

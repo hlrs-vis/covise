@@ -69,6 +69,7 @@ SET(TUI_SOURCES
   TUIAnnotationTab.cpp
   TUIColorWidget.cpp
   TUIPopUp.cpp
+  TUIStyleSheet.cpp
 )
 
 if(USE_UITOOLS)
@@ -91,6 +92,7 @@ SET(TUI_HEADERS
   TUINavElement.h
   TUISplitter.h
   TUITab.h
+  TUIStyleSheet.h
   FileBrowser/RemoteClientDialog.h
 )
 

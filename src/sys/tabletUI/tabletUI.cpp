@@ -20,8 +20,7 @@
 #include <winsock2.h>
 #endif
 #include <tui/TUIMainWindow.h>
-
-
+#include <tui/TUIStyleSheet.h>
 
 int main(int argc, char **argv)
 {
@@ -62,6 +61,7 @@ int main(int argc, char **argv)
     QApplication a(argc, argv);
     a.setAttribute(Qt::AA_MacDontSwapCtrlAndMeta);
     a.setWindowIcon(QIcon(":/icons/tabletui.png"));
+    a.setStyleSheet(QString::fromStdString(TUI_STYLESHEET));
     auto qaw = new TUIMainWindow();
     qaw->show();
     int overridePort = 0;

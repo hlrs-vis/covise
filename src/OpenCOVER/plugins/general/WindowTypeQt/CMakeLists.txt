@@ -40,7 +40,7 @@ set(SOURCES
 
 qt_add_resources(QRC_SOURCES about.qrc icons.qrc)
 qt_wrap_ui(UI_SOURCES AboutDialog.ui KeyboardHelp.ui)
-cover_add_plugin(WindowTypeQt ${HEADERS} ${SOURCES} ${QRC_SOURCES} ${UI_SOURCES})
+cover_add_plugin(WindowTypeQt ${HEADERS} ${SOURCES} ${QRC_SOURCES} ${UI_SOURCES} coTUI)
 qt_use_modules(WindowTypeQt Core Widgets OpenGL OpenGLWidgets)
 if (COVISE_USE_X11)
     if (Qt5X11Extras_FOUND)
