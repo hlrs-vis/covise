@@ -22,6 +22,11 @@
 #include <OpenVRUI/sginterface/vruiActionUserData.h>
 #include "MapLinkMessageTypes.h"
 #include <array>
+#include <osg/MatrixTransform>
+#include <osg/ref_ptr>
+#include <unordered_map>
+#include <osg/observer_ptr>
+#include <osg/Matrix>
 
 std::map<int, std::array<osg::Vec3d, 4>> m_modules;
 
@@ -89,7 +94,10 @@ public:
 
 protected:
 
-    void showLocationMarker(double x, double y, const osg::Vec4 &color);
+    //void showLocationMarker(double x, double y, const osg::Vec4 &color);
+    void createModule(int moduleId, const std::array<osg::Vec3d, 4> &corners, osg::Node *pvModel);
+    void deleteModule(int moduleId);
+    void clearAllModules();
 	osg::Matrixd computeLeftEyeProjection(const osg::Matrixd &projection) const override;
 	osg::Matrixd computeLeftEyeView(const osg::Matrixd &view) const override;
 	osg::Matrixd computeRightEyeProjection(const osg::Matrixd &projection) const override;
@@ -100,6 +108,10 @@ protected:
     ServerConnection *serverConn;
     std::unique_ptr<ServerConnection> toMapLink;
     coTUITab *MapLinkTab = nullptr;
+    osg::ref_ptr<osg::Group> m_pvModuleGroup; // Gemeinsame Gruppe für alle PV-Module
+    std::unordered_map<int, osg::ref_ptr<osg::MatrixTransform>> m_moduleNodes; // Zuordnung zwischen Modul-ID und sichtbarem 3D-Modell
+    osg::observer_ptr<osg::Group> m_cityModelParent;
+    osg::Matrixd m_worldToCityParent;
     osg::ref_ptr<osg::Camera> camera;
     osg::ref_ptr<osg::Image> image;
     osg::ref_ptr<DrawCallback> drawCallback;

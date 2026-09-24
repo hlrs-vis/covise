@@ -25,6 +25,11 @@
 #include <geodata/GeoData.h>
 #include <iostream>
 #include <limits>
+#include <osg/Material>
+#include <osg/StateSet>
+
+#include <osg/NodeVisitor>
+#include <string>
 
 
 #include <PluginUtil/PluginMessageTypes.h>
@@ -46,6 +51,8 @@
 #include <osg/StateSet>
 #include <osg/ComputeBoundsVisitor>
 #include <osg/Matrix>
+#include <osgDB/ReadFile>
+#include <osg/Group>
 
 
 #include <net/covise_host.h>
@@ -171,7 +178,7 @@ void MapLinkPlugin::destroyMenu()
     MapLinkTab = nullptr;
 }
 
-
+/*
 void MapLinkPlugin::showLocationMarker(double x, double y, const osg::Vec4 &color)
 {
     osg::ref_ptr<osg::Geode> geode = new osg::Geode();
@@ -201,12 +208,154 @@ void MapLinkPlugin::showLocationMarker(double x, double y, const osg::Vec4 &colo
         osg::StateAttribute::ON);
 
     geode->addDrawable(geometry.get());
-    cover->getObjectsXform()->addChild(geode.get());
+    if (m_cityModelParent.valid())
+    {
+        osg::ref_ptr<osg::MatrixTransform> markerTransform = new osg::MatrixTransform();
+
+        markerTransform->setMatrix(m_worldToCityParent);
+        markerTransform->addChild(geode.get());
+
+        m_cityModelParent->addChild(markerTransform.get());
+    }
+
+    printMatrix(
+        "ObjectsXform BEIM EINFUEGEN:",
+        cover->getObjectsXform()->getMatrix());
 
     std::cerr << "LOCATION MARKER added:"
               << " x=" << x
               << " y=" << y
               << std::endl;
+
+    osg::Matrixd objectsMatrix = cover->getObjectsXform()->getMatrix();
+
+    osg::Vec3d markerPosition(x, y, 462000.0);
+
+    osg::Vec3d transformedPosition = markerPosition * objectsMatrix;
+
+    std::cerr << "----- MARKER TRANSFORM -----" << std::endl;
+
+    std::cerr << "Marker lokal: "
+              << markerPosition.x() << ", "
+              << markerPosition.y() << ", "
+              << markerPosition.z() << std::endl;
+
+    std::cerr << "Marker transformiert: "
+              << transformedPosition.x() << ", "
+              << transformedPosition.y() << ", "
+              << transformedPosition.z() << std::endl;
+}*/
+
+void MapLinkPlugin::createModule(
+    int moduleId,
+    const std::array<osg::Vec3d, 4> &corners,
+    osg::Node *pvModel)
+{
+    if (!pvModel || !m_pvModuleGroup.valid())
+        return;
+
+    // Lokale X-Achse: P1 -> P2
+    osg::Vec3d xAxis = corners[1] - corners[0];
+    xAxis.normalize();
+
+    // Vorläufige Y-Achse: P1 -> P4
+    osg::Vec3d yDirection = corners[3] - corners[0];
+
+    // Normale der Modulfläche berechnen
+    osg::Vec3d zAxis = xAxis ^ yDirection;
+    zAxis.normalize();
+
+    // Sicherstellen, dass die Moduloberseite nach oben zeigt
+    if (zAxis.z() < 0.0)
+    {
+        zAxis = -zAxis;
+    }
+
+    // Rechtwinklige Y-Achse berechnen
+    osg::Vec3d yAxis = zAxis ^ xAxis;
+    yAxis.normalize();
+
+    // Mittelpunkt der vier Eckpunkte
+    osg::Vec3d center = (corners[0] + corners[1] + corners[2] + corners[3]) / 4.0;
+
+    // Rotationsmatrix aus den drei lokalen Achsen
+    osg::Matrixd rotation(
+        xAxis.x(), xAxis.y(), xAxis.z(), 0.0,
+        yAxis.x(), yAxis.y(), yAxis.z(), 0.0,
+        zAxis.x(), zAxis.y(), zAxis.z(), 0.0,
+        0.0, 0.0, 0.0, 1.0);
+
+    // Blender-Meter -> OpenCOVER-Millimeter
+    osg::Matrixd transform = osg::Matrixd::scale(1000.0, 1000.0, 1000.0) * rotation * osg::Matrixd::translate(center);
+
+    osg::ref_ptr<osg::MatrixTransform> moduleTransform = new osg::MatrixTransform();
+
+    moduleTransform->setName(
+        "PV_Module_" + std::to_string(moduleId));
+
+    moduleTransform->setMatrix(transform);
+    moduleTransform->addChild(pvModel);
+
+    // Existiert dieses Modul bereits?
+    auto existing = m_moduleNodes.find(moduleId);
+
+    if (existing != m_moduleNodes.end())
+    {
+        // Alten 3D-Knoten entfernen
+        if (existing->second.valid())
+        {
+            m_pvModuleGroup->removeChild(
+                existing->second.get());
+        }
+
+        m_moduleNodes.erase(existing);
+    }
+
+    // Neuen 3D-Knoten einfügen
+    m_pvModuleGroup->addChild(moduleTransform.get());
+
+    // Modul anhand seiner ID speichern
+    m_moduleNodes[moduleId] = moduleTransform;
+}
+
+void MapLinkPlugin::deleteModule(int moduleId)
+{
+    auto it = m_moduleNodes.find(moduleId);
+
+    if (it == m_moduleNodes.end())
+        return;
+
+    if (it->second.valid() && m_pvModuleGroup.valid())
+    {
+        m_pvModuleGroup->removeChild(
+            it->second.get());
+    }
+
+    m_moduleNodes.erase(it);
+    m_modules.erase(moduleId);
+
+    std::cerr
+        << "MapLink: Modul "
+        << moduleId
+        << " geloescht."
+        << std::endl;
+}
+
+void MapLinkPlugin::clearAllModules()
+{
+    if (m_pvModuleGroup.valid())
+    {
+        m_pvModuleGroup->removeChildren(
+            0,
+            m_pvModuleGroup->getNumChildren());
+    }
+
+    m_moduleNodes.clear();
+    m_modules.clear();
+
+    std::cerr
+        << "MapLink: Alle PV-Module geloescht."
+        << std::endl;
 }
 
 osg::Matrixd MapLinkPlugin::computeLeftEyeProjection(const osg::Matrixd &projection) const
@@ -305,6 +454,14 @@ bool MapLinkPlugin::init()
     //cover->addPlugin("Annotation"); // we would like to have the Annotation plugin
     createMenu();
     createCamera();
+
+    // Gruppe für die PV-Module erstellen
+    m_pvModuleGroup = new osg::Group();
+    m_pvModuleGroup->setName("PV_Modules");
+    // PV-Module von der Hoehenabfrage ausschliessen
+    m_pvModuleGroup->setNodeMask(0xFFFFFFFF);
+
+    std::cerr << "MapLink: PV-Modulgruppe erstellt." << std::endl;
     return true;
 }
 // this is called if the plugin is removed at runtime
@@ -453,6 +610,7 @@ MapLinkPlugin::handleMessage(Message *m)
             float _scale = cover->getScale();
             switch(t)
             {
+
             case MSG_GetHeight:
             {
                 std::cerr << "MSG_GetHeight received" << std::endl;
@@ -476,10 +634,11 @@ MapLinkPlugin::handleMessage(Message *m)
                 constexpr double MODEL_WORLD_OFFSET_X = 225900.0;
                 constexpr double MODEL_WORLD_OFFSET_Y = 87640.1;
 
+
                 for (int i = 0; i < numPoints; ++i)
                 {
-                    float longitude;
-                    float latitude;
+                    double longitude;
+                    double latitude;
 
                     tb >> longitude;
                     tb >> latitude;
@@ -525,12 +684,50 @@ MapLinkPlugin::handleMessage(Message *m)
                         rayY,
                         -9999999.0);
 
+                    std::cerr
+                        << "ObjectsXform mask: "
+                        << cover->getObjectsXform()->getNodeMask()
+                        << " | children: "
+                        << cover->getObjectsXform()->getNumChildren()
+                        << std::endl;
+
+                    for (unsigned int j = 0;
+                        j < cover->getObjectsXform()->getNumChildren();
+                        ++j)
+                    {
+                        osg::Node *child = cover->getObjectsXform()->getChild(j);
+
+                        std::cerr
+                            << "Child " << j
+                            << " | Name: " << child->getName()
+                            << " | Mask: " << child->getNodeMask()
+                            << std::endl;
+                    }
+
                     coIntersector *isect = coIntersection::instance()->newIntersector(rayP, rayQ);
 
                     osgUtil::IntersectionVisitor visitor(isect);
                     visitor.setTraversalMask(~0u);
 
+                    // Bereits gesetzte PV-Module vorübergehend
+                    // von der Höhenabfrage ausschließen.
+                    osg::Node::NodeMask previousPvMask = 0;
+
+                    if (m_pvModuleGroup.valid())
+                    {
+                        previousPvMask = m_pvModuleGroup->getNodeMask();
+                        m_pvModuleGroup->setNodeMask(0u);
+                    }
+
+                    // Höhenabfrage durchführen
                     cover->getObjectsXform()->accept(visitor);
+
+                    // Ursprüngliche Maske wiederherstellen,
+                    // damit die PV-Module sichtbar bleiben.
+                    if (m_pvModuleGroup.valid())
+                    {
+                        m_pvModuleGroup->setNodeMask(previousPvMask);
+                    }
 
                     if (!isect->containsIntersections())
                     {
@@ -540,18 +737,64 @@ MapLinkPlugin::handleMessage(Message *m)
                     }
 
                     const auto result = isect->getFirstIntersection();
+
+                    if (i == 0)
+                    {
+                        const osg::NodePath &path = result.nodePath;
+
+                        for (std::size_t j = 0; j < path.size(); ++j)
+                        {
+                            if (path[j]->getName() == "VRMLRoot")
+                            {
+                                osg::Group *parent = path[j]->asGroup();
+
+                                if (parent)
+                                {
+                                    m_cityModelParent = parent;
+
+                                    osg::NodePath parentPath(
+                                        path.begin(),
+                                        path.begin() + j + 1);
+
+                                    m_worldToCityParent = osg::computeWorldToLocal(parentPath);
+
+                                    if (m_pvModuleGroup.valid() && m_pvModuleGroup->getNumParents() == 0)
+                                    {
+                                        osg::ref_ptr<osg::MatrixTransform> pvTransform = new osg::MatrixTransform();
+
+                                        pvTransform->setName("PV_Modules_Transform");
+                                        pvTransform->setMatrix(m_worldToCityParent);
+                                        pvTransform->addChild(m_pvModuleGroup.get());
+
+                                        parent->addChild(pvTransform.get());
+                                    }
+                                }
+
+                                break;
+                            }
+                        }
+                    }
+
+                    if (i == 0)
+                    {
+                        std::cerr << "----- DACH: SZENENGRAPH-PFAD -----"
+                                  << std::endl;
+
+                        for (osg::Node *node : result.nodePath)
+                        {
+                            if (node)
+                            {
+                                std::cerr
+                                    << node->className()
+                                    << " | "
+                                    << node->getName()
+                                    << std::endl;
+                            }
+                        }
+                    }
                     const osg::Vec3d worldPoint = result.getWorldIntersectPoint();
 
                     const double height = worldPoint.z() / 1000.0;
-
-                    // Bei Punkt 0 eine rote Säule exakt an der neuen Raycast-Position
-                    if (i == 0)
-                    {
-                        showLocationMarker(
-                            rayX,
-                            rayY,
-                            osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f));
-                    }
 
 
                     std::cerr
@@ -588,152 +831,156 @@ MapLinkPlugin::handleMessage(Message *m)
                 }
                 break;
 
-                case MSG_SetModules:
+            case MSG_SetModules:
+            {
+                // OBJ-Modell aus Blender laden
+                const std::string modelPath = "C:/src/covise/src/OpenCOVER/plugins/hlrs/MapLink/models/PV_kompakt_hoch.obj";
+
+                osg::ref_ptr<osg::Node> pvModel = osgDB::readNodeFile(modelPath);
+
+                if (pvModel.valid())
                 {
-                    int numModules;
-                    tb >> numModules;
-
                     std::cerr
-                        << "MSG_SetModules: "
-                        << numModules
-                        << " modules received"
+                        << "MapLink: OBJ-Modell erfolgreich geladen!"
                         << std::endl;
-
-                    for (int moduleIndex = 0;
-                        moduleIndex < numModules;
-                        ++moduleIndex)
-                    {
-                        int moduleId;
-                        tb >> moduleId;
-
-                        std::array<osg::Vec3d, 4> worldCorners;
-
-                        for (int cornerIndex = 0;
-                            cornerIndex < 4;
-                            ++cornerIndex)
-                        {
-                            float longitude;
-                            float latitude;
-                            float height;
-
-                            tb >> longitude;
-                            tb >> latitude;
-                            tb >> height;
-
-                            // EPSG:4326
-                            const osg::Vec3d globalCorner(
-                                static_cast<double>(longitude),
-                                static_cast<double>(latitude),
-                                0.0);
-
-                            // EPSG:4326 -> EPSG:25832
-                            const osg::Vec3d referenceCorner = GeoData::instance()->globalToReference(globalCorner);
-
-                            // EPSG:25832 -> OpenCOVER-Modellkoordinaten
-                            const osg::Vec2d modelWorldXY = referenceToModelWorldXY(referenceCorner);
-
-                            // Höhe aus GetHeight wieder ins OpenCOVER-World-System
-                            const double worldZ = static_cast<double>(height) * 1000.0;
-
-                            worldCorners[cornerIndex] = osg::Vec3d(
-                                modelWorldXY.x(),
-                                modelWorldXY.y(),
-                                worldZ);
-
-                            std::cerr
-                                << "Module " << moduleId
-                                << ", corner " << cornerIndex
-                                << " -> world=("
-                                << worldCorners[cornerIndex].x() << ", "
-                                << worldCorners[cornerIndex].y() << ", "
-                                << worldCorners[cornerIndex].z() << ")"
-                                << std::endl;
-                        }
-
-                        // createModule(moduleId, worldCorners);
-                        m_modules[moduleId] = worldCorners;
-                    }
-
+                }
+                else
+                {
                     std::cerr
-                        << "Stored modules: "
-                        << m_modules.size()
+                        << "MapLink: FEHLER - OBJ-Modell konnte nicht geladen werden!"
                         << std::endl;
-
-                    TokenBuffer rtb;
-                    rtb << MSG_SetModules;
-                    rtb << numModules;
-
-                    Message response(rtb);
-                    response.type = PluginMessageTypes::HLRS_MapLink_Message;
-
-                    sendMessage(response);
-
-                    break;
                 }
 
-            case MSG_DeleteModules:
+                // Anzahl der empfangenen Module
+                int numModules;
+                tb >> numModules;
+
+                std::cerr
+                    << "MSG_SetModules: "
+                    << numModules
+                    << " modules received"
+                    << std::endl;
+
+                // Alle empfangenen Module verarbeiten
+                for (int moduleIndex = 0;
+                    moduleIndex < numModules;
+                    ++moduleIndex)
                 {
-                    int numModules;
-                    tb >> numModules;
+                    int moduleId;
+                    tb >> moduleId;
 
-                    std::cerr
-                        << "MSG_DeleteModules received: "
-                        << numModules
-                        << " modules"
-                        << std::endl;
+                    std::array<osg::Vec3d, 4> worldCorners;
 
-                    for (int i = 0; i < numModules; ++i)
+                    // Vier Eckpunkte jedes Moduls empfangen
+                    for (int cornerIndex = 0;
+                        cornerIndex < 4;
+                        ++cornerIndex)
                     {
-                        int moduleId;
-                        tb >> moduleId;
+                        double longitude, latitude, height;
+
+                        tb >> longitude;
+                        tb >> latitude;
+                        tb >> height;
+
+                        // EPSG:4326
+                        const osg::Vec3d globalCorner(
+                            longitude,
+                            latitude,
+                            0.0);
+
+                        // EPSG:4326 -> EPSG:25832
+                        const osg::Vec3d referenceCorner = GeoData::instance()->globalToReference(
+                            globalCorner);
+
+                        // EPSG:25832 -> OpenCOVER-Modellkoordinaten
+                        const osg::Vec2d modelWorldXY = referenceToModelWorldXY(referenceCorner);
+
+                        // Modulecken werden nach oben gesetzt
+                        constexpr double MODULE_HEIGHT_OFFSET_MM = 100.0;
+
+                        // Höhe von Metern in Millimeter umrechnen
+                        const double worldZ = height * 1000.0 + MODULE_HEIGHT_OFFSET_MM;
+
+                        worldCorners[cornerIndex] = osg::Vec3d(
+                            modelWorldXY.x(),
+                            modelWorldXY.y(),
+                            worldZ);
 
                         std::cerr
-                            << "Delete module ID: "
-                            << moduleId
+                            << "Module " << moduleId
+                            << ", corner " << cornerIndex
+                            << " -> world=("
+                            << worldCorners[cornerIndex].x() << ", "
+                            << worldCorners[cornerIndex].y() << ", "
+                            << worldCorners[cornerIndex].z() << ")"
                             << std::endl;
-
-                        // deleteModule(moduleId);
-                        const auto erased = m_modules.erase(moduleId);
-
-                        if (erased > 0)
-                        {
-                            std::cerr
-                                << "Module "
-                                << moduleId
-                                << " deleted"
-                                << std::endl;
-                        }
-                        else
-                        {
-                            std::cerr
-                                << "Module "
-                                << moduleId
-                                << " not found"
-                                << std::endl;
-                        }
                     }
 
-                    std::cerr
-                        << "Remaining modules: "
-                        << m_modules.size()
-                        << std::endl;
+                    // Eckpunkte speichern
+                    m_modules[moduleId] = worldCorners;
+
+                    // Tatsächliches 3D-Modul erstellen
+                    if (pvModel.valid())
+                    {
+                        createModule(
+                            moduleId,
+                            worldCorners,
+                            pvModel.get());
+                    }
                 }
+
+                std::cerr
+                    << "Stored modules: "
+                    << m_modules.size()
+                    << std::endl;
+
+                // Antwort an den Server
+                TokenBuffer rtb;
+                rtb << MSG_SetModules;
+                rtb << numModules;
+
+                Message response(rtb);
+                response.type = PluginMessageTypes::HLRS_MapLink_Message;
+
+                sendMessage(response);
+
                 break;
+            }
+
+            case MSG_DeleteModules:
+            {
+                int numModules;
+                tb >> numModules;
+
+                std::cerr << "MSG_DeleteModules received: "
+                          << numModules << " modules" << std::endl;
+
+                for (int i = 0; i < numModules; ++i)
+                {
+                    int moduleId;
+                    tb >> moduleId;
+
+                    deleteModule(moduleId);
+                }
+
+                std::cerr << "Remaining modules: "
+                          << m_modules.size() << std::endl;
+
+                break;
+            }
 
             case MSG_ClearAllModules:
-                {
-                    std::cerr
-                        << "MSG_ClearAllModules received"
-                        << std::endl;
+            {
+                std::cerr << "MSG_ClearAllModules received"
+                          << std::endl;
 
-                    m_modules.clear();
+                clearAllModules();
 
-                    std::cerr
-                        << "All modules cleared. Remaining modules: "
-                        << m_modules.size()
-                        << std::endl;
-                }
+                std::cerr << "All modules cleared. Remaining modules: "
+                          << m_modules.size() << std::endl;
+
                 break;
+            }
 
             default:
                 cerr << "Unknown MapLink to COVER message " << t << endl;
@@ -764,6 +1011,14 @@ MapLinkPlugin::handleMessage(Message *m)
 void
 MapLinkPlugin::preFrame()
 {
+    static int frameCounter = 0;
+
+    if (++frameCounter % 300 == 0)
+    {
+        printMatrix(
+            "ObjectsXform:",
+            cover->getObjectsXform()->getMatrix());
+    }
 }
 
 bool MapLinkPlugin::update()
