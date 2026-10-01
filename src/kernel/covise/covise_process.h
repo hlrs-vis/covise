@@ -51,10 +51,6 @@
 
 */
 
-#if !defined(_WIN32) && !defined(__linux__)
-#define COVISE_Signals
-#endif
-
 namespace covise
 {
 

@@ -26,10 +26,6 @@
 //              object of its appropriate class type to have
 //              access to the basic functionality.
 
-#if !defined(__linux__) && !defined(_WIN32)
-#define COVISE_Signals
-#endif
-
 namespace covise
 {
 class DMEntry;

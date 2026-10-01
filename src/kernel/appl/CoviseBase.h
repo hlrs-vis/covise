@@ -8,10 +8,6 @@
 #ifndef COVISE_BASE_H
 #define COVISE_BASE_H
 
-#if !defined(__linux__) && !defined(_WIN32)
-#define COVISE_Signals
-#endif
-
 #include <covise/covise.h>
 #include <util/coTypes.h>
 #include <string>
