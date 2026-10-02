@@ -38,9 +38,7 @@
 
 //lamure
 #include <lamure/pvs/pvs_database.h>
-#include <lamure/prov/prov_aux.h>
-#include <lamure/prov/octree.h>
-#include "lamure/ren/controller.h"
+#include <lamure/ren/controller.h>
 #include <lamure/ren/cut.h>
 #include <lamure/ren/policy.h>
 
