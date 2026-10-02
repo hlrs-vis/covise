@@ -287,40 +287,38 @@ namespace {
 
         bool isFullCapture = false;
 
-        static FastState capture(bool full = false) {
-            FastState s;
-            s.isFullCapture = full;
-            
+        FastState(bool full = false) {
+            isFullCapture = full;
+
             // Common state
-            glGetIntegerv(GL_CURRENT_PROGRAM, &s.program);
-            glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &s.vao);
-            glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &s.arrayBuffer);
-            glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &s.elem_buf);
-            s.cull  = glIsEnabled(GL_CULL_FACE);
+            glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+            glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &vao);
+            glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &arrayBuffer);
+            glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &elem_buf);
+            cull  = glIsEnabled(GL_CULL_FACE);
 
             if (full) {
-                glGetIntegerv(GL_FRAMEBUFFER_BINDING, &s.fbo);
-                glGetIntegerv(GL_ACTIVE_TEXTURE, &s.active_tex);
-                glGetIntegerv(GL_TEXTURE_BINDING_2D, &s.tex_binding);
+                glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
+                glGetIntegerv(GL_ACTIVE_TEXTURE, &active_tex);
+                glGetIntegerv(GL_TEXTURE_BINDING_2D, &tex_binding);
 
-                s.blend = glIsEnabled(GL_BLEND);
-                s.depth = glIsEnabled(GL_DEPTH_TEST);
+                blend = glIsEnabled(GL_BLEND);
+                depth = glIsEnabled(GL_DEPTH_TEST);
 
-                glGetIntegerv(GL_BLEND_SRC_RGB, &s.blend_src_rgb);
-                glGetIntegerv(GL_BLEND_DST_RGB, &s.blend_dst_rgb);
-                glGetIntegerv(GL_BLEND_SRC_ALPHA, &s.blend_src_alpha);
-                glGetIntegerv(GL_BLEND_DST_ALPHA, &s.blend_dst_alpha);
-                glGetIntegerv(GL_BLEND_EQUATION_RGB, &s.blend_eq_rgb);
-                glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &s.blend_eq_alpha);
+                glGetIntegerv(GL_BLEND_SRC_RGB, &blend_src_rgb);
+                glGetIntegerv(GL_BLEND_DST_RGB, &blend_dst_rgb);
+                glGetIntegerv(GL_BLEND_SRC_ALPHA, &blend_src_alpha);
+                glGetIntegerv(GL_BLEND_DST_ALPHA, &blend_dst_alpha);
+                glGetIntegerv(GL_BLEND_EQUATION_RGB, &blend_eq_rgb);
+                glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &blend_eq_alpha);
 
-                glGetIntegerv(GL_DEPTH_FUNC, &s.depth_func);
-                glGetBooleanv(GL_DEPTH_WRITEMASK, &s.depth_mask);
-                glGetIntegerv(GL_VIEWPORT, s.viewport);
+                glGetIntegerv(GL_DEPTH_FUNC, &depth_func);
+                glGetBooleanv(GL_DEPTH_WRITEMASK, &depth_mask);
+                glGetIntegerv(GL_VIEWPORT, viewport);
             }
-            return s;
         }
 
-        void restore() const {
+        ~FastState() {
             glUseProgram(program);
             glBindVertexArray(vao);
             glBindBuffer(GL_ARRAY_BUFFER, arrayBuffer);
@@ -345,6 +343,17 @@ namespace {
         }
     };
 
+    struct CaptureGlState {
+        CaptureGlState() {
+            glPushAttrib(GL_ALL_ATTRIB_BITS);
+            glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
+        }
+
+        ~CaptureGlState() {
+            glPopClientAttrib();
+            glPopAttrib();
+        }
+    };
 } // namespace
 
 DispatchDrawCallback::DispatchDrawCallback(Lamure* plugin)
@@ -394,8 +403,7 @@ void DispatchDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const
     // Ensure initialization happened
     if (!initialized || !scmCamera) return;
     if (!_renderer->gpuOrganizationReady()) return;
-    glPushAttrib(GL_ALL_ATTRIB_BITS);
-    glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
+    CaptureGlState glstate;
 
     if (allowLodUpdate) {
         lamure::ren::cut_database* cuts = lamure::ren::cut_database::get_instance();
@@ -460,8 +468,6 @@ void DispatchDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const
 
     if (drawable)
         drawable->drawImplementation(renderInfo);
-    glPopClientAttrib();
-    glPopAttrib();
 }
 
 void CutsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg::Drawable* drawable) const
@@ -475,8 +481,7 @@ void CutsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg
     if (!plugin->getSettings().lod_update || plugin->isRebuildInProgress()) {
         return;
     }
-    glPushAttrib(GL_ALL_ATTRIB_BITS);
-    glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
+    CaptureGlState glstate;
 
     int ctx = renderInfo.getContextID();
     const uint64_t frameNo = frameNumberFromRenderInfo(renderInfo);
@@ -488,7 +493,7 @@ void CutsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg
         if (!resolveMappedViewAndCamera(camera, res.view_ids, res.scm_cameras, viewId)) return;
     }
     const bool timingEnabled = m_renderer->isTimingModeActive();
-    
+
     lamure::ren::cut_database* cuts = lamure::ren::cut_database::get_instance();
     lamure::ren::model_database* database = lamure::ren::model_database::get_instance();
     lamure::ren::controller* controller = lamure::ren::controller::get_instance();
@@ -501,7 +506,7 @@ void CutsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg
     if (!m_renderer->getModelViewProjectionFromRenderInfo(renderInfo, drawableParent, model_osg, view_osg, proj_osg)) {
         return;
     }
-    
+
     const scm::math::mat4 model_matrix = LamureUtil::matConv4F(model_osg);
     lamure::context_t context_id = controller->deduce_context_id(ctx);
 
@@ -515,11 +520,9 @@ void CutsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg
     if (timingEnabled) {
         m_renderer->noteContextUpdateMs(ctx, frameNo, elapsedMs(tContextStart));
     }
-    
+
     if (drawable)
         drawable->drawImplementation(renderInfo);
-    glPopClientAttrib();
-    glPopAttrib();
 }
 
 
@@ -538,24 +541,15 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
 
     if (!m_renderer->beginFrame(ctx))
         return;
-    glPushAttrib(GL_ALL_ATTRIB_BITS);
-    glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
+    CaptureGlState glstate;
 
     bool pixelMetricsActive = false;
-    bool stateCaptured = false;
-    FastState before;
     auto cleanup = [&]() {
         if (pixelMetricsActive) {
             m_renderer->endPixelMetricsCapture(ctx);
             pixelMetricsActive = false;
         }
         m_renderer->endFrame(ctx);
-        if (stateCaptured) {
-            before.restore();
-            stateCaptured = false;
-        }
-        glPopClientAttrib();
-        glPopAttrib();
     };
 
     const auto& settings = plugin->getSettings();
@@ -599,14 +593,13 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
 
     osg::State* state = renderInfo.getState();
     const bool wantsMultipass = (settings.shader_type == LamureRenderer::ShaderType::SurfelMultipass);
-    before = FastState::capture(wantsMultipass);
-    stateCaptured = true;
+    FastState before(wantsMultipass);
 
     glDisable(GL_CULL_FACE);
     m_renderer->updateActiveClipPlanes();
     ClipDistanceScope clipScope(m_renderer, m_renderer->clipPlaneCount() > 0);
     if (state) {
-        state->setCheckForGLErrors(osg::State::CheckForGLErrors::NEVER_CHECK_GL_ERRORS);
+        //state->setCheckForGLErrors(osg::State::CheckForGLErrors::NEVER_CHECK_GL_ERRORS);
     }
 
     lamure::ren::cut_database* cuts = lamure::ren::cut_database::get_instance();
@@ -623,12 +616,12 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
     if (!loggedOpenMP) {
         loggedOpenMP = true;
 #ifdef _OPENMP
-        if (m_renderer->notifyOn()) { 
-             std::cout << "[Lamure] OpenMP is ENABLED. Max threads: " << omp_get_max_threads() << std::endl; 
+        if (m_renderer->notifyOn()) {
+             std::cout << "[Lamure] OpenMP is ENABLED. Max threads: " << omp_get_max_threads() << std::endl;
         }
 #else
-        if (m_renderer->notifyOn()) { 
-            std::cout << "[Lamure] OpenMP is DISABLED." << std::endl; 
+        if (m_renderer->notifyOn()) {
+            std::cout << "[Lamure] OpenMP is DISABLED." << std::endl;
         }
 #endif
     }
@@ -654,9 +647,9 @@ void PointsDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const o
 
     lamure::context_t context_id = controller->deduce_context_id(ctx);
     lamure::view_t view_id = static_cast<lamure::view_t>(viewId);
-    
+
     // NOTE: Cuts and Dispatch are now handled in separate callbacks!
-    
+
     scm::math::mat4 model_matrix = LamureUtil::matConv4F(model_osg);
 
     if (plugin->getUI() && plugin->getUI()->getDumpButton() && plugin->getUI()->getDumpButton()->state()) {
@@ -1189,8 +1182,7 @@ void BoundingBoxDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, co
         return;
     }
 
-    glPushAttrib(GL_ALL_ATTRIB_BITS);
-    glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
+    CaptureGlState glstate;
     GLuint boxVao = 0;
     {
         std::lock_guard<std::mutex> callbackLock(res.callback_mutex);
@@ -1212,11 +1204,9 @@ void BoundingBoxDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, co
     }
     if (boxVao == 0)
     {
-        glPopClientAttrib();
-        glPopAttrib();
         return;
     }
-    
+
     osg::State* state = renderInfo.getState();
     if (state) {
         state->setCheckForGLErrors(osg::State::ONCE_PER_FRAME);
@@ -1234,8 +1224,6 @@ void BoundingBoxDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, co
     osg::Matrixd proj_osg;
     if (!m_renderer->getModelViewProjectionFromRenderInfo(renderInfo, drawableParent, model_osg, view_osg, proj_osg))
     {
-        glPopClientAttrib();
-        glPopAttrib();
         return;
     }
     scm::math::mat4 model_matrix = LamureUtil::matConv4F(model_osg);
@@ -1244,16 +1232,12 @@ void BoundingBoxDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, co
     const auto& renderable = cut.complete_set();
     if (renderable.empty())
     {
-        glPopClientAttrib();
-        glPopAttrib();
         return;
     }
 
     const auto it = m_renderer->m_bvh_node_vertex_offsets.find(data->modelId);
     if (it == m_renderer->m_bvh_node_vertex_offsets.end())
     {
-        glPopClientAttrib();
-        glPopAttrib();
         return;
     }
 
@@ -1279,7 +1263,7 @@ void BoundingBoxDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, co
     glUseProgram(lineProgram);
     glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, mvp_matrix.data_array);
     glUniform4f(colorLocation,
-        plugin->getSettings().bvh_color[0], 
+        plugin->getSettings().bvh_color[0],
         plugin->getSettings().bvh_color[1],
         plugin->getSettings().bvh_color[2],
         plugin->getSettings().bvh_color[3]);
@@ -1314,8 +1298,6 @@ void BoundingBoxDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, co
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLuint>(prevElementBuffer));
 
     m_renderer->noteContextRenderCounts(ctx, frameNo, 0, 0, rendered_bounding_boxes);
-    glPopClientAttrib();
-    glPopAttrib();
 }
 
 
@@ -1654,7 +1636,7 @@ void LamureRenderer::endPixelMetricsCapture(int ctxId)
     }
 
     if (res.pixel_capture_used_stencil && res.sh_coverage_query.program && res.geo_screen_quad.vbo) {
-        GLint prevProgram = 0, prevVAO = 0;
+        GLint prevProgram = 0, prevVAO = 0, prevArrayBuffer = 0;
         GLboolean prevBlend = glIsEnabled(GL_BLEND);
         GLboolean prevCull = glIsEnabled(GL_CULL_FACE);
         GLboolean prevDepth = glIsEnabled(GL_DEPTH_TEST);
@@ -1666,6 +1648,7 @@ void LamureRenderer::endPixelMetricsCapture(int ctxId)
 
         glGetIntegerv(GL_CURRENT_PROGRAM, &prevProgram);
         glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &prevVAO);
+        glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &prevArrayBuffer);
         glGetBooleanv(GL_COLOR_WRITEMASK, prevColorMask);
         glGetBooleanv(GL_DEPTH_WRITEMASK, &prevDepthMask);
         glGetIntegerv(GL_STENCIL_FUNC, &prevStencilFunc);
@@ -1713,6 +1696,7 @@ void LamureRenderer::endPixelMetricsCapture(int ctxId)
         if (coverageVao != 0) {
             glDeleteVertexArrays(1, &coverageVao);
         }
+        glBindBuffer(GL_ARRAY_BUFFER, static_cast<GLuint>(prevArrayBuffer));
         glBindVertexArray(static_cast<GLuint>(prevVAO));
         glUseProgram(static_cast<GLuint>(prevProgram));
     }
@@ -2126,9 +2110,8 @@ InitDrawCallback::InitDrawCallback(Lamure* plugin)
 
 void InitDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg::Drawable* drawable) const
 {
+    CaptureGlState glstate;
 
-    glPushAttrib(GL_ALL_ATTRIB_BITS);
-    glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
     int ctx = renderInfo.getContextID();
     osg::Camera* cam = renderInfo.getCurrentCamera();
     if (!cam) {
@@ -2144,7 +2127,7 @@ void InitDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg
         if (drawable) { drawable->drawImplementation(renderInfo); }
         return;
     }
-    
+
     // Context-level initialization (shared GL resources).
     if (!res.initialized) {
         res.ctx = ctx;
@@ -2210,16 +2193,13 @@ void InitDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const osg
         _renderer->initFrustumResources(res);
         _renderer->initBoxResources(res);
         _renderer->initPclResources(res);
-        
+
         before.restore();
         res.resources_initialized = true;
 
     }
-    
-    if (drawable) { drawable->drawImplementation(renderInfo); }
 
-    glPopClientAttrib();
-    glPopAttrib();
+    if (drawable) { drawable->drawImplementation(renderInfo); }
 }
 
 StatsDrawCallback::StatsDrawCallback(Lamure *plugin, osgText::Text *label, osgText::Text *values)
@@ -2504,7 +2484,7 @@ void FrustumDrawCallback::drawImplementation(osg::RenderInfo& renderInfo, const 
 
     osg::Matrixd view_osg, proj_osg;
     _renderer->getMatricesFromRenderInfo(renderInfo, view_osg, proj_osg);
-    
+
     scm::math::mat4f view = LamureUtil::matConv4F(view_osg);
     scm::math::mat4f proj = LamureUtil::matConv4F(proj_osg);
     const scm::math::mat4f mvp_matrix = proj * view;
@@ -2837,7 +2817,7 @@ void LamureRenderer::init()
     m_frustum_stateset->setRenderBinDetails(10, "RenderBin");
     m_frustum_geode->setStateSet(m_frustum_stateset.get());
     m_frustum_geode->setCullingActive(false);
-    
+
     auto ui = m_plugin->getUI();
 
     const bool show_stats = m_plugin->getSettings().show_stats;
@@ -3091,7 +3071,7 @@ bool LamureRenderer::beginFrame(int ctxId)
     if (res.rendering) {
        return true;
     }
-    
+
     res.rendering = true;
     return true;
 }
@@ -3101,7 +3081,7 @@ void LamureRenderer::endFrame(int ctxId)
     bool performFinish = false;
     {
         auto& res = getResources(ctxId);
-        
+
         std::lock_guard<std::mutex> lock(m_renderMutex);
         res.rendering = false;
 
@@ -3184,7 +3164,7 @@ bool LamureRenderer::pauseAndDrainFrames(uint32_t extraDrainFrames)
             kv.second.rendering_allowed = false;
         }
         m_pauseRequested = false;
-        
+
         osg::ref_ptr<osg::GraphicsContext> gc = m_osg_camera.valid() ? m_osg_camera->getGraphicsContext() : nullptr;
         lock.unlock();
         if (gc.valid())
@@ -3204,9 +3184,9 @@ bool LamureRenderer::pauseAndDrainFrames(uint32_t extraDrainFrames)
         return true;
     }
 
-    m_renderCondition.wait(lock, [this]() { 
+    m_renderCondition.wait(lock, [this]() {
         for (const auto& kv : m_ctx_res) {
-            if (kv.second.rendering) return false; 
+            if (kv.second.rendering) return false;
         }
         return true;
     });
@@ -3237,7 +3217,7 @@ bool LamureRenderer::isRendering() const
     return false;
 }
 
-void LamureRenderer::initUniforms(ContextResources& ctx) 
+void LamureRenderer::initUniforms(ContextResources& ctx)
 {
     if (notifyOn()) { std::cout << "[Lamure] LamureRenderer::initUniforms()" << std::endl; }
     glUseProgram(ctx.sh_point.program);
@@ -4115,7 +4095,7 @@ bool LamureRenderer::initLamureShader(ContextResources& res)
                 }
                 m_shader_sources_loaded = true;
             }
-            catch (std::exception &e) { 
+            catch (std::exception &e) {
                 m_shader_sources_loaded = false;
                 std::cerr << "[Lamure][ERR] Exception loading shaders: " << e.what() << "\n";
                 return false;
@@ -4398,7 +4378,7 @@ void LamureRenderer::updateSharedBoxData() {
     auto* db   = lamure::ren::model_database::get_instance();
 
     const auto modelCount = static_cast<uint32_t>(m_plugin->getSettings().models.size());
-    
+
     // Prepare aggregation for scene AABB
     const float fmax = std::numeric_limits<float>::max();
     scm::math::vec3f global_min(fmax, fmax, fmax);
@@ -4415,7 +4395,7 @@ void LamureRenderer::updateSharedBoxData() {
         for (uint64_t node_id = 0; node_id < boxes.size(); ++node_id) {
             // Offset in UNITS OF VERTICES (3 floats per vertex)
             current_offsets.push_back(static_cast<uint32_t>(m_shared_box_vertices.size() / 3));
-            
+
             std::vector<float> corners = LamureUtil::getBoxCorners(boxes[node_id]);
             m_shared_box_vertices.insert(m_shared_box_vertices.end(), corners.begin(), corners.end());
         }
@@ -4476,7 +4456,7 @@ void LamureRenderer::initBoxResources(ContextResources& res) {
     // No CPU calculation here anymore! Just upload the shared data.
     res.geo_box.destroy();
     res.box_vaos.clear();
-    
+
     GLuint tmpVao = 0, vbo = 0, ibo = 0;
     glGenVertexArrays(1, &tmpVao);
     glBindVertexArray(tmpVao);
@@ -4487,7 +4467,7 @@ void LamureRenderer::initBoxResources(ContextResources& res) {
 
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    
+
     // Upload precomputed data
     if (!m_shared_box_vertices.empty()) {
         glBufferData(GL_ARRAY_BUFFER,
@@ -4675,7 +4655,7 @@ void LamureRenderer::getMatricesFromRenderInfo(osg::RenderInfo& renderInfo, osg:
              osg::Matrixd cam_mv = currentCamera->getViewMatrix();
              osg::Matrixd rotonly = cam_mv;
              rotonly(3, 0) = 0.0; rotonly(3, 1) = 0.0; rotonly(3, 2) = 0.0; rotonly(3, 3) = 1.0;
-             
+
              osg::Matrixd invRot;
              invRot.invert(rotonly);
 
