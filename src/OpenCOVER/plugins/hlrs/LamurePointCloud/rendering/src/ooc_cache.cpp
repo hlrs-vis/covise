@@ -10,6 +10,11 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
+#ifdef __APPLE__
+#include <mach/mach.h>
+#include <mach/mach_host.h>
+#include <sys/sysctl.h>
+#endif
 #include <lamure/ren/ooc_cache.h>
 
 namespace lamure
@@ -24,6 +29,39 @@ static bool ooc_budget_determined = false;
 // Statically allocated buffers to be reused across hard resets
 static char* cache_data_ = nullptr;
 static char* cache_data_provenance_ = nullptr;
+
+
+namespace {
+size_t get_free_ram()
+{
+    size_t freeram = 0;
+    #ifdef WIN32
+                    MEMORYSTATUSEX statex;
+                    statex.dwLength = sizeof(statex);
+                    GlobalMemoryStatusEx(&statex);
+                    freeram = statex.ullAvailPhys;
+    #else
+    #ifdef __APPLE__
+                    // Free RAM = (free + inactive + purgeable) pages * page size.
+                    mach_port_t host_port = mach_host_self();
+                    vm_size_t page_size = 0;
+                    host_page_size(host_port, &page_size);
+
+                    vm_statistics64_data_t vm_stat;
+                    mach_msg_type_number_t count = HOST_VM_INFO64_COUNT;
+                    if(host_statistics64(host_port, HOST_VM_INFO64, (host_info64_t)&vm_stat, &count) == KERN_SUCCESS)
+                    {
+                        freeram = (size_t)(vm_stat.free_count + vm_stat.inactive_count + vm_stat.purgeable_count) * (size_t)page_size;
+                    }
+    #else
+                    struct sysinfo info;
+                    sysinfo(&info);
+                    freeram = info.freeram;
+    #endif
+    #endif
+    return freeram;
+}
+}
 
 ooc_cache::ooc_cache(const slot_t num_slots, Data_Provenance const &data_provenance) : cache(num_slots), maintenance_counter_(0)
 {
@@ -91,18 +129,7 @@ ooc_cache *ooc_cache::get_instance(Data_Provenance const &data_provenance)
             model_database *database = model_database::get_instance();
 
             if (!ooc_budget_determined) {
-                size_t freeram = 0;
-#ifdef WIN32
-                MEMORYSTATUSEX statex;
-                statex.dwLength = sizeof(statex);
-                GlobalMemoryStatusEx(&statex);
-                freeram = statex.ullAvailPhys;
-#else
-                struct sysinfo info;
-                sysinfo(&info);
-                freeram = info.freeram;
-#endif
-
+                size_t freeram = get_free_ram();
                 size_t ram_free_in_bytes = (freeram * 3u) / 4u;
                 size_t out_of_core_budget_in_bytes = policy->out_of_core_budget_in_mb() * 1024 * 1024;
 
@@ -160,18 +187,7 @@ ooc_cache *ooc_cache::get_instance()
             model_database *database = model_database::get_instance();
 
             if (!ooc_budget_determined) {
-                size_t freeram = 0;
-#ifdef WIN32
-                MEMORYSTATUSEX statex;
-                statex.dwLength = sizeof(statex);
-                GlobalMemoryStatusEx(&statex);
-                freeram = statex.ullAvailPhys;
-#else
-                struct sysinfo info;
-                sysinfo(&info);
-                freeram = info.freeram;
-#endif
-
+                size_t freeram = get_free_ram();
                 size_t ram_free_in_bytes = (freeram * 3u) / 4u;
                 size_t out_of_core_budget_in_bytes = policy->out_of_core_budget_in_mb() * 1024 * 1024;
 

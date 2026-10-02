@@ -797,7 +797,11 @@ void osg_util::waitForOpenGLContext() {
 #ifdef WIN32
 		if (wglGetCurrentContext() != nullptr) {
 #else
+#ifdef __APPLE__
+        if (CGLGetCurrentContext() != nullptr) {
+#else
 		if (glXGetCurrentContext() != nullptr) {
+#endif
 #endif
 			context_ready = true;
 			break;

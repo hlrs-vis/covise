@@ -13,7 +13,11 @@
 #include <cmath> // For std::pow, std::round
 #include <algorithm> // For std::max
 #include <cstring> // For std::strcmp, std::strstr, std::strlen
+#ifdef __APPLE__
+#include <OpenGL/glu.h> // For gluErrorString
+#else
 #include <GL/glu.h> // For gluErrorString
+#endif
 #include <unordered_map>
 
 #ifdef USE_X11

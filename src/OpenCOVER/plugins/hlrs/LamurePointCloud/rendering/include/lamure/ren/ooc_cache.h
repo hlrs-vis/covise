@@ -19,7 +19,9 @@
 #include <lamure/ren/platform.h>
 #include <lamure/ren/policy.h>
 #ifndef WIN32
+#ifndef __APPLE__
 #include <sys/sysinfo.h>
+#endif
 #endif
 
 namespace lamure

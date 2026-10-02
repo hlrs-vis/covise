@@ -13,7 +13,11 @@
 #ifdef WIN32
 #include <windows.h>
 #else
+#ifdef __APPLE__
+#include <OpenGL/OpenGL.h>
+#else
 #include <GL/glx.h>
+#endif
 #endif
 #include <sstream>
 
