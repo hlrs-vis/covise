@@ -353,7 +353,12 @@ namespace {
         ~CaptureGlState() {
             glPopClientAttrib();
             glPopAttrib();
-            //renderInfo.getState()->reset();
+            //renderInfo.getState()->dirtyAllAttributes();
+            //renderInfo.getState()->dirtyAllModes();
+            //renderInfo.getState()->dirtyAllVertexArrays();
+            renderInfo.getState()->haveAppliedMode(GL_COLOR_ARRAY);
+
+            renderInfo.getState()->apply();
         }
     };
 } // namespace
