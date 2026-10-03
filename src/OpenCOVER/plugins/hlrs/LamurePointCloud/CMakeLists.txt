@@ -6,6 +6,9 @@ include(${SRC_DIR}/pcl_makros.cmake)
 
 # Using the LamurePointCloud target
 using(Lamure)
+IF(WIN32)
+using(GLFW)
+ENDIF(WIN32)
 
 covise_find_package(SCHISM)
 if(NOT SCHISM_FOUND)

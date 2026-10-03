@@ -14,7 +14,7 @@
 #include <lamure/utils.h>
 #include <lamure/types.h>
 #include <lamure/memory.h>
-#include <lamure/config.h>
+#include "config.h"
 
 namespace lamure {
 namespace ren {
