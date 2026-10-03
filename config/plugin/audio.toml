@@ -2,7 +2,7 @@ type = "osc"
 
 [osc]
 setup = "speakers"
-connection = { host = "localhost", port = 8000 }
+connection = { host = "192.168.0.241", port = 31231 }
 
 [[speakers]]
 name = "Front Top Left"
