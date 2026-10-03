@@ -619,27 +619,27 @@ Name: {commondesktop}\OddLOT; Filename: {app}\{#ARCHSUFFIX}\bin\oddlot.exe; Comm
 [Run]
 ; Filename: regsvr32.exe; Parameters: /s {#DLIB}\DsRendererd.ax; Description: Register Rendering filter; Flags: nowait postinstall
 #if ARCHSUFFIX == "vista"
-Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x86_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall shellexec
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x86_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall shellexec waituntilterminated
 #elif ARCHSUFFIX == "vistaopt"
-Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x86_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall shellexec
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x86_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall shellexec waituntilterminated
 #elif ARCHSUFFIX == "amdwin64"
-Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall shellexec
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall shellexec waituntilterminated
 #elif ARCHSUFFIX == "tamarau"
-Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64.exe; Parameters: /Q; Description: Installing VisualStudio 2012 Runtime; Flags: postinstall shellexec
-Filename: {app}\{#ARCHSUFFIX}\lib\vcredist2010_x64.exe; Parameters: /Q; Description: Install VisualStudio 2010 x64 Runtime; Flags: postinstall shellexec
-Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x86.exe; Parameters: /Q; Description: Install VisualStudio 2010 x86 Runtime; Flags: postinstall shellexec
-Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\mpi_x64.Msi"" /qb"; Description: Installint MS-MPI Runtime; Flags: postinstall shellexec
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64.exe; Parameters: /Q; Description: Installing VisualStudio 2012 Runtime; Flags: postinstall shellexec waituntilterminated
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist2010_x64.exe; Parameters: /Q; Description: Install VisualStudio 2010 x64 Runtime; Flags: postinstall shellexec waituntilterminated
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x86.exe; Parameters: /Q; Description: Install VisualStudio 2010 x86 Runtime; Flags: postinstall shellexec waituntilterminated
+Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\mpi_x64.Msi"" /qb"; Description: Installint MS-MPI Runtime; Flags: postinstall shellexec waituntilterminated
 #elif ARCHSUFFIX == "tamarauopt"
-Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64.exe; Parameters: /Q; Description: Install VisualStudio 2012 Runtime; Flags: postinstall shellexec
-Filename: {app}\{#ARCHSUFFIX}\lib\vcredist2010_x64.exe; Parameters: /Q; Description: Install VisualStudio 2010 x64 Runtime; Flags: postinstall shellexec
-Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x86.exe; Parameters: /Q; Description: Install VisualStudio 2010 x86 Runtime; Flags: postinstall shellexec
-Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\mpi_x64.Msi"" /qb"; Description: Installint MS-MPI Runtime; Flags: postinstall shellexec   
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64.exe; Parameters: /Q; Description: Install VisualStudio 2012 Runtime; Flags: postinstall shellexec waituntilterminated
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist2010_x64.exe; Parameters: /Q; Description: Install VisualStudio 2010 x64 Runtime; Flags: postinstall shellexec waituntilterminated
+Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x86.exe; Parameters: /Q; Description: Install VisualStudio 2010 x86 Runtime; Flags: postinstall shellexec waituntilterminated
+Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\mpi_x64.Msi"" /qb"; Description: Installint MS-MPI Runtime; Flags: postinstall shellexec  waituntilterminated 
 #elif ARCHSUFFIX == "zebuopt"
-Filename: {app}\{#ARCHSUFFIX}\lib\bin\vcredist_x64.exe; Parameters: /Q; Check: VCRedist1264NeedsInstall; Description: Install VisualStudio 2012 x64 Runtime; Flags: postinstall    
-Filename: {app}\{#ARCHSUFFIX}\lib\bin\vcredist_x86.exe; Parameters: /Q; Check: VCRedist1286NeedsInstall; Description: Install VisualStudio 2010 x86 Runtime; Flags: postinstall
-Filename: {app}\{#ARCHSUFFIX}\lib\bin\vc_redist.x64.exe; Parameters: /Q; Check: VCRedistBundleNeedsInstall; Description: Install VisualStudio 2015-19 x64 Runtimes; Flags: postinstall
-Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\bin\mpi_x64.Msi"" /qb"; Check: MSMPINeedsInstall; Description: Install MS-MPI Runtime; Flags: postinstall   
-Filename: {app}\{#ARCHSUFFIX}\lib\bin\w_cproc_p_11.1.072_redist_intel64.exe; Parameters: /S /v/qn; Description: Install Intel Runtime; Flags: postinstall
+Filename: {app}\{#ARCHSUFFIX}\lib\bin\vcredist_x64.exe; Parameters: /Q; Check: VCRedist1264NeedsInstall; Description: Install VisualStudio 2012 x64 Runtime; Flags: postinstall waituntilterminated   
+Filename: {app}\{#ARCHSUFFIX}\lib\bin\vcredist_x86.exe; Parameters: /Q; Check: VCRedist1286NeedsInstall; Description: Install VisualStudio 2010 x86 Runtime; Flags: postinstall waituntilterminated
+Filename: {app}\{#ARCHSUFFIX}\lib\bin\vc_redist.x64.exe; Parameters: /Q; Check: VCRedistNeedsInstall; Description: Install VisualStudio 2017-26 x64 Runtimes; Flags: postinstall waituntilterminated
+Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\bin\mpi_x64.Msi"" /qb"; Check: MSMPINeedsInstall; Description: Install MS-MPI Runtime; Flags: postinstall waituntilterminated  
+Filename: {app}\{#ARCHSUFFIX}\lib\bin\w_cproc_p_11.1.072_redist_intel64.exe; Parameters: /S /v/qn; Description: Install Intel Runtime; Flags: postinstall waituntilterminated
 
 #elif ARCHSUFFIX == "amdwin64opt"
 Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall shellexec
@@ -656,6 +656,97 @@ Type: files; Name: "{commonappdata}\Autodesk\Revit\Addins\2023\OpenCOVER.addin"
 program Setup;
 
 
+const
+  VC_REDIST_X64_REGKEY =
+    'SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x64';
+
+  // Example minimum version.
+  // 14.44.x is the final VS 2022 v17.14 runtime.
+  // VS 2026 starts with 14.50.x.
+  VC_REDIST_MIN_VERSION = '14.51.36247.0';
+
+
+function CompareVersionStrings(Version1, Version2: string): Integer;
+var
+  P1, P2: Integer;
+  S1, S2: string;
+  N1, N2: Integer;
+begin
+  Result := 0;
+
+  while (Version1 <> '') or (Version2 <> '') do
+  begin
+    P1 := Pos('.', Version1);
+    P2 := Pos('.', Version2);
+
+    if P1 > 0 then
+    begin
+      S1 := Copy(Version1, 1, P1 - 1);
+      Delete(Version1, 1, P1);
+    end
+    else
+    begin
+      S1 := Version1;
+      Version1 := '';
+    end;
+
+    if P2 > 0 then
+    begin
+      S2 := Copy(Version2, 1, P2 - 1);
+      Delete(Version2, 1, P2);
+    end
+    else
+    begin
+      S2 := Version2;
+      Version2 := '';
+    end;
+
+    N1 := StrToIntDef(S1, 0);
+    N2 := StrToIntDef(S2, 0);
+
+    if N1 < N2 then
+    begin
+      Result := -1;
+      Exit;
+    end;
+
+    if N1 > N2 then
+    begin
+      Result := 1;
+      Exit;
+    end;
+  end;
+end;
+
+
+function VCRedistX64VersionInstalled(out InstalledVersion: string): Boolean;
+begin
+  Result :=
+    RegQueryStringValue(
+      HKLM,
+      VC_REDIST_X64_REGKEY,
+      'Version',
+      InstalledVersion
+    );
+end;
+
+
+function VCRedistNeedsInstall: Boolean;
+var
+  InstalledVersion: string;
+begin
+  if not VCRedistX64VersionInstalled(InstalledVersion) then
+  begin
+    Result := True;
+    Exit;
+  end;
+
+  Result :=
+    CompareVersionStrings(
+      InstalledVersion,
+      VC_REDIST_MIN_VERSION
+    ) < 0;
+end;
 var
 
   CheckInstallRevitPlugin,CheckInstallForAll,CheckInstallcoviseDaemon,CheckInstallcoviseDaemonForAll: TCheckBox;
