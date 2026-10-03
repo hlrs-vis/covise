@@ -353,7 +353,7 @@ namespace {
         ~CaptureGlState() {
             glPopClientAttrib();
             glPopAttrib();
-            renderInfo.getState()->reset();
+            //renderInfo.getState()->reset();
         }
     };
 } // namespace
