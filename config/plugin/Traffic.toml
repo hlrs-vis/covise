@@ -141,7 +141,7 @@ length = 4.43777
 
 [[vehicleClasses.passenger.models]]
 name = "car_bmw_i3" 
-path = "/data/OpenPass/cars/bmw/i3.WRL"
+path = "/data/OpenPass/cars/bmw/i3.wrl"
 frontAxle = 1.35438
 backAxle = -1.21117
 length = 3.95949

@@ -29,6 +29,7 @@
 
 #include "CarGeometry.h"
 #include "ConnectorFcd.h"
+#include "ConnectorTrafficRecording.h"
 #include "PedestrianGeometry.h"
 
 Traffic *Traffic::thisPlugin = nullptr;
@@ -142,6 +143,10 @@ void Traffic::loadSimulation(const std::string &filename)
     else if (std::regex_search(filename, std::regex("\\.(fcd|xml|fcd\\.xml)$", std::regex_constants::icase)))
     {
         connector = std::make_unique<ConnectorFcd>(filename);
+    }
+    else if (std::regex_search(filename, std::regex("(\\.traffic\\.bin|fcd\\.bin)$", std::regex_constants::icase)))
+    {
+        connector = std::make_unique<ConnectorTrafficRecording>(filename);
     }
     else
     {

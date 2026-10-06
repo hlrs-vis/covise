@@ -9,6 +9,7 @@ set(HEADERS
     Connector.h
     traffic_utils.h
     ConnectorFcd.h
+    ConnectorTrafficRecording.h
     sumo/ConnectorSumo.h
     sumo/socket.h
     sumo/storage.h
@@ -25,6 +26,7 @@ set(SOURCES
     CarGeometry.cpp
     traffic_utils.cpp
     ConnectorFcd.cpp
+    ConnectorTrafficRecording.cpp
     sumo/ConnectorSumo.cpp
     sumo/socket.cpp
     sumo/storage.cpp

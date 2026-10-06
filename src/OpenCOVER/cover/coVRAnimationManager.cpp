@@ -524,6 +524,8 @@ void coVRAnimationManager::setNumTimesteps(int t)
     m_stopFrame = m_numFrames - 1;
     animStopItem->setValue(m_startFrame);
 
+    showAnimMenu(t > 1);
+
     if (m_currentAnimationFrame >= m_numFrames)
     {
         requestAnimationFrame(0);
@@ -650,7 +652,6 @@ void coVRAnimationManager::setNumTimesteps(int t, const void *who)
         }
     }
     setNumTimesteps(numTimesteps);
-    showAnimMenu(numTimesteps > 1);
 }
 
 // set number of timesteps

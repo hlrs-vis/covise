@@ -99,7 +99,7 @@ bool ConnectorSumo::update(double deltaTime, double simulationDeltaTime)
     return updated;
 }
 
-double sumoAngleToMath(double angle)
+inline double sumoAngleToMath(double angle)
 {
     // See https://github.com/eclipse-sumo/sumo/issues/1372
     // Return a normal math angle that works with sin/cos, i.e. radians, counter-clockwise, from positive X-axis.
