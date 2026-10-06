@@ -36,4 +36,4 @@ const std::string demo::collection = coviseDemoDir() + "/demos.json";
 const std::string demo::imageDir = demo::root + "/static/screenshots";
 const std::string demo::logFile = coviseDemoDir() + "/launch_log.jsonl";
 const std::string demo::indexHtml = coviseDemoDir() + "/index.html";
-const int demo::port = HLRS_DEMO_PORT_CHAR && atoi(HLRS_DEMO_PORT_CHAR) ? atoi(HLRS_DEMO_PORT_CHAR) : 31095;
+const int demo::port = HLRS_DEMO_PORT_CHAR && atoi(HLRS_DEMO_PORT_CHAR) ? atoi(HLRS_DEMO_PORT_CHAR) : 1095;
