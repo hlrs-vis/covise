@@ -5,8 +5,6 @@
 
  * License: LGPL 2+ */
 
-#include "demoserver.h" // must be before qt includes to avoid conflicts with Qt's signal macro
-#include <demo.h>
 #include "coverDaemon.h"
 #include "mainWindow.h"
 #include "tui.h"
@@ -54,8 +52,6 @@ int runGuiDaemon(int argc, char **argv, const po::variables_map &vars)
 
 int runCommandlineDaemon(int argc, char **argv, const po::variables_map &vars)
 {
-        std::cerr << "Starting demo server: http://" << covise::Host::getHostaddress() << ":" << demo::port << std::endl;
-        
         QCoreApplication a(argc, argv);
         CoverDaemon d;
         CommandLineUi tui{ readCredentials(vars), vars.count("autostart") != 0 };
@@ -95,15 +91,6 @@ int main(int argc, char **argv)
                 return 0;
         }
         
-        std::unique_ptr<DemoServer> demoServer;
-        std::unique_ptr<std::thread> demoThread;
-        if(!demo::root.empty())
-        {
-                demoServer = std::make_unique<DemoServer>();
-                demoThread = std::make_unique<std::thread> ([&demoServer]() {
-                        demoServer->run();
-                });
-        };
         if (vm.count("tui"))
         {
                 runCommandlineDaemon(argc, argv, vm);
@@ -112,7 +99,5 @@ int main(int argc, char **argv)
         {
                 runGuiDaemon(argc, argv, vm);
         }
-        demoServer->stop();
-        demoThread->join();
         return 0;
 }
