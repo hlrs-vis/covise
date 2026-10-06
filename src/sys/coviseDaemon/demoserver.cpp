@@ -365,7 +365,22 @@ void DemoServer::setupRoutes(crow::SimpleApp &app)
     .name("static_files")
     ([this](const crow::request &req, std::string path)
      {
-        auto p = (fs::path(demo::root) / path);
+        if(demo::root.empty())
+            return crow::response(404);
+        std::error_code ec;
+        fs::path root = fs::weakly_canonical(fs::path(demo::root), ec);
+        if (ec)
+            return crow::response(404);
+        fs::path p = fs::weakly_canonical(root / path, ec);
+        if (ec)
+            return crow::response(404);
+        // Only serve files that resolve to a location inside demo::root
+        // (blocks ../ traversal and absolute paths)
+        fs::path rel = p.lexically_relative(root);
+        if (rel.empty() || *rel.begin() == "..")
+            return crow::response(403);
+        if (!fs::is_regular_file(p, ec))
+            return crow::response(404);
         std::ifstream file(p, std::ios::binary);
         if (!file)
             return crow::response(404);
