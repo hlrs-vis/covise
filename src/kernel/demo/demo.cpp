@@ -9,9 +9,15 @@ const char* COVISEDIR = getenv("COVISEDIR");
 
 std::string getRoot()
 {
-    if(HLRS_DEMO_DIR_CHAR) return HLRS_DEMO_DIR_CHAR;
-     std::filesystem::path p("/data/hlrsDemo");
-    if (std::filesystem::exists(p))
+    if(HLRS_DEMO_DIR_CHAR)
+    {
+        std::filesystem::path p(HLRS_DEMO_DIR_CHAR);
+        if (std::filesystem::exists(p) && std::filesystem::canonical(p) != "/")
+            return p.string();
+        return "";
+    }
+    std::filesystem::path p("/data/hlrsDemo");
+    if (std::filesystem::exists(p) && std::filesystem::canonical(p) != "/")
         return p.string();
     return "";
 }
