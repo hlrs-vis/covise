@@ -97,11 +97,11 @@ ENDMACRO(COVISE_DUMP_LIB_SETUP)
 
 # helper to print the lib-values to a simple text-file
 MACRO(COVISE_PRINT_LIB_SETUP basename)
-  MESSAGE("${basename}_INCLUDE_DIR    = ${${basename}_INCLUDE_DIR}")
-  MESSAGE("${basename}_LIBRARY        = ${${basename}_LIBRARY}")
-  MESSAGE("${basename}_LIBRARY_RELESE = ${${basename}_LIBRARY_RELEASE}")
-  MESSAGE("${basename}_LIBRARY_DEBUG  = ${${basename}_LIBRARY_DEBUG}")
-  MESSAGE("${basename}_LIBRARIES      = ${${basename}_LIBRARIES}")
+  MESSAGE("${basename}_INCLUDE_DIR     = ${${basename}_INCLUDE_DIR}")
+  MESSAGE("${basename}_LIBRARY         = ${${basename}_LIBRARY}")
+  MESSAGE("${basename}_LIBRARY_RELEASE = ${${basename}_LIBRARY_RELEASE}")
+  MESSAGE("${basename}_LIBRARY_DEBUG   = ${${basename}_LIBRARY_DEBUG}")
+  MESSAGE("${basename}_LIBRARIES       = ${${basename}_LIBRARIES}")
 ENDMACRO(COVISE_PRINT_LIB_SETUP)
 
 MACRO(COVISE_SET_FTPARAM env_var_name env_var_value)
