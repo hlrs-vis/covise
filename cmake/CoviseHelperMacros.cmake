@@ -279,7 +279,7 @@ FUNCTION(COVISE_ADJUST_OUTPUT_DIR targetname)
       # generator supports configuration types
       FOREACH(conf_type ${CMAKE_CONFIGURATION_TYPES})
         STRING(TOUPPER "${conf_type}" upper_conf_type_str)
-        IF(upper_conf_type_str STREQUAL "DEBUG")
+        IF(upper_conf_type_str STREQUAL "DEBUG" OR upper_conf_type_str STREQUAL "SANITIZE")
             SET_TARGET_PROPERTIES(${ARGV0} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_${upper_conf_type_str} "${COVISE_DESTDIR}/${DBG_ARCHSUFFIX}/${BINLIB_SUFFIX}${MYPATH_POSTFIX}")
             SET_TARGET_PROPERTIES(${ARGV0} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_${upper_conf_type_str} "${COVISE_DESTDIR}/${DBG_ARCHSUFFIX}/${BINLIB_SUFFIX}${MYPATH_POSTFIX}")
             SET_TARGET_PROPERTIES(${ARGV0} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_${upper_conf_type_str} "${COVISE_DESTDIR}/${DBG_ARCHSUFFIX}/${BINLIB_SUFFIX}${MYPATH_POSTFIX}")
