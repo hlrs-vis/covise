@@ -181,12 +181,6 @@ endif()
 IF(NOT COVISE_CONFIGURED_ONCE)
   # Change default values here...
   # For example modify initial CXXFLAGS, CFLAGS for a specific compiler / archsuffix ...
-  
-  IF(APPLE)
-    IF(BASEARCHSUFFIX STREQUAL "leopard")
-      SET(CMAKE_OSX_ARCHITECTURES "x86_64;i386" CACHE STRING "Build architectures for OSX" FORCE)
-    ENDIF()
-  ENDIF(APPLE)
 
   IF(COVISE_USE_FORTRAN)
     # continue to support old ortran code with gnu fortran 8
@@ -259,12 +253,6 @@ ENDIF(WIN32)
 IF(MINGW)
    ADD_DEFINITIONS(-DSTRSAFE_NO_DEPRECATE)
 ENDIF()
-
-if(APPLE)
-   if(BASEARCHSUFFIX STREQUAL "libc++")
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-   endif()
-endif(APPLE)
 
 # include directories we need almost everywhere
 INCLUDE_DIRECTORIES(
