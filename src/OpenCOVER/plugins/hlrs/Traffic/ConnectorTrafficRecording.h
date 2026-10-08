@@ -35,6 +35,9 @@ public:
 
     std::vector<VehicleState> at(double timestamp);
 
+    double getTimeStep() const override;
+    double getAnimationSpeed() const override;
+
 private:
     template <typename T>
     T read()
@@ -63,6 +66,7 @@ private:
     std::vector<double> m_timesteps;
 
     double m_simulationTime = -1.0;
+    double m_timeStep = 1.0; // determined when loading, if possible
     bool m_updated = false;
 };
 #endif

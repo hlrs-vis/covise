@@ -33,6 +33,8 @@ public:
         const xercesc::Attributes &attrs) override;
     void fatalError(const xercesc::SAXParseException &) override;
 
+    double getTimeStep() const override { return 0.2; }
+
 private:
     double m_parseTimestep = -1.0;
     XMLCh *TAG_root;

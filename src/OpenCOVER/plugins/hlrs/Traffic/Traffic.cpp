@@ -218,7 +218,7 @@ void Traffic::preFrame()
         return;
     }
 
-    const double simulationSpeed = pauseButton->state() ? 0.0 : simulationSpeedSlider->value();
+    const double simulationSpeed = pauseButton->state() ? 0.0 : simulationSpeedSlider->value() * connector->getAnimationSpeed();
 
     if (connector->update(deltaTime, deltaTime * simulationSpeed))
     {
@@ -321,6 +321,7 @@ void Traffic::processNewResults()
     {
         auto currentEntity = vehicles.find(vehicleState.id);
         existing_ids.insert(vehicleState.id);
+        auto timeStep = connector->getTimeStep();
 
         if (currentEntity == vehicles.end())
         { // not found, create new one
@@ -352,7 +353,7 @@ void Traffic::processNewResults()
             vehicle.sourceHeading = vehicleState.angle;
             vehicle.sourceSpeed = vehicleState.speed;
 
-            vehicle.timeFromSourceToTarget = 1.0;
+            vehicle.timeFromSourceToTarget = timeStep;
             vehicle.timeSinceSource = 0.0;
         }
         else
@@ -368,7 +369,7 @@ void Traffic::processNewResults()
             vehicle.targetSpeed = vehicleState.speed;
 
             vehicle.timeSinceSource = 0.0;
-            vehicle.timeFromSourceToTarget = 0.2; // TODO: use simulation dt here
+            vehicle.timeFromSourceToTarget = timeStep;
 
             vehicle.geometry->updateTrajectory();
 
@@ -523,6 +524,7 @@ void Traffic::loadVehicleClasses()
                 modelSection.value<double>("", "frontAxle", 0.0)->value(),
                 modelSection.value<double>("", "backAxle", 0.0)->value(),
                 modelSection.value<double>("", "length", 0.0)->value(),
+                (int8_t)modelSection.value<int64_t>("", "colorMaterialSlot", -1)->value(),
             });
         }
 

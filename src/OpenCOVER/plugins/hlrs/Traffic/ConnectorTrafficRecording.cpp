@@ -65,9 +65,28 @@ ConnectorTrafficRecording::ConnectorTrafficRecording(const std::string &filename
         times_[i] = read<double>();
     }
 
+    if (times_.size() >= 2)
+    {
+        auto end = *(times_.end() - 1);
+        auto start = times_[0];
+        m_timeStep = (end - start) / (times_.size() - 1);
+        std::cout << "Detected traffic recording time step: " << m_timeStep << std::endl;
+    }
+
     opencover::coVRAnimationManager::instance()->setNumTimesteps(times_.size());
-    opencover::coVRAnimationManager::instance()->setAnimationSpeed(5.0); // 0.2 per tick
+    opencover::coVRAnimationManager::instance()->setAnimationSpeed(1.0);
+    opencover::coVRAnimationManager::instance()->setTimestepBase(m_timeStep);
     opencover::coVRAnimationManager::instance()->enableAnimation(true);
+}
+
+double ConnectorTrafficRecording::getTimeStep() const
+{
+    return m_timeStep;
+}
+
+double ConnectorTrafficRecording::getAnimationSpeed() const
+{
+    return opencover::coVRAnimationManager::instance()->getAnimationSpeed();
 }
 
 bool ConnectorTrafficRecording::isConnected() const
@@ -92,6 +111,8 @@ void ConnectorTrafficRecording::getSimulationState(SimulationState &state)
 {
     if (m_updated)
     {
+        state.vehicles.clear();
+
         auto it = std::lower_bound(times_.begin(), times_.end(), m_simulationTime);
 
         if (it == times_.end() || *it != m_simulationTime)
