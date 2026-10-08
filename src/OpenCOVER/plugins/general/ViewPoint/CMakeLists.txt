@@ -12,6 +12,7 @@ SET(HEADERS
  Interpolator.h
  ViewDesc.h
  VrmlNodeViewPoint.h
+ ViewpointCycler.h
 )
 SET(SOURCES
 BezierCurveVisualizer.cpp
@@ -22,6 +23,7 @@ coVRDOMDocument.cpp
 Interpolator.cpp
 ViewDesc.cpp
  VrmlNodeViewPoint.cpp
+ ViewpointCycler.cpp
 )
 cover_add_plugin(ViewPoint ${COVISE_GRMSG_LIBRARY})
 qt_use_modules(ViewPoint Xml)

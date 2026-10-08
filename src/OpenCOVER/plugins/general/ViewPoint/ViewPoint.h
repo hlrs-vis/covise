@@ -14,6 +14,7 @@
 #include <OpenVRUI/osg/mathUtils.h>
 #include "FlightPathVisualizer.h"
 #include "Interpolator.h"
+#include "ViewpointCycler.h"
 
 #include <cover/ui/Owner.h>
 
@@ -97,6 +98,8 @@ public:
     void activateViewpoint(ViewDesc *viewDesc);
     void startTurnTableAnimation(float time);
     void turnTableStep();
+
+    const std::vector<ViewDesc *> &getViewpoints() const { return viewpoints; }
 
     void nextViewpoint();
     void previousViewpoint();
@@ -212,4 +215,7 @@ private:
     static ViewPoints *inst;
     bool loopMode = false;
     bool sendActivatedViewpointMsg = false;
+
+    ViewpointCycler cycler;
+    bool autoCycle = false;
 };
