@@ -87,20 +87,6 @@ const ModelTransformConfig modelTransform {
 };
 }
 
-//Funktion für die Trafo von GeoData-Koordinaten zum tats. 3D-Modell
-osg::Vec2d referenceToModelWorldXY(const osg::Vec3d &referencePosition)
-{
-    const double modelX = referencePosition.x() - modelTransform.modelEasting;
-
-    const double modelY = referencePosition.y() - modelTransform.modelNorthing;
-
-    const double worldX = modelX * modelTransform.scale + modelTransform.worldOffsetX;
-
-    const double worldY = modelY * modelTransform.scale + modelTransform.worldOffsetY;
-
-    return osg::Vec2d(worldX, worldY);
-}
-
 void printMatrix(const char *name, const osg::Matrix &m)
 {
     std::cerr << name << std::endl;
@@ -295,7 +281,7 @@ void MapLinkPlugin::createModule(
         0.0, 0.0, 0.0, 1.0);
 
     // Blender-Meter -> OpenCOVER-Millimeter
-    osg::Matrixd transform = osg::Matrixd::scale(1000.0, 1000.0, 1000.0) * rotation * osg::Matrixd::translate(center);
+    osg::Matrixd transform = osg::Matrixd::scale(1.0, 1.0, 1.0) * rotation * osg::Matrixd::translate(center);
 
     osg::ref_ptr<osg::MatrixTransform> moduleTransform = new osg::MatrixTransform();
 
@@ -492,6 +478,8 @@ bool MapLinkPlugin::init()
     m_pvModuleGroup->setName("PV_Modules");
     // PV-Module von der Hoehenabfrage ausschliessen
     m_pvModuleGroup->setNodeMask(0xFFFFFFFF);
+    
+    cover->getObjectsRoot()->addChild(m_pvModuleGroup);
 
     std::cerr << "MapLink: PV-Modulgruppe erstellt." << std::endl;
     return true;
@@ -711,11 +699,9 @@ MapLinkPlugin::handleMessage(Message *m)
                     // Nur zum Vergleich mit dem bisherigen GeoData-Projektraum
                     const osg::Vec3d projectPosition = GeoData::instance()->globalToProject(globalPosition);
 
-                    // UTM -> lokale Koordinaten des Production_OSG
-                    const osg::Vec2d modelWorldPosition = referenceToModelWorldXY(referencePosition);
 
-                    const double rayX = modelWorldPosition.x();
-                    const double rayY = modelWorldPosition.y();
+                    const double rayX = projectPosition.x();
+                    const double rayY = projectPosition.y();
 
 
                     std::cerr
@@ -776,7 +762,7 @@ MapLinkPlugin::handleMessage(Message *m)
                     }
 
                     // Höhenabfrage durchführen
-                    cover->getObjectsXform()->accept(visitor);
+                    cover->getObjectsRoot()->accept(visitor);
 
                     // Ursprüngliche Maske wiederherstellen,
                     // damit die PV-Module sichtbar bleiben.
@@ -794,7 +780,7 @@ MapLinkPlugin::handleMessage(Message *m)
 
                     const auto result = isect->getFirstIntersection();
 
-                    if (i == 0)
+                  /*  if (i == 0)
                     {
                         const osg::NodePath &path = result.nodePath;
 
@@ -847,10 +833,10 @@ MapLinkPlugin::handleMessage(Message *m)
                                     << std::endl;
                             }
                         }
-                    }
+                    }*/
                     const osg::Vec3d worldPoint = result.getWorldIntersectPoint();
 
-                    const double height = worldPoint.z() / 1000.0;
+                    const double height = worldPoint.z() ;
 
 
                     std::cerr
@@ -890,7 +876,8 @@ MapLinkPlugin::handleMessage(Message *m)
             case MSG_SetModules:
             {
                 // OBJ-Modell aus Blender laden
-                const std::string modelPath = "C:/src/covise/src/OpenCOVER/plugins/hlrs/MapLink/models/PV_kompakt_hoch.obj";
+                const std::string COVISEDIR = getenv("COVISEDIR");
+                const std::string modelPath = COVISEDIR + "/share/covise/example-data/PV/PV_kompakt_hoch.obj";
 
                 osg::ref_ptr<osg::Node> pvModel = osgDB::readNodeFile(modelPath);
 
@@ -942,25 +929,10 @@ MapLinkPlugin::handleMessage(Message *m)
                         const osg::Vec3d globalCorner(
                             longitude,
                             latitude,
-                            0.0);
+                            height);
 
-                        // EPSG:4326 -> EPSG:25832
-                        const osg::Vec3d referenceCorner = GeoData::instance()->globalToReference(
-                            globalCorner);
-
-                        // EPSG:25832 -> OpenCOVER-Modellkoordinaten
-                        const osg::Vec2d modelWorldXY = referenceToModelWorldXY(referenceCorner);
-
-                        // Modulecken werden nach oben gesetzt
-                        constexpr double MODULE_HEIGHT_OFFSET_MM = 100.0;
-
-                        // Höhe von Metern in Millimeter umrechnen
-                        const double worldZ = height * 1000.0 + MODULE_HEIGHT_OFFSET_MM;
-
-                        worldCorners[cornerIndex] = osg::Vec3d(
-                            modelWorldXY.x(),
-                            modelWorldXY.y(),
-                            worldZ);
+                        // UTM->project
+                        worldCorners[cornerIndex] = GeoData::instance()->globalToProject(globalCorner);
 
                         std::cerr
                             << "Module " << moduleId
