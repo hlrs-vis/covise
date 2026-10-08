@@ -51,6 +51,7 @@ type = "vehicle"
 [[vehicleClasses.passenger.models]]
 name="Audi_TT" 
 path="/data/traffic/cars/audi_tt.glb"
+lodPath="/data/traffic/cars/lod_car.glb" # TODO: make custom LOD for this car
 frontAxle = 1.15765
 backAxle = -1.27835
 length = 4.041
@@ -58,6 +59,7 @@ length = 4.041
 [[vehicleClasses.passenger.models]]
 name = "Audi_A4" 
 path = "/data/traffic/cars/audi_a4.glb"
+lodPath="/data/traffic/cars/lod_car.glb" # TODO: make custom LOD for this car
 frontAxle = 1.35341
 backAxle = -1.29659
 length = 4.55
@@ -65,6 +67,7 @@ length = 4.55
 [[vehicleClasses.passenger.models]]
 name = "BMW_Z3" 
 path = "/data/traffic/cars/bmw_z3.glb"
+lodPath="/data/traffic/cars/lod_car.glb" # TODO: make custom LOD for this car
 frontAxle = 1.29208
 backAxle = -1.19103
 length = 4.0431
@@ -72,6 +75,7 @@ length = 4.0431
 [[vehicleClasses.passenger.models]]
 name = "Smart" 
 path = "/data/traffic/cars/smart.glb"
+lodPath="/data/traffic/cars/lod_car.glb" # TODO: make custom LOD for this car
 frontAxle = 1.06592
 backAxle = -0.804076
 length = 2.28289

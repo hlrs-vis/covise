@@ -518,7 +518,7 @@ void Traffic::loadVehicleClasses()
                 modelSection.value<double>("", "frontAxle", 0.0)->value(),
                 modelSection.value<double>("", "backAxle", 0.0)->value(),
                 modelSection.value<double>("", "length", 0.0)->value(),
-                (int8_t)modelSection.value<int64_t>("", "colorMaterialSlot", -1)->value(),
+                modelSection.value<std::string>("", "lodPath", "")->value(),
             });
         }
 

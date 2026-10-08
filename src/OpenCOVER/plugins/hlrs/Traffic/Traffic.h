@@ -54,7 +54,8 @@ struct VehicleModel
     double frontAxle = 1.2;
     double backAxle = -1.2;
     double length = 3.2;
-    int8_t colorMaterialSlot = -1;
+
+    std::string lodPath;
 };
 
 enum GeometryType : uint8_t
