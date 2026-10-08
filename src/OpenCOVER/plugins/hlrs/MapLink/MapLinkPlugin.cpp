@@ -150,6 +150,15 @@ void MapLinkPlugin::createMenu()
     viewpointMenu->add(updateCameraButton);
 
     cover->getMenu()->add(REVITButton);*/
+    m_selectModulesButton = new coCheckboxMenuItem(
+        "PV-Module auswaehlen",
+        false);
+
+    m_selectModulesButton->setMenuListener(this);
+
+    cover->getMenu()->add(
+        m_selectModulesButton);
+
 
     MapLinkTab = new coTUITab("MapLink", coVRTui::instance()->mainFolder->getID());
     MapLinkTab->setPos(0, 0);
@@ -358,6 +367,24 @@ void MapLinkPlugin::clearAllModules()
         << std::endl;
 }
 
+void MapLinkPlugin::sendDeleteModuleRequest(int moduleId)
+{
+    covise::TokenBuffer tb;
+
+    tb << MSG_DeleteModuleRequest;
+    tb << moduleId;
+
+    Message m(tb);
+    m.type = PluginMessageTypes::HLRS_MapLink_Message;
+
+    std::cerr
+        << "MapLink: Sende Loeschanforderung fuer Modul "
+        << moduleId
+        << std::endl;
+
+    sendMessage(m);
+}
+
 osg::Matrixd MapLinkPlugin::computeLeftEyeProjection(const osg::Matrixd &projection) const
 {
 	(void)projection;
@@ -454,6 +481,11 @@ bool MapLinkPlugin::init()
     //cover->addPlugin("Annotation"); // we would like to have the Annotation plugin
     createMenu();
     createCamera();
+
+    // Interaktion zur Auswahl eines PV-Moduls in OpenCOVER
+    m_selectInteraction = new coTrackerButtonInteraction(
+        coInteraction::ButtonA,
+        "MapLinkModuleSelection");
 
     // Gruppe für die PV-Module erstellen
     m_pvModuleGroup = new osg::Group();
@@ -557,7 +589,31 @@ void MapLinkPlugin::createCamera()
 
 void MapLinkPlugin::menuEvent(coMenuItem *aButton)
 {
-    
+    if (aButton == m_selectModulesButton)
+    {
+        if (m_selectModulesButton->getState())
+        {
+            // Auswahlmodus einschalten
+            coInteractionManager::the()->registerInteraction(
+                m_selectInteraction);
+
+            std::cerr
+                << "MapLink: PV-Modulauswahl aktiviert."
+                << std::endl;
+        }
+        else
+        {
+            // Auswahlmodus ausschalten
+            coInteractionManager::the()->unregisterInteraction(
+                m_selectInteraction);
+
+            m_selectedModuleId = -1;
+
+            std::cerr
+                << "MapLink: PV-Modulauswahl deaktiviert."
+                << std::endl;
+        }
+    }
 }
 void MapLinkPlugin::tabletPressEvent(coTUIElement *tUIItem)
 {
@@ -1008,9 +1064,135 @@ MapLinkPlugin::handleMessage(Message *m)
     }
 }
 
-void
-MapLinkPlugin::preFrame()
+void MapLinkPlugin::preFrame()
 {
+    if (m_selectInteraction && m_selectInteraction->wasStarted())
+    {
+        std::cerr
+            << "MapLink: Klick erkannt."
+            << std::endl;
+
+        osg::Matrix mouseMat = cover->getMouseMat();
+
+        osg::Vec3d rayStart(
+            0.0,
+            0.0,
+            0.0);
+
+        osg::Vec3d rayEnd(
+            0.0,
+            10000000.0,
+            0.0);
+
+        rayStart = mouseMat.preMult(rayStart);
+
+        rayEnd = mouseMat.preMult(rayEnd);
+
+        std::cerr
+            << "MapLink: Ray berechnet."
+            << std::endl;
+
+        coIntersector *isect = coIntersection::instance()->newIntersector(
+            rayStart,
+            rayEnd);
+
+        std::cerr
+            << "MapLink: Intersector erzeugt."
+            << std::endl;
+
+        if (!m_pvModuleGroup)
+        {
+            std::cerr
+                << "MapLink: FEHLER - PV-Modulgruppe existiert nicht."
+                << std::endl;
+
+            return;
+        }
+
+        std::cerr
+            << "MapLink: PV-Gruppe hat "
+            << m_pvModuleGroup->getNumChildren()
+            << " Kinder."
+            << std::endl;
+
+        osgUtil::IntersectionVisitor visitor(isect);
+
+        std::cerr
+            << "MapLink: Starte Traversierung."
+            << std::endl;
+
+        cover->getObjectsXform()->accept(visitor);
+
+        std::cerr
+            << "MapLink: Traversierung beendet."
+            << std::endl;
+
+        if (isect->containsIntersections())
+        {
+            const auto result = isect->getFirstIntersection();
+
+            bool moduleFound = false;
+
+            for (osg::Node *node : result.nodePath)
+            {
+                if (!node)
+                    continue;
+
+                const std::string &name = node->getName();
+
+                std::cerr
+                    << "Trefferpfad: "
+                    << name
+                    << std::endl;
+
+                const std::string prefix = "PV_Module_";
+
+                if (name.rfind(prefix, 0) == 0)
+                {
+                    try
+                    {
+                        const int moduleId = std::stoi(name.substr(prefix.length()));
+
+                        m_selectedModuleId = moduleId;
+                        moduleFound = true;
+
+                        std::cerr
+                            << "MapLink: PV-Modul "
+                            << moduleId
+                            << " ausgewaehlt."
+                            << std::endl;
+
+                        break;
+                    }
+                    catch (...)
+                    {
+                        std::cerr
+                            << "MapLink: Ungueltige Modul-ID in Knotenname: "
+                            << name
+                            << std::endl;
+                    }
+                }
+            }
+
+            if (!moduleFound)
+            {
+                m_selectedModuleId = -1;
+
+                std::cerr
+                    << "MapLink: Treffer ist kein PV-Modul."
+                    << std::endl;
+            }
+        }
+        else
+        {
+            m_selectedModuleId = -1;
+
+            std::cerr
+                << "MapLink: Kein Treffer."
+                << std::endl;
+        }
+    }
+
     static int frameCounter = 0;
 
     if (++frameCounter % 300 == 0)
@@ -1018,6 +1200,31 @@ MapLinkPlugin::preFrame()
         printMatrix(
             "ObjectsXform:",
             cover->getObjectsXform()->getMatrix());
+    }
+}
+
+void MapLinkPlugin::key(int type, int keySym, int mod)
+{
+    if (type == osgGA::GUIEventAdapter::KEYDOWN)
+    {
+        if (keySym == osgGA::GUIEventAdapter::KEY_Delete)
+        {
+            if (m_selectedModuleId >= 0)
+            {
+                std::cerr
+                    << "MapLink: Loeschen angefordert fuer Modul "
+                    << m_selectedModuleId
+                    << std::endl;
+
+                sendDeleteModuleRequest(m_selectedModuleId);
+            }
+            else
+            {
+                std::cerr
+                    << "MapLink: Entf gedrueckt, aber kein Modul ausgewaehlt."
+                    << std::endl;
+            }
+        }
     }
 }
 

@@ -27,6 +27,8 @@
 #include <unordered_map>
 #include <osg/observer_ptr>
 #include <osg/Matrix>
+#include <OpenVRUI/coTrackerButtonInteraction.h>
+#include <OpenVRUI/coInteractionManager.h>
 
 std::map<int, std::array<osg::Vec3d, 4>> m_modules;
 
@@ -78,6 +80,7 @@ public:
     // this will be called in PreFrame
     bool update() override;
     void preFrame() override;
+    void key(int type, int keySym, int mod) override;
 
     void destroyMenu();
     void createMenu();
@@ -97,6 +100,7 @@ protected:
     //void showLocationMarker(double x, double y, const osg::Vec4 &color);
     void createModule(int moduleId, const std::array<osg::Vec3d, 4> &corners, osg::Node *pvModel);
     void deleteModule(int moduleId);
+    void sendDeleteModuleRequest(int moduleId);
     void clearAllModules();
 	osg::Matrixd computeLeftEyeProjection(const osg::Matrixd &projection) const override;
 	osg::Matrixd computeLeftEyeView(const osg::Matrixd &view) const override;
@@ -110,6 +114,9 @@ protected:
     coTUITab *MapLinkTab = nullptr;
     osg::ref_ptr<osg::Group> m_pvModuleGroup; // Gemeinsame Gruppe für alle PV-Module
     std::unordered_map<int, osg::ref_ptr<osg::MatrixTransform>> m_moduleNodes; // Zuordnung zwischen Modul-ID und sichtbarem 3D-Modell
+    int m_selectedModuleId = -1; // aktuell in 3D ausgewaehltes Modul
+    coCheckboxMenuItem *m_selectModulesButton = nullptr;
+    coTrackerButtonInteraction *m_selectInteraction = nullptr;
     osg::observer_ptr<osg::Group> m_cityModelParent;
     osg::Matrixd m_worldToCityParent;
     osg::ref_ptr<osg::Camera> camera;
