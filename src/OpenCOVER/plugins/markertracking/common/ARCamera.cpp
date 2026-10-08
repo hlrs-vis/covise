@@ -408,7 +408,7 @@ void ARCamera::calibrateFrame(const cv::Mat &frame,
 		std::cerr << "ARUCO calib accepted: " << m_allIds.size() << " (charuco corners=" << numCorners << ")" << std::endl;
 	}
 
-	cv::Mat preview = frame.clone();
+	cv::Mat preview = frame.clone(); // copy image for preview overlay, so that markers are not drawn to the image used for calibration
 	if (numCorners > 0)
 		cv::aruco::drawDetectedCornersCharuco(preview, charucoCorners, charucoIds);
 
