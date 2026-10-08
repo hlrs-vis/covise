@@ -74,8 +74,9 @@ ConnectorTrafficRecording::ConnectorTrafficRecording(const std::string &filename
     }
 
     opencover::coVRAnimationManager::instance()->setNumTimesteps(times_.size());
-    opencover::coVRAnimationManager::instance()->setAnimationSpeed(1.0);
-    opencover::coVRAnimationManager::instance()->setTimestepBase(m_timeStep);
+    opencover::coVRAnimationManager::instance()->setAnimationSpeed(1.0 / m_timeStep);
+    opencover::coVRAnimationManager::instance()->setTimestepBase(0);
+    opencover::coVRAnimationManager::instance()->setTimestepScale(m_timeStep);
     opencover::coVRAnimationManager::instance()->enableAnimation(true);
 }
 
@@ -86,7 +87,7 @@ double ConnectorTrafficRecording::getTimeStep() const
 
 double ConnectorTrafficRecording::getAnimationSpeed() const
 {
-    return opencover::coVRAnimationManager::instance()->getAnimationSpeed();
+    return opencover::coVRAnimationManager::instance()->getAnimationSpeed() * m_timeStep;
 }
 
 bool ConnectorTrafficRecording::isConnected() const

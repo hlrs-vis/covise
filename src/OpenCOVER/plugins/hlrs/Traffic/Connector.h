@@ -21,6 +21,7 @@ public:
     virtual bool isPrerecorded() const { return false; }
     virtual double getTimeStep() const = 0;
     virtual double getAnimationSpeed() const { return 1.0; }
+    virtual bool simulateOnSlaves() const { return false; }
 };
 
 #endif

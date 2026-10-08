@@ -37,6 +37,7 @@ public:
 
     double getTimeStep() const override;
     double getAnimationSpeed() const override;
+    bool simulateOnSlaves() const override { return true; }
 
 private:
     template <typename T>

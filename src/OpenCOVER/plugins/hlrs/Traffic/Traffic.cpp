@@ -98,10 +98,7 @@ Traffic::~Traffic()
 {
     // TODO: check cleanup
 
-    if (opencover::coVRMSController::instance()->isMaster())
-    {
-        vehicles.clear();
-    }
+    vehicles.clear();
 
     opencover::cover->getScene()->removeChild(trafficGroup);
 }
@@ -160,13 +157,10 @@ void Traffic::unloadSimulation()
 
 void Traffic::getSimulationResults(double deltaTime)
 {
-    if (opencover::coVRMSController::instance()->isMaster())
+    if (connector && connector->isConnected() && (opencover::coVRMSController::instance()->isMaster() || connector->simulateOnSlaves()))
     {
-        if (connector && connector->isConnected())
-        {
-            previousSimulationState = currentSimulationState; // TODO: is this copy?
-            connector->getSimulationState(currentSimulationState);
-        }
+        previousSimulationState = currentSimulationState; // TODO: is this copy?
+        connector->getSimulationState(currentSimulationState);
 
         // sendSimResults();
     }

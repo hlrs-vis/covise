@@ -146,8 +146,12 @@ CarGeometry::CarGeometry(Vehicle &vehicle, osg::Group *parentNode)
         osg::Vec4(0, 0, 0, 1), // black
     };
 
-    osg::Node *modelNode = applyBodyColor(loadFile(vehicle.model->path), colors[dis(gen2)]);
-    lodNode->addChild(modelNode, 0, 500.0);
+    auto color = colors[dis(gen2)];
+    osg::Node *modelNode = applyBodyColor(loadFile(vehicle.model->path), color);
+    lodNode->addChild(modelNode, 0, 250.0);
+
+    osg::Node *lodCar = applyBodyColor(loadFile("/data/traffic/cars/lod_car.glb"), color);
+    lodNode->addChild(lodCar, 250.0, 1000.0);
 }
 
 void CarGeometry::updateTrajectory()
