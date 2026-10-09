@@ -454,40 +454,7 @@ void ARCamera::calibrateFrame(const cv::Mat &frame,
 	int calibrationFlags = 0;
 	constexpr float aspectRatio = 1.0f;
 
-#if CV_VERSION_MAJOR < 5
-	std::vector<std::vector<cv::Point2f>> allCornersConcatenated;
-	std::vector<int> allIdsConcatenated;
-	std::vector<int> markerCounterPerFrame;
-	for (size_t i = 0; i < m_allCorners.size(); ++i)
-	{
-		markerCounterPerFrame.push_back(static_cast<int>(m_allCorners[i].size()));
-		for (size_t j = 0; j < m_allCorners[i].size(); ++j)
-		{
-			allCornersConcatenated.push_back(m_allCorners[i][j]);
-			allIdsConcatenated.push_back(m_allIds[i][j]);
-		}
-	}
-	cv::aruco::calibrateCameraAruco(allCornersConcatenated, allIdsConcatenated, markerCounterPerFrame,
-								   board, m_calibrationImageSize, cameraMatrix, distCoefficients,
-								   cv::noArray(), cv::noArray(), calibrationFlags);
-	std::vector<cv::Mat> allCharucoCorners, allCharucoIds;
-	for (size_t i = 0; i < m_allImages.size(); ++i)
-	{
-		cv::Mat corners, ids;
-		cv::aruco::interpolateCornersCharuco(m_allCorners[i], m_allIds[i], m_allImages[i], board,
-											 corners, ids, cameraMatrix, distCoefficients);
-		if (!corners.empty() && !ids.empty())
-		{
-			allCharucoCorners.push_back(corners);
-			allCharucoIds.push_back(ids);
-		}
-	}
-	if (allCharucoCorners.size() >= 4)
-		reprojectionError = cv::aruco::calibrateCameraCharuco(allCharucoCorners, allCharucoIds, board,
-															  m_calibrationImageSize, cameraMatrix,
-															  distCoefficients, rotationVectors,
-															  translationVectors, calibrationFlags);
-#else
+#if (CV_VERSION_MAJOR >= 5) || (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR >= 7)
 	const auto &boardCorners = board->getChessboardCorners();
 	std::vector<std::vector<cv::Point3f>> objectPoints;
 	std::vector<std::vector<cv::Point2f>> imagePoints;
@@ -529,47 +496,40 @@ void ARCamera::calibrateFrame(const cv::Mat &frame,
 		reprojectionError = cv::calibrateCamera(objectPoints, imagePoints, m_calibrationImageSize,
 												cameraMatrix, distCoefficients, rotationVectors,
 												translationVectors, calibrationFlags);
+#else 
+	std::vector<std::vector<cv::Point2f>> allCornersConcatenated;
+	std::vector<int> allIdsConcatenated;
+	std::vector<int> markerCounterPerFrame;
+	for (size_t i = 0; i < m_allCorners.size(); ++i)
+	{
+		markerCounterPerFrame.push_back(static_cast<int>(m_allCorners[i].size()));
+		for (size_t j = 0; j < m_allCorners[i].size(); ++j)
+		{
+			allCornersConcatenated.push_back(m_allCorners[i][j]);
+			allIdsConcatenated.push_back(m_allIds[i][j]);
+		}
+	}
+	cv::aruco::calibrateCameraAruco(allCornersConcatenated, allIdsConcatenated, markerCounterPerFrame,
+								   board, m_calibrationImageSize, cameraMatrix, distCoefficients,
+								   cv::noArray(), cv::noArray(), calibrationFlags);
+	std::vector<cv::Mat> allCharucoCorners, allCharucoIds;
+	for (size_t i = 0; i < m_allImages.size(); ++i)
+	{
+		cv::Mat corners, ids;
+		cv::aruco::interpolateCornersCharuco(m_allCorners[i], m_allIds[i], m_allImages[i], board,
+											 corners, ids, cameraMatrix, distCoefficients);
+		if (!corners.empty() && !ids.empty())
+		{
+			allCharucoCorners.push_back(corners);
+			allCharucoIds.push_back(ids);
+		}
+	}
+	if (allCharucoCorners.size() >= 4)
+		reprojectionError = cv::aruco::calibrateCameraCharuco(allCharucoCorners, allCharucoIds, board,
+															  m_calibrationImageSize, cameraMatrix,
+															  distCoefficients, rotationVectors,
+															  translationVectors, calibrationFlags);
 #endif
-
-	// Debugging/logging to find out why calibration doesn't get saved
-	std::cerr << "ARUCO calib: total saved samples = " << m_allImages.size()
-			  << ", frames used for calibration = " << imagePoints.size() << std::endl;
-	std::cerr << "ARUCO calib: reprojectionError = " << reprojectionError << std::endl;
-	if (!cameraMatrix.empty())
-		std::cerr << "ARUCO calib: cameraMatrix size = " << cameraMatrix.rows << "x" << cameraMatrix.cols << std::endl;
-	else
-		std::cerr << "ARUCO calib: cameraMatrix is empty" << std::endl;
-	if (!distCoefficients.empty())
-		std::cerr << "ARUCO calib: distCoefficients size = " << distCoefficients.rows << "x" << distCoefficients.cols << std::endl;
-	else
-		std::cerr << "ARUCO calib: distCoefficients is empty" << std::endl;
-	std::cerr << "ARUCO calib: target filename = '" << m_calibrationFilename << "'" << std::endl;
-
-	// Try opening FileStorage to detect file/permission issues
-	if (!m_calibrationFilename.empty())
-	{
-		cv::FileStorage testFs;
-		try
-		{
-			testFs.open(m_calibrationFilename, cv::FileStorage::WRITE);
-		}
-		catch (const cv::Exception &e)
-		{
-			std::cerr << "ARUCO calib: FileStorage open threw: " << e.what() << std::endl;
-		}
-		if (!testFs.isOpened())
-			std::cerr << "ARUCO calib: cannot open calibration file for writing: " << m_calibrationFilename << std::endl;
-		else
-		{
-			std::cerr << "ARUCO calib: FileStorage open OK for: " << m_calibrationFilename << std::endl;
-			testFs.release();
-			// optionally remove the empty test file if created
-		}
-	}
-	else
-	{
-		std::cerr << "ARUCO calib: calibration filename is empty; cannot save." << std::endl;
-	}
 
 	if (!cameraMatrix.empty() && !distCoefficients.empty() && reprojectionError >= 0.0)
 		finishCalibration(cameraMatrix, distCoefficients, m_calibrationImageSize, aspectRatio,

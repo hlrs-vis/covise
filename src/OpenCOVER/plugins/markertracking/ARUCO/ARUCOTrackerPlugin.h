@@ -23,7 +23,7 @@
 
 #include <opencv2/core/version.hpp>
 
-#if CV_VERSION_MAJOR >= 4
+#if (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR >= 7) || (CV_VERSION_MAJOR >= 5)
 #include <opencv2/objdetect/aruco_dictionary.hpp>
 #include <opencv2/objdetect/aruco_detector.hpp>
 #include <opencv2/objdetect/charuco_detector.hpp>

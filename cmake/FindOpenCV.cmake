@@ -73,6 +73,7 @@ FIND_LIBRARY(OPENCV_${_uppercomponent}_LIBRARY NAMES ${OPENCV_NAMES}
   DOC "OPENCV - Library"
 )
 FIND_LIBRARY(OPENCV_${_uppercomponent}_LIBRARY NAMES ${OPENCV_NAMES}
+  PATH_SUFFIXES opencv${MAJOR} opencv4
   DOC "OPENCV - Library"
 )
 

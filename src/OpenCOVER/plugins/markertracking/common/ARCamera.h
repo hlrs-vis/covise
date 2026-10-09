@@ -5,9 +5,13 @@
 #include <opencv2/core/version.hpp>
 #include <opencv2/videoio.hpp>
 
-#if CV_VERSION_MAJOR >= 4
+#if (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR >= 7) || (CV_VERSION_MAJOR >= 5)
 #include <opencv2/objdetect/charuco_detector.hpp>
 #else
+#include <opencv2/aruco/charuco.hpp>
+#endif
+
+#if CV_VERSION_MAJOR < 5
 #include <opencv2/aruco.hpp>
 #endif
 

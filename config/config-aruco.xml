@@ -45,12 +45,6 @@
           <SquaresY value="7" />
           <SquareLength value="0.015" />
           <MarkerSquare value="0.011" />
-          <!--<CharucoBoard>
-            <squaresX value="8" />
-            <squaresY value="11" />
-            <squareLength value="0.015" />
-            <markerLength value="0.011" />
-          </CharucoBoard> -->
           <DictionaryID value="7" />  <!-- 7=DICT_5x5_1000 -->
           <LegacyPattern value="true" />
         </ARUCO>         

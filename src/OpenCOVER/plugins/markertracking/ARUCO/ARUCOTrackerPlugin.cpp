@@ -189,7 +189,7 @@ bool ARUCOPlugin::initAR()
             break;
         }
 
-#if CV_VERSION_MAJOR >= 5
+#if CV_VERSION_MAJOR >= 5 || (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR >= 7)
         detectorParams = cv::makePtr<cv::aruco::DetectorParameters>();
 #else
         detectorParams = cv::aruco::DetectorParameters::create();
@@ -197,13 +197,13 @@ bool ARUCOPlugin::initAR()
 
 detectorParams->cornerRefinementMethod = cv::aruco::CORNER_REFINE_SUBPIX;
 
-#if CV_VERSION_MAJOR >= 5
+#if CV_VERSION_MAJOR >= 5 || (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR >= 7)
         detector = cv::makePtr<cv::aruco::ArucoDetector>(dictionary, *detectorParams);
 #else
         detector = cv::makePtr<cv::aruco::ArucoDetector>(*dictionary, *detectorParams);
 #endif
 
-#if CV_VERSION_MAJOR >= 5
+#if CV_VERSION_MAJOR >= 5 || (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR >= 7)
         charucoboard = cv::makePtr<cv::aruco::CharucoBoard>(
             cv::Size(squaresX, squaresY), squareLength, markerLength, dictionary);
 
@@ -422,7 +422,7 @@ void ARUCOPlugin::opencvLoop()
         if (!detectorParams)
             return false;
 
-#if CV_VERSION_MAJOR >= 5
+#if CV_VERSION_MAJOR >= 5 || (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR >= 7)
         detector = cv::makePtr<cv::aruco::ArucoDetector>(dictionary, *detectorParams);
 
         charucoboard = cv::makePtr<cv::aruco::CharucoBoard>(
