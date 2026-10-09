@@ -408,42 +408,46 @@ void ARCamera::calibrateFrame(const cv::Mat &frame,
 		std::cerr << "ARUCO calib accepted: " << m_allIds.size() << " (charuco corners=" << numCorners << ")" << std::endl;
 	}
 
-	cv::Mat preview = frame.clone(); // copy image for preview overlay, so that markers are not drawn to the image used for calibration
-	if (numCorners > 0)
-		cv::aruco::drawDetectedCornersCharuco(preview, charucoCorners, charucoIds);
+	#ifdef DEBUG
+		if(COVISE_debug_level >=2){
+			cv::Mat preview = frame.clone(); // copy image for preview overlay, so that markers are not drawn to the image used for calibration
+			if (numCorners > 0)
+				cv::aruco::drawDetectedCornersCharuco(preview, charucoCorners, charucoIds);
 
-	cv::Mat laplacian;
-	cv::Laplacian(gray, laplacian, CV_64F);
-	cv::Scalar laplacianMean, laplacianStdDev;
-	cv::meanStdDev(laplacian, laplacianMean, laplacianStdDev);
-	const double sharpness = laplacianStdDev[0] * laplacianStdDev[0];
-	const double brightness = cv::mean(gray)[0];
+			cv::Mat laplacian;
+			cv::Laplacian(gray, laplacian, CV_64F);
+			cv::Scalar laplacianMean, laplacianStdDev;
+			cv::meanStdDev(laplacian, laplacianMean, laplacianStdDev);
+			const double sharpness = laplacianStdDev[0] * laplacianStdDev[0];
+			const double brightness = cv::mean(gray)[0];
 
-	std::ostringstream status;
-	if (sampleAccepted)
-		status << "ACCEPTED sample " << m_allImages.size();
-	else if (numCorners == 0)
-		status << "NOT ACCEPTED: no ChArUco corners";
-	else
-		status << "WAITING: capture interval";
+			std::ostringstream status;
+			if (sampleAccepted)
+				status << "ACCEPTED sample " << m_allImages.size();
+			else if (numCorners == 0)
+				status << "NOT ACCEPTED: no ChArUco corners";
+			else
+				status << "WAITING: capture interval";
 
-	std::ostringstream quality;
-	quality << frame.cols << 'x' << frame.rows << " | ChArUco corners: " << numCorners
-			 << " | brightness: " << std::fixed << std::setprecision(1) << brightness
-			 << " | sharpness (Laplacian variance): " << std::setprecision(0) << sharpness;
-	cv::putText(preview, status.str(), cv::Point(12, 28), cv::FONT_HERSHEY_SIMPLEX,
-				0.65, sampleAccepted ? cv::Scalar(0, 220, 0) : cv::Scalar(0, 180, 255), 2);
-	cv::putText(preview, quality.str(), cv::Point(12, 56), cv::FONT_HERSHEY_SIMPLEX,
-				0.5, cv::Scalar(255, 255, 255), 1);
-	try
-	{
-		cv::imshow("ARUCO calibration input", preview);
-		cv::waitKey(1);
-	}
-	catch (const cv::Exception &exception)
-	{
-		std::cerr << "ARUCO calibration preview unavailable: " << exception.what() << std::endl;
-	}
+			std::ostringstream quality;
+			quality << frame.cols << 'x' << frame.rows << " | ChArUco corners: " << numCorners
+					<< " | brightness: " << std::fixed << std::setprecision(1) << brightness
+					<< " | sharpness (Laplacian variance): " << std::setprecision(0) << sharpness;
+			cv::putText(preview, status.str(), cv::Point(12, 28), cv::FONT_HERSHEY_SIMPLEX,
+						0.65, sampleAccepted ? cv::Scalar(0, 220, 0) : cv::Scalar(0, 180, 255), 2);
+			cv::putText(preview, quality.str(), cv::Point(12, 56), cv::FONT_HERSHEY_SIMPLEX,
+						0.5, cv::Scalar(255, 255, 255), 1);
+			try
+			{
+				cv::imshow("ARUCO calibration input", preview);
+				cv::waitKey(1);
+			}
+			catch (const cv::Exception &exception)
+			{
+				std::cerr << "ARUCO calibration preview unavailable: " << exception.what() << std::endl;
+			}
+		} // COVISE_debug_level >= 2
+	#endif
 
 	if (m_allIds.size() <= 15)
 		return;
