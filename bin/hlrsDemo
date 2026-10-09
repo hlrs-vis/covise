@@ -144,6 +144,12 @@ run_marienplatz() {
 demo 41 "Stuttgart with Sumo Ditens" run_stuttgart_ditens
 demo 42 "Stuttgart with Marienplatz Sumo" run_marienplatz
 
+run_neckarpark() {
+    opencover opencover://plugins/Traffic /data/VfB/traffic/VfB-traffic.wrl opencover://traffic//data/VfB/traffic/manually_edited/fcd-1s.traffic.bin
+}
+demo 50 "Stuttgart VfB/Neckarpark mit Parksimulation" run_neckarpark
+
+
 run_stuttgart_hidalgo() {
     bash /data/campus/Sumo/CampusReduced/startSumo.sh &
     SUMO=$!
