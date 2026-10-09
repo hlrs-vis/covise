@@ -49,7 +49,7 @@ name = "Passenger cars"
 type = "vehicle"
 
 [[vehicleClasses.passenger.models]]
-name="Audi_TT" 
+name="Audi_TT"
 path="/data/traffic/cars/audi_tt.glb"
 lodPath="/data/traffic/cars/lod_car.glb" # TODO: make custom LOD for this car
 frontAxle = 1.15765
@@ -57,7 +57,7 @@ backAxle = -1.27835
 length = 4.041
 
 [[vehicleClasses.passenger.models]]
-name = "Audi_A4" 
+name = "Audi_A4"
 path = "/data/traffic/cars/audi_a4.glb"
 lodPath="/data/traffic/cars/lod_car.glb" # TODO: make custom LOD for this car
 frontAxle = 1.35341
@@ -65,7 +65,7 @@ backAxle = -1.29659
 length = 4.55
 
 [[vehicleClasses.passenger.models]]
-name = "BMW_Z3" 
+name = "BMW_Z3"
 path = "/data/traffic/cars/bmw_z3.glb"
 lodPath="/data/traffic/cars/lod_car.glb" # TODO: make custom LOD for this car
 frontAxle = 1.29208
@@ -73,66 +73,116 @@ backAxle = -1.19103
 length = 4.0431
 
 [[vehicleClasses.passenger.models]]
-name = "Smart" 
+name = "Renault_Clio"
+path = "/data/traffic/cars/renault_clio.glb"
+lodPath="/data/traffic/cars/lod_car.glb" # TODO: make custom LOD for this car
+frontAxle = 1.12494
+backAxle = -1.22942
+length = 3.70764
+
+[[vehicleClasses.passenger.models]]
+name = "Seat_Ibiza"
+path = "/data/traffic/cars/seat_ibiza.glb"
+lodPath="/data/traffic/cars/lod_car.glb" # TODO: make custom LOD for this car
+frontAxle = 1.12249
+backAxle = -1.36065
+length = 3.83686
+
+[[vehicleClasses.passenger.models]]
+name = "Smart"
 path = "/data/traffic/cars/smart.glb"
 lodPath="/data/traffic/cars/lod_car.glb" # TODO: make custom LOD for this car
 frontAxle = 1.06592
 backAxle = -0.804076
 length = 2.28289
 
+[[vehicleClasses.passenger.models]]
+name = "Honda_Civic"
+path = "/data/traffic/cars/honda_civic.glb"
+lodPath="/data/traffic/cars/lod_car.glb" # TODO: make custom LOD for this car
+frontAxle = 1.20658
+backAxle = -1.3609
+length = 4.07815
+
+[[vehicleClasses.passenger.models]]
+name = "Landcruiser"
+path = "/data/traffic/cars/toyota_landcruiser.glb"
+lodPath="/data/traffic/cars/lod_car.glb" # TODO: make custom LOD for this car
+frontAxle = 1.55956
+backAxle = -1.28604
+length = 4.80898
+
+[[vehicleClasses.passenger.models]]
+name = "Volvo"
+path = "/data/traffic/cars/volvo.glb"
+lodPath="/data/traffic/cars/lod_car.glb" # TODO: make custom LOD for this car
+frontAxle = 1.38538
+backAxle = -1.25495
+length = 4.68527
+
+[[vehicleClasses.passenger.models]]
+name = "Ford_Ka"
+path = "/data/traffic/cars/ford_ka.glb"
+lodPath="/data/traffic/cars/lod_car.glb" # TODO: make custom LOD for this car
+frontAxle = 1.201
+backAxle = -1.376
+length = 3.70341
+
+[[vehicleClasses.passenger.models]]
+name = "VW_Golf"
+path = "/data/traffic/cars/vw_golf3.glb"
+lodPath="/data/traffic/cars/lod_car.glb" # TODO: make custom LOD for this car
+frontAxle = 1.17976
+backAxle = -1.33024
+length = 4.1411
+
+[[vehicleClasses.passenger.models]]
+name = "Audi_R8"
+path = "/data/traffic/cars/audi_r8.glb"
+lodPath="/data/traffic/cars/lod_car.glb" # TODO: make custom LOD for this car
+frontAxle = 1.17923
+backAxle = -1.47584
+length = 4.43777
+
+[[vehicleClasses.passenger.models]]
+name = "car_mini_cooper"
+path = "/data/traffic/cars/mini.glb"
+lodPath="/data/traffic/cars/lod_car.glb" # TODO: make custom LOD for this car
+frontAxle = 1.14035
+backAxle = -1.2942
+length = 3.59934
+
 [vehicleClasses.truck]
 name = "Trucks"
 type = "vehicle"
 
 [[vehicleClasses.truck.models]]
-name = "DAF_white" 
+name = "DAF_box"
 path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/daf/DAF_white_s_h_p.wrl"
+lodPath="/data/traffic/cars/lod_car.glb" # TODO: make custom LOD for this car
 frontAxle = 2.03493
 backAxle = -1.50476
 length = 5.99275
 
 [[vehicleClasses.truck.models]]
-name = "DAF_blue" 
-path = "/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/daf/DAF_blue_s_h_p.wrl"
+name = "DAF_flatbed"
+path = "/data/traffic/trucks/daf_flatbed.glb"
+lodPath="/data/traffic/cars/lod_car.glb" # TODO: make custom LOD for this car
 frontAxle = 2.03493
 backAxle = -1.50476
 length = 5.99275
-
-[[vehicleClasses.truck.models]]
-name = "bus" 
-path = "/data/OpenPass/cars/bus/Citaro.wrl"
-frontAxle = 6.4558
-backAxle = 0.5113
-length = 12.2194
 
 [vehicleClasses.bus]
 name = "Buses"
 type = "vehicle"
 
 [[vehicleClasses.bus.models]]
-name = "Shuttle" 
-path = "/data/campus/Shuttle/Shuttle.wrl"
-frontAxle = 1.62656
-backAxle = -1.62458
-length = 4.97729
-
-[vehicleClasses.scooter]
-name = "Scooters"
-type = "vehicle"
-
-[[vehicleClasses.scooter.models]]
-name = "ElectricScooter" 
-path = "/data/campus/Scooter/scooterOnly.WRL"
-frontAxle = 0.487716
-backAxle = -0.368596
-length = 1.10676
-
-[[vehicleClasses.scooter.models]]
-name = "ElectricScooter_ST01_09" 
-path = "/data/campus/Scooter/scooterFemaleRiderScaleNew.WRL"
-frontAxle = 0.487716
-backAxle = -0.368596
-length = 1.10676
+name = "Citaro"
+path = "/data/traffic/bus/citaro.glb"
+lodPath="/data/traffic/cars/lod_car.glb" # TODO: make custom LOD for this car
+frontAxle = 6.4558
+backAxle = 0.5113
+length = 12.2194
 
 [vehicleClasses.bicycle]
 name = "Bicycles"
