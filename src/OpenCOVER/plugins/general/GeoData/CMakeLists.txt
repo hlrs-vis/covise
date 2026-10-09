@@ -16,14 +16,16 @@ set(HEADERS
     GeoDataLoader.h
     PlaceLabel.h
 	VrmlNodeGeoData.h
+	VrmlNodeGeoreferenced.h
 )
 
 set(SOURCES
     GeoDataLoader.cpp
     PlaceLabel.cpp
 	VrmlNodeGeoData.cpp
+	VrmlNodeGeoreferenced.cpp
 )
 
 
-cover_add_plugin(GeoData coCurlHTTPClient coVRGeoData)
+cover_add_plugin(GeoData coCurlHTTPClient coVRGeoData Pal::Sigslot)
 target_include_directories(GeoData PRIVATE ${PROJECT_SOURCE_DIR}/../../src/3rdparty/visionaray/src/3rdparty/rapidjson/include)

@@ -14,6 +14,7 @@
 #include <osg/Vec3d>
 #include <osg/Matrixd>
 #include <osg/PositionAttitudeTransform>
+#include <sigslot/signal.hpp>
 
 #include <util/coExport.h>
 
@@ -73,6 +74,8 @@ public:
 
     void jumpToLocation(const osg::Vec3d &projectPosition);
     void jumpToLocation(const osg::Vec3d &projectPosition, double aboveTerrain);
+
+    sigslot::signal<> projectionChanged;
 
 protected:
 #ifdef HAVE_PROJ

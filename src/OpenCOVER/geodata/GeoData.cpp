@@ -99,6 +99,8 @@ void GeoData::setProjectTransform(const osg::Vec3d &projectOffset, const double 
     m_projectTransform = trans * rot;
     m_inverseProjectTransform = osg::Matrixd::inverse(m_projectTransform);
     m_transformRoot->setMatrix(m_projectTransform);
+
+    projectionChanged();
 }
 
 const std::string &GeoData::projection() const
