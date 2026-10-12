@@ -25,17 +25,21 @@
 #include <cover/RenderObject.h>
 #include <cover/MarkerTracking.h>
 #include <config/CoviseConfig.h>
+#include <config/coConfig.h>
 #include <cover/coVRConfig.h>
 #include "../common/RemoteAR.h"
 #include <cover/VRViewer.h>
 #include <cover/coVRMSController.h>
-#include <opencv2/calib3d/calib3d.hpp>
-#include <opencv2/imgproc.hpp>
 
+#if CV_VERSION_MAJOR >= 5
+#include <opencv2/calib3d.hpp>
+#else
+#include <opencv2/calib3d/calib3d.hpp>
+#endif
+
+#include <opencv2/imgproc.hpp>
 #include <cover/coVRFileManager.h>
 
-
-#include <cover/coTabletUI.h>
 #include <cover/coVRPlugin.h>
 #include <cover/coInteractor.h>
 #include <util/unixcompat.h>
@@ -43,6 +47,8 @@
 
 #include <vector>
 #include <string>
+#include <algorithm>
+#include <cstdio>
 
 using std::cout;
 using std::endl;
@@ -93,6 +99,12 @@ ARUCOPlugin::ARUCOPlugin()
 {
     OpenGLToOSGMatrix.makeRotate(M_PI / -2.0, 1, 0, 0);
     OSGToOpenGLMatrix.makeRotate(M_PI / 2.0, 1, 0, 0);
+
+    m_requestedDevice = -1;
+    captureIdx = 0;
+    readyIdx = 0;
+    displayIdx = 0;
+    camera.setCalibrationFilename(coCoviseConfig::getEntry("value", "COVER.Plugin.ARUCO.CameraCalibrationFile", "~/cameras/default.yaml"));
 }
 
 ARUCOPlugin::~ARUCOPlugin()
@@ -102,9 +114,9 @@ ARUCOPlugin::~ARUCOPlugin()
     MarkerTracking::instance()->arInterface = nullptr;
     MarkerTracking::instance()->running = false;
    
-    if(inputVideo.isOpened())
+    if(camera.isOpened())
     {
-        inputVideo.release();
+        camera.close();
 
 #ifndef _WIN32
         if (msgQueue >= 0)
@@ -115,119 +127,12 @@ ARUCOPlugin::~ARUCOPlugin()
     }
 }
 
-void ARUCOPlugin::initCamera(int selectedDevice, bool &exists)
-{
-    std::string fourcc = coCoviseConfig::getEntry("fourcc", "COVER.Plugin.ARUCO.VideoDevice", "", &exists);
-    if (fourcc.length() == 4)
-    {
-        std::cerr << "Setting FOURCC to " << fourcc << std::endl;
-        inputVideo.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc(fourcc[0], fourcc[1], fourcc[2], fourcc[3]));
-        std::cerr << "FOURCC: " << inputVideo.get(cv::CAP_PROP_FOURCC) << std::endl;
-    }
-    float fps = coCoviseConfig::getFloat("fps", "COVER.Plugin.ARUCO.VideoDevice", 0.f, &exists);
-    if (fps > 0.f)
-    {
-        std::cerr << "Setting FPS to " << fps << std::endl;
-        inputVideo.set(cv::CAP_PROP_FPS, fps);
-        std::cerr << "Frame rate: " << inputVideo.get(cv::CAP_PROP_FPS) << std::endl;
-    }
-    
-    int width = inputVideo.get(cv::CAP_PROP_FRAME_WIDTH);
-    int height =  inputVideo.get(cv::CAP_PROP_FRAME_HEIGHT);
-    std::cerr << "   current size  = " << width << "x" << height << std::endl;
-    xsize = coCoviseConfig::getInt("width", "COVER.Plugin.ARUCO.VideoDevice", width);
-    ysize = coCoviseConfig::getInt("height", "COVER.Plugin.ARUCO.VideoDevice", height);
-    
-    if ((xsize != width) || (ysize != height))
-    {
-        inputVideo.set(cv::CAP_PROP_FRAME_WIDTH, xsize);
-        inputVideo.set(cv::CAP_PROP_FRAME_HEIGHT, ysize);
-    
-        width = inputVideo.get(cv::CAP_PROP_FRAME_WIDTH);
-        height =  inputVideo.get(cv::CAP_PROP_FRAME_HEIGHT);
-    
-        if ((xsize != width) || (ysize != height))
-        {
-            xsize = width;
-            ysize = height;
-            std::cerr << "WARNING: could not set capture frame size" << std::endl;
-            std::cerr << "   new size  = " << width << "x" << height << std::endl;
-        }
-    }
-    
-    cv::Mat image;
-    std::cerr << "capture first frame after resetting camera" << std::endl;
-    try
-    {
-        inputVideo >> image;
-    }
-    catch (cv::Exception &ex)
-    {
-        std::cerr << "OpenCV exception: " << ex.what() << std::endl;
-    }
-    
-    MarkerTracking::instance()->running = true;
-    MarkerTracking::instance()->videoMode = GL_BGR;
-    MarkerTracking::instance()->videoDepth = 3;
-    MarkerTracking::instance()->videoWidth = image.cols;
-    MarkerTracking::instance()->videoHeight = image.rows;
-
-    std::cerr << "Capturing " << image.cols << "x" << image.rows << " pixels" << std::endl;
-
-    // load calib data from file
-    std::cerr << "loading calibration data from file " << calibrationFilename << std::endl;
-
-    cv::FileStorage fs;
-    try
-    {
-        fs.open(calibrationFilename, cv::FileStorage::READ);
-    }
-    catch (cv::Exception e)
-    {
-    }
-    if (fs.isOpened())
-    {
-        fs["camera_matrix"] >> matCameraMatrix;
-        fs["dist_coefs"] >> matDistCoefs;
-
-        std::cerr << "camera matrix: " << std::endl;
-        std::cerr << matCameraMatrix << std::endl;
-        std::cerr << "dist coefs: " << std::endl;
-        std::cerr << matCameraMatrix << std::endl;
-    }
-    else
-    {
-        std::cerr << "failed to open camera calibration file " << calibrationFilename << std::endl;
-        std::cerr << "trying to guess a calibration ... " << std::endl;
-
-        double matCameraData[9] = {0, 0, 0, 0, 0, 0, 0, 0, 1};
-        // approximately normal focal length
-        matCameraData[0] = 2 * width / 3;
-        matCameraData[4] = 2 * width / 3;
-        matCameraData[2] = width / 2;
-        matCameraData[5] = height / 2;
-        cv::Mat matC = cv::Mat(3, 3, CV_64F, matCameraData);
-        matCameraMatrix = matC.clone();
-    
-        double matDistData[5] = {0, 0, 0, 0, 0};
-        cv::Mat matD = cv::Mat(1, 5, CV_64F, matDistData);
-        matDistCoefs = matD.clone();
-
-        std::cerr << "camera matrix: " << std::endl;
-        std::cerr << matCameraMatrix << std::endl;
-        std::cerr << "dist coefs: " << std::endl;
-        std::cerr << matDistCoefs << std::endl;
-    }
-}
-
 bool ARUCOPlugin::initAR()
 {
+    std::cerr << "ARUCO build fingerprint: " << __FILE__ << " " << __DATE__ << " " << __TIME__ << std::endl;
+
     MarkerTracking::instance()->arInterface = this;
     MarkerTracking::instance()->remoteAR = NULL;
-
-    doCalibrate = false;
-    calibrated = false;
-    calibCount = 0;
 
     if (coCoviseConfig::isOn("COVER.Plugin.ARUCO.Capture", false))
     {
@@ -240,94 +145,96 @@ bool ARUCOPlugin::initAR()
         MarkerTracking::instance()->flipH = coCoviseConfig::isOn("COVER.Plugin.ARUCO.FlipHorizontal", false);
         flipBufferH = coCoviseConfig::isOn("COVER.Plugin.ARUCO.FlipBufferH", false);
         flipBufferV = coCoviseConfig::isOn("COVER.Plugin.ARUCO.FlipBufferV", true);
-        std::string VideoDevice = coCoviseConfig::getEntry("value", "COVER.Plugin.ARUCO.VideoDevice", "0");
-
-        calibrationFilename = coCoviseConfig::getEntry("value", "COVER.Plugin.ARUCO.CameraCalibrationFile", "/data/aruco/cameras/default.yaml");
-
-        xsize = coCoviseConfig::getInt("width", "COVER.Plugin.ARUCO.VideoDevice", 640);
-        ysize = coCoviseConfig::getInt("height", "COVER.Plugin.ARUCO.VideoDevice", 480);
-
-        int dictionaryId = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.DictionaryID", 7); // 16 = ARUCO_DEFAULT
-
-        if (!detectorParams)
-        {
-#if (CV_VERSION_MAJOR < 4)
-            detectorParams = aruco::DetectorParameters::create();
-#else
-            detectorParams = new aruco::DetectorParameters();
-#endif
-        }
-
-#if (CV_VERSION_MAJOR < 3 || (CV_VERSION_MAJOR == 3 && CV_VERSION_MINOR < 3))
-        detectorParams->doCornerRefinement = true; // do corner refinement in markers
-#else
-        detectorParams->cornerRefinementMethod = aruco::CORNER_REFINE_CONTOUR;
-        detectorParams->useAruco3Detection = true;
-        detectorParams->minSideLengthCanonicalImg = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.minSideLengthCanonicalImg", 50);
-        detectorParams->markerBorderBits = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.markerBorderBits", 1);
-#endif
-        
-        markerSize = 150; // set default marker size
-        updateMarkerParams(); // update marker sizes from config
-
-#if( CV_VERSION_MAJOR < 4)
-        dictionary = aruco::getPredefinedDictionary(dictionaryId);
-#else
-        dictionary = aruco::getPredefinedDictionary(dictionaryId);
-#endif
-
-#if( CV_VERSION_MAJOR >= 4)
-        if (detector)
-        {
-            detector.reset();
-        }
-        detector = new cv::aruco::ArucoDetector(dictionary,*detectorParams);
-#endif
-        msgQueue = -1;
-       
-        int selectedDevice = atoi(VideoDevice.c_str());
-        bool exists = false;
-        // FIXME: this leaks memory if plugin is reloaded
-        if (coCoviseConfig::isOn("hw_transforms", "COVER.Plugin.ARUCO.VideoDevice", false, &exists))
-            putenv(strdup("OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS=1"));
-        else
-            putenv(strdup("OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS=0")); // this disables slow camera initialization, only enable if necessary
-
-#if CV_VERSION_MAJOR > 3 || (CV_VERSION_MAJOR==3 && CV_VERSION_MINOR>1)
-        for (int cap: {CAP_V4L2, CAP_ANY})
-            if (inputVideo.open(selectedDevice, cap))
-                break;
-#else
-        inputVideo.open(selectedDevice);
-#endif
-        
-        if (inputVideo.isOpened())
-        {
-            std::cerr << "capture device: device " << selectedDevice << " is open" << endl;
-            initCamera(selectedDevice, exists);
-        }
-        else
-        {
-            std::cerr << "capture device: failed to open " << selectedDevice << std::endl;
-            return false;
-        }
-        adjustScreen();
-        /* 
-        how to generate callibration patterns:
-         cd src/opencv_contrib/modules/aruco/misc/pattern_generator/
-          python MarkerPrinter.py --charuco --file "./charuco.pdf" --dictionary DICT_5X5_1000 --size_x 16 --size_y 9 --square_length 0.09 --marker_length 0.07 --border_b
-its 1
-        */
-        int squaresX = coCoviseConfig::getInt("xSize", "COVER.Plugin.ARUCO.Callibration", 16);
-        int squaresY = coCoviseConfig::getInt("ysize", "COVER.Plugin.ARUCO.Callibration", 9);
-        float squareLength = coCoviseConfig::getInt("squareSize", "COVER.Plugin.ARUCO.Callibration", 18);
-        float markerLength = coCoviseConfig::getInt("markerSize", "COVER.Plugin.ARUCO.Callibration", 14);
-        charucoboard = new aruco::CharucoBoard(Size(squaresX, squaresY), squareLength, markerLength, dictionary);
-        cv::aruco::CharucoParameters cp;
-        cv::aruco::RefineParameters rp;
-        
-        charucoDetector = new cv::aruco::CharucoDetector(*charucoboard, cp, *detectorParams,rp);
+        camera.setCalibrationFilename(coCoviseConfig::getEntry(
+            "value",
+            "COVER.Plugin.ARUCO.CameraCalibrationFile",
+            "/home/rosba/covise/cameras/default.yaml"));
     }
+
+    // --- ADD: ARUCO detector setup ---
+    try
+    {
+        // ChArUco config from XML
+        const int dictId = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.DictionaryID", 7);
+        const int squaresX = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.SquaresX", 5);
+        const int squaresY = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.SquaresY", 4);
+        float squareLength = coCoviseConfig::getFloat("value", "COVER.Plugin.ARUCO.SquareLength", 0.015f);
+        float markerLength = coCoviseConfig::getFloat("value", "COVER.Plugin.ARUCO.MarkerSquare", 0.009f);
+
+        std::cerr << "ARUCO cfg: dict=" << dictId
+                  << " squares=" << squaresX << "x" << squaresY
+                  << " squareLength=" << squareLength
+                  << " markerLength=" << markerLength << std::endl;
+
+        switch (dictId)
+        {
+        case 0: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_50); break;
+        case 1: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_100); break;
+        case 2: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_250); break;
+        case 3: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_1000); break;
+        case 4: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_5X5_50); break;   // default
+        case 5: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_5X5_100); break;
+        case 6: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_5X5_250); break;
+        case 7: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_5X5_1000); break;
+        case 8: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_6X6_50); break;
+        case 9: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_6X6_100); break;
+        case 10: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_6X6_250); break;
+        case 11: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_6X6_1000); break;
+        case 12: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_7X7_50); break;
+        case 13: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_7X7_100); break;
+        case 14: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_7X7_250); break;
+        case 15: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_7X7_1000); break;
+        default:
+            dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_5X5_1000);
+            break;
+        }
+
+#if CV_VERSION_MAJOR >= 5 || (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR >= 7)
+        detectorParams = cv::makePtr<cv::aruco::DetectorParameters>();
+#else
+        detectorParams = cv::aruco::DetectorParameters::create();
+#endif
+
+detectorParams->cornerRefinementMethod = cv::aruco::CORNER_REFINE_SUBPIX;
+
+#if CV_VERSION_MAJOR >= 5 || (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR >= 7)
+        detector = cv::makePtr<cv::aruco::ArucoDetector>(dictionary, *detectorParams);
+#else
+        detector = cv::makePtr<cv::aruco::ArucoDetector>(*dictionary, *detectorParams);
+#endif
+
+#if CV_VERSION_MAJOR >= 5 || (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR >= 7)
+        charucoboard = cv::makePtr<cv::aruco::CharucoBoard>(
+            cv::Size(squaresX, squaresY), squareLength, markerLength, dictionary);
+
+        // for boards printed with older OpenCV charuco pattern
+        const bool legacyPattern = coCoviseConfig::isOn("COVER.Plugin.ARUCO.LegacyPattern", true);
+        std::cerr << "LegacyPattern=" << legacyPattern << std::endl;
+        charucoboard->setLegacyPattern(legacyPattern);
+
+        cv::aruco::CharucoParameters cparams;
+        cparams.tryRefineMarkers = true;
+        cparams.minMarkers = 2; // less strict
+        charucoDetector = cv::makePtr<cv::aruco::CharucoDetector>(*charucoboard, cparams);
+#else
+        charucoboard = cv::aruco::CharucoBoard::create(
+            squaresX, squaresY, squareLength, markerLength, dictionary);
+        charucoDetector = cv::makePtr<cv::aruco::CharucoDetector>(*charucoboard);
+#endif
+    }
+    catch (const cv::Exception &e)
+    {
+        std::cerr << "ARUCO init failed: " << e.what() << std::endl;
+        return false;
+    }
+
+    if (!detectorParams || !detector || !charucoboard || !charucoDetector)
+    {
+        std::cerr << "ARUCO init failed: detector/board objects are null" << std::endl;
+        return false;
+    }
+    // --- END ADD ---
+
     MarkerTracking::instance()->remoteAR = new RemoteAR();
     return true;
 }
@@ -360,7 +267,19 @@ void ARUCOPlugin::initUI()
     uiBtnCalib->setEnabled(true);
     uiBtnCalib->setCallback([this]()
     {
-        startCallibration();
+        startCalibration();
+    });
+
+    // add camera controls
+    uiBtnDetectCamera = new ui::Action(uiMenu, "detectCamera");
+    uiBtnDetectCamera->setText("Detect Cameras");
+    uiBtnDetectCamera->setCallback([this]() { detectCameras(); });
+
+    uiCameraDevices = new ui::SelectionList(uiMenu, "cameraDevices");
+    uiCameraDevices->setText("Camera Device");
+    uiCameraDevices->setCallback([this](int idx) {
+        if (idx >= 0 && idx < static_cast<int>(m_cameraDeviceIds.size()))
+            requestCameraSwitch(m_cameraDeviceIds[idx]);
     });
 }
 
@@ -379,9 +298,22 @@ bool ARUCOPlugin::init()
     // ui init
     initUI();
 
-    // ar init
+    // init AR first (sets calibration path and detectors)
     if (!initAR())
         return false;
+
+    // detect cameras after AR init
+    detectCameras();
+
+    const int preferredDevice = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.VideoDevice", -1);
+    if (std::find(m_cameraDeviceIds.begin(), m_cameraDeviceIds.end(), preferredDevice) != m_cameraDeviceIds.end())
+        switchCamera(preferredDevice);
+    else if (!m_cameraDeviceIds.empty())
+    {
+        std::cerr << "ARUCO: configured camera " << preferredDevice
+                  << " is unavailable; opening the first detected camera" << std::endl;
+        switchCamera(m_cameraDeviceIds.front());
+    }
 
     opencvRunning = true;
     opencvThread = std::thread(
@@ -421,16 +353,6 @@ bool ARUCOPlugin::init()
 // ----------------------------------------------------------------------------
 bool ARUCOPlugin::destroy()
 {
-#ifdef ARUCO_DEBUG
-    std::cerr << "ARUCOPlugin::destroy()" << std::endl;
-#endif
-
-    std::unique_lock<std::mutex> guard(opencvMutex);
-    opencvRunning = false;
-    guard.unlock();
-    if (opencvThread.joinable())
-        opencvThread.join();
-
     delete uiMenu;
     MarkerTracking::instance()->videoData = nullptr;
     return true;
@@ -476,139 +398,8 @@ void ARUCOPlugin::preFrame()
 
         guard.lock();
         displayIdx = readyIdx;
-
-        MarkerTracking::instance()->videoData = (unsigned char *)image[displayIdx].ptr();
-    }
-}
-
-inline static bool saveCameraParams(const std::string& filename, cv::Size imageSize, float aspectRatio, int flags,
-    const cv::Mat& cameraMatrix, const cv::Mat& distCoeffs, double totalAvgErr) {
-    cv::FileStorage fs(filename, cv::FileStorage::WRITE);
-    if (!fs.isOpened())
-        return false;
-
-    time_t tt;
-    time(&tt);
-    struct tm* t2 = localtime(&tt);
-    char buf[1024];
-    strftime(buf, sizeof(buf) - 1, "%c", t2);
-
-    fs << "calibration_time" << buf;
-    fs << "image_width" << imageSize.width;
-    fs << "image_height" << imageSize.height;
-
-    if (flags & cv::CALIB_FIX_ASPECT_RATIO) fs << "aspectRatio" << aspectRatio;
-
-    if (flags != 0) {
-        snprintf(buf, sizeof(buf), "flags: %s%s%s%s",
-            flags & cv::CALIB_USE_INTRINSIC_GUESS ? "+use_intrinsic_guess" : "",
-            flags & cv::CALIB_FIX_ASPECT_RATIO ? "+fix_aspectRatio" : "",
-            flags & cv::CALIB_FIX_PRINCIPAL_POINT ? "+fix_principal_point" : "",
-            flags & cv::CALIB_ZERO_TANGENT_DIST ? "+zero_tangent_dist" : "");
-    }
-    fs << "flags" << flags;
-    fs << "camera_matrix" << cameraMatrix;
-    fs << "distortion_coefficients" << distCoeffs;
-    fs << "avg_reprojection_error" << totalAvgErr;
-    return true;
-}
-
-void ARUCOPlugin::calibrate()
-{
-    std::string text = "Valid Frames: " + std::to_string(allIds.size());
-    cv::putText(image[captureIdx], text, cv::Point(20, 20), cv::FONT_HERSHEY_SIMPLEX,1.0, cv::Scalar(255, 255, 255));
-
-    if (ids[captureIdx].size() > 10 && abs(cover->frameTime() - lastCalibCapture)>1.0)
-    {
-        lastCalibCapture = cover->frameTime();
-        Mat currentCharucoCorners, currentCharucoIds;
-        charucoDetector->detectBoard(image[captureIdx], currentCharucoCorners, currentCharucoIds, corners, ids[captureIdx]);
-
-        if (currentCharucoCorners.total() > 0)
-            aruco::drawDetectedCornersCharuco(image[captureIdx], currentCharucoCorners, currentCharucoIds);
-
-        allCorners.push_back(corners);
-        allIds.push_back(ids[captureIdx]);
-        allImgs.push_back(image[captureIdx]);
-        imgSize = image[captureIdx].size();
-    }
-    if (allIds.size() > 15)
-    {
-        cv::aruco::CharucoParameters cp;
-        cv::aruco::RefineParameters rp;
-        Mat cameraMatrix, distCoeffs;
-        vector< Mat > rvecs, tvecs;
-        double repError;
-
-        // prepare data for calibration
-        vector< vector< Point2f > > allCornersConcatenated;
-        vector< int > allIdsConcatenated;
-        vector< int > markerCounterPerFrame;
-        markerCounterPerFrame.reserve(allCorners.size());
-        for (unsigned int i = 0; i < allCorners.size(); i++) {
-            markerCounterPerFrame.push_back((int)allCorners[i].size());
-            for (unsigned int j = 0; j < allCorners[i].size(); j++) {
-                allCornersConcatenated.push_back(allCorners[i][j]);
-                allIdsConcatenated.push_back(allIds[i][j]);
-            }
-        }
-        int calibrationFlags = 0;
-        float aspectRatio = 1;
-
-        // calibrate camera using aruco markers
-        double arucoRepErr;
-        arucoRepErr = aruco::calibrateCameraAruco(allCornersConcatenated, allIdsConcatenated,
-            markerCounterPerFrame, charucoboard, imgSize, cameraMatrix,
-            distCoeffs, noArray(), noArray(), calibrationFlags);
-
-        // prepare data for charuco calibration
-        int nFrames = (int)allCorners.size();
-        vector< Mat > allCharucoCorners;
-        vector< Mat > allCharucoIds;
-        vector< Mat > filteredImages;
-        allCharucoCorners.reserve(nFrames);
-        allCharucoIds.reserve(nFrames);
-
-        for (int i = 0; i < nFrames; i++) {
-            // interpolate using camera parameters
-            Mat currentCharucoCorners, currentCharucoIds;
-            cp.cameraMatrix = cameraMatrix;
-            cp.distCoeffs = distCoeffs;
-            charucoDetector->detectBoard(allImgs[i], currentCharucoCorners, currentCharucoIds, allCorners[i], allIds[i]);
-
-            allCharucoCorners.push_back(currentCharucoCorners);
-            allCharucoIds.push_back(currentCharucoIds);
-            filteredImages.push_back(allImgs[i]);
-        }
-
-        if (allCharucoCorners.size() < 4) {
-            cerr << "Not enough corners for calibration" << endl;
-        }
-        else
-        {
-
-            // calibrate camera using charuco
-            repError =
-                aruco::calibrateCameraCharuco(allCharucoCorners, allCharucoIds, charucoboard, imgSize,
-                    cameraMatrix, distCoeffs, rvecs, tvecs, calibrationFlags);
-
-            bool saveOk = saveCameraParams(calibrationFilename, imgSize, aspectRatio, calibrationFlags,
-                cameraMatrix, distCoeffs, repError);
-            if (!saveOk) {
-                cerr << "Cannot save output file" << endl;
-            }
-            else
-            {
-                cerr << "Rep Error: " << repError << endl;
-                cerr << "Rep Error Aruco: " << arucoRepErr << endl;
-                cerr << "Calibration saved to " << calibrationFilename << endl;
-            }
-        }
-
-        doCalibrate = false;
-        allImgs.clear();
-        allIds.clear();
-        allCorners.clear();
+        MarkerTracking::instance()->videoData =
+            displayImage[displayIdx].empty() ? nullptr : (unsigned char *)displayImage[displayIdx].ptr();
     }
 }
 
@@ -616,68 +407,165 @@ void ARUCOPlugin::calibrate()
 // ----------------------------------------------------------------------------
 void ARUCOPlugin::opencvLoop()
 {
+    static int zeroMarkerStreak = 0;
+
+    // ADD THIS:
+    const int squaresX = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.SquaresX", 8);
+    const int squaresY = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.SquaresY", 11);
+    const float squareLength = coCoviseConfig::getFloat("value", "COVER.Plugin.ARUCO.SquareLength", 0.015f);
+    const float markerLength = coCoviseConfig::getFloat("value", "COVER.Plugin.ARUCO.Marhttps://github.com/opencv/opencv/blob/5.x/samples/cpp/calibration.cppkerSquare", 0.011f);
+    const bool legacyPattern = coCoviseConfig::isOn("COVER.Plugin.ARUCO.LegacyPattern", true);
+
+    auto setDictionaryById = [this, squaresX, squaresY, squareLength, markerLength, legacyPattern](int dictId) -> bool
+    {
+
+        if (!detectorParams)
+            return false;
+
+#if CV_VERSION_MAJOR >= 5 || (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR >= 7)
+        detector = cv::makePtr<cv::aruco::ArucoDetector>(dictionary, *detectorParams);
+
+        charucoboard = cv::makePtr<cv::aruco::CharucoBoard>(
+            cv::Size(squaresX, squaresY), squareLength, markerLength, dictionary);
+        charucoboard->setLegacyPattern(legacyPattern);
+
+        cv::aruco::CharucoParameters cparams;
+        cparams.tryRefineMarkers = true;
+        cparams.minMarkers = 2;
+        charucoDetector = cv::makePtr<cv::aruco::CharucoDetector>(*charucoboard, cparams);
+#else
+        detector = cv::makePtr<cv::aruco::ArucoDetector>(*dictionary, *detectorParams);
+        charucoboard = cv::aruco::CharucoBoard::create(squaresX, squaresY, squareLength, markerLength, dictionary);
+        charucoDetector = cv::makePtr<cv::aruco::CharucoDetector>(*charucoboard);
+#endif
+        return true;
+    };
+
     for (;;)
     {
+        int req = -1;
+        {
+            std::lock_guard<std::mutex> g(opencvMutex);
+            if (m_requestedDevice >= 0)
+            {
+                req = m_requestedDevice;
+                m_requestedDevice = -1;
+            }
+        }
+        if (req >= 0)
+            switchCamera(req);
+
         std::unique_lock<std::mutex> guard(opencvMutex);
         if (!opencvRunning)
             return;
         guard.unlock();
 
-        if (inputVideo.isOpened())
+        if (camera.isOpened())
         {
             guard.lock();
-            while (captureIdx == displayIdx || captureIdx == readyIdx) {
-                captureIdx = (captureIdx+1)%3;
-            }
-
+            while (captureIdx == displayIdx || captureIdx == readyIdx)
+                captureIdx = (captureIdx + 1) % 3;
             guard.unlock();
 
-            inputVideo >> image[captureIdx];
-            
+            camera.read(image[captureIdx]);
+            if (image[captureIdx].empty())
+            {
+                usleep(5000);
+                continue;
+            }
+
+            // prevent null deref crash
+            if (!detector)
+            {
+                std::cerr << "ARUCO: detector is null, skipping frame" << std::endl;
+                usleep(5000);
+                continue;
+            }
+
+            if (charucoDetector && charucoboard && camera.consumeDeferredCalibrationRequest())
+            {
+                startCalibration();
+            }
+
+
             ids[captureIdx].clear();
             corners.clear();
             rejected.clear();
 
-            // detect markers and estimate pose
-#if( CV_VERSION_MAJOR >= 4)
-            detector->detectMarkers(image[captureIdx], corners, ids[captureIdx],  rejected);
-            assert(corners.size() == ids[captureIdx].size());
+            cv::Mat gray;
+            if (image[captureIdx].channels() == 3)
+                cv::cvtColor(image[captureIdx], gray, cv::COLOR_BGR2GRAY);
+            else
+                gray = image[captureIdx];
+
+            ids[captureIdx].clear();
+            corners.clear();
+            rejected.clear();
+
+#if (CV_VERSION_MAJOR >= 4)
+            detector->detectMarkers(gray, corners, ids[captureIdx], rejected);
 #else
-            cv::aruco::detectMarkers(image[captureIdx], dictionary, corners, ids[captureIdx], detectorParams, rejected);
+            cv::aruco::detectMarkers(gray, dictionary, corners, ids[captureIdx], detectorParams, rejected);
 #endif
-            if(ids[captureIdx].size() > 0)
+
+            if (ids[captureIdx].empty())
             {
-                try
+                ++zeroMarkerStreak;
+            
+                if (zeroMarkerStreak >= 3) // temporary lower threshold from 10 to 3
                 {
-                    std::lock_guard<std::mutex> g(markerMutex);
-                    estimatePoseMarker(corners, matCameraMatrix,
-                                            matDistCoefs);
-                }
-                catch (cv::Exception &ex)
-                {
-                    std::cerr << "OpenCV exception: " << ex.what() << std::endl;
-                    std::cerr << "Camera might need callibration: "  << std::endl;
+
+                    #if (CV_VERSION_MAJOR >= 4)
+                                        detector->detectMarkers(gray, corners, ids[captureIdx], rejected);
+                    #else
+                                        cv::aruco::detectMarkers(gray, dictionary, corners, ids[captureIdx], detectorParams, rejected);
+                    #endif
+                    zeroMarkerStreak = 0;
                 }
             }
-            if (doCalibrate)
-                calibrate();
-
-            // draw results
-            if (bDrawDetMarker && ids[captureIdx].size() > 0)
-            {
-                aruco::drawDetectedMarkers(image[captureIdx], corners, ids[captureIdx]);
-                for(unsigned int i = 0; i < ids[captureIdx].size(); ++i)
-                {
-#if CV_VERSION_MAJOR < 4
-                    cv::aruco::drawAxis(image[captureIdx], matCameraMatrix, matDistCoefs,
-                                        rvecs[captureIdx][i], tvecs[captureIdx][i],
-                                        0.1); //markerLength * 0.5f);
-#endif
-                }
+            else{
+                zeroMarkerStreak = 0;
             }
 
-            if (bDrawRejMarker && rejected.size() > 0)
-                aruco::drawDetectedMarkers(image[captureIdx], rejected, noArray(), Scalar(100, 0, 255));
+            //std::cerr << "ARUCO: detected markers number = " << ids[captureIdx].size() << std::endl;
+            
+            // Copy image otherwise it changes the original image when drawing markers
+            // (this would be bad for calibration, as the corners would be drawn on the image and then used for calibration)
+            displayImage[captureIdx] = image[captureIdx].clone();
+            // draw detected/rejected markers on the camera image
+             if (bDrawDetMarker && !displayImage[captureIdx].empty())
+            {
+                cv::aruco::drawDetectedMarkers(displayImage[captureIdx], corners, ids[captureIdx]);
+            }
+            if (bDrawRejMarker && !rejected.empty())
+            {
+                cv::aruco::drawDetectedMarkers(displayImage[captureIdx], rejected, cv::noArray(), cv::Scalar(100, 0, 255));
+            } 
+
+            //std::cerr << "ARUCO: detected corners = " << corners.size() << std::endl;
+
+            // estimate pose for all markers in image
+            if (ids[captureIdx].size() > 0)
+            {
+                const bool intrinsicsOK = camera.hasIntrinsics();
+                if (intrinsicsOK)
+                {
+                    try
+                    {
+                        std::lock_guard<std::mutex> g(markerMutex);
+                        estimatePoseMarker(corners, camera.cameraMatrix(), camera.distortionCoefficients());
+                    }
+                    catch (const cv::Exception &ex)
+                    {
+                        std::cerr << "OpenCV exception: " << ex.what() << std::endl;
+                        std::cerr << "Camera might need calibration" << std::endl;
+                    }
+                }
+}
+
+            if (camera.isCalibrating())
+                camera.calibrateFrame(image[captureIdx], corners, ids[captureIdx], charucoDetector, charucoboard);
+
             guard.lock();
             readyIdx = captureIdx;
             guard.unlock();
@@ -692,12 +580,10 @@ void ARUCOPlugin::opencvLoop()
     }
 }
 
-void ARUCOPlugin::startCallibration()
+void ARUCOPlugin::startCalibration()
 {
-    allCorners.clear();
-    allIds.clear();
-    allImgs.clear();
-    doCalibrate = true;
+    camera.startCalibration();
+    std::cerr << "ARUCO: calibration started. Please show/move ChArUco board in front of camera." << std::endl;
 }
 
 // ----------------------------------------------------------------------------
@@ -769,23 +655,26 @@ void ARUCOPlugin::adjustScreen()
     std::cerr << "ARUCOPlugin::adjustScreen()" << std::endl;
 #endif
 
+    if (!camera.hasIntrinsics())
+        return;
+
     if (coCoviseConfig::isOn("COVER.Plugin.ARUCO.AdjustScreenParameters", true))
     {
 
         osg::Vec3 viewPos;
 
-        float sxsize = xsize;
-        float sysize = ysize;
+        float sxsize = camera.width();
+        float sysize = camera.height();
 
         float d;
 
-        d = matCameraMatrix.at<double>(0, 0);
-        sysize = ((double)ysize / matCameraMatrix.at<double>(1, 1)) * d;
+        d = camera.cameraMatrix().at<double>(0, 0);
+        sysize = ((double)camera.height() / camera.cameraMatrix().at<double>(1, 1)) * d;
 
         coVRConfig::instance()->screens[0].hsize = sxsize;
         coVRConfig::instance()->screens[0].vsize = sysize;
 
-        viewPos.set(matCameraMatrix.at<double>(0, 2) - ((double)xsize / 2.0), -d, ((double)ysize / 2.0) - matCameraMatrix.at<double>(1, 2));
+        viewPos.set(camera.cameraMatrix().at<double>(0, 2) - ((double)camera.width() / 2.0), -d, ((double)camera.height() / 2.0) - camera.cameraMatrix().at<double>(1, 2));
 
         VRViewer::instance()->setInitialViewerPos(viewPos);
         osg::Matrix viewMat;
@@ -883,6 +772,65 @@ int ARUCOPlugin::loadPattern(const char* p)
     }
     return pattID;
 }
-    
+
+void ARUCOPlugin::detectCameras()
+{
+    const auto devices = ARCamera::availableDevices();
+    m_cameraDeviceIds.clear();
+    std::vector<std::string> labels;
+    for (const auto &device : devices)
+    {
+        m_cameraDeviceIds.push_back(device.id);
+        labels.push_back(device.label);
+    }
+
+    if (uiCameraDevices)
+    {
+        uiCameraDevices->setList(labels);
+        uiCameraDevices->setEnabled(!labels.empty());
+
+        // do not auto-trigger a switch through UI callback here
+        // uiCameraDevices->select(0, false);
+    }
+}
+
+void ARUCOPlugin::requestCameraSwitch(int deviceId)
+{
+    if (std::find(m_cameraDeviceIds.begin(), m_cameraDeviceIds.end(), deviceId) == m_cameraDeviceIds.end())
+        return;
+
+    std::lock_guard<std::mutex> g(opencvMutex);
+    m_requestedDevice = deviceId;
+}
+
+void ARUCOPlugin::switchCamera(int deviceId)
+{
+    // reject garbage ids
+    if (deviceId < 0 || deviceId > 255)
+    {
+        std::cerr << "ARUCO: invalid camera id " << deviceId << std::endl;
+        return;
+    }
+
+    if (camera.open(deviceId))
+    {
+        std::cerr << "ARUCO: switched to camera device " << deviceId << std::endl;
+        auto *config = coConfig::getInstance();
+        config->setValue("value", std::to_string(deviceId), "COVER.Plugin.ARUCO.VideoDevice");
+        if (!config->save())
+            std::cerr << "ARUCO: failed to save default camera device " << deviceId << std::endl;
+        MarkerTracking::instance()->running = true;
+        MarkerTracking::instance()->videoMode = GL_BGR;
+        MarkerTracking::instance()->videoDepth = 3;
+        MarkerTracking::instance()->videoWidth = camera.width();
+        MarkerTracking::instance()->videoHeight = camera.height();
+    }
+    else
+    {
+        std::cerr << "ARUCO: failed to open camera device " << deviceId << std::endl;
+        MarkerTracking::instance()->running = false;
+    }
+}
+
 // ----------------------------------------------------------------------------
 COVERPLUGIN(ARUCOPlugin)

@@ -32,13 +32,23 @@
 
         <ARUCO value="ON">
           <Capture value="on" />
+          <VideoDevice value="2" width="640" height="480" fourcc="MJPG" fps="30" />
+          <CameraCalibrationFile value="/home/rosba/covise/config/aruco/default.yaml" />
+
+          <VideoDevice ARCH="linux64opt" value="0" width="640" height="480" fourcc="MJPG" fps="30" />
+          <CameraCalibrationFile ARCH="linux64opt" value="/home/rosba/covise/config/aruco/default.yaml" />
           <VideoDevice ARCH="linux" value="0" width="1920" height="1080" fourcc="MJPG" fps="60" />
           <CameraCalibrationFile ARCH="linux" value="/data/aruco/cameras/Logitech_HDProWebcamC920_No2_1920x1080.yaml" />
           <VideoDevice ARCH="macos" value="0" width="1280" height="720" />
           <CameraCalibrationFile ARCH="macos" value="config/opencv/apple_facetime_hd_camera.yaml" />
-          <DictionaryID value="7" /> <!-- 7=DICT_5x5_1000 --> 
-        </ARUCO>
-	
+          <SquaresX value="11" />
+          <SquaresY value="7" />
+          <SquareLength value="0.015" />
+          <MarkerSquare value="0.011" />
+          <DictionaryID value="7" />  <!-- 7=DICT_5x5_1000 -->
+          <LegacyPattern value="true" />
+          <Focus value="35" /> <!-- fixed focus in mm-->
+        </ARUCO>         
       </Plugin>
       
       <FPS value="true" />

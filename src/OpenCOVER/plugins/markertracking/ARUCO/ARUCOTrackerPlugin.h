@@ -9,6 +9,7 @@
 #define _ARUCO_PLUGIN_H
 
 #include "Marker.h"
+#include "../common/ARCamera.h"
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRPlugin.h>
 #include <cover/coVRCollaboration.h>
@@ -20,11 +21,12 @@
 
 #include <cover/coVRPlugin.h>
 
-#include <opencv2/videoio/videoio.hpp>
-#if( CV_VERSION_MAJOR == 4)
+#include <opencv2/core/version.hpp>
+
+#if (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR >= 7) || (CV_VERSION_MAJOR >= 5)
+#include <opencv2/objdetect/aruco_dictionary.hpp>
 #include <opencv2/objdetect/aruco_detector.hpp>
 #include <opencv2/objdetect/charuco_detector.hpp>
-#include <opencv2/aruco.hpp>
 #else
 #include <opencv2/aruco.hpp>
 #endif
@@ -36,13 +38,20 @@
 #include <cover/ui/Menu.h>
 #include <cover/ui/Button.h>
 #include <cover/ui/Action.h>
+#include <cover/ui/SelectionList.h>
 
 using namespace covise;
 using namespace opencover;
 
+namespace opencover { namespace ui {
+class Action;
+class SelectionList;
+}}
+
 class ARUCOPlugin : public opencover::coVRPlugin,
                     public opencover::MarkerTrackingInterface,
-                    public ui::Owner
+                    public ui::Owner,
+                    public opencover::coTUIListener
 {
 public:
     ARUCOPlugin();
@@ -53,19 +62,17 @@ public:
     bool update() override;
     bool destroy() override;
     int loadPattern(const char* p);
-    
+
 protected:
-    cv::VideoCapture inputVideo;
+    ARCamera camera;
     cv::Mat image[3]; // for triple buffering
+    cv::Mat displayImage[3]; // rendered marker frames published to OpenCOVER
     int displayIdx = 0, readyIdx = 1, captureIdx = 2;
-    
-    cv::Mat matCameraMatrix;
-    cv::Mat matDistCoefs;
 
     std::vector<int> ids[3];
     std::vector<std::vector<cv::Point2f>> corners;
     std::vector<std::vector<cv::Point2f>> rejected;
-    
+
     cv::aruco::Dictionary dictionary;
     cv::Ptr<cv::aruco::ArucoDetector> detector;
     cv::Ptr<cv::aruco::DetectorParameters> detectorParams;
@@ -79,7 +86,9 @@ private:
     ui::Button* uiBtnDrawDetMarker = nullptr;
     ui::Button* uiBtnDrawRejMarker = nullptr;
     ui::Action* uiBtnCalib = nullptr;
-    
+    opencover::ui::Action *uiBtnDetectCamera = nullptr;
+    opencover::ui::SelectionList *uiCameraDevices = nullptr;
+
     int markerSize; // default marker size
 
     coTUISlider *bitrateSlider;
@@ -87,7 +96,6 @@ private:
     //void captureRightVideo();
     int msgQueue;
     unsigned char *dataPtr = nullptr;
-    int xsize, ysize;
     int marker_num = 0;
     bool flipBufferH;
     bool flipBufferV;
@@ -98,7 +106,6 @@ private:
     bool isVisible(const MarkerTrackingMarker *marker) override;
     void updateMarkerParams() override;
     void createUnconfiguredTrackedMarkers() override;
-    std::string calibrationFilename;
 
 
     cv::Mat imageCopy;
@@ -112,9 +119,7 @@ private:
     void estimatePoseMarker(const std::vector<std::vector<cv::Point2f>> &corners, const cv::Mat &cameraMatrix, const cv::Mat &distCoeffs);
 
     void initUI();
-    void initCamera(int selectedDevice, bool &exists);
     bool initAR();
-    void calibrate();
 
     std::mutex opencvMutex;
     std::thread opencvThread;
@@ -128,17 +133,17 @@ private:
     cv::Ptr<cv::aruco::CharucoDetector>  charucoDetector;
     //Ptr<aruco::Board> board;
 
-    // collect data from each frame
-    vector< vector< vector< cv::Point2f > > > allCorners;
-    vector< vector< int > > allIds;
-    vector< cv::Mat > allImgs;
-    cv::Size imgSize;
+    void startCalibration();
 
+    opencover::coTUITab *arucoTab = nullptr;
+    opencover::coTUIButton *detectCameraButton = nullptr;
+    opencover::coTUIComboBox *cameraDeviceCombo = nullptr;
 
-    bool doCalibrate;
-    bool calibrated;
-    int calibCount;
-    double lastCalibCapture=0.0;
-    void startCallibration();
+    std::vector<int> m_cameraDeviceIds;
+    int m_requestedDevice = -1;
+
+    void detectCameras();
+    void requestCameraSwitch(int deviceId);
+    void switchCamera(int deviceId);
 };
 #endif

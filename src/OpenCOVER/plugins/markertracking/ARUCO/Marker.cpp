@@ -1,6 +1,10 @@
 #include "Marker.h"
 #include <cover/MarkerTracking.h>
+#if __has_include(<opencv2/calib3d.hpp>)
+#include <opencv2/calib3d.hpp>
+#else
 #include <opencv2/calib3d/calib3d.hpp>
+#endif
 #include "MatrixUtil.h"
 std::array<cv::Vec3d, 4> getMarkerCorners(const opencover::MarkerTrackingMarker *arToolKitMarker)
 {
