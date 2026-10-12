@@ -195,6 +195,11 @@ bool ARCamera::open(int deviceId)
 			std::cerr << "WARNING: could not set capture frame size\n   new size  = " << width << "x" << height << std::endl;
 		}
 	}
+	// Disable auto focus to avoid focus hunting during calibration
+	m_capture.set(cv::CAP_PROP_AUTOFOCUS, 0);
+	// Define manual focus
+	// TODO: Make this configurable via config file
+	m_capture.set(cv::CAP_PROP_FOCUS, 35); 
 
 	cv::Mat frame;
 	std::cerr << "capture first frame after resetting camera" << std::endl;
