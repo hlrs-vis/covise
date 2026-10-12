@@ -176,8 +176,8 @@ bool ARCamera::open(int deviceId)
 		std::cerr << "Frame rate: " << m_capture.get(cv::CAP_PROP_FPS) << std::endl;
 	}
 
-	int width = static_cast<int>(m_capture.get(cv::CAP_PROP_FRAME_WIDTH));
-	int height = static_cast<int>(m_capture.get(cv::CAP_PROP_FRAME_HEIGHT));
+	const int width = static_cast<int>(m_capture.get(cv::CAP_PROP_FRAME_WIDTH));
+	const int height = static_cast<int>(m_capture.get(cv::CAP_PROP_FRAME_HEIGHT));
 	std::cerr << "   current size  = " << width << "x" << height << std::endl;
 	m_width = covise::coCoviseConfig::getInt("width", "COVER.Plugin.ARUCO.VideoDevice", width);
 	m_height = covise::coCoviseConfig::getInt("height", "COVER.Plugin.ARUCO.VideoDevice", height);
@@ -186,8 +186,6 @@ bool ARCamera::open(int deviceId)
 	{
 		m_capture.set(cv::CAP_PROP_FRAME_WIDTH, m_width);
 		m_capture.set(cv::CAP_PROP_FRAME_HEIGHT, m_height);
-		width = static_cast<int>(m_capture.get(cv::CAP_PROP_FRAME_WIDTH));
-		height = static_cast<int>(m_capture.get(cv::CAP_PROP_FRAME_HEIGHT));
 		if (m_width != width || m_height != height)
 		{
 			m_width = width;
@@ -195,11 +193,17 @@ bool ARCamera::open(int deviceId)
 			std::cerr << "WARNING: could not set capture frame size\n   new size  = " << width << "x" << height << std::endl;
 		}
 	}
+	const int focus = covise::coCoviseConfig::getInt("Focus", "COVER.Plugin.ARUCO.VideoDevice", 35);
 	// Disable auto focus to avoid focus hunting during calibration
-	m_capture.set(cv::CAP_PROP_AUTOFOCUS, 0);
+	const bool autofocusSet = m_capture.set(cv::CAP_PROP_AUTOFOCUS, 0);
 	// Define manual focus
-	// TODO: Make this configurable via config file
-	m_capture.set(cv::CAP_PROP_FOCUS, 35); 
+	const bool focusSet = m_capture.set(cv::CAP_PROP_FOCUS, focus); 
+
+	std::cerr << "autofocus set=" << autofocusSet
+          << ", reported autofocus=" << m_capture.get(cv::CAP_PROP_AUTOFOCUS)
+          << ", focus set=" << focusSet
+          << ", reported focus=" << m_capture.get(cv::CAP_PROP_FOCUS)
+          << std::endl;
 
 	cv::Mat frame;
 	std::cerr << "capture first frame after resetting camera" << std::endl;

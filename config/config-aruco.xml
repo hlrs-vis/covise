@@ -47,6 +47,7 @@
           <MarkerSquare value="0.011" />
           <DictionaryID value="7" />  <!-- 7=DICT_5x5_1000 -->
           <LegacyPattern value="true" />
+          <Focus value="35" /> <!-- fixed focus in mm-->
         </ARUCO>         
       </Plugin>
       
