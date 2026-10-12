@@ -12,7 +12,7 @@
 #include <cover/coVRPluginSupport.h>
 
 #include <boost/algorithm/string/replace.hpp>
-#include <linux/stat.h>
+#include <filesystem>
 #include <osg/CopyOp>
 #include <osg/Material>
 #include <sys/stat.h>
@@ -34,8 +34,8 @@
 
 inline bool fileExists(const std::string &name)
 {
-    struct stat buffer;
-    return (stat(name.c_str(), &buffer) == 0);
+    std::filesystem::path p(name);
+    return std::filesystem::exists(p);
 }
 
 osg::Node *CarGeometry::loadFile(const std::string &file)
