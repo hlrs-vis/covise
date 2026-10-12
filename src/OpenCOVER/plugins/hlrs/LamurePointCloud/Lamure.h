@@ -40,7 +40,7 @@
 #include <scm/core/math.h>
 
 #include <lamure/ren/data_provenance.h>
-#include <lamure/prov/prov_aux.h>
+//#include <lamure/prov/prov_aux.h>
 
 #include "LamureRenderer.h"
 #include "LamureUI.h"

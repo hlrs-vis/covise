@@ -7,6 +7,7 @@
 
 #include "GeoData.h"
 
+#include <iostream>
 #include <cover/coVRPluginSupport.h>
 
 using namespace opencover;

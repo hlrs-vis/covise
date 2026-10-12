@@ -90,6 +90,13 @@ northing = 5398555.900845651
 altitude = 450.0
 
 [[datasets]]
+name = "Campus_0"
+easting = 507047.64631626336
+northing = 5398555.900845651
+altitude = 0.0
+
+
+[[datasets]]
 name = "SMIC"
 easting = 513326.996
 northing = 5402342.657

@@ -390,13 +390,28 @@ void TracerInteraction::updateMenuContents()
     _numStartPointsPoti->setBounds(_numStartPointsMin, _numStartPointsMax);
     _numStartPointsPoti->setValue(_numStartPoints);
 
-    if (traceLen_ > 1e-6)
-        traceLenPoti_->setBounds(0., 5 * traceLen_);
-    else
-        traceLenPoti_->setBounds(0., 1.);
-    traceLenPoti_->setValue(traceLen_);
-    if (_taskType)
+    if (traceLenPoti_ && inter_->getFloatScalarParam(P_TRACE_LEN, traceLen_) != -1)
+    {
+        traceLenPoti_->setVisible(true);
+        if (traceLen_ > 1e-6)
+            traceLenPoti_->setBounds(0., 5 * traceLen_);
+        else
+            traceLenPoti_->setBounds(0., 1.);
+        traceLenPoti_->setValue(traceLen_);
+    } else
+    {
+        traceLenPoti_->setVisible(false);
+    }
+
+    if (_taskType && inter_->getChoiceParam(P_TASKTYPE, _numTaskTypes, _taskTypeNames, _selectedTaskType) != -1)
+    {
+        _taskType->setVisible(true);
         _taskType->select(_selectedTaskType);
+    }
+    else
+    {
+        _taskType->setVisible(false);
+    }
     _startStyle->select(_selectedStartStyle);
 
     updatePickInteractors(showPickInteractor_);

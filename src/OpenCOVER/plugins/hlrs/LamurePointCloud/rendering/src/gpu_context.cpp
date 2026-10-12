@@ -1,7 +1,7 @@
 // Copyright (c) 2014-2018 Bauhaus-Universitaet Weimar
 // This Software is distributed under the Modified BSD License, see license.txt.
 //
-// Virtual Reality and Visualization Research Group 
+// Virtual Reality and Visualization Research Group
 // Faculty of Media, Bauhaus-Universitaet Weimar
 // http://www.uni-weimar.de/medien/vr
 
@@ -13,6 +13,7 @@
 #include <scm/gl_core/render_device/opengl/gl_core.h>
 #include <algorithm>
 #include <iostream>
+#include <string>
 
 namespace lamure
 {
@@ -134,7 +135,7 @@ void gpu_context::test_video_memory(scm::gl::render_device_ptr device)
         render_budget_in_nodes_ = (render_budget_in_mb * 1024 * 1024) / node_size_total;
 
     size_t max_upload_budget_in_mb = policy->max_upload_budget_in_mb();
-    
+
     if(node_size_total==0)
         upload_budget_in_nodes_ = 0;
     else
@@ -239,6 +240,8 @@ scm::gl::vertex_array_ptr gpu_context::get_context_memory(bvh::primitive_type ty
 
 void gpu_context::map_temporary_storage(const cut_database_record::temporary_buffer &buffer, scm::gl::render_device_ptr device)
 {
+    using namespace std::string_literals;
+
     if(!is_created_)
         create(device);
 
@@ -266,7 +269,7 @@ void gpu_context::map_temporary_storage(const cut_database_record::temporary_buf
         break;
     }
 
-    throw std::runtime_error("lamure: Failed to map temporary buffer on context: " + context_id_);
+    throw std::runtime_error("lamure: Failed to map temporary buffer on context: " + std::to_string(context_id_));
 }
 
 void gpu_context::map_temporary_storage(const cut_database_record::temporary_buffer &buffer, scm::gl::render_device_ptr device, Data_Provenance const &data_provenance)
@@ -302,7 +305,7 @@ void gpu_context::map_temporary_storage(const cut_database_record::temporary_buf
         break;
     }
 
-    throw std::runtime_error("lamure: Failed to map temporary buffer on context: " + context_id_);
+    throw std::runtime_error("lamure: Failed to map temporary buffer on context: " + std::to_string(context_id_));
 }
 
 void gpu_context::unmap_temporary_storage(const cut_database_record::temporary_buffer &buffer, scm::gl::render_device_ptr device)
@@ -381,7 +384,7 @@ bool gpu_context::update_primary_buffer(const cut_database_record::temporary_buf
     {
         if(temp_buffer_a_->is_mapped())
         {
-            throw std::runtime_error("lamure: gpu_context::Failed to transfer nodes into main memory on context: " + context_id_);
+            throw std::runtime_error("lamure: gpu_context::Failed to transfer nodes into main memory on context: " + std::to_string(context_id_));
         }
         std::vector<cut_database_record::slot_update_desc> &transfer_descr_list = cuts->get_updated_set(context_id_);
         if(!transfer_descr_list.empty())
@@ -402,7 +405,7 @@ bool gpu_context::update_primary_buffer(const cut_database_record::temporary_buf
     {
         if(temp_buffer_b_->is_mapped())
         {
-            throw std::runtime_error("lamure: gpu_context::Failed to transfer nodes into main memory on context: " + context_id_);
+            throw std::runtime_error("lamure: gpu_context::Failed to transfer nodes into main memory on context: " + std::to_string(context_id_));
         }
         std::vector<cut_database_record::slot_update_desc> &transfer_descr_list = cuts->get_updated_set(context_id_);
         if(!transfer_descr_list.empty())

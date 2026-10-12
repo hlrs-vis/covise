@@ -1,7 +1,7 @@
 // Copyright (c) 2014-2018 Bauhaus-Universitaet Weimar
 // This Software is distributed under the Modified BSD License, see license.txt.
 //
-// Virtual Reality and Visualization Research Group 
+// Virtual Reality and Visualization Research Group
 // Faculty of Media, Bauhaus-Universitaet Weimar
 // http://www.uni-weimar.de/medien/vr
 
@@ -337,7 +337,7 @@ const bool controller::is_cut_update_in_progress(const context_t context_id, Dat
 
     if(gpu_context_it == gpu_contexts_.end())
     {
-        throw std::runtime_error("lamure: controller::Gpu Context not found for context: " + context_id);
+        throw std::runtime_error("lamure: controller::Gpu Context not found for context: " + std::to_string(context_id));
     }
 
     auto cut_update_it = cut_update_pools_.find(context_id);
@@ -351,7 +351,7 @@ const bool controller::is_cut_update_in_progress(const context_t context_id, Dat
         gpu_context *ctx = gpu_context_it->second;
         if(!ctx->is_created())
         {
-            throw std::runtime_error("lamure: controller::Gpu Context not created for context: " + context_id);
+            throw std::runtime_error("lamure: controller::Gpu Context not created for context: " + std::to_string(context_id));
         }
         cut_update_pools_[context_id] = new cut_update_pool(context_id, ctx->upload_budget_in_nodes(), ctx->render_budget_in_nodes(), data_provenance);
         return is_cut_update_in_progress(context_id, data_provenance);
@@ -366,7 +366,7 @@ const bool controller::is_cut_update_in_progress(const context_t context_id)
 
     if(gpu_context_it == gpu_contexts_.end())
     {
-        throw std::runtime_error("lamure: controller::Gpu Context not found for context: " + context_id);
+        throw std::runtime_error("lamure: controller::Gpu Context not found for context: " + std::to_string(context_id));
     }
 
     auto cut_update_it = cut_update_pools_.find(context_id);
@@ -380,7 +380,7 @@ const bool controller::is_cut_update_in_progress(const context_t context_id)
         gpu_context *ctx = gpu_context_it->second;
         if(!ctx->is_created())
         {
-            throw std::runtime_error("lamure: controller::Gpu Context not created for context: " + context_id);
+            throw std::runtime_error("lamure: controller::Gpu Context not created for context: " + std::to_string(context_id));
         }
 
         cut_update_pools_[context_id] = new cut_update_pool(context_id, ctx->upload_budget_in_nodes(), ctx->render_budget_in_nodes());
@@ -396,7 +396,7 @@ void controller::dispatch(const context_t context_id, scm::gl::render_device_ptr
 
     if (gpu_context_it == gpu_contexts_.end())
     {
-        throw std::runtime_error("lamure: controller::Gpu Context not found for context: " + context_id);
+        throw std::runtime_error("lamure: controller::Gpu Context not found for context: " + std::to_string(context_id));
     }
 
     auto cut_update_it = cut_update_pools_.find(context_id);
@@ -438,7 +438,7 @@ void controller::dispatch(const context_t context_id, scm::gl::render_device_ptr
         if (!ctx->is_created())
         {
             // throw std::runtime_error(
-            //    "lamure: controller::Gpu Context not created for context: " + context_id);
+            //    "lamure: controller::Gpu Context not created for context: " + std::to_string(context_id));
 
             ctx->create(device, data_provenance);
             //int first_error = device->opengl_api().glGetError();
@@ -462,7 +462,7 @@ void controller::dispatch(const context_t context_id, scm::gl::render_device_ptr
 
     if (gpu_context_it == gpu_contexts_.end())
     {
-        throw std::runtime_error("lamure: controller::Gpu Context not found for context: " + context_id);
+        throw std::runtime_error("lamure: controller::Gpu Context not found for context: " + std::to_string(context_id));
     }
 
     auto cut_update_it = cut_update_pools_.find(context_id);
@@ -497,7 +497,7 @@ void controller::dispatch(const context_t context_id, scm::gl::render_device_ptr
         if (!ctx->is_created())
         {
             // throw std::runtime_error(
-            //    "lamure: controller::Gpu Context not created for context: " + context_id);
+            //    "lamure: controller::Gpu Context not created for context: " + std::to_string(context_id));
 
             ctx->create(device);
         }
@@ -521,7 +521,7 @@ scm::gl::buffer_ptr controller::get_context_buffer(const context_t context_id, s
 
     if (gpu_context_it == gpu_contexts_.end())
     {
-        throw std::runtime_error("lamure: controller::Gpu Context not found for context: " + context_id);
+        throw std::runtime_error("lamure: controller::Gpu Context not found for context: " + std::to_string(context_id));
     }
 
     return gpu_context_it->second->get_context_buffer(device);
@@ -533,7 +533,7 @@ scm::gl::buffer_ptr controller::get_context_buffer(const context_t context_id, s
 
     if (gpu_context_it == gpu_contexts_.end())
     {
-        throw std::runtime_error("lamure: controller::Gpu Context not found for context: " + context_id);
+        throw std::runtime_error("lamure: controller::Gpu Context not found for context: " + std::to_string(context_id));
     }
 
     return gpu_context_it->second->get_context_buffer(device, data_provenance);
@@ -545,7 +545,7 @@ scm::gl::vertex_array_ptr controller::get_context_memory(const context_t context
 
     if (gpu_context_it == gpu_contexts_.end())
     {
-        throw std::runtime_error("lamure: controller::Gpu Context not found for context: " + context_id);
+        throw std::runtime_error("lamure: controller::Gpu Context not found for context: " + std::to_string(context_id));
     }
 
     return gpu_context_it->second->get_context_memory(type, device);
@@ -557,7 +557,7 @@ scm::gl::vertex_array_ptr controller::get_context_memory(const context_t context
 
     if(gpu_context_it == gpu_contexts_.end())
     {
-        throw std::runtime_error("lamure: controller::Gpu Context not found for context: " + context_id);
+        throw std::runtime_error("lamure: controller::Gpu Context not found for context: " + std::to_string(context_id));
     }
 
     return gpu_context_it->second->get_context_memory(type, device, data_provenance);

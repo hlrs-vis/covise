@@ -1192,6 +1192,9 @@ void cut_update_pool::prefetch_routine()
 
 void cut_update_pool::compile_transfer_list()
 {
+    if (!current_gpu_storage_)
+        return;
+
     model_database *database = model_database::get_instance();
     ooc_cache *ooc_cache = ooc_cache::get_instance(_data_provenance);
 

@@ -1,5 +1,6 @@
 find_package(Protobuf CONFIG)
 find_package(cppzmq)
+find_package(ZeroMQ )
 
 if (NOT TARGET protobuf::libprotobuf)
     return()
@@ -113,4 +114,4 @@ target_link_libraries(AuralReality PRIVATE arrpc )
 #     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/aural-reality-protocol/arrpc/include"
 # )
 
-target_link_libraries(AuralReality PUBLIC protobuf::libprotobuf cppzmq)
+target_link_libraries(AuralReality PUBLIC protobuf::libprotobuf cppzmq libzmq)

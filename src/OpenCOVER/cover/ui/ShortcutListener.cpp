@@ -174,6 +174,14 @@ void ShortcutListener::addShortcut(const std::string &shortcut)
     {
         sh.symbol = osgGA::GUIEventAdapter::KEY_Delete;
     }
+    else if (key == ">")
+    {
+        sh.symbol = osgGA::GUIEventAdapter::KEY_Greater;
+    }
+    else if (key == "<")
+    {
+        sh.symbol = osgGA::GUIEventAdapter::KEY_Less;
+    }
     else if ((item.length() == 2 || item.length() == 3) && item[0] == 'f')
     {
         int fnum = atoi(item.substr(1).c_str());

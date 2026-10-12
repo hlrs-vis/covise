@@ -60,10 +60,6 @@ private slots:
     void closeEvent(QCloseEvent* event) override;
     void removePermissionRequest(covise::Program p, int clientID);
 
-    void openDemoClient();
-    void showDemoClientContextMenu();
-    void copyDemoLinkToClipboard();
-
 signals:
     void updateStatusBarSignal();
 
@@ -113,9 +109,6 @@ private:
     void showConnectionProgressBar(int seconds);
     void askForPermission(covise::Program p, int clientID, const QString &description);
     void saveOptions();
-
-    QString getDemoClientUrl();
-    void setupDemoClientAction();
 
     std::vector<std::string> parseCmdArgsInput();
 };

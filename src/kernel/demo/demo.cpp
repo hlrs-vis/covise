@@ -9,9 +9,15 @@ const char* COVISEDIR = getenv("COVISEDIR");
 
 std::string getRoot()
 {
-    if(HLRS_DEMO_DIR_CHAR) return HLRS_DEMO_DIR_CHAR;
-     std::filesystem::path p("/data/hlrsDemo");
-    if (std::filesystem::exists(p))
+    if(HLRS_DEMO_DIR_CHAR)
+    {
+        std::filesystem::path p(HLRS_DEMO_DIR_CHAR);
+        if (std::filesystem::exists(p) && std::filesystem::canonical(p) != "/")
+            return p.string();
+        return "";
+    }
+    std::filesystem::path p("/data/hlrsDemo");
+    if (std::filesystem::exists(p) && std::filesystem::canonical(p) != "/")
         return p.string();
     return "";
 }
@@ -30,4 +36,4 @@ const std::string demo::collection = coviseDemoDir() + "/demos.json";
 const std::string demo::imageDir = demo::root + "/static/screenshots";
 const std::string demo::logFile = coviseDemoDir() + "/launch_log.jsonl";
 const std::string demo::indexHtml = coviseDemoDir() + "/index.html";
-const int demo::port = HLRS_DEMO_PORT_CHAR && atoi(HLRS_DEMO_PORT_CHAR) ? atoi(HLRS_DEMO_PORT_CHAR) : 31095;
+const int demo::port = HLRS_DEMO_PORT_CHAR && atoi(HLRS_DEMO_PORT_CHAR) ? atoi(HLRS_DEMO_PORT_CHAR) : 1095;

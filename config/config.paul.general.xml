@@ -5,10 +5,10 @@
         <COVER>
             <PointerAppearance>
                 <IconName value="line"/>
-                <Width value="10"/>
+                <Width value="4"/>
                 <Length value="1500"/>
-                <!-- interscetion length is used also for mouse, it needs to be long enough to intersect far objects -->
-                <Intersection value="15000" />
+                <Intersection value="1000000000" />
+                <Color r="0.92" g="0.7" b="0.1" a="1" />
             </PointerAppearance>
 
             <UI>

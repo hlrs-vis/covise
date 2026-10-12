@@ -84,7 +84,7 @@ uniform float arrowsize;
 		}
 		else 
 		{
-		  float q = 1/(2*arrowlength)*(1-texCoord.x);
+		  float q = 1.0/(2.0*arrowlength)*(1.0-texCoord.x);
 		  
 		  if ((texCoord.y-0.5) &gt; q) discard;
 		  if ((0.5-texCoord.y) &gt; q) discard;

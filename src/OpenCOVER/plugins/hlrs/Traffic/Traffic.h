@@ -54,6 +54,8 @@ struct VehicleModel
     double frontAxle = 1.2;
     double backAxle = -1.2;
     double length = 3.2;
+
+    std::string lodPath;
 };
 
 enum GeometryType : uint8_t
@@ -68,7 +70,6 @@ enum GeometryType : uint8_t
     // Using cal3d/osgcal for character rendering with
     // skeleton/skin animations.
     CHARACTER,
-
 };
 
 struct VehicleClass

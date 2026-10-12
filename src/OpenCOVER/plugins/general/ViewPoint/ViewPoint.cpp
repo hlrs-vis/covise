@@ -283,9 +283,32 @@ bool ViewPoints::init()
     useClipPlanesCheck_->setText("Set clip planes");
     useClipPlanesCheck_->setState(false);
     useClipPlanesCheck_->setVisible(false); // FIXME: does nothing
-    useClipPlanesCheck_->setCallback([this](bool state){
-        //sendClipplaneModeToGui();
-    });
+    useClipPlanesCheck_->setCallback([this](bool state)
+        {
+            // sendClipplaneModeToGui();
+        });
+
+    auto nextButton = new ui::Action(viewPointMenu_, "AutoCycleNext");
+    nextButton->setText("Next viewpoint");
+    nextButton->setShortcut("Shift+>");
+    nextButton->setCallback([this]()
+        { cycler.advance(1); });
+
+    auto prevButton = new ui::Action(viewPointMenu_, "AutoCyclePrev");
+    prevButton->setText("Previous viewpoint");
+    prevButton->setShortcut("<");
+    prevButton->setCallback([this]()
+        { cycler.advance(-1); });
+
+    auto autoCycleButton = new ui::Button(viewPointMenu_, "AutoCycle");
+    autoCycleButton->setText("Auto cycle");
+    autoCycleButton->setShortcut("c");
+    autoCycleButton->setState(autoCycle);
+    autoCycleButton->setCallback([this, nextButton, prevButton](bool state)
+        {
+            autoCycle = state;
+            nextButton->setEnabled(state);
+            prevButton->setEnabled(state); });
 
     flyingModeCheck_ = new ui::Button(viewPointMenu_, "FlyingMode");
     flyingModeCheck_->setText("Animate transitions");
@@ -1672,6 +1695,16 @@ void ViewPoints::preFrame()
             saveAllViewPoints();
         }
     }
+
+    if (autoCycle)
+    {
+        cycler.update();
+    }
+    else
+    {
+        cycler.reset();
+    }
+
     if (record)
     {
         static double oldTime = 0;

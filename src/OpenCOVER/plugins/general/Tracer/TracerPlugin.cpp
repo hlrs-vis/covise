@@ -40,7 +40,7 @@ void TracerPlugin::newInteractor(const RenderObject *container, coInteractor *i)
             fprintf(stderr, "container %p %s\n", container, container->getName());
     }
     const char *moduleName = i->getModuleName();
-    if ((strncmp(moduleName, "TracerComp", 10) == 0) || (strncmp(moduleName, "Tracer", 6) == 0))
+    if (strncmp(moduleName, "TracerComp", 10) == 0 || strncmp(moduleName, "Tracer", 6) == 0 || strncmp(moduleName, "Streamline", 10) == 0)
     {
         add(container, i);
     }

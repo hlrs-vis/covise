@@ -18,6 +18,10 @@ public:
     virtual bool update(double deltaTime, double simulationDeltaTime) = 0; // returns whether new data is there
     virtual void getSimulationState(SimulationState &state) = 0;
     virtual bool isConnected() const = 0;
+    virtual bool isPrerecorded() const { return false; }
+    virtual double getTimeStep() const = 0;
+    virtual double getAnimationSpeed() const { return 1.0; }
+    virtual bool simulateOnSlaves() const { return false; }
 };
 
 #endif

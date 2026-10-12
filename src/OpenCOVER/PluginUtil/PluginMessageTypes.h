@@ -105,6 +105,7 @@ public:
         HLRS_Revit_Message = 10500,
         HLRS_Office_Message = 10600,
         HLRS_Oddlot_Message = 10700,
+        HLRS_MapLink_Message = 10800,
         LoadTerrain = 10701,
         setSky = 10702,
         GeoDataSetRegionEnabled = 10703,

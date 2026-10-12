@@ -514,7 +514,10 @@ scm::math::vec3d camera::get_cam_pos() {
         return scm::math::vec3d(vm[12], vm[13], vm[14]);
         break;
     }
+    default:
+        break;
     }
+    return scm::math::vec3d();
 }
 
 

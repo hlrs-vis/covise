@@ -249,16 +249,13 @@
     <Joystick>
       <Device value="/dev/input/porschepedal" />
     </Joystick>
-
+    <Vrml97>
      <Lights value="ON" />
      <Audio value="AServer" >
         <Host value="192.168.0.240"/> 
      </Audio>
-
-
     <ViewpointType value = "free"/>
-
-
+    </Vrml97>
     
     <StereoVideoPlayer>
        <Audio value="off"/>

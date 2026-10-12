@@ -119,6 +119,16 @@
       "name": "msvc_18_buildtools-llvm",
       "displayName": "MSVC 18 Buildtools with LLVM (clang-cl, lld)",
       "inherits": [ "msvc-buildtools-18", "clang-cl", "lld-win"]
+    },
+    {
+      "name": "ninja-msvc",
+      "displayName": "Ninja (MSVC)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/ninja-msvc",
+      "inherits": [ "msvc-buildtools-18" ],
+      "cacheVariables": {
+        "CMAKE_CONFIGURATION_TYPES": "Debug;Release;RelWithDebInfo"
+      }
     }
   ],
   "buildPresets": [
@@ -171,6 +181,24 @@
       "name": "msvc_18-llvm-debug-build",
       "configurePreset": "msvc_18_buildtools-llvm",
       "configuration": "Debug",
+      "jobs": 0
+    }
+    ,
+    {
+      "name": "msvc_ninja-debug-build",
+      "configurePreset": "ninja-msvc",
+      "configuration": "Debug"
+    },
+    {
+      "name": "msvc_ninja-release-build",
+      "configurePreset": "ninja-msvc",
+      "configuration": "Release",
+      "jobs": 0
+    },
+    {
+      "name": "msvc_ninja-relwithdeb-build",
+      "configurePreset": "ninja-msvc",
+      "configuration": "RelWithDebInfo",
       "jobs": 0
     }
   ]

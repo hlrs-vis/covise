@@ -23,10 +23,11 @@ public:
 
     void connect();
     void subscribeToSimulation();
-    bool update(double deltaTime, double simulationDeltaTime);
-    void getSimulationState(SimulationState &state);
+    bool update(double deltaTime, double simulationDeltaTime) override;
+    void getSimulationState(SimulationState &state) override;
 
-    bool isConnected() const;
+    bool isConnected() const override;
+    double getTimeStep() const override { return simulationStepSize; }
 
 private:
     bool connected = false;
