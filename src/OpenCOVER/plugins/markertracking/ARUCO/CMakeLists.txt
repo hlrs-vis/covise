@@ -1,56 +1,13 @@
+if(NOT OPENCV_FOUND)
+    return()
+endif()
+
 if(NOT COVISE_USE_OPENCV4 AND NOT COVISE_USE_OPENCV5)
     message(WARNING
       "ARUCO plugin disabled: OpenCV not found or unsupported. "
       "Supported versions are OpenCV 4 and 5.")
     return()
 endif()
-USING(OpenCV)
-
-# calib: OpenCV4=calib3d, some OpenCV5 packages=calib
-set(ARUCO_CALIB_LIB "${OPENCV_CALIB3D_LIBRARY}")
-if((NOT ARUCO_CALIB_LIB OR ARUCO_CALIB_LIB STREQUAL "OPENCV_CALIB3D_LIBRARY-NOTFOUND")
-   AND DEFINED OPENCV_CALIB_LIBRARY
-   AND NOT OPENCV_CALIB_LIBRARY STREQUAL "OPENCV_CALIB_LIBRARY-NOTFOUND")
-    set(ARUCO_CALIB_LIB "${OPENCV_CALIB_LIBRARY}")
-endif()
-
-# geometry: needed on some OpenCV5 package layouts (solvePnP/Rodrigues)
-set(ARUCO_GEOMETRY_LIB "")
-if(COVISE_USE_OPENCV5)
-    unset(ARUCO_GEOMETRY_LIB CACHE)
-    get_filename_component(_opencv_libdir "${OPENCV_CORE_LIBRARY}" DIRECTORY)
-
-    # 1) direct known path fallback
-    if(EXISTS "${_opencv_libdir}/libopencv_geometry.so")
-        set(ARUCO_GEOMETRY_LIB "${_opencv_libdir}/libopencv_geometry.so")
-    else()
-        # 2) regular lookup
-        find_library(ARUCO_GEOMETRY_LIB
-            NAMES opencv_geometry
-            HINTS "${_opencv_libdir}"
-            PATHS /usr/lib /usr/local/lib /usr/lib64 /usr/local/lib64
-        )
-    endif()
-
-    if(NOT ARUCO_GEOMETRY_LIB OR ARUCO_GEOMETRY_LIB STREQUAL "ARUCO_GEOMETRY_LIB-NOTFOUND")
-        message(FATAL_ERROR "ARUCO: OpenCV5 needs opencv_geometry for solvePnP/Rodrigues")
-    endif()
-endif()
-
-set(ARUCO_OPENCV_LIBS
-    ${OPENCV_CORE_LIBRARY}
-    ${OPENCV_IMGPROC_LIBRARY}
-    ${OPENCV_VIDEOIO_LIBRARY}
-    ${OPENCV_HIGHGUI_LIBRARY}
-    ${OPENCV_OBJDETECT_LIBRARY}
-    ${ARUCO_CALIB_LIB}
-    ${ARUCO_GEOMETRY_LIB}
-)
-list(FILTER ARUCO_OPENCV_LIBS EXCLUDE REGEX ".*-NOTFOUND$")
-list(REMOVE_ITEM ARUCO_OPENCV_LIBS "")
-list(REMOVE_DUPLICATES ARUCO_OPENCV_LIBS)
-
-message(STATUS "ARUCO final OpenCV libs: ${ARUCO_OPENCV_LIBS}")
 
 SET(ARUCO_USE_CUDA FALSE)
 
@@ -170,9 +127,9 @@ ELSE(ARUCO_USE_CUDA)
   cover_add_plugin(ARUCO ${HEADERS} ${SOURCES})
 ENDIF(ARUCO_USE_CUDA)
 
-
 if(TARGET ARUCO)
-    target_link_libraries(ARUCO ${ARUCO_OPENCV_LIBS})
+    target_link_libraries(ARUCO ${OPENCV_LIBRARIES})
+    target_include_directories(ARUCO SYSTEM PRIVATE ${OPENCV_INCLUDE_DIRS})
 endif()
 
 SET(HEADERS
@@ -183,6 +140,7 @@ SET(SOURCES
 
 ADD_COVISE_EXECUTABLE(createMarker)
 COVISE_WNOERROR(createMarker)
+TARGET_INCLUDE_DIRECTORIES(createMarker SYSTEM PRIVATE ${OPENCV_INCLUDE_DIRS})
 
-TARGET_LINK_LIBRARIES(createMarker ${EXTRA_LIBS} )
+TARGET_LINK_LIBRARIES(createMarker ${OPENCV_LIBRARIES})
 
