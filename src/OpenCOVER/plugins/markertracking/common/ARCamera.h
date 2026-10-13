@@ -33,6 +33,7 @@ public:
 	void close();
 	bool isOpened() const;
 	bool read(cv::Mat &frame);
+	bool setManualFocus(int focus);
 
 	int width() const;
 	int height() const;

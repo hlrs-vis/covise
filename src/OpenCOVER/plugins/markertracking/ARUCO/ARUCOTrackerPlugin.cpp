@@ -42,6 +42,7 @@
 
 #include <cover/coVRPlugin.h>
 #include <cover/coInteractor.h>
+#include <cover/ui/View.h>
 #include <util/unixcompat.h>
 #include <util/environment.h>
 
@@ -49,6 +50,7 @@
 #include <string>
 #include <algorithm>
 #include <cstdio>
+#include <stdexcept>
 
 using std::cout;
 using std::endl;
@@ -243,6 +245,7 @@ void ARUCOPlugin::initUI()
 {
     uiMenu = new ui::Menu("uiMenu", this);
     uiMenu->setText("ARUCO");
+    uiMenu->setVisible(true, ui::View::Tablet);
 
     uiBtnDrawDetMarker = new ui::Button(uiMenu, "uiBtnDrawDetMarker");
     uiBtnDrawDetMarker->setText("Draw detected markers");
@@ -281,6 +284,61 @@ void ARUCOPlugin::initUI()
         if (idx >= 0 && idx < static_cast<int>(m_cameraDeviceIds.size()))
             requestCameraSwitch(m_cameraDeviceIds[idx]);
     });
+
+    const int focus = coCoviseConfig::getInt("Focus", "COVER.Plugin.ARUCO", 35);
+    uiManualFocus = new ui::EditField(uiMenu, "manualFocus");
+    uiManualFocus->setText("Manual focus");
+    uiManualFocus->setValue(focus);
+
+    uiBtnSaveFocus = new ui::Action(uiMenu, "saveFocus");
+    uiBtnSaveFocus->setText("Apply and save focus");
+    uiBtnSaveFocus->setCallback([this]() { applyAndSaveManualFocus(); });
+}
+
+void ARUCOPlugin::applyAndSaveManualFocus()
+{
+    const std::string value = uiManualFocus->value();
+    size_t parsedCharacters = 0;
+    int requestedFocus;
+    try
+    {
+        requestedFocus = std::stoi(value, &parsedCharacters);
+    }
+    catch (const std::exception &)
+    {
+        std::cerr << "ARUCO: invalid manual focus value '" << value << "'" << std::endl;
+        return;
+    }
+    if (value.find_first_not_of(" \t", parsedCharacters) != std::string::npos || requestedFocus < 0)
+    {
+        std::cerr << "ARUCO: manual focus must be a non-negative integer" << std::endl;
+        return;
+    }
+
+    auto *config = coConfig::getInstance();
+    const bool wasAdminMode = config->isAdminMode();
+    config->setAdminMode(true);
+    if (!config->isAdminMode())
+    {
+        std::cerr << "ARUCO: cannot enable COCONFIG admin mode; the global config is not group-writable" << std::endl;
+        config->setAdminMode(wasAdminMode);
+        requestManualFocus(requestedFocus);
+        return;
+    }
+
+    config->setValueInConfig("value", std::to_string(requestedFocus),
+                         "COVER.Plugin.ARUCO.Focus", "global");
+    const bool saved = config->save();
+    config->setAdminMode(wasAdminMode);
+    if (!saved)
+    {
+        std::cerr << "ARUCO: failed to save manual focus " << requestedFocus << std::endl;
+    }
+    else
+    {
+        std::cerr << "ARUCO: saved manual focus " << requestedFocus << " to the global COCONFIG file" << std::endl;
+    }
+    requestManualFocus(requestedFocus);
 }
 
 // ----------------------------------------------------------------------------
@@ -454,6 +512,20 @@ void ARUCOPlugin::opencvLoop()
         }
         if (req >= 0)
             switchCamera(req);
+
+        int requestedFocus = 0;
+        bool applyFocus = false;
+        {
+            std::lock_guard<std::mutex> g(opencvMutex);
+            if (camera.isOpened() && m_focusChangeRequested)
+            {
+                requestedFocus = m_requestedFocus;
+                m_focusChangeRequested = false;
+                applyFocus = true;
+            }
+        }
+        if (applyFocus)
+            camera.setManualFocus(requestedFocus);
 
         std::unique_lock<std::mutex> guard(opencvMutex);
         if (!opencvRunning)
@@ -801,6 +873,13 @@ void ARUCOPlugin::requestCameraSwitch(int deviceId)
 
     std::lock_guard<std::mutex> g(opencvMutex);
     m_requestedDevice = deviceId;
+}
+
+void ARUCOPlugin::requestManualFocus(int focus)
+{
+    std::lock_guard<std::mutex> g(opencvMutex);
+    m_requestedFocus = focus;
+    m_focusChangeRequested = true;
 }
 
 void ARUCOPlugin::switchCamera(int deviceId)
