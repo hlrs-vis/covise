@@ -502,7 +502,14 @@ bool VRViewer::addRealizeOperation(osg::Operation *op)
 {
     if(!m_initGlOp)
         return false;
-    return m_initGlOp->addOperation(op);
+    if (!m_initGlOp->addOperation(op)) {
+        std::cerr << "VRViewer: could not register additional RealizeOperation" << std::endl;
+        std::cerr << "   If this occurs while loading a plug-in, try to load it during initialization instead, e.g.:" << std::endl;
+        std::cerr << "   <Earth value=\"on\" />" << std::endl;
+        sleep(5);
+        return false;
+    }
+    return true;
 }
 
 void VRViewer::removeRealizeOperation(osg::Operation *op)

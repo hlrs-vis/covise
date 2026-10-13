@@ -67,7 +67,7 @@ int EarthPlugin::sLoadKmlFile(const char *fn, osg::Group *parent, const char *)
 {
     if (plugin)
         return plugin->loadKmlFile(fn, parent);
-        
+
     return -1;
 }
 
@@ -167,7 +167,12 @@ EarthPlugin::EarthPlugin()
 
     osgEarth::initialize(); // has to be called before creating windows: load plugin from config
     realizeOp = new osgEarth::GL3RealizeOperation();
-    VRViewer::instance()->addRealizeOperation(realizeOp);
+    if (VRViewer::instance()->addRealizeOperation(realizeOp)) {
+        loadOk = true;
+    } else {
+        loadOk = false;
+        return;
+    }
 
     mapNode = NULL;
     oldDump = NULL;
@@ -459,6 +464,8 @@ bool
 EarthPlugin::init()
 {
     fprintf(stderr, "EarthPlugin::EarthPlugin\n");
+    if (!loadOk)
+        return false;
 
     coVRFileManager::instance()->registerFileHandler(&fileHandler[0]);
     GLUtils::setGlobalDefaults(VRViewer::instance()->getCamera()->getOrCreateStateSet());

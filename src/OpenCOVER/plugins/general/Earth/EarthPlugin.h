@@ -80,23 +80,24 @@ public:
 private:
     osg::Operation *realizeOp = nullptr;
     osg::Node *loadedModel;
-    osgEarth::MapNode *mapNode;
-    bool useSky;
-    SkyNode *s_sky;
-    bool useOcean;
+    osgEarth::MapNode *mapNode = nullptr;
+    bool useSky = false;
+    SkyNode *s_sky = nullptr;
+    bool useOcean = false;
 #if 0
-	OceanSurfaceNode* s_ocean;
+	OceanSurfaceNode* s_ocean = nullptr;
 #endif
-    bool useAutoClip;
-    EarthLayerManager *layerManager;
-    EarthViewpointManager *viewpointManager;
-    osg::Node *oldDump;
-    coTUITab *earthTab;
+    bool useAutoClip = false;
+    EarthLayerManager *layerManager = nullptr;
+    EarthViewpointManager *viewpointManager = nullptr;
+    osg::Node *oldDump = nullptr;
+    coTUITab *earthTab = nullptr;
 
-    coTUIButton *requestDump;
-    coTUIToggleButton *DebugCheckBox;
-    coTUIToggleButton *cameraCheckBox;
-    coTUIToggleButton *intersectionsCheckBox;
-    coTUIToggleButton *rttCheckBox;
+    coTUIButton *requestDump = nullptr;
+    coTUIToggleButton *DebugCheckBox = nullptr;
+    coTUIToggleButton *cameraCheckBox = nullptr;
+    coTUIToggleButton *intersectionsCheckBox = nullptr;
+    coTUIToggleButton *rttCheckBox = nullptr;
+    bool loadOk = false;
 };
 #endif
