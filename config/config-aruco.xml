@@ -1,78 +1,2998 @@
-<?xml version="1.0"?>
-
-<COCONFIG version="1" >
- <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
-
-  <GLOBAL>
-    <COVER>
-
-      <Input>
-	<MouseNav value="ON" />
-      </Input>
-      
-      <Menu>
-	<Size value="0.5" />
-	<Position x="700" y="0" z="500" />
-      </Menu>
-      <ViewerPosition x="0" y="-1500" z="0" />
-      
-
-	  <MarkerTracking>
-	  
-	      <Marker name="TestMarker42" >
-            <Pattern value="42" />
-            <Size value="150" />
-            <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
-            <VrmlToPf value="TRUE" />
-          </Marker>
-	  
-	  </MarkerTracking>
-      <Plugin>
-	  
-
-        <ARUCO value="ON">
-          <Capture value="on" />
-          <VideoDevice value="2" width="640" height="480" fourcc="MJPG" fps="30" />
-          <CameraCalibrationFile value="/home/rosba/covise/config/aruco/default.yaml" />
-
-          <VideoDevice ARCH="linux64opt" value="0" width="640" height="480" fourcc="MJPG" fps="30" />
-          <CameraCalibrationFile ARCH="linux64opt" value="/home/rosba/covise/config/aruco/default.yaml" />
-          <VideoDevice ARCH="linux" value="0" width="1920" height="1080" fourcc="MJPG" fps="60" />
-          <CameraCalibrationFile ARCH="linux" value="/data/aruco/cameras/Logitech_HDProWebcamC920_No2_1920x1080.yaml" />
-          <VideoDevice ARCH="macos" value="0" width="1280" height="720" />
-          <CameraCalibrationFile ARCH="macos" value="config/opencv/apple_facetime_hd_camera.yaml" />
-          <SquaresX value="11" />
-          <SquaresY value="7" />
-          <SquareLength value="0.015" />
-          <MarkerSquare value="0.011" />
-          <DictionaryID value="7" />  <!-- 7=DICT_5x5_1000 -->
-          <LegacyPattern value="true" />
-          <Focus value="35" /> <!-- fixed focus in mm-->
-        </ARUCO>         
-      </Plugin>
-      
-      <FPS value="true" />
-      
-      <PipeConfig>
-	<Pipe name="0" useDISPLAY="true" />
-      </PipeConfig>
-      
-      <WindowConfig>
-	
-	<Window type="Qt" width="1600" comment="FRONT" window="0" pipeIndex="0" height="950" left="150" top="50" name="0" embedded="false" decoration="true" />
-      </WindowConfig>
-      
-      <ScreenConfig>
-	<Screen width="1920" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="1080" p="0.0" r="0.0" name="0" screen="0" />
-      </ScreenConfig>
-      
-      <ViewportConfig>
-	<Viewport width="1" height="1" left="0" bottom="0" windowIndex="0" channelIndex="0" name="0" />
-      </ViewportConfig>
-      
-      <Background r="0.1" g="0.1" b="0.1"/>
-      
-    </COVER>
-  </GLOBAL>
-  
+<COCONFIG>
+<GLOBAL>
+  <Module>
+    <IHS>
+      <DataPath value="/data/IHS/">
+      </DataPath>
+      <GateBladeMin value="-20">
+      </GateBladeMin>
+      <GateBladeMax value="8">
+      </GateBladeMax>
+    </IHS>
+    <Fenfloss>
+      <Verbose value="1">
+      </Verbose>
+      <Timeout value="300">
+      </Timeout>
+      <Startup name="v3" value="gate %0 %1 %e">
+      </Startup>
+      <Startup name="v4" value="tube %0 %1 %e">
+      </Startup>
+      <Startup name="v5" value="axial %0 %1 %e">
+      </Startup>
+      <Startup name="v6" value="radial %0 %1 %e">
+      </Startup>
+      <Startup name="v7" value="sc2004booth %0 %1 %e">
+      </Startup>
+      <Startup name="v8" value="archflow %0 %1 %e">
+      </Startup>
+      <Startup name="v9" value="other %0 %1 %e">
+      </Startup>
+      <Startup name="v10" value="dgrid /usr/bin/ssh -l %2 %h 'export CO_SIMLIB_CONN=%e; /usr/bin/qsub -j oe -l nodes=%3,walltime=0:20:00 -V //data1/HLRS/hlrs/%2/fen_covise_gate'">
+      </Startup>
+      <Application name="v1" value="p_covise_fen6.3.0.0">
+      </Application>
+      <Application name="v2" value="p_fen6.3.0.0">
+      </Application>
+      <Application name="v3" value="p_fen7.0">
+      </Application>
+    </Fenfloss>
+    <StarCD>
+      <Verbose value="1">
+      </Verbose>
+      <Timeout value="300">
+      </Timeout>
+      <Server value="m">
+      </Server>
+      <Startup name="v1" value="volvox /usr/bin/ssh -l %2 %h 'export CO_SIMLIB_CONN=%e; /opt/batch/torque-1.2.0p1/bin/qsub -j oe -l nodes=%3,walltime=0:20:00 -V /schrotti/HLRS/HLRS/%2/cabin.sh'">
+      </Startup>
+      <Startup name="v2" value="dummy d">
+      </Startup>
+    </StarCD>
+    <Material>
+      <MaterialDefinition ambient="0.0787879 0.0186424 0" diffuse="0.315152 0.0745695 0" emissive="0 0 0" name="bronze" shininess="0.0363636" specular="0.508861 0.684007 0.326263" transparency="0">
+      </MaterialDefinition>
+    </Material>
+    <TetraTrace>
+      <BoxIncreaseFactor value="2">
+      </BoxIncreaseFactor>
+    </TetraTrace>
+  </Module>
+  <System>
+    <WSInterface value="false">
+    </WSInterface>
+    <CRB>
+      <ModuleAlias name="Renderer/Renderer" value="Renderer/OpenCOVER">
+      </ModuleAlias>
+      <ModuleAlias name="Renderer/VRRenderer" value="Renderer/OpenCOVER">
+      </ModuleAlias>
+      <ModuleAlias name="Renderer/COVER" value="Renderer/OpenCOVER">
+      </ModuleAlias>
+      <ModuleAlias name="Renderer/COVER_VRML" value="Renderer/OpenCOVER">
+      </ModuleAlias>
+      <ModuleAlias name="IO/ReadCGNS" value="IO/ReadCGNS-spbgpu">
+      </ModuleAlias>
+    </CRB>
+  </System>
+  <COVER>
+    <NumScreens RANK="0" value="1">
+    </NumScreens>
+    <NumWindows RANK="0" value="1">
+    </NumWindows>
+    <NumScreens value="0">
+    </NumScreens>
+    <NumWindows value="0">
+    </NumWindows>
+    <DefaultScaleFactor value="1000">
+    </DefaultScaleFactor>
+    <Stereo value="false">
+    </Stereo>
+    <File options="usemaxlodonly storegeomids optimize noRotation noTriStripPolygons singleobject minlod 1">
+    </File>
+    <UI>
+      <VRUI toolbar="false">
+      </VRUI>
+      <NavigationManager>
+        <Navigation>
+          <ViewAll parent="">
+          </ViewAll>
+          <Snap parent="">
+          </Snap>
+          <Modes>
+            <Scale parent="">
+            </Scale>
+            <SelectInteract parent="">
+            </SelectInteract>
+          </Modes>
+        </Navigation>
+      </NavigationManager>
+      <Manager>
+        <ViewOptions>
+          <TrackHead parent="">
+          </TrackHead>
+        </ViewOptions>
+      </Manager>
+      <ColorBarPlugin>
+        <Colors tuiParent="">
+        </Colors>
+      </ColorBarPlugin>
+    </UI>
+    <Snap value="ON">
+    </Snap>
+    <DebugTUI value="OFF">
+    </DebugTUI>
+    <DepthPeeling value="false">
+    </DepthPeeling>
+    <LODScale value="1">
+    </LODScale>
+    <SyncToVBlank device="DFP-0" value="OFF">
+    </SyncToVBlank>
+    <CudaNumThreads value="128">
+    </CudaNumThreads>
+    <CheckForOpenGLErrors value="true">
+    </CheckForOpenGLErrors>
+    <NavigationMode value="XForm">
+    </NavigationMode>
+    <AnimationSpeed default="24.0" max="25.0" min="0.0">
+    </AnimationSpeed>
+    <MultiThreaded value="off">
+    </MultiThreaded>
+    <FramebufferSRGB value="false">
+    </FramebufferSRGB>
+    <StencilBits value="8">
+    </StencilBits>
+    <Stencil value="true">
+    </Stencil>
+    <VRUI>
+      <VNC>
+        <Menu>
+          <Orientation h="-90" p="0" r="0">
+          </Orientation>
+          <Position x="1400" y="-500" z="500">
+          </Position>
+        </Menu>
+      </VNC>
+    </VRUI>
+    <Input>
+      <MouseNav value="ON">
+      </MouseNav>
+    </Input>
+    <Plugin>
+      <LamurePointCloud>
+        <upload value="64">
+        </upload>
+        <vram value="2000">
+        </vram>
+        <ram value="10000">
+        </ram>
+        <point value="on">
+        </point>
+        <surfel value="off">
+        </surfel>
+        <splatting value="off">
+        </splatting>
+        <lod_error value="1.0">
+        </lod_error>
+        <scale_radius value="0.05">
+        </scale_radius>
+        <scale_radius_gamma value="0.5">
+        </scale_radius_gamma>
+        <scale_points value="1.0">
+        </scale_points>
+        <scale_surfel value="1.75">
+        </scale_surfel>
+        <max_radius value="1.0">
+        </max_radius>
+        <min_radius value="0.0">
+        </min_radius>
+        <max_screen_size value="10000">
+        </max_screen_size>
+        <min_screen_size value="1.0">
+        </min_screen_size>
+        <lighting value="off">
+        </lighting>
+        <color value="off">
+        </color>
+        <color_mode value="accuracy">
+        </color_mode>
+        <point_light_intensity value="0.6">
+        </point_light_intensity>
+        <ambient_intensity value="0.6">
+        </ambient_intensity>
+        <shininess value="0.1">
+        </shininess>
+        <specular_intensity value="0.1">
+        </specular_intensity>
+        <gamma value="1.0">
+        </gamma>
+        <point_light_pos_x value="300">
+        </point_light_pos_x>
+        <point_light_pos_y value="300">
+        </point_light_pos_y>
+        <point_light_pos_z value="1000">
+        </point_light_pos_z>
+        <show_pointcloud value="on">
+        </show_pointcloud>
+        <show_boundingbox value="off">
+        </show_boundingbox>
+        <show_frustum value="off">
+        </show_frustum>
+        <show_coord value="off">
+        </show_coord>
+        <show_text value="off">
+        </show_text>
+        <show_sync value="on">
+        </show_sync>
+        <show_notify value="off">
+        </show_notify>
+      </LamurePointCloud>
+      <RhrClient mpiThread="false">
+      </RhrClient>
+      <Browser logFile="/tmp/browserlog.txt" logLevel="1" menu="true">
+      </Browser>
+      <NvTop ARCH="linux" menu="true">
+      </NvTop>
+      <NvTop ARCH="windows" menu="true">
+      </NvTop>
+      <PBufferSnapShot menu="true">
+      </PBufferSnapShot>
+      <Video menu="true">
+      </Video>
+      <TabletUI menu="true">
+      </TabletUI>
+      <CompositorIceT menu="false">
+      </CompositorIceT>
+      <ViewPoint value="true">
+      </ViewPoint>
+      <Annotation menu="true">
+      </Annotation>
+      <Measure menu="true">
+      </Measure>
+      <TangiblePosition menu="true">
+      </TangiblePosition>
+      <Revit menu="true" value="off">
+      </Revit>
+      <PointCloud>
+        <PointSize value="4">
+        </PointSize>
+      </PointCloud>
+      <Bullet value="off">
+      </Bullet>
+      <Earth value="off">
+      </Earth>
+      <COVERScript value="off">
+      </COVERScript>
+      <cuCuttingSurface value="off">
+      </cuCuttingSurface>
+      <cuIsoSurface value="off">
+      </cuIsoSurface>
+      <SGBrowser value="on">
+      </SGBrowser>
+      <Volume value="off">
+      </Volume>
+      <TouchTable value="off">
+      </TouchTable>
+      <CaveCAD>
+        <DataDir value="/data/calit2/CaveCAD">
+        </DataDir>
+      </CaveCAD>
+      <Maze>
+        <DataDir value="/data/calit2/maze">
+        </DataDir>
+      </Maze>
+      <Vrml97 value="off">
+        <ViewpointType value="standardNoFov">
+        </ViewpointType>
+        <Audio value="OpenAL">
+        </Audio>
+        <ViewpointType value="standardNoFov">
+        </ViewpointType>
+      </Vrml97>
+      <DistortViewer value="off">
+      </DistortViewer>
+      <Move menu="true" value="off">
+      </Move>
+      <ClipPlane value="on">
+      </ClipPlane>
+      <PLMXML value="off">
+        <LoadSTL value="false">
+        </LoadSTL>
+        <LoadVRML value="true">
+        </LoadVRML>
+        <UndoVRMLRotate value="false">
+        </UndoVRMLRotate>
+      </PLMXML>
+      <Chat menu="true" value="off">
+      </Chat>
+      <PDB menu="false" value="off">
+        <PDBPluginPymolDir value="/var/tmp/pymol/">
+        </PDBPluginPymolDir>
+        <PDBPluginTempDir value="/var/tmp/pdb/">
+        </PDBPluginTempDir>
+        <PDBUrl value="www.pdb.org/pdb/files/">
+        </PDBUrl>
+        <AnimationURL value="www.molmovdb.org/uploads/">
+        </AnimationURL>
+        <PDBAnimationUrl value="www.molmovdb.org/uploads">
+        </PDBAnimationUrl>
+        <Scale value="1">
+        </Scale>
+        <ViewerDistance value="70">
+        </ViewerDistance>
+        <FadeDistance value="40">
+        </FadeDistance>
+        <Structures>
+          <Gleevec value="1XBB">
+          </Gleevec>
+          <Luciferin value="2D1S">
+          </Luciferin>
+          <Hemoglobin value="4HHB">
+          </Hemoglobin>
+          <HIV_Protease value="1HVR">
+          </HIV_Protease>
+          <Smad4 value="1YGS">
+          </Smad4>
+          <Photosystem_I value="1JBO">
+          </Photosystem_I>
+          <Cytochrome_c_Oxidase value="1OCO">
+          </Cytochrome_c_Oxidase>
+          <MHC_Class_II value="1DLH">
+          </MHC_Class_II>
+          <Potassium_Channel_A value="1BL8">
+          </Potassium_Channel_A>
+          <Potassium_Channel_B value="1FQY">
+          </Potassium_Channel_B>
+          <SARS value="2D2D">
+          </SARS>
+          <Acetylcholine_Receptor value="2BG9">
+          </Acetylcholine_Receptor>
+          <Acetylcholine_Cobratoxin value="1YI5">
+          </Acetylcholine_Cobratoxin>
+          <Thermus_Thermophilus value="1J5E">
+          </Thermus_Thermophilus>
+          <Polyketide_Synthase value="1U0M">
+          </Polyketide_Synthase>
+          <Calcium_Pump value="1SU4">
+          </Calcium_Pump>
+          <Antibody_bound_Influenza value="1KEN">
+          </Antibody_bound_Influenza>
+          <Thermatoga value="2F8J">
+          </Thermatoga>
+        </Structures>
+        <Animations>
+          <Serotonin_N_Acetyltransferase value="22943-38">
+          </Serotonin_N_Acetyltransferase>
+          <Calcium_Pump value="396506-12995">
+          </Calcium_Pump>
+          <FecA_transporter value="829808-15750">
+          </FecA_transporter>
+          <Actin value="763408-1487">
+          </Actin>
+          <Calmodulin value="17833-29779">
+          </Calmodulin>
+        </Animations>
+      </PDB>
+      <AKToolbar menu="false" value="false">
+        <Attachment value="TOP">
+        </Attachment>
+        <Scale value=".7">
+        </Scale>
+        <MinClickTime value="0.2">
+        </MinClickTime>
+        <Position x="-900" y="0" z="360">
+        </Position>
+        <ShortCut name="viewall" value="viewall">
+        </ShortCut>
+        <ShortCut name="scale" value="scale">
+        </ShortCut>
+        <ShortCut name="xform" value="xform">
+        </ShortCut>
+        <ShortCut name="walk" value="walk">
+        </ShortCut>
+        <ShortCut name="drive" value="drive">
+        </ShortCut>
+        <ShortCut name="fly" value="fly">
+        </ShortCut>
+      </AKToolbar>
+      <Amber value="off">
+      </Amber>
+      <StereoVideoPlayer>
+        <MoviePlayer value="ffmpeg">
+        </MoviePlayer>
+        <AudioOffset value="0.0">
+        </AudioOffset>
+      </StereoVideoPlayer>
+      <StereoVideoPlayer>
+        <AudioOffset value="0.0">
+        </AudioOffset>
+      </StereoVideoPlayer>
+      <Oct menu="false" shared="true">
+        <x value="CurrPosX_PCS">
+        </x>
+        <y value="CurrPosY_PCS">
+        </y>
+        <z value="CurrPosZ_PCS">
+        </z>
+        <color value="Leistung">
+        </color>
+        <timeScaleIndicator value="Name">
+        </timeScaleIndicator>
+        <delimiter value=",">
+        </delimiter>
+      </Oct>
+      <Spray>
+        <EmissionRate value="200">
+        </EmissionRate>
+        <NumParticles value="1000">
+        </NumParticles>
+        <NumSamplings value="1000">
+        </NumSamplings>
+        <Iterations value="1">
+        </Iterations>
+        <DisplayRTScene value="0">
+        </DisplayRTScene>
+        <LowerPressureBound value="0.1">
+        </LowerPressureBound>
+        <UpperPressureBound value="10.0">
+        </UpperPressureBound>
+        <DensityOfFluid value="1.27">
+        </DensityOfFluid>
+        <DensityOfParticle value="998.0">
+        </DensityOfParticle>
+        <CwTurb value="0.4">
+        </CwTurb>
+        <Nu value="0.0000171">
+        </Nu>
+        <Minimum value="0.0004">
+        </Minimum>
+        <Deviation value="0.0001">
+        </Deviation>
+        <ScaleFactor value="1000.0">
+        </ScaleFactor>
+        <Rendertime value="1.0">
+        </Rendertime>
+        <Alpha value="0.4">
+        </Alpha>
+        <ReynoldsThreshold value="2230">
+        </ReynoldsThreshold>
+        <ReynoldsLimit value="170000">
+        </ReynoldsLimit>
+        <ColorThreshold value="100">
+        </ColorThreshold>
+        <SphereRenderType value="1">
+        </SphereRenderType>
+        <CwModelType value="STOKES">
+        </CwModelType>
+        <SamplingType value="circle">
+        </SamplingType>
+      </Spray>
+      <Midi OutPort="0" value="Off">
+        <Stream DeviceName="DJ Control Air" InPort="0" name="0">
+        </Stream>
+        <Stream DeviceName="CH345 MIDI 1" InPort="1" name="1">
+        </Stream>
+        <Stream DeviceName="Fishman TriplePlay TP Guitar" InPort="2" name="2">
+        </Stream>
+        <Stream DeviceName="Moog Theremini Moog Music, Inc." InPort="3" name="3">
+        </Stream>
+        <Stream DeviceName="TriplePlay Connect TP Guitar" InPort="4" name="4">
+        </Stream>
+        <Stream DeviceName="TD-27 MIDI 1" InPort="5" name="5">
+        </Stream>
+        <Stream DeviceName="Swissonic 88 MIDI 1" InPort="6" name="6">
+        </Stream>
+        <Stream DeviceName="Swissonic 88 MIDI 2" InPort="7" name="7">
+        </Stream>
+        <Theremin maxX="2" maxY="2" minX="1" minY="1" object="/data/Jeremy/NOTES/Theremin.wrl" posX="0.0" posY="200.0" posZ="0.0">
+        </Theremin>
+        <Store posX="0" posY="0" posZ="0">
+        </Store>
+        <Controller action="Shader0" controllerID="2" max="125" maxOut="0.0" min="0" minOut="1.0" name="0">
+        </Controller>
+        <Controller action="Shader1" controllerID="3" max="125" maxOut="1.0" min="0" minOut="0.0" name="1">
+        </Controller>
+        <Controller action="rAcceleration" controllerID="58" max="125" maxOut="1.0" min="0" minOut="0.0" name="2">
+        </Controller>
+        <Controller action="rAcceleration" controllerID="7" max="127" maxOut="1.0" min="0" minOut="-1.0" name="3">
+        </Controller>
+        <Controller action="Acceleration" controllerID="10" max="127" maxOut="100.0" min="0" minOut="-1000" name="4">
+        </Controller>
+        <Function action="LinePointViz" channel="0" keyNumber="56" name="0">
+        </Function>
+        <TriplePlay DeviceIn="5" DeviceName="Fishman TriplePlay TP Control" DeviceOut="6">
+        </TriplePlay>
+        <Instrument channel="11" name="5" type="Drumkit">
+          <Key b="211" g="0" name="49" r="148">
+          </Key>
+          <Key b="130" g="0" name="50" r="75">
+          </Key>
+          <Key b="255" g="0" name="51" r="0">
+          </Key>
+          <Key b="255" g="0" name="52" r="80">
+          </Key>
+        </Instrument>
+        <Instrument channel="7" name="0" type="Drumkit">
+          <Key b="211" g="0" name="1" r="148">
+          </Key>
+          <Key b="130" g="0" name="2" r="75">
+          </Key>
+          <Key b="255" g="0" name="3" r="0">
+          </Key>
+          <Key b="0" g="255" name="4" r="0">
+          </Key>
+          <Key b="0" g="255" name="5" r="255">
+          </Key>
+          <Key b="0" g="200" name="6" r="255">
+          </Key>
+          <Key b="0" g="127" name="7" r="255">
+          </Key>
+          <Key b="0" g="65" name="8" r="255">
+          </Key>
+          <Key b="0" g="0" name="9" r="255">
+          </Key>
+          <Key b="10" description="MYSTERIOUS OVALS" g="22" modelName="/data/Jeremy/NOTES/e1.obj" modelScale="1.0" name="10" r="250">
+          </Key>
+          <Key b="10" g="22" modelName="/data/Jeremy/NOTES/e2.obj" modelScale="1.0" name="11" r="250">
+          </Key>
+          <Key b="10" g="110" modelName="/data/Jeremy/NOTES/e3.obj" modelScale="1.0" name="12" r="250">
+          </Key>
+          <Key b="10" g="170" modelName="/data/Jeremy/NOTES/e4.obj" modelScale="1.0" name="13" r="250">
+          </Key>
+          <Key b="10" g="214" modelName="/data/Jeremy/NOTES/e5.obj" modelScale="1.0" name="14" r="250">
+          </Key>
+          <Key b="10" g="250" modelName="/data/Jeremy/NOTES/e6.obj" modelScale="1.0" name="15" r="246">
+          </Key>
+          <Key b="10" g="250" modelName="/data/Jeremy/NOTES/e7.obj" modelScale="1.0" name="16" r="198">
+          </Key>
+          <Key b="42" g="250" modelName="/data/Jeremy/NOTES/e8.obj" modelScale="1.0" name="17" r="10">
+          </Key>
+          <Key b="49" g="181" modelName="/data/Jeremy/NOTES/e9.obj" modelScale="1.0" name="18" r="29">
+          </Key>
+          <Key b="49" g="181" modelName="/data/Jeremy/NOTES/e10.obj" modelScale="1.0" name="19" r="29">
+          </Key>
+          <Key b="211" description="FATLOOSE NOTES" g="0" name="21" r="148">
+          </Key>
+          <Key b="130" g="0" name="22" r="75">
+          </Key>
+          <Key b="255" g="0" name="23" r="0">
+          </Key>
+          <Key b="0" g="255" name="24" r="0">
+          </Key>
+          <Key b="0" g="255" name="25" r="255">
+          </Key>
+          <Key b="0" g="200" name="26" r="255">
+          </Key>
+          <Key b="0" g="127" name="27" r="255">
+          </Key>
+          <Key b="0" g="65" name="28" r="255">
+          </Key>
+          <Key b="0" g="0" name="29" r="255">
+          </Key>
+          <Key b="10" description="HEART OF ASIA 03 LATTICES" g="22" modelName="/data/Jeremy/NOTES/a1.obj" modelScale="1.0" name="30" r="250">
+          </Key>
+          <Key b="10" g="22" modelName="/data/Jeremy/NOTES/a2.obj" modelScale="1.0" name="31" r="250">
+          </Key>
+          <Key b="10" g="110" modelName="/data/Jeremy/NOTES/a3.obj" modelScale="1.0" name="32" r="250">
+          </Key>
+          <Key b="10" g="170" modelName="/data/Jeremy/NOTES/a4.obj" modelScale="1.0" name="33" r="250">
+          </Key>
+          <Key b="10" g="214" modelName="/data/Jeremy/NOTES/a5.obj" modelScale="1.0" name="34" r="250">
+          </Key>
+          <Key b="10" g="250" modelName="/data/Jeremy/NOTES/a6.obj" modelScale="1.0" name="35" r="246">
+          </Key>
+          <Key b="10" g="250" modelName="/data/Jeremy/NOTES/a7.obj" modelScale="1.0" name="36" r="198">
+          </Key>
+          <Key b="42" g="250" modelName="/data/Jeremy/NOTES/a8.obj" modelScale="1.0" name="37" r="10">
+          </Key>
+          <Key b="49" g="181" modelName="/data/Jeremy/NOTES/a9.obj" modelScale="1.0" name="38" r="29">
+          </Key>
+          <Key b="49" g="181" modelName="/data/Jeremy/NOTES/a10.obj" modelScale="1.0" name="39" r="29">
+          </Key>
+          <Key b="10" description="DRUM CHORD TITLES" g="22" modelName="/data/Jeremy/NOTES/ao1.obj" modelScale="1.0" name="40" r="250">
+          </Key>
+          <Key b="10" g="22" modelName="/data/Jeremy/NOTES/ao2.obj" modelScale="1.0" name="41" r="250">
+          </Key>
+          <Key b="9" g="100" modelName="/data/Jeremy/NOTES/ao3.obj" modelScale="1.0" name="42" r="250">
+          </Key>
+          <Key b="10" g="170" modelName="/data/Jeremy/NOTES/ao4.obj" modelScale="1.0" name="43" r="250">
+          </Key>
+          <Key b="0" g="255" name="45" r="255">
+          </Key>
+          <Key b="0" g="200" name="46" r="255">
+          </Key>
+          <Key b="0" g="127" name="47" r="255">
+          </Key>
+          <Key b="0" g="65" name="48" r="255">
+          </Key>
+          <Key b="0" g="0" name="49" r="255">
+          </Key>
+          <Key b="211" g="0" name="51" r="148">
+          </Key>
+          <Key b="130" g="0" name="52" r="75">
+          </Key>
+          <Key b="255" g="0" name="53" r="0">
+          </Key>
+          <Key b="0" g="255" name="54" r="0">
+          </Key>
+          <Key b="0" g="255" name="55" r="255">
+          </Key>
+          <Key b="0" g="200" name="56" r="255">
+          </Key>
+          <Key b="0" g="127" name="57" r="255">
+          </Key>
+          <Key b="0" g="65" name="58" r="255">
+          </Key>
+          <Key b="0" g="0" name="59" r="255">
+          </Key>
+          <Key b="211" g="0" name="61" r="148">
+          </Key>
+          <Key b="130" g="0" name="62" r="75">
+          </Key>
+          <Key b="255" g="0" name="63" r="0">
+          </Key>
+          <Key b="0" g="255" name="64" r="0">
+          </Key>
+          <Key b="0" g="255" name="65" r="255">
+          </Key>
+          <Key b="0" g="200" name="66" r="255">
+          </Key>
+          <Key b="0" g="127" name="67" r="255">
+          </Key>
+          <Key b="0" g="65" name="68" r="255">
+          </Key>
+          <Key b="0" g="0" name="69" r="255">
+          </Key>
+          <Key b="211" g="0" name="71" r="148">
+          </Key>
+          <Key b="130" g="0" name="72" r="75">
+          </Key>
+          <Key b="255" g="0" name="73" r="0">
+          </Key>
+          <Key b="0" g="255" name="74" r="0">
+          </Key>
+          <Key b="0" g="255" name="75" r="255">
+          </Key>
+          <Key b="0" g="200" name="76" r="255">
+          </Key>
+          <Key b="0" g="127" name="77" r="255">
+          </Key>
+          <Key b="0" g="65" name="78" r="255">
+          </Key>
+          <Key b="0" g="0" name="79" r="255">
+          </Key>
+          <Key b="211" g="0" name="81" r="148">
+          </Key>
+          <Key b="130" g="0" name="82" r="75">
+          </Key>
+          <Key b="255" g="0" name="83" r="0">
+          </Key>
+          <Key b="0" g="255" name="84" r="0">
+          </Key>
+          <Key b="0" g="255" name="85" r="255">
+          </Key>
+          <Key b="0" g="200" name="86" r="255">
+          </Key>
+          <Key b="0" g="127" name="87" r="255">
+          </Key>
+          <Key b="0" g="65" name="88" r="255">
+          </Key>
+          <Key b="0" g="0" name="89" r="255">
+          </Key>
+          <Key b="211" g="0" name="91" r="148">
+          </Key>
+          <Key b="130" g="0" name="92" r="75">
+          </Key>
+          <Key b="255" g="0" name="93" r="0">
+          </Key>
+          <Key b="0" g="255" name="94" r="0">
+          </Key>
+          <Key b="0" g="255" name="95" r="255">
+          </Key>
+          <Key b="0" g="200" name="96" r="255">
+          </Key>
+          <Key b="0" g="127" name="97" r="255">
+          </Key>
+          <Key b="0" g="65" name="98" r="255">
+          </Key>
+          <Key b="0" g="0" name="99" r="255">
+          </Key>
+          <Key b="0" g="128" name="100" r="128">
+          </Key>
+          <Key b="0" g="153" name="101" r="153">
+          </Key>
+          <Key b="200" g="255" name="102" r="255">
+          </Key>
+          <Key b="0" g="92" name="103" r="230">
+          </Key>
+          <Key b="0" g="82" name="104" r="204">
+          </Key>
+          <Key b="20" g="102" name="105" r="255">
+          </Key>
+          <Key b="0" g="102" name="106" r="255">
+          </Key>
+          <Key b="255" g="204" name="107" r="179">
+          </Key>
+          <Key b="255" g="170" name="108" r="128">
+          </Key>
+          <Key b="255" g="136" name="109" r="77">
+          </Key>
+          <Key b="31" g="33" name="110" r="84">
+          </Key>
+          <Key b="52" g="62" name="111" r="66">
+          </Key>
+          <Key b="39" g="41" name="112" r="107">
+          </Key>
+          <Key b="21" g="24" name="113" r="122">
+          </Key>
+          <Key b="10" g="12" name="114" r="74">
+          </Key>
+          <Key b="18" g="22" name="115" r="99">
+          </Key>
+          <Key b="126" g="128" name="116" r="158">
+          </Key>
+          <Key b="29" g="33" name="117" r="150">
+          </Key>
+          <Key b="18" g="19" name="118" r="51">
+          </Key>
+          <Key b="4" g="7" name="119" r="74">
+          </Key>
+          <Key b="31" g="33" name="120" r="84">
+          </Key>
+          <Key b="52" g="62" name="121" r="66">
+          </Key>
+          <Key b="39" g="41" name="122" r="107">
+          </Key>
+          <Key b="21" g="24" name="123" r="122">
+          </Key>
+          <Key b="10" g="12" name="124" r="74">
+          </Key>
+          <Key b="18" g="22" name="125" r="99">
+          </Key>
+          <Key b="126" g="128" name="126" r="158">
+          </Key>
+          <Key b="29" g="33" name="127" r="150">
+          </Key>
+        </Instrument>
+        <Instrument channel="9" name="3" type="ROLAND SPD30">
+          <Key b="211" g="0" name="1" r="148">
+          </Key>
+          <Key b="130" g="0" name="2" r="75">
+          </Key>
+          <Key b="255" g="0" name="3" r="0">
+          </Key>
+          <Key b="0" g="255" name="4" r="0">
+          </Key>
+          <Key b="0" g="255" name="5" r="255">
+          </Key>
+          <Key b="0" g="200" name="6" r="255">
+          </Key>
+          <Key b="0" g="127" name="7" r="255">
+          </Key>
+          <Key b="0" g="65" name="8" r="255">
+          </Key>
+          <Key b="0" g="0" name="9" r="255">
+          </Key>
+          <Key b="10" description="MYSTERIOUS OVALS" g="22" modelName="/data/Jeremy/NOTES/e1.obj" modelScale="1.0" name="10" r="250">
+          </Key>
+          <Key b="10" g="22" modelName="/data/Jeremy/NOTES/e2.obj" modelScale="1.0" name="11" r="250">
+          </Key>
+          <Key b="10" g="110" modelName="/data/Jeremy/NOTES/e3.obj" modelScale="1.0" name="12" r="250">
+          </Key>
+          <Key b="10" g="170" modelName="/data/Jeremy/NOTES/e4.obj" modelScale="1.0" name="13" r="250">
+          </Key>
+          <Key b="10" g="214" modelName="/data/Jeremy/NOTES/e5.obj" modelScale="1.0" name="14" r="250">
+          </Key>
+          <Key b="10" g="250" modelName="/data/Jeremy/NOTES/e6.obj" modelScale="1.0" name="15" r="246">
+          </Key>
+          <Key b="10" g="250" modelName="/data/Jeremy/NOTES/e7.obj" modelScale="1.0" name="16" r="198">
+          </Key>
+          <Key b="42" g="250" modelName="/data/Jeremy/NOTES/e8.obj" modelScale="1.0" name="17" r="10">
+          </Key>
+          <Key b="49" g="181" modelName="/data/Jeremy/NOTES/e9.obj" modelScale="1.0" name="18" r="29">
+          </Key>
+          <Key b="49" g="181" modelName="/data/Jeremy/NOTES/e10.obj" modelScale="1.0" name="19" r="29">
+          </Key>
+          <Key b="211" description="FATLOOSE NOTES" g="0" name="21" r="148">
+          </Key>
+          <Key b="130" g="0" name="22" r="75">
+          </Key>
+          <Key b="255" g="0" name="23" r="0">
+          </Key>
+          <Key b="0" g="255" name="24" r="0">
+          </Key>
+          <Key b="0" g="255" name="25" r="255">
+          </Key>
+          <Key b="0" g="200" name="26" r="255">
+          </Key>
+          <Key b="0" g="127" name="27" r="255">
+          </Key>
+          <Key b="0" g="65" name="28" r="255">
+          </Key>
+          <Key b="0" g="0" name="29" r="255">
+          </Key>
+          <Key b="10" description=" LATTICES" g="22" modelName="/data/Jeremy/NOTES/a1.obj" modelScale="1.0" name="30" r="250">
+          </Key>
+          <Key b="10" g="22" modelName="/data/Jeremy/NOTES/a2.obj" modelScale="1.0" name="31" r="250">
+          </Key>
+          <Key b="10" g="110" modelName="/data/Jeremy/NOTES/a3.obj" modelScale="1.0" name="32" r="250">
+          </Key>
+          <Key b="10" g="170" modelName="/data/Jeremy/NOTES/a4.obj" modelScale="1.0" name="33" r="250">
+          </Key>
+          <Key b="10" g="214" modelName="/data/Jeremy/NOTES/a5.obj" modelScale="1.0" name="34" r="250">
+          </Key>
+          <Key b="10" g="250" modelName="/data/Jeremy/NOTES/a6.obj" modelScale="1.0" name="35" r="246">
+          </Key>
+          <Key b="10" g="250" modelName="/data/Jeremy/NOTES/a7.obj" modelScale="1.0" name="37" r="246">
+          </Key>
+          <Key b="42" g="250" modelName="/data/Jeremy/NOTES/a2.obj" modelScale="1.0" name="37" r="10">
+          </Key>
+          <Key b="10" g="250" modelName="/data/Jeremy/NOTES/a1.obj" modelScale="1.0" name="38" r="246">
+          </Key>
+          <Key b="49" g="181" modelName="/data/Jeremy/NOTES/a10.obj" modelScale="1.0" name="39" r="29">
+          </Key>
+          <Key b="0" description="FAT DRUMS" g="0" modelName="/data/Jeremy/NOTES/GoldSphere.wrl" modelScale="20.0" name="40" r="255" x="-1500" y="0" z="3000">
+          </Key>
+          <Key b="0" g="0" modelName="/data/Jeremy/NOTES/GoldSphere.wrl" modelScale="10.0" name="41" r="255" x="-500" y="0" z="1000">
+          </Key>
+          <Key b="0" g="200" modelName="/data/Jeremy/NOTES/ThereminSphereSmaller.wrl" modelScale="10.0" name="42" r="255" x="-1000" y="0" z="600">
+          </Key>
+          <Key b="0" g="200" modelName="/data/Jeremy/NOTES/ThereminSphereSmaller.wrl" modelScale="12.0" name="43" r="255" x="-1000" y="0" z="800">
+          </Key>
+          <Key b="0" g="200" modelName="/data/Jeremy/NOTES/ThereminSphereSmaller.wrl" modelScale="14.0" name="44" r="255" x="-1000" y="0" z="600">
+          </Key>
+          <Key b="0" g="200" modelName="/data/Jeremy/NOTES/ThereminSphereSmaller.wrl" modelScale="16.0" name="45" r="255" x="-1000" y="0" z="1200">
+          </Key>
+          <Key b="0" g="200" modelName="/data/Jeremy/NOTES/GoldSphere.wrl" modelScale="15.0" name="46" r="255" x="-1000" y="0" z="1400">
+          </Key>
+          <Key b="0" g="0" modelName="/data/Jeremy/NOTES/GoldSphere.wrl" modelScale="10.0" name="47" r="255" x="-500" y="0" z="1000">
+          </Key>
+          <Key b="0" g="200" modelName="/data/Jeremy/NOTES/ThereminSphereSmaller.wrl" modelScale="10.0" name="48" r="255" x="-1000" y="0" z="600">
+          </Key>
+          <Key b="0" g="0" modelName="/data/Jeremy/NOTES/GoldSphere.wrl" modelScale="5.0" name="49" r="255" x="-500" y="0" z="1000">
+          </Key>
+          <Key b="211" g="0" name="51" r="148">
+          </Key>
+          <Key b="130" g="0" name="52" r="75">
+          </Key>
+          <Key b="255" g="0" name="53" r="0">
+          </Key>
+          <Key b="0" g="255" name="54" r="0">
+          </Key>
+          <Key b="0" g="255" name="55" r="255">
+          </Key>
+          <Key b="0" g="200" name="56" r="255">
+          </Key>
+          <Key b="0" g="127" name="57" r="255">
+          </Key>
+          <Key b="0" g="65" name="58" r="255">
+          </Key>
+          <Key b="0" g="0" name="59" r="255">
+          </Key>
+          <Key b="211" g="0" name="61" r="148">
+          </Key>
+          <Key b="130" g="0" name="62" r="75">
+          </Key>
+          <Key b="255" g="0" name="63" r="0">
+          </Key>
+          <Key b="0" g="255" name="64" r="0">
+          </Key>
+          <Key b="0" g="255" name="65" r="255">
+          </Key>
+          <Key b="0" g="200" name="66" r="255">
+          </Key>
+          <Key b="0" g="127" name="67" r="255">
+          </Key>
+          <Key b="0" g="65" name="68" r="255">
+          </Key>
+          <Key b="0" g="0" name="69" r="255">
+          </Key>
+          <Key b="211" g="0" name="71" r="148">
+          </Key>
+          <Key b="130" g="0" name="72" r="75">
+          </Key>
+          <Key b="255" g="0" name="73" r="0">
+          </Key>
+          <Key b="0" g="255" name="74" r="0">
+          </Key>
+          <Key b="0" g="255" name="75" r="255">
+          </Key>
+          <Key b="0" g="200" name="76" r="255">
+          </Key>
+          <Key b="0" g="127" name="77" r="255">
+          </Key>
+          <Key b="0" g="65" name="78" r="255">
+          </Key>
+          <Key b="0" g="0" name="79" r="255">
+          </Key>
+          <Key b="211" g="0" name="81" r="148">
+          </Key>
+          <Key b="130" g="0" name="82" r="75">
+          </Key>
+          <Key b="255" g="0" name="83" r="0">
+          </Key>
+          <Key b="0" g="255" name="84" r="0">
+          </Key>
+          <Key b="0" g="255" name="85" r="255">
+          </Key>
+          <Key b="0" g="200" name="86" r="255">
+          </Key>
+          <Key b="0" g="127" name="87" r="255">
+          </Key>
+          <Key b="0" g="65" name="88" r="255">
+          </Key>
+          <Key b="0" g="0" name="89" r="255">
+          </Key>
+          <Key b="211" g="0" name="91" r="148">
+          </Key>
+          <Key b="130" g="0" name="92" r="75">
+          </Key>
+          <Key b="255" g="0" name="93" r="0">
+          </Key>
+          <Key b="0" g="255" name="94" r="0">
+          </Key>
+          <Key b="0" g="255" name="95" r="255">
+          </Key>
+          <Key b="0" g="200" name="96" r="255">
+          </Key>
+          <Key b="0" g="127" name="97" r="255">
+          </Key>
+          <Key b="0" g="65" name="98" r="255">
+          </Key>
+          <Key b="0" g="0" name="99" r="255">
+          </Key>
+          <Key b="0" g="128" name="100" r="128">
+          </Key>
+          <Key b="0" g="153" name="101" r="153">
+          </Key>
+          <Key b="200" g="255" name="102" r="255">
+          </Key>
+          <Key b="0" g="92" name="103" r="230">
+          </Key>
+          <Key b="0" g="82" name="104" r="204">
+          </Key>
+          <Key b="20" g="102" name="105" r="255">
+          </Key>
+          <Key b="0" g="102" name="106" r="255">
+          </Key>
+          <Key b="255" g="204" name="107" r="179">
+          </Key>
+          <Key b="255" g="170" name="108" r="128">
+          </Key>
+          <Key b="255" g="136" name="109" r="77">
+          </Key>
+          <Key b="31" g="33" name="110" r="84">
+          </Key>
+          <Key b="52" g="62" name="111" r="66">
+          </Key>
+          <Key b="39" g="41" name="112" r="107">
+          </Key>
+          <Key b="21" g="24" name="113" r="122">
+          </Key>
+          <Key b="10" g="12" name="114" r="74">
+          </Key>
+          <Key b="18" g="22" name="115" r="99">
+          </Key>
+          <Key b="126" g="128" name="116" r="158">
+          </Key>
+          <Key b="29" g="33" name="117" r="150">
+          </Key>
+          <Key b="18" g="19" name="118" r="51">
+          </Key>
+          <Key b="4" g="7" name="119" r="74">
+          </Key>
+          <Key b="31" g="33" name="120" r="84">
+          </Key>
+          <Key b="52" g="62" name="121" r="66">
+          </Key>
+          <Key b="39" g="41" name="122" r="107">
+          </Key>
+          <Key b="21" g="24" name="123" r="122">
+          </Key>
+          <Key b="10" g="12" name="124" r="74">
+          </Key>
+          <Key b="18" g="22" name="125" r="99">
+          </Key>
+          <Key b="126" g="128" name="126" r="158">
+          </Key>
+          <Key b="29" g="33" name="127" r="150">
+          </Key>
+        </Instrument>
+        <Instrument channel="8" name="1" type="Drumkit">
+          <Key b="211" g="0" name="1" r="148">
+          </Key>
+          <Key b="130" g="0" name="2" r="75">
+          </Key>
+          <Key b="255" g="0" name="3" r="0">
+          </Key>
+          <Key b="0" g="255" name="4" r="0">
+          </Key>
+          <Key b="0" g="255" name="5" r="255">
+          </Key>
+          <Key b="0" g="200" name="6" r="255">
+          </Key>
+          <Key b="0" g="127" name="7" r="255">
+          </Key>
+          <Key b="0" g="65" name="8" r="255">
+          </Key>
+          <Key b="0" g="0" name="9" r="255">
+          </Key>
+          <Key b="10" description="MYSTERIOUS OVALS" g="22" modelName="/data/Jeremy/NOTES/e1.obj" modelScale="1.0" name="10" r="250">
+          </Key>
+          <Key b="10" g="22" modelName="/data/Jeremy/NOTES/e2.obj" modelScale="1.0" name="11" r="250">
+          </Key>
+          <Key b="10" g="110" modelName="/data/Jeremy/NOTES/e3.obj" modelScale="1.0" name="12" r="250">
+          </Key>
+          <Key b="10" g="170" modelName="/data/Jeremy/NOTES/e4.obj" modelScale="1.0" name="13" r="250">
+          </Key>
+          <Key b="10" g="214" modelName="/data/Jeremy/NOTES/e5.obj" modelScale="1.0" name="14" r="250">
+          </Key>
+          <Key b="10" g="250" modelName="/data/Jeremy/NOTES/e6.obj" modelScale="1.0" name="15" r="246">
+          </Key>
+          <Key b="10" g="250" modelName="/data/Jeremy/NOTES/e7.obj" modelScale="1.0" name="16" r="198">
+          </Key>
+          <Key b="42" g="250" modelName="/data/Jeremy/NOTES/e8.obj" modelScale="1.0" name="17" r="10">
+          </Key>
+          <Key b="49" g="181" modelName="/data/Jeremy/NOTES/e9.obj" modelScale="1.0" name="18" r="29">
+          </Key>
+          <Key b="49" g="181" modelName="/data/Jeremy/NOTES/e10.obj" modelScale="1.0" name="19" r="29">
+          </Key>
+          <Key b="211" description="FATLOOSE NOTES" g="0" name="21" r="148">
+          </Key>
+          <Key b="130" g="0" name="22" r="75">
+          </Key>
+          <Key b="255" g="0" name="23" r="0">
+          </Key>
+          <Key b="0" g="255" name="24" r="0">
+          </Key>
+          <Key b="0" g="255" name="25" r="255">
+          </Key>
+          <Key b="0" g="200" name="26" r="255">
+          </Key>
+          <Key b="0" g="127" name="27" r="255">
+          </Key>
+          <Key b="0" g="65" name="28" r="255">
+          </Key>
+          <Key b="0" g="0" name="29" r="255">
+          </Key>
+          <Key b="10" description="HEART OF ASIA 03 LATTICES" g="22" modelName="/data/Jeremy/NOTES/a1.obj" modelScale="1.0" name="30" r="250">
+          </Key>
+          <Key b="10" g="22" modelName="/data/Jeremy/NOTES/a2.obj" modelScale="1.0" name="31" r="250">
+          </Key>
+          <Key b="10" g="110" modelName="/data/Jeremy/NOTES/a3.obj" modelScale="1.0" name="32" r="250">
+          </Key>
+          <Key b="10" g="170" modelName="/data/Jeremy/NOTES/a4.obj" modelScale="1.0" name="33" r="250">
+          </Key>
+          <Key b="10" g="214" modelName="/data/Jeremy/NOTES/a5.obj" modelScale="1.0" name="34" r="250">
+          </Key>
+          <Key b="10" g="250" modelName="/data/Jeremy/NOTES/a6.obj" modelScale="1.0" name="35" r="246">
+          </Key>
+          <Key b="10" g="250" modelName="/data/Jeremy/NOTES/SoapBuble.wrl" modelScale="40.0" name="36" r="198" x="0" y="0" z="-1000">
+          </Key>
+          <Key b="42" g="250" modelName="/data/Jeremy/NOTES/a8.obj" modelScale="1.0" name="37" r="10">
+          </Key>
+          <Key b="49" g="181" modelName="/data/Jeremy/NOTES/d7.obj" modelScale="0.5" name="38" r="29">
+          </Key>
+          <Key b="49" g="181" modelName="/data/Jeremy/NOTES/a10.obj" modelScale="1.0" name="39" r="29">
+          </Key>
+          <Key b="49" g="181" modelName="/data/Jeremy/NOTES/d7_ring.wrl" modelScale="0.5" name="40" r="29">
+          </Key>
+          <Key b="10" g="22" modelName="/data/Jeremy/NOTES/ao2.obj" modelScale="1.0" name="41" r="250">
+          </Key>
+          <Key b="0" g="200" modelName="/data/Jeremy/NOTES/ThereminSphereSmaller.wrl" modelScale="10.0" name="42" r="255" x="-1000" y="0" z="200">
+          </Key>
+          <Key b="10" g="170" modelScale="1.0" name="43" r="250" x="1000" y="0" z="-1000">
+          </Key>
+          <Key b="0" g="255" name="45" r="255" x="1000" y="0" z="1000">
+          </Key>
+          <Key b="0" g="200" modelName="/data/Jeremy/NOTES/ThereminSphere.wrl" modelScale="15.0" name="46" r="255" x="-1000" y="0" z="200">
+          </Key>
+          <Key b="0" g="127" name="47" r="255">
+          </Key>
+          <Key b="0" g="65" name="48" r="255" x="-1000" y="0" z="1000">
+          </Key>
+          <Key b="0" g="0" modelName="/data/Jeremy/NOTES/GoldSphere.wrl" modelScale="10.0" name="49" r="255" x="-500" y="0" z="1000">
+          </Key>
+          <Key b="211" g="0" modelName="/data/Jeremy/NOTES/SpaceSphere.wrl" modelScale="20.0" name="51" r="148" x="5000" y="0" z="1000">
+          </Key>
+          <Key b="130" g="0" name="52" r="75">
+          </Key>
+          <Key b="255" g="0" name="53" r="0">
+          </Key>
+          <Key b="0" g="255" name="54" r="0">
+          </Key>
+          <Key b="0" g="255" name="55" r="255">
+          </Key>
+          <Key b="0" g="200" name="56" r="255">
+          </Key>
+          <Key b="0" g="127" name="57" r="255">
+          </Key>
+          <Key b="0" g="65" name="58" r="255">
+          </Key>
+          <Key b="0" g="0" name="59" r="255">
+          </Key>
+          <Key b="211" g="0" name="61" r="148">
+          </Key>
+          <Key b="130" g="0" name="62" r="75">
+          </Key>
+          <Key b="255" g="0" name="63" r="0">
+          </Key>
+          <Key b="0" g="255" name="64" r="0">
+          </Key>
+          <Key b="0" g="255" name="65" r="255">
+          </Key>
+          <Key b="0" g="200" name="66" r="255">
+          </Key>
+          <Key b="0" g="127" name="67" r="255">
+          </Key>
+          <Key b="0" g="65" name="68" r="255">
+          </Key>
+          <Key b="0" g="0" name="69" r="255">
+          </Key>
+          <Key b="211" g="0" name="71" r="148">
+          </Key>
+          <Key b="130" g="0" name="72" r="75">
+          </Key>
+          <Key b="255" g="0" name="73" r="0">
+          </Key>
+          <Key b="0" g="255" name="74" r="0">
+          </Key>
+          <Key b="0" g="255" name="75" r="255">
+          </Key>
+          <Key b="0" g="200" name="76" r="255">
+          </Key>
+          <Key b="0" g="127" name="77" r="255">
+          </Key>
+          <Key b="0" g="65" name="78" r="255">
+          </Key>
+          <Key b="0" g="0" name="79" r="255">
+          </Key>
+          <Key b="211" g="0" name="81" r="148">
+          </Key>
+          <Key b="130" g="0" name="82" r="75">
+          </Key>
+          <Key b="255" g="0" name="83" r="0">
+          </Key>
+          <Key b="0" g="255" name="84" r="0">
+          </Key>
+          <Key b="0" g="255" name="85" r="255">
+          </Key>
+          <Key b="0" g="200" name="86" r="255">
+          </Key>
+          <Key b="0" g="127" name="87" r="255">
+          </Key>
+          <Key b="0" g="65" name="88" r="255">
+          </Key>
+          <Key b="0" g="0" name="89" r="255">
+          </Key>
+          <Key b="211" g="0" name="91" r="148">
+          </Key>
+          <Key b="130" g="0" name="92" r="75">
+          </Key>
+          <Key b="255" g="0" name="93" r="0">
+          </Key>
+          <Key b="0" g="255" name="94" r="0">
+          </Key>
+          <Key b="0" g="255" name="95" r="255">
+          </Key>
+          <Key b="0" g="200" name="96" r="255">
+          </Key>
+          <Key b="0" g="127" name="97" r="255">
+          </Key>
+          <Key b="0" g="65" name="98" r="255">
+          </Key>
+          <Key b="0" g="0" name="99" r="255">
+          </Key>
+          <Key b="0" g="128" name="100" r="128">
+          </Key>
+          <Key b="0" g="153" name="101" r="153">
+          </Key>
+          <Key b="200" g="255" name="102" r="255">
+          </Key>
+          <Key b="0" g="92" name="103" r="230">
+          </Key>
+          <Key b="0" g="82" name="104" r="204">
+          </Key>
+          <Key b="20" g="102" name="105" r="255">
+          </Key>
+          <Key b="0" g="102" name="106" r="255">
+          </Key>
+          <Key b="255" g="204" name="107" r="179">
+          </Key>
+          <Key b="255" g="170" name="108" r="128">
+          </Key>
+          <Key b="255" g="136" name="109" r="77">
+          </Key>
+          <Key b="31" g="33" name="110" r="84">
+          </Key>
+          <Key b="52" g="62" name="111" r="66">
+          </Key>
+          <Key b="39" g="41" name="112" r="107">
+          </Key>
+          <Key b="21" g="24" name="113" r="122">
+          </Key>
+          <Key b="10" g="12" name="114" r="74">
+          </Key>
+          <Key b="18" g="22" name="115" r="99">
+          </Key>
+          <Key b="126" g="128" name="116" r="158">
+          </Key>
+          <Key b="29" g="33" name="117" r="150">
+          </Key>
+          <Key b="18" g="19" name="118" r="51">
+          </Key>
+          <Key b="4" g="7" name="119" r="74">
+          </Key>
+          <Key b="31" g="33" name="120" r="84">
+          </Key>
+          <Key b="52" g="62" name="121" r="66">
+          </Key>
+          <Key b="39" g="41" name="122" r="107">
+          </Key>
+          <Key b="21" g="24" name="123" r="122">
+          </Key>
+          <Key b="10" g="12" name="124" r="74">
+          </Key>
+          <Key b="18" g="22" name="125" r="99">
+          </Key>
+          <Key b="126" g="128" name="126" r="158">
+          </Key>
+          <Key b="29" g="33" name="127" r="150">
+          </Key>
+        </Instrument>
+        <Instrument channel="1" description="mininova" name="2" type="keyboard">
+          <Key b="0" g="0" modelScale="1" name="20" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="21" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="22" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="23" r="127">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="24" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="25" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="26" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="27" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="28" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="29" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="30" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="31" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="20" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="21" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="22" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="23" r="127">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="24" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="25" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="26" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="27" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="28" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="29" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="30" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="31" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="20" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="21" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="22" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="23" r="127">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="24" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="25" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="26" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="27" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="28" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="29" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="30" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="31" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="32" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="33" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="34" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="35" r="127">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="36" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="37" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="38" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="39" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="40" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="41" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="42" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="43" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="44" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="45" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="46" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="47" r="127">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="48" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="49" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="50" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="51" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="52" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="53" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="54" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="55" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="56" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="57" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="58" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="59" r="127">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="60" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="61" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="62" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="63" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="64" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="65" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="66" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="67" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="68" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="69" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="70" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="71" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="72" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="73" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="74" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="75" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="76" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="77" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="78" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="79" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="80" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="81" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="82" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="83" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="84" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="85" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="86" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="87" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="88" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="89" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="90" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="91" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="92" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="93" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="94" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="95" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="96" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="97" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="98" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="99" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="100" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="101" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="102" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="103" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="104" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="105" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="106" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="107" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="108" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="109" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="110" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="111" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="112" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="113" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="114" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="115" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="116" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="117" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="118" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="119" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="120" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="121" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="122" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="123" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="124" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="125" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="126" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="127" r="255">
+          </Key>
+        </Instrument>
+        <Instrument channel="10" description="td50" name="3" type="Drumkit">
+          <Key b="252" g="165" name="1" r="3">
+          </Key>
+          <Key b="209" g="148" name="2" r="36">
+          </Key>
+          <Key b="117" g="89" name="3" r="36">
+          </Key>
+          <Key b="235" g="124" name="4" r="14">
+          </Key>
+          <Key b="235" g="48" name="5" r="14">
+          </Key>
+          <Key b="209" g="148" name="6" r="36">
+          </Key>
+          <Key b="117" g="89" name="7" r="36">
+          </Key>
+          <Key b="235" g="124" name="8" r="14">
+          </Key>
+          <Key b="235" g="48" name="9" r="14">
+          </Key>
+          <Key b="79" g="59" name="10" r="44">
+          </Key>
+          <Key b="122" g="70" name="11" r="30">
+          </Key>
+          <Key b="61" g="55" name="12" r="50">
+          </Key>
+          <Key b="204" g="95" name="13" r="16">
+          </Key>
+          <Key b="115" g="55" name="14" r="13">
+          </Key>
+          <Key b="227" g="101" name="15" r="11">
+          </Key>
+          <Key b="69" g="33" name="16" r="7">
+          </Key>
+          <Key b="36" g="33" name="17" r="34">
+          </Key>
+          <Key b="79" g="43" name="18" r="17">
+          </Key>
+          <Key b="84" g="31" name="19" r="41">
+          </Key>
+          <Key b="10" g="22" modelName="/data/Jeremy/NOTES/e1.obj" modelScale="1.0" name="20" r="250">
+          </Key>
+          <Key b="10" g="22" modelName="/data/Jeremy/NOTES/e2.obj" modelScale="1.0" name="21" r="250">
+          </Key>
+          <Key b="10" g="110" modelName="/data/Jeremy/NOTES/e3.obj" modelScale="1.0" name="22" r="250">
+          </Key>
+          <Key b="10" g="170" modelName="/data/Jeremy/NOTES/e4.obj" modelScale="1.0" name="23" r="250">
+          </Key>
+          <Key b="10" g="214" modelName="/data/Jeremy/NOTES/e5.obj" modelScale="1.0" name="24" r="250">
+          </Key>
+          <Key b="10" g="250" modelName="/data/Jeremy/NOTES/e6.obj" modelScale="1.0" name="25" r="246">
+          </Key>
+          <Key b="10" g="250" modelName="/data/Jeremy/NOTES/e7.obj" modelScale="1.0" name="26" r="198">
+          </Key>
+          <Key b="42" g="250" modelName="/data/Jeremy/NOTES/e8.obj" modelScale="1.0" name="27" r="10">
+          </Key>
+          <Key b="49" g="181" modelName="/data/Jeremy/NOTES/e9.obj" modelScale="1.0" name="28" r="29">
+          </Key>
+          <Key b="49" g="181" modelName="/data/Jeremy/NOTES/e10.obj" modelScale="1.0" name="29" r="29">
+          </Key>
+          <Key b="0" g="128" name="30" r="128">
+          </Key>
+          <Key b="255" g="204" name="31" r="179">
+          </Key>
+          <Key b="255" g="170" name="32" r="128">
+          </Key>
+          <Key b="0" g="92" name="33" r="230">
+          </Key>
+          <Key b="0" g="82" name="34" r="204">
+          </Key>
+          <Key b="20" g="102" name="35" r="255">
+          </Key>
+          <Key b="166" g="18" name="36" r="23">
+          </Key>
+          <Key b="255" g="204" name="37" r="179">
+          </Key>
+          <Key b="18" g="96" name="38" r="199">
+          </Key>
+          <Key b="102" g="34" name="39" r="0">
+          </Key>
+          <Key b="8" g="38" name="40" r="166">
+          </Key>
+          <Key b="68" g="9" name="41" r="135">
+          </Key>
+          <Key b="0" g="92" name="42" r="230">
+          </Key>
+          <Key b="179" g="60" name="43" r="0">
+          </Key>
+          <Key b="26" g="143" name="44" r="69">
+          </Key>
+          <Key b="116" g="9" name="45" r="135">
+          </Key>
+          <Key b="18" g="184" name="46" r="178">
+          </Key>
+          <Key b="255" g="204" name="47" r="179">
+          </Key>
+          <Key b="99" g="21" name="48" r="97">
+          </Key>
+          <Key b="5" g="242" name="49" r="250">
+          </Key>
+          <Key b="0" g="128" name="50" r="128">
+          </Key>
+          <Key b="0" g="204" name="51" r="204">
+          </Key>
+          <Key b="0" g="179" name="52" r="179">
+          </Key>
+          <Key b="214" g="43" name="53" r="46">
+          </Key>
+          <Key b="0" g="82" name="54" r="204">
+          </Key>
+          <Key b="0" g="1" name="55" r="1">
+          </Key>
+          <Key b="0" g="102" name="56" r="255">
+          </Key>
+          <Key b="43" g="214" name="57" r="188">
+          </Key>
+          <Key b="153" g="51" name="58" r="0">
+          </Key>
+          <Key b="0" g="153" name="59" r="153">
+          </Key>
+          <Key b="31" g="33" name="60" r="84">
+          </Key>
+          <Key b="52" g="62" name="61" r="66">
+          </Key>
+          <Key b="39" g="41" name="62" r="107">
+          </Key>
+          <Key b="21" g="24" name="63" r="122">
+          </Key>
+          <Key b="10" g="12" name="64" r="74">
+          </Key>
+          <Key b="18" g="22" name="65" r="99">
+          </Key>
+          <Key b="126" g="128" name="66" r="158">
+          </Key>
+          <Key b="29" g="33" name="67" r="150">
+          </Key>
+          <Key b="18" g="19" name="68" r="51">
+          </Key>
+          <Key b="4" g="7" name="69" r="74">
+          </Key>
+          <Key b="10" g="22" modelName="/data/Jeremy/NOTES/a1.obj" modelScale="1.0" name="70" r="250">
+          </Key>
+          <Key b="10" g="22" modelName="/data/Jeremy/NOTES/a2.obj" modelScale="1.0" name="71" r="250">
+          </Key>
+          <Key b="10" g="110" modelName="/data/Jeremy/NOTES/a3.obj" modelScale="1.0" name="72" r="250">
+          </Key>
+          <Key b="10" g="170" modelName="/data/Jeremy/NOTES/a4.obj" modelScale="1.0" name="73" r="250">
+          </Key>
+          <Key b="10" g="214" modelName="/data/Jeremy/NOTES/a5.obj" modelScale="1.0" name="74" r="250">
+          </Key>
+          <Key b="10" g="250" modelName="/data/Jeremy/NOTES/a6.obj" modelScale="1.0" name="75" r="246">
+          </Key>
+          <Key b="10" g="250" modelName="/data/Jeremy/NOTES/a7.obj" modelScale="1.0" name="76" r="198">
+          </Key>
+          <Key b="42" g="250" modelName="/data/Jeremy/NOTES/a8.obj" modelScale="1.0" name="77" r="10">
+          </Key>
+          <Key b="49" g="181" modelName="/data/Jeremy/NOTES/a9.obj" modelScale="1.0" name="78" r="29">
+          </Key>
+          <Key b="49" g="181" modelName="/data/Jeremy/NOTES/a10.obj" modelScale="1.0" name="79" r="29">
+          </Key>
+          <Key b="0" g="128" name="80" r="128">
+          </Key>
+          <Key b="0" g="153" name="81" r="153">
+          </Key>
+          <Key b="200" g="255" name="82" r="255">
+          </Key>
+          <Key b="0" g="92" name="83" r="230">
+          </Key>
+          <Key b="0" g="20" name="84" r="102">
+          </Key>
+          <Key b="20" g="102" name="85" r="255">
+          </Key>
+          <Key b="0" g="102" name="86" r="255">
+          </Key>
+          <Key b="255" g="204" name="87" r="179">
+          </Key>
+          <Key b="255" g="170" name="88" r="128">
+          </Key>
+          <Key b="255" g="136" name="89" r="77">
+          </Key>
+          <Key b="0" g="128" name="90" r="128">
+          </Key>
+          <Key b="0" g="153" name="91" r="153">
+          </Key>
+          <Key b="200" g="255" name="92" r="255">
+          </Key>
+          <Key b="0" g="92" name="93" r="230">
+          </Key>
+          <Key b="0" g="82" name="94" r="204">
+          </Key>
+          <Key b="20" g="102" name="95" r="255">
+          </Key>
+          <Key b="0" g="102" name="96" r="255">
+          </Key>
+          <Key b="255" g="204" name="97" r="179">
+          </Key>
+          <Key b="255" g="170" name="98" r="128">
+          </Key>
+          <Key b="255" g="136" name="99" r="77">
+          </Key>
+          <Key b="255" g="170" modelName="/data/Jeremy/star.osg" name="100" r="128">
+          </Key>
+          <Key b="255" g="136" modelName="/data/Jeremy/star.osg" name="101" r="77 ">
+          </Key>
+          <Key b="255" g="102" modelName="/data/Jeremy/star.osg" name="102" r="26">
+          </Key>
+          <Key b="230" g="77" modelName="/data/Jeremy/star.osg" name="103" r="0">
+          </Key>
+          <Key b="179" g="60" modelName="/data/Jeremy/star.osg" name="104" r="0">
+          </Key>
+          <Key b="153" g="51" modelName="/data/Jeremy/star.osg" name="105" r="0">
+          </Key>
+          <Key b="128" g="43" modelName="/data/Jeremy/star.osg" name="106" r="0">
+          </Key>
+          <Key b="102" g="34" modelName="/data/Jeremy/star.osg" name="107" r="0">
+          </Key>
+          <Key b="150" g="51" modelName="/data/Jeremy/star.osg" name="108" r="128">
+          </Key>
+          <Key b="153" g="51" modelName="/data/Jeremy/star.osg" name="109" r="153">
+          </Key>
+          <Key b="31" g="33" name="110" r="84">
+          </Key>
+          <Key b="52" g="62" name="111" r="66">
+          </Key>
+          <Key b="39" g="41" name="112" r="107">
+          </Key>
+          <Key b="21" g="24" name="113" r="122">
+          </Key>
+          <Key b="10" g="12" name="114" r="74">
+          </Key>
+          <Key b="18" g="22" name="115" r="99">
+          </Key>
+          <Key b="126" g="128" name="116" r="158">
+          </Key>
+          <Key b="29" g="33" name="117" r="150">
+          </Key>
+          <Key b="18" g="19" name="118" r="51">
+          </Key>
+          <Key b="4" g="7" name="119" r="74">
+          </Key>
+          <Key b="31" g="33" name="120" r="84">
+          </Key>
+          <Key b="52" g="62" name="121" r="66">
+          </Key>
+          <Key b="39" g="41" name="122" r="107">
+          </Key>
+          <Key b="21" g="24" name="123" r="122">
+          </Key>
+          <Key b="10" g="12" name="124" r="74">
+          </Key>
+          <Key b="18" g="22" name="125" r="99">
+          </Key>
+          <Key b="126" g="128" name="126" r="158">
+          </Key>
+          <Key b="29" g="33" name="127" r="150">
+          </Key>
+        </Instrument>
+        <Instrument channel="0" description="mininova" name="4" type="keyboard">
+          <Key b="0" g="0" modelScale="1" name="20" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="21" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="22" r="255">
+          </Key>
+          <Key b="0" g="255" modelName="/data/Jeremy/NOTES/ukraine.wrl" modelScale="40.0" name="23" r="127" x="1000" y="0" z="1000">
+          </Key>
+          <Key b="0" g="255" modelName="/data/Jeremy/NOTES/Germany.wrl" modelScale="40.0" name="24" r="0" x="500" y="0" z="1000">
+          </Key>
+          <Key b="127" g="255" modelName="/data/Jeremy/NOTES/New_Zealand.wrl" modelScale="40.0" name="25" r="0" x="-500" y="0" z="500">
+          </Key>
+          <Key b="255" g="255" modelName="/data/Jeremy/NOTES/Europe.wrl" modelScale="40.0" name="26" r="0" x="00" y="0" z="-1000">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="27" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="28" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="29" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="30" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="31" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="20" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="21" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="22" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="23" r="127">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="24" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="25" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="26" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="27" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="28" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="29" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="30" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="31" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="20" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="21" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="22" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="23" r="127">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="24" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="25" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="26" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="27" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="28" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="29" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="30" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="31" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="32" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="33" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="34" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="35" r="127">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="36" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="37" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="38" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="39" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="40" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="41" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="42" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="43" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="44" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="45" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="46" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="47" r="127">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="48" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="49" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="50" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="51" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="52" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="53" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="54" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="55" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="56" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="57" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="58" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="59" r="127">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="60" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="61" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="62" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="63" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="64" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="65" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="66" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="67" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="68" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="69" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="70" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="71" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="72" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="73" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="74" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="75" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="76" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="77" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="78" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="79" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="80" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="81" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="82" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="83" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="84" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="85" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="86" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="87" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="88" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="89" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="90" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="91" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="92" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="93" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="94" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="95" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="96" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="97" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="98" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="99" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="100" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="101" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="102" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="103" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="104" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="105" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="106" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="107" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="108" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="109" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="110" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="111" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="112" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="113" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="114" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="115" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="116" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="117" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="118" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="119" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="120" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="121" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="122" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="123" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="124" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="125" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="126" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="127" r="255">
+          </Key>
+        </Instrument>
+        <Instrument channel="2" description="TriplePlay" name="5" type="keyboard">
+          <Key b="255" g="0" modelScale="1" name="40" r="0" x="0" y="0" z="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="41" r="127" x="1" y="0" z="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="42" r="255" x="0" y="0" z="0">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="43" r="255" x="0" y="0" z="0">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="44" r="255" x="0" y="0" z="0">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="45" r="255" x="0" y="0" z="0">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="46" r="255" x="0" y="0" z="0">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="47" r="127" x="0" y="0" z="0">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="48" r="0" x="0" y="0" z="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="49" r="0" x="0" y="0" z="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="50" r="0" x="0" y="0" z="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="51" r="0" x="0" y="0" z="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="52" r="0" x="0" y="0" z="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="53" r="127" x="0" y="0" z="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="54" r="255" x="0" y="0" z="0">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="55" r="255" x="0" y="0" z="0">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="56" r="255" x="0" y="0" z="0">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="57" r="255" x="0" y="0" z="0">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="58" r="255" x="0" y="0" z="0">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="59" r="127" x="0" y="0" z="0">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="60" r="0" x="0" y="0" z="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="61" r="0" x="0" y="0" z="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="62" r="0" x="0" y="0" z="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="63" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="64" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="65" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="66" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="67" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="68" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="69" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="70" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="71" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="72" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="73" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="74" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="75" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="76" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="77" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="78" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="79" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="80" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="81" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="82" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="83" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="84" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="85" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="86" r="255">
+          </Key>
+        </Instrument>
+        <Instrument channel="3" description="TriplePlay" name="6" type="keyboard">
+          <Key b="255" g="0" modelScale="1" name="40" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="41" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="42" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="43" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="44" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="45" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="46" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="47" r="127">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="48" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="49" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="50" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="51" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="52" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="53" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="54" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="55" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="56" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="57" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="58" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="59" r="127">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="60" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="61" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="62" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="63" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="64" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="65" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="66" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="67" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="68" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="69" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="70" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="71" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="72" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="73" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="74" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="75" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="76" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="77" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="78" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="79" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="80" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="81" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="82" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="83" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="84" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="85" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="86" r="255">
+          </Key>
+        </Instrument>
+        <Instrument channel="4" description="TriplePlay" name="7" type="keyboard">
+          <Key b="255" g="0" modelScale="1" name="40" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="41" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="42" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="43" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="44" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="45" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="46" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="47" r="127">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="48" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="49" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="50" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="51" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="52" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="53" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="54" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="55" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="56" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="57" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="58" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="59" r="127">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="60" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="61" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="62" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="63" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="64" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="65" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="66" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="67" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="68" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="69" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="70" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="71" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="72" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="73" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="74" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="75" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="76" r="255">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="77" r="255">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="78" r="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="79" r="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="80" r="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="81" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="82" r="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="83" r="127">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="84" r="255">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="85" r="255">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="86" r="255">
+          </Key>
+        </Instrument>
+        <Instrument channel="5" description="TriplePlay" name="8" type="keyboard">
+          <Key b="255" g="0" modelScale="1" name="40" r="0" x="0" y="0" z="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="41" r="127" x="1" y="0" z="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="42" r="255" x="2" y="0" z="0">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="43" r="255" x="3" y="0" z="0">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="44" r="255" x="4" y="0" z="0">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="45" r="255" x="5" y="0" z="0">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="46" r="255" x="6" y="0" z="0">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="47" r="127" x="7" y="0" z="0">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="48" r="0" x="8" y="0" z="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="49" r="0" x="9" y="0" z="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="50" r="0" x="10" y="0" z="0">
+          </Key>
+          <Key b="255" g="127" modelScale="1" name="51" r="0" x="11" y="0" z="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="52" r="0" x="12" y="0" z="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="53" r="127" x="13" y="0" z="0">
+          </Key>
+          <Key b="255" g="0" modelScale="1" name="54" r="255" x="14" y="0" z="0">
+          </Key>
+          <Key b="127" g="0" modelScale="1" name="55" r="255" x="15" y="0" z="0">
+          </Key>
+          <Key b="0" g="0" modelScale="1" name="56" r="255" x="16" y="0" z="0">
+          </Key>
+          <Key b="0" g="127" modelScale="1" name="57" r="255" x="17" y="0" z="0">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="58" r="255" x="18" y="0" z="0">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="59" r="127" x="19" y="0" z="0">
+          </Key>
+          <Key b="0" g="255" modelScale="1" name="60" r="0" x="20" y="0" z="0">
+          </Key>
+          <Key b="127" g="255" modelScale="1" name="61" r="0" x="21" y="0" z="0">
+          </Key>
+          <Key b="255" g="255" modelScale="1" name="62" r="0" x="22" y="0" z="0">
+          </Key>
+        </Instrument>
+      </Midi>
+      <ARUCO value="ON">
+        <Capture value="on">
+        </Capture>
+        <VideoDevice fourcc="MJPG" fps="30" height="480" value="2" width="640">
+        </VideoDevice>
+        <CameraCalibrationFile value="/home/rosba/covise/config/aruco/default.yaml">
+        </CameraCalibrationFile>
+        <VideoDevice ARCH="linux64opt" fourcc="MJPG" fps="30" height="480" value="0" width="640">
+        </VideoDevice>
+        <CameraCalibrationFile ARCH="linux64opt" value="/home/rosba/covise/config/aruco/default.yaml">
+        </CameraCalibrationFile>
+        <VideoDevice ARCH="linux" fourcc="MJPG" fps="60" height="1080" value="0" width="1920">
+        </VideoDevice>
+        <CameraCalibrationFile ARCH="linux" value="/data/aruco/cameras/Logitech_HDProWebcamC920_No2_1920x1080.yaml">
+        </CameraCalibrationFile>
+        <VideoDevice ARCH="macos" height="720" value="0" width="1280">
+        </VideoDevice>
+        <CameraCalibrationFile ARCH="macos" value="config/opencv/apple_facetime_hd_camera.yaml">
+        </CameraCalibrationFile>
+        <SquaresX value="11">
+        </SquaresX>
+        <SquaresY value="7">
+        </SquaresY>
+        <SquareLength value="0.015">
+        </SquareLength>
+        <MarkerSquare value="0.011">
+        </MarkerSquare>
+        <DictionaryID value="7">
+        </DictionaryID>
+        <LegacyPattern value="true">
+        </LegacyPattern>
+        <Focus value="37">
+        </Focus>
+      </ARUCO>
+    </Plugin>
+    <Menu>
+      <Position x="800" y="0" z="500">
+      </Position>
+      <Size value="0.5">
+      </Size>
+    </Menu>
+    <ViewerPosition x="0" y="-1500" z="0">
+    </ViewerPosition>
+    <SceneSize value="1000">
+    </SceneSize>
+    <DebugLevel value="1">
+    </DebugLevel>
+    <FPS value="true">
+    </FPS>
+    <PipeConfig>
+      <Pipe name="0" useDISPLAY="true">
+      </Pipe>
+    </PipeConfig>
+    <WindowConfig>
+      <Window RANK="0" comment="FRONT" decoration="true" embedded="false" height="576" left="100" name="0" pipeIndex="0" top="100" type="Qt" width="1024" window="0">
+      </Window>
+      <Window comment="FRONT" decoration="true" embedded="false" height="576" left="100" name="0" pipeIndex="0" top="100" width="1024" window="0">
+      </Window>
+    </WindowConfig>
+    <ScreenConfig>
+      <Screen comment="FRONT" h="0.0" height="1080" name="0" originX="0" originY="0" originZ="0" p="0.0" r="0.0" screen="0" width="1920">
+      </Screen>
+    </ScreenConfig>
+    <ViewportConfig>
+      <Viewport bottom="0" channelIndex="0" height="1" left="0" name="0" width="1" windowIndex="0">
+      </Viewport>
+    </ViewportConfig>
+    <MarkerTracking>
+      <Marker name="TestMarker42">
+        <Pattern value="42">
+        </Pattern>
+        <Size value="150">
+        </Size>
+        <Offset h="0" p="0" r="0" x="0" y="0" z="0">
+        </Offset>
+        <VrmlToPf value="TRUE">
+        </VrmlToPf>
+      </Marker>
+    </MarkerTracking>
+    <Background b="0.1" g="0.1" r="0.1">
+    </Background>
+  </COVER>
+  <VIVE>
+    <DefaultScaleFactor value="1000">
+    </DefaultScaleFactor>
+    <Stereo value="false">
+    </Stereo>
+    <File options="usemaxlodonly storegeomids optimize noRotation noTriStripPolygons singleobject minlod 1">
+    </File>
+    <UI>
+      <VRUI toolbar="false">
+      </VRUI>
+      <NavigationManager>
+        <Navigation>
+          <ViewAll parent="">
+          </ViewAll>
+          <Snap parent="">
+          </Snap>
+          <Modes>
+            <Scale parent="">
+            </Scale>
+            <SelectInteract parent="">
+            </SelectInteract>
+          </Modes>
+        </Navigation>
+      </NavigationManager>
+      <Manager>
+        <ViewOptions>
+          <TrackHead parent="">
+          </TrackHead>
+        </ViewOptions>
+      </Manager>
+      <ColorBarPlugin>
+        <Colors tuiParent="">
+        </Colors>
+      </ColorBarPlugin>
+    </UI>
+    <Snap value="ON">
+    </Snap>
+    <DebugTUI value="OFF">
+    </DebugTUI>
+    <DepthPeeling value="false">
+    </DepthPeeling>
+    <LODScale value="1">
+    </LODScale>
+    <SyncToVBlank device="DFP-0" value="OFF">
+    </SyncToVBlank>
+    <CudaNumThreads value="128">
+    </CudaNumThreads>
+    <CheckForOpenGLErrors value="true">
+    </CheckForOpenGLErrors>
+    <NavigationMode value="XForm">
+    </NavigationMode>
+    <AnimationSpeed default="24.0" max="25.0" min="0.0">
+    </AnimationSpeed>
+    <MultiThreaded value="off">
+    </MultiThreaded>
+    <FramebufferSRGB value="false">
+    </FramebufferSRGB>
+    <StencilBits value="8">
+    </StencilBits>
+    <Stencil value="true">
+    </Stencil>
+    <VRUI>
+      <VNC>
+        <Menu>
+          <Orientation h="-90" p="0" r="0">
+          </Orientation>
+          <Position x="1400" y="-500" z="500">
+          </Position>
+        </Menu>
+      </VNC>
+    </VRUI>
+    <Input>
+      <MouseNav value="ON">
+      </MouseNav>
+    </Input>
+    <Plugin>
+      <RhrClient mpiThread="false">
+      </RhrClient>
+      <Browser logFile="/tmp/browserlog.txt" logLevel="1" menu="true">
+      </Browser>
+      <NvTop ARCH="linux" menu="true">
+      </NvTop>
+      <NvTop ARCH="windows" menu="true">
+      </NvTop>
+      <PBufferSnapShot menu="true">
+      </PBufferSnapShot>
+      <Video menu="true">
+      </Video>
+      <TabletUI menu="true">
+      </TabletUI>
+      <CompositorIceT menu="false">
+      </CompositorIceT>
+      <ViewPoint value="true">
+      </ViewPoint>
+      <Annotation menu="true">
+      </Annotation>
+      <Measure menu="true">
+      </Measure>
+      <TangiblePosition menu="true">
+      </TangiblePosition>
+      <Revit menu="true" value="off">
+      </Revit>
+      <PointCloud>
+        <PointSize value="4">
+        </PointSize>
+      </PointCloud>
+      <Bullet value="off">
+      </Bullet>
+      <Earth value="off">
+      </Earth>
+      <COVERScript value="off">
+      </COVERScript>
+      <cuCuttingSurface value="off">
+      </cuCuttingSurface>
+      <cuIsoSurface value="off">
+      </cuIsoSurface>
+      <SGBrowser value="on">
+      </SGBrowser>
+      <Volume value="off">
+      </Volume>
+      <TouchTable value="off">
+      </TouchTable>
+      <CaveCAD>
+        <DataDir value="/data/calit2/CaveCAD">
+        </DataDir>
+      </CaveCAD>
+      <Maze>
+        <DataDir value="/data/calit2/maze">
+        </DataDir>
+      </Maze>
+      <Vrml97 value="off">
+        <ViewpointType value="standardNoFov">
+        </ViewpointType>
+        <Audio value="OpenAL">
+        </Audio>
+        <ViewpointType value="standardNoFov">
+        </ViewpointType>
+      </Vrml97>
+      <DistortViewer value="off">
+      </DistortViewer>
+      <Move menu="true" value="off">
+      </Move>
+      <ClipPlane value="on">
+      </ClipPlane>
+      <PLMXML value="off">
+        <LoadSTL value="false">
+        </LoadSTL>
+        <LoadVRML value="true">
+        </LoadVRML>
+        <UndoVRMLRotate value="false">
+        </UndoVRMLRotate>
+      </PLMXML>
+      <Chat menu="true" value="off">
+      </Chat>
+      <PDB menu="false" value="off">
+        <PDBPluginPymolDir value="/var/tmp/pymol/">
+        </PDBPluginPymolDir>
+        <PDBPluginTempDir value="/var/tmp/pdb/">
+        </PDBPluginTempDir>
+        <PDBUrl value="www.pdb.org/pdb/files/">
+        </PDBUrl>
+        <AnimationURL value="www.molmovdb.org/uploads/">
+        </AnimationURL>
+        <PDBAnimationUrl value="www.molmovdb.org/uploads">
+        </PDBAnimationUrl>
+        <Scale value="1">
+        </Scale>
+        <ViewerDistance value="70">
+        </ViewerDistance>
+        <FadeDistance value="40">
+        </FadeDistance>
+        <Structures>
+          <Gleevec value="1XBB">
+          </Gleevec>
+          <Luciferin value="2D1S">
+          </Luciferin>
+          <Hemoglobin value="4HHB">
+          </Hemoglobin>
+          <HIV_Protease value="1HVR">
+          </HIV_Protease>
+          <Smad4 value="1YGS">
+          </Smad4>
+          <Photosystem_I value="1JBO">
+          </Photosystem_I>
+          <Cytochrome_c_Oxidase value="1OCO">
+          </Cytochrome_c_Oxidase>
+          <MHC_Class_II value="1DLH">
+          </MHC_Class_II>
+          <Potassium_Channel_A value="1BL8">
+          </Potassium_Channel_A>
+          <Potassium_Channel_B value="1FQY">
+          </Potassium_Channel_B>
+          <SARS value="2D2D">
+          </SARS>
+          <Acetylcholine_Receptor value="2BG9">
+          </Acetylcholine_Receptor>
+          <Acetylcholine_Cobratoxin value="1YI5">
+          </Acetylcholine_Cobratoxin>
+          <Thermus_Thermophilus value="1J5E">
+          </Thermus_Thermophilus>
+          <Polyketide_Synthase value="1U0M">
+          </Polyketide_Synthase>
+          <Calcium_Pump value="1SU4">
+          </Calcium_Pump>
+          <Antibody_bound_Influenza value="1KEN">
+          </Antibody_bound_Influenza>
+          <Thermatoga value="2F8J">
+          </Thermatoga>
+        </Structures>
+        <Animations>
+          <Serotonin_N_Acetyltransferase value="22943-38">
+          </Serotonin_N_Acetyltransferase>
+          <Calcium_Pump value="396506-12995">
+          </Calcium_Pump>
+          <FecA_transporter value="829808-15750">
+          </FecA_transporter>
+          <Actin value="763408-1487">
+          </Actin>
+          <Calmodulin value="17833-29779">
+          </Calmodulin>
+        </Animations>
+      </PDB>
+      <AKToolbar menu="false" value="false">
+        <Attachment value="TOP">
+        </Attachment>
+        <Scale value=".7">
+        </Scale>
+        <MinClickTime value="0.2">
+        </MinClickTime>
+        <Position x="-900" y="0" z="360">
+        </Position>
+        <ShortCut name="viewall" value="viewall">
+        </ShortCut>
+        <ShortCut name="scale" value="scale">
+        </ShortCut>
+        <ShortCut name="xform" value="xform">
+        </ShortCut>
+        <ShortCut name="walk" value="walk">
+        </ShortCut>
+        <ShortCut name="drive" value="drive">
+        </ShortCut>
+        <ShortCut name="fly" value="fly">
+        </ShortCut>
+      </AKToolbar>
+      <Amber value="off">
+      </Amber>
+      <StereoVideoPlayer>
+        <MoviePlayer value="ffmpeg">
+        </MoviePlayer>
+        <AudioOffset value="0.0">
+        </AudioOffset>
+      </StereoVideoPlayer>
+      <StereoVideoPlayer>
+        <AudioOffset value="0.0">
+        </AudioOffset>
+      </StereoVideoPlayer>
+      <Oct menu="false" shared="true">
+        <x value="CurrPosX_PCS">
+        </x>
+        <y value="CurrPosY_PCS">
+        </y>
+        <z value="CurrPosZ_PCS">
+        </z>
+        <color value="Leistung">
+        </color>
+        <timeScaleIndicator value="Name">
+        </timeScaleIndicator>
+        <delimiter value=",">
+        </delimiter>
+      </Oct>
+    </Plugin>
+    <Menu>
+      <Position x="800" y="0" z="500">
+      </Position>
+    </Menu>
+    <ViewerPosition x="0" y="-1500" z="0">
+    </ViewerPosition>
+    <SceneSize value="1000">
+    </SceneSize>
+    <DebugLevel value="1">
+    </DebugLevel>
+    <FPS value="true">
+    </FPS>
+    <PipeConfig>
+      <Pipe name="0" useDISPLAY="true">
+      </Pipe>
+    </PipeConfig>
+    <WindowConfig>
+      <Window RANK="0" comment="FRONT" decoration="true" embedded="false" height="576" left="100" name="0" pipeIndex="0" top="100" type="Qt" width="1024" window="0">
+      </Window>
+      <Window comment="FRONT" decoration="true" embedded="false" height="576" left="100" name="0" pipeIndex="0" top="100" width="1024" window="0">
+      </Window>
+    </WindowConfig>
+    <ScreenConfig>
+      <Screen comment="FRONT" h="0.0" height="1080" name="0" originX="0" originY="0" originZ="0" p="0.0" r="0.0" screen="0" width="1920">
+      </Screen>
+    </ScreenConfig>
+    <ViewportConfig>
+      <Viewport bottom="0" channelIndex="0" height="1" left="0" name="0" width="1" windowIndex="0">
+      </Viewport>
+    </ViewportConfig>
+  </VIVE>
+  <Colormaps>
+    <Voltage>
+      <Point a="1" b="1.0" g="1.000" index="0" r="1.000" x="0.0">
+      </Point>
+      <Point a="1" b="0.153" g="0.169" index="1" r="0.859" x="0.001">
+      </Point>
+      <Point a="1" b="0.067" g="0.749" index="2" r="0.992" x="0.25">
+      </Point>
+      <Point a="1" b="0.282" g="0.718" index="3" r="0.333" x="0.5">
+      </Point>
+      <Point a="1" b="1.000" g="1.000" index="4" r="0.000" x="0.75">
+      </Point>
+      <Point a="1" b="0.824" g="0.588" index="5" r="0.086" x="1.0">
+      </Point>
+    </Voltage>
+    <Utilization>
+      <Point a="1" b="0.282" g="0.718" index="0" r="0.333" x="0">
+      </Point>
+      <Point a="1" b="0.067" g="0.749" index="1" r="0.992" x="0.5">
+      </Point>
+      <Point a="1" b="0.153" g="0.169" index="2" r="0.859" x="1">
+      </Point>
+    </Utilization>
+    <Power_Grey>
+      <Point a="1" b="0.824" g="0.588" index="0" r="0.086" x="0">
+      </Point>
+      <Point a="1" b="0.753" g="0.753" index="1" r="0.753" x="0.5">
+      </Point>
+      <Point a="1" b="0.153" g="0.169" index="2" r="0.859" x="1">
+      </Point>
+    </Power_Grey>
+    <Power>
+      <Point a="1" b="0.824" g="0.588" index="0" r="0.086" x="0">
+      </Point>
+      <Point a="1" b="1.000" g="1.000" index="1" r="1.000" x="0.5">
+      </Point>
+      <Point a="1" b="0.153" g="0.169" index="2" r="0.859" x="1">
+      </Point>
+    </Power>
+    <Star>
+      <Point a="1.0" b="0.90" g="0.00" index="0" r="0.10">
+      </Point>
+      <Point a="1.0" b="1.00" g="0.00" index="1" r="0.00">
+      </Point>
+      <Point a="1.0" b="1.00" g="0.63" index="2" r="0.63">
+      </Point>
+      <Point a="1.0" b="1.00" g="0.75" index="3" r="0.00">
+      </Point>
+      <Point a="1.0" b="1.00" g="1.00" index="4" r="0.00">
+      </Point>
+      <Point a="1.0" b="0.70" g="0.80" index="5" r="0.10">
+      </Point>
+      <Point a="1.0" b="0.00" g="0.90" index="6" r="0.10">
+      </Point>
+      <Point a="1.0" b="0.63" g="1.00" index="7" r="0.50">
+      </Point>
+      <Point a="1.0" b="0.25" g="1.00" index="8" r="0.75">
+      </Point>
+      <Point a="1.0" b="0.00" g="1.00" index="9" r="1.00">
+      </Point>
+      <Point a="1.0" b="0.10" g="0.80" index="10" r="1.00">
+      </Point>
+      <Point a="1.0" b="0.30" g="0.60" index="11" r="1.00">
+      </Point>
+      <Point a="1.0" b="0.95" g="0.67" index="12" r="1.00">
+      </Point>
+      <Point a="1.0" b="0.50" g="0.00" index="13" r="1.00">
+      </Point>
+      <Point a="1.0" b="0.00" g="0.00" index="14" r="1.00">
+      </Point>
+    </Star>
+    <ITSM>
+      <Point a="1.00" b="0.35" g="0.00" index="0" r="0.00" x="0.00">
+      </Point>
+      <Point a="1.00" b="1.00" g="0.00" index="1" r="0.00" x="0.05">
+      </Point>
+      <Point a="1.00" b="1.00" g="1.00" index="2" r="0.00" x="0.26">
+      </Point>
+      <Point a="1.00" b="0.00" g="1.00" index="3" r="0.00" x="0.5">
+      </Point>
+      <Point a="1.00" b="0.00" g="1.00" index="4" r="1.00" x="0.74">
+      </Point>
+      <Point a="1.00" b="0.00" g="0.00" index="5" r="1.00" x="0.95">
+      </Point>
+      <Point a="1.00" b="0.00" g="0.00" index="6" r="0.40" x="1.00">
+      </Point>
+    </ITSM>
+    <Leistung>
+      <Point a="1.00" b="0.40" g="0.00" index="0" r="0.40">
+      </Point>
+      <Point a="1.00" b="1.00" g="0.00" index="1" r="0.00">
+      </Point>
+      <Point a="1.00" b="1.00" g="1.00" index="2" r="0.00">
+      </Point>
+      <Point a="1.00" b="0.00" g="1.00" index="3" r="0.00">
+      </Point>
+      <Point a="1.00" b="0.00" g="1.00" index="4" r="1.00">
+      </Point>
+      <Point a="1.00" b="0.00" g="0.00" index="5" r="1.00">
+      </Point>
+    </Leistung>
+    <Rainbow>
+      <Point a="1.00" b="0.40" g="0.00" index="0" r="0.40">
+      </Point>
+      <Point a="1.00" b="1.00" g="0.00" index="1" r="0.00">
+      </Point>
+      <Point a="1.00" b="1.00" g="1.00" index="2" r="0.00">
+      </Point>
+      <Point a="1.00" b="0.00" g="1.00" index="3" r="0.00">
+      </Point>
+      <Point a="1.00" b="0.00" g="1.00" index="4" r="1.00">
+      </Point>
+      <Point a="1.00" b="0.00" g="0.00" index="5" r="1.00">
+      </Point>
+    </Rainbow>
+    <IAG>
+      <Point a="1" b="0.345" g="0" index="0" r="0" x="0">
+      </Point>
+      <Point a="1" b="1" g="0" index="1" r="0" x="0.113169">
+      </Point>
+      <Point a="1" b="1" g="1" index="2" r="0" x="0.26">
+      </Point>
+      <Point a="1" b="0" g="1" index="3" r="0" x="0.5">
+      </Point>
+      <Point a="1" b="0" g="1" index="4" r="1" x="0.74">
+      </Point>
+      <Point a="0.377" b="0" g="0" index="5" r="1" x="1">
+      </Point>
+    </IAG>
+    <Blue>
+      <Point a="0.0" b="0" g="0" index="0" r="0">
+      </Point>
+      <Point a="1.0" b="1" g="0" index="1" r="0">
+      </Point>
+    </Blue>
+    <Blue-Light>
+      <Point b="1" g="1" index="0" r="1">
+      </Point>
+      <Point b="1" g="0" index="1" r="0">
+      </Point>
+    </Blue-Light>
+    <MTransparent>
+      <Point a="0.025" b="0.345" g="0" index="0" r="0" x="0">
+      </Point>
+      <Point a="0.049" b="1" g="0" index="1" r="0" x="0.193416">
+      </Point>
+      <Point a="0.111" b="1" g="1" index="2" r="0" x="0.403292">
+      </Point>
+      <Point a="0.16" b="0" g="1" index="3" r="0" x="0.596708">
+      </Point>
+      <Point a="0.21" b="0" g="1" index="4" r="1" x="0.748971">
+      </Point>
+      <Point a="0.278" b="0" g="0" index="5" r="1" x="0.90535">
+      </Point>
+      <Point a="0.346" b="0" g="0" index="6" r="0.4" x="1">
+      </Point>
+    </MTransparent>
+    <ANSYS>
+      <Point a="1.0" b="1.0" g="0.0" index="0" r="0.0">
+      </Point>
+      <Point a="1.0" b="1.0" g="1.0" index="1" r="0.0">
+      </Point>
+      <Point a="1.0" b="0.0" g="1.0" index="2" r="0.0">
+      </Point>
+      <Point a="1.0" b="0.0" g="1.0" index="3" r="1.0">
+      </Point>
+      <Point a="1.0" b="0.0" g="0.0" index="4" r="1.0">
+      </Point>
+    </ANSYS>
+    <ANSA>
+      <Point a="1.0" b="1.0" g="0.0" index="0" r="0.0">
+      </Point>
+      <Point a="1.0" b="1.0" g="1.0" index="1" r="0.0">
+      </Point>
+      <Point a="1.0" b="0.0" g="1.0" index="2" r="0.0">
+      </Point>
+      <Point a="1.0" b="0.0" g="1.0" index="3" r="1.0">
+      </Point>
+      <Point a="1.0" b="0.0" g="0.0" index="4" r="1.0">
+      </Point>
+    </ANSA>
+    <CoolWarm>
+      <Point b="0.752" g="0.298" index="0" r="0.231">
+      </Point>
+      <Point b="0.996" g="0.690" index="1" r="0.552">
+      </Point>
+      <Point b="0.866" g="0.866" index="2" r="0.866">
+      </Point>
+      <Point b="0.486" g="0.603" index="3" r="0.956">
+      </Point>
+      <Point b="0.149" g="0.015" index="4" r="0.705">
+      </Point>
+    </CoolWarm>
+    <CoolWarmBrewer>
+      <Point a="1.000" b="0.714" g="0.482" index="0" r="0.172" x="0.00">
+      </Point>
+      <Point a="1.000" b="0.914" g="0.851" index="1" r="0.671" x="0.25">
+      </Point>
+      <Point a="1.000" b="0.749" g="1.000" index="2" r="1.000" x="0.5">
+      </Point>
+      <Point a="1.000" b="0.38" g="0.682" index="3" r="0.992" x="0.75">
+      </Point>
+      <Point a="1.000" b="0.11" g="0.098" index="4" r="0.843" x="1.00">
+      </Point>
+    </CoolWarmBrewer>
+    <StarRGBRedBlue>
+      <Point a="1" b="1" g="0" name="0" r="0" x="0">
+      </Point>
+      <Point a="1" b="1" g="0.4" name="1" r="0" x="0.1">
+      </Point>
+      <Point a="1" b="1" g="0.8" name="2" r="0" x="0.2">
+      </Point>
+      <Point a="1" b="0.8" g="1" name="3" r="0" x="0.3">
+      </Point>
+      <Point a="1" b="0.4" g="1" name="4" r="0" x="0.4">
+      </Point>
+      <Point a="1" b="0" g="1" name="5" r="0" x="0.5">
+      </Point>
+      <Point a="1" b="0" g="1" name="6" r="0.4" x="0.6">
+      </Point>
+      <Point a="1" b="0" g="1" name="7" r="0.8" x="0.7">
+      </Point>
+      <Point a="1" b="0" g="0.8" name="8" r="1" x="0.8">
+      </Point>
+      <Point a="1" b="0" g="0.4" name="9" r="1" x="0.9">
+      </Point>
+      <Point a="1" b="0" g="0" name="10" r="1" x="1">
+      </Point>
+    </StarRGBRedBlue>
+    <OCT-6000W>
+      <Point a="0" b="0.345" g="0" index="0" r="0" x="0">
+      </Point>
+      <Point a="0.1" b="1" g="0" index="1" r="0" x="0.26">
+      </Point>
+      <Point a="0.9" b="1" g="1" index="2" r="0" x="0.4">
+      </Point>
+      <Point a="1" b="0" g="1" index="3" r="0" x="0.6">
+      </Point>
+      <Point a="1" b="0" g="1" index="4" r="1" x="0.75">
+      </Point>
+      <Point a="1" b="0" g="0" index="5" r="1" x="0.9">
+      </Point>
+      <Point a="1" b="0" g="0" index="6" r="0.4" x="1">
+      </Point>
+    </OCT-6000W>
+  </Colormaps>
+</GLOBAL>
 </COCONFIG>

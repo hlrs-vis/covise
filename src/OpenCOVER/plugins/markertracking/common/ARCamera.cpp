@@ -193,11 +193,11 @@ bool ARCamera::open(int deviceId)
 			std::cerr << "WARNING: could not set capture frame size\n   new size  = " << width << "x" << height << std::endl;
 		}
 	}
-	const int focus = covise::coCoviseConfig::getInt("Focus", "COVER.Plugin.ARUCO.VideoDevice", 35);
+	const int focus = covise::coCoviseConfig::getInt("Focus", "COVER.Plugin.ARUCO", 35);
 	// Disable auto focus to avoid focus hunting during calibration
 	const bool autofocusSet = m_capture.set(cv::CAP_PROP_AUTOFOCUS, 0);
 	// Define manual focus
-	const bool focusSet = m_capture.set(cv::CAP_PROP_FOCUS, focus); 
+	const bool focusSet = m_capture.set(cv::CAP_PROP_FOCUS, focus);
 
 	std::cerr << "autofocus set=" << autofocusSet
           << ", reported autofocus=" << m_capture.get(cv::CAP_PROP_AUTOFOCUS)
@@ -246,6 +246,24 @@ bool ARCamera::read(cv::Mat &frame)
 		return false;
 	m_capture >> frame;
 	return !frame.empty();
+}
+
+bool ARCamera::setManualFocus(int focus)
+{
+	if (!m_capture.isOpened())
+		return false;
+
+	const bool autofocusSet = m_capture.set(cv::CAP_PROP_AUTOFOCUS, 0);
+	const bool focusSet = m_capture.set(cv::CAP_PROP_FOCUS, focus);
+	const double reportedFocus = m_capture.get(cv::CAP_PROP_FOCUS);
+	std::cerr << "ARUCO: focus set=" << focusSet
+			  << ", autofocus disabled=" << autofocusSet
+			  << ", requested focus=" << focus
+			  << ", reported focus=" << reportedFocus;
+	if (!focusSet || (reportedFocus >= 0.0 && reportedFocus != focus))
+		std::cerr << " (camera did not confirm requested focus)";
+	std::cerr << std::endl;
+	return focusSet;
 }
 
 int ARCamera::width() const

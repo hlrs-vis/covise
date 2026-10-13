@@ -565,7 +565,7 @@ void coConfig::setValueInConfig(const std::string &variable, const std::string &
                                 const std::string &configGroup, const std::string &config, bool move)
 {
 
-    setValueForHost(variable, value, section, 0, move, config, configGroup);
+    setValueForHost(variable, value, section, std::string(), move, config, configGroup);
 }
 
 /**
