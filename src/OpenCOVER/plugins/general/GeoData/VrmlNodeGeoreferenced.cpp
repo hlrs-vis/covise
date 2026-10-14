@@ -29,6 +29,7 @@ void VrmlNodeGeoreferenced::initFields(VrmlNodeGeoreferenced *node, VrmlNodeType
     VrmlNodeGroup::initFields(node, t);
     initFieldsHelper(node, t,
         exposedField("geolocation", &VrmlNodeGeoreferenced::d_geolocation),
+        exposedField("geolocationReference", &VrmlNodeGeoreferenced::d_geolocationReference),
         exposedField("fixAxes", &VrmlNodeGeoreferenced::d_fixAxes));
 }
 
@@ -36,8 +37,6 @@ const char *VrmlNodeGeoreferenced::typeName() { return "Georeferenced"; }
 
 VrmlNodeGeoreferenced::VrmlNodeGeoreferenced(VrmlScene *scene)
     : VrmlNodeGroup(scene, typeName())
-    , d_geolocation(0.0, 0.0, 0.0)
-    , d_xformObject(0)
 {
     d_modified = true;
 
@@ -47,8 +46,8 @@ VrmlNodeGeoreferenced::VrmlNodeGeoreferenced(VrmlScene *scene)
 
 VrmlNodeGeoreferenced::VrmlNodeGeoreferenced(const VrmlNodeGeoreferenced &other)
     : VrmlNodeGroup(other)
-    , d_geolocation(0.0, 0.0, 0.0)
-    , d_xformObject(0)
+    , d_geolocation(other.d_geolocation)
+    , d_fixAxes(other.d_fixAxes.get())
 {
     d_modified = true;
 
@@ -110,6 +109,11 @@ void VrmlNodeGeoreferenced::render(Viewer *viewer)
 osg::Vec3 VrmlNodeGeoreferenced::getTranslation()
 {
     osg::Vec3 t(d_geolocation.x(), d_geolocation.y(), d_geolocation.z());
+    const char *ref = d_geolocationReference.get();
+    if (ref)
+    {
+        t = opencover::GeoData::instance()->transformFromProjectionToReference(t, ref);
+    }
     auto r = t * opencover::GeoData::instance()->projectTransform();
     return osg::Vec3(r.x(), r.z(), -r.y()); // vrml coordinates are flipped :)
 }
@@ -165,10 +169,10 @@ void VrmlNodeGeoreferenced::inverseTransform(Viewer *viewer)
 
 void VrmlNodeGeoreferenced::inverseTransform(double *m)
 {
-    VrmlNode *parentTransform = getParentTransform();
     osg::Matrixd matrix;
     matrix.makeIdentity();
 
+    VrmlNode *parentTransform = getParentTransform();
     if (parentTransform)
     {
         parentTransform->inverseTransform(matrix.ptr());

@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <cover/coVRPluginSupport.h>
+#include <proj.h>
 
 using namespace opencover;
 
@@ -88,6 +89,46 @@ void GeoData::setProjection(std::string_view projection)
 void GeoData::setProjectOffset(const osg::Vec3d &projectOffset)
 {
     setProjectTransform(projectOffset, m_projectTrueNorthDegree);
+}
+
+osg::Vec3d GeoData::transformFromProjectionToReference(const osg::Vec3d &position, std::string_view projection) const
+{
+#ifdef HAVE_PROJ
+    std::string p(projection);
+    PJ *transformation = proj_create_crs_to_crs(m_context, p.c_str(), m_projection.c_str(), NULL);
+
+    if (!transformation)
+    {
+        std::cerr << "Cannot load transformation from " << p << " to " << m_projection << std::endl;
+        return position;
+    }
+
+    // Try to normalize the transformation, so that we always use
+    // easting-northing = longitude-latitude order, not the order specified
+    // in the projection definition (e. g. latitude-longitude for
+    // EPSG:4326).
+    PJ *tmp = proj_normalize_for_visualization(m_context, transformation);
+    if (tmp)
+    {
+        proj_destroy(transformation);
+        transformation = tmp;
+    }
+
+    PJ_COORD c;
+    c.lpz.lam = c.enu.e = position.x();
+    c.lpz.phi = c.enu.n = position.y();
+    c.lpz.z = c.enu.u = position.z();
+    PJ_COORD c_out = proj_trans(m_transformation, PJ_FWD, c);
+
+    proj_destroy(transformation);
+
+    osg::Vec3d position_transformed(c_out.enu.e, c_out.enu.n, c_out.enu.u);
+    return position_transformed;
+
+#else
+    std::cerr << "coVRGeoData: no projection support, geo referencing will not work" << std::endl;
+    return position;
+#endif
 }
 
 void GeoData::setProjectTransform(const osg::Vec3d &projectOffset, const double trueNorthDeg)

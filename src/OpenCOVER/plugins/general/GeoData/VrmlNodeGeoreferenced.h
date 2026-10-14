@@ -46,15 +46,25 @@ public:
     virtual void inverseTransform(double *mat);
 
 protected:
-    VrmlSFVec3f d_geolocation;
-    VrmlSFBool d_fixAxes;
+    /// The ENU location at which to place the children's origin.
+    VrmlSFVec3f d_geolocation { 0, 0, 0 };
 
-    // VrmlSFString d_geolocationReference;
-    // VrmlSFFloat d_north;
+    /// Set to true to flip X and Y axes, useful when inlining non-VRML data
+    /// into VRML, which has a different convention.
+    VrmlSFBool d_fixAxes { false };
+
+    /// To use a different EPSG for the "geolocation" field, specify it here,
+    /// preferably as an `ESPG:<code>` string (or anything else that gdal understands).
+    /// Only transforms the geolocation, possible rotations are lost.
+    VrmlSFString d_geolocationReference;
+
+    // TODO
+    // VrmlSFFloat d_northAngle;
+
+    // TODO
     // VrmlSFFloat d_scale;
 
-    Viewer::Object d_xformObject;
-
+    Viewer::Object d_xformObject { 0 };
     sigslot::scoped_connection m_connection;
 };
 }
