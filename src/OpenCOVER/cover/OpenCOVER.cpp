@@ -641,7 +641,7 @@ bool OpenCOVER::init()
 
     cover->updateTime();
 
-   
+
     coVRPluginList::instance();
 
 	Input::instance()->init();
@@ -703,7 +703,7 @@ bool OpenCOVER::init()
     cover->vruiView = new ui::VruiView;
     cover->ui->addView(cover->vruiView);
 
-    
+
     VRViewer::instance()->config();
     hud = coHud::instance();
     coVRShaderList::instance()->init(VRViewer::instance()->getExtensions());
@@ -972,7 +972,7 @@ bool OpenCOVER::initDone()
     return (frameNum > 1);
 }
 
-class CheckVisitor: public osg::NodeVisitor 
+class CheckVisitor: public osg::NodeVisitor
 {
  public:
    CheckVisitor()
@@ -1364,7 +1364,9 @@ bool OpenCOVER::frame()
                     maxfd = fd;
             }
         }
-        struct timeval waittime {0, 100000};
+        double lastDuration = std::max(cover->frameDuration(), 0.);
+        auto usec = std::min(500000, static_cast<int>(lastDuration*1e6));
+        struct timeval waittime {0, usec};
         int nready = select(maxfd+1, &rfds, nullptr, &efds, &waittime);
 
         if (nready > 0)
