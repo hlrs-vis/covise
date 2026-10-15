@@ -40,6 +40,7 @@
 #include <cover/ui/Action.h>
 #include <cover/ui/EditField.h>
 #include <cover/ui/SelectionList.h>
+#include <cover/ui/Group.h>
 
 using namespace covise;
 using namespace opencover;
@@ -87,6 +88,7 @@ private:
     ui::Button* uiBtnDrawDetMarker = nullptr;
     ui::Button* uiBtnDrawRejMarker = nullptr;
     ui::Action* uiBtnCalib = nullptr;
+    ui::Group* uiFocusGroup = nullptr;
     ui::EditField* uiManualFocus = nullptr;
     ui::Action* uiBtnSaveFocus = nullptr;
     opencover::ui::Action *uiBtnDetectCamera = nullptr;
