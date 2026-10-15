@@ -130,8 +130,6 @@ ARUCOPlugin::~ARUCOPlugin()
 
 bool ARUCOPlugin::initAR()
 {
-    std::cerr << "ARUCO build fingerprint: " << __FILE__ << " " << __DATE__ << " " << __TIME__ << std::endl;
-
     MarkerTracking::instance()->arInterface = this;
     MarkerTracking::instance()->remoteAR = NULL;
 
@@ -157,12 +155,7 @@ bool ARUCOPlugin::initAR()
         const int squaresY = static_cast<int>(configInt("calibration", "squaresY", 11)->value());
         float squareLength = static_cast<float>(configFloat("calibration", "squareLength", 0.015)->value());
         float markerLength = static_cast<float>(configFloat("calibration", "markerLength", 0.011)->value());
-
-        std::cerr << "ARUCO cfg: dict=" << dictId
-                  << " squares=" << squaresX << "x" << squaresY
-                  << " squareLength=" << squareLength
-                  << " markerLength=" << markerLength << std::endl;
-
+        
         switch (dictId)
         {
         case 0: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_50); break;
@@ -206,7 +199,6 @@ detectorParams->cornerRefinementMethod = cv::aruco::CORNER_REFINE_SUBPIX;
 
         // for boards printed with older OpenCV charuco pattern
         const bool legacyPattern = configBool("calibration", "legacyPattern", true)->value();
-        std::cerr << "LegacyPattern=" << legacyPattern << std::endl;
         charucoboard->setLegacyPattern(legacyPattern);
 
         cv::aruco::CharucoParameters cparams;
@@ -281,11 +273,13 @@ void ARUCOPlugin::initUI()
     });
 
     const int focus = static_cast<int>(configInt("camera", "focus", 35)->value());
-    uiManualFocus = new ui::EditField(uiMenu, "manualFocus");
+    uiFocusGroup = new ui::Group(uiMenu, "Focus");
+    uiFocusGroup->setText("");
+    uiManualFocus = new ui::EditField(uiFocusGroup, "manualFocus");
     uiManualFocus->setText("Manual focus");
     uiManualFocus->setValue(focus);
 
-    uiBtnSaveFocus = new ui::Action(uiMenu, "saveFocus");
+    uiBtnSaveFocus = new ui::Action(uiFocusGroup, "saveFocus");
     uiBtnSaveFocus->setText("Apply and save focus");
     uiBtnSaveFocus->setCallback([this]() { applyAndSaveManualFocus(); });
 }
