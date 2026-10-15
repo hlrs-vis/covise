@@ -1,6 +1,6 @@
 #include "ARCamera.h"
 
-#include <config/CoviseConfig.h>
+#include <OpenConfig/value.h>
 
 #if CV_VERSION_MAJOR >= 5
 #include <opencv2/calib3d.hpp>
@@ -141,6 +141,11 @@ void ARCamera::setCalibrationFilename(const std::string &filename)
 	m_calibrationFilename = filename;
 }
 
+void ARCamera::setConfigFile(std::shared_ptr<opencover::config::File> configFile)
+{
+	m_configFile = configFile;
+}
+
 bool ARCamera::open(int deviceId)
 {
 	close();
@@ -160,15 +165,18 @@ bool ARCamera::open(int deviceId)
 	if (!m_capture.isOpened())
 		return false;
 
-	bool exists = false;
-	const std::string fourcc = covise::coCoviseConfig::getEntry("fourcc", "COVER.Plugin.ARUCO.VideoDevice", "", &exists);
+	const std::string fourcc = m_configFile
+		? m_configFile->value<std::string>("camera", "fourcc", "")->value()
+		: std::string();
 	if (fourcc.length() == 4)
 	{
 		std::cerr << "Setting FOURCC to " << fourcc << std::endl;
 		m_capture.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc(fourcc[0], fourcc[1], fourcc[2], fourcc[3]));
 		std::cerr << "FOURCC: " << m_capture.get(cv::CAP_PROP_FOURCC) << std::endl;
 	}
-	const float fps = covise::coCoviseConfig::getFloat("fps", "COVER.Plugin.ARUCO.VideoDevice", 0.f, &exists);
+	const double fps = m_configFile
+		? m_configFile->value<double>("camera", "fps", 0.0)->value()
+		: 0.0;
 	if (fps > 0.f)
 	{
 		std::cerr << "Setting FPS to " << fps << std::endl;
@@ -176,24 +184,31 @@ bool ARCamera::open(int deviceId)
 		std::cerr << "Frame rate: " << m_capture.get(cv::CAP_PROP_FPS) << std::endl;
 	}
 
-	const int width = static_cast<int>(m_capture.get(cv::CAP_PROP_FRAME_WIDTH));
-	const int height = static_cast<int>(m_capture.get(cv::CAP_PROP_FRAME_HEIGHT));
-	std::cerr << "   current size  = " << width << "x" << height << std::endl;
-	m_width = covise::coCoviseConfig::getInt("width", "COVER.Plugin.ARUCO.VideoDevice", width);
-	m_height = covise::coCoviseConfig::getInt("height", "COVER.Plugin.ARUCO.VideoDevice", height);
+	const int currentWidth = static_cast<int>(m_capture.get(cv::CAP_PROP_FRAME_WIDTH));
+	const int currentHeight = static_cast<int>(m_capture.get(cv::CAP_PROP_FRAME_HEIGHT));
+	std::cerr << "   current size  = " << currentWidth << "x" << currentHeight << std::endl;
+	m_width = m_configFile
+		? static_cast<int>(m_configFile->value<int64_t>("camera", "width", currentWidth)->value())
+		: currentWidth;
+	m_height = m_configFile
+		? static_cast<int>(m_configFile->value<int64_t>("camera", "height", currentHeight)->value())
+		: currentHeight;
 
-	if (m_width != width || m_height != height)
+	if (m_width != currentWidth || m_height != currentHeight)
 	{
 		m_capture.set(cv::CAP_PROP_FRAME_WIDTH, m_width);
 		m_capture.set(cv::CAP_PROP_FRAME_HEIGHT, m_height);
-		if (m_width != width || m_height != height)
+		if (static_cast<int>(m_capture.get(cv::CAP_PROP_FRAME_WIDTH)) != m_width ||
+			static_cast<int>(m_capture.get(cv::CAP_PROP_FRAME_HEIGHT)) != m_height)
 		{
-			m_width = width;
-			m_height = height;
-			std::cerr << "WARNING: could not set capture frame size\n   new size  = " << width << "x" << height << std::endl;
+			m_width = currentWidth;
+			m_height = currentHeight;
+			std::cerr << "WARNING: could not set capture frame size\n   new size  = " << currentWidth << "x" << currentHeight << std::endl;
 		}
 	}
-	const int focus = covise::coCoviseConfig::getInt("Focus", "COVER.Plugin.ARUCO", 35);
+	const int focus = m_configFile
+		? static_cast<int>(m_configFile->value<int64_t>("camera", "focus", 35)->value())
+		: 35;
 	// Disable auto focus to avoid focus hunting during calibration
 	const bool autofocusSet = m_capture.set(cv::CAP_PROP_AUTOFOCUS, 0);
 	// Define manual focus
