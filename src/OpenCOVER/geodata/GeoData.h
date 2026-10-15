@@ -14,6 +14,7 @@
 #include <osg/Vec3d>
 #include <osg/Matrixd>
 #include <osg/PositionAttitudeTransform>
+#include <sigslot/signal.hpp>
 
 #include <util/coExport.h>
 
@@ -71,8 +72,16 @@ public:
      */
     osg::Vec3d projectToGlobal(const osg::Vec3d &projectPosition) const;
 
+    /**
+     * Transform an arbitrary coordinate from any projection (any string gdal
+     * understands, preferably as "EPSG:$code") to reference coorindates.
+     */
+    osg::Vec3d transformFromProjectionToReference(const osg::Vec3d &position, std::string_view projection) const;
+
     void jumpToLocation(const osg::Vec3d &projectPosition);
     void jumpToLocation(const osg::Vec3d &projectPosition, double aboveTerrain);
+
+    sigslot::signal<> projectionChanged;
 
 protected:
 #ifdef HAVE_PROJ

@@ -63,6 +63,7 @@
 #include <string>
 #include "PlaceLabel.h"
 #include "cover/coVRConfig.h"
+#include "VrmlNodeGeoreferenced.h"
 #include <PluginUtil/PluginMessageTypes.h>
 #include <stdio.h>
 #include <utility>
@@ -78,6 +79,8 @@ GeoDataLoader::GeoDataLoader()
 {
     assert(s_instance == nullptr);
     s_instance = this;
+
+    VrmlNamespace::addBuiltIn(VrmlNode::defineType<VrmlNodeGeoreferenced>());
 }
 bool GeoDataLoader::init()
 {
@@ -554,7 +557,7 @@ bool GeoDataLoader::update()
         double farValue = 10 * z; // see 10 times as far as we're high
         farValue = std::clamp(farValue, 1e7, 1e10); // see at least 10km and at most 10_000 km
 
-        double nearValue    = farValue / 1e6;
+        double nearValue = farValue / 1e6;
         nearValue = std::clamp(nearValue, 10.0, 500.0);
         coVRConfig::instance()->setNearFar(nearValue, farValue);
     }

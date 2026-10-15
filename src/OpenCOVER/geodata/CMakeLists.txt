@@ -16,6 +16,7 @@ target_link_libraries(coVRGeoData
     # coConfig
     coOpenCOVER
     ${COVISE_UTIL_LIBRARY}
+    Pal::Sigslot
 )
 
 if(PROJ_FOUND)
