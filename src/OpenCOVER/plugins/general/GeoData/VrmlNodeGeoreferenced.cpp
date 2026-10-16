@@ -31,6 +31,7 @@ void VrmlNodeGeoreferenced::initFields(VrmlNodeGeoreferenced *node, VrmlNodeType
         exposedField("geolocation", &VrmlNodeGeoreferenced::d_geolocation),
         exposedField("geolocationReference", &VrmlNodeGeoreferenced::d_geolocationReference),
         exposedField("fixAxes", &VrmlNodeGeoreferenced::d_fixAxes));
+    VrmlNodeGroup::initFields(node, t);
 }
 
 const char *VrmlNodeGeoreferenced::typeName() { return "Georeferenced"; }

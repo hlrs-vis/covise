@@ -25,7 +25,7 @@
 namespace vrml
 {
 
-class VRMLEXPORT VrmlNodeGeoreferenced : public VrmlNodeGroup
+class VrmlNodeGeoreferenced : public VrmlNodeGroup
 {
 
 public:
@@ -41,9 +41,9 @@ public:
     osg::Quat getRotation();
     osg::Vec3 getTranslation();
 
-    virtual void accumulateTransform(VrmlNode *);
-    virtual void inverseTransform(Viewer *);
-    virtual void inverseTransform(double *mat);
+    virtual void accumulateTransform(VrmlNode *) override;
+    virtual void inverseTransform(Viewer *) override;
+    virtual void inverseTransform(double *mat) override;
 
 protected:
     /// The ENU location at which to place the children's origin.
