@@ -24,6 +24,7 @@ const bool StackTabs = false;
 TUITabFolder::TUITabFolder(int id, int type, QWidget *w, int parent, QString name, QTabWidget *reuseTabWidget)
     : TUIContainer(id, type, w, parent, name)
 {
+    label = name;
     width = -1;
     bool toplevel = parent == 1;
     if (reuseTabWidget)
