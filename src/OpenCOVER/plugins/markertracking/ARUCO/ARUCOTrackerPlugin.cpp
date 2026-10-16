@@ -319,30 +319,26 @@ bool ARUCOPlugin::init()
     opencvThread = std::thread(
         [this]()
         {
-            for (;;)
+            std::unique_lock<std::mutex> guard(opencvMutex);
+            while (opencvRunning)
             {
+                guard.unlock();
+                usleep(10000);
                 try
                 {
-                    if (opencvRunning)
-                    {
-                        opencvLoop();
-                        if (!opencvRunning)
-                            return;
-                    }
-                    else
-                    {
-                        usleep(10000);
-                    }
+                    opencvLoop();
                 }
                 catch (const cv::Exception &ex)
                 {
-                    std::unique_lock<std::mutex> guard(opencvMutex);
+                    guard.lock();
                     opencvRunning = false;
                     //MarkerTracking::instance()->running = false;
-                    guard.unlock();
                     std::cerr << "error: unhandled OpenCV exception " << ex.what()
                               << ", trying to reinitialize ARUCO plugin" << std::endl;
+                    break;
                 }
+
+                guard.lock();
             }
         });
 
@@ -353,6 +349,14 @@ bool ARUCOPlugin::init()
 // ----------------------------------------------------------------------------
 bool ARUCOPlugin::destroy()
 {
+    std::unique_lock<std::mutex> guard(opencvMutex);
+    opencvRunning = false;
+    guard.unlock();
+    if (opencvThread.joinable())
+    {
+        opencvThread.join();
+    }
+
     delete uiMenu;
     MarkerTracking::instance()->videoData = nullptr;
     return true;
