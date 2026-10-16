@@ -30,7 +30,7 @@ public:
         XFORM_BUTTON = 1<<coInteraction::ButtonXform,
         FORWARD_BUTTON = 1<<coInteraction::ButtonForward,
         BACKWARD_BUTTON = 1<<coInteraction::ButtonBack,
-        TOGGLE_DOCUMENTS = 1<coInteraction::ButtonToggleDocuments,
+        TOGGLE_DOCUMENTS = 1<<coInteraction::ButtonToggleDocuments,
         DRAG_BUTTON = 1<<coInteraction::ButtonDrag,
         ZOOM_BUTTON = 1<<coInteraction::ButtonZoom,
         MENU_BUTTON = 1<<coInteraction::ButtonMenu,
