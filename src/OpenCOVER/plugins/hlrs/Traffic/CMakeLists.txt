@@ -24,6 +24,7 @@ set(SOURCES
     Geometry.cpp
     PedestrianGeometry.cpp
     CarGeometry.cpp
+    Connector.cpp
     traffic_utils.cpp
     ConnectorFcd.cpp
     ConnectorTrafficRecording.cpp
