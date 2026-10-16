@@ -4,6 +4,7 @@
 #include <opencv2/core.hpp>
 #include <opencv2/core/version.hpp>
 #include <opencv2/videoio.hpp>
+#include <OpenConfig/file.h>
 
 #if (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR >= 7) || (CV_VERSION_MAJOR >= 5)
 #include <opencv2/objdetect/charuco_detector.hpp>
@@ -16,6 +17,7 @@
 #endif
 
 #include <string>
+#include <memory>
 #include <vector>
 
 class ARCamera
@@ -28,11 +30,13 @@ public:
 	};
 
 	static std::vector<Device> availableDevices();
+	void setConfigFile(std::shared_ptr<opencover::config::File> configFile);
 	void setCalibrationFilename(const std::string &filename);
 	bool open(int deviceId);
 	void close();
 	bool isOpened() const;
 	bool read(cv::Mat &frame);
+	bool setManualFocus(int focus);
 
 	int width() const;
 	int height() const;
@@ -59,6 +63,7 @@ private:
 						   double reprojectionError);
 
 	cv::VideoCapture m_capture;
+	std::shared_ptr<opencover::config::File> m_configFile;
 	cv::Mat m_cameraMatrix;
 	cv::Mat m_distortionCoefficients;
 	std::string m_calibrationFilename;

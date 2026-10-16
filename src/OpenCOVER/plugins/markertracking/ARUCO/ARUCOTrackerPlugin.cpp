@@ -24,8 +24,6 @@
 #include <cover/VRSceneGraph.h>
 #include <cover/RenderObject.h>
 #include <cover/MarkerTracking.h>
-#include <config/CoviseConfig.h>
-#include <config/coConfig.h>
 #include <cover/coVRConfig.h>
 #include "../common/RemoteAR.h"
 #include <cover/VRViewer.h>
@@ -42,6 +40,7 @@
 
 #include <cover/coVRPlugin.h>
 #include <cover/coInteractor.h>
+#include <cover/ui/View.h>
 #include <util/unixcompat.h>
 #include <util/environment.h>
 
@@ -49,6 +48,7 @@
 #include <string>
 #include <algorithm>
 #include <cstdio>
+#include <stdexcept>
 
 using std::cout;
 using std::endl;
@@ -104,7 +104,8 @@ ARUCOPlugin::ARUCOPlugin()
     captureIdx = 0;
     readyIdx = 0;
     displayIdx = 0;
-    camera.setCalibrationFilename(coCoviseConfig::getEntry("value", "COVER.Plugin.ARUCO.CameraCalibrationFile", "~/cameras/default.yaml"));
+    camera.setConfigFile(config());
+    camera.setCalibrationFilename(configString("calibration", "cameraFile", "~/cameras/default.yaml")->value());
 }
 
 ARUCOPlugin::~ARUCOPlugin()
@@ -129,43 +130,32 @@ ARUCOPlugin::~ARUCOPlugin()
 
 bool ARUCOPlugin::initAR()
 {
-    std::cerr << "ARUCO build fingerprint: " << __FILE__ << " " << __DATE__ << " " << __TIME__ << std::endl;
-
     MarkerTracking::instance()->arInterface = this;
     MarkerTracking::instance()->remoteAR = NULL;
 
-    if (coCoviseConfig::isOn("COVER.Plugin.ARUCO.Capture", false))
+    if (configBool("tracking", "capture", false)->value())
     {
 
-        if (coCoviseConfig::isOn("COVER.Plugin.ARUCO.MirrorRight", false))
+        if (configBool("tracking", "mirrorRight", false)->value())
             MarkerTracking::instance()->videoMirrorRight = true;
-        if (coCoviseConfig::isOn("COVER.Plugin.ARUCO.MirrorLeft", false))
+        if (configBool("tracking", "mirrorLeft", false)->value())
             MarkerTracking::instance()->videoMirrorLeft = true;
 
-        MarkerTracking::instance()->flipH = coCoviseConfig::isOn("COVER.Plugin.ARUCO.FlipHorizontal", false);
-        flipBufferH = coCoviseConfig::isOn("COVER.Plugin.ARUCO.FlipBufferH", false);
-        flipBufferV = coCoviseConfig::isOn("COVER.Plugin.ARUCO.FlipBufferV", true);
-        camera.setCalibrationFilename(coCoviseConfig::getEntry(
-            "value",
-            "COVER.Plugin.ARUCO.CameraCalibrationFile",
-            "/home/rosba/covise/cameras/default.yaml"));
+        MarkerTracking::instance()->flipH = configBool("tracking", "flipHorizontal", false)->value();
+        flipBufferH = configBool("tracking", "flipBufferH", false)->value();
+        flipBufferV = configBool("tracking", "flipBufferV", true)->value();
+        camera.setCalibrationFilename(configString("calibration", "cameraFile", "~/cameras/default.yaml")->value());
     }
 
     // --- ADD: ARUCO detector setup ---
     try
     {
-        // ChArUco config from XML
-        const int dictId = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.DictionaryID", 7);
-        const int squaresX = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.SquaresX", 5);
-        const int squaresY = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.SquaresY", 4);
-        float squareLength = coCoviseConfig::getFloat("value", "COVER.Plugin.ARUCO.SquareLength", 0.015f);
-        float markerLength = coCoviseConfig::getFloat("value", "COVER.Plugin.ARUCO.MarkerSquare", 0.009f);
-
-        std::cerr << "ARUCO cfg: dict=" << dictId
-                  << " squares=" << squaresX << "x" << squaresY
-                  << " squareLength=" << squareLength
-                  << " markerLength=" << markerLength << std::endl;
-
+        const int dictId = static_cast<int>(configInt("calibration", "dictionaryId", 7)->value());
+        const int squaresX = static_cast<int>(configInt("calibration", "squaresX", 8)->value());
+        const int squaresY = static_cast<int>(configInt("calibration", "squaresY", 11)->value());
+        float squareLength = static_cast<float>(configFloat("calibration", "squareLength", 0.015)->value());
+        float markerLength = static_cast<float>(configFloat("calibration", "markerLength", 0.011)->value());
+        
         switch (dictId)
         {
         case 0: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_50); break;
@@ -208,8 +198,7 @@ detectorParams->cornerRefinementMethod = cv::aruco::CORNER_REFINE_SUBPIX;
             cv::Size(squaresX, squaresY), squareLength, markerLength, dictionary);
 
         // for boards printed with older OpenCV charuco pattern
-        const bool legacyPattern = coCoviseConfig::isOn("COVER.Plugin.ARUCO.LegacyPattern", true);
-        std::cerr << "LegacyPattern=" << legacyPattern << std::endl;
+        const bool legacyPattern = configBool("calibration", "legacyPattern", true)->value();
         charucoboard->setLegacyPattern(legacyPattern);
 
         cv::aruco::CharucoParameters cparams;
@@ -243,6 +232,7 @@ void ARUCOPlugin::initUI()
 {
     uiMenu = new ui::Menu("uiMenu", this);
     uiMenu->setText("ARUCO");
+    uiMenu->setVisible(true, ui::View::Tablet);
 
     uiBtnDrawDetMarker = new ui::Button(uiMenu, "uiBtnDrawDetMarker");
     uiBtnDrawDetMarker->setText("Draw detected markers");
@@ -281,6 +271,45 @@ void ARUCOPlugin::initUI()
         if (idx >= 0 && idx < static_cast<int>(m_cameraDeviceIds.size()))
             requestCameraSwitch(m_cameraDeviceIds[idx]);
     });
+
+    const int focus = static_cast<int>(configInt("camera", "focus", 35)->value());
+    uiFocusGroup = new ui::Group(uiMenu, "Focus");
+    uiFocusGroup->setText("");
+    uiManualFocus = new ui::EditField(uiFocusGroup, "manualFocus");
+    uiManualFocus->setText("Manual focus");
+    uiManualFocus->setValue(focus);
+
+    uiBtnSaveFocus = new ui::Action(uiFocusGroup, "saveFocus");
+    uiBtnSaveFocus->setText("Apply and save focus");
+    uiBtnSaveFocus->setCallback([this]() { applyAndSaveManualFocus(); });
+}
+
+void ARUCOPlugin::applyAndSaveManualFocus()
+{
+    const std::string value = uiManualFocus->value();
+    size_t parsedCharacters = 0;
+    int requestedFocus;
+    try
+    {
+        requestedFocus = std::stoi(value, &parsedCharacters);
+    }
+    catch (const std::exception &)
+    {
+        std::cerr << "ARUCO: invalid manual focus value '" << value << "'" << std::endl;
+        return;
+    }
+    if (value.find_first_not_of(" \t", parsedCharacters) != std::string::npos || requestedFocus < 0)
+    {
+        std::cerr << "ARUCO: manual focus must be a non-negative integer" << std::endl;
+        return;
+    }
+
+    *configInt("camera", "focus", 35) = requestedFocus;
+    if (!config()->save())
+        std::cerr << "ARUCO: failed to save manual focus " << requestedFocus << std::endl;
+    else
+        std::cerr << "ARUCO: saved manual focus " << requestedFocus << " to " << config()->pathname() << std::endl;
+    requestManualFocus(requestedFocus);
 }
 
 // ----------------------------------------------------------------------------
@@ -305,7 +334,7 @@ bool ARUCOPlugin::init()
     // detect cameras after AR init
     detectCameras();
 
-    const int preferredDevice = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.VideoDevice", -1);
+    const int preferredDevice = static_cast<int>(configInt("camera", "deviceId", -1)->value());
     if (std::find(m_cameraDeviceIds.begin(), m_cameraDeviceIds.end(), preferredDevice) != m_cameraDeviceIds.end())
         switchCamera(preferredDevice);
     else if (!m_cameraDeviceIds.empty())
@@ -410,11 +439,11 @@ void ARUCOPlugin::opencvLoop()
     static int zeroMarkerStreak = 0;
 
     // ADD THIS:
-    const int squaresX = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.SquaresX", 8);
-    const int squaresY = coCoviseConfig::getInt("value", "COVER.Plugin.ARUCO.SquaresY", 11);
-    const float squareLength = coCoviseConfig::getFloat("value", "COVER.Plugin.ARUCO.SquareLength", 0.015f);
-    const float markerLength = coCoviseConfig::getFloat("value", "COVER.Plugin.ARUCO.Marhttps://github.com/opencv/opencv/blob/5.x/samples/cpp/calibration.cppkerSquare", 0.011f);
-    const bool legacyPattern = coCoviseConfig::isOn("COVER.Plugin.ARUCO.LegacyPattern", true);
+    const int squaresX = static_cast<int>(configInt("calibration", "squaresX", 8)->value());
+    const int squaresY = static_cast<int>(configInt("calibration", "squaresY", 11)->value());
+    const float squareLength = static_cast<float>(configFloat("calibration", "squareLength", 0.015)->value());
+    const float markerLength = static_cast<float>(configFloat("calibration", "markerLength", 0.011)->value());
+    const bool legacyPattern = configBool("calibration", "legacyPattern", true)->value();
 
     auto setDictionaryById = [this, squaresX, squaresY, squareLength, markerLength, legacyPattern](int dictId) -> bool
     {
@@ -454,6 +483,20 @@ void ARUCOPlugin::opencvLoop()
         }
         if (req >= 0)
             switchCamera(req);
+
+        int requestedFocus = 0;
+        bool applyFocus = false;
+        {
+            std::lock_guard<std::mutex> g(opencvMutex);
+            if (camera.isOpened() && m_focusChangeRequested)
+            {
+                requestedFocus = m_requestedFocus;
+                m_focusChangeRequested = false;
+                applyFocus = true;
+            }
+        }
+        if (applyFocus)
+            camera.setManualFocus(requestedFocus);
 
         std::unique_lock<std::mutex> guard(opencvMutex);
         if (!opencvRunning)
@@ -658,7 +701,7 @@ void ARUCOPlugin::adjustScreen()
     if (!camera.hasIntrinsics())
         return;
 
-    if (coCoviseConfig::isOn("COVER.Plugin.ARUCO.AdjustScreenParameters", true))
+    if (configBool("display", "adjustScreenParameters", true)->value())
     {
 
         osg::Vec3 viewPos;
@@ -803,6 +846,13 @@ void ARUCOPlugin::requestCameraSwitch(int deviceId)
     m_requestedDevice = deviceId;
 }
 
+void ARUCOPlugin::requestManualFocus(int focus)
+{
+    std::lock_guard<std::mutex> g(opencvMutex);
+    m_requestedFocus = focus;
+    m_focusChangeRequested = true;
+}
+
 void ARUCOPlugin::switchCamera(int deviceId)
 {
     // reject garbage ids
@@ -815,9 +865,8 @@ void ARUCOPlugin::switchCamera(int deviceId)
     if (camera.open(deviceId))
     {
         std::cerr << "ARUCO: switched to camera device " << deviceId << std::endl;
-        auto *config = coConfig::getInstance();
-        config->setValue("value", std::to_string(deviceId), "COVER.Plugin.ARUCO.VideoDevice");
-        if (!config->save())
+        *configInt("camera", "deviceId", -1) = deviceId;
+        if (!config()->save())
             std::cerr << "ARUCO: failed to save default camera device " << deviceId << std::endl;
         MarkerTracking::instance()->running = true;
         MarkerTracking::instance()->videoMode = GL_BGR;

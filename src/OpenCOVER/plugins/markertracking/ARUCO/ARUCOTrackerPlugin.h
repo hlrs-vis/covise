@@ -38,7 +38,9 @@
 #include <cover/ui/Menu.h>
 #include <cover/ui/Button.h>
 #include <cover/ui/Action.h>
+#include <cover/ui/EditField.h>
 #include <cover/ui/SelectionList.h>
+#include <cover/ui/Group.h>
 
 using namespace covise;
 using namespace opencover;
@@ -86,6 +88,9 @@ private:
     ui::Button* uiBtnDrawDetMarker = nullptr;
     ui::Button* uiBtnDrawRejMarker = nullptr;
     ui::Action* uiBtnCalib = nullptr;
+    ui::Group* uiFocusGroup = nullptr;
+    ui::EditField* uiManualFocus = nullptr;
+    ui::Action* uiBtnSaveFocus = nullptr;
     opencover::ui::Action *uiBtnDetectCamera = nullptr;
     opencover::ui::SelectionList *uiCameraDevices = nullptr;
 
@@ -124,8 +129,12 @@ private:
     std::mutex opencvMutex;
     std::thread opencvThread;
     bool opencvRunning = false;
+    int m_requestedFocus = 35;
+    bool m_focusChangeRequested = false;
 
     void opencvLoop();
+    void requestManualFocus(int focus);
+    void applyAndSaveManualFocus();
 
     // charuco board callibration
     // create charuco board object
