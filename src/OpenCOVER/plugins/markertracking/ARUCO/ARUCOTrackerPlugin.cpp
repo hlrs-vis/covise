@@ -48,6 +48,7 @@
 #include <string>
 #include <algorithm>
 #include <cstdio>
+#include <cstdlib>
 #include <stdexcept>
 
 using std::cout;
@@ -91,11 +92,24 @@ struct myMsgbuf
 };
 #endif
 
+namespace
+{
+std::string defaultCalibrationFile()
+{
+    const char *home = std::getenv("HOME");
+    return std::string(home ? home : ".") + "/.config/opencover/cameras/calibration.yaml";
+}
+}
+
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 ARUCOPlugin::ARUCOPlugin()
 : coVRPlugin(COVER_PLUGIN_NAME)
 , ui::Owner("ARUCO", cover->ui)
+, camera(configString("calibration", "cameraFile", defaultCalibrationFile())->value(),
+         config(),
+         static_cast<int>(config()->value<int64_t>("camera", "width", 640)->value()),
+         static_cast<int>(config()->value<int64_t>("camera", "height", 480)->value()))
 {
     OpenGLToOSGMatrix.makeRotate(M_PI / -2.0, 1, 0, 0);
     OSGToOpenGLMatrix.makeRotate(M_PI / 2.0, 1, 0, 0);
@@ -104,8 +118,6 @@ ARUCOPlugin::ARUCOPlugin()
     captureIdx = 0;
     readyIdx = 0;
     displayIdx = 0;
-    camera.setConfigFile(config());
-    camera.setCalibrationFilename(configString("calibration", "cameraFile", "~/cameras/default.yaml")->value());
 }
 
 ARUCOPlugin::~ARUCOPlugin()
@@ -144,7 +156,6 @@ bool ARUCOPlugin::initAR()
         MarkerTracking::instance()->flipH = configBool("tracking", "flipHorizontal", false)->value();
         flipBufferH = configBool("tracking", "flipBufferH", false)->value();
         flipBufferV = configBool("tracking", "flipBufferV", true)->value();
-        camera.setCalibrationFilename(configString("calibration", "cameraFile", "~/cameras/default.yaml")->value());
     }
 
     // --- ADD: ARUCO detector setup ---
