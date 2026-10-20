@@ -6,6 +6,7 @@
 #include <opencv2/videoio.hpp>
 #include <OpenConfig/file.h>
 #include <cover/coVRConfig.h>
+#include <cover/coVRPluginSupport.h>
 
 #if (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR >= 7) || (CV_VERSION_MAJOR >= 5)
 #include <opencv2/objdetect/charuco_detector.hpp>

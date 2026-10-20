@@ -106,7 +106,7 @@ std::string defaultCalibrationFile()
 ARUCOPlugin::ARUCOPlugin()
 : coVRPlugin(COVER_PLUGIN_NAME)
 , ui::Owner("ARUCO", cover->ui)
-, camera(configString("calibration", "cameraFile", defaultCalibrationFile())->value(),
+, camera(configString("camera", "calibrationFile", defaultCalibrationFile())->value(),
          config(),
          static_cast<int>(config()->value<int64_t>("camera", "width", 640)->value()),
          static_cast<int>(config()->value<int64_t>("camera", "height", 480)->value()))

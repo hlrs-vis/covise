@@ -41,6 +41,8 @@ std::string runCommand(const std::string &command)
     return output;
 }
 
+using namespace opencover;
+
 std::string parseCardType(const std::string &v4l2Info)
 {
     std::istringstream stream(v4l2Info);
@@ -241,7 +243,7 @@ bool ARCamera::setManualFocus(int focus)
     {
         std::cerr << " ARUCO WARNING: Camera did not confirm requested focus!" << std::endl;
 
-        if (opencover::coVRConfig::instance()->debugLevel(2))
+        if (cover->debugLevel(2))
         {
             std::cerr << "ARUCO: focus set=" << focusSet
                       << ", autofocus disabled=" << autofocusSet
@@ -406,7 +408,7 @@ void ARCamera::calibrateFrame(const cv::Mat &frame,
     auto refinedMarkerIds = markerIds;
     detector->detectBoard(gray, charucoCorners, charucoIds, refinedMarkerCorners, refinedMarkerIds);
 
-    if (opencover::coVRConfig::instance()->debugLevel(2))
+    if (cover->debugLevel(2))
     {
         std::cerr << "ARUCO calib: detected " << refinedMarkerIds.size() << " markers, "
                   << charucoIds.size() << " ChArUco corners" << std::endl;
@@ -425,13 +427,13 @@ void ARCamera::calibrateFrame(const cv::Mat &frame,
         m_allImages.push_back(frame.clone());
         m_calibrationImageSize = frame.size();
 
-        if (opencover::coVRConfig::instance()->debugLevel(2))
+        if (cover->debugLevel(2))
         {
             std::cerr << "ARUCO calib accepted: " << m_allIds.size() << " (charuco corners=" << numCorners << ")" << std::endl;
         }
     }
 
-    if (opencover::coVRConfig::instance()->debugLevel(2))
+    if (cover->debugLevel(2))
     {
         cv::Mat preview = frame.clone(); // copy image for preview overlay, so that markers are not drawn to the image used for calibration
         if (numCorners > 0)
