@@ -139,3 +139,9 @@ northing = 5402970
 altitude = 216
 trueNorth = -23.5
 
+[[datasets]]
+name = "Kite ground station"
+easting = 507047.64631626336
+northing = 5398555.900845651
+altitude = 450.0
+trueNorth = 0.0
