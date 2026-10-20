@@ -25,6 +25,8 @@
 #include <string_view>
 #include <utility>
 
+using opencover::cover;
+
 namespace
 {
 #ifdef __linux__
