@@ -74,6 +74,11 @@ easting = 507128.7468984433
 northing = 5398535.803118772
 
 [[datasets]]
+name = "PVTest"
+easting = 507127
+northing = 5398536
+
+[[datasets]]
 name = "Thyssen Tower"
 latitude = 48.17916030799162
 longitude = 8.625225717582271
