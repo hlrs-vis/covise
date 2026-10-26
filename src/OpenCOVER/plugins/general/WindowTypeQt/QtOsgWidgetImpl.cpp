@@ -38,13 +38,13 @@ void QtGraphicsWindow::setSyncToVBlank(bool flag)
     if (flag) {
         // Set NVIDIA-specific environment variable for VSync
         // This works with __NV_PRIME_RENDER_OFFLOAD and hybrid GPU setups
-        putenv((char *)"__GL_SYNC_TO_VBLANK=1");
+        setenv("__GL_SYNC_TO_VBLANK", "1", 1);
         if (opencover::cover->debugLevel(2))
             std::cerr << "setSyncToVBlank: Set __GL_SYNC_TO_VBLANK=1 (GPU global)" << std::endl;
     }
     else
     {
-        putenv((char *)"__GL_SYNC_TO_VBLANK=0");
+        setenv("__GL_SYNC_TO_VBLANK", "0", 1);
         if (opencover::cover->debugLevel(2))
             std::cerr << "setSyncToVBlank: Set __GL_SYNC_TO_VBLANK=0 (GPU global)" << std::endl;
     }
