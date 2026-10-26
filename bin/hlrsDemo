@@ -341,6 +341,9 @@ demo 141 "FLOWER" vistle /data/iag/windpark_gagnon/FLOWer_Beispiel_MERIDIONAL/wo
 run_EP() {
 opencover opencover://plugin/Sky /data/mack-research/Europa-Park-Twin/praesentation.wrl
 }
+run_salzburg() {
+cd /data/Salzburg ; opencover opencover://plugin/GLTF praesentation.wrl
+}
 demo 142 "EuropaPark" run_EP
 category="Aero"
 demo 143 "MDA1" covise /data/Kasaero/Aero_2026_Demos/Kasaero/run_6/MDA1.net
@@ -351,6 +354,7 @@ opencover /data/Geodata/airplane.wrl opencover://plugin/JSBSim
 }
 demo 146 "Flugtraining BW" run_fly
 demo 147 "Neckarwelle" covise /data/Neckarwelle/nw1/nw.net
+demo 148 "salzburg" run_salzburg
 
 # COVISE BACKUP
 category="COVISE_BACKUP"
