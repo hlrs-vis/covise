@@ -546,12 +546,11 @@ bool OpenCOVER::init()
             {
                 fprintf(stderr, "\nUsing '%s' as main Display\n", envDisplay);
             }
-            putenv(envDisplay);
+            setenv("DISPLAY", envDisplay + strlen("DISPLAY="), 1);
         }
         else if (!getenv("DISPLAY"))
         {
-            strcpy(envDisplay, "DISPLAY=:0");
-            putenv(envDisplay);
+            setenv("DISPLAY", ":0", 1);
         }
     }
     coVRConfig::instance()->m_useDISPLAY = useDISPLAY;
@@ -562,7 +561,8 @@ bool OpenCOVER::init()
         {
             fprintf(stderr, "Setting '%s' in order to prefer X11/Xwayland over Wayland for Qt windows\n", platform);
         }
-        putenv(platform);
+        setenv("QT_QPA_PLATFORM", "xcb", 1);
+        free(platform);
     }
 #endif
 #endif
@@ -571,33 +571,27 @@ bool OpenCOVER::init()
     int fsaa = coCoviseConfig::getInt("COVER.FSAAMode", -1);
     if (fsaa >= 0)
     {
-        char *envStr = new char[200];
-        sprintf(envStr, "__GL_FSAA_MODE=%d", fsaa);
-        putenv(envStr);
+        setenv("__GL_FSAA_MODE", std::to_string(fsaa).c_str(), 1);
     }
     int AnisotropicFiltering = coCoviseConfig::getInt("COVER.AnisotropicFiltering", -1);
     if (AnisotropicFiltering >= 0)
     {
-        char *envStr = new char[200];
-        sprintf(envStr, "__GL_LOG_MAX_ANISO=%d", AnisotropicFiltering);
-        putenv(envStr);
+        setenv("__GL_LOG_MAX_ANISO", std::to_string(AnisotropicFiltering).c_str(), 1);
     }
     if (coCoviseConfig::isOn("COVER.SyncToVBlank", false))
     {
-        putenv((char *)"__GL_SYNC_TO_VBLANK=1");
+        setenv("__GL_SYNC_TO_VBLANK", "1", 1);
         fprintf(stderr,"__GL_SYNC_TO_VBLANK=1\n");
     }
     else
     {
-        putenv((char *)"__GL_SYNC_TO_VBLANK=0");
+        setenv("__GL_SYNC_TO_VBLANK", "0", 1);
         fprintf(stderr,"__GL_SYNC_TO_VBLANK=0\n");
 	}
     std::string syncDevice = coCoviseConfig::getEntry("device", "COVER.SyncToVBlank");
     if (!syncDevice.empty())
     {
-        char *envString = new char[strlen(syncDevice.c_str()) + 60];
-        sprintf(envString, "__GL_SYNC_DISPLAY_DEVICE=%s", syncDevice.c_str());
-        putenv(envString);
+        setenv("__GL_SYNC_DISPLAY_DEVICE", syncDevice.c_str(), 1);
     }
 #endif
 
@@ -1575,7 +1569,7 @@ OpenCOVER::readConfigFile()
     if (!line.empty())
     {
         snprintf(envOsgNotifyLevel, sizeof(envOsgNotifyLevel), "OSG_NOTIFY_LEVEL=%s", line.c_str());
-        putenv(envOsgNotifyLevel);
+        setenv("OSG_NOTIFY_LEVEL", line.c_str(), 1);
         /* ALWAYS
       FATAL
       WARN
