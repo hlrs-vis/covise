@@ -20,6 +20,7 @@
 
 #include "Infobox.h"
 
+#include <OpenVRUI/coColoredBackground.h>
 #include <OpenVRUI/coFlatPanelGeometry.h>
 #include <OpenVRUI/coPanel.h>
 #include <OpenVRUI/coFrame.h>
@@ -81,7 +82,12 @@ bool Infobox::init()
     m_popupHandle->setPos(-40, 0, -40); // ??
 
     m_frame = new vrui::coFrame("UI/Frame");
+
+    m_container = new vrui::coRowContainer();
+    m_container->setOrientation(vrui::coRowContainer::VERTICAL);
+
     // m_panel = new coPanel(new vrui::coFlatPanelGeometry(vrui::coUIElement::BLACK));
+    m_background = new vrui::coColoredBackground(vrui::coUIElement::BLACK, vrui::coUIElement::BLACK, vrui::coUIElement::BLACK);
     m_imageBackground = new vrui::coTexturedBackground(nullptr, nullptr, nullptr, 3, 0, 0, 0);
 
     float px = 0;
@@ -106,8 +112,21 @@ bool Infobox::init()
     // m_infobox->setPos(0, 0, 0);
 
     m_popupHandle->addElement(m_frame);
-    m_frame->addElement(m_imageBackground);
+    m_frame->addElement(m_background);
+    m_background->addElement(m_container);
+    m_container->addElement(m_imageBackground);
+
+    m_valueRowContainer = new vrui::coRowContainer();
+    m_valueLabelLabel = new vrui::coLabel("Value:");
+    m_valueLabel = new vrui::coLabel("n/a");
+    m_valueRowContainer->setHgap(20);
+    m_valueRowContainer->addElement(m_valueLabelLabel);
+    m_valueRowContainer->addElement(m_valueLabel);
+    m_container->addElement(m_valueRowContainer);
+    m_valueRowContainer->setVisible(false);
+
     m_popupHandle->setVisible(false);
+    m_frame->fitToParent();
 
     return true;
 }
@@ -120,43 +139,78 @@ Infobox::~Infobox()
     delete m_popupHandle;
 }
 
-void Infobox::setContents(std::string_view imageUrl)
+void Infobox::setImage(std::optional<std::string_view> imageUrl)
 {
-    if (imageUrl.empty())
-        hide();
-    else
-        show();
+    bool valid = imageUrl && !imageUrl->empty();
 
-    auto s = coVRFileManager::instance()->getName(std::string(imageUrl).c_str());
-    if (s)
+    const char *foundFile;
+    if (valid)
     {
-        osg::Image *image = osgDB::readImageFile(s);
-        std::cout << "Loaded image " << image->s() << "x" << image->t() << "x" << image->r() << " at " << imageUrl << std::endl;
-
-        float width = image->s();
-        float height = image->t();
-
-        m_imageBackground->setImage((uint *)image->data(), NULL, NULL, image->getPixelSizeInBits() / 8, image->s(), image->t(), image->r());
-        m_imageBackground->setTexSize(width, height);
-        m_imageBackground->setSize(width, height, 0);
-        m_imageBackground->setMinWidth(width);
-        m_imageBackground->setMinHeight(height);
-        m_imageBackground->setUpdated(true);
+        foundFile = coVRFileManager::instance()->getName(std::string(*imageUrl).c_str());
+        if (!foundFile)
+        {
+            std::cout << "[Infobox.imageUrl] File not found: " << *imageUrl << std::endl;
+            valid = false;
+        }
     }
-    else
+
+    if (!valid)
     {
-        std::cout << "[Infobox.imageUrl] File not found: " << imageUrl << std::endl;
+        m_hasImage = false;
+        autoHideShow();
+        return;
     }
+
+    osg::Image *image = osgDB::readImageFile(foundFile);
+    std::cout << "Loaded image " << image->s() << "x" << image->t() << "x" << image->r() << " at " << *imageUrl << std::endl;
+
+    float width = image->s();
+    float height = image->t();
+
+    m_imageBackground->setImage((uint *)image->data(), NULL, NULL, image->getPixelSizeInBits() / 8, image->s(), image->t(), image->r());
+    m_imageBackground->setTexSize(width, height);
+    m_imageBackground->setSize(width, height, 0);
+    m_imageBackground->setMinWidth(width);
+    m_imageBackground->setMinHeight(height);
+    m_imageBackground->setUpdated(true);
+
+    m_hasImage = true;
+    autoHideShow();
+
     // TODO: do not leak image, clean up
 }
 
-void Infobox::show()
+void Infobox::setValue(std::optional<double> value, std::optional<std::string_view> unit)
 {
-    m_popupHandle->setVisible(true);
+    if (value)
+    {
+        int significant = 3;
+        int decimals = std::max(0, significant - (int)std::floor(std::log10(*value)));
+
+        std::stringstream ss;
+        ss << std::fixed << std::setprecision(decimals) << *value;
+        if (unit)
+        {
+            ss << ' ' << *unit;
+        }
+        m_valueLabel->setString(ss.str());
+        m_hasValue = true;
+    }
+    else
+    {
+        m_valueLabel->setString("");
+        m_hasValue = false;
+    }
+    autoHideShow();
 }
-void Infobox::hide()
+
+void Infobox::autoHideShow()
 {
-    m_popupHandle->setVisible(false);
+    m_valueRowContainer->setVisible(m_hasValue);
+    m_imageBackground->setVisible(m_hasImage);
+    m_popupHandle->setVisible(m_hasValue || m_hasImage);
+
+    m_frame->fitToParent();
 }
 
 COVERPLUGIN(Infobox)

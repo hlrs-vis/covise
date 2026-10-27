@@ -48,7 +48,7 @@ void VrmlNodeInfobox::setImageUrl(std::string_view url)
 
     if (url.empty())
     {
-        infobox->hide();
+        infobox->setImage(std::nullopt);
         return;
     }
 
@@ -58,6 +58,5 @@ void VrmlNodeInfobox::setImageUrl(std::string_view url)
         path = std::filesystem::path(m_relativeUrl).parent_path() / path;
     }
 
-    infobox->setContents(path.string());
-    infobox->show();
+    infobox->setImage(path.string());
 }
