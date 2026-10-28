@@ -73,6 +73,10 @@
 #define DEFAULT_DELTA 0.5
 #endif
 
+// clang-format off
+#define CERR_CACHE if (true) {} else std::cerr
+// clang-format on
+
 namespace vrml
 {
 bool headlightEnabled;
@@ -1730,7 +1734,7 @@ void VrmlScene::storeCachedInline(const char *url, const char *pathname, const V
     std::string cachefile = System::the->getCacheName(url, pathname);
     if (cachefile.empty())
         return;
-    std::cerr << "Cache store: " << pathname << " -> " << cachefile << std::endl;
+    CERR_CACHE << "Cache store: " << pathname << " -> " << cachefile << std::endl;
     System::the->storeInline(cachefile.c_str(), d_viewerObject);
 }
 
@@ -1745,7 +1749,7 @@ Viewer::Object VrmlScene::getCachedInline(const char *url, const char *pathname)
     {
         if (pathname != NULL)
         {
-            std::cerr << "Cache reject: no cachefile name: " << pathname << " -> " << cachefile << std::endl;
+            CERR_CACHE << "Cache reject: no cachefile name: " << pathname << " -> " << cachefile << std::endl;
         }
         return 0L;
     }
@@ -1759,7 +1763,7 @@ Viewer::Object VrmlScene::getCachedInline(const char *url, const char *pathname)
 #endif
     if (ret != 0)
     {
-        std::cerr << "Cache reject: failed to stat cache: " << pathname << " -> " << cachefile << std::endl;
+        CERR_CACHE << "Cache reject: failed to stat cache: " << pathname << " -> " << cachefile << std::endl;
         return 0L;
     }
 
@@ -1772,7 +1776,7 @@ Viewer::Object VrmlScene::getCachedInline(const char *url, const char *pathname)
 #endif
         if (ret != 0)
         {
-            std::cerr << "Cache reject: failed to stat Inline: " << pathname << " -> " << cachefile << std::endl;
+            CERR_CACHE << "Cache reject: failed to stat Inline: " << pathname << " -> " << cachefile << std::endl;
             return 0L;
         }
 
@@ -1787,12 +1791,12 @@ Viewer::Object VrmlScene::getCachedInline(const char *url, const char *pathname)
             || (sbufInline.st_mtim.tv_sec == sbufCached.st_mtim.tv_sec && sbufInline.st_mtim.tv_nsec > sbufCached.st_mtim.tv_nsec))
 #endif
         {
-            std::cerr << "Cache reject: too old: " << pathname << " -> " << cachefile << std::endl;
+            CERR_CACHE << "Cache reject: too old: " << pathname << " -> " << cachefile << std::endl;
             return 0L;
         }
     }
 
-    std::cerr << "Cache load: " << pathname << " -> " << cachefile << std::endl;
+    CERR_CACHE << "Cache load: " << pathname << " -> " << cachefile << std::endl;
     return System::the->getInline(cachefile.c_str());
 }
 
@@ -1823,7 +1827,7 @@ InlineCache::InlineCache(const char *vrmlfile)
             {
                 if (!feof(fp))
                 {
-                    std::cerr << "InlineCache::InlineCache: fgets failed" << std::endl;
+                    CERR_CACHE << "InlineCache::InlineCache: fgets failed" << std::endl;
                     fclose(fp);
                     return;
                 }
@@ -1833,7 +1837,7 @@ InlineCache::InlineCache(const char *vrmlfile)
                 retval_sscanf = sscanf(buf, "%s %s %d", url, fn, &time);
                 if (retval_sscanf != 3)
                 {
-                    std::cerr << "InlineCache::InlineCache: sscanf failed" << std::endl;
+                    CERR_CACHE << "InlineCache::InlineCache: sscanf failed" << std::endl;
                     fclose(fp);
                     return;
                 }
