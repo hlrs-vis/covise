@@ -103,7 +103,7 @@ VrmlScene::VrmlScene(const char *sceneUrl, const char *localCopy)
     , oldNi(0)
     , resetVPFlag(true)
     , d_WasEncrypted(false)
-	, d_loadSuccess(false)
+    , d_loadSuccess(false)
 {
     d_nodes.addToScene(this, sceneUrl);
     d_backgrounds = new VrmlNodeList;
@@ -133,14 +133,14 @@ VrmlScene::VrmlScene(const char *sceneUrl, const char *localCopy)
         {
             cache = new InlineCache(localCopy);
         }
-		if (!load(sceneUrl, localCopy))
-		{
-			System::the->error("VRMLScene: Couldn't load '%s'.\n", sceneUrl);
-		}
-		else
-		{
-			d_loadSuccess = true;
-		}
+        if (!load(sceneUrl, localCopy))
+        {
+            System::the->error("VRMLScene: Couldn't load '%s'.\n", sceneUrl);
+        }
+        else
+        {
+            d_loadSuccess = true;
+        }
     }
 }
 
@@ -151,11 +151,11 @@ void VrmlScene::setMenuVisible(bool vis)
 
 VrmlScene::~VrmlScene()
 {
-	if (d_namespace != NULL)
-	{
-		VrmlNamespace::resetNamespaces(d_namespace->getNumber().first);
-	}
-	System::the->destroyMenu();
+    if (d_namespace != NULL)
+    {
+        VrmlNamespace::resetNamespaces(d_namespace->getNumber().first);
+    }
+    System::the->destroyMenu();
     d_nodes.addToScene(0, 0);
     d_nodes.removeChildren();
 
@@ -173,8 +173,8 @@ VrmlScene::~VrmlScene()
     delete d_navigationInfos;
     delete d_viewpoints;
 
-    //delete viewpointMenu;
-    //delete cbg;
+    // delete viewpointMenu;
+    // delete cbg;
 
     delete d_scopedLights;
     delete d_scripts;
@@ -257,7 +257,7 @@ void VrmlScene::destroyWorld()
 // Replace nodes
 
 void VrmlScene::replaceWorld(VrmlMFNode &nodes, VrmlNamespace *ns,
-                             Doc *url, Doc *urlLocal)
+    Doc *url, Doc *urlLocal)
 {
     System::the->debug("replaceWorld( url %s )\n", url->url().c_str());
 
@@ -322,7 +322,7 @@ void VrmlScene::replaceWorld(VrmlMFNode &nodes, VrmlNamespace *ns,
 }
 
 void VrmlScene::addWorld(VrmlMFNode &nodes, VrmlNamespace *ns,
-                         Doc *url, Doc *urlLocal)
+    Doc *url, Doc *urlLocal)
 {
     System::the->debug("addWorld( url %s )\n", url->url().c_str());
 
@@ -404,7 +404,7 @@ bool VrmlScene::load(const char *url, const char *localCopy, bool replace)
         return true;
     }
 
-    //std::cerr << "VrmlScene::load(url=" << (url?url:"<null>") << ", localCopy=" << (localCopy?localCopy:"<null>") << ")" << std::endl;
+    // std::cerr << "VrmlScene::load(url=" << (url?url:"<null>") << ", localCopy=" << (localCopy?localCopy:"<null>") << ")" << std::endl;
 
     // Try to load a file. Prefer a local copy if available.
     Doc *tryUrl;
@@ -413,8 +413,7 @@ bool VrmlScene::load(const char *url, const char *localCopy, bool replace)
     else
     {
         tryUrl = new Doc(url, d_url);
-    }
-	;
+    };
     VrmlNamespace *newScope = new VrmlNamespace(System::the->getFileId(url));
     bool wasEncrypted = false;
     VrmlMFNode *newNodes = readWrl(tryUrl, newScope, &wasEncrypted);
@@ -461,12 +460,12 @@ bool VrmlScene::load(const char *url, const char *localCopy, bool replace)
 
 bool VrmlScene::isWrl(const std::string &filename)
 {
-    for (std::string ending: {".wrl", ".wrz", ".vrml", ".vrml.gz", ".wrl.gz", ".x3dv", ".x3dv.gz", ".x3dvz"})
+    for (std::string ending : { ".wrl", ".wrz", ".vrml", ".vrml.gz", ".wrl.gz", ".x3dv", ".x3dv.gz", ".x3dvz" })
     {
         auto len = ending.length();
         if (filename.length() < len)
             continue;
-        std::string tail = filename.substr(filename.length()-ending.length());
+        std::string tail = filename.substr(filename.length() - ending.length());
         std::transform(tail.begin(), tail.end(), tail.begin(), ::tolower);
         if (tail == ending)
             return true;
@@ -475,20 +474,20 @@ bool VrmlScene::isWrl(const std::string &filename)
 }
 
 VrmlMFNode *VrmlScene::readWrl(VrmlMFString *urls, Doc *relative,
-                               VrmlNamespace *ns, bool *encrypted)
+    VrmlNamespace *ns, bool *encrypted)
 {
     Doc url;
     int i, n = urls->size();
     for (i = 0; i < n; ++i)
     {
-        //System::the->debug("Trying to read url '%s'\n", urls->get(i));
+        // System::the->debug("Trying to read url '%s'\n", urls->get(i));
         url.seturl(urls->get(i), relative);
         VrmlMFNode *kids = VrmlScene::readWrl(&url, ns, encrypted);
         if (kids)
             return kids;
         else if (i < n - 1 && strncmp(urls->get(i), "urn:", 4))
             System::the->warn("Couldn't read url '%s': %s\n",
-                              urls->get(i), strerror(errno));
+                urls->get(i), strerror(errno));
     }
 
     return nullptr;
@@ -557,7 +556,7 @@ void DecryptVrmlBuffer()
     vector<unsigned char> key = Keyfile::getKey();
 #ifdef HAVE_CRYPTOPP
     CryptoPP::StringSource(&encryptedBuffer[0], encryptedBuffer.size(), true,
-                           new CryptoPP::DefaultDecryptorWithMAC(&key[0], key.size(), new CryptoPP::StringSink(decryptedString)));
+        new CryptoPP::DefaultDecryptorWithMAC(&key[0], key.size(), new CryptoPP::StringSink(decryptedString)));
 #endif
     InitVrmlBuffer(decryptedString.c_str(), (int)decryptedString.length());
 }
@@ -628,7 +627,7 @@ VrmlMFNode *VrmlScene::readWrl(Doc *tryUrl, VrmlNamespace *ns, bool *encrypted)
 #else
         readBytes = fread(&magic, 1, sizeof(magic), YYIN);
 #endif
-        if (readBytes<0)
+        if (readBytes < 0)
         {
             std::cerr << "VrmlScene: read failed" << std::endl;
         }
@@ -664,7 +663,7 @@ VrmlMFNode *VrmlScene::readWrl(Doc *tryUrl, VrmlNamespace *ns, bool *encrypted)
 #endif
             if (magicP[0] == 0xef && magicP[1] == 0xbb && magicP[2] == 0xbf)
             {
-                //we have an utf8 with BOM, skip three characters
+                // we have an utf8 with BOM, skip three characters
 #if HAVE_LIBPNG
                 readBytes = gzread(YYIN, &magic, 3);
 #else
@@ -675,18 +674,18 @@ VrmlMFNode *VrmlScene::readWrl(Doc *tryUrl, VrmlNamespace *ns, bool *encrypted)
             VrmlNamespace nodeDefs;
             if (ns)
                 yyNodeTypes = ns;
-			
+
             else
                 yyNodeTypes = &nodeDefs;
 
             yyDocument = tryUrl;
             yyParsedNodes = 0;
-            //double StartTime=System::the->realTime(); // if a release and debug are mixed strdup followed by free causes a segfault on windows
-            //char *file = strdup(tryUrl->url());
-            //fprintf(stderr,"parsing %s: ", basename(file));
-            //free(file);
-            //char *tmp = (char *)malloc(12);
-            //free(tmp);
+            // double StartTime=System::the->realTime(); // if a release and debug are mixed strdup followed by free causes a segfault on windows
+            // char *file = strdup(tryUrl->url());
+            // fprintf(stderr,"parsing %s: ", basename(file));
+            // free(file);
+            // char *tmp = (char *)malloc(12);
+            // free(tmp);
             fflush(stderr);
 #if HAVE_LIBPNG
             yyrestart(NULL);
@@ -694,7 +693,7 @@ VrmlMFNode *VrmlScene::readWrl(Doc *tryUrl, VrmlNamespace *ns, bool *encrypted)
             yyrestart(YYIN);
 #endif
             yyparse();
-            //fprintf(stderr,"%g s\n",System::the->realTime() -StartTime);
+            // fprintf(stderr,"%g s\n",System::the->realTime() -StartTime);
 
             yyNodeTypes = 0;
             yyDocument = 0;
@@ -732,7 +731,7 @@ bool VrmlScene::loadFromString(const char *vrmlString)
 // Read VRML from a string and return the (valid) nodes.
 
 VrmlMFNode *VrmlScene::readString(const char *vrmlString,
-                                  VrmlNamespace *ns, Doc *relative)
+    VrmlNamespace *ns, Doc *relative)
 {
     VrmlMFNode *result = 0;
 
@@ -821,7 +820,7 @@ VrmlNodeType *VrmlScene::readPROTO(VrmlMFString *urls, Doc *relative, int parent
 
     for (i = 0; i < n; ++i)
     {
-        //System::the->debug("Trying to read url '%s'\n", urls->get(i));
+        // System::the->debug("Trying to read url '%s'\n", urls->get(i));
         urlDoc.seturl(urls->get(i), relative);
         VrmlMFNode *kids = VrmlScene::readWrl(&urlDoc, protos);
         if (kids)
@@ -841,7 +840,7 @@ VrmlNodeType *VrmlScene::readPROTO(VrmlMFString *urls, Doc *relative, int parent
         }
         else if (i < n - 1 && strncmp(urls->get(i), "urn:", 4))
             System::the->warn("Couldn't read EXTERNPROTO url '%s': %s\n",
-                              urls->get(i), strerror(errno));
+                urls->get(i), strerror(errno));
     }
 
     return def;
@@ -907,9 +906,9 @@ void VrmlScene::queueReplaceNodes(VrmlMFNode *nodes, VrmlNamespace *ns)
 // overwritten.
 
 void VrmlScene::queueEvent(double timeStamp,
-                           VrmlField *value,
-                           VrmlNode *toNode,
-                           const char *toEventIn)
+    VrmlField *value,
+    VrmlNode *toNode,
+    const char *toEventIn)
 {
     Event *e = &d_eventMem[d_lastEvent];
     e->timeStamp = timeStamp;
@@ -955,15 +954,15 @@ void VrmlScene::flushEvents()
 // an enabled TouchSensor child).
 
 void VrmlScene::sensitiveEvent(void *object,
-                               double timeStamp,
-                               bool isOver, bool isActive,
-                               double *point, double *M)
+    double timeStamp,
+    bool isOver, bool isActive,
+    double *point, double *M)
 {
     VrmlNode *n = (VrmlNode *)object;
 
     if (n)
     {
-        //cerr << "event for " << n->name() << endl;
+        // cerr << "event for " << n->name() << endl;
         VrmlNodeAnchor *a = n->as<VrmlNodeAnchor>();
         if (a)
         {
@@ -973,7 +972,7 @@ void VrmlScene::sensitiveEvent(void *object,
             {
                 d_sensorEventQueue->addEvent(n, timeStamp, isOver, isActive, point);
                 a->activate();
-                //System::the->inform("");
+                // System::the->inform("");
             }
             else if (isOver)
             {
@@ -983,42 +982,42 @@ void VrmlScene::sensitiveEvent(void *object,
                     System::the->inform("%s (%s)", description, url);
                 else if (description || url)
                     System::the->inform("%s", description ? description : url);
-                //else
-                //System::the->inform("");
+                // else
+                // System::the->inform("");
             }
-            //else
-            //System::the->inform("");
+            // else
+            // System::the->inform("");
         }
 
         // The parent grouping node is registered for Touch/Drag Sensors
         else
         {
-            //cerr << "local Event for Node " << n->name() <<"|" <<  isOver <<"|" << isActive <<"|" << point[0] <<"|" << timeStamp <<endl;
+            // cerr << "local Event for Node " << n->name() <<"|" <<  isOver <<"|" << isActive <<"|" << point[0] <<"|" << timeStamp <<endl;
             d_sensorEventQueue->addEvent(n, timeStamp, isOver, isActive, point);
             VrmlNodeGroup *g = n->as<VrmlNodeGroup>();
             if (g)
             {
-                //System::the->inform("");
+                // System::the->inform("");
                 g->activate(timeStamp, isOver, isActive, point, M);
                 setModified();
             }
         }
     }
 
-    //else
-    //System::the->inform("");
+    // else
+    // System::the->inform("");
 }
 
 void VrmlScene::remoteSensitiveEvent(void *object,
-                                     double timeStamp,
-                                     bool isOver, bool isActive,
-                                     double *point, double *M)
+    double timeStamp,
+    bool isOver, bool isActive,
+    double *point, double *M)
 {
     VrmlNode *n = (VrmlNode *)object;
 
     if (n)
     {
-        //cerr << "event for " << n->name() << endl;
+        // cerr << "event for " << n->name() << endl;
         VrmlNodeAnchor *a = n->as<VrmlNodeAnchor>();
         if (a)
         {
@@ -1027,7 +1026,7 @@ void VrmlScene::remoteSensitiveEvent(void *object,
             if (isActive && isOver)
             {
                 a->activate();
-                //System::the->inform("");
+                // System::the->inform("");
             }
             else if (isOver)
             {
@@ -1037,11 +1036,11 @@ void VrmlScene::remoteSensitiveEvent(void *object,
                     System::the->inform("%s (%s)", description, url);
                 else if (description || url)
                     System::the->inform("%s", description ? description : url);
-                //else
-                //System::the->inform("");
+                // else
+                // System::the->inform("");
             }
-            //else
-            //System::the->inform("");
+            // else
+            // System::the->inform("");
         }
 
         // The parent grouping node is registered for Touch/Drag Sensors
@@ -1050,16 +1049,16 @@ void VrmlScene::remoteSensitiveEvent(void *object,
             VrmlNodeGroup *g = n->as<VrmlNodeGroup>();
             if (g)
             {
-                //cerr << "remote Event for Node " << n->name() <<"|" <<  isOver <<"|" << isActive <<"|" << point[0] <<"|" << timeStamp <<endl;
-                //System::the->inform("");
+                // cerr << "remote Event for Node " << n->name() <<"|" <<  isOver <<"|" << isActive <<"|" << point[0] <<"|" << timeStamp <<endl;
+                // System::the->inform("");
                 g->activate(timeStamp, isOver, isActive, point, M);
                 setModified();
             }
         }
     }
 
-    //else
-    //System::the->inform("");
+    // else
+    // System::the->inform("");
 }
 
 //
@@ -1128,12 +1127,12 @@ bool VrmlScene::update(double timeStamp)
         if (this != n->scene())
         {
             System::the->debug("VrmlScene::update: %s::%s is not in the scene graph yet.\n",
-                               n->nodeType()->getName(), n->name());
+                n->nodeType()->getName(), n->name());
             n->addToScene((VrmlScene *)this, urlDoc()->url().c_str());
         }
         n->eventIn(e->timeStamp, e->toEventIn, e->value);
-        //fprintf(stderr, "VrmlScene::eventIn: %s::%s\n", n->nodeType()->getName(), n->name());
-        // this needs to change if event values are shared...
+        // fprintf(stderr, "VrmlScene::eventIn: %s::%s\n", n->nodeType()->getName(), n->name());
+        //  this needs to change if event values are shared...
 
         if (e == &d_eventMem[d_firstEvent])
         { // if d_firstEvent has changed this event has already been deleted, then we should not do so again
@@ -1215,17 +1214,17 @@ void VrmlScene::render(Viewer *viewer)
         {
             vp->getPosition(position, orientation);
         }
-        //cerr << " position "<<  position[0] << ";"<<  position[1] << ";"<<  position[2] << ";"<<  endl;
-        //cerr << " orientation "<<  orientation[0] << ";"<<  orientation[1] << ";"<<  orientation[2] << ";"<<orientation[3] << ";"<<  endl;
+        // cerr << " position "<<  position[0] << ";"<<  position[1] << ";"<<  position[2] << ";"<<  endl;
+        // cerr << " orientation "<<  orientation[0] << ";"<<  orientation[1] << ";"<<  orientation[2] << ";"<<orientation[3] << ";"<<  endl;
 
-        //vp->inverseTransform(viewer);
+        // vp->inverseTransform(viewer);
     }
 
     VrmlNodeNavigationInfo *ni = bindableNavigationInfoTop();
     if (ni)
     {
         avatarWidth = ni->avatarSize()[0];
-        avatarSize = ni->avatarSize()[1] * 120; //64;
+        avatarSize = ni->avatarSize()[1] * 120; // 64;
         if (avatarSize == 0)
             avatarSize = 160;
         if (avatarWidth == 0)
@@ -1286,11 +1285,11 @@ void VrmlScene::render(Viewer *viewer)
         cerr << "reset Viewpoint" << endl;
         resetVPFlag = false;
         viewer->setViewpoint(position, orientation, -100000,
-                             avatarSize, visibilityLimit, vpType, scaleFactor);
+            avatarSize, visibilityLimit, vpType, scaleFactor);
     }
 
     viewer->setViewpoint(position, orientation, field,
-                         avatarSize, visibilityLimit, vpType, scaleFactor);
+        avatarSize, visibilityLimit, vpType, scaleFactor);
 
     // Set background.
     VrmlNodeBackground *bg = bindableBackgroundTop();
@@ -1725,7 +1724,7 @@ void VrmlScene::removeAudioClip(VrmlNodeAudioClip *audio_clip)
 void VrmlScene::storeCachedInline(const char *url, const char *pathname, const Viewer::Object d_viewerObject)
 {
     if (System::the->getCacheMode() != System::CACHE_CREATE
-            && System::the->getCacheMode() != System::CACHE_REWRITE)
+        && System::the->getCacheMode() != System::CACHE_REWRITE)
         return;
 
     std::string cachefile = System::the->getCacheName(url, pathname);
@@ -1738,16 +1737,16 @@ void VrmlScene::storeCachedInline(const char *url, const char *pathname, const V
 Viewer::Object VrmlScene::getCachedInline(const char *url, const char *pathname)
 {
     if (System::the->getCacheMode() == System::CACHE_DISABLE
-            || System::the->getCacheMode() == System::CACHE_REWRITE)
+        || System::the->getCacheMode() == System::CACHE_REWRITE)
         return 0L;
 
     std::string cachefile = System::the->getCacheName(url, pathname);
     if (cachefile.empty())
     {
-		if (pathname != NULL)
-		{
-			std::cerr << "Cache reject: no cachefile name: " << pathname << " -> " << cachefile << std::endl;
-		}
+        if (pathname != NULL)
+        {
+            std::cerr << "Cache reject: no cachefile name: " << pathname << " -> " << cachefile << std::endl;
+        }
         return 0L;
     }
 
@@ -1782,10 +1781,10 @@ Viewer::Object VrmlScene::getCachedInline(const char *url, const char *pathname)
 #endif
 
 #ifdef WIN32
-		if (sbufInline.st_mtime > sbufCached.st_mtime)
+        if (sbufInline.st_mtime > sbufCached.st_mtime)
 #else
         if (sbufInline.st_mtim.tv_sec > sbufCached.st_mtim.tv_sec
-                || (sbufInline.st_mtim.tv_sec == sbufCached.st_mtim.tv_sec && sbufInline.st_mtim.tv_nsec > sbufCached.st_mtim.tv_nsec))
+            || (sbufInline.st_mtim.tv_sec == sbufCached.st_mtim.tv_sec && sbufInline.st_mtim.tv_nsec > sbufCached.st_mtim.tv_nsec))
 #endif
         {
             std::cerr << "Cache reject: too old: " << pathname << " -> " << cachefile << std::endl;
@@ -1807,7 +1806,7 @@ InlineCache::InlineCache(const char *vrmlfile)
     std::stringstream str;
     str << directory << "/cache_" << fileBase << ".cache";
     cacheIndexName = str.str();
-    //std::cerr << "InlineCache(file=" << vrmlfile << ") -> " << cacheIndexName << std::endl;
+    // std::cerr << "InlineCache(file=" << vrmlfile << ") -> " << cacheIndexName << std::endl;
     FILE *fp = fopen(cacheIndexName.c_str(), "r");
     char buf[1000];
     char fn[1000];
