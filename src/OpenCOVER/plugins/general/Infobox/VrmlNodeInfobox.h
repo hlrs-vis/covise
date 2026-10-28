@@ -14,6 +14,8 @@
 
 #include <vrml97/vrml/VrmlNode.h>
 #include <vrml97/vrml/VrmlSFString.h>
+#include <vrml97/vrml/VrmlSFFloat.h>
+#include <vrml97/vrml/VrmlSFBool.h>
 #include <vrml97/vrml/VrmlNodeChild.h>
 #include <vrml97/vrml/VrmlScene.h>
 
@@ -29,6 +31,7 @@ public:
     static const char *typeName();
 
     void setImageUrl(std::string_view url);
+    void updateValue();
 
     virtual void addToScene(VrmlScene *scene, const char *relativeUrl)
     {
@@ -45,6 +48,9 @@ public:
 
 private:
     VrmlSFString d_imageUrl { "" };
+    VrmlSFFloat d_value { 0.0f };
+    VrmlSFString d_unit { "" };
+    VrmlSFBool d_hasValue { false };
 
     std::string m_relativeUrl { "" };
 };

@@ -33,6 +33,13 @@ void VrmlNodeInfobox::initFields(VrmlNodeInfobox *node, VrmlNodeType *t)
     initFieldsHelper(node, t,
         exposedField("imageUrl", &VrmlNodeInfobox::d_imageUrl, [node](auto f)
             { node->setImageUrl(f->get()); }));
+    initFieldsHelper(node, t,
+        exposedField("value", &VrmlNodeInfobox::d_value, [node](auto f)
+            { node->updateValue(); }),
+        exposedField("unit", &VrmlNodeInfobox::d_unit, [node](auto f)
+            { node->updateValue(); }),
+        exposedField("hasValue", &VrmlNodeInfobox::d_hasValue, [node](auto f)
+            { node->updateValue(); }));
 }
 
 const char *VrmlNodeInfobox::typeName()
@@ -59,4 +66,16 @@ void VrmlNodeInfobox::setImageUrl(std::string_view url)
     }
 
     infobox->setImage(path.string());
+}
+
+void VrmlNodeInfobox::updateValue()
+{
+    auto infobox = Infobox::instance();
+    if (!infobox)
+        return;
+
+    if (d_hasValue.get())
+        infobox->setValue(d_value.get(), std::string_view(d_unit.get()));
+    else
+        infobox->setValue(std::nullopt);
 }
