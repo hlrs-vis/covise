@@ -319,7 +319,7 @@ std::optional<std::reference_wrapper<SkyEntry>> Sky::addSkyFile(std::filesystem:
 
     if (extension != ".jpg")
     {
-        std::cerr << "Cannot load sky file at " << path << "; only JPG is supported now." << std::endl;
+        // std::cerr << "Cannot load sky file at " << path << "; only JPG is supported now." << std::endl;
         return std::nullopt;
     }
 
@@ -330,7 +330,7 @@ std::optional<std::reference_wrapper<SkyEntry>> Sky::addSkyFile(std::filesystem:
     longitude = std::fmod(longitude + 360.0 + 180.0, 360.0) - 180.0;
     latitude = std::clamp(latitude, -90.0, 90.0);
 
-    std::cout << "EXIF: Parsed " << path.parent_path().filename().string() << "/" << fileName << " latitude=" << latitude << " longitude=" << longitude << " altitude=" << altitude << " trueNorth=" << trueNorth << std::endl;
+    // std::cout << "EXIF: Parsed " << path.parent_path().filename().string() << "/" << fileName << " latitude=" << latitude << " longitude=" << longitude << " altitude=" << altitude << " trueNorth=" << trueNorth << std::endl;
 
     return m_skies.emplace_back(SkyEntry(name, std::regex_replace(name, std::regex("/"), " → "), path.string(), longitude, latitude, altitude, trueNorth));
 

@@ -737,8 +737,8 @@ void ViewPoints::readFromDom()
                             if(element.hasChildNodes() && element.firstChild().isCDATASection())
                             {
                                 auto dataSec = element.firstChild().toCDATASection();
-                                auto array =  QByteArray::fromBase64(dataSec.data().toLatin1());
-                                std::cerr << dataSec.data().toLatin1().toStdString() << std::endl;
+                                auto array = QByteArray::fromBase64(dataSec.data().toLatin1());
+                                // std::cerr << dataSec.data().toLatin1().toStdString() << std::endl;
                                 TokenBuffer tb(array.data(), array.size());
 
                                 tb >> newVP->getAvatar();

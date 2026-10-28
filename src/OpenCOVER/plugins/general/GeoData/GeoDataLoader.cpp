@@ -71,6 +71,8 @@
 using namespace vrui;
 using namespace opencover;
 
+// #define GEODATA_VERBOSE
+
 GeoDataLoader *GeoDataLoader::s_instance = nullptr;
 
 GeoDataLoader::GeoDataLoader()
@@ -700,12 +702,16 @@ osg::ref_ptr<osg::Node> GeoDataLoader::loadTerrain(std::string filename, bool is
 {
     VRViewer *viewer = VRViewer::instance();
     osgDB::DatabasePager *pager = viewer->getDatabasePager();
+
+#ifdef GEODATA_VERBOSE
     std::cout << "DatabasePager:" << std::endl;
     std::cout << "\t num threads: " << pager->getNumDatabaseThreads() << std::endl;
     std::cout << "\t getDatabasePagerThreadPause: " << (pager->getDatabasePagerThreadPause() ? "yes" : "no") << std::endl;
     std::cout << "\t getDoPreCompile: " << (pager->getDoPreCompile() ? "yes" : "no") << std::endl;
     std::cout << "\t getApplyPBOToImages: " << (pager->getApplyPBOToImages() ? "yes" : "no") << std::endl;
     std::cout << "\t getTargetMaximumNumberOfPageLOD: " << pager->getTargetMaximumNumberOfPageLOD() << std::endl;
+#endif
+
     viewer->setIncrementalCompileOperation(new osgUtil::IncrementalCompileOperation());
     // pager->setIncrementalCompileOperation(new osgUtil::IncrementalCompileOperation());
     osgUtil::IncrementalCompileOperation *coop = pager->getIncrementalCompileOperation();
@@ -727,6 +733,7 @@ osg::ref_ptr<osg::Node> GeoDataLoader::loadTerrain(std::string filename, bool is
         coop->setConservativeTimeRatio(0.1);
         coop->setFlushTimeRatio(0.1);
 
+#ifdef GEODATA_VERBOSE
         std::cout << "IncrementedCompileOperation:" << std::endl;
         std::cout << "\t is active: " << (coop->isActive() ? "yes" : "no") << std::endl;
         std::cout << "\t target frame rate: " << coop->getTargetFrameRate() << std::endl;
@@ -734,6 +741,7 @@ osg::ref_ptr<osg::Node> GeoDataLoader::loadTerrain(std::string filename, bool is
         std::cout << "\t getMaximumNumOfObjectsToCompilePerFrame: " << coop->getMaximumNumOfObjectsToCompilePerFrame() << std::endl;
         std::cout << "\t flush time ratio: " << coop->getFlushTimeRatio() << std::endl;
         std::cout << "\t conservative time ratio: " << coop->getConservativeTimeRatio() << std::endl;
+#endif
     }
 
     osg::Node *terrain = nullptr;

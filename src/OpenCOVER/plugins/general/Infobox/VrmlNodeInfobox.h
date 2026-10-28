@@ -35,7 +35,6 @@ public:
 
     virtual void addToScene(VrmlScene *scene, const char *relativeUrl)
     {
-        std::cout << "Add to scene " << relativeUrl << std::endl;
         m_relativeUrl = relativeUrl == NULL ? "" : std::string(relativeUrl);
         VrmlNodeChild::addToScene(scene, relativeUrl);
 
