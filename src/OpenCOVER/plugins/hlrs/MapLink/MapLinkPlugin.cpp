@@ -6,6 +6,8 @@
  * License: LGPL 2+ */
 
 #include "MapLinkPlugin.h"
+#include <algorithm>
+#include <cmath>
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
 #include <cover/coVRMSController.h>
@@ -107,9 +109,18 @@ void printMatrix(const char *name, const osg::Matrix &m)
 
 void DrawCallback::operator()(const osg::Camera &cam) const
 {
+    static int frameCounter = 0;
+    frameCounter++;
 
-        plugin->sendImage();
-        
+    if (frameCounter % 100 == 0)
+    {
+        std::cerr
+            << "TEST: Snapshot-Kamera rendert, Frame "
+            << frameCounter
+            << std::endl;
+    }
+
+    plugin->sendImage();
 }
 
 void MapLinkPlugin::createMenu()
@@ -173,74 +184,6 @@ void MapLinkPlugin::destroyMenu()
     MapLinkTab = nullptr;
 }
 
-/*
-void MapLinkPlugin::showLocationMarker(double x, double y, const osg::Vec4 &color)
-{
-    osg::ref_ptr<osg::Geode> geode = new osg::Geode();
-    osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry();
-
-    osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array();
-    vertices->push_back(osg::Vec3(x, y, 400000.0));
-    vertices->push_back(osg::Vec3(x, y, 520000.0));
-
-    geometry->setVertexArray(vertices.get());
-    geometry->addPrimitiveSet(
-        new osg::DrawArrays(osg::PrimitiveSet::LINES, 0, 2));
-
-    osg::ref_ptr<osg::Vec4Array> colors = new osg::Vec4Array();
-    colors->push_back(color);
-
-    geometry->setColorArray(colors.get());
-    geometry->setColorBinding(osg::Geometry::BIND_OVERALL);
-
-    osg::StateSet *stateSet = geometry->getOrCreateStateSet();
-    stateSet->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
-
-    osg::ref_ptr<osg::LineWidth> lineWidth = new osg::LineWidth();
-    lineWidth->setWidth(8.0f);
-    stateSet->setAttributeAndModes(
-        lineWidth.get(),
-        osg::StateAttribute::ON);
-
-    geode->addDrawable(geometry.get());
-    if (m_cityModelParent.valid())
-    {
-        osg::ref_ptr<osg::MatrixTransform> markerTransform = new osg::MatrixTransform();
-
-        markerTransform->setMatrix(m_worldToCityParent);
-        markerTransform->addChild(geode.get());
-
-        m_cityModelParent->addChild(markerTransform.get());
-    }
-
-    printMatrix(
-        "ObjectsXform BEIM EINFUEGEN:",
-        cover->getObjectsXform()->getMatrix());
-
-    std::cerr << "LOCATION MARKER added:"
-              << " x=" << x
-              << " y=" << y
-              << std::endl;
-
-    osg::Matrixd objectsMatrix = cover->getObjectsXform()->getMatrix();
-
-    osg::Vec3d markerPosition(x, y, 462000.0);
-
-    osg::Vec3d transformedPosition = markerPosition * objectsMatrix;
-
-    std::cerr << "----- MARKER TRANSFORM -----" << std::endl;
-
-    std::cerr << "Marker lokal: "
-              << markerPosition.x() << ", "
-              << markerPosition.y() << ", "
-              << markerPosition.z() << std::endl;
-
-    std::cerr << "Marker transformiert: "
-              << transformedPosition.x() << ", "
-              << transformedPosition.y() << ", "
-              << transformedPosition.z() << std::endl;
-}*/
-
 void MapLinkPlugin::createModule(
     int moduleId,
     const std::array<osg::Vec3d, 4> &corners,
@@ -249,39 +192,118 @@ void MapLinkPlugin::createModule(
     if (!pvModel || !m_pvModuleGroup.valid())
         return;
 
-    // Lokale X-Achse: P1 -> P2
-    osg::Vec3d xAxis = corners[1] - corners[0];
-    xAxis.normalize();
+    // 1. Geometrische Modulachsen bestimmen
 
-    // Vorläufige Y-Achse: P1 -> P4
-    osg::Vec3d yDirection = corners[3] - corners[0];
+    // Breitenrichtung: P1 -> P2
+    osg::Vec3d widthVector = corners[1] - corners[0];
 
-    // Normale der Modulfläche berechnen
+    // Laengsrichtung: P1 -> P4
+    osg::Vec3d lengthVector = corners[3] - corners[0];
+
+    const double moduleWidth = widthVector.length();
+
+    const double moduleLength = lengthVector.length();
+
+    if (moduleWidth < 1e-9 || moduleLength < 1e-9)
+    {
+        std::cerr
+            << "MapLink: Ungueltige Modulabmessungen!"
+            << std::endl;
+        return;
+    }
+
+    widthVector.normalize();
+    lengthVector.normalize();
+
+    // 2. Hochformat oder Querformat erkennen
+
+    // Annahme:
+    // Das OBJ-Modell liegt im Hochformat vor.
+    // Lokale X-Achse = kurze Modulkante
+    // Lokale Y-Achse = lange Modulkante
+
+    const bool isLandscape = moduleWidth > moduleLength;
+
+    // -------------------------------------------------
+    // 3. Lokale Modellachsen zuordnen
+    osg::Vec3d xAxis;
+    osg::Vec3d yDirection;
+
+    if (isLandscape)
+    {
+        // Querformat:
+        // Die kurze OBJ-Achse liegt jetzt
+        // entlang der Modullaengsrichtung.
+        // Die lange OBJ-Achse liegt entlang
+        // der Modulbreite.
+
+        xAxis = lengthVector;
+        yDirection = widthVector;
+    }
+    else
+    {
+        // Hochformat:
+        // Urspruengliche Achsenzuordnung.
+
+        xAxis = widthVector;
+        yDirection = lengthVector;
+    }
+
+    // 4. Flaechennormale nach oben ausrichten
     osg::Vec3d zAxis = xAxis ^ yDirection;
+
+    if (zAxis.length2() < 1e-12)
+    {
+        std::cerr
+            << "MapLink: Degenerierte Modulachsen!"
+            << std::endl;
+        return;
+    }
+
     zAxis.normalize();
 
-    // Sicherstellen, dass die Moduloberseite nach oben zeigt
     if (zAxis.z() < 0.0)
     {
+        // X-Achse umkehren, damit die
+        // Y-Richtung erhalten bleibt.
+        // Dadurch bleibt die Transformation
+        // eine echte Rotation.
+
+        xAxis = -xAxis;
         zAxis = -zAxis;
     }
 
-    // Rechtwinklige Y-Achse berechnen
-    osg::Vec3d yAxis = zAxis ^ xAxis;
-    yAxis.normalize();
+    // Orthogonale Y-Achse berechnen
+    yDirection = zAxis ^ xAxis;
+    yDirection.normalize();
 
-    // Mittelpunkt der vier Eckpunkte
+    osg::Vec3d yAxis = yDirection;
+
+    // 5. Modulmittelpunkt
     osg::Vec3d center = (corners[0] + corners[1] + corners[2] + corners[3]) / 4.0;
 
-    // Rotationsmatrix aus den drei lokalen Achsen
+    // 6. Rotation und Positionierung
     osg::Matrixd rotation(
         xAxis.x(), xAxis.y(), xAxis.z(), 0.0,
         yAxis.x(), yAxis.y(), yAxis.z(), 0.0,
         zAxis.x(), zAxis.y(), zAxis.z(), 0.0,
         0.0, 0.0, 0.0, 1.0);
 
-    // Blender-Meter -> OpenCOVER-Millimeter
-    osg::Matrixd transform = osg::Matrixd::scale(1.0, 1.0, 1.0) * rotation * osg::Matrixd::translate(center);
+    // Keine Skalierung:
+    // Die OBJ-Abmessungen bleiben unveraendert.
+
+    osg::Matrixd transform = rotation * osg::Matrixd::translate(center);
+
+    // 7. Diagnoseausgabe
+    std::cerr
+        << "MapLink: Modul " << moduleId
+        << " | Format: "
+        << (isLandscape ? "Querformat" : "Hochformat")
+        << " | Breite: " << moduleWidth
+        << " | Laenge: " << moduleLength
+        << " | Normale Z: " << zAxis.z()
+        << std::endl;
+
 
     osg::ref_ptr<osg::MatrixTransform> moduleTransform = new osg::MatrixTransform();
 
@@ -457,6 +479,9 @@ void MapLinkPlugin::sendImage()
         Message m(rtb);
         m.type = PluginMessageTypes::HLRS_MapLink_Message;
         sendMessage(m);
+        // DrawCallback laeuft im Render-Kontext. Den Viewer hier NICHT veraendern.
+        // Im naechsten preFrame wird die Snapshot-Kamera sicher abgemeldet.
+        m_snapshotRenderCompleted.store(true);
     }
     width = 0;
 
@@ -467,6 +492,19 @@ bool MapLinkPlugin::init()
     //cover->addPlugin("Annotation"); // we would like to have the Annotation plugin
     createMenu();
     createCamera();
+
+    // Auf setzen des Projektursprungs reagieren
+    m_projectionConnection = GeoData::instance()->projectionChanged.connect(
+        [this]()
+        {
+            m_projectTransformReady = true;
+            m_transformReadySent = false;
+
+            std::cerr
+                << "MapLink: Projektursprung gesetzt. "
+                << "Synchronisierung freigegeben."
+                << std::endl;
+        });
 
     // Interaktion zur Auswahl eines PV-Moduls in OpenCOVER
     m_selectInteraction = new coTrackerButtonInteraction(
@@ -487,6 +525,8 @@ bool MapLinkPlugin::init()
 // this is called if the plugin is removed at runtime
 MapLinkPlugin::~MapLinkPlugin()
 {
+    m_projectionConnection.disconnect();
+
     if (serverConn && serverConn->getSocket())
         cover->unwatchFileDescriptor(serverConn->getSocket()->get_id());
 
@@ -505,7 +545,11 @@ MapLinkPlugin::~MapLinkPlugin()
     {
         camera->detach(osg::Camera::COLOR_BUFFER);
         camera->setGraphicsContext(nullptr);
-        VRViewer::instance()->removeCamera(camera.get());
+        if (m_snapshotCameraRegistered)
+        {
+            VRViewer::instance()->removeCamera(camera.get());
+            m_snapshotCameraRegistered = false;
+        }
     }
 
     toMapLink.reset();
@@ -531,7 +575,7 @@ void MapLinkPlugin::setProjection(float xPos, float yPos, float width, float hei
     camera->setProjectionMatrix(projMat);
     camera->setViewMatrix(viewMat);
     
-    //VRViewer::instance()->addCamera(camera.get());
+    // Registrierung erfolgt ausschliesslich in MSG_GetMap.
 
 }
 void MapLinkPlugin::createCamera()
@@ -567,7 +611,7 @@ void MapLinkPlugin::createCamera()
     //pBufferCamera->setNearFarRatio(coVRConfig::instance()->nearClip()/coVRConfig::instance()->farClip());
     camera->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
     camera->setPostDrawCallback(drawCallback.get());
-    camera->setLODScale(0.0); // always highest LOD
+    camera->setLODScale(0.0); // unveraendert aus hochgeladenem Code (maximale Snapshot-Details)
     renderer->getSceneView(0)->setSceneData(cover->getScene());
     renderer->getSceneView(1)->setSceneData(cover->getScene());
 
@@ -609,6 +653,29 @@ void MapLinkPlugin::tabletPressEvent(coTUIElement *tUIItem)
 
 void MapLinkPlugin::tabletEvent(coTUIElement *tUIItem)
 {
+}
+
+void MapLinkPlugin::sendProjectTransformReady()
+{
+    if (!m_projectTransformReady || m_transformReadySent || !toMapLink || !toMapLink->is_connected())
+    {
+        return;
+    }
+
+    TokenBuffer tb;
+    tb << MSG_ProjectTransformReady;
+
+    Message m(tb);
+    m.type = PluginMessageTypes::HLRS_MapLink_Message;
+
+    sendMessage(m);
+
+    m_transformReadySent = true;
+
+    std::cerr
+        << "MapLink: Projekttransformation bereit "
+        << "(MSG_ProjectTransformReady)."
+        << std::endl;
 }
 
 
@@ -860,18 +927,104 @@ MapLinkPlugin::handleMessage(Message *m)
             }
             break;
 
+            
+            
             case MSG_GetMap:
+            {
+                // 1. Sichtbaren Kartenbereich empfangen (EPSG:4326)
+                float minLon, minLat, maxLon, maxLat;
+
+                tb >> minLon;
+                tb >> minLat;
+                tb >> maxLon;
+                tb >> maxLat;
+                tb >> xRes;
+                tb >> yRes;
+
+                std::cerr
+                    << "Snapshot: geografischer Bereich:"
+                    << " Lon " << minLon << " bis " << maxLon
+                    << " | Lat " << minLat << " bis " << maxLat
+                    << std::endl;
+
+                // 2. Geografische Eckpunkte bilden
+                const osg::Vec3d lowerLeft(
+                    minLon, minLat, 0.0);
+
+                const osg::Vec3d upperRight(
+                    maxLon, maxLat, 0.0);
+
+                const osg::Vec3d upperLeft(
+                    minLon, maxLat, 0.0);
+
+                const osg::Vec3d lowerRight(
+                    maxLon, minLat, 0.0);
+
+                // 3. In den OpenCOVER-Projektraum transformieren
+                const osg::Vec3d pLL = GeoData::instance()->globalToProject(lowerLeft);
+
+                const osg::Vec3d pUR = GeoData::instance()->globalToProject(upperRight);
+
+                const osg::Vec3d pUL = GeoData::instance()->globalToProject(upperLeft);
+
+                const osg::Vec3d pLR = GeoData::instance()->globalToProject(lowerRight);
+
+                // 4. Begrenzung im Projektraum bestimmen
+                const double minX = std::min(
+                    std::min(pLL.x(), pUR.x()),
+                    std::min(pUL.x(), pLR.x()));
+
+                const double maxX = std::max(
+                    std::max(pLL.x(), pUR.x()),
+                    std::max(pUL.x(), pLR.x()));
+
+                const double minY = std::min(
+                    std::min(pLL.y(), pUR.y()),
+                    std::min(pUL.y(), pLR.y()));
+
+                const double maxY = std::max(
+                    std::max(pLL.y(), pUR.y()),
+                    std::max(pUL.y(), pLR.y()));
+
+                // 5. Ursprüngliche Snapshot-Parameter festlegen
+                x = static_cast<float>(minX);
+                y = static_cast<float>(minY);
+                width = static_cast<float>(maxX - minX);
+                height = static_cast<float>(maxY - minY);
+
+                if (
+                    !std::isfinite(x) || !std::isfinite(y) || !std::isfinite(width) || !std::isfinite(height) || width <= 0.0f || height <= 0.0f)
                 {
-                    tb >> x;
-                    tb >> y;
-                    tb >> width;
-                    tb >> height;
-                    tb >> xRes;
-                    tb >> yRes;
-                    fprintf(stderr," x: %f  y: %f width: %f height: %f\n",x,y,width,height);
-                    setProjection(x,y,width,height);
+                    std::cerr
+                        << "Snapshot: ungueltiger Projektbereich!"
+                        << std::endl;
+
+                    width = 0.0f;
+                    break;
+                }
+
+                std::cerr
+                    << "Snapshot: Projektbereich:"
+                    << " x=" << x
+                    << " y=" << y
+                    << " width=" << width
+                    << " height=" << height
+                    << std::endl;
+
+                // 6. Kamera einstellen und NUR fuer diese Anfrage registrieren.
+                // Weder MSG_SetModules noch MSG_LoadProject aktivieren sie.
+                setProjection(x, y, width, height);
+                if (!m_snapshotCameraRegistered)
+                {
+                    m_snapshotRenderCompleted.store(false);
+                    VRViewer::instance()->addCamera(camera.get());
+                    m_snapshotCameraRegistered = true;
+                    std::cerr << "Snapshot: Kamera fuer einen Renderdurchlauf aktiviert" << std::endl;
                 }
                 break;
+            }
+
+
 
             case MSG_SetModules:
             {
@@ -1038,6 +1191,16 @@ MapLinkPlugin::handleMessage(Message *m)
 
 void MapLinkPlugin::preFrame()
 {
+    sendProjectTransformReady();
+    // Die Kamera wird ausschliesslich nach einem fertigen Snapshot entfernt.
+    // Kein permanentes PRE_RENDER zwischen Anfragen.
+    if (m_snapshotRenderCompleted.exchange(false) && m_snapshotCameraRegistered)
+    {
+        VRViewer::instance()->removeCamera(camera.get());
+        m_snapshotCameraRegistered = false;
+        std::cerr << "Snapshot: Kamera deaktiviert (Rendern beendet)" << std::endl;
+    }
+
     if (m_selectInteraction && m_selectInteraction->wasStarted())
     {
         std::cerr
@@ -1207,12 +1370,13 @@ bool MapLinkPlugin::update()
     {
         //   std::cout << "Trying serverConn..." << std::endl;
         toMapLink = serverConn->spawn_connection();
+
         if (toMapLink && toMapLink->is_connected())
         {
             fprintf(stderr, "Connected to MapLink\n");
-            //int testit = 4321;
-            //toMapLink->send(&testit, 4);
             cover->watchFileDescriptor(toMapLink->getSocket()->get_id());
+
+            m_transformReadySent = false;
         }
     }
     char gotMsg = '\0';

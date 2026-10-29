@@ -1,10 +1,7 @@
 /* This file is part of COVISE.
-
    You can use it under the terms of the GNU Lesser General Public License
    version 2.1 or later, see lgpl-2.1.txt.
-
  * License: LGPL 2+ */
-
 #ifndef _MapLink_PLUGIN_H
 #define _MapLink_PLUGIN_H
 
@@ -29,6 +26,8 @@
 #include <osg/Matrix>
 #include <OpenVRUI/coTrackerButtonInteraction.h>
 #include <OpenVRUI/coInteractionManager.h>
+#include <atomic> // Snapshot-Kamera wird aus Render-Callback abgeschlossen
+#include <sigslot/signal.hpp>
 
 std::map<int, std::array<osg::Vec3d, 4>> m_modules;
 
@@ -48,7 +47,6 @@ using namespace vrui;
 using namespace opencover;
 using covise::Message;
 using covise::ServerConnection;
-class MapLinkPlugin;
 
 class DrawCallback : public osg::Camera::DrawCallback
 {
@@ -63,58 +61,50 @@ private:
     MapLinkPlugin *plugin;
 };
 
-// connection to the OpenDrive Road Editor
 class MapLinkPlugin : public coVRPlugin, public coMenuListener, public coTUIListener, public osgUtil::SceneView::ComputeStereoMatricesCallback
 {
 public:
-
-    
     MapLinkPlugin();
     ~MapLinkPlugin() override;
     bool init() override;
-    static MapLinkPlugin *instance()
-    {
-        return plugin;
-    };
-
-    // this will be called in PreFrame
+    static MapLinkPlugin *instance() { return plugin; }
     bool update() override;
     void preFrame() override;
     void key(int type, int keySym, int mod) override;
-
     void destroyMenu();
     void createMenu();
-    
     void createCamera();
     void menuEvent(coMenuItem *aButton) override;
     void tabletEvent(coTUIElement *tUIItem) override;
     void tabletPressEvent(coTUIElement *tUIItem) override;
-
     void sendMessage(Message &m);
-    
     void message(int toWhom, int type, int len, const void *buf) override;
     void sendImage();
 
 protected:
-
-    //void showLocationMarker(double x, double y, const osg::Vec4 &color);
     void createModule(int moduleId, const std::array<osg::Vec3d, 4> &corners, osg::Node *pvModel);
     void deleteModule(int moduleId);
     void sendDeleteModuleRequest(int moduleId);
     void clearAllModules();
-	osg::Matrixd computeLeftEyeProjection(const osg::Matrixd &projection) const override;
-	osg::Matrixd computeLeftEyeView(const osg::Matrixd &view) const override;
-	osg::Matrixd computeRightEyeProjection(const osg::Matrixd &projection) const override;
-	osg::Matrixd computeRightEyeView(const osg::Matrixd &view) const override;
+    osg::Matrixd computeLeftEyeProjection(const osg::Matrixd &projection) const override;
+    osg::Matrixd computeLeftEyeView(const osg::Matrixd &view) const override;
+    osg::Matrixd computeRightEyeProjection(const osg::Matrixd &projection) const override;
+    osg::Matrixd computeRightEyeView(const osg::Matrixd &view) const override;
     void setProjection(float xPos, float yPos, float width, float height);
     static MapLinkPlugin *plugin;
+    void sendProjectTransformReady();
+
+    bool m_projectTransformReady = false;
+    bool m_transformReadySent = false;
+
+    sigslot::connection m_projectionConnection;
 
     ServerConnection *serverConn;
     std::unique_ptr<ServerConnection> toMapLink;
     coTUITab *MapLinkTab = nullptr;
-    osg::ref_ptr<osg::Group> m_pvModuleGroup; // Gemeinsame Gruppe für alle PV-Module
-    std::unordered_map<int, osg::ref_ptr<osg::MatrixTransform>> m_moduleNodes; // Zuordnung zwischen Modul-ID und sichtbarem 3D-Modell
-    int m_selectedModuleId = -1; // aktuell in 3D ausgewaehltes Modul
+    osg::ref_ptr<osg::Group> m_pvModuleGroup;
+    std::unordered_map<int, osg::ref_ptr<osg::MatrixTransform>> m_moduleNodes;
+    int m_selectedModuleId = -1;
     coCheckboxMenuItem *m_selectModulesButton = nullptr;
     coTrackerButtonInteraction *m_selectInteraction = nullptr;
     osg::observer_ptr<osg::Group> m_cityModelParent;
@@ -122,13 +112,17 @@ protected:
     osg::ref_ptr<osg::Camera> camera;
     osg::ref_ptr<osg::Image> image;
     osg::ref_ptr<DrawCallback> drawCallback;
-    int resX,resY;
-    
-    float x,y,width,height;
-    int xRes,yRes;
+    int resX, resY;
+
+    // Nur waehrend einer MSG_GetMap-Anfrage registrieren; danach abmelden.
+    bool m_snapshotCameraRegistered = false;
+    std::atomic<bool> m_snapshotRenderCompleted { false };
+
+    float x, y, width, height;
+    int xRes, yRes;
     void handleMessage(Message *m);
     Message *msg;
-	osg::Matrix projMat;
-	osg::Matrix viewMat;
+    osg::Matrix projMat;
+    osg::Matrix viewMat;
 };
 #endif

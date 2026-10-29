@@ -7,6 +7,7 @@ enum MessageTypes
     MSG_SetModules = 502,
     MSG_DeleteModules = 503,
     MSG_ClearAllModules = 504,
-    MSG_DeleteModuleRequest = 505
+    MSG_DeleteModuleRequest = 505,
+    MSG_ProjectTransformReady = 506
     };
 #endif
