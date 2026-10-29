@@ -34,7 +34,7 @@ VrmlNodeRasterProbe::~VrmlNodeRasterProbe()
 {
     RasterProbe::removeProbe(this);
     if (m_dataset)
-        GDALClose(m_dataset);
+        GDALClose(GDALDataset::ToHandle(m_dataset));
 }
 
 void VrmlNodeRasterProbe::initFields(VrmlNodeRasterProbe *node, VrmlNodeType *t)
@@ -75,7 +75,7 @@ bool VrmlNodeRasterProbe::open()
         return m_dataset != nullptr;
 
     if (m_dataset)
-        GDALClose(m_dataset);
+        GDALClose(GDALDataset::ToHandle(m_dataset));
     m_dataset = nullptr;
     m_openedUrl = d_url.get();
 
@@ -85,13 +85,13 @@ bool VrmlNodeRasterProbe::open()
         path = std::filesystem::path(m_relativeUrl).parent_path() / path;
     }
 
-    m_dataset = (GDALDataset *)GDALOpen(path.string().c_str(), GA_ReadOnly);
+    m_dataset = GDALDataset::Open(path.string().c_str(), GDAL_OF_RASTER | GDAL_OF_READONLY);
     double geoTransform[6];
     if (!m_dataset || m_dataset->GetGeoTransform(geoTransform) != CE_None)
     {
         std::cerr << "[RasterProbe] Cannot open raster: " << path << std::endl;
         if (m_dataset)
-            GDALClose(m_dataset);
+            GDALClose(GDALDataset::ToHandle(m_dataset));
         m_dataset = nullptr;
         return false;
     }
