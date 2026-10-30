@@ -12,6 +12,7 @@
 #include <osg/MatrixTransform>
 #include <osg/NodeVisitor>
 #include <osg/ColorMask>
+#include <osg/CullFace>
 #include <osg/Depth>
 #include <osg/Stencil>
 #include <osg/StateSet>
@@ -58,13 +59,13 @@ void setShadowFlags(osg::Node *node)
 }
 
 // renders only into the depth buffer: a clone of the target written before the
-// void pass, so the voids can be depth-tested against the target and only the
+// void passes, so the voids can be depth-tested against the target and only the
 // part of a void that is actually in front of (or inside) the target writes to
 // the stencil. Color off, no stencil, depth write on.
 void prepareTargetShadow(osg::Node *shadow)
 {
     osg::StateSet *ss = shadow->getOrCreateStateSet();
-    ss->setRenderBinDetails(-2, "RenderBin");
+    ss->setRenderBinDetails(-3, "RenderBin");
     ss->setNestRenderBins(false);
     ss->setAttributeAndModes(new osg::ColorMask(false, false, false, false), osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
     ss->setMode(GL_DEPTH_TEST, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
@@ -72,31 +73,51 @@ void prepareTargetShadow(osg::Node *shadow)
     ss->setMode(GL_BLEND, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
 }
 
-// renders only into the stencil buffer, depth-tested against the target shadow:
-// writes 1 where the void object is in front of (or inside) the target, so the
-// target is cut out there but not where the void is hidden behind the target.
-// Color and depth write are off so it does not show up or disturb the scene.
-void prepareVoidShadow(osg::Node *shadow)
+// shared state of both void passes: nothing is visible (color/depth write
+// off), the geometry is depth-tested against the target shadow so only the
+// part of the void in front of (or inside) the target writes to the stencil.
+void prepareVoidShadowCommon(osg::Node *shadow, int bin, unsigned int stencilBit)
 {
     osg::StateSet *ss = shadow->getOrCreateStateSet();
-    ss->setRenderBinDetails(-1, "RenderBin");
+    ss->setRenderBinDetails(bin, "RenderBin");
     ss->setNestRenderBins(false);
     ss->setAttributeAndModes(new osg::ColorMask(false, false, false, false), osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
 
-    osg::Stencil *stencil = new osg::Stencil();
-    stencil->setFunction(osg::Stencil::ALWAYS, 1, 1);
     // only the fragments that pass the depth test against the target shadow
-    // (i.e. are in front of the target) write to the stencil
+    // (i.e. are in front of the target) write to the stencil. REPLACE writes
+    // ref & writeMask, so ref == the bit we want to set leaves the other bit
+    // (from the sibling pass) untouched
+    osg::Stencil *stencil = new osg::Stencil();
+    stencil->setFunction(osg::Stencil::ALWAYS, (int)stencilBit, 0);
     stencil->setOperation(osg::Stencil::KEEP, osg::Stencil::KEEP, osg::Stencil::REPLACE);
-    stencil->setWriteMask(1);
+    stencil->setWriteMask(stencilBit);
     ss->setAttributeAndModes(stencil, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
 
     // test against the target shadow but do not write depth, so the invisible
-    // clone cannot cull the real object in the main pass
+    // clones cannot cull the real object in the main pass
     ss->setAttributeAndModes(new osg::Depth(osg::Depth::LESS, 0.0, 1.0, false), osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
 
     ss->setMode(GL_LIGHTING, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
     ss->setMode(GL_BLEND, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
+    ss->setMode(GL_CULL_FACE, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
+}
+
+// the near-surface (front faces) of the void: culls back faces, i.e. renders
+// only the front shell of the object, and writes stencil bit 0 where that
+// shell is in front of the target (depth shadow)
+void prepareVoidShadowNear(osg::Node *shadow)
+{
+    prepareVoidShadowCommon(shadow, -2, 0x1);
+    shadow->getOrCreateStateSet()->setAttributeAndModes(new osg::CullFace(osg::CullFace::BACK), osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
+}
+
+// the far-surface (back faces) of the void: culls front faces, i.e. renders
+// only the back shell of the object, and writes stencil bit 1 where that
+// shell is in front of the target (depth shadow)
+void prepareVoidShadowFar(osg::Node *shadow)
+{
+    prepareVoidShadowCommon(shadow, -1, 0x2);
+    shadow->getOrCreateStateSet()->setAttributeAndModes(new osg::CullFace(osg::CullFace::FRONT), osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
 }
 
 // the helper node type encoded in the node's "TYPE <n>" description
@@ -642,6 +663,8 @@ void ClipPlugin::removeVoidShadow(const std::string &name)
 
     if (shadow->parent.get() && shadow->node.get())
         shadow->parent->removeChild(shadow->node.get());
+    if (shadow->parent.get() && shadow->nodeFar.get())
+        shadow->parent->removeChild(shadow->nodeFar.get());
     delete shadow;
     m_voidShadows.erase(it);
 }
@@ -660,17 +683,7 @@ void ClipPlugin::createVoidShadow(const std::string &name, osg::Geode *geode)
     shadow->parent = parent;
     shadow->geode = geode;
     shadow->savedMask = geode->getNodeMask();
-    shadow->node = geode->clone(osg::CopyOp::DEEP_COPY_ALL)->asNode();
-    if (!shadow->node.get())
-    {
-        delete shadow;
-        return;
-    }
-
-    shadow->node->setName(name + "_ClipShadow");
-    setShadowFlags(shadow->node.get());
-    prepareVoidShadow(shadow->node.get());
-    parent->addChild(shadow->node.get());
+    makeVoidClones(shadow, name, geode);
     m_voidShadows[name] = shadow;
 }
 
@@ -717,13 +730,7 @@ void ClipPlugin::syncShadows()
         // geode's local matrix, so it stays on the object after re-parenting.
         osg::Group *parent = geode->getParent(0)->asGroup();
         if (parent && parent != shadow->parent.get())
-        {
-            if (shadow->parent.get() && shadow->node.get())
-                shadow->parent->removeChild(shadow->node.get());
-            shadow->parent = parent;
-            if (shadow->node.get())
-                shadow->parent->addChild(shadow->node.get());
-        }
+            reparentVoidClones(shadow, parent);
 
         // show the void while it is being edited, hide it otherwise
         applyVoidVisibility(name);
@@ -792,7 +799,11 @@ void ClipPlugin::reattachVoidShadow(const std::string &name)
 
     if (shadow->parent.get() && shadow->node.get())
         shadow->parent->removeChild(shadow->node.get());
+    if (shadow->parent.get() && shadow->nodeFar.get())
+        shadow->parent->removeChild(shadow->nodeFar.get());
 
+    shadow->node = nullptr;
+    shadow->nodeFar = nullptr;
     shadow->geode = geode;
     shadow->savedMask = geode->getNodeMask();
     osg::Group *parent = geode->getParent(0)->asGroup();
@@ -800,14 +811,7 @@ void ClipPlugin::reattachVoidShadow(const std::string &name)
         return;
     shadow->parent = parent;
 
-    shadow->node = geode->clone(osg::CopyOp::DEEP_COPY_ALL)->asNode();
-    if (!shadow->node.get())
-        return;
-
-    shadow->node->setName(name + "_ClipShadow");
-    setShadowFlags(shadow->node.get());
-    prepareVoidShadow(shadow->node.get());
-    parent->addChild(shadow->node.get());
+    makeVoidClones(shadow, name, geode);
 
     // the new geode has its original (unmodified) attributes, so forget the
     // saved ones and let applyVoidVisibility() capture fresh ones
@@ -815,6 +819,46 @@ void ClipPlugin::reattachVoidShadow(const std::string &name)
     shadow->savedDepth = nullptr;
     shadow->savedStencil = nullptr;
     shadow->appliedHidden = false;
+}
+
+void ClipPlugin::makeVoidClones(Shadow *shadow, const std::string &name, osg::Geode *geode)
+{
+    // two deep copies of the void, siblings of the geode so they follow every
+    // (helper) transform exactly like the real object: one rendered with its
+    // front shell (near, bin -2, stencil bit 0) and one with its back shell
+    // (far, bin -1, stencil bit 1)
+    osg::Group *parent = shadow->parent.get();
+    if (!parent)
+        return;
+
+    shadow->node = geode->clone(osg::CopyOp::DEEP_COPY_ALL)->asNode();
+    if (!shadow->node.get())
+        return;
+    shadow->node->setName(name + "_ClipShadow");
+    setShadowFlags(shadow->node.get());
+    prepareVoidShadowNear(shadow->node.get());
+    parent->addChild(shadow->node.get());
+
+    shadow->nodeFar = geode->clone(osg::CopyOp::DEEP_COPY_ALL)->asNode();
+    if (!shadow->nodeFar.get())
+        return;
+    shadow->nodeFar->setName(name + "_ClipShadowFar");
+    setShadowFlags(shadow->nodeFar.get());
+    prepareVoidShadowFar(shadow->nodeFar.get());
+    parent->addChild(shadow->nodeFar.get());
+}
+
+void ClipPlugin::reparentVoidClones(Shadow *shadow, osg::Group *parent)
+{
+    if (shadow->parent.get() && shadow->node.get())
+        shadow->parent->removeChild(shadow->node.get());
+    if (shadow->parent.get() && shadow->nodeFar.get())
+        shadow->parent->removeChild(shadow->nodeFar.get());
+    shadow->parent = parent;
+    if (shadow->node.get())
+        parent->addChild(shadow->node.get());
+    if (shadow->nodeFar.get())
+        parent->addChild(shadow->nodeFar.get());
 }
 
 void ClipPlugin::preFrame()
@@ -906,10 +950,18 @@ void ClipPlugin::preFrame()
                     {
                         osg::StateSet *ss = sh->node->getStateSet();
                         const osg::Stencil *st = ss ? dynamic_cast<const osg::Stencil *>(ss->getAttribute(osg::StateAttribute::STENCIL)) : nullptr;
-                        fprintf(f, "    shadow '%s' mask=0x%x parents=%d stencil=%s\n", sh->node->getName().c_str(), (unsigned)sh->node->getNodeMask(), (int)sh->node->getNumParents(), st ? "yes" : "no");
+                        fprintf(f, "    near '%s' mask=0x%x parents=%d stencil=%s ref=%d wmask=0x%x\n", sh->node->getName().c_str(), (unsigned)sh->node->getNodeMask(), (int)sh->node->getNumParents(), st ? "yes" : "no", st ? (int)st->getFunctionRef() : -1, st ? (unsigned)st->getWriteMask() : 0);
                     }
                     else
-                        fprintf(f, "    shadow (none)\n");
+                        fprintf(f, "    near (none)\n");
+                    if (sh->nodeFar.get())
+                    {
+                        osg::StateSet *ss = sh->nodeFar->getStateSet();
+                        const osg::Stencil *st = ss ? dynamic_cast<const osg::Stencil *>(ss->getAttribute(osg::StateAttribute::STENCIL)) : nullptr;
+                        fprintf(f, "    far  '%s' mask=0x%x parents=%d stencil=%s ref=%d wmask=0x%x\n", sh->nodeFar->getName().c_str(), (unsigned)sh->nodeFar->getNodeMask(), (int)sh->nodeFar->getNumParents(), st ? "yes" : "no", st ? (int)st->getFunctionRef() : -1, st ? (unsigned)st->getWriteMask() : 0);
+                    }
+                    else
+                        fprintf(f, "    far  (none)\n");
                     if (sh->geode)
                     {
                         osg::StateSet *ss = sh->geode->getStateSet();
@@ -940,10 +992,12 @@ void ClipPlugin::applyMainPass(osg::StateSet *ss, bool on)
 
     if (on)
     {
-        // draw only where no void object wrote to the stencil (EQUAL 0), which
-        // cuts out the void from the target
+        // cut only where bit 0 is set and bit 1 is clear (value 1): the target
+        // lies between the void's near and far surface, i.e. inside the void.
+        // Where the void only occludes the target (value 3) or nothing writes
+        // (value 0) the target is kept.
         osg::Stencil *stencil = new osg::Stencil();
-        stencil->setFunction(osg::Stencil::EQUAL, 0, 1);
+        stencil->setFunction(osg::Stencil::NOTEQUAL, 1, 3); // both bits: cut where value==1
         stencil->setOperation(osg::Stencil::KEEP, osg::Stencil::KEEP, osg::Stencil::KEEP);
         stencil->setWriteMask(0);
         ss->setAttributeAndModes(stencil, osg::StateAttribute::ON);

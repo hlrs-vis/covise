@@ -3,14 +3,25 @@
 //  Date   : 28.10.2026
 
   Cuts holes into a target object (e.g. terrain) where selected void objects
-  (e.g. buildings) overlap it. Implemented with the GL stencil buffer:
+  (e.g. buildings) overlap it. Implemented with the GL stencil buffer.
 
-  - bin -2: a "shadow" clone of the target is rendered into the depth buffer
-  - bin -1: "shadow" clones of all void objects render into the stencil buffer
-            (depth-tested against the target shadow, so only the part of a void
-            in front of / inside the target writes stencil)
-  - bin 0 : the whole scene renders normally; the target additionally carries a
-            stencil test (EQUAL 0) and is thus not drawn where the voids wrote.
+  The goal is to remove only the part of the target that a void object
+  *occupies* (its footprint), while the target *behind* the void stays visible.
+  To tell "inside the void" apart from "hidden behind the void", the void
+  contributes two stencil bits (a depth-slab test along the view ray):
+
+  - bin -3: a "shadow" clone of the target is rendered into the depth buffer
+  - bin -2: the void's *near* (front-facing) surface renders into the stencil
+            buffer (depth-tested against the target shadow); where it is in
+            front of the target it sets bit 0
+  - bin -1: the void's *far* (back-facing) surface renders into the stencil
+            buffer (depth-tested against the target shadow); where it is in
+            front of the target it sets bit 1
+  - bin 0 : the whole scene renders normally; the target carries a stencil test
+            (NOT_EQUAL 1) and is therefore not drawn only where bit 0 is set
+            and bit 1 is clear -- i.e. the target lies between the void's near
+            and far surface (inside the void). Terrain that the void merely
+            occludes (both bits set -> value 3) is kept.
 
   Void objects are hidden in the main pass (color/depth write off) while
   remaining pickable, so they stay editable (Move, Selection, ...).
@@ -80,7 +91,12 @@ private:
     struct Shadow
     {
         std::string name;
-        osg::ref_ptr<osg::Node> node; // clone inserted next to the original
+        // primary clone inserted next to the original: for the target it is the
+        // depth shadow; for a void it is the near-surface (front faces) clone
+        osg::ref_ptr<osg::Node> node;
+        // void only: the far-surface (back faces) clone, rendered in a different
+        // bin to set the other stencil bit
+        osg::ref_ptr<osg::Node> nodeFar;
         osg::ref_ptr<osg::Group> parent;
         osg::Geode *geode = nullptr; // non-owning; the geode the clone was taken from
         // the void geode's original rendering state, saved so hiding can be reverted
@@ -113,7 +129,11 @@ private:
     void rebuildTargetShadow(osg::Geode *geode);
     void removeVoidShadow(const std::string &name);
     void createVoidShadow(const std::string &name, osg::Geode *geode);
-    // re-create the clone next to the object's current (replaced) geode
+    // (re-)create the near/far clones next to the object's current geode
+    void makeVoidClones(Shadow *shadow, const std::string &name, osg::Geode *geode);
+    // move both clones to the geode's current parent (helper insert/remove)
+    void reparentVoidClones(Shadow *shadow, osg::Group *parent);
+    // re-create the clones next to the object's current (replaced) geode
     void reattachVoidShadow(const std::string &name);
     void updateMainPass();
     void applyMainPass(osg::StateSet *ss, bool on);

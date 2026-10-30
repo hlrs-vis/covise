@@ -10,27 +10,50 @@ follows the moved object.
 
 The plugin uses the GL **stencil buffer** instead of a custom fragment shader,
 so the target keeps its own rendering (e.g. the heightmap terrain shader).
-Every frame the scene is drawn in three ordered stages (render bins):
 
-1. **Target depth pre-pass** (bin `-2`): a "shadow" clone of the target is
+The goal is to remove only the part of the target that a void object
+*occupies* (its footprint), while the target **behind** the void stays
+visible. A single occlusion test cannot tell "inside the void" apart from
+"hidden behind the void", so the void contributes **two stencil bits**
+(a depth-slab test along the view ray). Every frame the scene is drawn in
+four ordered stages (render bins):
+
+1. **Target depth pre-pass** (bin `-3`): a "shadow" clone of the target is
    rendered into the depth buffer only (color write off, lighting off, depth
-   write on). This gives the void pass something to depth-test against.
-2. **Void stencil pass** (bin `-1`): a "shadow" clone of each void object is
-   rendered into the stencil buffer only (color write off, **depth write
-   off**). Each fragment depth-tests against the target shadow and writes
-   stencil `1` only where it passes (i.e. where the void is actually in front
-   of / inside the target).
-3. **Normal scene** (bin `0`): the whole scene renders unchanged, except the
-   target carries two extra attributes: a stencil test `EQUAL 0` (write mask
-   0) so it is skipped where the voids wrote (the hole), and a `LEQUAL` depth
-   test so it still passes against the depth its own shadow wrote (otherwise
-   it would fail its own depth and disappear).
+   write on). This gives the void passes something to depth-test against.
+2. **Void near pass** (bin `-2`): a clone of each void is rendered with **back
+   faces culled** (only the front shell) into the stencil buffer only (color
+   and depth write off, culling and lighting off, depth-tested against the
+   target shadow). Where the front surface of the void is in front of the
+   target it sets **stencil bit 0**.
+3. **Void far pass** (bin `-1`): a second clone of each void is rendered with
+   **front faces culled** (only the back shell), same state as the near pass
+   but writing **stencil bit 1** where the back surface of the void is in
+   front of the target.
+4. **Normal scene** (bin `0`): the whole scene renders unchanged, except the
+   target carries two extra attributes: a stencil test `NOTEQUAL 1, mask 0x3`
+   (write mask 0) so it is skipped **only where bit 0 is set and bit 1 is
+   clear** — i.e. the target lies between the void's near and far surface,
+   inside the void — and a `LEQUAL` depth test so it still passes against the
+   depth its own shadow wrote (otherwise it would fail its own depth and
+   disappear).
+
+Per pixel the four stencil values (bit 0 = near in front, bit 1 = far in
+front) mean:
+
+| value | meaning                                   | target drawn? |
+|-------|-------------------------------------------|---------------|
+| 0     | void is behind the target (or no void)    | yes           |
+| 1     | target is inside the void (footprint)     | **no (hole)** |
+| 2     | (degenerate) far in front, near not       | yes           |
+| 3     | target is behind the void (occluded only) | yes           |
 
 ### Shadow clones
 
-The shadows are deep copies of the original geodes. Each frame the plugin
-re-resolves the current geode by object name and keeps every shadow as a
-sibling **under the geode's current parent**:
+The shadows are deep copies of the original geodes (voids carry two copies:
+near and far shell). Each frame the plugin re-resolves the current geode by
+object name and keeps every shadow as a sibling **under the geode's current
+parent**:
 
 - **Move plugin**: wrapping an object in its (helper) `MatrixTransform`
   re-parents the geode, so the shadow is moved with it — the clone carries the
