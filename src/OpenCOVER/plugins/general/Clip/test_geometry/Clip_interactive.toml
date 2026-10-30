@@ -1,0 +1,4 @@
+# Empty Clip setup: start interactive, pick target/voids with the Clip menu.
+[Setup]
+target = ""
+voids = []

@@ -1,0 +1,14 @@
+# Optional setup for the Clip plugin.
+#
+# The target is the object (e.g. terrain) in which holes are cut, the voids
+# are the objects (e.g. buildings) that produce the holes. Names are the top
+# level COVISE object names as shown in the scene graph. Objects that are not
+# loaded yet are applied automatically as soon as they appear.
+#
+# The same result can be achieved interactively: enable the "Selection"
+# navigation mode and use the "Pick target" / "Add void object" /
+# "Remove void object" buttons of the Clip menu.
+
+[Setup]
+target = ""
+voids = []
