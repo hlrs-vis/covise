@@ -1349,7 +1349,7 @@ bool OpenCOVER::frame()
     if (!render)
     {
         int maxfd = -1;
-        fd_set rfds, wfds, efds;
+        fd_set rfds, efds;
         for (auto *fds: {&rfds, &efds}) {
             FD_ZERO(fds);
             for (const auto &fd: m_watchedFds) {

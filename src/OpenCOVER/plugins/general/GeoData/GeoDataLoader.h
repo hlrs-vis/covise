@@ -154,6 +154,7 @@ private:
     void clearTileSelections();
     void toggleTileSelection(int index);
     void updateTileSelectionHighlight(TileSelection &tile);
+    void stageTileReplacement(const std::string &fileName, const std::string &replacementFileName);
     void applyTileEditRules(osg::Node *node);
     void doDelete();
     void doReplace();
@@ -170,6 +171,7 @@ private:
     opencover::ui::SelectionList *tileList;
     opencover::ui::EditField *replacementFile;
     opencover::ui::Action *exportTile;
+    opencover::ui::Button *saveTileReplacementsToConfig;
 
     opencover::ui::Menu *geoDataMenu;
 

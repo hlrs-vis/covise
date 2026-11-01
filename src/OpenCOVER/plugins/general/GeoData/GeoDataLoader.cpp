@@ -410,6 +410,21 @@ bool GeoDataLoader::init()
     replacementFile = new ui::EditField(editGroup, "replacementFile");
     replacementFile->setText("Replacement tile file:");
 
+    saveTileReplacementsToConfig = new ui::Button(editGroup, "saveTileReplacementsToConfig");
+    saveTileReplacementsToConfig->setText("Save tile replacements to Config");
+    saveTileReplacementsToConfig->setState(false);
+    saveTileReplacementsToConfig->setCallback([this](bool state)
+        {
+            if (!state)
+                return;
+            auto configFile = config();
+            if (configFile && configFile->save())
+                std::cerr << "GeoData: Saved tile replacements to config" << std::endl;
+            else
+                std::cerr << "GeoData: Failed to save tile replacements to config" << std::endl;
+            saveTileReplacementsToConfig->setState(false);
+        });
+
     deleteSelected = new ui::Action(editGroup, "deleteSelected");
     deleteSelected->setText("Omit selected tile");
     deleteSelected->setCallback([this]()
@@ -672,6 +687,30 @@ void GeoDataLoader::updateTileSelectionHighlight(TileSelection &tile)
     selectionManager->pickedObjChanged();
 }
 
+void GeoDataLoader::stageTileReplacement(const std::string &fileName, const std::string &replacementFileName)
+{
+    auto configFile = config();
+    if (!configFile)
+        return;
+
+    auto entries = configFile->array<opencover::config::Section>("", "replacements");
+    size_t entryIndex = entries->size();
+    for (size_t i = 0; i < entries->size(); ++i)
+    {
+        auto configuredFileName = (*entries)[i].value<std::string>("", "fileName");
+        if (configuredFileName && configuredFileName->value() == fileName)
+        {
+            entryIndex = i;
+            break;
+        }
+    }
+
+    const std::string section = "replacements[" + std::to_string(entryIndex) + "]";
+    *configFile->value<std::string>(section, "fileName", "") = fileName;
+    *configFile->value<std::string>(section, "replaceBy", "") = replacementFileName;
+    replacements[fileName] = replacementFileName;
+}
+
 void GeoDataLoader::selectTile(const osg::NodePath &hitPath)
 {
     for (int pathIndex = static_cast<int>(hitPath.size()) - 2; pathIndex >= 0; --pathIndex)
@@ -824,6 +863,8 @@ osg::ref_ptr<osg::Node> GeoDataLoader::loadTerrain(std::string filename, bool is
     osg::Node *terrain = nullptr;
     if (auto replacementFileName = replacements.find(filename); replacementFileName != replacements.end())
     {
+        if (replacementFileName->second.empty())
+            return nullptr;
         terrain = osgDB::readNodeFile(replacementFileName->second);
     }
     else
@@ -934,33 +975,51 @@ COVERPLUGIN(GeoDataLoader)
 
 void GeoDataLoader::doDelete()
 {
-    if (selectedTile < 0 || selectedTile >= static_cast<int>(tiles.size()))
-        return;
-    auto &tile = tiles[selectedTile];
-    if (!tile.pagedLod || tile.childIndex >= tile.pagedLod->getNumChildren())
-        return;
-
     auto *selectionManager = coVRSelectionManager::instance();
-    tile.undoSelected = tile.selected;
-    if (tile.selected && tile.contentNode)
+    bool selectionChanged = false;
+    size_t omittedCount = 0;
+    int firstOmittedTile = -1;
+
+    for (size_t i = 0; i < tiles.size(); ++i)
     {
-        selectionManager->removeNode(tile.contentNode.get());
+        auto &tile = tiles[i];
+        if (!tile.selected || !tile.pagedLod || tile.childIndex >= tile.pagedLod->getNumChildren())
+            continue;
+
+        tile.undoSelected = true;
+        if (tile.contentNode)
+        {
+            selectionManager->removeNode(tile.contentNode.get());
+            selectionChanged = true;
+        }
         tile.selected = false;
+        tile.undoChild = tile.pagedLod->getChild(tile.childIndex);
+        tile.contentNode = tile.undoChild;
+        tile.undoFileName = tile.pagedLod->getFileName(tile.childIndex);
+        tile.undoOmitted = tile.omitted;
+        tile.undoNodeMask = tile.undoChild->getNodeMask();
+        tile.hasUndo = true;
+        tile.omitted = true;
+        omittedTiles.insert(tile.fileName);
+        stageTileReplacement(tile.fileName, "");
+        tile.pagedLod->setFileName(tile.childIndex, "");
+        tile.pagedLod->getChild(tile.childIndex)->setNodeMask(0);
+        if (firstOmittedTile < 0)
+            firstOmittedTile = static_cast<int>(i);
+        ++omittedCount;
+    }
+
+    if (omittedCount == 0)
+        return;
+    if (selectionChanged)
+    {
         selectionManager->selectionChanged();
         selectionManager->pickedObjChanged();
     }
-    tile.undoChild = tile.pagedLod->getChild(tile.childIndex);
-    tile.contentNode = tile.undoChild;
-    tile.undoFileName = tile.pagedLod->getFileName(tile.childIndex);
-    tile.undoOmitted = tile.omitted;
-    tile.undoNodeMask = tile.undoChild->getNodeMask();
-    tile.hasUndo = true;
-    tile.omitted = true;
-    omittedTiles.insert(tile.fileName);
-    tile.pagedLod->setFileName(tile.childIndex, "");
-    tile.pagedLod->getChild(tile.childIndex)->setNodeMask(0);
     selectionManager->invalidateHitList();
-    selectionName->setText(tile.name + " (omitted)");
+    selectedTile = firstOmittedTile;
+    tileList->select(selectedTile + 1, true);
+    selectionName->setText(std::to_string(omittedCount) + " tile(s) omitted; save config to persist");
 }
 void GeoDataLoader::doReplace()
 {
@@ -1032,10 +1091,7 @@ void GeoDataLoader::doUndo()
         omittedTiles.insert(tile.fileName);
     else
         omittedTiles.erase(tile.fileName);
-    if (tile.omitted || tile.undoFileName == tile.fileName)
-        replacements.erase(tile.fileName);
-    else
-        replacements[tile.fileName] = tile.undoFileName;
+    stageTileReplacement(tile.fileName, tile.undoOmitted ? "" : tile.undoFileName);
     tile.hasUndo = false;
     if (tile.selected)
         updateTileSelectionHighlight(tile);
