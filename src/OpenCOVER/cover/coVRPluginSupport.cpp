@@ -1292,6 +1292,13 @@ const osg::NodePath &coVRPluginSupport::getIntersectedNodePath() const
     return intersectedNodePath;
 }
 
+void coVRPluginSupport::invalidateHitList()
+{
+    intersectedNode = nullptr;
+    intersectedDrawable = nullptr;
+    intersectedNodePath.clear();
+}
+
 const osg::Vec3 &coVRPluginSupport::getIntersectionHitPointWorld() const
 {
     return intersectionHitPointWorld;

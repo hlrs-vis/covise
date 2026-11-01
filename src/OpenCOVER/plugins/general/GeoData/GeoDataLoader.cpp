@@ -21,7 +21,12 @@
 #include "GeoDataLoader.h"
 
 #include <algorithm>
+#include <iterator>
 #include <cover/coVRPluginSupport.h>
+#include <cover/coVRSelectionManager.h>
+#include <cover/coIntersection.h>
+#include <OpenVRUI/coNavInteraction.h>
+#include <OpenVRUI/coInteractionManager.h>
 #include <cover/RenderObject.h>
 #include <cover/coVRFileManager.h>
 #include <cover/coVRTui.h>
@@ -372,8 +377,8 @@ bool GeoDataLoader::init()
     editGroup = new ui::Group(geoDataMenu, "edit");
     editGroup->setText("Edit");
     editGroup->allowRelayout(true);
-    editInteraction = new editTerrain(this);
-
+    tileSelectionInteraction = new vrui::coNavInteraction(vrui::coInteraction::ButtonA,
+        "GeoDataTileSelection", vrui::coInteraction::High);
     editButton = new ui::Button(editGroup, "editTerrain");
     editButton->setText("editTerrain");
     editButton->setState(false);
@@ -381,20 +386,37 @@ bool GeoDataLoader::init()
         {
         if (state)
         {
-            editInteraction->enableIntersection();
+            setTilePickingEnabled(true);
         }
         else
         {
-            editInteraction->disableIntersection();
+            setTilePickingEnabled(false);
             } });
 
+    tileList = new ui::SelectionList(editGroup, "tiles");
+    tileList->setText("Selected tiles");
+    tileList->append("No tile selected");
+    tileList->select(0, true);
+    tileList->setCallback([this](int index)
+        {
+            if (index > 0 && index <= static_cast<int>(tiles.size()))
+            {
+                selectedTile = index - 1;
+                auto &tile = tiles[selectedTile];
+                selectionName->setText(tile.name);
+            }
+        });
+
+    replacementFile = new ui::EditField(editGroup, "replacementFile");
+    replacementFile->setText("Replacement tile file:");
+
     deleteSelected = new ui::Action(editGroup, "deleteSelected");
-    deleteSelected->setText("delete");
+    deleteSelected->setText("Omit selected tile");
     deleteSelected->setCallback([this]()
         { doDelete(); });
 
     replace = new ui::Action(editGroup, "replace");
-    replace->setText("replace");
+    replace->setText("Replace selected tile");
     replace->setCallback([this]()
         { doReplace(); });
 
@@ -402,6 +424,31 @@ bool GeoDataLoader::init()
     undo->setText("undo");
     undo->setCallback([this]()
         { doUndo(); });
+
+    exportTile = new ui::Action(editGroup, "exportTile");
+    exportTile->setText("Export selected tile to FBX");
+    exportTile->setCallback([this]()
+        {
+            if (selectedTile < 0)
+                return;
+            auto &tile = tiles[selectedTile];
+            std::string output = tile.fileName;
+            const auto dot = output.find_last_of('.');
+            const auto slash = output.find_last_of("/\\");
+            if (dot != std::string::npos && (slash == std::string::npos || dot > slash))
+                output.erase(dot);
+            output += ".fbx";
+            if (!tile.pagedLod || tile.childIndex >= tile.pagedLod->getNumChildren())
+                return;
+            auto selectionManager = coVRSelectionManager::instance();
+            if (tile.selected && tile.contentNode)
+                selectionManager->removeNode(tile.contentNode.get());
+            osg::Node *node = tile.pagedLod->getChild(tile.childIndex);
+            const bool exported = osgDB::writeNodeFile(*node, output);
+            updateTileSelectionHighlight(tile);
+            if (!exported)
+                std::cerr << "GeoData: Failed to export selected tile to FBX: " << output << std::endl;
+        });
 
     selectionName = new ui::Label(editGroup, "name");
     selectionName->setText("nothing is selected");
@@ -412,6 +459,11 @@ bool GeoDataLoader::init()
 // this is called if the plugin is removed at runtime
 GeoDataLoader::~GeoDataLoader()
 {
+    if (tilePickingEnabled)
+        setTilePickingEnabled(false);
+    clearTileSelections();
+    delete tileSelectionInteraction;
+    tileSelectionInteraction = nullptr;
     s_instance = nullptr;
 
     delete geoObjectGroup;
@@ -539,6 +591,152 @@ void GeoDataLoader::setAutoViewDistance(bool state)
     autoViewDistanceButton->setState(state);
 }
 
+void GeoDataLoader::setTilePickingEnabled(bool state)
+{
+    if (tilePickingEnabled == state)
+        return;
+    tilePickingEnabled = state;
+    if (state)
+    {
+        coIntersection::instance()->isectAllNodes(true);
+        if (tileSelectionInteraction && !tileSelectionInteraction->isRegistered())
+            coInteractionManager::the()->registerInteraction(tileSelectionInteraction);
+    }
+    else
+    {
+        if (tileSelectionInteraction && tileSelectionInteraction->isRegistered())
+            coInteractionManager::the()->unregisterInteraction(tileSelectionInteraction);
+        coIntersection::instance()->isectAllNodes(false);
+    }
+}
+
+void GeoDataLoader::clearTileSelections()
+{
+    auto *selectionManager = coVRSelectionManager::instance();
+    bool changed = false;
+    for (auto &tile : tiles)
+    {
+        if (tile.selected && tile.contentNode)
+        {
+            selectionManager->removeNode(tile.contentNode.get());
+            tile.selected = false;
+            changed = true;
+        }
+    }
+    if (changed)
+    {
+        selectionManager->selectionChanged();
+        selectionManager->pickedObjChanged();
+    }
+}
+
+void GeoDataLoader::toggleTileSelection(int index)
+{
+    if (index < 0 || index >= static_cast<int>(tiles.size()))
+        return;
+    auto &tile = tiles[index];
+    if (!tile.pagedLod || tile.childIndex >= tile.pagedLod->getNumChildren())
+        return;
+
+    auto *selectionManager = coVRSelectionManager::instance();
+    if (tile.selected)
+    {
+        selectionManager->removeNode(tile.contentNode.get());
+        tile.selected = false;
+        selectionManager->selectionChanged();
+        selectionManager->pickedObjChanged();
+        return;
+    }
+
+    osg::Node *node = tile.pagedLod->getChild(tile.childIndex);
+    tile.contentNode = node;
+    selectionManager->setSelectionWire(0);
+    selectionManager->setSelectionColor(1.0f, 0.0f, 0.0f);
+    selectionManager->addSelection(tile.pagedLod.get(), node);
+    tile.selected = true;
+    selectionManager->pickedObjChanged();
+}
+
+void GeoDataLoader::updateTileSelectionHighlight(TileSelection &tile)
+{
+    if (!tile.selected || !tile.pagedLod || tile.childIndex >= tile.pagedLod->getNumChildren())
+        return;
+    auto *selectionManager = coVRSelectionManager::instance();
+    if (tile.contentNode)
+        selectionManager->removeNode(tile.contentNode.get());
+    osg::Node *node = tile.pagedLod->getChild(tile.childIndex);
+    tile.contentNode = node;
+    selectionManager->setSelectionWire(0);
+    selectionManager->setSelectionColor(1.0f, 0.0f, 0.0f);
+    selectionManager->addSelection(tile.pagedLod.get(), node);
+    selectionManager->pickedObjChanged();
+}
+
+void GeoDataLoader::selectTile(const osg::NodePath &hitPath)
+{
+    for (int pathIndex = static_cast<int>(hitPath.size()) - 2; pathIndex >= 0; --pathIndex)
+    {
+        auto *pagedLod = dynamic_cast<osg::PagedLOD *>(hitPath[pathIndex]);
+        if (!pagedLod)
+            continue;
+        osg::Node *child = hitPath[pathIndex + 1];
+        unsigned int childIndex = 0;
+        while (childIndex < pagedLod->getNumChildren() && pagedLod->getChild(childIndex) != child)
+            ++childIndex;
+        if (childIndex < pagedLod->getNumChildren() && childIndex < pagedLod->getNumFileNames())
+        {
+            const std::string fileName = pagedLod->getFileName(childIndex);
+            if (!fileName.empty())
+            {
+                auto found = std::find_if(tiles.begin(), tiles.end(), [pagedLod, childIndex](const TileSelection &tile)
+                    { return tile.pagedLod == pagedLod && tile.childIndex == childIndex; });
+                if (found == tiles.end())
+                {
+                    TileSelection tile;
+                    tile.name = fileName;
+                    tile.fileName = fileName;
+                    tile.pagedLod = pagedLod;
+                    tile.childIndex = childIndex;
+                    tile.contentNode = pagedLod->getChild(childIndex);
+                    tile.originalChild = tile.contentNode;
+                    tile.visibleNodeMask = tile.contentNode->getNodeMask();
+                    tiles.push_back(tile);
+                    tileList->append(fileName);
+                    found = std::prev(tiles.end());
+                }
+
+                selectedTile = static_cast<int>(std::distance(tiles.begin(), found));
+                tileList->select(selectedTile + 1, true);
+                toggleTileSelection(selectedTile);
+                selectionName->setText(found->name);
+                return;
+            }
+        }
+    }
+}
+
+void GeoDataLoader::applyTileEditRules(osg::Node *node)
+{
+    if (!node)
+        return;
+    if (auto *pagedLod = dynamic_cast<osg::PagedLOD *>(node))
+    {
+        for (unsigned int i = 0; i < pagedLod->getNumFileNames(); ++i)
+        {
+            const std::string fileName = pagedLod->getFileName(i);
+            if (omittedTiles.count(fileName))
+                pagedLod->setFileName(i, "");
+            else if (auto replacement = replacements.find(fileName); replacement != replacements.end())
+                pagedLod->setFileName(i, replacement->second);
+        }
+    }
+    if (auto *group = node->asGroup())
+    {
+        for (unsigned int i = 0; i < group->getNumChildren(); ++i)
+            applyTileEditRules(group->getChild(i));
+    }
+}
+
 void GeoDataLoader::message(int toWhom, int type, int length, const void *data)
 {
     const char *messageData = (const char *)data;
@@ -556,141 +754,20 @@ bool GeoDataLoader::update()
         osg::Matrix currentObjectsTransform = cover->getObjectsXform()->getMatrix();
         double z = std::abs(currentObjectsTransform.getTrans().z()) * scale;
 
-        double farValue = 10 * z; // see 10 times as far as we're high
-        farValue = std::clamp(farValue, 1e7, 1e10); // see at least 10km and at most 10_000 km
+        double farValue = 10 * z;
+        farValue = std::clamp(farValue, 1e7, 1e10);
 
         double nearValue = farValue / 1e6;
         nearValue = std::clamp(nearValue, 10.0, 500.0);
         coVRConfig::instance()->setNearFar(nearValue, farValue);
     }
 
-    if (editInteraction->isRunning())
-    {
-        // get the intersected node
-        if (cover->getIntersectedNode())
-        {
-            // position label with name
-            // nameLabel_->setPosition(cover->getIntersectionHitPointWorld());
-            if (cover->getIntersectedNode() != oldIntersectedNode)
-            {
-                // get the node name
-                string nodeName;
-                // char *labelName = NULL;
+    if (tilePickingEnabled && tileSelectionInteraction && tileSelectionInteraction->wasStarted()
+        && cover->getIntersectedNode())
+        selectTile(cover->getIntersectedNodePath());
 
-                // show only node names under objects root
-                // so check if node is under objects root
-                osg::Node *currentNode = cover->getIntersectedNode();
-                while (currentNode != NULL)
-                {
-                    if (currentNode == cover->getObjectsRoot())
-                    {
-                        /* if (showGeodeName_)
-                         {
-                             // first look for a node description beginning with _SCGR_
-                             std::vector<std::string> dl = cover->getIntersectedNode()->getDescriptions();
-                             for (size_t i = 0; i < dl.size(); i++)
-                             {
-                                 std::string descr = dl[i];
-                                 if (descr.find("_SCGR_") != string::npos)
-                                 {
-                                     nodeName = dl[i];
-                                     // fprintf(stderr,"found description %s\n", nodeName.c_str());
-                                     break;
-                                 }
-                             }
-                             if (nodeName.empty())
-                             { // if there is no description we take the node name
-                                 nodeName = cover->getIntersectedNode()->getName();
-                                 // fprintf(stderr,"taking the node name %s\n", nodeName.c_str());
-                             }
-                         }
-                         else // show name of the dcs above
-                         {
-                             osg::Node *parentDcs = cover->getIntersectedNode()->getParent(0);
-                             nodeName = parentDcs->getName();
-                             if (nodeName.empty())
-                             {
-                                 // if the dcs has no name it could be a helper node
-                                 if ((parentDcs->getNumDescriptions() > 0) && (parentDcs->getDescription(1) == "SELECTIONHELPER"))
-                                 {
-                                     nodeName = parentDcs->getParent(0)->getName();
-                                 }
-                             }
-                         }*/
-                        break;
-                    }
-                    if (currentNode->getNumParents() > 0)
-                        currentNode = currentNode->getParent(0);
-                    else
-                        currentNode = NULL;
-                }
-
-                // show label
-                if (!nodeName.empty())
-                {
-                    std::string onam = nodeName;
-                    // eliminate _SCGR_
-                    if (nodeName.find("_SCGR_") != string::npos)
-                    {
-                        nodeName = nodeName.substr(0, nodeName.rfind("_SCGR_"));
-                    }
-                    // eliminate 3D studio max name -faces
-                    if (nodeName.find("-FACES") != string::npos)
-                    {
-                        nodeName = nodeName.substr(0, nodeName.rfind("-FACES"));
-                    }
-                    // eliminate 3D studio max name _faces
-                    if (nodeName.find("_FACES") != string::npos)
-                    {
-                        nodeName = nodeName.substr(0, nodeName.rfind("_FACES"));
-                    }
-                    // eliminate numbers at the end
-                    while ((nodeName.length() > 0) && (nodeName[nodeName.length() - 1] >= '0') && (nodeName[nodeName.length() - 1] <= '9'))
-                    {
-                        nodeName.erase(nodeName.length() - 1, 1);
-                    }
-
-                    // replace underlines with blanks
-                    if (nodeName.length() > 0 && nodeName[nodeName.length() - 1] == '_')
-                    {
-                        nodeName.erase(nodeName.length() - 1);
-                    }
-
-                    // check if we now have an empty string (containing spaces only)
-                    if (nodeName.length() > 0)
-                    {
-                        selectionName->setText(nodeName);
-
-                        // delete []labelName;
-                        oldIntersectedNode = cover->getIntersectedNode();
-                    }
-                    else
-                    {
-                        selectionName->setText("-");
-                        oldIntersectedNode = NULL;
-                    }
-                }
-                else
-                {
-                    selectionName->setText("-");
-                    oldIntersectedNode = NULL;
-                }
-            }
-            else
-            {
-                selectionName->setText("-");
-                oldIntersectedNode = NULL;
-            }
-        }
-        else
-        {
-            selectionName->setText("-");
-            oldIntersectedNode = NULL;
-        }
-    }
-    return false; // don't request that scene be re-rendered
+    return false;
 }
-
 GeoDataLoader *GeoDataLoader::instance()
 {
     if (!s_instance)
@@ -756,6 +833,7 @@ osg::ref_ptr<osg::Node> GeoDataLoader::loadTerrain(std::string filename, bool is
 
     if (terrain)
     {
+        applyTileEditRules(terrain);
         terrain->setDataVariance(osg::Object::DYNAMIC);
 
         osg::StateSet *terrainStateSet = terrain->getOrCreateStateSet();
@@ -854,76 +932,115 @@ std::optional<PlaceLabelGroup> GeoDataLoader::loadLabels(const std::string &file
 
 COVERPLUGIN(GeoDataLoader)
 
-void editTerrain::createGeometry()
-{
-
-    osg::Sphere *mySphere = new osg::Sphere(osg::Vec3(0, 0, 0), 1.0);
-    osg::TessellationHints *hint = new osg::TessellationHints();
-    hint->setDetailRatio(0.5);
-    osg::ShapeDrawable *mySphereDrawable = new osg::ShapeDrawable(mySphere, hint);
-    mySphereDrawable->setColor(osg::Vec4(0.6f, 0.6f, 0.6f, 1.0f));
-    geometryNode = new osg::Geode();
-    scaleTransform->addChild(geometryNode.get());
-    moveTransform->addChild(scaleTransform.get());
-    ((osg::Geode *)geometryNode.get())->addDrawable(mySphereDrawable);
-    geometryNode->setStateSet(VRSceneGraph::instance()->loadDefaultGeostate());
-    geometryNode->setNodeMask(geometryNode->getNodeMask() | (Isect::Pick) | (Isect::Intersection));
-}
-
-editTerrain::editTerrain(GeoDataLoader *g)
-    : vrui::coCombinedButtonInteraction(vrui::coInteraction::ButtonA, "editTerrain", vrui::coInteraction::InteractionPriority::Medium)
-{
-    gdl = g;
-    _selectedHl = new osg::StateSet();
-    _intersectedHl = new osg::StateSet();
-
-    if (_standardHL)
-    {
-        // set default materials
-        osg::Material *selMaterial = new osg::Material();
-        selMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4f(1.0, 0.3, 0.0, 1.0f));
-        selMaterial->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4f(1.0, 0.3, 0.0, 1.0f));
-        selMaterial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.1f, 0.1f, 0.1f, 1.0f));
-        selMaterial->setShininess(osg::Material::FRONT_AND_BACK, 10.f);
-        selMaterial->setColorMode(osg::Material::OFF);
-        osg::Material *isectMaterial = new osg::Material();
-        isectMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.6, 0.6, 0.0, 1.0f));
-        isectMaterial->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.6, 0.6, 0.0, 1.0f));
-        isectMaterial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.1f, 0.1f, 0.1f, 1.0f));
-        isectMaterial->setShininess(osg::Material::FRONT_AND_BACK, 10.f);
-        isectMaterial->setColorMode(osg::Material::OFF);
-        _selectedHl->setAttribute(selMaterial, osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED);
-        _intersectedHl->setAttribute(isectMaterial, osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED);
-    }
-    /*
-        _selectedHl->setAttributeAndModes(polymode, osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED | osg::StateAttribute::ON);
-        _selectedHl->setAttributeAndModes(polymode, osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED | osg::StateAttribute::ON);*/
-}
-
-void editTerrain::enableIntersection()
-{
-    coInteractionManager::the()->registerInteraction(this);
-}
-
-void editTerrain::disableIntersection()
-{
-    // interactor is normally unregistered in miss
-    // if we disable intersection miss is not called anymore
-    // therefore we make sure that the interactor is unregistered
-    if (registered)
-    {
-        coInteractionManager::the()->unregisterInteraction(this);
-    }
-
-    resetState();
-}
-
 void GeoDataLoader::doDelete()
 {
+    if (selectedTile < 0 || selectedTile >= static_cast<int>(tiles.size()))
+        return;
+    auto &tile = tiles[selectedTile];
+    if (!tile.pagedLod || tile.childIndex >= tile.pagedLod->getNumChildren())
+        return;
+
+    auto *selectionManager = coVRSelectionManager::instance();
+    tile.undoSelected = tile.selected;
+    if (tile.selected && tile.contentNode)
+    {
+        selectionManager->removeNode(tile.contentNode.get());
+        tile.selected = false;
+        selectionManager->selectionChanged();
+        selectionManager->pickedObjChanged();
+    }
+    tile.undoChild = tile.pagedLod->getChild(tile.childIndex);
+    tile.contentNode = tile.undoChild;
+    tile.undoFileName = tile.pagedLod->getFileName(tile.childIndex);
+    tile.undoOmitted = tile.omitted;
+    tile.undoNodeMask = tile.undoChild->getNodeMask();
+    tile.hasUndo = true;
+    tile.omitted = true;
+    omittedTiles.insert(tile.fileName);
+    tile.pagedLod->setFileName(tile.childIndex, "");
+    tile.pagedLod->getChild(tile.childIndex)->setNodeMask(0);
+    selectionManager->invalidateHitList();
+    selectionName->setText(tile.name + " (omitted)");
 }
 void GeoDataLoader::doReplace()
 {
+    if (selectedTile < 0 || selectedTile >= static_cast<int>(tiles.size()))
+        return;
+    auto &tile = tiles[selectedTile];
+    const std::string replacementPath = replacementFile->value();
+    if (replacementPath.empty() || !tile.pagedLod || tile.childIndex >= tile.pagedLod->getNumChildren())
+        return;
+
+    osg::ref_ptr<osg::Node> replacementNode = osgDB::readNodeFile(replacementPath);
+    if (!replacementNode)
+    {
+        std::cerr << "GeoData: Failed to read replacement tile: " << replacementPath << std::endl;
+        return;
+    }
+
+    auto *selectionManager = coVRSelectionManager::instance();
+    tile.undoSelected = tile.selected;
+    if (tile.selected && tile.contentNode)
+    {
+        selectionManager->removeNode(tile.contentNode.get());
+        tile.selected = false;
+        selectionManager->selectionChanged();
+    }
+    tile.undoChild = tile.pagedLod->getChild(tile.childIndex);
+    tile.contentNode = tile.undoChild;
+    tile.undoFileName = tile.pagedLod->getFileName(tile.childIndex);
+    tile.undoOmitted = tile.omitted;
+    tile.undoNodeMask = tile.undoChild->getNodeMask();
+    tile.hasUndo = true;
+    replacementNode->setName(tile.name);
+    replacementNode->setNodeMask(tile.omitted ? tile.visibleNodeMask : tile.undoNodeMask);
+    tile.pagedLod->setChild(tile.childIndex, replacementNode.get());
+    tile.pagedLod->setFileName(tile.childIndex, replacementPath);
+    tile.contentNode = replacementNode;
+    tile.omitted = false;
+    tile.selected = tile.undoSelected;
+    omittedTiles.erase(tile.fileName);
+    replacements[tile.fileName] = replacementPath;
+    if (tile.selected)
+        updateTileSelectionHighlight(tile);
+    tileList->select(selectedTile + 1, true);
+    selectionName->setText(tile.name + " (replaced)");
 }
 void GeoDataLoader::doUndo()
 {
+    if (selectedTile < 0 || selectedTile >= static_cast<int>(tiles.size()))
+        return;
+    auto &tile = tiles[selectedTile];
+    if (!tile.hasUndo || !tile.pagedLod || tile.childIndex >= tile.pagedLod->getNumChildren())
+        return;
+
+    auto *selectionManager = coVRSelectionManager::instance();
+    const bool hadSelection = tile.selected;
+    if (hadSelection && tile.contentNode)
+    {
+        selectionManager->removeNode(tile.contentNode.get());
+        selectionManager->selectionChanged();
+    }
+    tile.selected = false;
+    tile.pagedLod->setChild(tile.childIndex, tile.undoChild.get());
+    tile.pagedLod->setFileName(tile.childIndex, tile.undoFileName);
+    tile.undoChild->setNodeMask(tile.undoNodeMask);
+    tile.contentNode = tile.undoChild;
+    tile.selected = tile.undoSelected;
+    tile.omitted = tile.undoOmitted;
+    if (tile.omitted)
+        omittedTiles.insert(tile.fileName);
+    else
+        omittedTiles.erase(tile.fileName);
+    if (tile.omitted || tile.undoFileName == tile.fileName)
+        replacements.erase(tile.fileName);
+    else
+        replacements[tile.fileName] = tile.undoFileName;
+    tile.hasUndo = false;
+    if (tile.selected)
+        updateTileSelectionHighlight(tile);
+    else if (hadSelection)
+        selectionManager->pickedObjChanged();
+    tileList->select(selectedTile + 1, true);
+    selectionName->setText(tile.name);
 }

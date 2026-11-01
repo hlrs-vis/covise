@@ -68,6 +68,11 @@ name = "Schweiz"
 terrainPath = "/mnt/medium/geodata/Schweiz/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive"
 lodPath = "/mnt/medium/geodata/Schweiz/lod/unzipped/lod2.ive"
 
+[[regions]]
+name = "Rulantica"
+terrainPath = "/data/MackResearch/Europa-Park-Twin/Rulantica/Production_1/Production_1.osgb"
+
+
 [[datasets]]
 name = "New building"
 easting = 507128.7468984433

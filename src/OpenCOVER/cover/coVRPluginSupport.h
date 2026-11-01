@@ -436,6 +436,9 @@ public:
     //! get path to node currently intersected by pointer
     const osg::NodePath &getIntersectedNodePath() const;
 
+    //! discard the current pointer hit so removed nodes cannot be reused
+    void invalidateHitList();
+
     //! get world coordinates of intersection hit point
     const osg::Vec3 &getIntersectionHitPointWorld() const;
 

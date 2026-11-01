@@ -23,11 +23,13 @@
 #include <osg/Texture2D>
 #include <string>
 #include <optional>
+#include <set>
 #include <vector>
+#include <osg/Node>
 #include <osg/PositionAttitudeTransform>
 #include <osgTerrain/Terrain>
+#include <osg/PagedLOD>
 #include <osg/TexMat>
-#include <osg/StateSet>
 #include <cover/coVRPlugin.h>
 #include <proj.h>
 #include <cover/ui/Menu.h>
@@ -38,40 +40,11 @@
 #include <cover/ui/Button.h>
 #include <cover/ui/Label.h>
 #include <cover/ui/SelectionList.h>
-#include <optional>
 
-#include <OpenVRUI/coCombinedButtonInteraction.h>
-#include <cover/coIntersection.h>
-#include <OpenVRUI/coCombinedButtonInteraction.h>
-#include <OpenVRUI/sginterface/vruiIntersection.h>
-
-class GeoDataLoader;
-
-class editTerrain : public vrui::coCombinedButtonInteraction
+namespace vrui
 {
-public:
-    editTerrain(GeoDataLoader *g);
-    // enable interaction
-    void enableIntersection();
-    // disable interaction
-    void disableIntersection();
-
-private:
-    virtual void createGeometry();
-
-    // check whether interactor is enabled
-    bool isEnabled();
-
-    osg::ref_ptr<osg::Node> geometryNode; ///< Geometry node
-    osg::ref_ptr<osg::MatrixTransform> moveTransform;
-    osg::ref_ptr<osg::MatrixTransform> scaleTransform;
-
-    osg::ref_ptr<osg::StateSet> _selectedHl, _intersectedHl, _oldHl;
-    bool _standardHL = true;
-    bool _intersectionEnabled = false;
-
-    GeoDataLoader *gdl = nullptr;
-};
+class coNavInteraction;
+}
 
 class EditInfo
 {
@@ -114,7 +87,6 @@ public:
     osg::ref_ptr<osg::Node> loadTerrain(std::string filename, bool isTerrain = true);
 
     static GeoDataLoader *instance();
-    editTerrain *editInteraction;
 
     virtual void message(int toWhom, int type, int length, const void *data);
 
@@ -130,6 +102,7 @@ public:
     void setShowTerrain(bool state);
     void setShowLabels(bool state);
     void setAutoViewDistance(bool state);
+    void setTilePickingEnabled(bool state);
 
     std::optional<PlaceLabelGroup> loadLabels(const std::string &file);
 
@@ -148,12 +121,40 @@ private:
     std::map<std::string, opencover::ui::Button *> regionButtons;
 
     std::map<std::string, std::string> replacements;
+    std::set<std::string> omittedTiles;
     bool showTerrain = true;
     bool showBuildings = true;
     bool showLabels = false;
 
-    osg::Node *oldIntersectedNode;
     std::list<EditInfo> editInfos;
+
+    struct TileSelection
+    {
+        std::string name;
+        std::string fileName;
+        osg::ref_ptr<osg::PagedLOD> pagedLod;
+        osg::ref_ptr<osg::Node> contentNode;
+        unsigned int childIndex = 0;
+        osg::ref_ptr<osg::Node> originalChild;
+        unsigned int visibleNodeMask = ~0u;
+        bool omitted = false;
+        bool selected = false;
+        osg::ref_ptr<osg::Node> undoChild;
+        std::string undoFileName;
+        bool undoOmitted = false;
+        bool undoSelected = false;
+        unsigned int undoNodeMask = ~0u;
+        bool hasUndo = false;
+    };
+    std::vector<TileSelection> tiles;
+    int selectedTile = -1;
+    bool tilePickingEnabled = false;
+    vrui::coNavInteraction *tileSelectionInteraction = nullptr;
+    void selectTile(const osg::NodePath &hitPath);
+    void clearTileSelections();
+    void toggleTileSelection(int index);
+    void updateTileSelectionHighlight(TileSelection &tile);
+    void applyTileEditRules(osg::Node *node);
     void doDelete();
     void doReplace();
     void doUndo();
@@ -166,6 +167,9 @@ private:
     opencover::ui::Action *undo;
     opencover::ui::EditField *selectionRadius;
     opencover::ui::Label *selectionName;
+    opencover::ui::SelectionList *tileList;
+    opencover::ui::EditField *replacementFile;
+    opencover::ui::Action *exportTile;
 
     opencover::ui::Menu *geoDataMenu;
 

@@ -265,6 +265,12 @@ void coVRSelectionManager::pickedObjChanged()
     }
 }
 
+void coVRSelectionManager::invalidateHitList()
+{
+    if (cover)
+        cover->invalidateHitList();
+}
+
 void coVRSelectionManager::removeNode(osg::Node *node)
 {
     if (selectedNodeList.empty())

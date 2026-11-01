@@ -44,6 +44,7 @@ public:
     void selectionChanged();
     void pickedObjChanged();
     void removeNode(osg::Node *);
+    void invalidateHitList();
     osg::BoundingSphere getBoundingSphere(osg::Node *);
 
     virtual bool update();
