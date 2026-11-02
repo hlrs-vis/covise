@@ -1,3 +1,7 @@
 skyDir = "/data/Geodata/sky"
 defaultSky = "DJI_20260309172610_0019_D"
 
+[autoSky]
+maxHeight = 1000 # Disable auto sky above this z-height -- set to 0 to disable
+debounce = 1.0 # Time before automatically switching sky -- to avoid flickering
+
