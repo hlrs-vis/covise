@@ -23,6 +23,12 @@
             and far surface (inside the void). Terrain that the void merely
             occludes (both bits set -> value 3) is kept.
 
+  The shadows are deep copies of the whole top-level object (not just one
+  geode), placed as siblings of that object. That keeps every tile/geode of a
+  (possibly multi-geode, e.g. photogrammetry .osgb) object in place, follows
+  its (helper) transforms, and lets the render-bin/stencil state be set once
+  on the clone's root so it propagates to all children.
+
   Void objects are hidden in the main pass (color/depth write off) while
   remaining pickable, so they stay editable (Move, Selection, ...).
 
@@ -88,23 +94,35 @@ private:
         RemoveVoid
     };
 
+    struct GeodeSavedState
+    {
+        osg::Geode *geode = nullptr;
+        osg::ref_ptr<osg::StateAttribute> colorMask;
+        osg::ref_ptr<osg::StateAttribute> depth;
+        osg::ref_ptr<osg::StateAttribute> stencil;
+        unsigned int nodeMask = 0;
+        bool captured = false; // true once the original state has been captured
+    };
+
     struct Shadow
     {
         std::string name;
-        // primary clone inserted next to the original: for the target it is the
-        // depth shadow; for a void it is the near-surface (front faces) clone
+        osg::ref_ptr<osg::Node> topNode; // the object's current top-level node (helper-aware)
+        std::vector<osg::Geode *> geodes; // all geodes of the object (non-owning)
+        // the parent the clones live under (a sibling of `topNode`); re-parented
+        // when a helper is inserted/removed above the object
+        osg::ref_ptr<osg::Group> parent;
+        // primary clone (a deep copy of the whole top node): for the target it is
+        // the depth shadow; for a void it is the near-surface (front faces) clone
         osg::ref_ptr<osg::Node> node;
         // void only: the far-surface (back faces) clone, rendered in a different
         // bin to set the other stencil bit
         osg::ref_ptr<osg::Node> nodeFar;
-        osg::ref_ptr<osg::Group> parent;
-        osg::Geode *geode = nullptr; // non-owning; the geode the clone was taken from
-        // the void geode's original rendering state, saved so hiding can be reverted
-        osg::ref_ptr<osg::StateAttribute> savedColorMask;
-        osg::ref_ptr<osg::StateAttribute> savedDepth;
-        osg::ref_ptr<osg::StateAttribute> savedStencil;
-        unsigned int savedMask = 0; // original node mask (0 = not captured)
-        bool appliedHidden = false; // current visibility state of the geode
+        // the object geodes' original rendering state, saved so hiding can be
+        // reverted (parallel to `geodes`)
+        std::vector<GeodeSavedState> saved;
+        int savedCount = 0; // how many geodes `saved` currently describes
+        bool appliedHidden = false; // current visibility state of the geodes
     };
 
     // ---- target / void bookkeeping ----
@@ -118,7 +136,7 @@ private:
     void syncSetup();
     // toggle whether void objects are hidden in the main pass (still pickable)
     void setHideVoids(bool hide);
-    // apply (or revert) the hide state on one void's geode
+    // apply (or revert) the hide state on one void's geodes
     void applyVoidVisibility(const std::string &name);
     // per-frame: keep the shadow clones in sync with their (possibly moved,
     // wrapped or replaced) objects and apply the hide state
@@ -126,27 +144,29 @@ private:
 
     // ---- shadow (stencil/depth pre-pass) management ----
     void removeTargetShadow();
-    void rebuildTargetShadow(osg::Geode *geode);
+    void rebuildTargetShadow();
     void removeVoidShadow(const std::string &name);
     void createVoidShadow(const std::string &name, osg::Geode *geode);
-    // (re-)create the near/far clones next to the object's current geode
-    void makeVoidClones(Shadow *shadow, const std::string &name, osg::Geode *geode);
-    // move both clones to the geode's current parent (helper insert/remove)
-    void reparentVoidClones(Shadow *shadow, osg::Group *parent);
-    // re-create the clones next to the object's current (replaced) geode
+    // (re-)create the near/far clones at the scene root for the whole object
+    void makeVoidClones(Shadow *shadow, const std::string &name);
+    // re-create the clones for the object's current (replaced) top node
     void reattachVoidShadow(const std::string &name);
     void updateMainPass();
     void applyMainPass(osg::StateSet *ss, bool on);
-    // put the target geode back to its original depth/stencil state (no clip)
+    // put the target geodes back to their original depth/stencil state (no clip)
     void restoreTarget();
 
     // ---- helpers ----
     // name of the top-level scene object a node belongs to
     std::string objectNameOf(osg::Node *node) const;
-    // resolve a configured name/prefix to the object's top-level node, "" if not found
+    // the top-level scene node a node belongs to (skips selection helpers)
+    osg::Node *topNodeOf(osg::Node *node) const;
+    // resolve a configured name/prefix to the object's top-level node name, "" if not found
     std::string resolveName(const std::string &name) const;
-    // find the geode of a top-level object (exact or basename/prefix match)
-    osg::Geode *geodeOf(const std::string &name) const;
+    // the top-level node of an object name, "" if not found
+    osg::Node *topNodeOf(const std::string &name) const;
+    // all geodes of an object (empty if the object is absent)
+    std::vector<osg::Geode *> geodesOf(const std::string &name) const;
     // match a configured name against a top-level node name (file-loaded objects
     // are named by their URL, so the basename of the path is compared)
     static bool matchName(const std::string &cfgName, const std::string &nodeName);
@@ -156,7 +176,8 @@ private:
 
     Mode m_mode = Mode::None;
     std::string m_targetName;
-    osg::ref_ptr<osg::Geode> m_targetGeode;
+    osg::ref_ptr<osg::Node> m_targetTopNode;
+    std::vector<osg::Geode *> m_targetGeodes; // the target's geodes the main pass is applied to
     std::vector<std::string> m_voidNames;
     bool m_manual = false; // user has interacted -> config no longer auto-applies until "Load Setup"
     bool m_hideVoids = true; // void objects are hidden in the main pass but stay pickable
@@ -164,18 +185,17 @@ private:
     Shadow *m_targetShadow = nullptr;
     std::map<std::string, Shadow *> m_voidShadows; // keyed by object name
 
-    // per-object counters: frames in a row the object's geode has been absent
+    // per-object counters: frames in a row the object's geodes have been absent
     // from the scene; a replaced object is gone for at most one frame, so a
     // few dozen frames means it was really deleted (file objects removed via
     // the SGBrowser do not fire the plugin remove hooks, so clean up here)
     std::map<std::string, int> m_missingFrames;
     int m_targetMissingFrames = 0;
 
-    // the target geode's original depth/stencil attributes, saved before the
+    // the target geodes' original depth/stencil attributes, saved before the
     // clip overrides are applied so they can be restored on remove/clear
     bool m_targetSavedState = false;
-    osg::ref_ptr<osg::StateAttribute> m_targetSavedDepth;
-    osg::ref_ptr<osg::StateAttribute> m_targetSavedStencil;
+    std::vector<GeodeSavedState> m_targetSaved;
 
     ui::Menu *m_menu = nullptr;
     ui::Group *m_group = nullptr;

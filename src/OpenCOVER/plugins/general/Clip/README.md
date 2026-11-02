@@ -50,23 +50,31 @@ front) mean:
 
 ### Shadow clones
 
-The shadows are deep copies of the original geodes (voids carry two copies:
-near and far shell). Each frame the plugin re-resolves the current geode by
-object name and keeps every shadow as a sibling **under the geode's current
-parent**:
+The shadows are deep copies of the object's **whole top-level node** (not just
+one geode), placed as a **sibling of that top node**. This matters for objects
+made of many geodes — e.g. a photogrammetry model loaded from `.osgb`, which is
+one top-level group containing one geode per tile. Because the clone carries
+the top node's local matrix, it aligns exactly with the object and follows
+every transform:
 
-- **Move plugin**: wrapping an object in its (helper) `MatrixTransform`
-  re-parents the geode, so the shadow is moved with it — the clone carries the
-  same local matrix and stays exactly on the object.
-- **COVISE object updates** (replace): the new geode is re-cloned and the
+- **Move plugin**: wrapping the object in its (helper) `MatrixTransform`
+  re-parents the top node, so the plugin re-parents the clone under the same
+  new parent — it stays exactly on the object.
+- **COVISE object updates** (replace): the new top node is re-cloned and the
   shadow is re-created.
+
+The render-bin and stencil/depth state is set on the clone root with
+`nestRenderBins` off, so it propagates to **all** of the object's geodes.
+Every frame the plugin re-resolves the object by name (helper-aware) and
+re-applies the state to all of its geodes.
 
 The shadows' node masks remove them from picking, intersection, collision and
 navigation, so they are invisible and do not disturb the scene.
 
 ### Hidden but editable voids
 
-Hiding is done purely with **render state** on the void geode, never by
+Hiding is done purely with **render state** on every geode of the void
+object, never by
 clearing the `Isect::Visible` bit (COVER's picking rejects a hit if the node
 or one of its ancestors is not `Visible`, so that would make the object
 ungrippable):
@@ -77,7 +85,7 @@ ungrippable):
 - `Pick` (and `Visible`) stay set, so Selection and Move can still grab it
 
 A void that is **currently selected or being moved** (a *Selection* helper
-node is above its geode) is temporarily shown again, so you always see the
+node is above its top node) is temporarily shown again, so you always see the
 object you are editing; it hides again as soon as the selection is cleared.
 The toggle is available as the **"Hide void objects"** button and as the
 `Setup.hideVoids` config value.
@@ -144,6 +152,8 @@ Names are matched against the scene graph's top-level node names:
 - **File-loaded objects** (e.g. `cover terrain.obj ...`): the top-level node
   is named by its load URL (e.g. `terrain.obj` or `/abs/path/terrain.obj`), so
   use the file name or its path as loaded. A plain prefix also works.
+- **Multi-geode files** (e.g. `cover dsm_terrain.osgb ...`): the node name is
+  the group name stored inside the file if it has one, otherwise the file name.
 
 The config is read on plugin start and re-applied automatically whenever the
 file changes (or objects load in). A manual pick takes the setup over from the
@@ -151,29 +161,48 @@ config; the **"Apply setup from config"** button puts the config back in
 charge. `Setup.hideVoids` (default `true`) controls whether the void objects
 are hidden; the "Hide void objects" button writes it back, so it is shared.
 
+The config manager searches `./.covconfig` (the current directory) and the
+installation's `config/` directory among others; the first file found wins.
+To make a local setup deterministic (e.g. when the installed default exists),
+point `COVCONFIG` at a directory containing `plugin/Clip.toml`, e.g.
+`export COVCONFIG=/path/to/your/.covconfig` before starting COVER.
+
 ## Notes and limitations
 
 - The target and the voids must be separate objects (self-cutting is not
   defined).
 - The cut is a visual stencil effect on the target object; the underlying
   geometry is not modified.
+- The plugin works on **any number of geodes per object** (single-geode files
+  as well as multi-geode photogrammetry models from `.osgb`/`.osg`), because
+  the shadows clone the whole top-level object and the main-pass state is
+  applied to every geode of the target.
 - Hidden voids are still **collision-free** (the collision/walk/touch bits are
   cleared), which is usually what you want for buildings behind the terrain —
   you can walk/laser through them.
 - Transparent targets or voids are best-effort: the pre-passes render with
   depth only, so alpha-blended edges may not cut perfectly.
-- Requires the stencil buffer that COVER requests by default
-  (`COVER.StencilBits`, default 1 bit — enough for this binary test).
+- The slab test needs **2 stencil bits**. COVER requests a stencil buffer by
+  default (`COVER.Stencil` = true, 8 bits); the plugin reports the available
+  bits in the `CLIP_DEBUG_DUMP` log if you set that environment variable.
 
 ## Testing
 
-See `test_geometry/` for a generated terrain + two "building" boxes and a
-`run_test.sh` that loads them with a pre-applied (or interactive) Clip setup:
+`test_geometry/` contains generated test scenes. All are loaded with the
+Clip plugin and a pre-applied (or interactive) setup:
 
 ```
-test_geometry/run_test.sh            # setup auto-applied, holes visible at once
+test_geometry/run_test.sh            # wavy terrain + two boxes (classic scene)
 test_geometry/run_test.sh interactive # start empty, pick with the Clip menu
+test_geometry/run_dsm_test.sh        # photogrammetry-style DSM: one .osgb
+                                     # target with 9 tile geodes + two boxes
+test_geometry/run_dsm_test.sh interactive
 ```
+
+The DSM scene builds a `dsm_terrain.osgb` (one top-level group with one geode
+per tile, buildings modelled as flat-topped spikes that are *part of the*
+surface) to exercise the multi-geode path, i.e. the same structure a real
+photogrammetry model has. The launcher regenerates it if missing.
 
 Things to check:
 
@@ -181,3 +210,5 @@ Things to check:
 - select a building (Selection nav mode) → it becomes visible while selected
 - move it with the Move plugin → the hole follows, it hides again afterwards
 - "Hide void objects" button toggles the visibility of all voids
+- on the DSM scene, the cut spans **tile borders** without gaps (all 9 geodes
+  are clipped), and the terrain behind a box stays visible
