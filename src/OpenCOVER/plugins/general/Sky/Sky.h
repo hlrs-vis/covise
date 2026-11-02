@@ -84,6 +84,11 @@ private:
     bool m_autoSkyEnabled = false;
     bool m_ephemeralSkyEnabled = false;
 
+    double m_autoSkyMaxHeight = 0.0;
+    double m_autoSkyDebounce = 0.0;
+    SkyEntry *m_debounceNextSky = nullptr;
+    double m_debounceNextSkyDuration = 0.0;
+
     SkyEntry *m_currentSky = nullptr;
 
     void loadSkies();
@@ -95,7 +100,7 @@ private:
     void setSkyEntry(SkyEntry &sky, bool manualSelection);
     void setSkyAuto();
     void updateAutoSky();
-    SkyEntry *findClosestSky(const osg::Vec3 &globalPosition);
+    SkyEntry *findClosestSky();
     void removeExistingSky();
 
     static Sky *s_instance;

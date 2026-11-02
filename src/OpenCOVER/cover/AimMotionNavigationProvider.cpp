@@ -176,14 +176,14 @@ bool AimMotionNavigationProvider::update()
         runningDuration += deltaTime;
 
         auto targetVelocity = dir;
-        velocity = lerp(velocity, targetVelocity, deltaTime * 5.0);
+        velocity = lerp(velocity, targetVelocity, std::clamp(deltaTime * 5.0, 0.0, 1.0));
     }
     else if (interactionReverse.isRunning())
     {
         runningDuration += deltaTime;
 
         auto targetVelocity = -dir;
-        velocity = lerp(velocity, targetVelocity, deltaTime * 5.0);
+        velocity = lerp(velocity, targetVelocity, std::clamp(deltaTime * 5.0, 0.0, 1.0));
     }
     else
     {
@@ -193,9 +193,9 @@ bool AimMotionNavigationProvider::update()
     // slow down
     velocity *= (1.0 - deltaTime * 2.0);
     if (abs(angleChangeTarget) > abs(angleChange))
-        angleChange = lerp(angleChange, angleChangeTarget, deltaTime * 2.0);
+        angleChange = lerp(angleChange, angleChangeTarget, std::clamp(deltaTime * 2.0, 0.0, 1.0));
     else
-        angleChange = lerp(angleChange, angleChangeTarget, deltaTime * 8.0);
+        angleChange = lerp(angleChange, angleChangeTarget, std::clamp(deltaTime * 8.0, 0.0, 1.0));
 
     // stop properly
     if (!interactionPoint.isRunning() && velocity.length2() < 0.01)
