@@ -55,7 +55,6 @@ public:
     osgDB::ReaderWriter::ReadResult readNode(const std::string& location, const osgDB::Options* options);
     osgDB::ReaderWriter::ReadResult readNode(std::istream& inputStream, const osgDB::Options* options);
 
-    void preFrame() override;
     bool init() override;
 
     osg::ref_ptr<osg::MatrixTransform> GLTFRoot;

@@ -77,13 +77,6 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
 
-#ifdef HAVE_OSGNV
-#include <osgNVExt/RegisterCombiners>
-#include <osgNVExt/CombinerInput>
-#include <osgNVExt/CombinerOutput>
-#include <osgNVExt/FinalCombinerInput>
-#endif
-
 #include <osgText/Font>
 #include <osgText/Text>
 
@@ -225,11 +218,6 @@ GLTFPlugin::~GLTFPlugin()
     for (int i = 0; i < 2; i++)
     coVRFileManager::instance()->unregisterFileHandler(&handlers[i]);
 	cover->getObjectsRoot()->removeChild(GLTFRoot);
-}
-
-void
-GLTFPlugin::preFrame()
-{
 }
 
 COVERPLUGIN(GLTFPlugin)
