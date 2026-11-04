@@ -85,6 +85,12 @@ public:
     //! call notify method of all plugins
     void notify(int level, const char *text) const;
 
+    //! Let plugins rewrite or reject a database pager request before it is queued.
+    std::string requestNodeFile(const std::string &fileName, osg::NodePath &nodePath, float priority,
+                                const osg::FrameStamp *framestamp,
+                                osg::ref_ptr<osg::Referenced> &databaseRequest,
+                                const osg::Referenced *options) const;
+
     //! call addNode method of all plugins
     void addNode(osg::Node *, const RenderObject *o = NULL, coVRPlugin *addingPlugin = NULL) const;
 

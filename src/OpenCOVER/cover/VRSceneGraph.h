@@ -122,6 +122,7 @@ public:
 
     void config();
     void init();
+    void installDatabasePager();
     void update();
 
     osg::MatrixTransform *getTransform() const

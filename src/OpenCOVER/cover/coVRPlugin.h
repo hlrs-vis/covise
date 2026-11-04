@@ -24,6 +24,10 @@
 #include <util/coExport.h>
 #include <osg/Matrix>
 #include <osg/Drawable>
+#include <osg/NodeVisitor>
+#include <osg/FrameStamp>
+#include <osg/Referenced>
+#include <osg/ref_ptr>
 #include <cover/coVRDynLib.h>
 #include <cstdlib>
 #include <OpenConfig/array.h>
@@ -112,6 +116,20 @@ public:
     virtual bool destroy()
     {
         return true;
+    }
+
+    //! Called before a database pager node request is queued. Return an empty filename to skip it.
+    virtual std::string requestNodeFile(const std::string &fileName, osg::NodePath &nodePath, float priority,
+                                        const osg::FrameStamp *framestamp,
+                                        osg::ref_ptr<osg::Referenced> &databaseRequest,
+                                        const osg::Referenced *options)
+    {
+        (void)nodePath;
+        (void)priority;
+        (void)framestamp;
+        (void)databaseRequest;
+        (void)options;
+        return fileName;
     }
 
     //! retrieve the plugin's name

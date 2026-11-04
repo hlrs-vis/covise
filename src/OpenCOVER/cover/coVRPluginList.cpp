@@ -405,6 +405,24 @@ void coVRPluginList::notify(int level, const char *text) const
     DOALL(plugin->notify((coVRPlugin::NotificationLevel)level, text));
 }
 
+std::string coVRPluginList::requestNodeFile(const std::string &fileName, osg::NodePath &nodePath, float priority,
+                                            const osg::FrameStamp *framestamp,
+                                            osg::ref_ptr<osg::Referenced> &databaseRequest,
+                                            const osg::Referenced *options) const
+{
+    std::string requestedFile = fileName;
+    for (const auto &entry : m_plugins)
+    {
+        auto *plugin = entry.second;
+        if (!plugin || !plugin->m_initDone)
+            continue;
+        requestedFile = plugin->requestNodeFile(requestedFile, nodePath, priority, framestamp, databaseRequest, options);
+        if (requestedFile.empty())
+            return {};
+    }
+    return requestedFile;
+}
+
 void coVRPluginList::addNode(osg::Node *node, const RenderObject *ro, coVRPlugin *addingPlugin) const
 {
     DOALL(if (plugin != addingPlugin) plugin->addNodeFromPlugin(node, const_cast<RenderObject *>(ro), addingPlugin));

@@ -23,9 +23,14 @@
 #include <osg/Texture2D>
 #include <string>
 #include <optional>
+#include <mutex>
 #include <set>
 #include <vector>
 #include <osg/Node>
+#include <osg/NodeVisitor>
+#include <osg/FrameStamp>
+#include <osg/Referenced>
+#include <osg/ref_ptr>
 #include <osg/PositionAttitudeTransform>
 #include <osgTerrain/Terrain>
 #include <osg/PagedLOD>
@@ -95,6 +100,10 @@ public:
     void doInteraction();
     virtual bool update();
 
+    std::string requestNodeFile(const std::string &fileName, osg::NodePath &nodePath, float priority,
+                                const osg::FrameStamp *framestamp, osg::ref_ptr<osg::Referenced> &databaseRequest,
+                                const osg::Referenced *options) override;
+
     void setRegionEnabled(const std::string &region_name, bool enabled);
     void setAllRegionsEnabled(bool enabled);
 
@@ -121,6 +130,7 @@ private:
     std::map<std::string, opencover::ui::Button *> regionButtons;
 
     std::map<std::string, std::string> replacements;
+    mutable std::mutex replacementsMutex;
     std::set<std::string> omittedTiles;
     bool showTerrain = true;
     bool showBuildings = true;
@@ -155,6 +165,7 @@ private:
     void toggleTileSelection(int index);
     void updateTileSelectionHighlight(TileSelection &tile);
     void stageTileReplacement(const std::string &fileName, const std::string &replacementFileName);
+    std::optional<std::string> replacementFor(const std::string &fileName) const;
     void applyTileEditRules(osg::Node *node);
     void doDelete();
     void doReplace();

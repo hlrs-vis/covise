@@ -155,6 +155,7 @@ bool GeoDataLoader::init()
 
         std::string fileName = entry.value<std::string>("", "fileName")->value();
         std::string replacementFileName = entry.value<std::string>("", "replaceBy")->value();
+        std::lock_guard<std::mutex> lock(replacementsMutex);
         replacements[fileName] = replacementFileName;
     }
 
@@ -697,8 +698,8 @@ void GeoDataLoader::stageTileReplacement(const std::string &fileName, const std:
     size_t entryIndex = entries->size();
     for (size_t i = 0; i < entries->size(); ++i)
     {
-        auto configuredFileName = (*entries)[i].value<std::string>("", "fileName");
-        if (configuredFileName && configuredFileName->value() == fileName)
+        opencover::config::Section entry = (*entries)[i];
+        if (entry.value<std::string>("", "fileName")->value() == fileName)
         {
             entryIndex = i;
             break;
@@ -708,7 +709,42 @@ void GeoDataLoader::stageTileReplacement(const std::string &fileName, const std:
     const std::string section = "replacements[" + std::to_string(entryIndex) + "]";
     *configFile->value<std::string>(section, "fileName", "") = fileName;
     *configFile->value<std::string>(section, "replaceBy", "") = replacementFileName;
-    replacements[fileName] = replacementFileName;
+    {
+        std::lock_guard<std::mutex> lock(replacementsMutex);
+        replacements[fileName] = replacementFileName;
+    }
+}
+
+std::optional<std::string> GeoDataLoader::replacementFor(const std::string &fileName) const
+{
+    std::lock_guard<std::mutex> lock(replacementsMutex);
+    for (const auto &replacement : replacements)
+    {
+        if (!replacement.first.empty() && fileName.find(replacement.first) != std::string::npos)
+            return replacement.second;
+    }
+    return std::nullopt;
+}
+
+std::string GeoDataLoader::requestNodeFile(const std::string &fileName, osg::NodePath &nodePath, float priority,
+                                           const osg::FrameStamp *framestamp,
+                                           osg::ref_ptr<osg::Referenced> &databaseRequest,
+                                           const osg::Referenced *options)
+{
+    (void)nodePath;
+    (void)priority;
+    (void)framestamp;
+    (void)databaseRequest;
+    (void)options;
+    if (auto replacement = replacementFor(fileName))
+    {
+        if (replacement->empty())
+            {
+            return "/data/empty.obj";        
+        }
+        return *replacement;
+    }
+    return fileName;
 }
 
 void GeoDataLoader::selectTile(const osg::NodePath &hitPath)
@@ -765,8 +801,8 @@ void GeoDataLoader::applyTileEditRules(osg::Node *node)
             const std::string fileName = pagedLod->getFileName(i);
             if (omittedTiles.count(fileName))
                 pagedLod->setFileName(i, "");
-            else if (auto replacement = replacements.find(fileName); replacement != replacements.end())
-                pagedLod->setFileName(i, replacement->second);
+            else if (auto replacement = replacementFor(fileName))
+                pagedLod->setFileName(i, *replacement);
         }
     }
     if (auto *group = node->asGroup())
@@ -861,11 +897,11 @@ osg::ref_ptr<osg::Node> GeoDataLoader::loadTerrain(std::string filename, bool is
     }
 
     osg::Node *terrain = nullptr;
-    if (auto replacementFileName = replacements.find(filename); replacementFileName != replacements.end())
+    if (auto replacementFileName = replacementFor(filename))
     {
-        if (replacementFileName->second.empty())
+        if (replacementFileName->empty())
             return nullptr;
-        terrain = osgDB::readNodeFile(replacementFileName->second);
+        terrain = osgDB::readNodeFile(*replacementFileName);
     }
     else
     {
@@ -1059,7 +1095,10 @@ void GeoDataLoader::doReplace()
     tile.omitted = false;
     tile.selected = tile.undoSelected;
     omittedTiles.erase(tile.fileName);
-    replacements[tile.fileName] = replacementPath;
+    {
+        std::lock_guard<std::mutex> lock(replacementsMutex);
+        replacements[tile.fileName] = replacementPath;
+    }
     if (tile.selected)
         updateTileSelectionHighlight(tile);
     tileList->select(selectedTile + 1, true);

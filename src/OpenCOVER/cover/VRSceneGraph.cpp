@@ -80,6 +80,7 @@
 #include <osg/Vec4>
 #include <osg/Version>
 #include <osgDB/WriteFile>
+#include <osgDB/DatabasePager>
 #include <osgDB/FileUtils>
 #include <osgDB/FileNameUtils>
 #include <osgFX/Scribe>
@@ -98,6 +99,27 @@
 
 using namespace osg;
 using namespace opencover;
+
+class coDatabasePager : public osgDB::DatabasePager
+{
+public:
+    coDatabasePager() = default;
+    explicit coDatabasePager(const osgDB::DatabasePager &pager)
+        : osgDB::DatabasePager(pager)
+    {
+    }
+
+    void requestNodeFile(const std::string &fileName, osg::NodePath &nodePath, float priority,
+                         const osg::FrameStamp *framestamp, osg::ref_ptr<osg::Referenced> &databaseRequest,
+                         const osg::Referenced *options) override
+    {
+        std::string requestedFile = coVRPluginList::instance()->requestNodeFile(
+            fileName, nodePath, priority, framestamp, databaseRequest, options);
+        if (requestedFile.empty())
+            return;
+        osgDB::DatabasePager::requestNodeFile(requestedFile, nodePath, priority, framestamp, databaseRequest, options);
+    }
+};
 using covise::coCoviseConfig;
 
 #define min(a, b) (((a) < (b)) ? (a) : (b))
@@ -153,6 +175,8 @@ void VRSceneGraph::init()
     initMatrices();
 
     initSceneGraph();
+
+    installDatabasePager();
 
     // create coordinate axis and put them in
     // scenegraph acoording to config
@@ -378,6 +402,22 @@ int VRSceneGraph::readConfigFile()
                      : MenuHidden;
 
     return 0;
+}
+
+void VRSceneGraph::installDatabasePager()
+{
+    auto *scene = VRViewer::instance()->getScene();
+    if (!scene)
+        return;
+
+    osg::ref_ptr<osgDB::DatabasePager> currentPager = scene->getDatabasePager();
+    if (dynamic_cast<coDatabasePager *>(currentPager.get()))
+        return;
+
+    osg::ref_ptr<osgDB::DatabasePager> pager = currentPager
+        ? new coDatabasePager(*currentPager)
+        : new coDatabasePager;
+    scene->setDatabasePager(pager.get());
 }
 
 void VRSceneGraph::initMatrices()
