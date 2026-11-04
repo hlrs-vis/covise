@@ -181,6 +181,7 @@ private:
     opencover::ui::Label *selectionName;
     opencover::ui::SelectionList *tileList;
     opencover::ui::EditField *replacementFile;
+    opencover::ui::EditField *exportPath;
     opencover::ui::Action *exportTile;
     opencover::ui::Button *saveTileReplacementsToConfig;
 

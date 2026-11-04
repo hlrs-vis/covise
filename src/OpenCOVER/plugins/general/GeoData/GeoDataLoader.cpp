@@ -394,6 +394,9 @@ bool GeoDataLoader::init()
             setTilePickingEnabled(false);
             } });
 
+    exportPath = new ui::EditField(editGroup, "exportPath");
+    exportPath->setText("FBX export file:");
+
     tileList = new ui::SelectionList(editGroup, "tiles");
     tileList->setText("Selected tiles");
     tileList->append("No tile selected");
@@ -405,6 +408,13 @@ bool GeoDataLoader::init()
                 selectedTile = index - 1;
                 auto &tile = tiles[selectedTile];
                 selectionName->setText(tile.name);
+                std::string output = tile.fileName;
+                const auto dot = output.find_last_of('.');
+                const auto slash = output.find_last_of("/\\");
+                if (dot != std::string::npos && (slash == std::string::npos || dot > slash))
+                    output.erase(dot);
+                output += ".fbx";
+                exportPath->setValue(output);
             }
         });
 
@@ -448,12 +458,12 @@ bool GeoDataLoader::init()
             if (selectedTile < 0)
                 return;
             auto &tile = tiles[selectedTile];
-            std::string output = tile.fileName;
-            const auto dot = output.find_last_of('.');
-            const auto slash = output.find_last_of("/\\");
-            if (dot != std::string::npos && (slash == std::string::npos || dot > slash))
-                output.erase(dot);
-            output += ".fbx";
+            const std::string output = exportPath->value();
+            if (output.empty())
+            {
+                std::cerr << "GeoData: FBX export file path is empty" << std::endl;
+                return;
+            }
             if (!tile.pagedLod || tile.childIndex >= tile.pagedLod->getNumChildren())
                 return;
             auto selectionManager = coVRSelectionManager::instance();

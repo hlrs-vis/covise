@@ -269,7 +269,7 @@
    </Plugin>
 
    <!--TabletUI host="141.58.8.221" /-->
-   <TabletUI host="141.58.8.187" />
+   <TabletUI host="141.58.8.246" />
 
    <MultiPC>
     <SyncMode value="TCP" hosts="viscluster50,viscluster51,viscluster52,viscluster53,viscluster54,viscluster55,viscluster56,viscluster57,viscluster58,viscluster59,viscluster60"/>
