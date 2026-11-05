@@ -466,6 +466,22 @@ bool GeoDataLoader::init()
     tileList->setText("Selected tiles");
     tileList->append("No tile selected");
     tileList->select(0, true);
+    // Tiles omitted in earlier sessions have no geometry to pick, so list them from the config to allow replacing them.
+    {
+        std::lock_guard<std::mutex> lock(replacementsMutex);
+        for (const auto &replacement : replacements)
+        {
+            if (!replacement.second.empty())
+                continue;
+            TileSelection tile;
+            tile.name = replacement.first;
+            tile.fileName = replacement.first;
+            tile.omitted = true;
+            tiles.push_back(tile);
+            omittedTiles.insert(tile.fileName);
+            tileList->append(tile.name);
+        }
+    }
     tileList->setCallback([this](int index)
         {
             if (index > 0 && index <= static_cast<int>(tiles.size()))
@@ -1156,7 +1172,7 @@ void GeoDataLoader::doReplace()
         return;
     auto &tile = tiles[selectedTile];
     const std::string replacementPath = replacementFile->value();
-    if (replacementPath.empty() || !tile.pagedLod || tile.childIndex >= tile.pagedLod->getNumChildren())
+    if (replacementPath.empty())
         return;
 
     osg::ref_ptr<osg::Node> replacementNode = osgDB::readNodeFile(replacementPath);
@@ -1165,6 +1181,20 @@ void GeoDataLoader::doReplace()
         std::cerr << "GeoData: Failed to read replacement tile: " << replacementPath << std::endl;
         return;
     }
+
+    if (!tile.pagedLod)
+    {
+        // Tile restored from the config (omitted in an earlier session): it is not in the scene graph, so only
+        // the replacement rule is updated and takes effect when the tile is paged in the next time.
+        tile.omitted = false;
+        tile.hasUndo = false;
+        omittedTiles.erase(tile.fileName);
+        stageTileReplacement(tile.fileName, replacementPath);
+        selectionName->setText(tile.name + " (replaced; visible after the region is reloaded)");
+        return;
+    }
+    if (tile.childIndex >= tile.pagedLod->getNumChildren())
+        return;
 
     auto *selectionManager = coVRSelectionManager::instance();
     tile.undoSelected = tile.selected;
