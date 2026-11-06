@@ -110,6 +110,7 @@ run_stuttgart_ditens() {
     kill $SUMO
 }
 run_stuttgart() {
+    export OSG_FILE_PATH=/mnt/large/Geodata/Stuttgart/stuttgart_utm/osg
     bash /data/campus/Sumo/CampusReduced/startSumo.sh &
     SUMO=$!
     vistle -e /data/StuttgartForecast/feinstaub_stadtmodell_LGL_tracerNewVistle.vsl
