@@ -29,6 +29,7 @@
 #include <OpenVRUI/coInteractionManager.h>
 #include <cover/RenderObject.h>
 #include <cover/coVRFileManager.h>
+#include <cover/coVRMSController.h>
 #include <cover/coVRTui.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRConfig.h>
@@ -510,7 +511,7 @@ bool GeoDataLoader::init()
             if (!state)
                 return;
             auto configFile = config();
-            if (configFile && configFile->save())
+            if (configFile && coVRMSController::instance()->isMaster() && configFile->save())
                 std::cerr << "GeoData: Saved tile replacements to config" << std::endl;
             else
                 std::cerr << "GeoData: Failed to save tile replacements to config" << std::endl;
