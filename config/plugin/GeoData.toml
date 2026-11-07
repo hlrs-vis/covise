@@ -126,6 +126,12 @@ easting = 448342
 northing = 5545672
 
 [[datasets]]
+name = "TenneT_FRA"
+easting = 472877.212
+northing = 5548869.540
+altitude = 96.5400
+
+[[datasets]]
 name = "Winterhalde"
 easting = 517370
 northing = 5405720
