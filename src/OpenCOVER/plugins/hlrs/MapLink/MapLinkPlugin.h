@@ -20,8 +20,10 @@
 #include "MapLinkMessageTypes.h"
 #include <array>
 #include <osg/MatrixTransform>
+#include <osg/Geode>
 #include <osg/ref_ptr>
 #include <unordered_map>
+#include <unordered_set>
 #include <osg/observer_ptr>
 #include <osg/Matrix>
 #include <OpenVRUI/coTrackerButtonInteraction.h>
@@ -86,6 +88,9 @@ protected:
     void deleteModule(int moduleId);
     void sendDeleteModuleRequest(int moduleId);
     void clearAllModules();
+    void updateModuleDeleteHighlight();
+    void setModuleDeleteHighlight(osg::MatrixTransform *module, bool enabled);
+    void setModuleDeleteOutline(int moduleId, bool enabled);
     osg::Matrixd computeLeftEyeProjection(const osg::Matrixd &projection) const override;
     osg::Matrixd computeLeftEyeView(const osg::Matrixd &view) const override;
     osg::Matrixd computeRightEyeProjection(const osg::Matrixd &projection) const override;
@@ -104,7 +109,21 @@ protected:
     coTUITab *MapLinkTab = nullptr;
     osg::ref_ptr<osg::Group> m_pvModuleGroup;
     std::unordered_map<int, osg::ref_ptr<osg::MatrixTransform>> m_moduleNodes;
+    std::unordered_map<int, osg::ref_ptr<osg::Geode>>m_moduleDeleteOutlines;
+    osg::ref_ptr<osg::Node> m_pvModel; // Einmalig geladenes PV-Modell
+
+    // Originalabmessungen des OBJ-Modells
+    double m_pvModelWidth = 0.0;
+    double m_pvModelLength = 0.0;
+
+    // Geometrischer Mittelpunkt in der lokalen XY-Ebene
+    double m_pvModelCenterX = 0.0;
+    double m_pvModelCenterY = 0.0;
+
     int m_selectedModuleId = -1;
+
+    std::unordered_set<int> m_pendingModuleDeletes; // Verhindert mehrfache Loeschanforderungen fuer dasselbe Modul.
+
     coCheckboxMenuItem *m_selectModulesButton = nullptr;
     coTrackerButtonInteraction *m_selectInteraction = nullptr;
     osg::observer_ptr<osg::Group> m_cityModelParent;
