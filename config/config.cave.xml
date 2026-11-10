@@ -20,7 +20,7 @@
                 <Width value="10"/>
                 <Length value="1500"/>
                 <!-- interscetion length is used also for mouse, it needs to be long enough to intersect far objects but short enough to not accidentally interact with somethin you don't want to-->
-                <Intersection value="15000" />
+                <Intersection value="1500000" />
             </PointerAppearance>
 
 
@@ -269,7 +269,7 @@
    </Plugin>
 
    <!--TabletUI host="141.58.8.221" /-->
-   <TabletUI host="141.58.8.187" />
+   <TabletUI host="141.58.8.246" />
 
    <MultiPC>
     <SyncMode value="TCP" hosts="viscluster50,viscluster51,viscluster52,viscluster53,viscluster54,viscluster55,viscluster56,viscluster57,viscluster58,viscluster59,viscluster60"/>

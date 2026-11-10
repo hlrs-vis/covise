@@ -21,6 +21,7 @@
 #include "GeoDataLoader.h"
 
 #include <algorithm>
+#include <filesystem>
 #include <iterator>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRSelectionManager.h>
@@ -29,6 +30,7 @@
 #include <OpenVRUI/coInteractionManager.h>
 #include <cover/RenderObject.h>
 #include <cover/coVRFileManager.h>
+#include <cover/coVRMSController.h>
 #include <cover/coVRTui.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRConfig.h>
@@ -47,6 +49,7 @@
 #include <config/CoviseConfig.h>
 #include <geodata/GeoData.h>
 
+#include <osgDB/FileNameUtils>
 #include <osgDB/ReadFile>
 #include <osgDB/WriteFile>
 #include <osg/Node>
@@ -77,6 +80,70 @@ using namespace vrui;
 using namespace opencover;
 
 // #define GEODATA_VERBOSE
+
+namespace
+{
+// The DatabasePager frees image data after upload to the GPU, so the FBX writer would find empty images.
+// Temporarily give such textures a freshly read image for the export and restore the originals afterwards.
+class ExportImageRestorer : public osg::NodeVisitor
+{
+public:
+    ExportImageRestorer() : osg::NodeVisitor(TRAVERSE_ALL_CHILDREN) {}
+    ~ExportImageRestorer() { restore(); }
+
+    void apply(osg::Node &node) override
+    {
+        fix(node.getStateSet());
+        traverse(node);
+    }
+    void apply(osg::Geode &geode) override
+    {
+        fix(geode.getStateSet());
+        for (unsigned int i = 0; i < geode.getNumDrawables(); ++i)
+            fix(geode.getDrawable(i)->getStateSet());
+        traverse(geode);
+    }
+    void restore()
+    {
+        for (auto &s : swapped)
+            s.texture->setImage(s.original.get());
+        swapped.clear();
+    }
+
+private:
+    struct Swap
+    {
+        osg::ref_ptr<osg::Texture2D> texture;
+        osg::ref_ptr<osg::Image> original;
+    };
+    std::vector<Swap> swapped;
+    std::set<osg::Texture2D *> done;
+
+    void fix(osg::StateSet *ss)
+    {
+        if (!ss)
+            return;
+        for (unsigned int unit = 0; unit < ss->getNumTextureAttributeLists(); ++unit)
+        {
+            auto *tex = dynamic_cast<osg::Texture2D *>(ss->getTextureAttribute(unit, osg::StateAttribute::TEXTURE));
+            if (!tex || !done.insert(tex).second)
+                continue;
+            osg::Image *img = tex->getImage();
+            if (!img || img->data() || img->getFileName().empty())
+                continue;
+            osg::ref_ptr<osg::Image> fresh = osgDB::readImageFile(img->getFileName());
+            if (!fresh)
+            {
+                std::cerr << "GeoData: Could not reload texture for export: " << img->getFileName() << std::endl;
+                continue;
+            }
+            fresh->setFileName(img->getFileName());
+            swapped.push_back({tex, img});
+            tex->setImage(fresh.get());
+        }
+    }
+};
+}
 
 GeoDataLoader *GeoDataLoader::s_instance = nullptr;
 
@@ -394,10 +461,29 @@ bool GeoDataLoader::init()
             setTilePickingEnabled(false);
             } });
 
+    exportDirectory = new ui::EditField(editGroup, "exportDirectory");
+    exportDirectory->setText("FBX export directory:");
+
     tileList = new ui::SelectionList(editGroup, "tiles");
     tileList->setText("Selected tiles");
     tileList->append("No tile selected");
     tileList->select(0, true);
+    // Tiles omitted in earlier sessions have no geometry to pick, so list them from the config to allow replacing them.
+    {
+        std::lock_guard<std::mutex> lock(replacementsMutex);
+        for (const auto &replacement : replacements)
+        {
+            if (!replacement.second.empty())
+                continue;
+            TileSelection tile;
+            tile.name = replacement.first;
+            tile.fileName = replacement.first;
+            tile.omitted = true;
+            tiles.push_back(tile);
+            omittedTiles.insert(tile.fileName);
+            tileList->append(tile.name);
+        }
+    }
     tileList->setCallback([this](int index)
         {
             if (index > 0 && index <= static_cast<int>(tiles.size()))
@@ -405,6 +491,11 @@ bool GeoDataLoader::init()
                 selectedTile = index - 1;
                 auto &tile = tiles[selectedTile];
                 selectionName->setText(tile.name);
+                if (exportDirectory->value().empty())
+                {
+                    const auto slash = tile.fileName.find_last_of("/\\");
+                    exportDirectory->setValue(slash == std::string::npos ? "." : tile.fileName.substr(0, slash));
+                }
             }
         });
 
@@ -419,7 +510,8 @@ bool GeoDataLoader::init()
             if (!state)
                 return;
             auto configFile = config();
-            if (configFile && configFile->save())
+            // Save the replacements to the config file but just the master, otherwise the slaves will try to write the config file at the same time and fail.
+            if (configFile && coVRMSController::instance()->isMaster() && configFile->save())
                 std::cerr << "GeoData: Saved tile replacements to config" << std::endl;
             else
                 std::cerr << "GeoData: Failed to save tile replacements to config" << std::endl;
@@ -448,19 +540,40 @@ bool GeoDataLoader::init()
             if (selectedTile < 0)
                 return;
             auto &tile = tiles[selectedTile];
-            std::string output = tile.fileName;
-            const auto dot = output.find_last_of('.');
-            const auto slash = output.find_last_of("/\\");
-            if (dot != std::string::npos && (slash == std::string::npos || dot > slash))
-                output.erase(dot);
-            output += ".fbx";
+            const std::string directory = exportDirectory->value();
+            if (directory.empty())
+            {
+                std::cerr << "GeoData: FBX export directory is empty" << std::endl;
+                return;
+            }
+            std::string outputName = tile.fileName;
+            const auto slash = outputName.find_last_of("/\\");
+            if (slash != std::string::npos)
+                outputName.erase(0, slash + 1);
+            const auto dot = outputName.find_last_of('.');
+            if (dot != std::string::npos)
+                outputName.erase(dot);
+            outputName += ".fbx";
+            const std::filesystem::path outputPath = std::filesystem::path(directory) / outputName;
+            const std::string output = outputPath.string();
+            std::error_code directoryError;
+            if (!std::filesystem::is_directory(directory, directoryError))
+            {
+                std::cerr << "GeoData: FBX export directory is not accessible: " << directory << std::endl;
+                return;
+            }
             if (!tile.pagedLod || tile.childIndex >= tile.pagedLod->getNumChildren())
                 return;
             auto selectionManager = coVRSelectionManager::instance();
             if (tile.selected && tile.contentNode)
                 selectionManager->removeNode(tile.contentNode.get());
             osg::Node *node = tile.pagedLod->getChild(tile.childIndex);
-            const bool exported = osgDB::writeNodeFile(*node, output);
+            bool exported = false;
+            {
+                ExportImageRestorer restorer;
+                node->accept(restorer);
+                exported = osgDB::writeNodeFile(*node, output);
+            }
             updateTileSelectionHighlight(tile);
             if (!exported)
                 std::cerr << "GeoData: Failed to export selected tile to FBX: " << output << std::endl;
@@ -799,9 +912,14 @@ void GeoDataLoader::applyTileEditRules(osg::Node *node)
         for (unsigned int i = 0; i < pagedLod->getNumFileNames(); ++i)
         {
             const std::string fileName = pagedLod->getFileName(i);
-            if (omittedTiles.count(fileName))
+            const auto replacement = replacementFor(fileName);
+            if (omittedTiles.count(fileName) || (replacement && replacement->empty()))
+            {
                 pagedLod->setFileName(i, "");
-            else if (auto replacement = replacementFor(fileName))
+                if (i < pagedLod->getNumChildren())
+                    pagedLod->setChild(i, new osg::Group);
+            }
+            else if (replacement)
                 pagedLod->setFileName(i, *replacement);
         }
     }
@@ -1029,17 +1147,24 @@ void GeoDataLoader::doDelete()
             selectionChanged = true;
         }
         tile.selected = false;
-        tile.undoChild = tile.pagedLod->getChild(tile.childIndex);
-        tile.contentNode = tile.undoChild;
+        // Only the file name is kept for undo; the subtree itself is freed and reloaded from disk on undo.
         tile.undoFileName = tile.pagedLod->getFileName(tile.childIndex);
         tile.undoOmitted = tile.omitted;
-        tile.undoNodeMask = tile.undoChild->getNodeMask();
-        tile.hasUndo = true;
+        tile.undoNodeMask = tile.pagedLod->getChild(tile.childIndex)->getNodeMask();
+        tile.visibleNodeMask = tile.undoNodeMask;
         tile.omitted = true;
         omittedTiles.insert(tile.fileName);
         stageTileReplacement(tile.fileName, "");
         tile.pagedLod->setFileName(tile.childIndex, "");
-        tile.pagedLod->getChild(tile.childIndex)->setNodeMask(0);
+        // Free the loaded subtree (including nested PagedLODs): replace it by an empty placeholder and drop every reference to it.
+        // An omitted tile is not undoable; use "Replace selected tile" to put a new tile in its place.
+        osg::ref_ptr<osg::Group> placeholder = new osg::Group;
+        placeholder->setName(tile.name);
+        tile.pagedLod->setChild(tile.childIndex, placeholder.get());
+        tile.contentNode = placeholder;
+        tile.originalChild = nullptr;
+        tile.undoChild = nullptr;
+        tile.hasUndo = true;
         if (firstOmittedTile < 0)
             firstOmittedTile = static_cast<int>(i);
         ++omittedCount;
@@ -1047,6 +1172,9 @@ void GeoDataLoader::doDelete()
 
     if (omittedCount == 0)
         return;
+    // Other already-loaded PagedLODs may reference the same files; blank them and drop their loaded children too.
+    if (auto terrainRoot = GeoData::instance()->terrainRoot())
+        applyTileEditRules(terrainRoot);
     if (selectionChanged)
     {
         selectionManager->selectionChanged();
@@ -1063,7 +1191,7 @@ void GeoDataLoader::doReplace()
         return;
     auto &tile = tiles[selectedTile];
     const std::string replacementPath = replacementFile->value();
-    if (replacementPath.empty() || !tile.pagedLod || tile.childIndex >= tile.pagedLod->getNumChildren())
+    if (replacementPath.empty())
         return;
 
     osg::ref_ptr<osg::Node> replacementNode = osgDB::readNodeFile(replacementPath);
@@ -1072,6 +1200,20 @@ void GeoDataLoader::doReplace()
         std::cerr << "GeoData: Failed to read replacement tile: " << replacementPath << std::endl;
         return;
     }
+
+    if (!tile.pagedLod)
+    {
+        // Tile restored from the config (omitted in an earlier session): it is not in the scene graph, so only
+        // the replacement rule is updated and takes effect when the tile is paged in the next time.
+        tile.omitted = false;
+        tile.hasUndo = false;
+        omittedTiles.erase(tile.fileName);
+        stageTileReplacement(tile.fileName, replacementPath);
+        selectionName->setText(tile.name + " (replaced; visible after the region is reloaded)");
+        return;
+    }
+    if (tile.childIndex >= tile.pagedLod->getNumChildren())
+        return;
 
     auto *selectionManager = coVRSelectionManager::instance();
     tile.undoSelected = tile.selected;
@@ -1095,10 +1237,7 @@ void GeoDataLoader::doReplace()
     tile.omitted = false;
     tile.selected = tile.undoSelected;
     omittedTiles.erase(tile.fileName);
-    {
-        std::lock_guard<std::mutex> lock(replacementsMutex);
-        replacements[tile.fileName] = replacementPath;
-    }
+    stageTileReplacement(tile.fileName, replacementPath);
     if (tile.selected)
         updateTileSelectionHighlight(tile);
     tileList->select(selectedTile + 1, true);
@@ -1120,6 +1259,25 @@ void GeoDataLoader::doUndo()
         selectionManager->selectionChanged();
     }
     tile.selected = false;
+    if (!tile.undoChild && !tile.undoFileName.empty())
+    {
+        // The omitted subtree was freed, so reload it from disk.
+        std::string path = tile.undoFileName;
+        const std::string &dbPath = tile.pagedLod->getDatabasePath();
+        if (!dbPath.empty() && !osgDB::isAbsolutePath(path))
+            path = osgDB::concatPaths(dbPath, path);
+        osg::ref_ptr<osg::Node> reloaded = osgDB::readNodeFile(path);
+        if (!reloaded)
+        {
+            std::cerr << "GeoData: Failed to reload tile for undo: " << path << std::endl;
+            tile.selected = false;
+            return;
+        }
+        applyTileEditRules(reloaded.get());
+        tile.undoChild = reloaded;
+    }
+    if (!tile.undoChild)
+        return;
     tile.pagedLod->setChild(tile.childIndex, tile.undoChild.get());
     tile.pagedLod->setFileName(tile.childIndex, tile.undoFileName);
     tile.undoChild->setNodeMask(tile.undoNodeMask);
