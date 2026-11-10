@@ -21,6 +21,7 @@
 #include "GeoDataLoader.h"
 
 #include <algorithm>
+#include <filesystem>
 #include <iterator>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRSelectionManager.h>
@@ -460,8 +461,8 @@ bool GeoDataLoader::init()
             setTilePickingEnabled(false);
             } });
 
-    exportPath = new ui::EditField(editGroup, "exportPath");
-    exportPath->setText("FBX export file:");
+    exportDirectory = new ui::EditField(editGroup, "exportDirectory");
+    exportDirectory->setText("FBX export directory:");
 
     tileList = new ui::SelectionList(editGroup, "tiles");
     tileList->setText("Selected tiles");
@@ -490,13 +491,11 @@ bool GeoDataLoader::init()
                 selectedTile = index - 1;
                 auto &tile = tiles[selectedTile];
                 selectionName->setText(tile.name);
-                std::string output = tile.fileName;
-                const auto dot = output.find_last_of('.');
-                const auto slash = output.find_last_of("/\\");
-                if (dot != std::string::npos && (slash == std::string::npos || dot > slash))
-                    output.erase(dot);
-                output += ".fbx";
-                exportPath->setValue(output);
+                if (exportDirectory->value().empty())
+                {
+                    const auto slash = tile.fileName.find_last_of("/\\");
+                    exportDirectory->setValue(slash == std::string::npos ? "." : tile.fileName.substr(0, slash));
+                }
             }
         });
 
@@ -511,6 +510,7 @@ bool GeoDataLoader::init()
             if (!state)
                 return;
             auto configFile = config();
+            // Save the replacements to the config file but just the master, otherwise the slaves will try to write the config file at the same time and fail.
             if (configFile && coVRMSController::instance()->isMaster() && configFile->save())
                 std::cerr << "GeoData: Saved tile replacements to config" << std::endl;
             else
@@ -540,10 +540,26 @@ bool GeoDataLoader::init()
             if (selectedTile < 0)
                 return;
             auto &tile = tiles[selectedTile];
-            const std::string output = exportPath->value();
-            if (output.empty())
+            const std::string directory = exportDirectory->value();
+            if (directory.empty())
             {
-                std::cerr << "GeoData: FBX export file path is empty" << std::endl;
+                std::cerr << "GeoData: FBX export directory is empty" << std::endl;
+                return;
+            }
+            std::string outputName = tile.fileName;
+            const auto slash = outputName.find_last_of("/\\");
+            if (slash != std::string::npos)
+                outputName.erase(0, slash + 1);
+            const auto dot = outputName.find_last_of('.');
+            if (dot != std::string::npos)
+                outputName.erase(dot);
+            outputName += ".fbx";
+            const std::filesystem::path outputPath = std::filesystem::path(directory) / outputName;
+            const std::string output = outputPath.string();
+            std::error_code directoryError;
+            if (!std::filesystem::is_directory(directory, directoryError))
+            {
+                std::cerr << "GeoData: FBX export directory is not accessible: " << directory << std::endl;
                 return;
             }
             if (!tile.pagedLod || tile.childIndex >= tile.pagedLod->getNumChildren())
@@ -896,12 +912,14 @@ void GeoDataLoader::applyTileEditRules(osg::Node *node)
         for (unsigned int i = 0; i < pagedLod->getNumFileNames(); ++i)
         {
             const std::string fileName = pagedLod->getFileName(i);
-            if (omittedTiles.count(fileName)) {
+            const auto replacement = replacementFor(fileName);
+            if (omittedTiles.count(fileName) || (replacement && replacement->empty()))
+            {
                 pagedLod->setFileName(i, "");
                 if (i < pagedLod->getNumChildren())
                     pagedLod->setChild(i, new osg::Group);
             }
-            else if (auto replacement = replacementFor(fileName))
+            else if (replacement)
                 pagedLod->setFileName(i, *replacement);
         }
     }
