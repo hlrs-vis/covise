@@ -21,7 +21,9 @@
 #include "GeoDataLoader.h"
 
 #include <algorithm>
+#include <cctype>
 #include <filesystem>
+#include <functional>
 #include <iterator>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRSelectionManager.h>
@@ -75,6 +77,7 @@
 #include <PluginUtil/PluginMessageTypes.h>
 #include <stdio.h>
 #include <utility>
+#include <sstream>
 
 using namespace vrui;
 using namespace opencover;
@@ -819,6 +822,9 @@ void GeoDataLoader::stageTileReplacement(const std::string &fileName, const std:
         }
     }
 
+    if (entryIndex == entries->size())
+        entries->resize(entryIndex + 1);
+
     const std::string section = "replacements[" + std::to_string(entryIndex) + "]";
     *configFile->value<std::string>(section, "fileName", "") = fileName;
     *configFile->value<std::string>(section, "replaceBy", "") = replacementFileName;
@@ -852,8 +858,8 @@ std::string GeoDataLoader::requestNodeFile(const std::string &fileName, osg::Nod
     if (auto replacement = replacementFor(fileName))
     {
         if (replacement->empty())
-            {
-            return "/data/empty.obj";        
+        {
+            return "/data/empty.obj";
         }
         return *replacement;
     }
@@ -1133,12 +1139,41 @@ void GeoDataLoader::doDelete()
     bool selectionChanged = false;
     size_t omittedCount = 0;
     int firstOmittedTile = -1;
+    auto configFile = config();
+    std::filesystem::path exportRoot;
+    if (configFile && !configFile->pathname().empty())
+        exportRoot = std::filesystem::path(configFile->pathname()).parent_path();
+    else
+        exportRoot = std::filesystem::current_path();
+    exportRoot /= "GeoDataTiles";
 
     for (size_t i = 0; i < tiles.size(); ++i)
     {
         auto &tile = tiles[i];
         if (!tile.selected || !tile.pagedLod || tile.childIndex >= tile.pagedLod->getNumChildren())
             continue;
+
+        osg::Node *tileNode = tile.pagedLod->getChild(tile.childIndex);
+        const std::filesystem::path sourcePath(tile.fileName);
+        std::string tileBaseName = sourcePath.stem().string();
+        for (char &character : tileBaseName)
+        {
+            const auto value = static_cast<unsigned char>(character);
+            if (!std::isalnum(value) && character != '-' && character != '_')
+                character = '_';
+        }
+        if (tileBaseName.empty())
+            tileBaseName = "tile";
+        std::ostringstream tileId;
+        tileId << std::hex << std::hash<std::string>{}(tile.fileName);
+        const std::string tileDirectoryName = tileBaseName + "_" + tileId.str();
+
+        const auto tileDirectory = exportRoot / tileDirectoryName;
+        std::error_code exportError;
+        std::filesystem::create_directories(tileDirectory, exportError);
+        const auto tileExportPath = tileDirectory / (tileBaseName + ".3ds");
+        if (exportError || !osgDB::writeNodeFile(*tileNode, tileExportPath.string()))
+            std::cerr << "GeoData: Failed to save omitted tile as 3DS: " << tileExportPath.string() << std::endl;
 
         tile.undoSelected = true;
         if (tile.contentNode)
