@@ -27,6 +27,7 @@ int main(int argc, char **argv)
     }
     path p(argv[1]);  // avoid repeated path construction below
     std::vector<osg::Vec3> positions;
+    std::vector<float> radii;
     double dx = 0;
     double dy = 0;
     double minx = 100000000000000;
@@ -56,6 +57,8 @@ int main(int argc, char **argv)
                 }*/
                 pos = node->getBound().center();
                 positions.push_back(pos);
+                radii.push_back(node->getBound().radius());
+                
             }
             std::cerr << "numGeometries: " << positions.size() << std::endl;
             if (positions.size() > 0)
@@ -105,10 +108,13 @@ int main(int argc, char **argv)
                 plod->setFileName(0, "");
                 plod->setFileName(1, x.path().generic_path().string());
                 plod->setCenter(positions[i]);
-                plod->setRadius(2000);
+                float dist = distance;
+                if(radii[i]*2 > dist)
+                    dist = radii[i]*2;
+                plod->setRadius(radii[i]);
                 plod->setRangeMode(osg::LOD::DISTANCE_FROM_EYE_POINT);
-                plod->setRange(0, distance, 10000000000);
-                plod->setRange(1, 0, distance);
+                plod->setRange(0, dist, 10000000000);
+                plod->setRange(1, 0, dist);
                 group->addChild(plod);
                 osg::Group* dummy = new osg::Group();
                 dummy->setName("dummyNode");
