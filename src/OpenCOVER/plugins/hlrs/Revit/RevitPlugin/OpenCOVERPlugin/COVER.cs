@@ -9,6 +9,10 @@ using Autodesk.Revit.DB.IFC;
 using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.DB.Visual;
 using Autodesk.Revit.UI;
+
+using Autodesk.Revit.DB.Mechanical;
+using Autodesk.Revit.DB.Electrical;
+using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.UI.Selection;
 using Autodesk.Windows;
 using System;
@@ -17,25 +21,26 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
+using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Media.Imaging;
 using Bitmap = System.Drawing.Bitmap;
 using BoundarySegment = Autodesk.Revit.DB.BoundarySegment;
 using ComponentManager = Autodesk.Windows.ComponentManager;
 using Document = Autodesk.Revit.DB.Document;
-using Pipe = Autodesk.Revit.DB.Plumbing.Pipe;
-using PipingSystemType = Autodesk.Revit.DB.Plumbing.PipingSystemType;
 using IWin32Window = System.Windows.Forms.IWin32Window;
 using Panel = Autodesk.Revit.DB.Panel;
+using Pipe = Autodesk.Revit.DB.Plumbing.Pipe;
+using PipingSystemType = Autodesk.Revit.DB.Plumbing.PipingSystemType;
 using TaskDialog = Autodesk.Revit.UI.TaskDialog;
 using View = Autodesk.Revit.DB.View;
-using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
 //using System.Windows.Media.Media3D;
 
 namespace OpenCOVERPlugin
@@ -1802,11 +1807,60 @@ namespace OpenCOVERPlugin
             }
             sendGeomElement(elem, num, geomObject, createGroups, doWalk);
         }
+        public Color? GetMEPSystemLineColor(Element element)
+        {
+            if (element is MEPCurve mepCurve)
+            { 
+                MEPSystem system = mepCurve.MEPSystem;
+
+                if (system == null)
+                    return null;
+
+                    MEPSystemType systemType =
+                    element.Document.GetElement(system.GetTypeId()) as MEPSystemType;
+
+                if (systemType != null)
+                    return systemType.LineColor;
+            }
+            if (element is not FamilyInstance fi)
+                return null;
+
+            ConnectorSet connectors = fi.MEPModel?.ConnectorManager?.Connectors;
+
+            if (connectors == null)
+                return null;
+
+            foreach (Connector connector in connectors)
+            {
+                MEPSystem system = null;
+                try
+                {
+                    system = connector.MEPSystem;
+                }
+                catch (Autodesk.Revit.Exceptions.InvalidOperationException)
+                {
+                    system = null;
+                }
+
+                if (system == null)
+                    continue;
+
+                MEPSystemType systemType =
+                    element.Document.GetElement(system.GetTypeId()) as MEPSystemType;
+
+                if (systemType != null)
+                    return systemType.LineColor;
+
+            }
+
+            return null;
+        }
         private void sendGeomElement(Element elem, int num, GeometryObject geomObject, bool createGroups, bool doWalk, string parentName = "NULL")
         {
             if (geomObject.Visibility == Autodesk.Revit.DB.Visibility.Visible)
             {
 
+                Color MEPColor = GetMEPSystemLineColor(elem);
 
                 if ((geomObject is Curve))
                 {
@@ -1856,14 +1910,28 @@ namespace OpenCOVERPlugin
                     if (materialElement != null)
                     {
                         sendMaterial(materialElement, elem);
-                        mb.add(materialElement.Color);
+                        if(MEPColor != null)
+                        {
+                            mb.add(MEPColor);
+                        }
+                        else
+                        {
+                            mb.add(materialElement.Color);
+                        }
                         mb.add((byte)(getTransparency(materialElement, elem)));
                         mb.add(materialElement.Id.Value); // material ID
 
                     }
                     else
                     {
-                        if (elem.Category != null && ((elem.Category.LineColor.Red != 0) || (elem.Category.LineColor.Green != 0) || (elem.Category.LineColor.Blue != 0))) // if line color is not black, use this instead of just white
+
+                        if (MEPColor != null)
+                        {
+                            mb.add(MEPColor);
+                            mb.add((byte)255);
+                            mb.add(-1); // material ID
+                        }
+                        else if (elem.Category != null && ((elem.Category.LineColor.Red != 0) || (elem.Category.LineColor.Green != 0) || (elem.Category.LineColor.Blue != 0))) // if line color is not black, use this instead of just white
                         {
                             mb.add((byte)elem.Category.LineColor.Red); // color
                             mb.add((byte)elem.Category.LineColor.Green);
@@ -2728,6 +2796,8 @@ namespace OpenCOVERPlugin
             int maintriangles = 0;
             bool twoSided = false;
 
+            Color MEPColor = GetMEPSystemLineColor(elem);
+
 
 
             /*Autodesk.Revit.DB.WallType wallType = elem.Document.GetElement(elem.GetTypeId()) as Autodesk.Revit.DB.WallType; // get element type
@@ -2863,19 +2933,35 @@ namespace OpenCOVERPlugin
                 mb.add(getDepthOny(elem));
                 if (m == null)
                 {
-                    mb.add((byte)220); // color
-                    mb.add((byte)220);
-                    mb.add((byte)220);
+                    if (MEPColor != null)
+                    {
+                        mb.add(MEPColor);
+                    }
+                    else
+                    {
+                        mb.add((byte)220);
+                        mb.add((byte)220);
+                        mb.add((byte)220);
+                    }
                     mb.add((byte)255);
                     mb.add(-1); // material ID
                 }
                 else
                 {
-                    sendMaterial(m, elem);
-                    mb.add(m.Color);
-                    mb.add((byte)(getTransparency(m, elem)));
-                    mb.add(m.Id.Value);
-                    mb.add(DocumentID);
+                    if (MEPColor != null)
+                    {
+                        mb.add(MEPColor);
+                        mb.add((byte)255);
+                        mb.add(-1); // material ID
+                    }
+                    else
+                    {
+                        sendMaterial(m, elem);
+                        mb.add(m.Color);
+                        mb.add((byte)(getTransparency(m, elem)));
+                        mb.add(m.Id.Value);
+                        mb.add(DocumentID);
+                    }
                 }
                 sendMessage(mb.buf, MessageTypes.NewObject);
             }
@@ -2912,9 +2998,16 @@ namespace OpenCOVERPlugin
                                     mb.add(getDepthOny(elem));
                                     if (rface.MaterialElementId == ElementId.InvalidElementId)
                                     {
-                                        mb.add((byte)220); // color
-                                        mb.add((byte)220);
-                                        mb.add((byte)220);
+                                        if (MEPColor != null)
+                                        {
+                                            mb.add(MEPColor);
+                                        }
+                                        else
+                                        {
+                                            mb.add((byte)220);
+                                            mb.add((byte)220);
+                                            mb.add((byte)220);
+                                        }
                                         mb.add((byte)255);
                                         mb.add(-1); // material ID
                                     }
@@ -2923,7 +3016,15 @@ namespace OpenCOVERPlugin
                                         Material materialElement = elem.Document.GetElement(rface.MaterialElementId) as Material;
 
                                         sendMaterial(materialElement, elem);
-                                        mb.add(materialElement.Color);
+
+                                        if (MEPColor != null)
+                                        {
+                                            mb.add(MEPColor);
+                                        }
+                                        else
+                                        {
+                                            mb.add(materialElement.Color);
+                                        }
                                         mb.add((byte)(getTransparency(materialElement, elem)));
                                         mb.add(materialElement.Id.Value);
                                         mb.add(DocumentID);
@@ -2956,19 +3057,33 @@ namespace OpenCOVERPlugin
                             {
                                 materialElement = elem.Document.GetElement(face.MaterialElementId) as Material;
                             }
-                            if(materialElement!=null)
+                            if (materialElement != null)
                             {
                                 sendMaterial(materialElement, elem);
-                                mb.add(materialElement.Color);
+                                if (MEPColor != null)
+                                {
+                                    mb.add(MEPColor);
+                                }
+                                else
+                                {
+                                    mb.add(materialElement.Color);
+                                }
                                 mb.add((byte)(getTransparency(materialElement, elem)));
                                 mb.add(materialElement.Id.Value);
                                 mb.add(DocumentID);
                             }
                             else
                             {
-                                mb.add((byte)220); // color
-                                mb.add((byte)220);
-                                mb.add((byte)220);
+                                if (MEPColor != null)
+                                {
+                                    mb.add(MEPColor);
+                                }
+                                else
+                                {
+                                    mb.add((byte)220);
+                                    mb.add((byte)220);
+                                    mb.add((byte)220);
+                                }
                                 mb.add((byte)255);
                                 mb.add(-1); // material ID
                             }

@@ -29,10 +29,10 @@
 #include <limits>
 #include <osg/Material>
 #include <osg/StateSet>
-
 #include <osg/NodeVisitor>
 #include <string>
-
+#include <cstdlib>
+#include <osg/Depth>
 
 #include <PluginUtil/PluginMessageTypes.h>
 
@@ -148,7 +148,7 @@ void MapLinkPlugin::createMenu()
 
     cover->getMenu()->add(REVITButton);*/
     m_selectModulesButton = new coCheckboxMenuItem(
-        "PV-Module auswaehlen",
+        "PV-Module loeschen",
         false);
 
     m_selectModulesButton->setMenuListener(this);
@@ -232,18 +232,15 @@ void MapLinkPlugin::createModule(
     if (isLandscape)
     {
         // Querformat:
-        // Die kurze OBJ-Achse liegt jetzt
-        // entlang der Modullaengsrichtung.
-        // Die lange OBJ-Achse liegt entlang
-        // der Modulbreite.
+        // Die kurze OBJ-Achse liegt jetzt entlang der Modullaengsrichtung.
+        // Die lange OBJ-Achse liegt entlang der Modulbreite.
 
         xAxis = lengthVector;
         yDirection = widthVector;
     }
     else
     {
-        // Hochformat:
-        // Urspruengliche Achsenzuordnung.
+        // Hochformat: Urspruengliche Achsenzuordnung.
 
         xAxis = widthVector;
         yDirection = lengthVector;
@@ -264,10 +261,8 @@ void MapLinkPlugin::createModule(
 
     if (zAxis.z() < 0.0)
     {
-        // X-Achse umkehren, damit die
-        // Y-Richtung erhalten bleibt.
-        // Dadurch bleibt die Transformation
-        // eine echte Rotation.
+        // X-Achse umkehren, damit die Y-Richtung erhalten bleibt.
+        // Dadurch bleibt die Transformation eine echte Rotation.
 
         xAxis = -xAxis;
         zAxis = -zAxis;
@@ -282,6 +277,10 @@ void MapLinkPlugin::createModule(
     // 5. Modulmittelpunkt
     osg::Vec3d center = (corners[0] + corners[1] + corners[2] + corners[3]) / 4.0;
 
+    // Visueller Abstand zur Dachoberflaeche (Die berechneten Modulkoordinaten bleiben unveraendert)
+    constexpr double VISUAL_MODULE_OFFSET = 0.1; // 10 cm
+    center += zAxis * VISUAL_MODULE_OFFSET;
+
     // 6. Rotation und Positionierung
     osg::Matrixd rotation(
         xAxis.x(), xAxis.y(), xAxis.z(), 0.0,
@@ -289,19 +288,44 @@ void MapLinkPlugin::createModule(
         zAxis.x(), zAxis.y(), zAxis.z(), 0.0,
         0.0, 0.0, 0.0, 1.0);
 
-    // Keine Skalierung:
-    // Die OBJ-Abmessungen bleiben unveraendert.
+    // OBJ-Modell auf die tatsächlichen Modulabmessungen skalieren
 
-    osg::Matrixd transform = rotation * osg::Matrixd::translate(center);
+    // Im Querformat wird die kurze OBJ-Achse der kuerzeren Modulkante zugeordnet.
+    const double targetWidth = isLandscape ? moduleLength : moduleWidth;
+
+    const double targetLength = isLandscape ? moduleWidth : moduleLength;
+
+    // Skalierungsfaktoren aus den Originalabmessungen
+    const double scaleX = targetWidth / m_pvModelWidth;
+
+    const double scaleY = targetLength / m_pvModelLength;
+
+    // Ursprüngliche Modellhöhe bzw. -dicke beibehalten
+    const double scaleZ = 1.0;
+
+    // Modell zunächst in der XY-Ebene zentrieren
+    osg::Matrixd modelCentering = osg::Matrixd::translate(
+        -m_pvModelCenterX,
+        -m_pvModelCenterY,
+        0.0);
+
+    // Skalierung
+    osg::Matrixd scaling = osg::Matrixd::scale(
+        scaleX,
+        scaleY,
+        scaleZ);
+
+    // Gesamttransformation: Zentrieren -> Skalieren -> Rotieren -> Positionieren
+    osg::Matrixd transform = modelCentering * scaling * rotation * osg::Matrixd::translate(center);
 
     // 7. Diagnoseausgabe
+
     std::cerr
         << "MapLink: Modul " << moduleId
-        << " | Format: "
-        << (isLandscape ? "Querformat" : "Hochformat")
-        << " | Breite: " << moduleWidth
-        << " | Laenge: " << moduleLength
-        << " | Normale Z: " << zAxis.z()
+        << " | Zielbreite: " << targetWidth
+        << " | Ziellaenge: " << targetLength
+        << " | Skalierung X: " << scaleX
+        << " | Skalierung Y: " << scaleY
         << std::endl;
 
 
@@ -333,10 +357,218 @@ void MapLinkPlugin::createModule(
 
     // Modul anhand seiner ID speichern
     m_moduleNodes[moduleId] = moduleTransform;
+    m_pendingModuleDeletes.erase(moduleId);
+
+    // Neue Module im aktiven Loeschmodus ebenfalls hervorheben.
+    if (m_selectModulesButton && m_selectModulesButton->getState())
+    {
+        setModuleDeleteHighlight(
+            moduleTransform.get(),
+            true);
+        setModuleDeleteOutline(moduleId, true);
+    }
 }
+
+
+void MapLinkPlugin::setModuleDeleteHighlight(
+    osg::MatrixTransform *module,
+    bool enabled)
+{
+    if (!module)
+        return;
+
+    if (enabled)
+    {
+        osg::ref_ptr<osg::StateSet> state = new osg::StateSet();
+        osg::ref_ptr<osg::Material> material = new osg::Material();
+
+        // Transparente, hellorange Modulfläche
+        material->setDiffuse(
+            osg::Material::FRONT_AND_BACK,
+            osg::Vec4(1.0f, 0.78f, 0.62f, 0.25f));
+
+        material->setAmbient(
+            osg::Material::FRONT_AND_BACK,
+            osg::Vec4(0.55f, 0.38f, 0.28f, 0.25f));
+
+        material->setEmission(
+            osg::Material::FRONT_AND_BACK,
+            osg::Vec4(0.08f, 0.035f, 0.01f, 0.25f));
+
+        material->setAlpha(
+            osg::Material::FRONT_AND_BACK, 0.15f); //transparenz
+
+        state->setAttributeAndModes(
+            material.get(),
+            osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE);
+
+        // Textur wie bisher unterdrücken
+        state->setTextureMode(
+            0,
+            GL_TEXTURE_2D,
+            osg::StateAttribute::OFF | osg::StateAttribute::OVERRIDE);
+
+        // Transparenz aktivieren
+        state->setMode(
+            GL_BLEND,
+            osg::StateAttribute::ON);
+
+        state->setRenderingHint(
+            osg::StateSet::TRANSPARENT_BIN);
+
+        // Tiefenschreiben deaktivieren, Tiefentest beibehalten
+        osg::ref_ptr<osg::Depth> depth = new osg::Depth();
+        depth->setWriteMask(false);
+
+        state->setAttributeAndModes(
+            depth.get(),
+            osg::StateAttribute::ON);
+
+        module->setStateSet(state.get());
+    }
+    else
+    {
+        // MatrixTransform besitzt im normalen Zustand
+        // keinen eigenen StateSet.
+        // Dadurch gilt wieder das originale OBJ-Material.
+        module->setStateSet(nullptr);
+    }
+}
+
+
+void MapLinkPlugin::setModuleDeleteOutline(
+    int moduleId,
+    bool enabled)
+{
+    // Eventuell vorhandenen Rahmen entfernen.
+    auto existing = m_moduleDeleteOutlines.find(moduleId);
+
+    if (existing != m_moduleDeleteOutlines.end())
+    {
+        if (m_pvModuleGroup.valid())
+        {
+            m_pvModuleGroup->removeChild(
+                existing->second.get());
+        }
+
+        m_moduleDeleteOutlines.erase(existing);
+    }
+
+    if (!enabled || !m_pvModuleGroup.valid())
+        return;
+
+    auto it = m_modules.find(moduleId);
+
+    if (it == m_modules.end())
+        return;
+
+    const auto &corners = it->second;
+
+    // Normalenrichtung der Modulfläche.
+    osg::Vec3d normal = (corners[1] - corners[0]) ^ (corners[3] - corners[0]);
+
+    if (normal.length2() < 1e-12)
+        return;
+
+    normal.normalize();
+
+    if (normal.z() < 0.0)
+        normal = -normal;
+
+    // 5 cm visueller Modulabstand und weitere
+    // 1,5 cm zur Vermeidung von Überdeckungen.
+    constexpr double OUTLINE_OFFSET_M = 0.065;
+
+    osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array();
+
+    for (int i = 0; i < 4; ++i)
+    {
+        const osg::Vec3d point = corners[i] + normal * OUTLINE_OFFSET_M;
+
+        vertices->push_back(osg::Vec3(
+            point.x(), point.y(), point.z()));
+    }
+
+    osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry();
+
+    geometry->setVertexArray(vertices.get());
+
+    geometry->addPrimitiveSet(
+        new osg::DrawArrays(
+            GL_LINE_LOOP, 0, 4));
+
+    osg::ref_ptr<osg::Vec4Array> colors = new osg::Vec4Array();
+
+    colors->push_back(
+        osg::Vec4(1.0f, 0.25f, 0.0f, 1.0f));
+
+    geometry->setColorArray(
+        colors.get(),
+        osg::Array::BIND_OVERALL);
+
+    osg::ref_ptr<osg::Geode> outline = new osg::Geode();
+
+    // Den bestehenden Modul-Picking-Code weiter nutzen.
+    outline->setName(
+        "PV_Module_" + std::to_string(moduleId));
+
+    outline->addDrawable(geometry.get());
+
+    osg::StateSet *state = outline->getOrCreateStateSet();
+
+    state->setMode(
+        GL_LIGHTING,
+        osg::StateAttribute::OFF);
+
+    state->setMode(
+        GL_TEXTURE_2D,
+        osg::StateAttribute::OFF);
+
+    osg::ref_ptr<osg::LineWidth> lineWidth = new osg::LineWidth(3.0f);
+
+    state->setAttributeAndModes(
+        lineWidth.get(),
+        osg::StateAttribute::ON);
+
+    m_pvModuleGroup->addChild(outline.get());
+
+    m_moduleDeleteOutlines[moduleId] = outline;
+}
+
+
+
+void MapLinkPlugin::updateModuleDeleteHighlight()
+{
+    const bool deleteModeActive = m_selectModulesButton && m_selectModulesButton->getState();
+
+    for (auto &entry : m_moduleNodes)
+    {
+        const int moduleId = entry.first;
+
+        setModuleDeleteHighlight(
+            entry.second.get(),
+            deleteModeActive);
+
+        setModuleDeleteOutline(
+            moduleId,
+            deleteModeActive);
+    }
+}
+
+
 
 void MapLinkPlugin::deleteModule(int moduleId)
 {
+    setModuleDeleteOutline(moduleId, false);
+
+    // Loeschanforderung abgeschlossen.
+    m_pendingModuleDeletes.erase(moduleId);
+
+    if (m_selectedModuleId == moduleId)
+    {
+        m_selectedModuleId = -1;
+    }
+
     auto it = m_moduleNodes.find(moduleId);
 
     if (it == m_moduleNodes.end())
@@ -366,9 +598,11 @@ void MapLinkPlugin::clearAllModules()
             0,
             m_pvModuleGroup->getNumChildren());
     }
-
+    m_moduleDeleteOutlines.clear();
     m_moduleNodes.clear();
     m_modules.clear();
+    m_pendingModuleDeletes.clear();
+    m_selectedModuleId = -1;
 
     std::cerr
         << "MapLink: Alle PV-Module geloescht."
@@ -520,6 +754,59 @@ bool MapLinkPlugin::init()
     cover->getObjectsRoot()->addChild(m_pvModuleGroup);
 
     std::cerr << "MapLink: PV-Modulgruppe erstellt." << std::endl;
+
+    // PV-OBJ-Modell einmalig laden
+    const char *coviseDir = getenv("COVISEDIR");
+
+    if (!coviseDir)
+    {
+        std::cerr
+            << "MapLink: COVISEDIR ist nicht gesetzt!"
+            << std::endl;
+        return false;
+    }
+
+    const std::string modelPath = std::string(coviseDir) + "/share/covise/example-data/PV/PV_kompakt_hoch.obj";
+
+    m_pvModel = osgDB::readNodeFile(modelPath);
+
+    if (!m_pvModel.valid())
+    {
+        std::cerr
+            << "MapLink: OBJ-Modell konnte nicht geladen werden!"
+            << std::endl;
+        return false;
+    }
+
+    // Abmessungen der geladenen Geometrie bestimmen
+    osg::ComputeBoundsVisitor boundsVisitor;
+    m_pvModel->accept(boundsVisitor);
+
+    const osg::BoundingBox bounds = boundsVisitor.getBoundingBox();
+
+    m_pvModelWidth = bounds.xMax() - bounds.xMin();
+
+    m_pvModelLength = bounds.yMax() - bounds.yMin();
+
+    m_pvModelCenterX = (bounds.xMin() + bounds.xMax()) / 2.0;
+
+    m_pvModelCenterY = (bounds.yMin() + bounds.yMax()) / 2.0;
+
+    if (!bounds.valid() || m_pvModelWidth <= 0.0 || m_pvModelLength <= 0.0)
+    {
+        std::cerr
+            << "MapLink: Ungueltige OBJ-Abmessungen!"
+            << std::endl;
+        return false;
+    }
+
+    std::cerr
+        << "MapLink: PV-OBJ einmalig geladen."
+        << " Originalbreite: " << m_pvModelWidth
+        << " m, Originallaenge: " << m_pvModelLength
+        << " m"
+        << std::endl;
+
     return true;
 }
 // this is called if the plugin is removed at runtime
@@ -619,34 +906,42 @@ void MapLinkPlugin::createCamera()
 	renderer->getSceneView(1)->setComputeStereoMatricesCallback(this);
 }
 
+
 void MapLinkPlugin::menuEvent(coMenuItem *aButton)
 {
-    if (aButton == m_selectModulesButton)
+    if (aButton != m_selectModulesButton)
+        return;
+
+    const bool deleteModeActive = m_selectModulesButton->getState();
+
+    if (deleteModeActive)
     {
-        if (m_selectModulesButton->getState())
-        {
-            // Auswahlmodus einschalten
-            coInteractionManager::the()->registerInteraction(
-                m_selectInteraction);
+        // Mausklick-Interaktion aktivieren
+        coInteractionManager::the()->registerInteraction(
+            m_selectInteraction);
 
-            std::cerr
-                << "MapLink: PV-Modulauswahl aktiviert."
-                << std::endl;
-        }
-        else
-        {
-            // Auswahlmodus ausschalten
-            coInteractionManager::the()->unregisterInteraction(
-                m_selectInteraction);
-
-            m_selectedModuleId = -1;
-
-            std::cerr
-                << "MapLink: PV-Modulauswahl deaktiviert."
-                << std::endl;
-        }
+        std::cerr
+            << "MapLink: PV-Loeschmodus aktiviert."
+            << std::endl;
     }
+    else
+    {
+        // Mausklick-Interaktion deaktivieren
+        coInteractionManager::the()->unregisterInteraction(
+            m_selectInteraction);
+
+        m_selectedModuleId = -1;
+
+        std::cerr
+            << "MapLink: PV-Loeschmodus deaktiviert."
+            << std::endl;
+    }
+
+    // Alle Module passend zum Modus einfaerben
+    // beziehungsweise Originalfarben wiederherstellen.
+    updateModuleDeleteHighlight();
 }
+
 void MapLinkPlugin::tabletPressEvent(coTUIElement *tUIItem)
 {
 }
@@ -1028,24 +1323,7 @@ MapLinkPlugin::handleMessage(Message *m)
 
             case MSG_SetModules:
             {
-                // OBJ-Modell aus Blender laden
-                const std::string COVISEDIR = getenv("COVISEDIR");
-                const std::string modelPath = COVISEDIR + "/share/covise/example-data/PV/PV_kompakt_hoch.obj";
-
-                osg::ref_ptr<osg::Node> pvModel = osgDB::readNodeFile(modelPath);
-
-                if (pvModel.valid())
-                {
-                    std::cerr
-                        << "MapLink: OBJ-Modell erfolgreich geladen!"
-                        << std::endl;
-                }
-                else
-                {
-                    std::cerr
-                        << "MapLink: FEHLER - OBJ-Modell konnte nicht geladen werden!"
-                        << std::endl;
-                }
+                //const std::string modelPath = COVISEDIR + "/share/covise/example-data/PV/PV_kompakt_hoch.obj";
 
                 // Anzahl der empfangenen Module
                 int numModules;
@@ -1101,12 +1379,12 @@ MapLinkPlugin::handleMessage(Message *m)
                     m_modules[moduleId] = worldCorners;
 
                     // Tatsächliches 3D-Modul erstellen
-                    if (pvModel.valid())
+                    if (m_pvModel.valid())
                     {
                         createModule(
                             moduleId,
                             worldCorners,
-                            pvModel.get());
+                            m_pvModel.get());
                     }
                 }
 
@@ -1288,16 +1566,32 @@ void MapLinkPlugin::preFrame()
                     {
                         const int moduleId = std::stoi(name.substr(prefix.length()));
 
+                        
                         m_selectedModuleId = moduleId;
                         moduleFound = true;
 
-                        std::cerr
-                            << "MapLink: PV-Modul "
-                            << moduleId
-                            << " ausgewaehlt."
-                            << std::endl;
+                        // Nur im aktivierten Loeschmodus loeschen.
+                        if (m_selectModulesButton && m_selectModulesButton->getState())
+                        {
+                            // Mehrfachklicks auf dasselbe Modul verhindern,
+                            // solange seine Loeschung noch aussteht.
+                            const bool firstRequest = m_pendingModuleDeletes.insert(moduleId).second;
+
+                            if (firstRequest)
+                            {
+                                std::cerr
+                                    << "MapLink: PV-Modul "
+                                    << moduleId
+                                    << " zum Loeschen angeklickt."
+                                    << std::endl;
+
+                                // Bereits vorhandene Kommunikation nutzen.
+                                sendDeleteModuleRequest(moduleId);
+                            }
+                        }
 
                         break;
+
                     }
                     catch (...)
                     {
@@ -1340,27 +1634,10 @@ void MapLinkPlugin::preFrame()
 
 void MapLinkPlugin::key(int type, int keySym, int mod)
 {
-    if (type == osgGA::GUIEventAdapter::KEYDOWN)
-    {
-        if (keySym == osgGA::GUIEventAdapter::KEY_Delete)
-        {
-            if (m_selectedModuleId >= 0)
-            {
-                std::cerr
-                    << "MapLink: Loeschen angefordert fuer Modul "
-                    << m_selectedModuleId
-                    << std::endl;
-
-                sendDeleteModuleRequest(m_selectedModuleId);
-            }
-            else
-            {
-                std::cerr
-                    << "MapLink: Entf gedrueckt, aber kein Modul ausgewaehlt."
-                    << std::endl;
-            }
-        }
-    }
+    // Das Loeschen erfolgt ausschliesslich durch Anklicken im aktivierten Loeschmodus.
+    (void)type;
+    (void)keySym;
+    (void)mod;
 }
 
 bool MapLinkPlugin::update()

@@ -46,14 +46,15 @@ int main(int argc, char **argv)
                 osg::Node *node = osgDB::readNodeFile(x.path().string());
                 osg::MatrixTransform* mt = dynamic_cast<osg::MatrixTransform*>(node);
                 osg::Vec3 pos;
-                if (mt)
+                /*if (mt)
                 {
                     pos = mt->getMatrix().getTrans();
                 }
                 else
                 {
                     pos = node->getBound().center();
-                }
+                }*/
+                pos = node->getBound().center();
                 positions.push_back(pos);
             }
             std::cerr << "numGeometries: " << positions.size() << std::endl;

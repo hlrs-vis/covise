@@ -25,6 +25,7 @@
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <float.h>
+#include <cstdlib>
 #if !defined(__MINGW32__)
 // don't do this, otherwise std::isnan does not work#define isnan _isnan
 namespace std
@@ -144,6 +145,19 @@ WINCOMPATINLINE int gettimeofday(struct timeval *tv, struct timezone *tz)
 #endif /* _WIN32 or _WIN64 */
 
 #if defined(_WIN32)
+WINCOMPATINLINE int setenv(const char *name, const char *value, int overwrite)
+{
+    int errcode = 0;
+    if (!overwrite)
+    {
+        size_t envsize = 0;
+        errcode = getenv_s(&envsize, NULL, 0, name);
+        if (errcode || envsize)
+            return errcode;
+    }
+    return _putenv_s(name, value);
+}
+
 WINCOMPATINLINE char *strtok_r(char *s1, const char *s2, char **lasts)
 {
     char *ret;

@@ -194,6 +194,8 @@ void coVRNavigationManager::init()
 
     registerNavigationProvider(&teleportNavigationProvider);
     registerNavigationProvider(&aimMotionNavigationProvider);
+
+    aimMotionNavigationProvider.navMenuButton->setPriority(ui::Element::Toolbar);
 }
 
 coVRNavigationManager::~coVRNavigationManager()

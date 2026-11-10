@@ -39,6 +39,7 @@
 #include <osgDB/ReadFile>
 #include <osgDB/WriteFile>
 #include <osg/Node>
+#include <osg/Vec3>
 #include <osg/Group>
 #include <osg/Geode>
 #include <osg/Geometry>
@@ -206,6 +207,9 @@ bool Sky::init()
     {
         setSky(defaultSky);
     }
+
+    m_autoSkyMaxHeight = configFile->value("autoSky", "maxHeight", 0.0)->value();
+    m_autoSkyDebounce = configFile->value("autoSky", "debounce", 1.0)->value();
 
     return true;
 }
@@ -564,46 +568,64 @@ void Sky::setTrueNorth(float trueNorth)
         skyNorthSlider->setValue(northAngle);
 }
 
+bool isValidSkyToSwitchTo(SkyEntry *current, SkyEntry *next)
+{
+    if (next == nullptr)
+        return false;
+    if (!current)
+        return true;
+    if (next == current)
+        return false;
+
+    auto globalPosition = GeoData::instance()->getProjectPosition();
+
+    const auto dist = [globalPosition](const SkyEntry *s)
+    {
+        auto loc = GeoData::instance()->globalToProject(osg::Vec3(s->longitude, s->latitude, 0));
+        const double dx = loc.x() - globalPosition.x();
+        const double dy = loc.y() - globalPosition.y();
+        return std::sqrt(dx * dx + dy * dy);
+    };
+
+    const double currentDist = dist(current);
+    const double nextDist = dist(next);
+
+    return nextDist < currentDist * 0.9;
+}
+
 void Sky::updateAutoSky()
 {
     if (!m_autoSkyEnabled)
         return;
 
-    auto globalPosition = GeoData::instance()->getGlobalPosition();
-    SkyEntry *closestSky = findClosestSky(globalPosition);
-    if (!closestSky)
-        return;
-
-    if (!m_currentSky)
-    {
-        setSkyEntry(*closestSky, false);
+    bool belowMaxHeight = m_autoSkyMaxHeight == 0.0 || GeoData::instance()->getGlobalPosition().z() < m_autoSkyMaxHeight;
+    if (!belowMaxHeight) {
         return;
     }
 
-    double lon = globalPosition.x();
-    double lat = globalPosition.y();
-
-    const auto dist2 = [](const SkyEntry *s, double lon, double lat)
+    // Decide where to switch to
+    SkyEntry *closestSky = findClosestSky();
+    if (isValidSkyToSwitchTo(m_currentSky, closestSky) && closestSky != m_debounceNextSky)
     {
-        const double dx = s->longitude - lon;
-        const double dy = s->latitude - lat;
-        return dx * dx + dy * dy;
-    };
+        m_debounceNextSky = closestSky;
+        m_debounceNextSkyDuration = m_currentSky == nullptr ? 0.0 : m_autoSkyDebounce;
+    }
 
-    const double currentDistSq = dist2(m_currentSky, lon, lat);
-    const double closestDistSq = dist2(closestSky, lon, lat);
+    if (m_debounceNextSky == nullptr)
+        return;
 
-    constexpr double SKY_THRESHOLD = 1e-4; // roughly 1 km
+    m_debounceNextSkyDuration -= cover->frameDuration();
 
-    if (closestSky != m_currentSky && ((currentDistSq - closestDistSq) > SKY_THRESHOLD))
+    if (m_debounceNextSkyDuration <= 0.0)
     {
-        setSkyEntry(*closestSky, false);
+        setSkyEntry(*m_debounceNextSky, false);
     }
 }
 
-SkyEntry *Sky::findClosestSky(const osg::Vec3 &globalPosition)
+SkyEntry *Sky::findClosestSky()
 {
-    SkyEntry *closestSky = nullptr;
+    auto globalPosition = GeoData::instance()->getGlobalPosition();
+    SkyEntry *result = nullptr;
     double closestDistance = std::numeric_limits<double>::max();
 
     double longitude = globalPosition.x();
@@ -617,10 +639,10 @@ SkyEntry *Sky::findClosestSky(const osg::Vec3 &globalPosition)
         if (distance < closestDistance)
         {
             closestDistance = distance;
-            closestSky = &sky;
+            result = &sky;
         }
     }
-    return closestSky;
+    return result;
 }
 
 bool Sky::update()

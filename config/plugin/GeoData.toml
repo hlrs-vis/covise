@@ -23,6 +23,7 @@ lodPath = "/data/Geodata/Hamburg/lod2/lod2.ive"
 [[regions]]
 name = "Hessen"
 terrainPath = "/data/Geodata/HE/vpb_DGM1m_FDOP20/vpb_DGM1m_FDOP20.ive"
+lodPath = "/data/Geodata/HE/lod2/lod2.ive"
 
 [[regions]]
 name = "Niedersachsen"
