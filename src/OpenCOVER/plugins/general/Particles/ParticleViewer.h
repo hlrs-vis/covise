@@ -141,9 +141,11 @@ public:
     coTUILabel *mapMinLabel;
     coTUILabel *mapMaxLabel;
     coTUILabel *radiusLabel;
+    coTUILabel *maxRadiusLabel;
     coTUIEditFloatField *mapMin;
     coTUIEditFloatField *mapMax;
     coTUIEditFloatField *radiusEdit;
+    coTUIEditFloatField *maxRadiusEdit;
 
     coTUIComboBox *aMapChoice;
     coTUIComboBox *aValChoice;

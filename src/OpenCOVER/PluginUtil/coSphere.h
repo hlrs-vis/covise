@@ -79,6 +79,7 @@ public:
     void setMaxRadius(float m)
     {
         m_extMaxRadius = m;
+        m_maxRadius = m;
     };
     void setVertexAttribArray(unsigned int index, const osg::Array *array, osg::Array::Binding binding = osg::Array::BIND_UNDEFINED);
 

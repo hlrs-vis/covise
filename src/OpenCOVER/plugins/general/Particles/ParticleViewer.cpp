@@ -219,6 +219,8 @@ bool ParticleViewer::init()
     mapMaxLabel->setPos(0, 8);
     radiusLabel = new coTUILabel("radius:", particleFrame->getID());
     radiusLabel->setPos(0, 9);
+    maxRadiusLabel = new coTUILabel("maxRadius:", particleFrame->getID());
+    maxRadiusLabel->setPos(0, 10);
 
     mapMin = new coTUIEditFloatField("min:", particleFrame->getID());
     mapMin->setValue(200);
@@ -232,6 +234,10 @@ bool ParticleViewer::init()
     radiusEdit->setValue(10);
     radiusEdit->setPos(1, 9);
     radiusEdit->setEventListener(this);
+    maxRadiusEdit = new coTUIEditFloatField("maxRadius:", particleFrame->getID());
+    maxRadiusEdit->setValue(1.0);
+    maxRadiusEdit->setPos(1, 10);
+    maxRadiusEdit->setEventListener(this);
 
     aMapChoice = new coTUIComboBox("mapChoice", arrowFrame->getID());
     aMapChoice->setEventListener(this);
@@ -363,6 +369,13 @@ void ParticleViewer::tabletEvent(coTUIElement *tUIItem)
         for (std::list<Particles *>::iterator it = particles.begin(); it != particles.end(); it++)
         {
             (*it)->updateRadii(currentRValue); // this also sets the radius to the editField value if currentRValue is 0 == NONE
+        }
+    }
+    if ((tUIItem == maxRadiusEdit) )
+    {
+        for (std::list<Particles *>::iterator it = particles.begin(); it != particles.end(); it++)
+        {
+            (*it)->setMaxRadius(maxRadiusEdit->getValue()); // this also sets the radius to the editField value if currentRValue is 0 == NONE
         }
     }
 }

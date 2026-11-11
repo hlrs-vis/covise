@@ -1418,6 +1418,17 @@ int Particles::readIndentFile(char *fn, int timestep)
     return numParticles;
 }
 
+void Particles::setMaxRadius(float r)
+{
+    for (int i = 0; i < numTimesteps; i++)
+    {
+        if (timesteps[i]->sphere)
+        {
+            coSphere *s = timesteps[i]->sphere;
+            s->setMaxRadius(r);
+        }
+    }
+}
 void Particles::updateRadii(unsigned int valueNumber)
 {
     float f = ParticleViewer::instance()->getRadius();

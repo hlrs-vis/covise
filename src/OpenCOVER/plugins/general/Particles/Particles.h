@@ -124,6 +124,7 @@ public:
     void summUpTimesteps(int increment);
     void updateColors(unsigned int valueNumber = 0, unsigned int aValueNumber = 0);
     void updateRadii(unsigned int valueNumber = 0);
+    void setMaxRadius(float r);
     float getMin(int currentValue)
     {
         return variableMin[currentValue];
