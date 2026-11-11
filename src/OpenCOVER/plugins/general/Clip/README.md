@@ -123,7 +123,10 @@ This produces `libClip.so` in `<archdir>/lib/OpenCOVER/plugins/`
    picking; press the action button to pick).
 2. Open the **"Clip objects"** menu (plugin menu).
 3. Press **"Pick target (e.g. terrain)"**, then point at the object you want
-   cut and press the action button.
+   cut and press the action button. Pointing at a **named part** of an object
+   (e.g. a photogrammetry tile geode, or an OBJ material group such as
+   `Holzkorpus_wood_long`) cuts only that part; pointing at the object as a
+   whole cuts the whole object.
 4. Press **"Add void object"** and pick each object that should produce a
    hole. The mode stays active, so you can pick several voids in a row.
 5. Use **"Remove void object"** (or the void list) to delete a void again, and
@@ -183,8 +186,7 @@ point `COVCONFIG` at a directory containing `plugin/Clip.toml`, e.g.
 - Transparent targets or voids are best-effort: the pre-passes render with
   depth only, so alpha-blended edges may not cut perfectly.
 - The slab test needs **2 stencil bits**. COVER requests a stencil buffer by
-  default (`COVER.Stencil` = true, 8 bits); the plugin reports the available
-  bits in the `CLIP_DEBUG_DUMP` log if you set that environment variable.
+  default (`COVER.Stencil` = true, 8 bits).
 
 ## Testing
 

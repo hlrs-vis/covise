@@ -76,6 +76,10 @@ public:
     bool init() override;
     bool destroy() override;
     void preFrame() override;
+    void postFrame() override;
+
+    // CLIP_DEBUG: one-shot camera cull/clear state dump
+    void dbgReportCamera();
 
     // coSelectionListener
     bool selectionChanged() override;
@@ -108,6 +112,7 @@ private:
     {
         std::string name;
         osg::ref_ptr<osg::Node> topNode; // the object's current top-level node (helper-aware)
+        osg::ref_ptr<osg::Node> targetTopNode; // the node that was actually cloned (the picked sub-node for sub-object picks, otherwise == topNode)
         std::vector<osg::Geode *> geodes; // all geodes of the object (non-owning)
         // the parent the clones live under (a sibling of `topNode`); re-parented
         // when a helper is inserted/removed above the object
@@ -123,7 +128,13 @@ private:
         std::vector<GeodeSavedState> saved;
         int savedCount = 0; // how many geodes `saved` currently describes
         bool appliedHidden = false; // current visibility state of the geodes
+        // PagedLOD signature of the object's subtree when the clones were
+        // (re-)built; an empty signature means the object has no PagedLOD and
+        // the clones never need to be rebuilt
+        std::string pagedLODSig;
     };
+
+    int m_dbgLastDiagFrame = -1; // CLIP_DEBUG: frame of the last periodic diag dump
 
     // ---- target / void bookkeeping ----
     void setMode(Mode m);
@@ -141,12 +152,33 @@ private:
     // per-frame: keep the shadow clones in sync with their (possibly moved,
     // wrapped or replaced) objects and apply the hide state
     void syncShadows();
+    // keep m_targetGeodes / m_targetSaved in sync with the target's live
+    // geodes (paged tiles are added and expired while the plugin runs);
+    // returns true if anything changed
+    bool reconcileTargetGeodes();
 
     // ---- shadow (stencil/depth pre-pass) management ----
     void removeTargetShadow();
     void rebuildTargetShadow();
     void removeVoidShadow(const std::string &name);
-    void createVoidShadow(const std::string &name, osg::Geode *geode);
+    void createVoidShadow(const std::string &name, osg::Geode *geode, osg::Node *topNode);
+    // the (top-level) object a node belongs to: the highest ancestor (skipping
+    // selection helpers) whose parent is the ObjectsRoot; nullptr if none
+    osg::Node *topObjectOf(osg::Node *node) const;
+    // resolve a name to the node that carries it: the top-level object itself,
+    // or a descendant (named geode/group) inside it; nullptr if not found
+    osg::Node *findNamedNode(const std::string &name) const;
+    // the display name of a picked node: its top-level object name, or the
+    // name of the picked node itself when it is a named sub-node (e.g. a
+    // material group of a multi-group OBJ)
+    std::string displayNameOf(osg::Node *node) const;
+    // resolve the top-level object of a void/target name: from the (stale-able)
+    // last known top node when it still contains the name, else a fresh scan
+    osg::Node *resolveTop(const osg::ref_ptr<osg::Node> &cached, const std::string &name) const;
+    // the node to mirror for a target/void name under a top-level object:
+    // the object itself when it carries the name, or a named descendant; nullptr
+    // when the name no longer exists under the object (the part was deleted)
+    osg::Node *resolveMirrorNode(osg::Node *top, const std::string &name) const;
     // (re-)create the near/far clones at the scene root for the whole object
     void makeVoidClones(Shadow *shadow, const std::string &name);
     // re-create the clones for the object's current (replaced) top node
@@ -183,7 +215,11 @@ private:
     bool m_hideVoids = true; // void objects are hidden in the main pass but stay pickable
 
     Shadow *m_targetShadow = nullptr;
-    std::map<std::string, Shadow *> m_voidShadows; // keyed by object name
+    std::map<std::string, Shadow *> m_voidShadows; // keyed by display name (object or sub-node name)
+    // PagedLOD signature of the target when its shadow was last built ("" when
+    // the target has no PagedLOD or no shadow); a change means the target
+    // advanced to a new LOD level and the shadow must be rebuilt to mirror it
+    std::string m_targetPagedLODSig;
 
     // per-object counters: frames in a row the object's geodes have been absent
     // from the scene; a replaced object is gone for at most one frame, so a
@@ -191,6 +227,9 @@ private:
     // the SGBrowser do not fire the plugin remove hooks, so clean up here)
     std::map<std::string, int> m_missingFrames;
     int m_targetMissingFrames = 0;
+    // CLIP_DEBUG: one-shot dump of the main camera's render stage done once the
+    // pre-passes have produced a stencil buffer
+    bool m_dbgPosted = false;
 
     // the target geodes' original depth/stencil attributes, saved before the
     // clip overrides are applied so they can be restored on remove/clear
