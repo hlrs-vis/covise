@@ -536,7 +536,7 @@ bool GeoDataLoader::init()
     saveTileReplacementsToConfig->setState(false);
     saveTileReplacementsToConfig->setCallback([this](bool state)
         {
-            if (!state)
+            if (!state || !coVRMSController::instance()->isMaster())
                 return;
             auto configFile = config();
             // Make sure every omitted tile of the selection list is part of the config.
@@ -546,7 +546,7 @@ bool GeoDataLoader::init()
                     stageTileReplacement(tile.fileName, "");
             }
             // Save the replacements to the config file but just the master, otherwise the slaves will try to write the config file at the same time and fail.
-            if (configFile && coVRMSController::instance()->isMaster() && configFile->save())
+            if (configFile && configFile->save())
                 std::cerr << "GeoData: Saved tile replacements to config" << std::endl;
             else
                 std::cerr << "GeoData: Failed to save tile replacements to config" << std::endl;
