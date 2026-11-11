@@ -25,6 +25,7 @@
 #include <filesystem>
 #include <functional>
 #include <iterator>
+#include <map>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRSelectionManager.h>
 #include <cover/coIntersection.h>
@@ -91,7 +92,12 @@ namespace
 class ExportImageRestorer : public osg::NodeVisitor
 {
 public:
-    ExportImageRestorer() : osg::NodeVisitor(TRAVERSE_ALL_CHILDREN) {}
+    ExportImageRestorer(const std::filesystem::path &exportPath)
+        : osg::NodeVisitor(TRAVERSE_ALL_CHILDREN)
+        , exportPath(exportPath)
+        , exportBaseName(exportPath.stem().string())
+    {
+    }
     ~ExportImageRestorer() { restore(); }
 
     void apply(osg::Node &node) override
@@ -119,8 +125,11 @@ private:
         osg::ref_ptr<osg::Texture2D> texture;
         osg::ref_ptr<osg::Image> original;
     };
+    std::filesystem::path exportPath;
+    std::string exportBaseName;
     std::vector<Swap> swapped;
     std::set<osg::Texture2D *> done;
+    std::map<osg::Image *, osg::ref_ptr<osg::Image>> exportedImages;
 
     void fix(osg::StateSet *ss)
     {
@@ -132,17 +141,35 @@ private:
             if (!tex || !done.insert(tex).second)
                 continue;
             osg::Image *img = tex->getImage();
-            if (!img || img->data() || img->getFileName().empty())
+            if (!img || img->getFileName().empty())
                 continue;
-            osg::ref_ptr<osg::Image> fresh = osgDB::readImageFile(img->getFileName());
-            if (!fresh)
+
+            auto exportedImage = exportedImages.find(img);
+            if (exportedImage == exportedImages.end())
             {
-                std::cerr << "GeoData: Could not reload texture for export: " << img->getFileName() << std::endl;
-                continue;
+                osg::ref_ptr<osg::Image> source = img;
+                if (!source->data())
+                {
+                    source = osgDB::readImageFile(img->getFileName());
+                    if (!source)
+                    {
+                        std::cerr << "GeoData: Could not reload texture for export: " << img->getFileName() << std::endl;
+                        continue;
+                    }
+                }
+
+                const std::string extension = std::filesystem::path(img->getFileName()).extension().string();
+                if (extension.empty())
+                    continue;
+
+                osg::ref_ptr<osg::Image> copy = new osg::Image(*source);
+                const auto textureName = exportBaseName + "_texture_" + std::to_string(exportedImages.size()) + extension;
+                copy->setFileName((exportPath.parent_path() / textureName).string());
+                exportedImage = exportedImages.emplace(img, copy).first;
             }
-            fresh->setFileName(img->getFileName());
-            swapped.push_back({tex, img});
-            tex->setImage(fresh.get());
+
+            swapped.push_back({ tex, img });
+            tex->setImage(exportedImage->second.get());
         }
     }
 };
@@ -499,8 +526,7 @@ bool GeoDataLoader::init()
                     const auto slash = tile.fileName.find_last_of("/\\");
                     exportDirectory->setValue(slash == std::string::npos ? "." : tile.fileName.substr(0, slash));
                 }
-            }
-        });
+            } });
 
     replacementFile = new ui::EditField(editGroup, "replacementFile");
     replacementFile->setText("Replacement tile file:");
@@ -513,13 +539,18 @@ bool GeoDataLoader::init()
             if (!state)
                 return;
             auto configFile = config();
+            // Make sure every omitted tile of the selection list is part of the config.
+            for (const auto &tile : tiles)
+            {
+                if (tile.omitted || omittedTiles.count(tile.fileName))
+                    stageTileReplacement(tile.fileName, "");
+            }
             // Save the replacements to the config file but just the master, otherwise the slaves will try to write the config file at the same time and fail.
             if (configFile && coVRMSController::instance()->isMaster() && configFile->save())
                 std::cerr << "GeoData: Saved tile replacements to config" << std::endl;
             else
                 std::cerr << "GeoData: Failed to save tile replacements to config" << std::endl;
-            saveTileReplacementsToConfig->setState(false);
-        });
+            saveTileReplacementsToConfig->setState(false); });
 
     deleteSelected = new ui::Action(editGroup, "deleteSelected");
     deleteSelected->setText("Omit selected tile");
@@ -572,15 +603,14 @@ bool GeoDataLoader::init()
                 selectionManager->removeNode(tile.contentNode.get());
             osg::Node *node = tile.pagedLod->getChild(tile.childIndex);
             bool exported = false;
-            {
-                ExportImageRestorer restorer;
+            if(coVRMSController::instance()->isMaster()){
+                ExportImageRestorer restorer(outputPath);
                 node->accept(restorer);
                 exported = osgDB::writeNodeFile(*node, output);
+                if (!exported)
+                    std::cerr << "GeoData: Failed to export selected tile to FBX: " << output << std::endl;
             }
-            updateTileSelectionHighlight(tile);
-            if (!exported)
-                std::cerr << "GeoData: Failed to export selected tile to FBX: " << output << std::endl;
-        });
+            updateTileSelectionHighlight(tile); });
 
     selectionName = new ui::Label(editGroup, "name");
     selectionName->setText("nothing is selected");
@@ -846,9 +876,9 @@ std::optional<std::string> GeoDataLoader::replacementFor(const std::string &file
 }
 
 std::string GeoDataLoader::requestNodeFile(const std::string &fileName, osg::NodePath &nodePath, float priority,
-                                           const osg::FrameStamp *framestamp,
-                                           osg::ref_ptr<osg::Referenced> &databaseRequest,
-                                           const osg::Referenced *options)
+    const osg::FrameStamp *framestamp,
+    osg::ref_ptr<osg::Referenced> &databaseRequest,
+    const osg::Referenced *options)
 {
     (void)nodePath;
     (void)priority;
@@ -1153,27 +1183,30 @@ void GeoDataLoader::doDelete()
         if (!tile.selected || !tile.pagedLod || tile.childIndex >= tile.pagedLod->getNumChildren())
             continue;
 
-        osg::Node *tileNode = tile.pagedLod->getChild(tile.childIndex);
-        const std::filesystem::path sourcePath(tile.fileName);
-        std::string tileBaseName = sourcePath.stem().string();
-        for (char &character : tileBaseName)
+        if (coVRMSController::instance()->isMaster())
         {
-            const auto value = static_cast<unsigned char>(character);
-            if (!std::isalnum(value) && character != '-' && character != '_')
-                character = '_';
-        }
-        if (tileBaseName.empty())
-            tileBaseName = "tile";
-        std::ostringstream tileId;
-        tileId << std::hex << std::hash<std::string>{}(tile.fileName);
-        const std::string tileDirectoryName = tileBaseName + "_" + tileId.str();
+            osg::Node *tileNode = tile.pagedLod->getChild(tile.childIndex);
+            const std::filesystem::path sourcePath(tile.fileName);
+            std::string tileBaseName = sourcePath.stem().string();
+            for (char &character : tileBaseName)
+            {
+                const auto value = static_cast<unsigned char>(character);
+                if (!std::isalnum(value) && character != '-' && character != '_')
+                    character = '_';
+            }
+            if (tileBaseName.empty())
+                tileBaseName = "tile";
+            std::ostringstream tileId;
+            tileId << std::hex << std::hash<std::string> { }(tile.fileName);
+            const std::string tileDirectoryName = tileBaseName + "_" + tileId.str();
 
-        const auto tileDirectory = exportRoot / tileDirectoryName;
-        std::error_code exportError;
-        std::filesystem::create_directories(tileDirectory, exportError);
-        const auto tileExportPath = tileDirectory / (tileBaseName + ".3ds");
-        if (exportError || !osgDB::writeNodeFile(*tileNode, tileExportPath.string()))
-            std::cerr << "GeoData: Failed to save omitted tile as 3DS: " << tileExportPath.string() << std::endl;
+            const auto tileDirectory = exportRoot / tileDirectoryName;
+            std::error_code exportError;
+            std::filesystem::create_directories(tileDirectory, exportError);
+            const auto tileExportPath = tileDirectory / (tileBaseName + ".3ds");
+            if (exportError || !osgDB::writeNodeFile(*tileNode, tileExportPath.string()))
+                std::cerr << "GeoData: Failed to save omitted tile as 3DS: " << tileExportPath.string() << std::endl;
+        }
 
         tile.undoSelected = true;
         if (tile.contentNode)
