@@ -1204,6 +1204,10 @@ void GeoDataLoader::doDelete()
             std::error_code exportError;
             std::filesystem::create_directories(tileDirectory, exportError);
             const auto tileExportPath = tileDirectory / (tileBaseName + ".3ds");
+            
+            ExportImageRestorer restorer(tileExportPath);
+            tileNode->accept(restorer);
+            
             if (exportError || !osgDB::writeNodeFile(*tileNode, tileExportPath.string()))
                 std::cerr << "GeoData: Failed to save omitted tile as 3DS: " << tileExportPath.string() << std::endl;
         }
