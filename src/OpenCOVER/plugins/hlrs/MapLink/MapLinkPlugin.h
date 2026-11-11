@@ -95,7 +95,7 @@ protected:
     osg::Matrixd computeLeftEyeView(const osg::Matrixd &view) const override;
     osg::Matrixd computeRightEyeProjection(const osg::Matrixd &projection) const override;
     osg::Matrixd computeRightEyeView(const osg::Matrixd &view) const override;
-    void setProjection(float xPos, float yPos, float width, float height);
+    void setProjection(float centerX, float centerY, float width, float height, const osg::Vec3d &up);
     static MapLinkPlugin *plugin;
     void sendProjectTransformReady();
 

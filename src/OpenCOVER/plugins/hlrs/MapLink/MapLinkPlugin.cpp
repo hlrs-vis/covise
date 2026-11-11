@@ -842,29 +842,31 @@ MapLinkPlugin::~MapLinkPlugin()
     toMapLink.reset();
 }
 
-void MapLinkPlugin::setProjection(float xPos, float yPos, float width, float height)
+void MapLinkPlugin::setProjection(
+    float centerX,
+    float centerY,
+    float width,
+    float height,
+    const osg::Vec3d &up)
 {
-    float hw = width/2.0;
-    float hh = height/2.0;
-    // ProjectionMatrix //
-    //
-    projMat = osg::Matrix::ortho(-hw, hw, -hh, hh, 10000.0, 4000000.0);
+    const double halfWidth = width * 0.5;
+    const double halfHeight = height * 0.5;
 
-    // ViewMatrix //
-    //
-    
-    //osg::Matrix viewMat = cover->getInvBaseMat();
-    //viewMat.postMult(osg::Matrix::lookAt(osg::Vec3d(xPos+hw, yPos+hh, 1800000.0), osg::Vec3d(xPos+hw, yPos+hh, -1000000.0), osg::Vec3d(0.0, 1.0, 0.0)));
-    osg::Matrix tmpMat = osg::Matrix::lookAt(osg::Vec3d(xPos+hw, yPos+hh, 1800000.0), osg::Vec3d(xPos+hw, yPos+hh, -1000000.0), osg::Vec3d(0.0, 1.0, 0.0));
-    viewMat = cover->getInvBaseMat() *osg::Matrix::translate(-(xPos+hw), -(yPos+hh), -1800000.0);
+    projMat = osg::Matrix::ortho(
+        -halfWidth, halfWidth,
+        -halfHeight, halfHeight,
+        10000.0, 4000000.0);
 
+    const osg::Vec3d eye(centerX, centerY, 1800000.0);
+    const osg::Vec3d target(centerX, centerY, 0.0);
+
+    viewMat = cover->getInvBaseMat()
+        * osg::Matrix::lookAt(eye, target, up);
 
     camera->setProjectionMatrix(projMat);
     camera->setViewMatrix(viewMat);
-    
-    // Registrierung erfolgt ausschliesslich in MSG_GetMap.
-
 }
+
 void MapLinkPlugin::createCamera()
 {
     resX=1024;
@@ -1265,27 +1267,47 @@ MapLinkPlugin::handleMessage(Message *m)
                 const osg::Vec3d pLR = GeoData::instance()->globalToProject(lowerRight);
 
                 // 4. Begrenzung im Projektraum bestimmen
-                const double minX = std::min(
-                    std::min(pLL.x(), pUR.x()),
-                    std::min(pUL.x(), pLR.x()));
+                // Bildachsen aus den transformierten Kartenecken ableiten.
+                osg::Vec3d right = (pLR - pLL) + (pUR - pUL);
+                right.z() = 0.0;
 
-                const double maxX = std::max(
-                    std::max(pLL.x(), pUR.x()),
-                    std::max(pUL.x(), pLR.x()));
+                if (!std::isfinite(right.length2()) || right.length2() <= 0.0)
+                {
+                    std::cerr << "Snapshot: ungueltige Bildachse!" << std::endl;
+                    width = 0.0f;
+                    break;
+                }
 
-                const double minY = std::min(
-                    std::min(pLL.y(), pUR.y()),
-                    std::min(pUL.y(), pLR.y()));
+                right.normalize();
+                const osg::Vec3d up(-right.y(), right.x(), 0.0);
 
-                const double maxY = std::max(
-                    std::max(pLL.y(), pUR.y()),
-                    std::max(pUL.y(), pLR.y()));
+                const osg::Vec3d center = (pLL + pLR + pUL + pUR) * 0.25;
+                const osg::Vec3d corners[] = { pLL, pLR, pUL, pUR };
 
-                // 5. Ursprüngliche Snapshot-Parameter festlegen
-                x = static_cast<float>(minX);
-                y = static_cast<float>(minY);
-                width = static_cast<float>(maxX - minX);
-                height = static_cast<float>(maxY - minY);
+                double left = (pLL - center) * right;
+                double rightEdge = left;
+                double bottom = (pLL - center) * up;
+                double top = bottom;
+
+                for (const osg::Vec3d &corner : corners)
+                {
+                    const osg::Vec3d delta = corner - center;
+                    const double imageX = delta * right;
+                    const double imageY = delta * up;
+
+                    left = std::min(left, imageX);
+                    rightEdge = std::max(rightEdge, imageX);
+                    bottom = std::min(bottom, imageY);
+                    top = std::max(top, imageY);
+                }
+
+                const osg::Vec3d cameraCenter = center + right * ((left + rightEdge) * 0.5)
+                    + up * ((bottom + top) * 0.5);
+
+                x = static_cast<float>(cameraCenter.x());
+                y = static_cast<float>(cameraCenter.y());
+                width = static_cast<float>(rightEdge - left);
+                height = static_cast<float>(top - bottom);
 
                 if (
                     !std::isfinite(x) || !std::isfinite(y) || !std::isfinite(width) || !std::isfinite(height) || width <= 0.0f || height <= 0.0f)
@@ -1308,7 +1330,7 @@ MapLinkPlugin::handleMessage(Message *m)
 
                 // 6. Kamera einstellen und NUR fuer diese Anfrage registrieren.
                 // Weder MSG_SetModules noch MSG_LoadProject aktivieren sie.
-                setProjection(x, y, width, height);
+                setProjection(x, y, width, height, up);
                 if (!m_snapshotCameraRegistered)
                 {
                     m_snapshotRenderCompleted.store(false);
