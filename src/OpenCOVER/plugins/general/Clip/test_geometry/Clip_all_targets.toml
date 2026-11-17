@@ -1,0 +1,3 @@
+[Setup]
+targets = ["terrain.obj", "building1.obj", "building2.obj"]
+showBoxes = true

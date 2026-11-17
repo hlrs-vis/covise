@@ -1,0 +1,6 @@
+# Pre-applied Clip setup for the DSM test scene (v2). dsm_terrain is a
+# multi-geode .osgb (one object, 9 tile geodes) used as the clip target.
+# Boxes are created in the scene with the Clip menu.
+[Setup]
+targets = ["dsm_terrain"]
+showBoxes = true

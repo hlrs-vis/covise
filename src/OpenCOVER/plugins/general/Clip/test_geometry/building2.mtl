@@ -1,0 +1,6 @@
+newmtl material_3
+       Ka 0 0.75 1 1
+       Kd 0 0.75 1 1
+       Ks 0.9 0.9 0.9 1
+       Ns 200
+

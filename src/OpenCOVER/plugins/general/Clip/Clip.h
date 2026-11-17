@@ -2,38 +2,44 @@
 //  Author : Marko Djuric
 //  Date   : 28.10.2026
 
-  Cuts holes into a target object (e.g. terrain) where selected void objects
-  (e.g. buildings) overlap it. Implemented with the GL stencil buffer.
+Cuts axis-aligned, world-space rectangular voids out of one or more target
+objects (e.g. photogrammetry terrain). This is v2 of the plugin: instead of
+the old GL stencil/depth-shadow machinery (clones of void objects, three
+pre-pass render bins), the cut is done per pixel in a GLSL 150 shader that is
+injected into every geode of a clipped target:
 
-  The goal is to remove only the part of the target that a void object
-  *occupies* (its footprint), while the target *behind* the void stays visible.
-  To tell "inside the void" apart from "hidden behind the void", the void
-  contributes two stencil bits (a depth-slab test along the view ray):
+  - the vertex shader passes the vertex's *root-space* position and its
+    normal through,
+  - the fragment shader tests that position against up to 16 axis-aligned
+    boxes (fed as `clipBoxMin[i]` / `clipBoxMax[i]` uniforms) and discards
+    the fragments that fall inside any box.
 
-  - bin -3: a "shadow" clone of the target is rendered into the depth buffer
-  - bin -2: the void's *near* (front-facing) surface renders into the stencil
-            buffer (depth-tested against the target shadow); where it is in
-            front of the target it sets bit 0
-  - bin -1: the void's *far* (back-facing) surface renders into the stencil
-            buffer (depth-tested against the target shadow); where it is in
-            front of the target it sets bit 1
-  - bin 0 : the whole scene renders normally; the target carries a stencil test
-            (NOT_EQUAL 1) and is therefore not drawn only where bit 0 is set
-            and bit 1 is clear -- i.e. the target lies between the void's near
-            and far surface (inside the void). Terrain that the void merely
-            occludes (both bits set -> value 3) is kept.
+Discarding (rather than fading) keeps the target in the opaque render bin,
+so depth writing and sorting stay as they were and whatever is behind the
+hole shows through.
 
-  The shadows are deep copies of the whole top-level object (not just one
-  geode), placed as siblings of that object. That keeps every tile/geode of a
-  (possibly multi-geode, e.g. photogrammetry .osgb) object in place, follows
-  its (helper) transforms, and lets the render-bin/stencil state be set once
-  on the clone's root so it propagates to all children.
+The boxes are first-class scene nodes (`ClipBoxNode`, a `MatrixTransform`
+with ghost cube geometry) under the ObjectsRoot, so they are ordinary
+movable/selectable objects:
 
-  Void objects are hidden in the main pass (color/depth write off) while
-  remaining pickable, so they stay editable (Move, Selection, ...).
+  - auto mode: picking an object creates a box matching its world AABB,
+  - manual mode: a default 10 x 2 x 10 box is created with its bottom corner
+    at the current intersection hit point.
 
-  No custom GLSL is required, which keeps the target's own shader (e.g. the
-  heightmap terrain generator) intact.
+A box's AABB is maintained from its world transform every frame; the shader
+uniforms (shared `clipBox*` uniforms + a per-geode `clipWorldMatrix`) are
+refreshed in `preFrame()`. Because the boxes live in the same space as the
+objects, moving a box (or the target) with the Move plugin updates the cut
+automatically.
+
+The injected fragment shader takes over the fixed-function pipeline, so it
+reproduces the target's own look: material (or vertex color) times an
+optional base texture, lit by the scene headlight (ambient + Lambert).
+Everything the shader overrides is saved per geode and restored exactly when
+the target is removed or the plugin is destroyed.
+
+Multiple targets and multiple boxes are supported; the setup (targets +
+boxes) can be stored in the plugin's config file and re-applied on (re)load.
 */
 
 #ifndef CLIP_PLUGIN_H
@@ -45,7 +51,13 @@
 #include <OpenConfig/value.h>
 #include <OpenConfig/array.h>
 
-#include <osg/StateAttribute>
+#include <osg/Matrix>
+#include <osg/Vec3>
+#include <osg/Material>
+#include <osg/Depth>
+#include <osg/Texture>
+#include <osg/Uniform>
+#include <osg/Program>
 
 #include <map>
 #include <memory>
@@ -61,11 +73,17 @@ class Button;
 class Group;
 class Label;
 class Menu;
-class SelectionList;
 }
 }
 
 using namespace opencover;
+
+namespace osg
+{
+class Group;
+}
+
+class ClipBoxNode;
 
 class ClipPlugin : public coVRPlugin, public ui::Owner, public coSelectionListener
 {
@@ -76,10 +94,6 @@ public:
     bool init() override;
     bool destroy() override;
     void preFrame() override;
-    void postFrame() override;
-
-    // CLIP_DEBUG: one-shot camera cull/clear state dump
-    void dbgReportCamera();
 
     // coSelectionListener
     bool selectionChanged() override;
@@ -94,162 +108,143 @@ private:
     {
         None,
         PickTarget,
-        AddVoid,
-        RemoveVoid
+        BoxFromObject
     };
 
-    struct GeodeSavedState
-    {
-        osg::Geode *geode = nullptr;
-        osg::ref_ptr<osg::StateAttribute> colorMask;
-        osg::ref_ptr<osg::StateAttribute> depth;
-        osg::ref_ptr<osg::StateAttribute> stencil;
-        unsigned int nodeMask = 0;
-        bool captured = false; // true once the original state has been captured
-    };
-
-    struct Shadow
+    // a clipped target: its top-level object node + the node that is
+    // actually clipped (the whole object or a named sub-node such as a
+    // photogrammetry tile) + the geodes the clip shader is applied to
+    struct Target
     {
         std::string name;
-        osg::ref_ptr<osg::Node> topNode; // the object's current top-level node (helper-aware)
-        osg::ref_ptr<osg::Node> targetTopNode; // the node that was actually cloned (the picked sub-node for sub-object picks, otherwise == topNode)
-        std::vector<osg::Geode *> geodes; // all geodes of the object (non-owning)
-        // the parent the clones live under (a sibling of `topNode`); re-parented
-        // when a helper is inserted/removed above the object
-        osg::ref_ptr<osg::Group> parent;
-        // primary clone (a deep copy of the whole top node): for the target it is
-        // the depth shadow; for a void it is the near-surface (front faces) clone
-        osg::ref_ptr<osg::Node> node;
-        // void only: the far-surface (back faces) clone, rendered in a different
-        // bin to set the other stencil bit
-        osg::ref_ptr<osg::Node> nodeFar;
-        // the object geodes' original rendering state, saved so hiding can be
-        // reverted (parallel to `geodes`)
-        std::vector<GeodeSavedState> saved;
-        int savedCount = 0; // how many geodes `saved` currently describes
-        bool appliedHidden = false; // current visibility state of the geodes
-        // PagedLOD signature of the object's subtree when the clones were
-        // (re-)built; an empty signature means the object has no PagedLOD and
-        // the clones never need to be rebuilt
-        std::string pagedLODSig;
+        osg::ref_ptr<osg::Node> topNode;
+        osg::ref_ptr<osg::Node> clipNode; // geodes are collected under this one
+        std::vector<osg::Geode *> geodes; // live geodes (non-owning)
     };
 
-    int m_dbgLastDiagFrame = -1; // CLIP_DEBUG: frame of the last periodic diag dump
-
-    // ---- target / void bookkeeping ----
+    // ---- scene-graph helpers (helper-wrapped / paged objects) ----
     void setMode(Mode m);
-    void pickTarget(osg::Geode *geode, const std::string &name);
-    void pickVoid(osg::Geode *geode, const std::string &name);
-    void removeVoid(const std::string &name);
-    void clearAll();
-    void loadSetup();
-    // resolve the configured target/void prefixes to the loaded objects and apply
-    void syncSetup();
-    // toggle whether void objects are hidden in the main pass (still pickable)
-    void setHideVoids(bool hide);
-    // apply (or revert) the hide state on one void's geodes
-    void applyVoidVisibility(const std::string &name);
-    // per-frame: keep the shadow clones in sync with their (possibly moved,
-    // wrapped or replaced) objects and apply the hide state
-    void syncShadows();
-    // keep m_targetGeodes / m_targetSaved in sync with the target's live
-    // geodes (paged tiles are added and expired while the plugin runs);
-    // returns true if anything changed
-    bool reconcileTargetGeodes();
 
-    // ---- shadow (stencil/depth pre-pass) management ----
-    void removeTargetShadow();
-    void rebuildTargetShadow();
-    void removeVoidShadow(const std::string &name);
-    void createVoidShadow(const std::string &name, osg::Geode *geode, osg::Node *topNode);
     // the (top-level) object a node belongs to: the highest ancestor (skipping
-    // selection helpers) whose parent is the ObjectsRoot; nullptr if none
+    // selection/move helpers) whose parent is the ObjectsRoot; nullptr if none
     osg::Node *topObjectOf(osg::Node *node) const;
-    // resolve a name to the node that carries it: the top-level object itself,
-    // or a descendant (named geode/group) inside it; nullptr if not found
-    osg::Node *findNamedNode(const std::string &name) const;
-    // the display name of a picked node: its top-level object name, or the
-    // name of the picked node itself when it is a named sub-node (e.g. a
-    // material group of a multi-group OBJ)
-    std::string displayNameOf(osg::Node *node) const;
-    // resolve the top-level object of a void/target name: from the (stale-able)
-    // last known top node when it still contains the name, else a fresh scan
-    osg::Node *resolveTop(const osg::ref_ptr<osg::Node> &cached, const std::string &name) const;
-    // the node to mirror for a target/void name under a top-level object:
-    // the object itself when it carries the name, or a named descendant; nullptr
-    // when the name no longer exists under the object (the part was deleted)
-    osg::Node *resolveMirrorNode(osg::Node *top, const std::string &name) const;
-    // (re-)create the near/far clones at the scene root for the whole object
-    void makeVoidClones(Shadow *shadow, const std::string &name);
-    // re-create the clones for the object's current (replaced) top node
-    void reattachVoidShadow(const std::string &name);
-    void updateMainPass();
-    void applyMainPass(osg::StateSet *ss, bool on);
-    // put the target geodes back to their original depth/stencil state (no clip)
-    void restoreTarget();
-
-    // ---- helpers ----
-    // name of the top-level scene object a node belongs to
-    std::string objectNameOf(osg::Node *node) const;
-    // the top-level scene node a node belongs to (skips selection helpers)
-    osg::Node *topNodeOf(osg::Node *node) const;
-    // resolve a configured name/prefix to the object's top-level node name, "" if not found
-    std::string resolveName(const std::string &name) const;
-    // the top-level node of an object name, "" if not found
-    osg::Node *topNodeOf(const std::string &name) const;
-    // all geodes of an object (empty if the object is absent)
-    std::vector<osg::Geode *> geodesOf(const std::string &name) const;
-    // match a configured name against a top-level node name (file-loaded objects
-    // are named by their URL, so the basename of the path is compared)
+    // for a direct child of the objects root: the real object inside a helper
+    // (if wrapped), else the child itself
+    osg::Node *innerObjectOf(osg::Node *child) const;
+    // match a configured name against a top-level node name (file-loaded
+    // objects are named by their URL, so basenames and prefixes are compared)
     static bool matchName(const std::string &cfgName, const std::string &nodeName);
-    Shadow *shadowFor(const std::string &name);
-    void updateVoidsUi();
-    void refreshStatus();
+    // the top-level node of an object name (helper-aware); nullptr if not found
+    osg::Node *topNodeOf(const std::string &name) const;
+    // a geode carrying (or inside) the given name; nullptr if not found
+    osg::Geode *findGeodeForName(const std::string &name) const;
+    // the node that is actually clipped for a target name (the top-level
+    // object itself, or the named sub-node carrying the name)
+    osg::Node *findClipNode(const std::string &name) const;
+    // the display name of a picked node: its top-level object name, or the
+    // name of the picked node itself when it is a named sub-node
+    std::string displayNameOf(osg::Node *node) const;
+    // a geode's world AABB in ObjectsRoot space (drawable bounding boxes
+    // transformed through the full parent chain)
+    static void geodeWorldAABB(const osg::Geode *geode, osg::Vec3 &min, osg::Vec3 &max);
+    // the current intersection hit point (already in COVER space); false if
+    // no interactor has a current hit
+    static bool currentHitPos(osg::Vec3 &pos);
+
+    // ---- targets ----
+    void addTarget(const std::string &name);
+    void removeTarget(const std::string &name);
+    // keep each target's geode list in sync with the live scene (paged tiles
+    // are added/expired while the plugin runs); applies the clip shader to new
+    // geodes and restores geodes that disappeared
+    void reconcileTargets();
+    bool reconcileTargetGeodes(Target &target);
+
+    // ---- boxes ----
+    // create a box matching the picked object's world AABB
+    void boxFromObject(osg::Geode *geode, const std::string &name);
+    // create a default box with its bottom corner at the given point
+    void addBoxAt(const osg::Vec3 &point);
+    void removeLastBox();
+    void setBoxesVisible(bool visible);
+    void clearAll();
+
+    // ---- clip shader injection ----
+    // attach the shared clip program + uniforms (and restore later) to one
+    // geode, or detach it and restore the original state
+    void applyClipToGeode(osg::Geode *geode);
+    void removeClipFromGeode(osg::Geode *geode);
+    // the material/vertex-color/texture/normal properties of a geode's
+    // drawables, sampled once when the clip is applied
+    static bool geodeHasVertexColor(const osg::Geode *geode);
+    static osg::Texture *geodeTexture(osg::Geode *geode, int &unit);
+    static bool geodeHasNormal(const osg::Geode *geode);
+    // per-frame: rebuild the shared box arrays and light uniforms from the
+    // current box list / scene lighting, and the per-geode world matrices
+    void syncClipUniforms();
+
+    // ---- setup (config) ----
+    void loadSetup();
+    void syncSetup();
+
+    void updateUi();
 
     Mode m_mode = Mode::None;
-    std::string m_targetName;
-    osg::ref_ptr<osg::Node> m_targetTopNode;
-    std::vector<osg::Geode *> m_targetGeodes; // the target's geodes the main pass is applied to
-    std::vector<std::string> m_voidNames;
-    bool m_manual = false; // user has interacted -> config no longer auto-applies until "Load Setup"
-    bool m_hideVoids = true; // void objects are hidden in the main pass but stay pickable
+    bool m_manual = false; // user interacted -> config no longer auto-applies
 
-    Shadow *m_targetShadow = nullptr;
-    std::map<std::string, Shadow *> m_voidShadows; // keyed by display name (object or sub-node name)
-    // PagedLOD signature of the target when its shadow was last built ("" when
-    // the target has no PagedLOD or no shadow); a change means the target
-    // advanced to a new LOD level and the shadow must be rebuilt to mirror it
-    std::string m_targetPagedLODSig;
+    std::vector<Target> m_targets;
+    std::map<std::string, size_t> m_targetIndex; // target name -> index into m_targets
 
-    // per-object counters: frames in a row the object's geodes have been absent
-    // from the scene; a replaced object is gone for at most one frame, so a
-    // few dozen frames means it was really deleted (file objects removed via
-    // the SGBrowser do not fire the plugin remove hooks, so clean up here)
-    std::map<std::string, int> m_missingFrames;
-    int m_targetMissingFrames = 0;
-    // CLIP_DEBUG: one-shot dump of the main camera's render stage done once the
-    // pre-passes have produced a stencil buffer
-    bool m_dbgPosted = false;
+    std::vector<osg::ref_ptr<ClipBoxNode> > m_boxes;
+    bool m_showBoxes = true;
 
-    // the target geodes' original depth/stencil attributes, saved before the
-    // clip overrides are applied so they can be restored on remove/clear
-    bool m_targetSavedState = false;
-    std::vector<GeodeSavedState> m_targetSaved;
+    // shared shader program (one instance, attached to all clipped geodes)
+    osg::ref_ptr<osg::Program> m_program;
+    // per-frame shared uniforms (same instance attached to every geode)
+    osg::ref_ptr<osg::Uniform> m_boxMin;
+    osg::ref_ptr<osg::Uniform> m_boxMax;
+    osg::ref_ptr<osg::Uniform> m_boxCount;
+    osg::ref_ptr<osg::Uniform> m_lightPos;
+    osg::ref_ptr<osg::Uniform> m_lightDiffuse;
+    osg::ref_ptr<osg::Uniform> m_lightAmbient;
+
+    // per-geode state: everything the clip shader overrides is saved here so
+    // it can be restored exactly (material, texture, depth, vertex color)
+    struct GeodeClipSave
+    {
+        osg::ref_ptr<osg::Uniform> worldMatrix; // this geode's clipWorldMatrix
+        osg::ref_ptr<osg::Uniform> matDiffuse; // this geode's clipMatDiffuse
+        osg::ref_ptr<osg::Uniform> matAmbient; // this geode's clipMatAmbient
+        osg::ref_ptr<osg::Uniform> texUnitUniform; // this geode's clipBaseTexture
+        osg::ref_ptr<osg::Uniform> hasTexture; // this geode's clipHasTexture
+        osg::ref_ptr<osg::Uniform> hasNormalUniform; // this geode's clipHasNormal
+        osg::ref_ptr<osg::Uniform> hasVertexColor; // this geode's clipHasVertexColor
+        osg::ref_ptr<osg::Material> material; // original material (if any)
+        osg::ref_ptr<osg::Texture> texture; // original texture at `texUnit` (if any)
+        int texUnit = 0;
+        bool hadTextureAttribute = false; // texture was bound at the geode level
+        bool wasDrawableTexture = false; // texture was bound on a drawable (not the geode)
+        osg::ref_ptr<osg::Depth> depth; // original depth (if any)
+        bool hadDepth = false;
+        osg::Vec4 diffuse{1.0f, 1.0f, 1.0f, 1.0f};
+        osg::Vec4 ambient{1.0f, 1.0f, 1.0f, 1.0f};
+        bool vertexColor = false;
+        bool hasNormal = true;
+    };
+    std::map<osg::Geode *, GeodeClipSave> m_geodeClip; // geode -> clip is applied
 
     ui::Menu *m_menu = nullptr;
     ui::Group *m_group = nullptr;
     ui::Button *m_targetBtn = nullptr;
-    ui::Button *m_addVoidBtn = nullptr;
-    ui::Button *m_removeVoidBtn = nullptr;
+    ui::Button *m_boxBtn = nullptr;
+    ui::Button *m_addBoxBtn = nullptr;
+    ui::Button *m_removeBoxBtn = nullptr;
     ui::Button *m_clearBtn = nullptr;
-    ui::Button *m_hideVoidsBtn = nullptr;
-    ui::Label *m_targetLabel = nullptr;
-    ui::Label *m_voidsLabel = nullptr;
-    ui::SelectionList *m_voidsList = nullptr;
+    ui::Button *m_showBoxesBtn = nullptr;
+    ui::Label *m_statusLabel = nullptr;
 
-    std::unique_ptr<ConfigString> m_cfgTarget;
-    std::unique_ptr<ConfigStringArray> m_cfgVoids;
-    std::unique_ptr<config::Value<bool>> m_cfgHide;
+    std::unique_ptr<ConfigStringArray> m_cfgTargets;
+    std::unique_ptr<ConfigBool> m_cfgShowBoxes;
 };
 
 #endif

@@ -1,4 +1,4 @@
-# Empty Clip setup: start interactive, pick target/voids with the Clip menu.
+# Empty Clip setup (v2): start interactive, pick the target with the Clip menu.
 [Setup]
-target = ""
-voids = []
+targets = []
+showBoxes = true

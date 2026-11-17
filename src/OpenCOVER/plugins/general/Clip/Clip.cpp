@@ -2,196 +2,61 @@
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRConfig.h>
+#include <cover/coVRLighting.h>
+#include <cover/coVRIntersectionInteractorManager.h>
+#include <cover/coVRIntersectionInteractor.h>
 #include <cover/ui/Button.h>
 #include <cover/ui/Group.h>
 #include <cover/ui/Label.h>
 #include <cover/ui/Menu.h>
-#include <cover/ui/SelectionList.h>
 #include <cover/ui/View.h>
 
 #include <osg/Geode>
+#include <osg/Geometry>
 #include <osg/MatrixTransform>
 #include <osg/NodeVisitor>
-#include <osg/PagedLOD>
-#include <osg/ColorMask>
-#include <osg/CullFace>
-#include <osg/Depth>
-#include <osg/Stencil>
+#include <osg/Material>
+#include <osg/Texture>
+#include <osg/ShapeDrawable>
+#include <osg/Program>
+#include <osg/Shader>
+#include <osg/Uniform>
 #include <osg/StateSet>
-
-#include <osgUtil/CullVisitor>
-#include <osgUtil/RenderBin>
-#include <osgUtil/RenderStage>
+#include <osg/StateAttribute>
+#include <osg/Depth>
 
 #include <algorithm>
-#include <cstdarg>
+#include <cfloat>
 #include <cstdio>
-
-#include <iostream>
-#include <tuple>
 
 using namespace opencover;
 
+// ghost cube colors (unselected = orange, selected = red)
+const osg::Vec3 CLIP_GHOST_NORMAL(1.0f, 0.55f, 0.1f);
+const osg::Vec3 CLIP_GHOST_SELECTED(1.0f, 0.1f, 0.1f);
+
 namespace
 {
+// the maximum number of boxes the shader can test at once (fixed uniform
+// array size); boxes beyond that are ignored
+constexpr int CLIP_MAX_BOXES = 16;
+// default size (width, height, depth) of a manually placed box, in scene units
+constexpr float CLIP_DEFAULT_SIZE[3] = {10.0f, 2.0f, 10.0f};
 
-// ---- CLIP_DEBUG diagnostics (gated by the CLIP_DEBUG env var) ----
-bool clipDebug()
+// name prefix of the plugin's box nodes, so visitors can find / skip them
+const std::string CLIP_BOX_PREFIX = "ClipBox_";
+
+// unique box node name from a single running counter
+static std::string nextBoxName()
 {
-    static int v = getenv("CLIP_DEBUG") ? 1 : 0;
-    return v;
+    static int counter = 0;
+    return CLIP_BOX_PREFIX + std::to_string(counter++);
+}
 }
 
-void dbg(const char *fmt, ...)
-{
-    if (!clipDebug())
-        return;
-    va_list ap;
-    va_start(ap, fmt);
-    vfprintf(stderr, fmt, ap);
-    va_end(ap);
-}
-
-// frame counter bumped in preFrame(), so cull callbacks can report
-// per-frame without touching the RenderInfo
-inline int &clipFrameCounter()
-{
-    static int f = 0;
-    return f;
-}
-
-void dbgBounds(const char *label, const osg::Node *n)
-{
-    if (!clipDebug() || !n)
-        return;
-    const osg::BoundingSphere &bs = n->getBound();
-    if (bs.valid())
-        fprintf(stderr, "CLIP: %s bound c=(%.2f, %.2f, %.2f) r=%.2f\n", label, bs._center.x(), bs._center.y(), bs._center.z(), bs._radius);
-    else
-        fprintf(stderr, "CLIP: %s bound EMPTY\n", label);
-}
-
-// prints the full chain from a node up to (and including) the objects root
-// so a failing climb (e.g. pickVoid ABORT) can be read directly from the log
-void dbgParentChain(const char *label, osg::Node *n, osg::Group *root)
-{
-    if (!clipDebug())
-        return;
-    fprintf(stderr, "CLIP: %s parent chain from '%s' [%s]:\n", label, n ? n->getName().c_str() : "(null)", n ? n->className() : "");
-    int i = 0;
-    osg::Node *c = n;
-    while (c && i < 60)
-    {
-        const char *tag = "";
-        if (c == root)
-            tag = "  <== OBJECTS_ROOT";
-        else if (c->getName().find("_ClipShadow") != std::string::npos)
-            tag = "  <== CLIP SHADOW";
-        else if (coVRSelectionManager::instance()->isHelperNode(c))
-            tag = "  <== SELECTION HELPER";
-        fprintf(stderr, "  [%d] %s '%s' mask=0x%x parents=%u%s\n", i, c->className(), c->getName().c_str(), c->getNodeMask(), (unsigned)c->getNumParents(), tag);
-        if (c->getNumParents() == 0)
-        {
-            fprintf(stderr, "  [%d] (no parent - STOP, root reached: %s)\n", i + 1, c == root ? "yes" : "NO - walk would ABORT");
-            break;
-        }
-        c = c->getParent(0);
-        ++i;
-    }
-    if (i >= 60)
-        fprintf(stderr, "  ... (chain longer than 60, truncated)\n");
-}
-
-// reports which render stage/bin a shadow subtree is being culled into;
-// prints only on the first cull of a frame or when the stage/bin changed
-// (which drawables end up where is a per-drawable matter, but the bin the
-// shadow ROOT is culled into already reveals override leaks)
-class ClipCullReport : public osg::NodeCallback
-{
-public:
-    explicit ClipCullReport(const char *tag)
-        : m_tag(tag)
-    {
-    }
-
-    void operator()(osg::Node *node, osg::NodeVisitor *nv) override
-    {
-        if (clipDebug() && node)
-        {
-            osgUtil::CullVisitor *cv = dynamic_cast<osgUtil::CullVisitor *>(nv);
-            osgUtil::RenderBin *bin = cv ? cv->getCurrentRenderBin() : nullptr;
-            osgUtil::RenderStage *stage = cv ? cv->getCurrentRenderStage() : nullptr;
-            osg::Camera *cam = stage ? stage->getCamera() : nullptr;
-            int frame = clipFrameCounter();
-            int binNum = bin ? bin->getBinNum() : -12345;
-            void *stagePtr = static_cast<void *>(stage);
-            void *camPtr = static_cast<void *>(cam);
-            if (frame != m_lastFrame || binNum != m_lastBin || stagePtr != m_lastStage || camPtr != m_lastCam)
-            {
-                m_lastFrame = frame;
-                m_lastBin = binNum;
-                m_lastStage = stagePtr;
-                m_lastCam = camPtr;
-                fprintf(stderr, "CLIP cull %s: frame %d stage=%p cam='%s' bin=%d\n", m_tag, frame, stagePtr, cam ? cam->getName().c_str() : "?", binNum);
-            }
-        }
-        // OSG 3.6.5: a cull callback REPLACES the traversal -- the
-        // children still have to be visited manually
-        if (node && nv)
-            node->traverse(*nv);
-    }
-
-private:
-    const char *m_tag;
-    int m_lastFrame = -1;
-    int m_lastBin = 0;
-    void *m_lastStage = nullptr;
-    void *m_lastCam = nullptr;
-};
-
-// count drawables in a subtree that carry their own render bin details
-// (a leak of such a drawable out of the shadow's pre-pass bin would move the
-// geometry into the main pass or a wrong pre-pass)
-void dbgBinLeaks(const char *tag, osg::Node *root)
-{
-    if (!clipDebug() || !root)
-        return;
-    struct DV : osg::NodeVisitor
-    {
-        int total = 0;
-        int withBin = 0;
-        std::vector<std::string> detail;
-        DV()
-            : osg::NodeVisitor(TRAVERSE_ALL_CHILDREN)
-        {
-        }
-        void apply(osg::Geode &g) override
-        {
-            for (unsigned int i = 0; i < g.getNumDrawables(); ++i)
-            {
-                osg::Drawable *d = g.getDrawable(i);
-                if (!d)
-                    continue;
-                total++;
-                osg::StateSet *ss = d->getStateSet();
-                if (ss && ss->useRenderBinDetails() && !ss->getBinName().empty())
-                {
-                    withBin++;
-                    if (detail.size() < 8)
-                    {
-                        char buf[48];
-                        snprintf(buf, sizeof buf, "[%d]", ss->getBinNumber());
-                        detail.push_back(std::string(d->getName().empty() ? "(anon)" : d->getName().c_str()) + buf);
-                    }
-                }
-            }
-        }
-    } dv;
-    root->accept(dv);
-    fprintf(stderr, "CLIP: %s leak-check: drawables=%d withExplicitBin=%d%s\n", tag, dv.total, dv.withBin, dv.detail.empty() ? "" : ":");
-    for (const auto &s : dv.detail)
-        fprintf(stderr, "  %s\n", s.c_str());
-}
+// ---------------------------------------------------------------------------
+// scene-graph visitors (file scope: used by the ClipPlugin methods too)
+// ---------------------------------------------------------------------------
 
 // collect all geodes in a subtree
 class GeodeAllVisitor : public osg::NodeVisitor
@@ -205,12 +70,10 @@ public:
 
     void apply(osg::Geode &geode) override { m_result.push_back(&geode); }
 
-    // shadow clones are siblings of the mirrored node INSIDE a moved object's
-    // (helper-wrapped) subtree, so prune them: their geodes must never be
-    // collected as live-object geodes (state restore, rebuild counts, ...)
     void apply(osg::Node &n) override
     {
-        if (n.getName().find("_ClipShadow") != std::string::npos)
+        // never collect our own box nodes
+        if (n.getName().find(CLIP_BOX_PREFIX) == 0)
             return;
         traverse(n);
     }
@@ -219,7 +82,7 @@ private:
     std::vector<osg::Geode *> &m_result;
 };
 
-// find the first node (geode or group) carrying an exact name inside a subtree
+// find the first node carrying an exact name inside a subtree
 class NameSearchVisitor : public osg::NodeVisitor
 {
 public:
@@ -235,17 +98,13 @@ public:
     {
         if (node)
             return;
-        // never resolve into one of our own shadow clones: prune the subtree
-        // (a shadow clone contains geodes named like the live object)
-        if (n.getName().find("_ClipShadow") != std::string::npos)
+        if (n.getName().find(CLIP_BOX_PREFIX) == 0)
             return;
         if (n.getName() == m_name)
         {
             node = &n;
             return;
         }
-        // descend (the previous version never called traverse(), so it only
-        // ever saw the top node it was called on and found no sub-node)
         traverse(n);
     }
 
@@ -253,274 +112,291 @@ private:
     const std::string &m_name;
 };
 
-// masks stripped from a hidden void: no collision/walk/touch, so lasers,
-// navigation and walking pass through the invisible object; Pick stays set so
-// Selection/Move can still grab it
-const unsigned int HIDDEN_STRIP_MASK = Isect::Collision | Isect::Walk | Isect::Touch;
-
-// shadow clones never participate in picking, collisions, walking, updates or
-// the selection update of the object
-void setShadowFlags(osg::Node *node)
+// ---------------------------------------------------------------------------
+// local-to-root matrix WITHOUT osg::computeLocalToWorld: the objects root is
+// a ClipNode (an osg::Camera), and the free osg::computeLocalToWorld skips
+// absolute/root cameras -- once the root has a parent (i.e. after scene setup)
+// it silently drops the whole chain and returns identity.  Instead walk the
+// path manually and apply each node's virtual computeLocalToWorldMatrix, which
+// is correct for both MatrixTransform and Camera and stable across frames.
+// The path runs root->...->node; the root itself maps root space to itself.
+// ---------------------------------------------------------------------------
+osg::Matrix localToWorldBelowRoot(const osg::NodePath &path)
 {
-    node->setNodeMask(node->getNodeMask() & ~(Isect::Collision | Isect::Intersection | Isect::Pick | Isect::Update | Isect::Walk | Isect::Touch));
+    osg::Matrix m;
+    for (unsigned int i = 1; i < path.size(); ++i)   // skip path[0] = root (maps root->root)
+    {
+        osg::Transform *t = path[i]->asTransform();
+        if (t)
+            t->computeLocalToWorldMatrix(m, 0);   // virtual: handles RELATIVE/ABSOLUTE + per-class matrix
+    }
+    return m;
 }
 
-// renders only into the depth buffer: a clone of the target written before the
-// void passes, so the voids can be depth-tested against the target and only the
-// part of a void that is actually in front of (or inside) the target writes to
-// the stencil. Color off, no stencil, depth write on.
-void prepareTargetShadow(osg::Node *shadow)
+// ---------------------------------------------------------------------------
+// ClipBoxNode: a movable, axis-aligned box in the scene. The geometry is a
+// unit cube ([-0.5, 0.5]^3) rendered as a ghost (edges + translucent faces);
+// the box's world AABB is always derived from its world transform, so moving
+// it with the Move plugin just works.
+// ---------------------------------------------------------------------------
+class ClipBoxNode : public osg::MatrixTransform
 {
-    osg::StateSet *ss = shadow->getOrCreateStateSet();
-    // OVERRIDE_PROTECTED (not the default USE) mode: the deep copy inherits each
-    // target drawable's own render bin. The VRML plugin puts an explicit bin on
-    // every drawable (setRenderingHint(OPAQUE_BIN) -> bin 0, USE mode), and a
-    // USE-mode descendant bin OVERRIDES the enclosing root bin in the
-    // CullVisitor (pushStateSet: useRenderBinDetails is true for it). That would
-    // drag the whole target shadow out of the -3 pre-pass into the main pass,
-    // so the void stencil passes saw an empty depth buffer and never cut.
-    // OVERRIDE mode (the PROTECTED bit) suppresses every non-protected
-    // descendant bin, pinning all shadow geometry to this bin.
-    ss->setRenderBinDetails(-3, "RenderBin", osg::StateSet::OVERRIDE_PROTECTED_RENDERBIN_DETAILS);
-    ss->setNestRenderBins(false);
-    ss->setAttributeAndModes(new osg::ColorMask(false, false, false, false), osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
-    ss->setMode(GL_DEPTH_TEST, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
-    ss->setMode(GL_LIGHTING, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
-    ss->setMode(GL_BLEND, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
-    if (clipDebug())
-        shadow->setCullCallback(new ClipCullReport("targetShadow"));
-}
+public:
+    explicit ClipBoxNode(const std::string &name)
+        : osg::MatrixTransform()
+    {
+        setName(name);
+        buildGeometry();
 
-// shared state of both void passes: nothing is visible (color/depth write
-// off), the geometry is depth-tested against the target shadow so only the
-// part of the void in front of (or inside) the target writes to the stencil.
-void prepareVoidShadowCommon(osg::Node *shadow, int bin, unsigned int stencilBit)
-{
-    osg::StateSet *ss = shadow->getOrCreateStateSet();
-    // OVERRIDE_PROTECTED mode, same reason as prepareTargetShadow(): the
-    // clones' drawables may carry their own (USE-mode) bin hints, which would
-    // otherwise pull them out of this pre-pass bin.
-    ss->setRenderBinDetails(bin, "RenderBin", osg::StateSet::OVERRIDE_PROTECTED_RENDERBIN_DETAILS);
-    ss->setNestRenderBins(false);
-    ss->setAttributeAndModes(new osg::ColorMask(false, false, false, false), osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
-    // only the fragments that pass the depth test against the target shadow
-    // (i.e. are in front of the target) write to the stencil. REPLACE writes
-    // ref & writeMask, so ref == the bit we want to set leaves the other bit
-    // (from the sibling pass) untouched
-    osg::Stencil *stencil = new osg::Stencil();
-    stencil->setFunction(osg::Stencil::ALWAYS, (int)stencilBit, 0);
-    stencil->setOperation(osg::Stencil::KEEP, osg::Stencil::KEEP, osg::Stencil::REPLACE);
-    stencil->setWriteMask(stencilBit);
-    ss->setAttributeAndModes(stencil, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
+        // selectable/movable but no collision, walking, touching or ray
+        // intersection (the box is purely visual + data for the shader)
+        setNodeMask(Isect::Visible | Isect::Pick);
+    }
+    // highlight the box while it is selected (the selection plugin's
+    // selectionChanged listener toggles this on the selected box)
+    void setSelected(bool selected)
+    {
+        m_selected = selected;
+        if (selected)
+            setGhostColor(CLIP_GHOST_SELECTED, 0.45f, 0.6f);
+        else
+            setGhostColor(CLIP_GHOST_NORMAL, 0.25f, 0.35f);
+    }
 
-    // test against the target shadow but do not write depth, so the invisible
-    // clones cannot cull the real object in the main pass
-    ss->setAttributeAndModes(new osg::Depth(osg::Depth::LESS, 0.0, 1.0, false), osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
+    bool isSelected() const { return m_selected; }
 
-    ss->setMode(GL_LIGHTING, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
-    ss->setMode(GL_BLEND, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
-    ss->setMode(GL_CULL_FACE, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
-}
+    void setSize(const osg::Vec3 &size)
+    {
+        m_size = size;
+        rebuildMatrix();
+    }
 
-// the near-surface (front faces) of the void: culls back faces, i.e. renders
-// only the front shell of the object, and writes stencil bit 0 where that
-// shell is in front of the target (depth shadow)
-void prepareVoidShadowNear(osg::Node *shadow)
-{
-    prepareVoidShadowCommon(shadow, -2, 0x1);
-    shadow->getOrCreateStateSet()->setAttributeAndModes(new osg::CullFace(osg::CullFace::BACK), osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
-    if (clipDebug())
-        shadow->setCullCallback(new ClipCullReport("voidNear"));
-}
+    const osg::Vec3 &size() const { return m_size; }
 
-// the far-surface (back faces) of the void: culls front faces, i.e. renders
-// only the back shell of the object, and writes stencil bit 1 where that
-// shell is in front of the target (depth shadow)
-void prepareVoidShadowFar(osg::Node *shadow)
-{
-    prepareVoidShadowCommon(shadow, -1, 0x2);
-    shadow->getOrCreateStateSet()->setAttributeAndModes(new osg::CullFace(osg::CullFace::FRONT), osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
-    if (clipDebug())
-        shadow->setCullCallback(new ClipCullReport("voidFar"));
-}
+    // the box's world-space AABB: transform the unit cube's corners through
+    // the full parent chain (halted at `haltAt`, usually the objects root)
+    void worldAABB(osg::Node *haltAt, osg::Vec3 &min, osg::Vec3 &max) const
+    {
+        osg::NodePathList paths = getParentalNodePaths(haltAt);
+        if (paths.empty())
+        {
+            min = max = osg::Vec3(0.0f, 0.0f, 0.0f);
+            return;
+        }
+        const osg::Matrix m = localToWorldBelowRoot(paths.front());
+        min.set(FLT_MAX, FLT_MAX, FLT_MAX);
+        max.set(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+        for (int i = 0; i < 8; ++i)
+        {
+            osg::Vec3 c((i & 1) ? 0.5f : -0.5f, (i & 2) ? 0.5f : -0.5f, (i & 4) ? 0.5f : -0.5f);
+            // NOTE: `c * m` (preMult), NOT `m * c`: in this OSG build (Matrixd)
+            // the `Matrix * Vec3` operator is a column-vector product with a
+            // perspective divide 1/(t.z*cz + 1), which distorts every point of
+            // a matrix carrying a z-translation (box AABB came out warped and
+            // 1.58x inflated). `Vec3 * Matrix` is the row-vector convention
+            // OSG matrices are built in and divides by exactly 1 for affine
+            // matrices.
+            c = c * m;
+            min = osg::Vec3(std::min(min.x(), c.x()), std::min(min.y(), c.y()), std::min(min.z(), c.z()));
+            max = osg::Vec3(std::max(max.x(), c.x()), std::max(max.y(), c.y()), std::max(max.z(), c.z()));
+        }
+    }
+private:
+    void buildGeometry()
+    {
+        // unit cube, 8 corners
+        static const float C[8][3] = {
+            {-0.5f, -0.5f, -0.5f}, {0.5f, -0.5f, -0.5f},
+            {0.5f, 0.5f, -0.5f}, {-0.5f, 0.5f, -0.5f},
+            {-0.5f, -0.5f, 0.5f}, {0.5f, -0.5f, 0.5f},
+            {0.5f, 0.5f, 0.5f}, {-0.5f, 0.5f, 0.5f}};
 
-// ---- PagedLOD (paged terrain) shadow support ----
+        static const int EDGES[12][2] = {
+            {0, 1}, {1, 2}, {2, 3}, {3, 0},
+            {4, 5}, {5, 6}, {6, 7}, {7, 4},
+            {0, 4}, {1, 5}, {2, 6}, {3, 7}};
+        static const int FACES[6][4] = {
+            {0, 1, 2, 3}, {4, 5, 6, 7},
+            {0, 1, 5, 4}, {2, 3, 7, 6},
+            {0, 3, 7, 4}, {1, 2, 6, 5}};
+
+        osg::ref_ptr<osg::Vec3Array> verts = new osg::Vec3Array();
+        for (const auto &c : C)
+            verts->push_back(osg::Vec3(c[0], c[1], c[2]));
+
+        osg::ref_ptr<osg::Geometry> geom = new osg::Geometry();
+        geom->setVertexArray(verts.get());
+        for (const auto &e : EDGES)
+            geom->addPrimitiveSet(new osg::DrawArrays(GL_LINES, e[0], 2));
+        for (const auto &f : FACES)
+        {
+            // quad = two triangles (a, b, c) + (a, c, d)
+            osg::ref_ptr<osg::DrawElementsUInt> idx = new osg::DrawElementsUInt(GL_TRIANGLES, 6);
+            (*idx)[0] = f[0];
+            (*idx)[1] = f[1];
+            (*idx)[2] = f[2];
+            (*idx)[3] = f[0];
+            (*idx)[4] = f[2];
+            (*idx)[5] = f[3];
+            geom->addPrimitiveSet(idx);
+        }
+
+        m_stateSet = geom->getOrCreateStateSet();
+        m_material = new osg::Material();
+        setGhostColor(CLIP_GHOST_NORMAL, 0.25f, 0.35f);
+        m_stateSet->setAttributeAndModes(m_material.get(), osg::StateAttribute::ON);
+        m_stateSet->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+        m_stateSet->setMode(GL_BLEND, osg::StateAttribute::ON);
+        m_stateSet->setMode(GL_CULL_FACE, osg::StateAttribute::OFF);
+        m_stateSet->setAttributeAndModes(new osg::Depth(osg::Depth::LESS, 0.0f, 1.0f, false), osg::StateAttribute::ON);
+        m_stateSet->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+
+        osg::ref_ptr<osg::Geode> geode = new osg::Geode();
+        geode->addDrawable(geom.get());
+        addChild(geode.get());
+    }
+
+    void setGhostColor(const osg::Vec3 &rgb, float alpha, float emissionAlpha)
+    {
+        if (!m_material)
+            return;
+        osg::Vec4 c(rgb.x(), rgb.y(), rgb.z(), alpha);
+        m_material->setDiffuse(osg::Material::FRONT, c);
+        m_material->setAmbient(osg::Material::FRONT, c);
+        m_material->setEmission(osg::Material::FRONT, osg::Vec4(rgb.x(), rgb.y(), rgb.z(), emissionAlpha));
+    }
+
+    osg::StateSet *m_stateSet = nullptr;
+    osg::ref_ptr<osg::Material> m_material;
+    bool m_selected = false;
+    osg::Vec3 m_size{1.0f, 1.0f, 1.0f};
+
+    // matrix = scale(size); the translation is the local origin, so the box
+    // occupies [origin, origin+size] in parent space (bottom-anchored);
+    // the Move plugin composes its moves on top of the current matrix
+    void rebuildMatrix()
+    {
+        osg::Matrix m = getMatrix();
+        osg::Vec3 trans, scale, soScale;
+        osg::Quat rot, soRot;
+        m.decompose(trans, rot, scale, soRot);
+        setMatrix(osg::Matrix::scale(m_size) * osg::Matrix::translate(trans));
+    }
+};
+
+// ---------------------------------------------------------------------------
+// the clip shader (GLSL 150). Attached to every geode of a clipped target it:
+//   - passes the vertex's ObjectsRoot-space position (computed with the
+//     per-geode `clipWorldMatrix` uniform, which is what makes the boxes work
+//     in the same space as the objects) and its normal,
+//   - tests the world position of every fragment against all clip boxes and
+//     discards the fragments that fall inside any box.
 //
-// A DEEP_COPY of a PagedLOD is still a *live* paged PagedLOD: it carries the
-// same file names and (shallow-copied) DatabaseRequest state, so the
-// DatabasePager pages it exactly like the original and loads the same tile
-// files. The pager, however, attaches a loaded tile to only ONE PagedLOD, so
-// the live target and the shadow then diverge in LOD state (one holds the
-// high-res tile, the other stays on the low-res proxy). The depth shadow no
-// longer matches the live target's depth, and the main pass renders the
-// target black.
-//
-// neutralizePagedLODTree() therefore turns every PagedLOD in a shadow clone
-// into a static snapshot of the geometry that is loaded *right now*: no more
-// external paging, no shared DatabaseRequest state. The already-loaded
-// children stay and keep being rendered (that is the depth the shadow
-// provides).
-// remove shadow-clone subtrees from a freshly deep-copied node. For a moved
-// object the shadow clones live INSIDE the object's (helper-wrapped) subtree
-// as siblings of the mirrored node (at any depth), so a clone of a subtree
-// that contains them would duplicate them (nested shadows, leaked render
-// bins). Live objects never carry such children, so pruning them from the
-// copy is safe. Recurses: a clone of a clone would carry the name too.
-void pruneShadowClones(osg::Node *node)
-{
-    osg::Group *g = node ? node->asGroup() : nullptr;
-    if (!g)
-        return;
-    for (unsigned int i = 0; i < g->getNumChildren();)
-    {
-        osg::Node *c = g->getChild(i);
-        if (c && c->getName().find("_ClipShadow") != std::string::npos)
-        {
-            g->removeChild(c);
-            continue;
-        }
-        ++i;
-    }
-    for (unsigned int i = 0; i < g->getNumChildren(); ++i)
-        pruneShadowClones(g->getChild(i));
-}
+// Because the fragment shader takes over the fixed-function pipeline it also
+// reproduces the target's own look: material (or vertex color) times an
+// optional base texture, lit by the scene headlight (ambient + Lambert).
+// The fixed-function attributes OSG always provides (osg_Vertex, osg_Normal,
+// osg_Color, osg_TexCoord0) are safe to declare: OSG binds missing geometry
+// attributes to constant defaults (normal = (0,0,0), color = (1,1,1,0),
+// texcoord = (0,0)), which is exactly what the `clipHasNormal` /
+// `clipHasVertexColor` / `clipHasTexture` guards are for.
+// ---------------------------------------------------------------------------
+// LEGACY GLSL (NO #version directive) - REQUIRED in this OSG 3.6.5 build.
+// That build was compiled with OSG_GL_FIXED_FUNCTION_AVAILABLE=ON, which means:
+//   * State sets _useModelViewAndProjectionUniforms = false, so the
+//     osg_ModelViewMatrix / osg_ProjectionMatrix / osg_ModelViewProjectionMatrix
+//     uniforms are NEVER applied (RenderLeaf only applies them when the flag is
+//     true). Using them leaves them all-zero and projects every vertex to the
+//     origin.
+//   * State sets _useVertexAttributeAliasing = false, so OSG feeds the standard
+//     fixed-function client arrays, i.e. the BUILT-IN gl_Vertex / gl_Normal /
+//     gl_Color / gl_MultiTexCoord0 attributes (NOT the osg_* aliases).
+//   * A "#version 150" (>= 140) program has the pre-140 built-ins removed
+//     (gl_ModelViewProjectionMatrix, gl_Vertex, gl_MultiTexCoord0, ...), so it
+//     CANNOT use the fixed-function matrices and FAILS to compile (error C7616);
+//     OSG then silently falls back to no program -> nothing gets cut.
+// The only configuration that both compiles AND receives real matrix + vertex
+// data in this build is legacy GLSL: built-in attributes +
+// gl_ModelViewProjectionMatrix; both requirements hold for the shaders below.
+const char *CLIP_VERTEX_SHADER =
+    "uniform mat4 clipWorldMatrix;\n"
+    "varying vec4 clipRootPos;\n"
+    "varying vec3 clipNormal;\n"
+    "varying vec4 clipColor;\n"
+    "varying vec2 clipTexCoord;\n"
+    "void main()\n"
+    "{\n"
+    "    clipRootPos = clipWorldMatrix * gl_Vertex;\n"
+    "    // proper normal transform (inverse transpose), safe for scaled targets\n"
+    "    clipNormal = transpose(inverse(mat3(clipWorldMatrix))) * gl_Normal;\n"
+    "    clipColor = gl_Color;\n"
+    "    clipTexCoord = gl_MultiTexCoord0.xy;\n"
+    "    // gl_ModelViewProjectionMatrix is the fixed-function built-in (object ->\n"
+    "    // clip). Positioning uses the *local* vertex; clipRootPos (which has\n"
+    "    // clipWorldMatrix applied) is only for the box test in the fragment shader.\n"
+    "    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n"
+    "}\n";
 
-void neutralizePagedLODTree(osg::Node *node)
-{
-    struct V : osg::NodeVisitor
-    {
-        V() : osg::NodeVisitor(TRAVERSE_ALL_CHILDREN) {}
-        void apply(osg::PagedLOD &p) override
-        {
-            p.setDisableExternalChildrenPaging(true);
-            for (unsigned int i = 0; i < p.getNumFileNames(); ++i)
-            {
-                // drop the (shared) DatabaseRequest ref; the live PagedLOD
-                // keeps its own. Also clear the file name so paging could
-                // never fire for this node again.
-                p.getDatabaseRequest(i) = nullptr;
-                p.setFileName(i, "");
-            }
-            traverse(p);
-        }
-    } v;
-    node->accept(v);
-}
+// Legacy GLSL fragment shader (see CLIP_VERTEX_SHADER for why legacy is required).
+// NOTE the box loop: the upper bound must be a *constant* (16) so the loop index
+// is a valid constant-index-expression for the uniform array access clipBoxMin[i]
+// (GLSL well-formed-loop rule). clipBoxCount is enforced with an early break.
+const char *CLIP_FRAGMENT_SHADER =
+    "uniform int clipBoxCount;\n"
+    "uniform vec3 clipBoxMin[16];\n"
+    "uniform vec3 clipBoxMax[16];\n"
+    "uniform vec4 clipLightPos;\n"
+    "uniform vec3 clipLightDiffuse;\n"
+    "uniform vec3 clipLightAmbient;\n"
+    "uniform vec3 clipMatDiffuse;\n"
+    "uniform vec3 clipMatAmbient;\n"
+    "uniform int clipHasTexture;\n"
+    "uniform int clipHasNormal;\n"
+    "uniform int clipHasVertexColor;\n"
+    "uniform sampler2D clipBaseTexture;\n"
+    "varying vec4 clipRootPos;\n"
+    "varying vec3 clipNormal;\n"
+    "varying vec4 clipColor;\n"
+    "varying vec2 clipTexCoord;\n"
+    "void main()\n"
+"{\n"
+"    // ---- the cut: discard fragments inside any clip box ----\n"
+"    int inBox = 0;\n"
+"    for (int i = 0; i < 16; ++i)\n"
+"    {\n"
+"        if (i >= clipBoxCount)\n"
+"            break;\n"
+"        if (clipRootPos.x > clipBoxMin[i].x && clipRootPos.x < clipBoxMax[i].x &&\n"
+"            clipRootPos.y > clipBoxMin[i].y && clipRootPos.y < clipBoxMax[i].y &&\n"
+"            clipRootPos.z > clipBoxMin[i].z && clipRootPos.z < clipBoxMax[i].z)\n"
+"            inBox = 1;\n"
+"    }\n"
+"    if (inBox == 1)\n"
+"        discard;\n"
+    "    // ---- reproduce the target's own look (fixed-function equivalent:\n"
+    "    // (matAmbient*lightAmbient + matDiffuse*lightDiffuse*NdotL) * vtxColor * tex)\n"
+    "    vec4 tcol = vec4(1.0);\n"
+    "    if (clipHasTexture == 1)\n"
+    "        tcol = texture2D(clipBaseTexture, clipTexCoord);\n"
+    "    vec3 vc = (clipHasVertexColor == 1) ? clipColor.rgb : vec3(1.0);\n"
+    "    vec3 N = clipNormal;\n"
+    "    if (clipHasNormal == 0 || dot(N, N) < 1e-8)\n"
+    "        N = vec3(0.0, 0.0, 1.0);\n"
+    "    else\n"
+    "        N = normalize(N);\n"
+    "    vec3 L;\n"
+    "    if (clipLightPos.w != 0.0)\n"
+    "        L = normalize(clipLightPos.xyz - clipRootPos.xyz); // point light (COVER headlight)\n"
+    "    else\n"
+    "        L = -normalize(clipLightPos.xyz); // directional light (xyz = direction OF the light, flip it)\n"
+    "    float diff = max(dot(N, L), 0.0);\n"
+    "    vec3 lit = clipMatAmbient * clipLightAmbient + clipMatDiffuse * clipLightDiffuse * diff;\n"
+    "    gl_FragColor = vec4(lit * vc * tcol.rgb, 1.0);\n"
+    "}\n";
 
-// signature of all PagedLODs in a subtree (their child counts, in tree
-// order). Empty when the subtree holds no PagedLOD, i.e. for a static object
-// it never changes. Used to detect when a paged target advanced to a new LOD
-// level (a tile got loaded/expired) so the static shadow can be rebuilt to
-// mirror the current level.
-std::string PagedLODTreeSignature(osg::Node *node)
-{
-    std::string sig;
-    struct V : osg::NodeVisitor
-    {
-        explicit V(std::string &s) : osg::NodeVisitor(TRAVERSE_ALL_CHILDREN), sig(s) {}
-        void apply(osg::PagedLOD &p) override
-        {
-            sig += "P" + std::to_string(p.getNumChildren()) + ";";
-            traverse(p);
-        }
-        std::string &sig;
-    } v(sig);
-    node->accept(v);
-    return sig;
-}
-
-// the helper node type encoded in the node's "TYPE <n>" description
-// (coVRSelectionManager::getHelperType() is private, so replicate it)
-int helperTypeOf(osg::Node *node)
-{
-    for (unsigned int j = 0; node && j < node->getNumDescriptions(); ++j)
-        if (strncmp(node->getDescription(j).c_str(), "TYPE ", 5) == 0)
-            return atoi(node->getDescription(j).c_str() + 5);
-    return 100;
-}
-
-// true if a helper node of `helperType` (SELECTION => currently selected / being
-// moved; MOVE => already moved once) sits between `node` and the objects root.
-// The Move helper is permanent, so only the SELECTION helper marks active
-// editing. Helpers nest in type order (MOVE closest to the geode, SELECTION
-// above it), so the whole chain has to be walked.
-bool hasHelperAncestor(osg::Node *node, int helperType = -1)
-{
-    osg::Group *root = cover->getObjectsRoot();
-    osg::Group *g = node ? node->asGroup() : nullptr;
-    while (g && g != root)
-    {
-        if (coVRSelectionManager::instance()->isHelperNode(g) &&
-            (helperType < 0 || helperTypeOf(g) == helperType))
-            return true;
-        osg::Group *p = g->getNumParents() > 0 ? g->getParent(0)->asGroup() : nullptr;
-        if (!p)
-            break;
-        g = p;
-    }
-    return false;
-}
-
-// the real object a node belongs to: walk up to the boundary (the node whose
-// parent is the objects root) and then back down, skipping helper nodes.
-// Normally the boundary IS the object (a direct child of the root). But the
-// Move/Selection plugins wrap a MOVED object in a MatrixTransform helper that
-// becomes the direct child of the root (insertHelperNode does
-// root.replaceChild(object, helper)), so for a moved object the boundary is
-// the helper and the object is the first non-helper node below it. Returns
-// null if the node is inside one of our shadow clones or not under the root.
-osg::Node *objectOf(osg::Node *node)
-{
-    if (!node)
-        return nullptr;
-    osg::Group *root = cover->getObjectsRoot();
-    if (!root)
-        return nullptr;
-
-    // chain[0] = node ... chain.back() = boundary (direct child of the root)
-    std::vector<osg::Node *> chain;
-    osg::Node *n = node;
-    while (n)
-    {
-        if (n->getName().find("_ClipShadow") != std::string::npos)
-            return nullptr;
-        chain.push_back(n);
-        if (n->getNumParents() == 1 && n->getParent(0) == root)
-            break;
-        if (n->getNumParents() == 0)
-            return nullptr; // not under the objects root
-        n = n->getParent(0);
-    }
-    if (chain.empty() || !(chain.back()->getNumParents() == 1 && chain.back()->getParent(0) == root))
-        return nullptr;
-
-    // from the boundary (topmost) down to the node: the first non-helper is
-    // the object (the helper, if any, sits between the root and the object)
-    for (size_t j = chain.size(); j-- > 0;)
-        if (!coVRSelectionManager::instance()->isHelperNode(chain[j]))
-            return chain[j];
-    return chain.back(); // degenerate: every node on the chain is a helper
-}
-
-// for a direct child of the objects root: if it is a helper, return the real
-// object inside it (helpers nest, so descend through all of them); otherwise
-// the child itself. Null for a bare child without an object beneath.
-osg::Node *innerObjectOf(osg::Node *child)
-{
-    if (!child)
-        return nullptr;
-    osg::Node *n = child;
-    osg::Group *g = n->asGroup();
-    while (g && coVRSelectionManager::instance()->isHelperNode(n) && g->getNumChildren() > 0)
-    {
-        n = g->getChild(0);
-        g = n->asGroup();
-    }
-    return n;
-}
-
-} // namespace
-
+// ---------------------------------------------------------------------------
+// plugin implementation
+// ---------------------------------------------------------------------------
 ClipPlugin::ClipPlugin()
     : coVRPlugin(COVER_PLUGIN_NAME)
     , ui::Owner("Clip", cover->ui)
@@ -534,41 +410,59 @@ ClipPlugin::~ClipPlugin()
 
 bool ClipPlugin::init()
 {
-    std::fprintf(stderr, "CLIP: plugin loaded (build 2026-11-06: move-wrapped objects)\n");
+    std::fprintf(stderr, "CLIP: plugin loaded (v2: shader box cutting)\n");
 
     m_menu = new ui::Menu("ClipMenu", this);
     m_menu->setText("Clip objects");
 
     m_group = new ui::Group(m_menu, "ClipObjects");
-    m_group->setText("Cut holes with objects");
+    m_group->setText("Cut holes with boxes");
 
     m_targetBtn = new ui::Button(m_group, "PickTarget");
     m_targetBtn->setText("Pick target (e.g. terrain)");
     m_targetBtn->setCallback([this](bool state) {
         if (state)
             setMode(Mode::PickTarget);
+        else if (m_mode == Mode::PickTarget)
+            setMode(Mode::None);
     });
 
-    m_addVoidBtn = new ui::Button(m_group, "AddVoid");
-    m_addVoidBtn->setText("Add void object");
-    m_addVoidBtn->setCallback([this](bool state) {
+    m_boxBtn = new ui::Button(m_group, "BoxFromObject");
+    m_boxBtn->setText("Box from picked object");
+    m_boxBtn->setCallback([this](bool state) {
         if (state)
-            setMode(Mode::AddVoid);
+            setMode(Mode::BoxFromObject);
+        else if (m_mode == Mode::BoxFromObject)
+            setMode(Mode::None);
     });
 
-    m_removeVoidBtn = new ui::Button(m_group, "RemoveVoid");
-    m_removeVoidBtn->setText("Remove void object");
-    m_removeVoidBtn->setCallback([this](bool state) {
-        if (state)
-            setMode(Mode::RemoveVoid);
+    m_addBoxBtn = new ui::Button(m_group, "AddBox");
+    m_addBoxBtn->setText("Add box at hit point");
+    m_addBoxBtn->setCallback([this](bool state) {
+        // momentary action: the click toggled the checkbox on, create the box
+        // (if there is a hit point) and immediately switch it off again
+        if (!state)
+            return;
+        osg::Vec3 pos;
+        if (currentHitPos(pos))
+            addBoxAt(pos);
+        else
+            m_statusLabel->setText("Add box: move the interactor onto a surface first, then press again");
+        m_addBoxBtn->setState(false);
     });
 
-    m_hideVoidsBtn = new ui::Button(m_group, "HideVoids");
-    m_hideVoidsBtn->setText("Hide void objects");
-    m_hideVoidsBtn->setState(m_hideVoids);
-    m_hideVoidsBtn->setCallback([this](bool state) {
-        if (state != m_hideVoids)
-            setHideVoids(state);
+    m_removeBoxBtn = new ui::Button(m_group, "RemoveLastBox");
+    m_removeBoxBtn->setText("Remove last box");
+    m_removeBoxBtn->setCallback([this](bool) {
+        removeLastBox();
+    });
+
+    m_showBoxesBtn = new ui::Button(m_group, "ShowBoxes");
+    m_showBoxesBtn->setText("Show box ghosts");
+    m_showBoxesBtn->setState(m_showBoxes);
+    m_showBoxesBtn->setCallback([this](bool state) {
+        if (state != m_showBoxes)
+            setBoxesVisible(state);
     });
 
     m_clearBtn = new ui::Button(m_group, "Clear");
@@ -577,19 +471,8 @@ bool ClipPlugin::init()
         clearAll();
     });
 
-    m_targetLabel = new ui::Label(m_group, "Target");
-    m_targetLabel->setText("Target: (none)");
-
-    m_voidsLabel = new ui::Label(m_group, "Voids");
-    m_voidsLabel->setText("Voids: (none)");
-
-    m_voidsList = new ui::SelectionList(m_group, "VoidList");
-    m_voidsList->setText("Select void (removes it)");
-    m_voidsList->setVisible(false, ui::View::VR);
-    m_voidsList->setCallback([this](int index) {
-        if (index >= 0 && index < (int)m_voidNames.size())
-            removeVoid(m_voidNames[index]);
-    });
+    m_statusLabel = new ui::Label(m_group, "Status");
+    m_statusLabel->setText("Targets: (none) | Boxes: 0");
 
     auto *loadSetupBtn = new ui::Button(m_group, "LoadSetup");
     loadSetupBtn->setText("Apply setup from config");
@@ -597,20 +480,15 @@ bool ClipPlugin::init()
         loadSetup();
     });
 
-    // setup can also be (re)applied from the toml config file
-    m_cfgTarget = configString("Setup", "target", "", config::Flag::PerModel);
-    m_cfgTarget->setUpdater([this](const std::string &) {
+    m_cfgTargets = configStringArray("Setup", "targets", {}, config::Flag::PerModel);
+    m_cfgTargets->setUpdater([this]() {
         loadSetup();
     });
-    m_cfgVoids = configStringArray("Setup", "voids", {}, config::Flag::PerModel);
-    m_cfgVoids->setUpdater([this]() {
-        loadSetup();
-    });
-    m_cfgHide = configBool("Setup", "hideVoids", true, config::Flag::PerModel);
-    m_hideVoids = m_cfgHide->value();
-    m_hideVoidsBtn->setState(m_hideVoids);
-    m_cfgHide->setUpdater([this](const bool &v) {
-        setHideVoids(v);
+    m_cfgShowBoxes = configBool("Setup", "showBoxes", true, config::Flag::PerModel);
+    m_showBoxes = m_cfgShowBoxes->value();
+    m_showBoxesBtn->setState(m_showBoxes);
+    m_cfgShowBoxes->setUpdater([this](const bool &v) {
+        setBoxesVisible(v);
     });
 
     coVRSelectionManager::instance()->addListener(this);
@@ -627,23 +505,52 @@ bool ClipPlugin::destroy()
     return true;
 }
 
-std::string ClipPlugin::objectNameOf(osg::Node *node) const
-{
-    osg::Node *top = topNodeOf(node);
-    return top ? top->getName() : "";
-}
+// ---------------------------------------------------------------------------
+// scene-graph helpers
+// ---------------------------------------------------------------------------
 
-osg::Node *ClipPlugin::topNodeOf(osg::Node *node) const
+osg::Node *ClipPlugin::topObjectOf(osg::Node *node) const
 {
     if (!node)
         return nullptr;
-    // delegate to the shared helper: it climbs to the objects-root boundary
-    // and back down, skipping helper nodes (a MOVED object is wrapped in a
-    // helper that is the direct child of the root, so the climb must not stop
-    // at the helper). Returns the real top-level object, or null if the node
-    // is inside one of our shadow clones / not under the root.
-    osg::Node *top = objectOf(node);
-    return top ? top : node;
+    osg::Group *root = cover->getObjectsRoot();
+    if (!root)
+        return nullptr;
+
+    std::vector<osg::Node *> chain;
+    osg::Node *n = node;
+    while (n)
+    {
+        if (n->getName().find(CLIP_BOX_PREFIX) == 0)
+            return nullptr; // never clip our own boxes
+        chain.push_back(n);
+        if (n->getNumParents() == 1 && n->getParent(0) == root)
+            break;
+        if (n->getNumParents() == 0)
+            return nullptr;
+        n = n->getParent(0);
+    }
+    if (chain.empty() || !(chain.back()->getNumParents() == 1 && chain.back()->getParent(0) == root))
+        return nullptr;
+
+    for (size_t j = chain.size(); j-- > 0;)
+        if (!coVRSelectionManager::instance()->isHelperNode(chain[j]))
+            return chain[j];
+    return chain.back();
+}
+
+osg::Node *ClipPlugin::innerObjectOf(osg::Node *child) const
+{
+    if (!child)
+        return nullptr;
+    osg::Node *n = child;
+    osg::Group *g = n->asGroup();
+    while (g && coVRSelectionManager::instance()->isHelperNode(n) && g->getNumChildren() > 0)
+    {
+        n = g->getChild(0);
+        g = n->asGroup();
+    }
+    return n;
 }
 
 bool ClipPlugin::matchName(const std::string &cfgName, const std::string &nodeName)
@@ -653,8 +560,8 @@ bool ClipPlugin::matchName(const std::string &cfgName, const std::string &nodeNa
     if (cfgName == nodeName)
         return true;
 
-    // file-loaded objects are named by their (url) path: "terrain" or "terrain.obj"
-    // should match "/some/path/terrain.obj"
+    // file-loaded objects are named by their (url) path: "terrain" or
+    // "terrain.obj" should match "/some/path/terrain.obj"
     const std::string base = cfgName.substr(cfgName.find_last_of("/\\") + 1);
     if (base == nodeName)
         return true;
@@ -664,36 +571,6 @@ bool ClipPlugin::matchName(const std::string &cfgName, const std::string &nodeNa
 
     // allow a plain prefix as well ("build" -> "building1.obj")
     return cfgName.size() >= 3 && nodeName.find(cfgName) == 0;
-}
-
-std::string ClipPlugin::resolveName(const std::string &name) const
-{
-    if (name.empty())
-        return "";
-
-    osg::Group *root = cover->getObjectsRoot();
-    if (!root)
-        return "";
-
-    std::string prefixMatch;
-    for (unsigned int i = 0; i < root->getNumChildren(); ++i)
-    {
-        osg::Node *child = root->getChild(i);
-        if (!child)
-            continue;
-        // a moved object sits INSIDE a helper that is the direct child of the
-        // root: match the object's name (inside the helper), not the helper's
-        // (empty) name
-        osg::Node *inner = innerObjectOf(child);
-        if (!inner || inner->getName().find("_ClipShadow") != std::string::npos)
-            continue;
-        const std::string n = inner->getName();
-        if (matchName(name, n))
-            return n;
-        if (prefixMatch.empty() && name.size() >= 3 && n.find(name) == 0)
-            prefixMatch = n;
-    }
-    return prefixMatch;
 }
 
 osg::Node *ClipPlugin::topNodeOf(const std::string &name) const
@@ -714,7 +591,7 @@ osg::Node *ClipPlugin::topNodeOf(const std::string &name) const
         // a moved object sits INSIDE a helper that is the direct child of the
         // root: match (and return) the object inside it, not the helper
         osg::Node *inner = innerObjectOf(child);
-        if (!inner || inner->getName().find("_ClipShadow") != std::string::npos)
+        if (!inner || inner->getName().find(CLIP_BOX_PREFIX) == 0)
             continue;
         const std::string n = inner->getName();
         if (n == name)
@@ -728,51 +605,45 @@ osg::Node *ClipPlugin::topNodeOf(const std::string &name) const
     return top;
 }
 
-osg::Node *ClipPlugin::topObjectOf(osg::Node *node) const
-{
-    if (!node)
-        return nullptr;
-    // see topNodeOf(osg::Node*): objectOf() handles the Move-plugin-wrapped
-    // case (helper as the direct child of the root) and returns null when the
-    // picked node is inside one of our shadow clones or not under the root.
-    return objectOf(node);
-}
-
-osg::Node *ClipPlugin::findNamedNode(const std::string &name) const
+osg::Geode *ClipPlugin::findGeodeForName(const std::string &name) const
 {
     if (name.empty())
         return nullptr;
 
+    // 1) a top-level object carrying the name (helper-aware)
+    osg::Node *top = topNodeOf(name);
+    if (top)
+    {
+        if (top->asGeode())
+            return top->asGeode();
+        std::vector<osg::Geode *> list;
+        GeodeAllVisitor v2(list);
+        top->accept(v2);
+        if (!list.empty())
+            return list.front();
+    }
+
+    // 2) a named sub-node (a geode/group named after an OBJ material group,
+    //    a photogrammetry tile, ...) inside any top-level object
     osg::Group *root = cover->getObjectsRoot();
     if (!root)
         return nullptr;
-
-    // 1) a top-level object carrying the name (a moved object is wrapped in a
-    //    helper that is the direct child of the root, so look inside it)
     for (unsigned int i = 0; i < root->getNumChildren(); ++i)
     {
         osg::Node *child = root->getChild(i);
-        if (!child)
-            continue;
-        osg::Node *inner = innerObjectOf(child);
-        if (!inner || inner->getName().find("_ClipShadow") != std::string::npos)
-            continue;
-        if (inner->getName() == name)
-            return inner;
-    }
-    // 2) a named sub-node (e.g. a geode named after an OBJ material group,
-    //    or a VRML object node) inside any top-level object
-    for (unsigned int i = 0; i < root->getNumChildren(); ++i)
-    {
-        osg::Node *child = root->getChild(i);
-        if (!child)
-            continue;
-        if (child->getName().find("_ClipShadow") != std::string::npos)
+        if (!child || child->getName().find(CLIP_BOX_PREFIX) == 0)
             continue;
         NameSearchVisitor v(name);
         child->accept(v);
-        if (v.node)
-            return v.node;
+        if (!v.node)
+            continue;
+        if (v.node->asGeode())
+            return v.node->asGeode();
+        std::vector<osg::Geode *> list;
+        GeodeAllVisitor gv(list);
+        v.node->accept(gv);
+        if (!list.empty())
+            return list.front();
     }
     return nullptr;
 }
@@ -785,193 +656,626 @@ std::string ClipPlugin::displayNameOf(osg::Node *node) const
     return top ? top->getName() : "";
 }
 
-osg::Node *ClipPlugin::resolveTop(const osg::ref_ptr<osg::Node> &cached, const std::string &name) const
+// the node that is actually clipped for a target name: the top-level object
+// when the name matches it, or the named sub-node carrying the name
+osg::Node *ClipPlugin::findClipNode(const std::string &name) const
 {
-    if (cached.get())
-    {
-        osg::Group *root = cover->getObjectsRoot();
-        // a still-valid cached top node: it is a direct child of the root, or
-        // (a MOVED object) wrapped in a helper that is the direct child of the
-        // root. objectOf() climbs to the boundary and back down, skipping
-        // helpers, so it covers both; null means the node is gone or inside a
-        // shadow clone.
-        if (objectOf(cached.get()) &&
-            root && cached.get()->getNumParents() == 1 &&
-            (cached.get()->getParent(0) == root || coVRSelectionManager::instance()->isHelperNode(cached.get()->getParent(0))))
-        {
-            if (cached.get()->getName() == name)
-                return cached.get();
-            // the top node may be named by the file path while the name is a
-            // sub-node name (e.g. an OBJ material group): confirm the subtree
-            // actually contains the name
-            NameSearchVisitor v(name);
-            cached->accept(v);
-            if (v.node)
-                return cached.get();
-        }
-    }
-    return topNodeOf(name);
-}
-
-osg::Node *ClipPlugin::resolveMirrorNode(osg::Node *top, const std::string &name) const
-{
-    if (!top)
-        return nullptr;
-    // whole-object target: the top node itself carries the name
-    if (top->getName() == name)
-        return top;
-    // sub-node target (a named geode/group, e.g. a photogrammetry tile or an
-    // OBJ material group): it must still exist under the object, otherwise the
-    // part the user picked is gone and there is nothing to mirror
-    osg::Node *byName = findNamedNode(name);
-    if (byName && topObjectOf(byName) == top)
-        return byName;
-    return nullptr;
-}
-
-std::vector<osg::Geode *> ClipPlugin::geodesOf(const std::string &name) const
-{
-    std::vector<osg::Geode *> result;
     osg::Node *top = topNodeOf(name);
     if (!top)
-        return result;
-    GeodeAllVisitor visitor(result);
-    top->accept(visitor);
-    return result;
+        return nullptr;
+    if (top->getName() == name)
+        return top;
+    NameSearchVisitor v(name);
+    top->accept(v);
+    return v.node;
+}
+
+void ClipPlugin::geodeWorldAABB(const osg::Geode *geode, osg::Vec3 &min, osg::Vec3 &max)
+{
+    min.set(FLT_MAX, FLT_MAX, FLT_MAX);
+    max.set(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+    if (!geode)
+        return;
+
+    osg::Group *root = cover->getObjectsRoot();
+    for (unsigned int i = 0; i < geode->getNumDrawables(); ++i)
+    {
+        const osg::BoundingSphere bs = geode->getDrawable(i)->getBound();
+        const osg::Vec3 c = bs.center();
+        const float r = bs.radius();
+        osg::NodePathList paths = geode->getParentalNodePaths(root);
+        if (paths.empty())
+            continue;
+        const osg::Matrix m = localToWorldBelowRoot(paths.front());
+        for (int a = 0; a < 8; ++a)
+        {
+            osg::Vec3 corner(c.x() + ((a & 1) ? r : -r), c.y() + ((a & 2) ? r : -r), c.z() + ((a & 4) ? r : -r));
+            // `corner * m` (preMult), NOT `m * corner` -- see worldAABB: the
+            // column-vector product with perspective divide would warp the
+            // bound for any geode whose chain carries a translation.
+            corner = corner * m;
+            min = osg::Vec3(std::min(min.x(), corner.x()), std::min(min.y(), corner.y()), std::min(min.z(), corner.z()));
+            max = osg::Vec3(std::max(max.x(), corner.x()), std::max(max.y(), corner.y()), std::max(max.z(), corner.z()));
+        }
+    }
+    if (min.x() > max.x() || min.y() > max.y() || min.z() > max.z())
+        min = max = osg::Vec3(0.0f, 0.0f, 0.0f); // empty geode: fall back to the origin
+}
+
+bool ClipPlugin::currentHitPos(osg::Vec3 &pos)
+{
+    auto *ii = coVRIntersectionInteractorManager::the()->getCurrentIntersectionInteractor();
+    if (!ii || !ii->isIntersected())
+        return false;
+    pos = ii->getHitPos();
+    return true;
 }
 
 void ClipPlugin::setMode(Mode m)
 {
-    if (m_mode == m)
-        m = Mode::None;
-
     m_mode = m;
     m_targetBtn->setState(m_mode == Mode::PickTarget);
-    m_addVoidBtn->setState(m_mode == Mode::AddVoid);
-    m_removeVoidBtn->setState(m_mode == Mode::RemoveVoid);
+    m_boxBtn->setState(m_mode == Mode::BoxFromObject);
 }
 
-void ClipPlugin::pickTarget(osg::Geode *geode, const std::string &name)
+// ---------------------------------------------------------------------------
+// clip shader injection
+// ---------------------------------------------------------------------------
+
+bool ClipPlugin::geodeHasVertexColor(const osg::Geode *geode)
 {
-    if (!geode || name.empty() || name == m_targetName)
-        return;
-    osg::Node *top = topObjectOf(geode);
-    if (!top)
-        return;
-
-    // the node the shadow will mirror: the picked node's named part (a
-    // photogrammetry tile, an OBJ material group) or the whole object
-    osg::Node *target = resolveMirrorNode(top, name);
-    if (!target)
-        target = top;
-
-    std::vector<osg::Geode *> targetGeodes;
+    for (unsigned int i = 0; i < geode->getNumDrawables(); ++i)
     {
-        GeodeAllVisitor gv(targetGeodes);
-        target->accept(gv);
+        auto *geom = geode->getDrawable(i)->asGeometry();
+        if (geom && geom->getColorArray())
+            return true;
     }
-    if (targetGeodes.empty())
-    {
-        dbg("CLIP: pickTarget('%s') ABORT: no geodes under the picked node (top='%s')\n", name.c_str(), top->getName().c_str());
-        return;
-    }
-    if (cover->debugLevel(3))
-        std::cerr << "Clip: target = " << name << " (" << targetGeodes.size() << " geodes)\n";
-    dbg("CLIP: pickTarget('%s') top='%s' shadow='%s' geodes=%d\n", name.c_str(), top->getName().c_str(), target->getName().c_str(), (int)targetGeodes.size());
-    dbgBounds("CLIP: target top node", top);
-    dbgBounds("CLIP: target shadow node", target);
-    // reset the previous target's rendering before switching
-    restoreTarget();
-
-    m_targetName = name;
-    m_targetTopNode = top;
-    // derive the geode set and save each geode's original depth/stencil so
-    // restoreTarget() can bring it back exactly (a freshly loaded paged tile
-    // is still untouched here, so its current state IS the original state)
-    reconcileTargetGeodes();
-
-    rebuildTargetShadow();
-    updateMainPass();
-    refreshStatus();
+    return false;
 }
 
-void ClipPlugin::restoreTarget()
+osg::Texture *ClipPlugin::geodeTexture(osg::Geode *geode, int &unit)
 {
-    if (m_targetSavedState)
+    // the outline shader's pattern: the texture sits on unit 0 of one of the
+    // drawables' (or the geode's) state sets
+    for (int searchUnit = 0; searchUnit < 8; ++searchUnit)
     {
-        for (auto &st : m_targetSaved)
+        osg::StateSet *ss = geode->getStateSet();
+        osg::Texture *t = ss ? dynamic_cast<osg::Texture *>(ss->getTextureAttribute(searchUnit, osg::StateAttribute::TEXTURE)) : nullptr;
+        if (t)
         {
-            if (!st.geode)
-                continue;
-            osg::StateSet *ss = st.geode->getOrCreateStateSet();
-            if (st.depth)
-                ss->setAttributeAndModes(st.depth, osg::StateAttribute::ON);
-            else
-                ss->removeAttribute(osg::StateAttribute::DEPTH);
-            if (st.stencil)
-                ss->setAttributeAndModes(st.stencil, osg::StateAttribute::ON);
-            else
-                ss->removeAttribute(osg::StateAttribute::STENCIL);
+            unit = searchUnit;
+            return t;
+        }
+        for (unsigned int i = 0; i < geode->getNumDrawables(); ++i)
+        {
+            ss = geode->getDrawable(i)->getStateSet();
+            t = ss ? dynamic_cast<osg::Texture *>(ss->getTextureAttribute(searchUnit, osg::StateAttribute::TEXTURE)) : nullptr;
+            if (t)
+            {
+                unit = searchUnit;
+                return t;
+            }
         }
     }
-    m_targetSavedState = false;
-    m_targetSaved.clear();
+    return nullptr;
 }
 
-void ClipPlugin::pickVoid(osg::Geode *geode, const std::string &name)
+bool ClipPlugin::geodeHasNormal(const osg::Geode *geode)
 {
-    if (!geode || name.empty() || name == m_targetName || std::find(m_voidNames.begin(), m_voidNames.end(), name) != m_voidNames.end())
+    for (unsigned int i = 0; i < geode->getNumDrawables(); ++i)
+    {
+        auto *geom = geode->getDrawable(i)->asGeometry();
+        if (geom && !geom->getNormalArray())
+            return false;
+    }
+    return true;
+}
+
+void ClipPlugin::applyClipToGeode(osg::Geode *geode)
+{
+    if (!geode || m_geodeClip.count(geode))
         return;
 
-    osg::Node *top = topObjectOf(geode);
-    if (!top || top->getNumParents() == 0)
+    // one shared program instance, attached to every clipped geode
+    if (!m_program)
     {
-        dbg("CLIP: pickVoid('%s') ABORT: no top-level object above the picked node\n", name.c_str());
-        dbgParentChain("pickVoid ABORT", geode, cover->getObjectsRoot());
+        m_program = new osg::Program();
+        auto *vs = new osg::Shader(osg::Shader::VERTEX);
+        auto *fs = new osg::Shader(osg::Shader::FRAGMENT);
+        vs->setShaderSource(CLIP_VERTEX_SHADER);
+        fs->setShaderSource(CLIP_FRAGMENT_SHADER);
+        m_program->addShader(vs);
+        m_program->addShader(fs);
+
+        // the shared, per-frame uniforms (same instance on all geodes)
+        m_boxMin = new osg::Uniform(osg::Uniform::FLOAT_VEC3, "clipBoxMin", 16);
+        m_boxMax = new osg::Uniform(osg::Uniform::FLOAT_VEC3, "clipBoxMax", 16);
+        m_boxCount = new osg::Uniform(osg::Uniform::INT, "clipBoxCount", 1);
+        m_boxCount->setElement(0, 0);
+        m_lightPos = new osg::Uniform("clipLightPos", osg::Vec4(0.0f, -1.0f, 1.0f, 0.0f));
+        m_lightDiffuse = new osg::Uniform("clipLightDiffuse", osg::Vec3(1.0f, 1.0f, 1.0f));
+        m_lightAmbient = new osg::Uniform("clipLightAmbient", osg::Vec3(0.3f, 0.3f, 0.3f));
+    }
+
+    GeodeClipSave save;
+
+    // sample the geode's appearance BEFORE touching its state
+    // (Material has a protected destructor -> heap-allocated default)
+    auto *defaultMat = new osg::Material();
+    save.diffuse = defaultMat->getDiffuse(osg::Material::FRONT);
+    save.ambient = defaultMat->getAmbient(osg::Material::FRONT);
+    osg::StateSet *ss = geode->getStateSet();
+    if (ss)
+    {
+        auto *mat = dynamic_cast<osg::Material *>(ss->getAttribute(osg::StateAttribute::MATERIAL));
+        if (mat)
+        {
+            save.diffuse = mat->getDiffuse(osg::Material::FRONT);
+            save.ambient = mat->getAmbient(osg::Material::FRONT);
+        }
+        save.texUnit = 0;
+        save.texture = geodeTexture(geode, save.texUnit);
+        if (save.texture)
+        {
+            save.hadTextureAttribute = ss->getTextureAttribute(save.texUnit, osg::StateAttribute::TEXTURE) != nullptr;
+            save.wasDrawableTexture = !save.hadTextureAttribute;
+        }
+        save.depth = dynamic_cast<osg::Depth *>(ss->getAttribute(osg::StateAttribute::DEPTH));
+        save.hadDepth = ss->getMode(GL_DEPTH_TEST) == osg::StateAttribute::ON;
+    }
+    save.vertexColor = geodeHasVertexColor(geode);
+    save.hasNormal = geodeHasNormal(geode);
+
+    ss = geode->getOrCreateStateSet();
+
+    // everything the shader replaces is switched off; the original material /
+    // texture / depth are saved above for an exact restore
+    {
+        auto *mat = dynamic_cast<osg::Material *>(ss->getAttribute(osg::StateAttribute::MATERIAL));
+        if (mat)
+        {
+            save.material = mat;
+            ss->removeAttribute(osg::StateAttribute::MATERIAL);
+        }
+    }
+    if (save.hadTextureAttribute)
+    {
+        save.texture = dynamic_cast<osg::Texture *>(ss->getTextureAttribute(save.texUnit, osg::StateAttribute::TEXTURE));
+        ss->removeTextureAttribute(save.texUnit, osg::StateAttribute::TEXTURE);
+    }
+    if (save.hadDepth)
+    {
+        save.depth = dynamic_cast<osg::Depth *>(ss->getAttribute(osg::StateAttribute::DEPTH));
+        ss->removeMode(GL_DEPTH_TEST);
+    }
+
+    // rebind the original texture onto the geode's own state set, where the
+    // shader can see it (drawable-level textures are not visible from a
+    // geode-level shader)
+    if (save.texture)
+        ss->setTextureAttributeAndModes(save.texUnit, save.texture, osg::StateAttribute::ON);
+
+    // per-geode uniforms
+    // NOTE: must be FLOAT_MAT4 (osg::Matrixf) - the shader declares `uniform mat4`
+    // (float). An osg::Matrix (Matrixd) uniform would be applied via
+    // glUniformMatrix4dv and fail with GL_INVALID_OPERATION on a float mat4.
+    save.worldMatrix = new osg::Uniform("clipWorldMatrix", osg::Matrixf());
+    save.matDiffuse = new osg::Uniform("clipMatDiffuse", osg::Vec3(save.diffuse.x(), save.diffuse.y(), save.diffuse.z()));
+    save.matAmbient = new osg::Uniform("clipMatAmbient", osg::Vec3(save.ambient.x(), save.ambient.y(), save.ambient.z()));
+    save.hasTexture = new osg::Uniform("clipHasTexture", save.texture ? 1 : 0);
+    save.hasNormalUniform = new osg::Uniform("clipHasNormal", save.hasNormal ? 1 : 0);
+    save.hasVertexColor = new osg::Uniform("clipHasVertexColor", save.vertexColor ? 1 : 0);
+    if (save.texture)
+        save.texUnitUniform = new osg::Uniform("clipBaseTexture", save.texUnit);
+
+    // attach: shared program + shared + per-geode uniforms
+    ss->setAttributeAndModes(m_program.get(), osg::StateAttribute::ON);
+    ss->addUniform(m_boxMin.get());
+    ss->addUniform(m_boxMax.get());
+    ss->addUniform(m_boxCount.get());
+    ss->addUniform(m_lightPos.get());
+    ss->addUniform(m_lightDiffuse.get());
+    ss->addUniform(m_lightAmbient.get());
+    ss->addUniform(save.worldMatrix.get());
+    ss->addUniform(save.matDiffuse.get());
+    ss->addUniform(save.matAmbient.get());
+    ss->addUniform(save.hasTexture.get());
+    ss->addUniform(save.hasNormalUniform.get());
+    ss->addUniform(save.hasVertexColor.get());
+    if (save.texUnitUniform)
+        ss->addUniform(save.texUnitUniform.get());
+
+    m_geodeClip[geode] = save;
+
+}
+
+void ClipPlugin::removeClipFromGeode(osg::Geode *geode)
+{
+    auto it = m_geodeClip.find(geode);
+    if (it == m_geodeClip.end())
+        return;
+    GeodeClipSave save = it->second;
+    m_geodeClip.erase(it);
+
+    osg::StateSet *ss = geode->getOrCreateStateSet();
+    ss->removeAttribute(osg::StateAttribute::PROGRAM);
+    // remove the geode-level texture binding we added for the shader (the
+    // original drawable-level binding, if any, is left untouched)
+    if (save.texture)
+        ss->removeTextureAttribute(save.texUnit, osg::StateAttribute::TEXTURE);
+
+    // restore what we saved
+    if (save.material)
+        ss->setAttributeAndModes(save.material, osg::StateAttribute::ON);
+    if (save.hadTextureAttribute && save.texture)
+        ss->setTextureAttributeAndModes(save.texUnit, save.texture, osg::StateAttribute::ON);
+    if (save.hadDepth)
+    {
+        ss->setMode(GL_DEPTH_TEST, osg::StateAttribute::ON);
+        if (save.depth)
+            ss->setAttributeAndModes(save.depth, osg::StateAttribute::ON);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// targets
+// ---------------------------------------------------------------------------
+
+void ClipPlugin::addTarget(const std::string &name)
+{
+    if (name.empty() || m_targetIndex.count(name))
+        return;
+
+    // the node that is actually clipped: the top-level object itself when the
+    // name matches it, or a named sub-node (a photogrammetry tile, an OBJ
+    // material group) when the name points inside an object
+    osg::Node *top = topNodeOf(name);
+    osg::Node *clip = top;
+    if (!top || top->getName() != name)
+    {
+        osg::Geode *geode = findGeodeForName(name);
+        if (!geode)
+        {
+            m_statusLabel->setText(("No such object: " + name).c_str());
+            return;
+        }
+        top = topObjectOf(geode);
+        if (!top)
+        {
+            return;
+        }
+        clip = geode;
+    }
+
+    Target t;
+    t.name = name;
+    t.topNode = top;
+    t.clipNode = clip;
+    {
+        GeodeAllVisitor gv(t.geodes);
+        clip->accept(gv);
+    }
+    if (t.geodes.empty())
+    {
+        m_statusLabel->setText(("No geodes in: " + name).c_str());
         return;
     }
 
+    size_t index = m_targets.size();
+    m_targets.push_back(t);
+    m_targetIndex[name] = index;
+
+    // apply the clip shader to all (currently loaded) geodes
+    for (osg::Geode *g : m_targets.back().geodes)
+        applyClipToGeode(g);
+
+    m_manual = true;
+    updateUi();
     if (cover->debugLevel(3))
-        std::cerr << "Clip: void = " << name << " (" << geodesOf(name).size() << " geodes)\n";
-    m_voidNames.push_back(name);
-    createVoidShadow(name, geode, top);
-    applyVoidVisibility(name);
-    updateVoidsUi();
-    updateMainPass();
+        std::fprintf(stderr, "CLIP: target = %s (%zu geodes)\n", name.c_str(), m_targets.back().geodes.size());
 }
 
-void ClipPlugin::removeVoid(const std::string &name)
+void ClipPlugin::removeTarget(const std::string &name)
 {
-    auto it = std::find(m_voidNames.begin(), m_voidNames.end(), name);
-    if (it == m_voidNames.end())
+    auto it = m_targetIndex.find(name);
+    if (it == m_targetIndex.end())
         return;
 
-    m_voidNames.erase(it);
-    removeVoidShadow(name);
-    updateVoidsUi();
-    updateMainPass();
+    Target &t = m_targets[it->second];
+    for (osg::Geode *g : t.geodes)
+        removeClipFromGeode(g);
+    m_targets.erase(m_targets.begin() + it->second);
+    m_targetIndex.erase(it);
+
+    // renumber the index map
+    for (size_t i = 0; i < m_targets.size(); ++i)
+        m_targetIndex[m_targets[i].name] = i;
+
+    m_manual = true;
+    updateUi();
+    if (cover->debugLevel(3))
+        std::fprintf(stderr, "CLIP: removed target = %s\n", name.c_str());
+}
+
+// keep one target's geode list in sync with the live scene (paged tiles are
+// added/expired by the DatabasePager while the plugin runs). Returns true if
+// anything changed.
+bool ClipPlugin::reconcileTargetGeodes(Target &target)
+{
+    // re-resolve the nodes: the cached ones may have been wrapped by the Move
+    // plugin or replaced on reload
+    osg::Node *top = target.topNode.get();
+    osg::Node *liveTop = top ? topObjectOf(top) : nullptr;
+    if (liveTop)
+        target.topNode = liveTop;
+    else
+        top = target.topNode = topNodeOf(target.name);
+    if (!top)
+        return false;
+
+    osg::Node *clip = target.clipNode.get();
+    // the cached clip node must still belong to the same top-level object
+    if (!clip || topObjectOf(clip) != top)
+        clip = target.clipNode = (target.topNode->getName() == target.name) ? target.topNode.get() : findClipNode(target.name);
+    if (!clip)
+        return false;
+
+    std::vector<osg::Geode *> liveGeodes;
+    GeodeAllVisitor gv(liveGeodes);
+    clip->accept(gv);
+
+    // apply the clip to new geodes
+    for (osg::Geode *g : liveGeodes)
+    {
+        if (!m_geodeClip.count(g))
+        {
+            applyClipToGeode(g);
+            target.geodes.push_back(g);
+        }
+    }
+    // restore geodes that are gone (expired pages, removed drawables)
+    for (size_t i = target.geodes.size(); i-- > 0;)
+    {
+        bool alive = std::find(liveGeodes.begin(), liveGeodes.end(), target.geodes[i]) != liveGeodes.end();
+        if (!alive)
+        {
+            removeClipFromGeode(target.geodes[i]);
+            target.geodes.erase(target.geodes.begin() + i);
+        }
+    }
+    return liveGeodes.size() != target.geodes.size();
+}
+
+void ClipPlugin::reconcileTargets()
+{
+    for (Target &t : m_targets)
+        reconcileTargetGeodes(t);
+}
+
+// ---------------------------------------------------------------------------
+// boxes
+// ---------------------------------------------------------------------------
+
+void ClipPlugin::boxFromObject(osg::Geode *geode, const std::string &name)
+{
+    (void)name;
+    if (!geode)
+        return;
+
+    osg::Group *root = cover->getObjectsRoot();
+    if (!root)
+        return;
+
+    osg::Vec3 min, max;
+    geodeWorldAABB(geode, min, max);
+
+    // the box sits in the same space as the objects: create it at the objects
+    // root with a transform that maps the unit cube onto the picked AABB
+    auto box = new ClipBoxNode(nextBoxName());
+    osg::Matrix m = osg::Matrix::scale((max - min)) * osg::Matrix::translate((min + max) / 2.0f);
+    box->setMatrix(m);
+    box->setSize(max - min);
+    root->addChild(box);
+
+    m_boxes.push_back(box);
+    m_manual = true;
+    updateUi();
+    if (cover->debugLevel(3))
+        std::fprintf(stderr, "CLIP: box from object %s: min=(%g,%g,%g) max=(%g,%g,%g)\n", name.c_str(), min.x(), min.y(), min.z(), max.x(), max.y(), max.z());
+}
+
+void ClipPlugin::addBoxAt(const osg::Vec3 &point)
+{
+    osg::Group *root = cover->getObjectsRoot();
+    if (!root)
+        return;
+
+    auto box = new ClipBoxNode(nextBoxName());
+    osg::Vec3 size(CLIP_DEFAULT_SIZE[0], CLIP_DEFAULT_SIZE[1], CLIP_DEFAULT_SIZE[2]);
+    // bottom-anchored: the point is the box's lower corner
+    osg::Matrix m = osg::Matrix::scale(size) * osg::Matrix::translate(osg::Vec3(point.x() + size.x() * 0.5f, point.y() + size.y() * 0.5f, point.z() + size.z() * 0.5f));
+    box->setMatrix(m);
+    box->setSize(size);
+    root->addChild(box);
+
+    m_boxes.push_back(box);
+    m_manual = true;
+    updateUi();
+    if (cover->debugLevel(3))
+        std::fprintf(stderr, "CLIP: box at (%g,%g,%g) (default size (%g,%g,%g))\n", point.x(), point.y(), point.z(), size.x(), size.y(), size.z());
+}
+
+void ClipPlugin::removeLastBox()
+{
+    if (m_boxes.empty())
+        return;
+    auto box = m_boxes.back();
+    if (box->getNumParents() > 0)
+        box->getParent(0)->removeChild(box.get());
+    m_boxes.pop_back();
+    m_manual = true;
+    updateUi();
+}
+
+void ClipPlugin::setBoxesVisible(bool visible)
+{
+    if (m_showBoxes == visible)
+        return;
+    m_showBoxes = visible;
+    if (m_showBoxesBtn)
+        m_showBoxesBtn->setState(visible);
+    if (m_cfgShowBoxes)
+        *m_cfgShowBoxes = visible;
+    for (const auto &box : m_boxes)
+        box->setNodeMask(visible ? (Isect::Visible | Isect::Pick) : 0);
 }
 
 void ClipPlugin::clearAll()
 {
-    // restore the target geodes and drop the shadows
-    for (const auto &name : m_voidNames)
-        removeVoidShadow(name);
-    restoreTarget();
-    removeTargetShadow();
-    m_targetName.clear();
-    m_targetTopNode = nullptr;
-    m_targetGeodes.clear();
-    m_voidNames.clear();
-    m_manual = true; // don't let the config re-apply right after a manual clear
-    updateVoidsUi();
-    updateMainPass();
-    refreshStatus();
+    // remove all boxes
+    while (!m_boxes.empty())
+    {
+        auto box = m_boxes.back();
+        if (box->getNumParents() > 0)
+            box->getParent(0)->removeChild(box.get());
+        m_boxes.pop_back();
+    }
+    // remove all targets (restores their geodes); copy the names first,
+    // removeTarget() erases from m_targetIndex
+    std::vector<std::string> names;
+    names.reserve(m_targetIndex.size());
+    for (const auto &kv : m_targetIndex)
+        names.push_back(kv.first);
+    for (const auto &n : names)
+        removeTarget(n);
+    m_manual = false;
+    updateUi();
 }
+
+// ---------------------------------------------------------------------------
+// per-frame sync
+// ---------------------------------------------------------------------------
+
+void ClipPlugin::preFrame()
+{
+
+    // keep the box list in sync with the scene (boxes may have been removed
+    // by the user / the Move plugin may have wrapped them)
+    std::vector<std::string> boxNames;
+    for (const auto &box : m_boxes)
+        if (box && box->getNumParents() > 0)
+            boxNames.push_back(box->getName());
+    for (size_t i = m_boxes.size(); i-- > 0;)
+    {
+        if (!m_boxes[i] || m_boxes[i]->getNumParents() == 0)
+            m_boxes.erase(m_boxes.begin() + i);
+    }
+    // newly added boxes (e.g. restored from a reload) are picked up by name
+    {
+        osg::Group *root = cover->getObjectsRoot();
+    if (root)
+    {
+        for (unsigned int i = 0; i < root->getNumChildren(); ++i)
+        {
+            auto *inner = dynamic_cast<ClipBoxNode *>(innerObjectOf(root->getChild(i)));
+            if (inner && std::find(boxNames.begin(), boxNames.end(), inner->getName()) == boxNames.end())
+            {
+                m_boxes.push_back(inner);
+                boxNames.push_back(inner->getName());
+            }
+        }
+    }
+    }
+
+    // keep the box ghosts' visibility in sync (a reload may re-create them)
+    for (const auto &box : m_boxes)
+    {
+        unsigned int mask = box->getNodeMask();
+        bool visible = (mask & Isect::Visible) != 0;
+        if (visible != m_showBoxes)
+            box->setNodeMask(m_showBoxes ? (Isect::Visible | Isect::Pick) : 0);
+    }
+
+    // keep the geode lists of paged targets in sync, then push the uniforms
+    reconcileTargets();
+    syncClipUniforms();
+}
+
+void ClipPlugin::syncClipUniforms()
+{
+    if (m_geodeClip.empty())
+        return;
+
+    osg::Group *root = cover->getObjectsRoot();
+    if (!root)
+        return;
+
+
+    // ---- shared uniforms: the box AABBs (root space) + the scene light ----
+    int n = 0;
+    for (const auto &box : m_boxes)
+    {
+        if (n >= CLIP_MAX_BOXES)
+            break;
+        osg::Vec3 min, max;
+        box->worldAABB(root, min, max);
+        m_boxMin->setElement(n, min);
+        m_boxMax->setElement(n, max);
+        ++n;
+    }
+    if (n < CLIP_MAX_BOXES)
+    {
+        // pad with a degenerate box that never cuts
+        osg::Vec3 none(0.0f, 0.0f, 0.0f);
+        for (int i = n; i < CLIP_MAX_BOXES; ++i)
+        {
+            m_boxMin->setElement(i, none);
+            m_boxMax->setElement(i, none);
+        }
+    }
+    m_boxCount->setElement(0, n);
+
+
+
+    // the scene headlight ("Sun"): a directional light
+    {
+        auto *lighting = coVRLighting::instance();
+        if (lighting && lighting->headlight)
+        {
+            osg::Light *l = lighting->headlight->getLight();
+            if (l)
+            {
+                const osg::Vec4 &p = l->getPosition();
+                const osg::Vec4 &d = l->getDiffuse();
+                const osg::Vec4 &a = l->getAmbient();
+                m_lightPos->set(p);
+                m_lightDiffuse->set(osg::Vec3(d.x(), d.y(), d.z()));
+                m_lightAmbient->set(osg::Vec3(a.x(), a.y(), a.z()));
+            }
+        }
+    }
+
+    // ---- per-geode uniform: this geode's local-to-root matrix ----
+    for (auto &kv : m_geodeClip)
+    {
+        osg::Geode *g = kv.first;
+        if (!g)
+            continue;
+        osg::NodePathList paths = g->getParentalNodePaths(root);
+        if (paths.empty())
+            continue;
+        kv.second.worldMatrix->set(osg::Matrixf(localToWorldBelowRoot(paths.front())));
+    }
+
+}
+
+// ---------------------------------------------------------------------------
+// setup (config)
+// ---------------------------------------------------------------------------
 
 void ClipPlugin::loadSetup()
 {
-    if (!m_cfgTarget || !m_cfgVoids)
+    if (!m_cfgTargets)
         return;
 
     // a (re)loaded setup means the config is in charge again
@@ -981,929 +1285,81 @@ void ClipPlugin::loadSetup()
 
 void ClipPlugin::syncSetup()
 {
-    if (m_manual || !m_cfgTarget || !m_cfgVoids)
+    if (m_manual || !m_cfgTargets)
         return;
 
-    const std::string targetPrefix = m_cfgTarget->value();
+    // apply every configured target that is not active yet (by name), and
+    // drop targets that are no longer configured
+    const auto &cfgTargets = m_cfgTargets->value();
 
-    // the target/void names from the config may name a top-level object or a
-    // named sub-node of one (e.g. an OBJ material group); resolve both. The
-    // returned geode feeds the pick; the matched node decides the NAME (the
-    // first geode of a top-level object would otherwise rename a whole-object
-    // setup to one of its parts)
-    auto resolveEntry = [this](const std::string &prefix) -> std::tuple<osg::Node *, osg::Geode *, osg::Node *>
+    for (const auto &t : m_targets)
     {
-        osg::Group *root = cover->getObjectsRoot();
-        if (!root)
-            return {nullptr, nullptr, nullptr};
-        for (unsigned int i = 0; i < root->getNumChildren(); ++i)
-        {
-            osg::Node *child = root->getChild(i);
-            if (!child || child->getName().find("_ClipShadow") != std::string::npos)
-                continue;
-            osg::Node *match = nullptr;
-            if (matchName(prefix, child->getName()))
-                match = child;
-            else
-            {
-                NameSearchVisitor v(prefix);
-                child->accept(v);
-                match = v.node;
-            }
-            if (!match)
-                continue;
-            osg::Node *top = topObjectOf(match);
-            if (!top)
-                top = child;
-            osg::Geode *geode = nullptr;
-            if (match->asGeode())
-                geode = match->asGeode();
-            else
-            {
-                std::vector<osg::Geode *> glist;
-                GeodeAllVisitor gv(glist);
-                match->accept(gv);
-                if (!glist.empty())
-                    geode = glist.front();
-            }
-            return {top, geode, match};
-        }
-        return {nullptr, nullptr, nullptr};
-    };
+        if (std::find(cfgTargets.begin(), cfgTargets.end(), t.name) == cfgTargets.end())
+            removeTarget(t.name);
+    }
+    for (const std::string &name : cfgTargets)
+    {
+        if (name.empty() || m_targetIndex.count(name))
+            continue;
+        addTarget(name);
+    }
 
-    // target
-    if (!targetPrefix.empty())
-    {
-        auto r = resolveEntry(targetPrefix);
-        if (std::get<1>(r))
-        {
-            // name the entry from the MATCHED node (a top-level object keeps
-            // its object name, a named sub-node keeps its part name) — not
-            // from an arbitrary geode inside it
-            const std::string name = displayNameOf(std::get<2>(r));
-            if (m_targetName != name)
-            {
-                auto it = std::find(m_voidNames.begin(), m_voidNames.end(), name);
-                if (it != m_voidNames.end())
-                {
-                    m_voidNames.erase(it);
-                    removeVoidShadow(name);
-                }
-                pickTarget(std::get<1>(r), name);
-            }
-        }
-    }
-    // voids
-    for (const auto &prefix : m_cfgVoids->value())
-    {
-        if (prefix.empty())
-            continue;
-        auto r = resolveEntry(prefix);
-        if (!std::get<1>(r))
-            continue;
-        const std::string name = displayNameOf(std::get<2>(r));
-        if (name.empty() || name == m_targetName)
-            continue;
-        if (std::find(m_voidNames.begin(), m_voidNames.end(), name) != m_voidNames.end())
-            continue;
-        pickVoid(std::get<1>(r), name);
-    }
+    // the configured showBoxes flag
+    if (m_cfgShowBoxes)
+        setBoxesVisible(m_cfgShowBoxes->value());
 }
 
-void ClipPlugin::setHideVoids(bool hide)
+// ---------------------------------------------------------------------------
+// UI
+// ---------------------------------------------------------------------------
+
+void ClipPlugin::updateUi()
 {
-    if (m_hideVoids == hide)
-        return;
-    m_hideVoids = hide;
-    if (m_hideVoidsBtn)
-        m_hideVoidsBtn->setState(hide);
-    if (m_cfgHide)
-        *m_cfgHide = hide;
-    for (const auto &name : m_voidNames)
-        applyVoidVisibility(name);
-}
-
-void ClipPlugin::applyVoidVisibility(const std::string &name)
-{
-    auto it = m_voidShadows.find(name);
-    if (it == m_voidShadows.end())
-        return;
-    Shadow *shadow = it->second;
-    if (shadow->geodes.empty() || !shadow->topNode.get())
+    if (!m_statusLabel)
         return;
 
-    // a void that is currently selected / being moved (a SELECTION helper node
-    // sits above it) stays visible, so it can be edited in the scene.
-    // The permanent MOVE helper is ignored: it only means the object was moved.
-    const bool hidden = m_hideVoids && !hasHelperAncestor(shadow->topNode.get(), coVRSelectionManager::SELECTION);
-    if (shadow->appliedHidden == hidden)
-        return;
-    shadow->appliedHidden = hidden;
-
-    if (hidden)
-    {
-        // hide every geode: write no color, no depth, ignore stencil. Lasers /
-        // walking pass through (Collision/Walk/Touch removed from the mask),
-        // but Pick stays set so Selection/Move can still grab the object. The
-        // selection outline makes it visible while it is being edited.
-        for (size_t i = 0; i < shadow->geodes.size(); ++i)
-        {
-            osg::Geode *geode = shadow->geodes[i];
-            if (!geode)
-                continue;
-
-            // capture the original state first so "unhide" restores it exactly
-            // (must happen before the hide attributes below are applied; the
-            // capture is per-geode, so a geode added later is captured when it
-            // is hidden the first time)
-            if (i < shadow->saved.size() && !shadow->saved[i].captured)
-            {
-                shadow->saved[i].geode = geode;
-                shadow->saved[i].colorMask = geode->getStateSet() ? geode->getStateSet()->getAttribute(osg::StateAttribute::COLORMASK) : nullptr;
-                shadow->saved[i].depth = geode->getStateSet() ? geode->getStateSet()->getAttribute(osg::StateAttribute::DEPTH) : nullptr;
-                shadow->saved[i].stencil = geode->getStateSet() ? geode->getStateSet()->getAttribute(osg::StateAttribute::STENCIL) : nullptr;
-                shadow->saved[i].nodeMask = geode->getNodeMask();
-                shadow->saved[i].captured = true;
-            }
-
-            osg::StateSet *ss = geode->getOrCreateStateSet();
-            ss->setAttributeAndModes(new osg::ColorMask(false, false, false, false), osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
-            ss->setAttributeAndModes(new osg::Depth(osg::Depth::ALWAYS, 0.0, 1.0, false), osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
-            osg::Stencil *stencil = new osg::Stencil();
-            stencil->setFunction(osg::Stencil::ALWAYS, 0, 0);
-            ss->setAttributeAndModes(stencil, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
-            geode->setNodeMask(geode->getNodeMask() & ~HIDDEN_STRIP_MASK);
-        }
-    }
+    std::string text = "Targets: ";
+    if (m_targets.empty())
+        text += "(none)";
     else
     {
-        for (size_t i = 0; i < shadow->geodes.size(); ++i)
-        {
-            if (i >= shadow->saved.size() || !shadow->saved[i].captured)
-                continue;
-            osg::Geode *geode = shadow->geodes[i];
-            if (!geode || geode != shadow->saved[i].geode)
-                continue;
-            osg::StateSet *ss = geode->getOrCreateStateSet();
-            if (shadow->saved[i].colorMask)
-                ss->setAttributeAndModes(shadow->saved[i].colorMask, osg::StateAttribute::ON);
-            else
-                ss->removeAttribute(osg::StateAttribute::COLORMASK);
-            if (shadow->saved[i].depth)
-                ss->setAttributeAndModes(shadow->saved[i].depth, osg::StateAttribute::ON);
-            else
-                ss->removeAttribute(osg::StateAttribute::DEPTH);
-            if (shadow->saved[i].stencil)
-                ss->setAttributeAndModes(shadow->saved[i].stencil, osg::StateAttribute::ON);
-            else
-                ss->removeAttribute(osg::StateAttribute::STENCIL);
-            if (shadow->saved[i].nodeMask != 0)
-                geode->setNodeMask(shadow->saved[i].nodeMask);
-        }
+        for (size_t i = 0; i < m_targets.size(); ++i)
+            text += (i ? ", " : "") + m_targets[i].name;
     }
+    text += " | Boxes: " + std::to_string(m_boxes.size());
+    m_statusLabel->setText(text);
 }
 
-ClipPlugin::Shadow *ClipPlugin::shadowFor(const std::string &name)
-{
-    auto it = m_voidShadows.find(name);
-    return (it != m_voidShadows.end()) ? it->second : nullptr;
-}
-
-void ClipPlugin::removeTargetShadow()
-{
-    if (m_targetShadow)
-    {
-        if (m_targetShadow->parent.get() && m_targetShadow->node.get())
-            m_targetShadow->parent->removeChild(m_targetShadow->node.get());
-        delete m_targetShadow;
-        m_targetShadow = nullptr;
-    }
-    m_targetPagedLODSig.clear();
-}
-
-void ClipPlugin::rebuildTargetShadow()
-{
-    removeTargetShadow();
-    osg::Node *top = resolveTop(m_targetTopNode, m_targetName);
-    if (!top)
-        return;
-
-    // a (top-level) object that was picked; for sub-object picks (a named
-    // geode, e.g. a photogrammetry tile or an OBJ material group) the clone
-    // mirrors only that sub-node, so paging of the rest of the object does
-    // not force shadow rebuilds
-    osg::Node *target = resolveMirrorNode(top, m_targetName);
-    if (!target)
-        target = top;
-    if (target->getNumParents() == 0)
-        return;
-    // the clone is a sibling of the mirrored node (a geode for sub-object
-    // picks, the top-level group otherwise), so it follows that parent's
-    // transforms exactly
-    osg::Group *parent = target->getParent(0)->asGroup();
-    if (!parent)
-        return;
-
-    auto *shadow = new Shadow();
-    shadow->name = m_targetName;
-    shadow->topNode = top;
-    shadow->targetTopNode = target;
-    shadow->geodes = m_targetGeodes;
-    shadow->parent = parent;
-
-    // a deep copy of the node (a group, or a bare geode if the object is a
-    // single geode); it is a sibling of `target`, so it carries target's
-    // local matrix and aligns exactly, following every (helper) transform.
-    //
-    // For a paged object (photogrammetry terrain) the clone is a *static*
-    // snapshot of the currently loaded geometry: every PagedLOD in it is
-    // neutralized so the DatabasePager does not page it as a second, live
-    // PagedLOD (that would desync it from the live target and break the depth
-    // shadow -> black tile). syncShadows() rebuilds the shadow whenever the
-    // target's PagedLOD structure changes (a new LOD level was loaded).
-    shadow->node = target->clone(osg::CopyOp::DEEP_COPY_ALL)->asNode();
-    if (!shadow->node.get())
-    {
-        delete shadow;
-        return;
-    }
-    pruneShadowClones(shadow->node.get());
-    neutralizePagedLODTree(shadow->node.get());
-    shadow->pagedLODSig = PagedLODTreeSignature(target);
-    m_targetPagedLODSig = shadow->pagedLODSig;
-    shadow->node->setName(m_targetName + "_ClipShadow");
-    setShadowFlags(shadow->node.get());
-    prepareTargetShadow(shadow->node.get());
-    parent->addChild(shadow->node.get());
-    m_targetShadow = shadow;
-    {
-        // report the clone's OWN geode count (geodesOf() only matches direct
-        // ObjectsRoot children, which is wrong for sub-object targets)
-        std::vector<osg::Geode *> cloneGeodes;
-        GeodeAllVisitor gv(cloneGeodes);
-        shadow->node->accept(gv);
-        dbg("CLIP: rebuildTargetShadow: clone geodes=%d (mirror='%s' parents=%d)\n", (int)cloneGeodes.size(), target->getName().c_str(), (int)target->getNumParents());
-    }
-    dbgBounds("CLIP: targetShadow clone", shadow->node.get());
-    dbgBinLeaks("targetShadow", shadow->node.get());
-}
-
-void ClipPlugin::removeVoidShadow(const std::string &name)
-{
-    auto it = m_voidShadows.find(name);
-    if (it == m_voidShadows.end())
-        return;
-
-    Shadow *shadow = it->second;
-
-    // restore the geodes' original rendering state
-    for (size_t i = 0; i < shadow->geodes.size(); ++i)
-    {
-        if (i >= shadow->saved.size() || !shadow->saved[i].captured || !shadow->saved[i].geode)
-            continue;
-        osg::Geode *geode = shadow->geodes[i];
-        if (!geode || geode != shadow->saved[i].geode)
-            continue;
-        osg::StateSet *ss = geode->getOrCreateStateSet();
-        if (shadow->saved[i].colorMask)
-            ss->setAttributeAndModes(shadow->saved[i].colorMask, osg::StateAttribute::ON);
-        else
-            ss->removeAttribute(osg::StateAttribute::COLORMASK);
-        if (shadow->saved[i].depth)
-            ss->setAttributeAndModes(shadow->saved[i].depth, osg::StateAttribute::ON);
-        else
-            ss->removeAttribute(osg::StateAttribute::DEPTH);
-        if (shadow->saved[i].stencil)
-            ss->setAttributeAndModes(shadow->saved[i].stencil, osg::StateAttribute::ON);
-        else
-            ss->removeAttribute(osg::StateAttribute::STENCIL);
-        if (shadow->saved[i].nodeMask != 0)
-            geode->setNodeMask(shadow->saved[i].nodeMask);
-    }
-
-    if (shadow->parent.get() && shadow->node.get())
-        shadow->parent->removeChild(shadow->node.get());
-    if (shadow->parent.get() && shadow->nodeFar.get())
-        shadow->parent->removeChild(shadow->nodeFar.get());
-    delete shadow;
-    m_voidShadows.erase(it);
-}
-
-void ClipPlugin::createVoidShadow(const std::string &name, osg::Geode *geode, osg::Node *topNode)
-{
-    // decide which node to clone: normally the (top-level) object the node
-    // belongs to. When the picked node is a *named sub-node* (e.g. a geode
-    // named after a material group of a multi-group OBJ, where the top-level
-    // node is named by the file path), clone only that sub-node so the void
-    // is exactly the shape the user picked
-    osg::Node *target = topNode;
-    if (geode && topNode && !geode->getName().empty() && geode != topNode)
-    {
-        osg::Node *byName = findNamedNode(name);
-        if (byName)
-            target = byName;
-    }
-
-    std::vector<osg::Geode *> topGeodes;
-    if (target)
-    {
-        GeodeAllVisitor gv(topGeodes);
-        target->accept(gv);
-    }
-    if (!target || target->getNumParents() == 0 || topGeodes.empty())
-    {
-        dbg("CLIP: createVoidShadow('%s') ABORT: target=%s parents=%d geodes=%d (picked geode='%s' top='%s')\n",
-            name.c_str(), target ? "ok" : "null", target ? (int)target->getNumParents() : -1,
-            (int)topGeodes.size(), geode ? geode->getName().c_str() : "null",
-            topNode ? topNode->getName().c_str() : "null");
-        return;
-    }
-
-    auto *shadow = new Shadow();
-    shadow->name = name;
-    shadow->topNode = topNode;
-    shadow->targetTopNode = target;
-    shadow->geodes = topGeodes;
-    shadow->parent = target->getParent(0)->asGroup();
-    // pre-size the saved-state bookkeeping (captured on the first hide)
-    shadow->saved.resize(shadow->geodes.size());
-    for (size_t i = 0; i < shadow->geodes.size(); ++i)
-        shadow->saved[i].geode = shadow->geodes[i];
-    makeVoidClones(shadow, name);
-    m_voidShadows[name] = shadow;
-    dbg("CLIP: createVoidShadow('%s') geodes=%d\n", name.c_str(), (int)shadow->geodes.size());
-    dbgBounds("CLIP: void top node", topNode);
-    dbgBounds("CLIP: voidShadow near clone", shadow->node.get());
-    dbgBounds("CLIP: voidShadow far clone", shadow->nodeFar.get());
-    dbgBinLeaks("voidNear", shadow->node.get());
-    dbgBinLeaks("voidFar", shadow->nodeFar.get());
-}
-
-void ClipPlugin::makeVoidClones(Shadow *shadow, const std::string &name)
-{
-    // two deep copies of the whole object, siblings of the top node so they
-    // follow every (helper) transform exactly like the real object: one
-    // rendered with its front shell (near, bin -2, stencil bit 0) and one with
-    // its back shell (far, bin -1, stencil bit 1)
-    osg::Group *parent = shadow->parent.get();
-    if (!parent)
-        return;
-
-    osg::Node *src = shadow->targetTopNode.get() ? shadow->targetTopNode.get() : shadow->topNode.get();
-    if (!src)
-        return;
-    shadow->node = src->clone(osg::CopyOp::DEEP_COPY_ALL)->asNode();
-    if (!shadow->node.get())
-        return;
-    pruneShadowClones(shadow->node.get());
-    neutralizePagedLODTree(shadow->node.get());
-    shadow->pagedLODSig = PagedLODTreeSignature(src);
-    shadow->node->setName(name + "_ClipShadow");
-    setShadowFlags(shadow->node.get());
-    prepareVoidShadowNear(shadow->node.get());
-    parent->addChild(shadow->node.get());
-
-    shadow->nodeFar = src->clone(osg::CopyOp::DEEP_COPY_ALL)->asNode();
-    if (!shadow->nodeFar.get())
-        return;
-    pruneShadowClones(shadow->nodeFar.get());
-    neutralizePagedLODTree(shadow->nodeFar.get());
-    shadow->nodeFar->setName(name + "_ClipShadowFar");
-    setShadowFlags(shadow->nodeFar.get());
-    prepareVoidShadowFar(shadow->nodeFar.get());
-    parent->addChild(shadow->nodeFar.get());
-}
-
-void ClipPlugin::reattachVoidShadow(const std::string &name)
-{
-    // the object's top node was replaced (COVISE update): drop the clones and
-    // re-create them as siblings of the current top node
-    Shadow *shadow = shadowFor(name);
-    if (!shadow)
-        return;
-
-    if (shadow->parent.get() && shadow->node.get())
-        shadow->parent->removeChild(shadow->node.get());
-    if (shadow->parent.get() && shadow->nodeFar.get())
-        shadow->parent->removeChild(shadow->nodeFar.get());
-    shadow->node = nullptr;
-    shadow->nodeFar = nullptr;
-
-    // the object's current (replaced) top node and the sub-node it refers to
-    osg::Node *top = resolveTop(shadow->topNode, name);
-    if (!top)
-        return;
-    shadow->topNode = top;
-    osg::Node *target = findNamedNode(name);
-    if (!target || topObjectOf(target) != top)
-        target = top;
-    shadow->targetTopNode = target;
-    std::vector<osg::Geode *> curGeodes;
-    {
-        GeodeAllVisitor gv(curGeodes);
-        target->accept(gv);
-    }
-    shadow->geodes = curGeodes;
-    // carry over the saved state of the geodes that survived the re-attach, so
-    // a hidden paged void keeps its ORIGINAL attributes (not the hide
-    // overrides) when its clones are rebuilt on a new LOD level; new geodes
-    // get fresh uncaptured entries (their current state IS the original one)
-    std::vector<GeodeSavedState> oldSaved = shadow->saved;
-    shadow->saved.clear();
-    shadow->saved.resize(shadow->geodes.size());
-    for (size_t i = 0; i < shadow->geodes.size(); ++i)
-    {
-        shadow->saved[i].geode = shadow->geodes[i];
-        for (const auto &st : oldSaved)
-        {
-            if (st.geode == shadow->geodes[i])
-            {
-                shadow->saved[i] = st;
-                break;
-            }
-        }
-    }
-    shadow->parent = shadow->targetTopNode.get() ? (shadow->targetTopNode->getNumParents() > 0 ? shadow->targetTopNode->getParent(0)->asGroup() : nullptr) : nullptr;
-
-    if (shadow->parent.get())
-        makeVoidClones(shadow, name);
-
-    // the new geodes have their original (unmodified) attributes, so forget
-    // the saved ones and let applyVoidVisibility() capture fresh ones
-    shadow->appliedHidden = false;
-}
-
-void ClipPlugin::syncShadows()
-{
-    // Void and target shadows are deep copies of the whole top-level object,
-    // placed as siblings of that object. The clone carries the top node's local
-    // matrix, so it aligns with the object and follows every transform. When a
-    // (selection/move) helper is inserted or removed, the object's parent
-    // changes; re-parenting the clones under the object's current parent keeps
-    // them on the object. This works for single-geode files as well as for
-    // multi-geode objects (e.g. photogrammetry .osgb with many tile geodes).
-
-    // iterate a copy: removing a void (deleted object) changes m_voidNames
-    std::vector<std::string> voidNames(m_voidNames.begin(), m_voidNames.end());
-    for (const auto &name : voidNames)
-    {
-        Shadow *shadow = shadowFor(name);
-        if (!shadow)
-            continue;
-
-        // the node the clones should mirror (and its geodes): the object
-        // itself or the named sub-node (OBJ material group, VRML tile) it
-        // refers to
-        osg::Node *top = resolveTop(shadow->topNode, name);
-        osg::Node *target = resolveMirrorNode(top, name);
-        std::vector<osg::Geode *> curGeodes;
-        if (target)
-        {
-            GeodeAllVisitor gv(curGeodes);
-            target->accept(gv);
-        }
-
-        if (!top || curGeodes.empty())
-        {
-            // object not in the scene (e.g. mid-replace, or deleted via the
-            // SGBrowser, which does not fire the plugin remove hooks): keep the
-            // last state for a few frames, then clean up
-            if (++m_missingFrames[name] < 30)
-                continue;
-            removeVoid(name);
-            continue;
-        }
-        m_missingFrames.erase(name);
-
-        if (top != shadow->topNode.get() || target != shadow->targetTopNode.get())
-        {
-            // the object's top node was replaced (COVISE object update), or the
-            // named sub-node moved/was replaced: re-clone and re-capture the
-            // original state of the current geodes
-            reattachVoidShadow(name);
-            applyVoidVisibility(name);
-            continue;
-        }
-
-        // the geode set drifted (a paged tile loaded or expired, or a partial
-        // update changed the object's geodes): shadow->geodes may hold
-        // pointers the pager has already freed, so re-clone before anything
-        // touches them
-        bool geodesDrifted = curGeodes.size() != shadow->geodes.size();
-        if (!geodesDrifted)
-            for (osg::Geode *g : curGeodes)
-                if (std::find(shadow->geodes.begin(), shadow->geodes.end(), g) == shadow->geodes.end())
-                {
-                    geodesDrifted = true;
-                    break;
-                }
-        if (geodesDrifted)
-        {
-            reattachVoidShadow(name);
-            applyVoidVisibility(name);
-            continue;
-        }
-
-        if (!shadow->pagedLODSig.empty() && shadow->pagedLODSig != PagedLODTreeSignature(target))
-        {
-            // a paged void object advanced to a new LOD level: the (static)
-            // near/far clones would no longer mirror it, so rebuild them. The
-            // live object is normally hidden while clipped, so a new geode is
-            // hidden in the very frame it is loaded.
-            reattachVoidShadow(name);
-            applyVoidVisibility(name);
-            continue;
-        }
-
-        // the mirror node's parent may have changed (a helper was inserted or
-        // removed, or the object was re-parented) -> move the clones with it
-        osg::Group *parent = target->getNumParents() > 0 ? target->getParent(0)->asGroup() : nullptr;
-        if (parent && parent != shadow->parent.get())
-        {
-            if (shadow->parent.get() && shadow->node.get())
-                shadow->parent->removeChild(shadow->node.get());
-            if (shadow->parent.get() && shadow->nodeFar.get())
-                shadow->parent->removeChild(shadow->nodeFar.get());
-            shadow->parent = parent;
-            if (shadow->node.get())
-                parent->addChild(shadow->node.get());
-            if (shadow->nodeFar.get())
-                parent->addChild(shadow->nodeFar.get());
-        }
-
-        // show the void while it is being edited, hide it otherwise
-        applyVoidVisibility(name);
-    }
-
-    // CLIP_DEBUG: periodic camera-cull-mask vs. shadow-node-mask diagnostic
-    // (the void cull reports are silent when a clone is culled out by its node
-    // mask, so the masks have to be compared explicitly)
-    dbgReportCamera();
-
-    // target: same handling
-    if (m_targetName.empty() || !m_targetTopNode.get())
-        return;
-
-    osg::Node *top = resolveTop(m_targetTopNode, m_targetName);
-    // the target name is either the top-level object's name (whole-object
-    // target) or a named sub-node (a photogrammetry tile, an OBJ material
-    // group); a sub-node that is gone means the target is gone
-    osg::Node *target = resolveMirrorNode(top, m_targetName);
-    std::vector<osg::Geode *> curTargetGeodes;
-    if (target)
-    {
-        GeodeAllVisitor gv(curTargetGeodes);
-        target->accept(gv);
-    }
-    if (!target || curTargetGeodes.empty())
-    {
-        // object not in the scene: keep the last state for a few frames, then
-        // clean up
-        if (++m_targetMissingFrames >= 30)
-        {
-            removeTargetShadow();
-            m_targetName.clear();
-            m_targetTopNode = nullptr;
-            m_targetGeodes.clear();
-            updateMainPass();
-            refreshStatus();
-        }
-        return;
-    }
-    m_targetMissingFrames = 0;
-
-    if (top != m_targetTopNode.get())
-    {
-        // the object was replaced by a COVISE update: the old subtree (and its
-        // geodes) may already be freed, so purge the dead geodes from the
-        // lists FIRST (reconcileTargetGeodes() does not touch the attributes
-        // of geodes that are no longer in the tree), then re-derive the geode
-        // set on the new top node and rebuild the shadow clone
-        m_targetTopNode = top;
-        reconcileTargetGeodes();
-        rebuildTargetShadow();
-        updateMainPass();
-        return;
-    }
-    if (m_targetShadow && m_targetShadow->targetTopNode.get() && m_targetShadow->targetTopNode.get() != target)
-    {
-        // the target is a sub-node (e.g. a photogrammetry tile) and the node
-        // it refers to was replaced (a paged reload of that tile): the old
-        // geodes may already be freed, so reconcile the geode set (purge the
-        // dead, save the new) before rebuilding and touching attributes
-        reconcileTargetGeodes();
-        rebuildTargetShadow();
-        updateMainPass();
-        return;
-    }
-
-    // keep the geode set in sync with the (possibly paged) live object: newly
-    // loaded tiles join the set while still untouched (so their saved state is
-    // the original one), expired tiles are dropped before their (freed) state
-    // is touched again
-    const bool geodesChanged = reconcileTargetGeodes();
-
-    if (m_targetShadow && !m_targetPagedLODSig.empty() && m_targetPagedLODSig != PagedLODTreeSignature(target))
-    {
-        // a paged target advanced to a new LOD level (a tile was loaded or
-        // expired): the (static) depth shadow would no longer mirror the live
-        // target. Rebuild it on the new level (rebuildTargetShadow() deep-copies
-        // the current children and neutralizes their PagedLODs); the geodes'
-        // clip overrides are re-applied by updateMainPass() below, their
-        // original state stays in m_targetSaved.
-        rebuildTargetShadow();
-        updateMainPass();
-        return;
-    }
-
-    if (m_targetShadow && m_targetShadow->node.get())
-    {
-        osg::Group *parent = target->getNumParents() > 0 ? target->getParent(0)->asGroup() : nullptr;
-        if (parent && parent != m_targetShadow->parent.get())
-        {
-            if (m_targetShadow->parent.get())
-                m_targetShadow->parent->removeChild(m_targetShadow->node.get());
-            m_targetShadow->parent = parent;
-            m_targetShadow->parent->addChild(m_targetShadow->node.get());
-        }
-    }
-
-    // a new tile may have loaded at the same LOD level (structure unchanged)
-    // and joined the geode set; apply the main pass to the grown set (cheap
-    // no-op for the geodes that already have the attributes). If nothing
-    // changed, the main pass was already applied on the same set in the
-    // previous frame -- skip the attribute churn
-    if (geodesChanged)
-        updateMainPass();
-
-    // CLIP_DEBUG: periodic state snapshot so a failing session can be
-    // diagnosed from the console alone
-    if (clipDebug())
-    {
-        static int frame = 0;
-        if (++frame % 600 != 0) // every 10 s at 60 fps
-            return;
-        osg::Geode *tg = m_targetGeodes.empty() ? nullptr : m_targetGeodes[0];
-        if (tg)
-        {
-            osg::StateSet *ss = tg->getStateSet();
-            osg::Stencil *st = ss ? (osg::Stencil *)ss->getAttribute(osg::StateAttribute::STENCIL) : nullptr;
-            osg::Depth *dp = ss ? (osg::Depth *)ss->getAttribute(osg::StateAttribute::DEPTH) : nullptr;
-            fprintf(stderr, "CLIP state: targetGeodes=%d geode[0]='%s' mask=0x%x stencil=%s depth=%s\n",
-                    (int)m_targetGeodes.size(), tg->getName().c_str(), tg->getNodeMask(),
-                    st ? (st->getFunction() == osg::Stencil::NOTEQUAL ? "NOTEQUAL" : (st->getFunction() == osg::Stencil::ALWAYS ? "ALWAYS" : "OTHER")) : "none",
-                    dp ? "set" : "none");
-        }
-        if (m_targetShadow && m_targetShadow->node.get())
-        {
-            osg::Node *n = m_targetShadow->node.get();
-            int parents = n->getNumParents();
-            osg::Node *top = m_targetShadow->targetTopNode.get();
-            fprintf(stderr, "CLIP state: targetShadow '%s' parents=%d sameParent=%d topParents=%d\n",
-                    n->getName().c_str(), parents,
-                    (parents && top && top->getNumParents() && top->getParent(0) == n->getParent(0)) ? 1 : 0,
-                    top ? top->getNumParents() : -1);
-        }
-        for (const auto &kv : m_voidShadows)
-            if (kv.second && kv.second->node.get())
-                fprintf(stderr, "CLIP state: void '%s' near=%p far=%p geodes=%d shadow='%s'\n", kv.first.c_str(), kv.second->node.get(), kv.second->nodeFar.get(), (int)kv.second->geodes.size(),
-                        kv.second->targetTopNode.get() ? kv.second->targetTopNode->getName().c_str() : "(null)");
-    }
-}
-
-void ClipPlugin::preFrame()
-{
-    if (clipDebug())
-        clipFrameCounter()++;
-    syncSetup();
-    syncShadows();
-}
-
-void ClipPlugin::dbgReportCamera()
-{
-    if (!clipDebug())
-        return;
-    int frame = clipFrameCounter();
-    if (frame - m_dbgLastDiagFrame < 300)
-        return; // every ~5 s at 60 fps
-    m_dbgLastDiagFrame = frame;
-
-    osg::Camera *cam = coVRConfig::instance()->channels.empty() ? nullptr : coVRConfig::instance()->channels[0].camera.get();
-    if (!cam)
-        return;
-    const unsigned int camMask = cam->getCullMask();
-    fprintf(stderr, "CLIP diag frame %d: cam='%s' cullMask=0x%x hideVoids=%d voidNames=%zu\n",
-            frame, cam->getName().c_str(), camMask, (int)m_hideVoids, m_voidNames.size());
-    for (const std::string &n : m_voidNames)
-        fprintf(stderr, "  voidName='%s'\n", n.c_str());
-
-    auto reportClone = [&](const char *what, osg::Node *node, osg::Node *topNode)
-    {
-        if (!node)
-        {
-            fprintf(stderr, "  %s: node=NULL (shadow not built!) topNode=%p\n", what, (void *)topNode);
-            return;
-        }
-        const unsigned int nm = node->getNodeMask();
-        const unsigned int topNm = topNode ? topNode->getNodeMask() : 0;
-        const int parents = node->getNumParents();
-        osg::Node *par = parents ? node->getParent(0) : nullptr;
-        fprintf(stderr, "  %s: node=%p mask=0x%x topMask=0x%x parents=%d parent='%s' intersectsCamMask=%d\n",
-                what, (void *)node, nm, topNm, parents,
-                par ? par->getName().c_str() : "?",
-                (nm & camMask) ? 1 : 0);
-    };
-
-    if (m_targetShadow)
-    {
-        reportClone("targetShadow", m_targetShadow->node.get(), m_targetShadow->topNode.get());
-    }
-    for (const auto &kv : m_voidShadows)
-    {
-        const Shadow *s = kv.second;
-        if (!s)
-            continue;
-        reportClone(("voidNear[" + kv.first + "]").c_str(), s->node.get(), s->topNode.get());
-        reportClone(("voidFar[" + kv.first + "]").c_str(), s->nodeFar.get(), s->topNode.get());
-    }
-    if (m_voidShadows.empty())
-        fprintf(stderr, "  (NO void shadows in m_voidShadows -> createVoidShadow never succeeded)\n");
-
-    // also dump the scene structure: every direct child of ObjectsRoot with its
-    // node mask -- shows whether the clones exist as siblings at all
-    osg::Group *root = cover->getObjectsRoot();
-    if (root)
-    {
-        fprintf(stderr, "  ObjectsRoot children=%u:\n", root->getNumChildren());
-        for (unsigned int i = 0; i < root->getNumChildren(); ++i)
-        {
-            osg::Node *c = root->getChild(i);
-            if (!c)
-                continue;
-            fprintf(stderr, "    child[%u]='%s' mask=0x%x\n", i, c->getName().c_str(), c->getNodeMask());
-        }
-    }
-}
-
-void ClipPlugin::postFrame()
-{
-    if (!clipDebug() || m_dbgPosted)
-        return;
-    if (m_targetName.empty() || m_voidNames.empty() || !m_targetShadow || !m_targetShadow->node.get())
-        return;
-    m_dbgPosted = true;
-
-    osg::Camera *cam = coVRConfig::instance()->channels.empty() ? nullptr : coVRConfig::instance()->channels[0].camera.get();
-    if (!cam)
-    {
-        dbg("CLIP postFrame: no main camera\n");
-        return;
-    }
-    dbg("CLIP postFrame: main cam '%s' renderOrder=%s clearMask=0x%x\n",
-        cam->getName().c_str(),
-        cam->getRenderOrder() == osg::Camera::PRE_RENDER ? "PRE" : (cam->getRenderOrder() == osg::Camera::POST_RENDER ? "POST" : "DEFAULT"),
-        cam->getClearMask());
-}
-
-void ClipPlugin::applyMainPass(osg::StateSet *ss, bool on)
-{
-    if (!ss)
-        return;
-
-    // the target shadow writes the target's own depth in an early bin, so the
-    // real target must use LEQUAL (not the default LESS) or it would fail its
-    // own depth and disappear (black)
-    ss->setAttributeAndModes(new osg::Depth(osg::Depth::LEQUAL, 0.0, 1.0, true), osg::StateAttribute::ON);
-
-    if (on)
-    {
-        // cut only where bit 0 is set and bit 1 is clear (value 1): the target
-        // lies between the void's near and far surface, i.e. inside the void.
-        // Where the void only occludes the target (value 3) or nothing writes
-        // (value 0) the target is kept.
-        osg::Stencil *stencil = new osg::Stencil();
-        stencil->setFunction(osg::Stencil::NOTEQUAL, 1, 3); // both bits: cut where value==1
-        stencil->setOperation(osg::Stencil::KEEP, osg::Stencil::KEEP, osg::Stencil::KEEP);
-        stencil->setWriteMask(0);
-        ss->setAttributeAndModes(stencil, osg::StateAttribute::ON);
-    }
-    else
-    {
-        ss->removeAttribute(osg::StateAttribute::STENCIL);
-    }
-}
-
-void ClipPlugin::updateMainPass()
-{
-    bool cut = !m_targetName.empty() && !m_voidNames.empty();
-    // every target geode carries the LEQUAL depth and (while a void is active)
-    // the stencil cut. This is called both on selection changes and per frame
-    // for newly loaded (paged) tiles, so it applies the attributes on the
-    // whole current set -- a cheap no-op for the geodes that already have them
-    for (osg::Geode *geode : m_targetGeodes)
-        if (geode)
-            applyMainPass(geode->getOrCreateStateSet(), cut);
-}
-
-bool ClipPlugin::reconcileTargetGeodes()
-{
-    // keep m_targetGeodes / m_targetSaved in sync with the target's live
-    // geodes. A paged target (photogrammetry terrain) loads new tiles while
-    // the plugin is active and the pager can also EXPIRE tiles; the pager's
-    // Group::removeChildren() frees an expired subtree immediately and the
-    // plugin hooks are not involved. A raw geode pointer is only valid while
-    // the geode is still in the live object's tree, so a geode that vanished
-    // from it must be dropped from the lists BEFORE any of its attributes are
-    // touched again.
-    if (m_targetName.empty())
-        return false;
-
-    std::vector<osg::Geode *> currentGeodes;
-    {
-        osg::Node *top = resolveTop(m_targetTopNode, m_targetName);
-        osg::Node *target = resolveMirrorNode(top, m_targetName);
-        if (target)
-        {
-            GeodeAllVisitor gv(currentGeodes);
-            target->accept(gv);
-        }
-    }
-    std::set<osg::Geode *> alive(currentGeodes.begin(), currentGeodes.end());
-
-    // purge geodes that are gone from the scene (expired tiles); their saved
-    // entries are dropped as well so restoreTarget() never touches freed
-    // memory. A purged geode is NOT restored first: the pager freed it
-    // (Group::removeChildren dropped the last ref), so it must not be
-    // touched at all -- its clip attributes die with it, which is fine, the
-    // geometry is gone
-    const size_t savedCount = m_targetSaved.size();
-    bool changed = false;
-    for (size_t i = 0; i < m_targetGeodes.size(); ++i)
-    {
-        osg::Geode *g = m_targetGeodes[i];
-        if (g && alive.count(g))
-            continue;
-        if (!g)
-            continue; // already dropped
-        m_targetGeodes[i] = nullptr;
-        if (i < savedCount)
-            m_targetSaved[i].geode = nullptr;
-        changed = true;
-    }
-
-    // append geodes that appeared since the last call (newly loaded tiles).
-    // They are not in the saved list yet, and no clip override is applied to
-    // them -- their current state IS the original state, so it can be saved.
-    for (osg::Geode *g : currentGeodes)
-    {
-        if (std::find(m_targetGeodes.begin(), m_targetGeodes.end(), g) != m_targetGeodes.end())
-            continue;
-        m_targetGeodes.push_back(g);
-        GeodeSavedState st;
-        st.geode = g;
-        osg::StateSet *ss = g->getOrCreateStateSet();
-        st.depth = ss->getAttribute(osg::StateAttribute::DEPTH);
-        st.stencil = ss->getAttribute(osg::StateAttribute::STENCIL);
-        m_targetSaved.push_back(st);
-        changed = true;
-    }
-
-    // belt & braces: all scene-graph mutations of the pager (attaching loaded
-    // tiles, expiring old ones) happen in DatabasePager::updateTraverse, i.e.
-    // on the main thread AFTER our preFrame() -- so nothing can be freed or
-    // added while we run. The check only guards against a geode that died in
-    // the same frame between the traversal and here; if that ever happens the
-    // list is dropped and rebuilt from scratch next frame
-    for (osg::Geode *g : m_targetGeodes)
-        if (g && !alive.count(g))
-        {
-            m_targetGeodes.clear();
-            m_targetSaved.clear();
-            m_targetSavedState = false;
-            return true;
-        }
-
-    if (std::none_of(m_targetGeodes.begin(), m_targetGeodes.end(), [](osg::Geode *g) { return g; }))
-        m_targetSavedState = false;
-    else
-        m_targetSavedState = true;
-
-    return changed;
-}
+// ---------------------------------------------------------------------------
+// coSelectionListener + scene change hooks
+// ---------------------------------------------------------------------------
 
 bool ClipPlugin::selectionChanged()
 {
     // only act while a Clip pick mode is active; otherwise leave the
-    // Selection/Move plugins' selection untouched (the persistent selection
-    // highlight doubles as a marker for the hidden void objects)
+    // Selection/Move plugins' selection untouched (boxes are ordinary
+    // selectable objects, so the user can also pick them with the Selection
+    // plugin and move them with the Move plugin)
     if (m_mode == Mode::None)
+    {
+        // highlight the selected box(es), if any
+        auto selection = coVRSelectionManager::instance()->getSelectionList();
+        for (const auto &box : m_boxes)
+        {
+            bool sel = false;
+            for (const auto &s : selection)
+                if (s == box.get())
+                    sel = true;
+            box->setSelected(sel);
+        }
         return true;
+    }
 
     auto selection = coVRSelectionManager::instance()->getSelectionList();
     if (selection.empty())
     {
-        // deselected while a pick mode was active: keep the mode, wait for the
-        // next selection
+        // deselected while a pick mode was active: keep the mode, wait for
+        // the next selection
         return true;
     }
 
@@ -1918,34 +1374,31 @@ bool ClipPlugin::selectionChanged()
         if (!found.empty())
             geode = found[0];
     }
-    if (geode)
+    if (!geode)
+        return true;
+
+    // ignore our own box nodes as pick targets
+    if (dynamic_cast<ClipBoxNode *>(topObjectOf(geode)))
+        return true;
+
+    std::string name = displayNameOf(geode);
+    if (name.empty())
+        return true;
+
+    switch (m_mode)
     {
-        // the name the user should see (and that the plugin resolves again):
-        // the name of the picked node itself for named sub-nodes (a
-        // photogrammetry tile, an OBJ material group), else the top-level
-        // object name
-        std::string name = displayNameOf(geode);
-        switch (m_mode)
-        {
-        case Mode::PickTarget:
-            pickTarget(geode, name);
-            break;
-        case Mode::AddVoid:
-            pickVoid(geode, name);
-            break;
-        case Mode::RemoveVoid:
-            if (!name.empty())
-                removeVoid(name);
-            break;
-        default:
-            break;
-        }
+    case Mode::PickTarget:
+        addTarget(name);
+        break;
+    case Mode::BoxFromObject:
+        boxFromObject(geode, name);
+        break;
+    default:
+        break;
     }
 
-    // a manual pick takes over from the config setup; the pick mode stays
-    // active until the button is pressed again
     m_manual = true;
-    refreshStatus();
+    updateUi();
     return true;
 }
 
@@ -1959,9 +1412,8 @@ void ClipPlugin::addNodeFromPlugin(osg::Node *node, const RenderObject *ro, coVR
     (void)node;
     (void)ro;
     (void)addingPlugin;
-    // a new COVISE object may match the configured setup, or be the replacement
-    // of a replaced target/void; syncShadows() re-resolves the objects by name
-    // every frame, so only trigger a (re-)application of the config setup here
+    // a new COVISE object may match the configured setup; syncSetup()
+    // re-resolves the objects by name
     syncSetup();
 }
 
@@ -1969,30 +1421,9 @@ void ClipPlugin::removeNode(osg::Node *node, bool isGroup, osg::Node *realNode)
 {
     (void)isGroup;
     (void)realNode;
-    if (!node)
-        return;
-
-    // a replaced or deleted object removes its geodes from the scene; the
-    // stale geode pointers are dropped now (removeObject() may have already
-    // cleaned up). syncShadows() re-resolves by name and re-attaches once a
-    // replacement appears again.
-    if (auto *geode = dynamic_cast<osg::Geode *>(realNode))
-    {
-        for (size_t i = 0; i < m_targetGeodes.size(); ++i)
-        {
-            if (m_targetGeodes[i] == geode)
-            {
-                m_targetGeodes[i] = nullptr;
-                if (i < m_targetSaved.size())
-                    m_targetSaved[i].geode = nullptr; // restoreTarget() must not touch it
-            }
-        }
-        for (auto &kv : m_voidShadows)
-            if (kv.second)
-                for (size_t i = 0; i < kv.second->geodes.size(); ++i)
-                    if (kv.second->geodes[i] == geode)
-                        kv.second->geodes[i] = nullptr; // force re-attach on the next frame
-    }
+    (void)node;
+    // a removed geode is dropped by reconcileTargets() on the next frame
+    // (it restores the clip shader state of expired pages)
 }
 
 void ClipPlugin::removeObject(const char *objName, bool replaceFlag)
@@ -2004,78 +1435,15 @@ void ClipPlugin::removeObject(const char *objName, bool replaceFlag)
     // the config names the object, but the scene top-level node may be named
     // differently (file objects carry their path); resolve before comparing
     const std::string name = objName;
-
-    auto vit = std::find(m_voidNames.begin(), m_voidNames.end(), name);
-    if (vit == m_voidNames.end())
-        for (auto it = m_voidNames.begin(); it != m_voidNames.end(); ++it)
-            if (matchName(*it, name) || matchName(name, *it))
-            {
-                vit = it;
-                break;
-            }
-    if (vit == m_voidNames.end())
+    for (const auto &t : m_targets)
     {
-        // the removed node may be the top-level object while the stored void
-        // name is one of its sub-nodes (e.g. an OBJ material group)
         osg::Node *obj = topNodeOf(name);
-        if (obj)
-            for (auto it = m_voidNames.begin(); it != m_voidNames.end(); ++it)
-            {
-                osg::Node *vn = findNamedNode(*it);
-                if (vn && topObjectOf(vn) == obj)
-                {
-                    vit = it;
-                    break;
-                }
-            }
-    }
-    if (vit != m_voidNames.end())
-    {
-        const std::string voidName = *vit;
-        m_voidNames.erase(vit);
-        removeVoidShadow(voidName);
-        updateVoidsUi();
-        updateMainPass();
-    }
-
-    bool targetGone = (m_targetName == name);
-    if (!targetGone && m_targetTopNode.get() && m_targetTopNode.get() == topNodeOf(name))
-        targetGone = true;
-    if (targetGone)
-    {
-        removeTargetShadow();
-        restoreTarget();
-        m_targetName.clear();
-        m_targetTopNode = nullptr;
-        m_targetGeodes.clear();
-        updateMainPass();
-        refreshStatus();
-    }
-}
-
-void ClipPlugin::updateVoidsUi()
-{
-    std::vector<std::string> names(m_voidNames);
-    if (m_voidsList)
-        m_voidsList->setList(names);
-    refreshStatus();
-}
-
-void ClipPlugin::refreshStatus()
-{
-    if (m_targetLabel)
-        m_targetLabel->setText("Target: " + (m_targetName.empty() ? std::string("(none)") : m_targetName));
-    if (m_voidsLabel)
-    {
-        std::string text = "Voids: ";
-        if (m_voidNames.empty())
-            text += "(none)";
-        else
-        {
-            for (size_t i = 0; i < m_voidNames.size(); ++i)
-                text += (i ? ", " : "") + m_voidNames[i];
-        }
-        m_voidsLabel->setText(text);
+        if (!obj)
+            continue;
+        if (t.topNode.get() == obj || t.name == name ||
+            (obj->getName() == t.name) ||
+            matchName(t.name, name) || matchName(name, t.name))
+            removeTarget(t.name);
     }
 }
 

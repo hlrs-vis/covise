@@ -1,0 +1,7 @@
+# Pre-applied Clip setup for the test scene (v2). terrain = clip target.
+# v2 has no "voids" in the config: boxes are created in the scene with the
+# Clip menu ("Box from picked object" on building1/building2, or "Add box at
+# hit point").
+[Setup]
+targets = ["terrain.obj"]
+showBoxes = true
