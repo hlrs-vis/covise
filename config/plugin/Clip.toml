@@ -1,3 +1,17 @@
+# Clip plugin setup (per model).
+#
+#   targets   - object names to cut holes into (a hole is made where a
+#               clip box overlaps the object)
+#   boxes     - clip boxes, defined WITHOUT any source object:
+#               one "minX,minY,minZ,maxX,maxY,maxZ" string per box, in
+#               world (scene) coordinates
+#   showBoxes - show the translucent ghost cubes of the clip boxes
+#
+# Boxes can also be created in the scene with the Clip menu and resized
+# there (select a box, then edit the Box size X/Y/Z fields); boxes created
+# in the scene are kept when the config is re-applied.
+
 [Setup]
-targets = ["terrain.obj"]
-showBoxes = false
+targets = []
+# boxes = ["-5,-5,0,5,5,8"]
+showBoxes = true

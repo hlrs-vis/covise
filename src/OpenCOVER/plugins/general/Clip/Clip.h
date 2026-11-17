@@ -70,6 +70,7 @@ namespace opencover
 namespace ui
 {
 class Button;
+class EditField;
 class Group;
 class Label;
 class Menu;
@@ -165,9 +166,21 @@ private:
     void boxFromObject(osg::Geode *geode, const std::string &name);
     // create a default box with its bottom corner at the given point
     void addBoxAt(const osg::Vec3 &point);
+    // create a box with an explicit world AABB (root space)
+    void addBoxAABB(const osg::Vec3 &min, const osg::Vec3 &max);
     void removeLastBox();
     void setBoxesVisible(bool visible);
     void clearAll();
+    // the currently selected box (first box in the Selection plugin's
+    // selection); nullptr if none is selected
+    ClipBoxNode *selectedBox() const;
+    // show the `Resize box` fields for `box` (or hide them when null) and
+    // sync the X/Y/Z size values with the box's current world extent
+    void updateBoxSizeUi(ClipBoxNode *box = nullptr);
+    // set the box's world extent to the given size, keeping its center fixed
+    // (called from the resize X/Y/Z fields)
+    void setBoxSize(ClipBoxNode *box, const osg::Vec3 &size);
+    static bool parseBoxString(const std::string &s, osg::Vec3 &lo, osg::Vec3 &hi);
 
     // ---- clip shader injection ----
     // attach the shared clip program + uniforms (and restore later) to one
@@ -186,6 +199,11 @@ private:
     // ---- setup (config) ----
     void loadSetup();
     void syncSetup();
+    // keep the configured `boxes` in sync with the scene: configured boxes
+    // are created, moved/resized in place (matched by center proximity), and
+    // boxes that used to be configured but no longer are removed. Boxes the
+    // user created manually are kept (they are not part of the config).
+    void syncBoxes();
 
     void updateUi();
 
@@ -243,8 +261,29 @@ private:
     ui::Button *m_showBoxesBtn = nullptr;
     ui::Label *m_statusLabel = nullptr;
 
+    // resize box: numeric world size (X/Y/Z) of the currently selected box.
+    // The fields track the box selected with the Selection plugin; editing
+    // them resizes that box (center kept fixed).
+    ui::Label *m_boxSizeLabel = nullptr;
+    ui::EditField *m_boxSizeX = nullptr;
+    ui::EditField *m_boxSizeY = nullptr;
+    ui::EditField *m_boxSizeZ = nullptr;
+    // the box the fields currently describe + a re-entrancy guard so
+    // refreshing the fields does not re-trigger their own callbacks
+    ClipBoxNode *m_boxSizeUiBox = nullptr;
+    bool m_boxSizeUpdating = false;
+    // last world AABB pushed into the fields: while the tracked box does not
+    // move (e.g. while the user is typing), the fields are not overwritten
+    osg::Vec3 m_boxSizeUiLo{0, 0, 0}, m_boxSizeUiHi{0, 0, 0};
+    bool m_boxSizeUiHasAABB = false;
+
     std::unique_ptr<ConfigStringArray> m_cfgTargets;
+    std::unique_ptr<ConfigStringArray> m_cfgBoxes;
     std::unique_ptr<ConfigBool> m_cfgShowBoxes;
+    // names of the boxes that were (re)created/updated from the config; only
+    // those are removed when they disappear from the config (boxes the user
+    // created manually are kept)
+    std::set<std::string> m_cfgBoxApplied;
 };
 
 #endif

@@ -37,11 +37,23 @@ and the cut stays in place, in world space.
 
 * **auto**: pick an object → a box matching its world AABB is created,
 * **manual**: a default 10 × 2 × 10 box is created with its bottom corner
-  at the current intersection hit point.
+  at the current intersection hit point,
+* **config**: `boxes = ["minX,minY,minZ,maxX,maxY,maxZ", ...]` in the
+  plugin's `[Setup]` config defines boxes directly — no object in the scene
+  is needed (see below).
 
 The box AABB is computed from the box's world transform every frame, so
 boxes placed at an angle (by moving them) still cut as the *axis-aligned
 bounding box* of their current extent.
+
+### Resizing a box
+
+Select a box with the Selection plugin (it highlights red; the ghosts stay
+pickable even when hidden). The **Box size** fields in the menu then show
+the box's current world extent (X, Y, Z). Type a new value into a field and
+press Enter — the box is resized around its center and the cut follows on
+the next frame. The fields update live while the box (or the target) is
+being moved.
 
 ## UI (menu: "Clip objects" → "Cut holes with boxes")
 
@@ -51,6 +63,7 @@ bounding box* of their current extent.
 | **Box from picked object** (toggle) | enter/leave box-from-object mode: select an object to create a clip box matching its world AABB. |
 | **Add box at hit point** | momentary: creates a default 10 × 2 × 10 box at the current intersection hit point (bottom-anchored). The interactor must be on a surface. |
 | **Remove last box** | removes the most recently created box. |
+| **Box size X / Y / Z** | the world extent of the currently *selected* box; edit + Enter resizes that box around its center (see "Resizing a box"). |
 | **Show box ghosts** (toggle) | show/hide the translucent ghost cubes (configurable, persists per model). |
 | **Clear** | removes all boxes and all targets (restoring their original rendering). |
 | **Apply setup from config** | re-apply the targets listed in the plugin config. |
@@ -65,8 +78,21 @@ Per-model (`[Setup]` in the model's `*.toml`):
 ```toml
 [Setup]
 targets = ["terrain"]        # top-level object or sub-node names to clip
+boxes = ["-5,-5,0,5,5,8"]    # clip boxes: "minX,minY,minZ,maxX,maxY,maxZ" (world coords)
 showBoxes = true             # ghost cubes visible
 ```
+
+* **`boxes`** defines the clip boxes **independently of any object in the
+  scene** — pure min/max corners in world (ObjectsRoot) space. Each entry is
+  one box: a **quoted** string `"minX,minY,minZ,maxX,maxY,maxZ"`. The max
+  corner may also be given before the min corner; the plugin sorts it.
+  This is the way to place a void where there is no object to model it
+  with (e.g. a rectangular foundation pit in the terrain).
+* When the config is (re)applied, configured boxes are created, moved or
+  resized to match (matched against existing boxes by center proximity, so
+  an edited box keeps its identity), and boxes that no longer appear in the
+  config are removed. Boxes you created **manually** in the scene are kept
+  — only boxes the config previously knew about are removed.
 
 Targets are stored by **name**. File-loaded objects are named by their
 URL, so the config name is matched by exact name, basename, or prefix

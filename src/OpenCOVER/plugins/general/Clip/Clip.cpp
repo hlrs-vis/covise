@@ -6,6 +6,7 @@
 #include <cover/coVRIntersectionInteractorManager.h>
 #include <cover/coVRIntersectionInteractor.h>
 #include <cover/ui/Button.h>
+#include <cover/ui/EditField.h>
 #include <cover/ui/Group.h>
 #include <cover/ui/Label.h>
 #include <cover/ui/Menu.h>
@@ -28,6 +29,9 @@
 #include <algorithm>
 #include <cfloat>
 #include <cstdio>
+#include <cstdlib>
+#include <map>
+#include <sstream>
 
 using namespace opencover;
 
@@ -169,6 +173,14 @@ public:
     {
         m_size = size;
         rebuildMatrix();
+    }
+
+    // set the box's extent in its parent space with an explicit min/max
+    // (center-preserving when the box already has a size)
+    void setAABB(const osg::Vec3 &min, const osg::Vec3 &max)
+    {
+        m_size = max - min;
+        setMatrix(osg::Matrix::scale(m_size) * osg::Matrix::translate((min + max) * 0.5f));
     }
 
     const osg::Vec3 &size() const { return m_size; }
@@ -471,6 +483,44 @@ bool ClipPlugin::init()
         clearAll();
     });
 
+    // resize box: the fields track the clip box currently selected with the
+    // Selection plugin (the ghosts are pickable even when hidden). Select a
+    // box, type a new extent and press Enter - the box is resized around its
+    // center and the cut follows on the next frame.
+    m_boxSizeLabel = new ui::Label(m_group, "BoxSizeLabel");
+    m_boxSizeLabel->setText("Box size (select a box)  X  Y  Z");
+    auto makeSizeField = [this](const char *name, int axis) {
+        auto *f = new ui::EditField(m_group, name);
+        f->setValue("-");
+        f->setCallback([this, axis](const std::string &text) {
+            if (m_boxSizeUpdating || !m_boxSizeUiBox)
+                return;
+            char *end = nullptr;
+            const double v = std::strtod(text.c_str(), &end);
+            if (!end || *end != '\0' || v <= 0.0 || v > 1e9)
+                return; // ignore partial/invalid input; fields refresh on the next change
+            osg::Vec3 s(m_boxSizeX->number(), m_boxSizeY->number(), m_boxSizeZ->number());
+            switch (axis)
+            {
+            case 0:
+                s.x() = static_cast<float>(v);
+                break;
+            case 1:
+                s.y() = static_cast<float>(v);
+                break;
+            default:
+                s.z() = static_cast<float>(v);
+                break;
+            }
+            setBoxSize(m_boxSizeUiBox, s);
+            m_manual = true;
+        });
+        return f;
+    };
+    m_boxSizeX = makeSizeField("BoxSizeX", 0);
+    m_boxSizeY = makeSizeField("BoxSizeY", 1);
+    m_boxSizeZ = makeSizeField("BoxSizeZ", 2);
+
     m_statusLabel = new ui::Label(m_group, "Status");
     m_statusLabel->setText("Targets: (none) | Boxes: 0");
 
@@ -482,6 +532,12 @@ bool ClipPlugin::init()
 
     m_cfgTargets = configStringArray("Setup", "targets", {}, config::Flag::PerModel);
     m_cfgTargets->setUpdater([this]() {
+        loadSetup();
+    });
+    // boxes are defined as "minX,minY,minZ,maxX,maxY,maxZ" strings; they need
+    // no source object in the scene
+    m_cfgBoxes = configStringArray("Setup", "boxes", {}, config::Flag::PerModel);
+    m_cfgBoxes->setUpdater([this]() {
         loadSetup();
     });
     m_cfgShowBoxes = configBool("Setup", "showBoxes", true, config::Flag::PerModel);
@@ -1058,51 +1114,44 @@ void ClipPlugin::reconcileTargets()
 
 void ClipPlugin::boxFromObject(osg::Geode *geode, const std::string &name)
 {
-    (void)name;
     if (!geode)
-        return;
-
-    osg::Group *root = cover->getObjectsRoot();
-    if (!root)
         return;
 
     osg::Vec3 min, max;
     geodeWorldAABB(geode, min, max);
-
-    // the box sits in the same space as the objects: create it at the objects
-    // root with a transform that maps the unit cube onto the picked AABB
-    auto box = new ClipBoxNode(nextBoxName());
-    osg::Matrix m = osg::Matrix::scale((max - min)) * osg::Matrix::translate((min + max) / 2.0f);
-    box->setMatrix(m);
-    box->setSize(max - min);
-    root->addChild(box);
-
-    m_boxes.push_back(box);
-    m_manual = true;
-    updateUi();
+    addBoxAABB(min, max);
     if (cover->debugLevel(3))
         std::fprintf(stderr, "CLIP: box from object %s: min=(%g,%g,%g) max=(%g,%g,%g)\n", name.c_str(), min.x(), min.y(), min.z(), max.x(), max.y(), max.z());
 }
 
-void ClipPlugin::addBoxAt(const osg::Vec3 &point)
+void ClipPlugin::addBoxAABB(const osg::Vec3 &min, const osg::Vec3 &max)
 {
     osg::Group *root = cover->getObjectsRoot();
     if (!root)
         return;
+    // guard against degenerate / inverted boxes
+    osg::Vec3 lo(std::min(min.x(), max.x()), std::min(min.y(), max.y()), std::min(min.z(), max.z()));
+    osg::Vec3 hi(std::max(min.x(), max.x()), std::max(min.y(), max.y()), std::max(min.z(), max.z()));
+    if ((hi - lo).length2() <= 0.0f)
+        return;
 
     auto box = new ClipBoxNode(nextBoxName());
-    osg::Vec3 size(CLIP_DEFAULT_SIZE[0], CLIP_DEFAULT_SIZE[1], CLIP_DEFAULT_SIZE[2]);
-    // bottom-anchored: the point is the box's lower corner
-    osg::Matrix m = osg::Matrix::scale(size) * osg::Matrix::translate(osg::Vec3(point.x() + size.x() * 0.5f, point.y() + size.y() * 0.5f, point.z() + size.z() * 0.5f));
-    box->setMatrix(m);
-    box->setSize(size);
+    box->setAABB(lo, hi);
     root->addChild(box);
 
     m_boxes.push_back(box);
     m_manual = true;
     updateUi();
+    updateBoxSizeUi();
     if (cover->debugLevel(3))
-        std::fprintf(stderr, "CLIP: box at (%g,%g,%g) (default size (%g,%g,%g))\n", point.x(), point.y(), point.z(), size.x(), size.y(), size.z());
+        std::fprintf(stderr, "CLIP: box %s: min=(%g,%g,%g) max=(%g,%g,%g)\n", box->getName().c_str(), lo.x(), lo.y(), lo.z(), hi.x(), hi.y(), hi.z());
+}
+
+void ClipPlugin::addBoxAt(const osg::Vec3 &point)
+{
+    const osg::Vec3 size(CLIP_DEFAULT_SIZE[0], CLIP_DEFAULT_SIZE[1], CLIP_DEFAULT_SIZE[2]);
+    // bottom-anchored: the point is the box's lower corner
+    addBoxAABB(point, point + size);
 }
 
 void ClipPlugin::removeLastBox()
@@ -1115,7 +1164,208 @@ void ClipPlugin::removeLastBox()
     m_boxes.pop_back();
     m_manual = true;
     updateUi();
+    updateBoxSizeUi();
 }
+
+ClipBoxNode *ClipPlugin::selectedBox() const
+{
+    auto selection = coVRSelectionManager::instance()->getSelectionList();
+    for (auto it = selection.rbegin(); it != selection.rend(); ++it)
+    {
+        osg::Node *node = *it;
+        if (!node)
+            continue;
+        if (auto *b = dynamic_cast<ClipBoxNode *>(node))
+            return b;
+        if (auto *b = dynamic_cast<ClipBoxNode *>(topObjectOf(node)))
+            return b;
+    }
+    return nullptr;
+}
+
+void ClipPlugin::setBoxSize(ClipBoxNode *box, const osg::Vec3 &size)
+{
+    if (!box)
+        return;
+    osg::Group *root = cover->getObjectsRoot();
+    osg::Vec3 lo, hi, c;
+    if (root)
+    {
+        box->worldAABB(root, lo, hi);
+        c = (lo + hi) * 0.5f;
+    }
+    else
+    {
+        osg::Matrix m = box->getMatrix();
+        c = osg::Vec3(m(3, 0), m(3, 1), m(3, 2));
+    }
+    const osg::Vec3 s(std::max(size.x(), 1e-3f), std::max(size.y(), 1e-3f), std::max(size.z(), 1e-3f));
+    box->setAABB(c - s * 0.5f, c + s * 0.5f);
+    updateBoxSizeUi(box);
+}
+
+void ClipPlugin::updateBoxSizeUi(ClipBoxNode *box)
+{
+    // a null argument means "track whatever is currently selected"
+    if (!box)
+        box = selectedBox();
+    if (box != m_boxSizeUiBox)
+    {
+        // the tracked box changed: refresh the fields unconditionally
+        m_boxSizeUiBox = box;
+        m_boxSizeUiHasAABB = false;
+    }
+    if (!m_boxSizeX || !box)
+    {
+        if (m_boxSizeX && !box && !m_boxSizeUpdating)
+        {
+            m_boxSizeUpdating = true;
+            m_boxSizeX->setValue("-");
+            m_boxSizeY->setValue("-");
+            m_boxSizeZ->setValue("-");
+            m_boxSizeUpdating = false;
+        }
+        m_boxSizeUiHasAABB = false;
+        return;
+    }
+    osg::Group *root = cover->getObjectsRoot();
+    if (!root)
+        return;
+    // the extent of the box in world space (root space); that is what the
+    // cut actually is, so the numbers stay correct while the box (or the
+    // target) is being moved. While the box does not move, the fields are
+    // left alone so the user can type a new value.
+    osg::Vec3 lo, hi;
+    box->worldAABB(root, lo, hi);
+    if (m_boxSizeUiHasAABB && (lo - m_boxSizeUiLo).length2() < 1e-10f && (hi - m_boxSizeUiHi).length2() < 1e-10f)
+        return;
+    m_boxSizeUiLo = lo;
+    m_boxSizeUiHi = hi;
+    m_boxSizeUiHasAABB = true;
+    m_boxSizeUpdating = true;
+    auto fmt = [](const double v) {
+        std::ostringstream o;
+        o.precision(6);
+        o << v;
+        return o.str();
+    };
+    const osg::Vec3 s = hi - lo;
+    m_boxSizeX->setValue(fmt(s.x()));
+    m_boxSizeY->setValue(fmt(s.y()));
+    m_boxSizeZ->setValue(fmt(s.z()));
+    m_boxSizeUpdating = false;
+}
+
+bool ClipPlugin::parseBoxString(const std::string &s, osg::Vec3 &lo, osg::Vec3 &hi)
+{
+    std::vector<double> v;
+    v.reserve(6);
+    char *end = nullptr;
+    const char *p = s.c_str();
+    while (*p)
+    {
+        while (*p == ',' || *p == ' ' || *p == '\t')
+            ++p;
+        if (!*p)
+            break;
+        const double d = std::strtod(p, &end);
+        if (end == p)
+            return false;
+        v.push_back(d);
+        p = end;
+    }
+    if (v.size() != 6)
+        return false;
+    lo = osg::Vec3(std::min(v[0], v[3]), std::min(v[1], v[4]), std::min(v[2], v[5]));
+    hi = osg::Vec3(std::max(v[0], v[3]), std::max(v[1], v[4]), std::max(v[2], v[5]));
+    return (hi - lo).length2() > 0.0;
+}
+
+void ClipPlugin::syncBoxes()
+{
+    if (!m_cfgBoxes)
+        return;
+
+    osg::Group *root = cover->getObjectsRoot();
+    if (!root)
+        return;
+
+    // live box AABBs (root space), indexed by box pointer
+    std::map<const ClipBoxNode *, std::pair<osg::Vec3, osg::Vec3> > live;
+    for (const auto &b : m_boxes)
+    {
+        if (!b || b->getNumParents() == 0)
+            continue;
+        osg::Vec3 lo, hi;
+        b->worldAABB(root, lo, hi);
+        live[b.get()] = std::make_pair(lo, hi);
+    }
+
+    // 1) apply the configured boxes to the scene
+    std::vector<ClipBoxNode *> applied;
+    applied.reserve(live.size());
+    std::set<std::string> appliedNames;
+    for (const std::string &s : m_cfgBoxes->value())
+    {
+        osg::Vec3 lo, hi;
+        if (!parseBoxString(s, lo, hi))
+            continue;
+        // reuse a live box if one is close enough to be the same box
+        ClipBoxNode *best = nullptr;
+        float bestD = 0.25f; // ~0.5 world units per corner
+        for (auto it = live.begin(); it != live.end(); ++it)
+        {
+            if (std::find(applied.begin(), applied.end(), it->first) != applied.end())
+                continue;
+            const osg::Vec3 cl = (it->second.first + it->second.second) * 0.5f;
+            const osg::Vec3 ch = (lo + hi) * 0.5f;
+            const float d = (cl - ch).length() * 0.5f;
+            if (d < bestD)
+            {
+                best = const_cast<ClipBoxNode *>(it->first);
+                bestD = d;
+            }
+        }
+        if (best)
+        {
+            best->setAABB(lo, hi); // move/resize in place (preserves identity)
+        }
+        else
+        {
+            auto box = new ClipBoxNode(nextBoxName());
+            box->setAABB(lo, hi);
+            box->setNodeMask(m_showBoxes ? (Isect::Visible | Isect::Pick) : 0);
+            root->addChild(box);
+            m_boxes.push_back(box);
+            best = box;
+        }
+        applied.push_back(best);
+        appliedNames.insert(best->getName());
+    }
+
+    // 2) remove only the boxes that the config used to know about (matched
+    //    them by name); boxes created manually are kept
+    std::set<std::string> gone(m_cfgBoxApplied);
+    for (const auto &n : appliedNames)
+        gone.erase(n);
+    for (const auto &n : gone)
+    {
+        for (auto bit = m_boxes.begin(); bit != m_boxes.end(); ++bit)
+        {
+            ClipBoxNode *b = *bit;
+            if (b && b->getName() == n && b->getNumParents() > 0)
+            {
+                b->getParent(0)->removeChild(b);
+                m_boxes.erase(bit);
+                break;
+            }
+        }
+    }
+
+    m_cfgBoxApplied = appliedNames;
+    updateUi();
+}
+
 
 void ClipPlugin::setBoxesVisible(bool visible)
 {
@@ -1149,6 +1399,9 @@ void ClipPlugin::clearAll()
     for (const auto &n : names)
         removeTarget(n);
     m_manual = false;
+    m_boxSizeUiBox = nullptr;
+    m_boxSizeUiHasAABB = false;
+    updateBoxSizeUi();
     updateUi();
 }
 
@@ -1195,6 +1448,10 @@ void ClipPlugin::preFrame()
         if (visible != m_showBoxes)
             box->setNodeMask(m_showBoxes ? (Isect::Visible | Isect::Pick) : 0);
     }
+
+    // keep the box size fields in sync while the tracked box moves
+    if (m_boxSizeUiBox && m_boxSizeUiBox->getNumParents() > 0)
+        updateBoxSizeUi(m_boxSizeUiBox);
 
     // keep the geode lists of paged targets in sync, then push the uniforms
     reconcileTargets();
@@ -1304,6 +1561,10 @@ void ClipPlugin::syncSetup()
         addTarget(name);
     }
 
+    // the configured boxes (created/updated/removed to match the config, and
+    // the live boxes are persisted back into the config)
+    syncBoxes();
+
     // the configured showBoxes flag
     if (m_cfgShowBoxes)
         setBoxesVisible(m_cfgShowBoxes->value());
@@ -1342,7 +1603,8 @@ bool ClipPlugin::selectionChanged()
     // plugin and move them with the Move plugin)
     if (m_mode == Mode::None)
     {
-        // highlight the selected box(es), if any
+        // highlight the selected box(es), if any, and track the selection in
+        // the box size fields
         auto selection = coVRSelectionManager::instance()->getSelectionList();
         for (const auto &box : m_boxes)
         {
@@ -1352,6 +1614,7 @@ bool ClipPlugin::selectionChanged()
                     sel = true;
             box->setSelected(sel);
         }
+        updateBoxSizeUi();
         return true;
     }
 
