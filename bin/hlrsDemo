@@ -354,7 +354,7 @@ run_fly() {
 opencover /data/Geodata/airplane.wrl opencover://plugin/JSBSim
 }
 demo 146 "Flugtraining BW" run_fly
-demo 147 "Neckarwelle" covise /data/Neckarwelle/nw1/nw.net
+demo 147 "Neckarwelle" vistle /data/Neckarwelle/neckarwelle.vsl
 demo 148 "salzburg" run_salzburg
 
 # COVISE BACKUP
