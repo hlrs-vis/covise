@@ -74,34 +74,8 @@ using covise::coCoviseConfig;
 
 void DrawCallback::operator()(const osg::Camera &cam) const
 {
-    static int counter = 0;
-    counter++;
-
-    if (counter % 100 == 0)
-    {
-        std::cerr << "Callback aktiv: " << counter << std::endl;
-    }
-
     plugin->sendImage();
 }
-
-/* void DrawCallback::operator()(const osg::Camera &cam) const
-{
-    static unsigned long long callbackCount = 0;
-    ++callbackCount;
-
-    if (callbackCount % 100 == 0)
-    {
-        std::cerr
-            << "[Snapshot] DrawCallback-Aufrufe: "
-            << callbackCount
-            << " | Kamera registriert: "
-            << plugin->isSnapshotCameraRegistered()
-            << '\n';
-    }
-
-    plugin->sendImage();
-}*/
 
 void MapLinkPlugin::createMenu()
 {
@@ -757,20 +731,13 @@ MapLinkPlugin::MapLinkPlugin()
 }
 
 
+
 void MapLinkPlugin::sendImage()
 {
-    using Clock = std::chrono::steady_clock;
-
-    static std::atomic<unsigned long long> totalCalls { 0 };
-    static std::atomic<unsigned long long> imageSends { 0 };
-
-    const auto calls = ++totalCalls;
-
     if (width > 0)
     {
-        const auto start = Clock::now();
-
         TokenBuffer rtb;
+
         rtb << MSG_GetMap;
         rtb << x;
         rtb << y;
@@ -783,29 +750,12 @@ void MapLinkPlugin::sendImage()
             (char *)image->getDataPointer(),
             xRes * yRes * 4);
 
-        const auto beforeSend = Clock::now();
-
         Message m(rtb);
         m.type = PluginMessageTypes::HLRS_MapLink_Message;
+
         sendMessage(m);
 
-        const auto end = Clock::now();
-
-        const auto preparationMs = std::chrono::duration_cast<std::chrono::milliseconds>(
-            beforeSend - start)
-                                       .count();
-
-        const auto sendingMs = std::chrono::duration_cast<std::chrono::milliseconds>(
-            end - beforeSend)
-                                   .count();
-
-        std::cerr
-            << "[Snapshot-Diagnose] Bild #" << ++imageSends
-            << " | Vorbereitung: " << preparationMs << " ms"
-            << " | sendMessage: " << sendingMs << " ms"
-            << " | Callback-Aufrufe gesamt: " << calls
-            << std::endl;
-
+        // Signalisiert, dass der Snapshot fertig ist.
         m_snapshotRenderCompleted.store(true);
     }
 
@@ -1285,30 +1235,32 @@ MapLinkPlugin::handleMessage(Message *m)
 
                 // 4. Begrenzung im Projektraum bestimmen
                 // Bildachsen aus den transformierten Kartenecken ableiten.
-                osg::Vec3d right = (pLR - pLL) + (pUR - pUL);
-                right.z() = 0.0;
+                // Waagerechte Bildrichtung aus unterer und oberer Kartenkante.
+                const osg::Vec3d horizontal = (pLR - pLL) + (pUR - pUL);
+                const double horizontalLength = std::hypot(horizontal.x(), horizontal.y());
 
-                if (!std::isfinite(right.length2()) || right.length2() <= 0.0)
+                if (!std::isfinite(horizontalLength) || horizontalLength <= 0.0)
                 {
                     std::cerr << "Snapshot: ungueltige Bildachse!" << std::endl;
                     width = 0.0f;
                     break;
                 }
 
-                right.normalize();
-                const osg::Vec3d up(-right.y(), right.x(), 0.0);
+                // Winkel der Bildkante relativ zur Projekt-X-Achse, in Radiant.
+                const double angleRad = std::atan2(horizontal.y(), horizontal.x());
 
-                const osg::Vec3d center = (pLL + pLR + pUL + pUR) * 0.25;
-                const osg::Vec3d corners[] = { pLL, pLR, pUL, pUR };
+                const osg::Vec3d right(std::cos(angleRad), std::sin(angleRad), 0.0);
+                const osg::Vec3d up(-std::sin(angleRad), std::cos(angleRad), 0.0);
 
-                double left = (pLL - center) * right;
-                double rightEdge = left;
-                double bottom = (pLL - center) * up;
-                double top = bottom;
+                // Die Bildgrenzen relativ zu pLL in den gedrehten Achsen bestimmen.
+                double left = 0.0;
+                double rightEdge = 0.0;
+                double bottom = 0.0;
+                double top = 0.0;
 
-                for (const osg::Vec3d &corner : corners)
+                for (const osg::Vec3d &corner : { pLR, pUL, pUR })
                 {
-                    const osg::Vec3d delta = corner - center;
+                    const osg::Vec3d delta = corner - pLL;
                     const double imageX = delta * right;
                     const double imageY = delta * up;
 
@@ -1318,13 +1270,20 @@ MapLinkPlugin::handleMessage(Message *m)
                     top = std::max(top, imageY);
                 }
 
-                const osg::Vec3d cameraCenter = center + right * ((left + rightEdge) * 0.5)
-                    + up * ((bottom + top) * 0.5);
+                const double imageWidth = rightEdge - left;
+                const double imageHeight = top - bottom;
+
+                const osg::Vec3d imageLowerLeft = pLL + right * left + up * bottom;
+
+                // Von der unteren linken Bildecke jeweils eine halbe Seite zur Mitte.
+                const osg::Vec3d cameraCenter = imageLowerLeft
+                    + right * (imageWidth / 2.0)
+                    + up * (imageHeight / 2.0);
 
                 x = static_cast<float>(cameraCenter.x());
                 y = static_cast<float>(cameraCenter.y());
-                width = static_cast<float>(rightEdge - left);
-                height = static_cast<float>(top - bottom);
+                width = static_cast<float>(imageWidth);
+                height = static_cast<float>(imageHeight);
 
                 if (
                     !std::isfinite(x) || !std::isfinite(y) || !std::isfinite(width) || !std::isfinite(height) || width <= 0.0f || height <= 0.0f)
@@ -1345,8 +1304,7 @@ MapLinkPlugin::handleMessage(Message *m)
                     << " height=" << height
                     << std::endl;
 
-                // 6. Kamera einstellen und NUR fuer diese Anfrage registrieren.
-                // Weder MSG_SetModules noch MSG_LoadProject aktivieren sie.
+                // 5. Kamera einstellen und NUR fuer diese Anfrage registrieren.
 
                 setProjection(x, y, width, height, up);
 
