@@ -84,7 +84,7 @@ public:
     void sendImage();
 
 protected:
-    void createModule(int moduleId, const std::array<osg::Vec3d, 4> &corners, osg::Node *pvModel);
+    void createModule(int moduleId, const std::array<osg::Vec3d, 4> &corners, osg::Node *pvModel, int roofTypeCode);
     void deleteModule(int moduleId);
     void sendDeleteModuleRequest(int moduleId);
     void clearAllModules();

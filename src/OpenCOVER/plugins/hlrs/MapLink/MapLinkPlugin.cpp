@@ -7,6 +7,7 @@
 
 #include "MapLinkPlugin.h"
 #include <algorithm>
+#include <atomic>
 #include <cmath>
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
@@ -17,6 +18,7 @@
 #include <cover/coVRRenderer.h>
 #include <cover/VRViewer.h>
 #include <cover/coIntersection.h>
+#include <chrono>
 #include <OpenVRUI/coCheckboxMenuItem.h>
 #include <OpenVRUI/coButtonMenuItem.h>
 #include <OpenVRUI/coSubMenuItem.h>
@@ -27,6 +29,7 @@
 #include <geodata/GeoData.h>
 #include <iostream>
 #include <limits>
+#include <osg/LOD>
 #include <osg/Material>
 #include <osg/StateSet>
 #include <osg/NodeVisitor>
@@ -50,7 +53,6 @@
 #include <osg/Shape>
 #include <osg/ShapeDrawable>
 #include <osg/LineWidth>
-#include <osg/StateSet>
 #include <osg/ComputeBoundsVisitor>
 #include <osg/Matrix>
 #include <osgDB/ReadFile>
@@ -68,85 +70,41 @@
 using covise::TokenBuffer;
 using covise::coCoviseConfig;
 
-// Parameter für die Transformation für das .wrl Modell
-namespace
-{
-struct ModelTransformConfig
-{
-    double modelEasting;
-    double modelNorthing;
-    double scale;
-    double worldOffsetX;
-    double worldOffsetY;
-};
-
-const ModelTransformConfig modelTransform {
-    507297.0,
-    5398513.0,
-    1000.0,
-    225900.0,
-    87640.1
-};
-}
-
-void printMatrix(const char *name, const osg::Matrix &m)
-{
-    std::cerr << name << std::endl;
-
-    for (int row = 0; row < 4; ++row)
-    {
-        std::cerr << "  ";
-
-        for (int col = 0; col < 4; ++col)
-        {
-            std::cerr << m(row, col) << " ";
-        }
-
-        std::cerr << std::endl;
-    }
-}
 
 
 void DrawCallback::operator()(const osg::Camera &cam) const
 {
-    static int frameCounter = 0;
-    frameCounter++;
+    static int counter = 0;
+    counter++;
 
-    if (frameCounter % 100 == 0)
+    if (counter % 100 == 0)
     {
-        std::cerr
-            << "TEST: Snapshot-Kamera rendert, Frame "
-            << frameCounter
-            << std::endl;
+        std::cerr << "Callback aktiv: " << counter << std::endl;
     }
 
     plugin->sendImage();
 }
 
+/* void DrawCallback::operator()(const osg::Camera &cam) const
+{
+    static unsigned long long callbackCount = 0;
+    ++callbackCount;
+
+    if (callbackCount % 100 == 0)
+    {
+        std::cerr
+            << "[Snapshot] DrawCallback-Aufrufe: "
+            << callbackCount
+            << " | Kamera registriert: "
+            << plugin->isSnapshotCameraRegistered()
+            << '\n';
+    }
+
+    plugin->sendImage();
+}*/
+
 void MapLinkPlugin::createMenu()
 {
-
-   /* cbg = new coCheckboxGroup();
-    viewpointMenu = new coRowMenu("MapLink Viewpoints");
-
-    REVITButton = new coSubMenuItem("MapLink");
-    REVITButton->setMenu(viewpointMenu);
-    
-    roomInfoMenu = new coRowMenu("Room Information");
-
-    roomInfoButton = new coSubMenuItem("Room Info");
-    roomInfoButton->setMenu(roomInfoMenu);
-    viewpointMenu->add(roomInfoButton);
-    label1 = new coLabelMenuItem("No Room");
-    roomInfoMenu->add(label1);
-    addCameraButton = new coButtonMenuItem("Add Camera");
-    addCameraButton->setMenuListener(this);
-    viewpointMenu->add(addCameraButton);
-    updateCameraButton = new coButtonMenuItem("UpdateCamera");
-    updateCameraButton->setMenuListener(this);
-    viewpointMenu->add(updateCameraButton);
-
-    cover->getMenu()->add(REVITButton);*/
     m_selectModulesButton = new coCheckboxMenuItem(
         "PV-Module loeschen",
         false);
@@ -159,27 +117,10 @@ void MapLinkPlugin::createMenu()
 
     MapLinkTab = new coTUITab("MapLink", coVRTui::instance()->mainFolder->getID());
     MapLinkTab->setPos(0, 0);
-
-   /* updateCameraTUIButton = new coTUIButton("Update Camera", revitTab->getID());
-    updateCameraTUIButton->setEventListener(this);
-    updateCameraTUIButton->setPos(0, 0);
-
-    addCameraTUIButton = new coTUIButton("Add Camera", revitTab->getID());
-    addCameraTUIButton->setEventListener(this);
-    addCameraTUIButton->setPos(0, 1);*/
 }
 
 void MapLinkPlugin::destroyMenu()
 {
-  /*  delete roomInfoButton;
-    delete roomInfoMenu;
-    delete label1;
-    delete viewpointMenu;
-    delete REVITButton;
-    delete cbg;
-
-    delete addCameraTUIButton;
-    delete updateCameraTUIButton;*/
     delete MapLinkTab;
     MapLinkTab = nullptr;
 }
@@ -187,7 +128,8 @@ void MapLinkPlugin::destroyMenu()
 void MapLinkPlugin::createModule(
     int moduleId,
     const std::array<osg::Vec3d, 4> &corners,
-    osg::Node *pvModel)
+    osg::Node *pvModel,
+    int roofTypeCode)
 {
     if (!pvModel || !m_pvModuleGroup.valid())
         return;
@@ -224,7 +166,6 @@ void MapLinkPlugin::createModule(
 
     const bool isLandscape = moduleWidth > moduleLength;
 
-    // -------------------------------------------------
     // 3. Lokale Modellachsen zuordnen
     osg::Vec3d xAxis;
     osg::Vec3d yDirection;
@@ -317,25 +258,150 @@ void MapLinkPlugin::createModule(
 
     // Gesamttransformation: Zentrieren -> Skalieren -> Rotieren -> Positionieren
     osg::Matrixd transform = modelCentering * scaling * rotation * osg::Matrixd::translate(center);
-
-    // 7. Diagnoseausgabe
-
-    std::cerr
-        << "MapLink: Modul " << moduleId
-        << " | Zielbreite: " << targetWidth
-        << " | Ziellaenge: " << targetLength
-        << " | Skalierung X: " << scaleX
-        << " | Skalierung Y: " << scaleY
-        << std::endl;
-
-
+    
+    // Gemeinsamer Knoten zur Modulverwaltung
     osg::ref_ptr<osg::MatrixTransform> moduleTransform = new osg::MatrixTransform();
 
     moduleTransform->setName(
         "PV_Module_" + std::to_string(moduleId));
 
-    moduleTransform->setMatrix(transform);
-    moduleTransform->addChild(pvModel);
+    // Gemeinsame Geometrie von PV-Modul und Stützen
+    osg::ref_ptr<osg::Group> moduleGeometry = new osg::Group();
+
+    // Bisherige Transformation des PV-Modells
+    osg::ref_ptr<osg::MatrixTransform> pvTransform = new osg::MatrixTransform();
+
+    pvTransform->setMatrix(transform);
+    pvTransform->addChild(pvModel);
+
+    moduleGeometry->addChild(pvTransform.get());
+
+    // Entfernungsabhängige Sichtbarkeit
+    constexpr float MAX_MODULE_DISTANCE = 200.0f;
+
+    osg::ref_ptr<osg::LOD> moduleLOD = new osg::LOD();
+
+    moduleLOD->setRangeMode(
+        osg::LOD::DISTANCE_FROM_EYE_POINT);
+
+    moduleLOD->setCenterMode(
+        osg::LOD::USER_DEFINED_CENTER);
+
+    // Modulmittelpunkt in Projektkoordinaten
+    moduleLOD->setCenter(center);
+
+    // Geometrie nur innerhalb von 200 m darstellen
+    moduleLOD->addChild(
+        moduleGeometry.get(),
+        0.0f,
+        MAX_MODULE_DISTANCE);
+
+    moduleTransform->addChild(moduleLOD.get());
+
+
+
+    // UNTERKONSTRUKTION BEI FLACHDACHMODULEN
+
+    if (roofTypeCode == 0)
+    {
+        // Querschnitt der Metallstützen
+        constexpr double SUPPORT_WIDTH = 0.04;
+        constexpr double SUPPORT_DEPTH = 0.04;
+
+        // Stützen enden etwas unterhalb der
+        // angenommenen Dachoberfläche
+        constexpr double GROUND_PENETRATION = 0.05;
+
+        // Sehr kurze Stützen nicht darstellen
+        constexpr double MIN_SUPPORT_HEIGHT = 0.03;
+
+        // Gemeinsame Geometriegruppe
+        osg::ref_ptr<osg::Geode> supportGeode = new osg::Geode();
+
+        supportGeode->setName(
+            "PV_Stuetzen_" + std::to_string(moduleId));
+
+        // Graues Material
+        osg::ref_ptr<osg::Material> supportMaterial = new osg::Material();
+
+        supportMaterial->setDiffuse(
+            osg::Material::FRONT_AND_BACK,
+            osg::Vec4(0.78f, 0.78f, 0.78f, 1.0f));
+
+        supportMaterial->setAmbient(
+            osg::Material::FRONT_AND_BACK,
+            osg::Vec4(0.55f, 0.55f, 0.55f, 1.0f));
+
+        supportMaterial->setSpecular(
+            osg::Material::FRONT_AND_BACK,
+            osg::Vec4(0.20f, 0.20f, 0.20f, 1.0f));
+
+        supportMaterial->setShininess(
+            osg::Material::FRONT_AND_BACK,
+            16.0f);
+
+        supportGeode->getOrCreateStateSet()
+            ->setAttributeAndModes(
+                supportMaterial.get(),
+                osg::StateAttribute::ON);
+
+        // Obere und zugehörige untere Modulecken
+        const int upperCorners[2] = { 3, 2 };
+        const int lowerCorners[2] = { 0, 1 };
+
+        constexpr double INSET_SIDE = 0.08; // 8 cm seitlich
+        constexpr double INSET_BACK = 0.06; // 6 cm von der oberen Kante
+
+        for (int i = 0; i < 2; ++i)
+        {
+            // Obere Modulecke
+            osg::Vec3d top = corners[upperCorners[i]] + zAxis * VISUAL_MODULE_OFFSET;
+
+            // Richtung zur jeweils anderen oberen Ecke
+            osg::Vec3d sideDir = corners[upperCorners[1 - i]] - corners[upperCorners[i]];
+            sideDir.normalize();
+
+            // Richtung zur unteren Modulecke
+            osg::Vec3d downDir = corners[lowerCorners[i]] - corners[upperCorners[i]];
+            downDir.normalize();
+
+            // Stütze nach innen verschieben
+            top += sideDir * INSET_SIDE + downDir * INSET_BACK;
+
+            // Untere Bezugshöhe
+            const double bottomZ = corners[lowerCorners[i]].z() + zAxis.z() * VISUAL_MODULE_OFFSET - GROUND_PENETRATION;
+
+            // Höhe der Stütze
+            const double supportHeight = top.z() - bottomZ;
+
+            if (supportHeight <= MIN_SUPPORT_HEIGHT)
+                continue;
+
+            // Mittelpunkt der senkrechten Stütze
+            osg::Vec3 centerSupport(
+                static_cast<float>(top.x()),
+                static_cast<float>(top.y()),
+                static_cast<float>((top.z() + bottomZ) / 2.0));
+
+            // Rechteckige Stütze erzeugen
+            osg::ref_ptr<osg::Box> supportBox = new osg::Box(
+                centerSupport,
+                SUPPORT_WIDTH,
+                SUPPORT_DEPTH,
+                supportHeight);
+
+            osg::ref_ptr<osg::ShapeDrawable> drawable = new osg::ShapeDrawable(supportBox.get());
+
+            supportGeode->addDrawable(drawable.get());
+        }
+
+        if (supportGeode->getNumDrawables() > 0)
+        {
+            moduleGeometry->addChild(
+                supportGeode.get());
+        }
+    }
+
 
     // Existiert dieses Modul bereits?
     auto existing = m_moduleNodes.find(moduleId);
@@ -582,12 +648,6 @@ void MapLinkPlugin::deleteModule(int moduleId)
 
     m_moduleNodes.erase(it);
     m_modules.erase(moduleId);
-
-    std::cerr
-        << "MapLink: Modul "
-        << moduleId
-        << " geloescht."
-        << std::endl;
 }
 
 void MapLinkPlugin::clearAllModules()
@@ -654,8 +714,7 @@ osg::Matrixd MapLinkPlugin::computeRightEyeView(const osg::Matrixd &view) const
 MapLinkPlugin::MapLinkPlugin()
 : coVRPlugin(COVER_PLUGIN_NAME)
 {
-    fprintf(stderr, "MapLinkPlugin::MapLinkPlugin\n");
-    fprintf(stderr, "MEINE NEUE PLUGIN VERSION WIRD GELADEN\n");
+    std::cerr << "[MapLink] Plugin gestartet\n";
     plugin = this;
 	width = 0;
     int port = coCoviseConfig::getInt("port", "COVER.Plugin.MapLink.Server", 31822);
@@ -697,10 +756,20 @@ MapLinkPlugin::MapLinkPlugin()
 
 }
 
+
 void MapLinkPlugin::sendImage()
 {
-    if(width > 0)
+    using Clock = std::chrono::steady_clock;
+
+    static std::atomic<unsigned long long> totalCalls { 0 };
+    static std::atomic<unsigned long long> imageSends { 0 };
+
+    const auto calls = ++totalCalls;
+
+    if (width > 0)
     {
+        const auto start = Clock::now();
+
         TokenBuffer rtb;
         rtb << MSG_GetMap;
         rtb << x;
@@ -709,21 +778,43 @@ void MapLinkPlugin::sendImage()
         rtb << height;
         rtb << xRes;
         rtb << yRes;
-        rtb.addBinary((char *)image->getDataPointer(),xRes*yRes*4);
+
+        rtb.addBinary(
+            (char *)image->getDataPointer(),
+            xRes * yRes * 4);
+
+        const auto beforeSend = Clock::now();
+
         Message m(rtb);
         m.type = PluginMessageTypes::HLRS_MapLink_Message;
         sendMessage(m);
-        // DrawCallback laeuft im Render-Kontext. Den Viewer hier NICHT veraendern.
-        // Im naechsten preFrame wird die Snapshot-Kamera sicher abgemeldet.
+
+        const auto end = Clock::now();
+
+        const auto preparationMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+            beforeSend - start)
+                                       .count();
+
+        const auto sendingMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+            end - beforeSend)
+                                   .count();
+
+        std::cerr
+            << "[Snapshot-Diagnose] Bild #" << ++imageSends
+            << " | Vorbereitung: " << preparationMs << " ms"
+            << " | sendMessage: " << sendingMs << " ms"
+            << " | Callback-Aufrufe gesamt: " << calls
+            << std::endl;
+
         m_snapshotRenderCompleted.store(true);
     }
-    width = 0;
 
+    width = 0;
 }
+
 
 bool MapLinkPlugin::init()
 {
-    //cover->addPlugin("Annotation"); // we would like to have the Annotation plugin
     createMenu();
     createCamera();
 
@@ -832,11 +923,7 @@ MapLinkPlugin::~MapLinkPlugin()
     {
         camera->detach(osg::Camera::COLOR_BUFFER);
         camera->setGraphicsContext(nullptr);
-        if (m_snapshotCameraRegistered)
-        {
-            VRViewer::instance()->removeCamera(camera.get());
-            m_snapshotCameraRegistered = false;
-        }
+        m_snapshotCameraRegistered = false;
     }
 
     toMapLink.reset();
@@ -895,7 +982,8 @@ void MapLinkPlugin::createCamera()
 
     osgViewer::Renderer *renderer = new coVRRenderer(camera.get(), 0);
     camera->setRenderer(renderer);
-    camera->setGraphicsContext(cam->getGraphicsContext());
+    //camera->setGraphicsContext(cam->getGraphicsContext()); //  Snapshot-Kamera zunächst nicht in den Renderablauf einbinden.
+    camera->setGraphicsContext(nullptr);  // Der GraphicsContext wird nur bei einer Snapshot-Anfrage gesetzt.
     camera->attach(osg::Camera::COLOR_BUFFER, image.get());
     //pBufferCamera->setNearFarRatio(coVRConfig::instance()->nearClip()/coVRConfig::instance()->farClip());
     camera->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
@@ -1002,8 +1090,6 @@ MapLinkPlugin *MapLinkPlugin::plugin = NULL;
 void
 MapLinkPlugin::handleMessage(Message *m)
 {
-    //cerr << "got Message" << endl;
-    //m->print();
     enum PluginMessageTypes::Type type = (enum PluginMessageTypes::Type)m->type;
     
     switch (type)
@@ -1014,14 +1100,14 @@ MapLinkPlugin::handleMessage(Message *m)
             TokenBuffer tb(m);
             int t;
             tb >> t;
-            std::cerr << "t from payload: " << t << std::endl;
-            float _scale = cover->getScale();
+
             switch(t)
             {
 
             case MSG_GetHeight:
             {
-                std::cerr << "MSG_GetHeight received" << std::endl;
+                // Zeitmessung der Höhenabfrage starten
+                const auto startTime = std::chrono::steady_clock::now(); // Zeitmessung der Höhenabfrage 
 
                 const osg::Matrix oldXformMat = cover->getXformMat();
                 cover->setXformMat(osg::Matrix());
@@ -1057,29 +1143,13 @@ MapLinkPlugin::handleMessage(Message *m)
                         static_cast<double>(latitude),
                         0.0);
 
-                    // EPSG:4326 -> EPSG:25832
-                    const osg::Vec3d referencePosition = GeoData::instance()->globalToReference(globalPosition);
-
-                    // Nur zum Vergleich mit dem bisherigen GeoData-Projektraum
+                    // EPSG:4326 -> OpenCOVER-Projektkoordinaten
                     const osg::Vec3d projectPosition = GeoData::instance()->globalToProject(globalPosition);
 
 
                     const double rayX = projectPosition.x();
                     const double rayY = projectPosition.y();
 
-
-                    std::cerr
-                        << "Point " << i
-                        << " | LonLat=(" << longitude << ", " << latitude << ")"
-                        << " | UTM=(" << referencePosition.x()
-                        << ", " << referencePosition.y() << ")"
-                        << " | GeoDataProject=(" << projectPosition.x()
-                        << ", " << projectPosition.y() << ")"
-                        << " | Ray=(" << rayX
-                        << ", " << rayY << ")"
-                        << std::endl;
-
-          
                     const osg::Vec3 rayP(
                         rayX,
                         rayY,
@@ -1089,26 +1159,6 @@ MapLinkPlugin::handleMessage(Message *m)
                         rayX,
                         rayY,
                         -9999999.0);
-
-                    std::cerr
-                        << "ObjectsXform mask: "
-                        << cover->getObjectsXform()->getNodeMask()
-                        << " | children: "
-                        << cover->getObjectsXform()->getNumChildren()
-                        << std::endl;
-
-                    for (unsigned int j = 0;
-                        j < cover->getObjectsXform()->getNumChildren();
-                        ++j)
-                    {
-                        osg::Node *child = cover->getObjectsXform()->getChild(j);
-
-                        std::cerr
-                            << "Child " << j
-                            << " | Name: " << child->getName()
-                            << " | Mask: " << child->getNodeMask()
-                            << std::endl;
-                    }
 
                     coIntersector *isect = coIntersection::instance()->newIntersector(rayP, rayQ);
 
@@ -1144,72 +1194,9 @@ MapLinkPlugin::handleMessage(Message *m)
 
                     const auto result = isect->getFirstIntersection();
 
-                  /*  if (i == 0)
-                    {
-                        const osg::NodePath &path = result.nodePath;
-
-                        for (std::size_t j = 0; j < path.size(); ++j)
-                        {
-                            if (path[j]->getName() == "VRMLRoot")
-                            {
-                                osg::Group *parent = path[j]->asGroup();
-
-                                if (parent)
-                                {
-                                    m_cityModelParent = parent;
-
-                                    osg::NodePath parentPath(
-                                        path.begin(),
-                                        path.begin() + j + 1);
-
-                                    m_worldToCityParent = osg::computeWorldToLocal(parentPath);
-
-                                    if (m_pvModuleGroup.valid() && m_pvModuleGroup->getNumParents() == 0)
-                                    {
-                                        osg::ref_ptr<osg::MatrixTransform> pvTransform = new osg::MatrixTransform();
-
-                                        pvTransform->setName("PV_Modules_Transform");
-                                        pvTransform->setMatrix(m_worldToCityParent);
-                                        pvTransform->addChild(m_pvModuleGroup.get());
-
-                                        parent->addChild(pvTransform.get());
-                                    }
-                                }
-
-                                break;
-                            }
-                        }
-                    }
-
-                    if (i == 0)
-                    {
-                        std::cerr << "----- DACH: SZENENGRAPH-PFAD -----"
-                                  << std::endl;
-
-                        for (osg::Node *node : result.nodePath)
-                        {
-                            if (node)
-                            {
-                                std::cerr
-                                    << node->className()
-                                    << " | "
-                                    << node->getName()
-                                    << std::endl;
-                            }
-                        }
-                    }*/
                     const osg::Vec3d worldPoint = result.getWorldIntersectPoint();
 
                     const double height = worldPoint.z() ;
-
-
-                    std::cerr
-                        << "  -> HIT=("
-                        << worldPoint.x() << ", "
-                        << worldPoint.y() << ", "
-                        << worldPoint.z() << ")"
-                        << " | height=" << height << " m"
-                        << std::endl;
 
                     rtb << static_cast<float>(height);
                 }
@@ -1217,10 +1204,19 @@ MapLinkPlugin::handleMessage(Message *m)
                 Message m(rtb);
                 m.type = PluginMessageTypes::HLRS_MapLink_Message;
 
-                std::cerr << "sending height response" << std::endl;
                 sendMessage(m);
 
                 cover->setXformMat(oldXformMat);
+
+                const auto durationMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+                    std::chrono::steady_clock::now() - startTime)
+                                            .count();
+
+                std::cerr
+                    << "[MapLink] Hoehenabfrage: "
+                    << numPoints << " Punkte | "
+                    << durationMs << " ms"
+                    << '\n';
             }
             break;
 
@@ -1228,6 +1224,27 @@ MapLinkPlugin::handleMessage(Message *m)
             
             case MSG_GetMap:
             {
+                static unsigned long long snapshotRequestCount = 0;
+                static auto lastSnapshotRequest = std::chrono::steady_clock::now();
+
+                const auto now = std::chrono::steady_clock::now();
+
+                const auto intervalMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+                    now - lastSnapshotRequest)
+                                            .count();
+
+                lastSnapshotRequest = now;
+                ++snapshotRequestCount;
+
+                std::cerr
+                    << "[Snapshot] Anfrage #"
+                    << snapshotRequestCount
+                    << " | Abstand zur vorherigen: "
+                    << intervalMs << " ms"
+                    << '\n';
+
+                // Ab hier deine bisherige Snapshot-Verarbeitung
+
                 // 1. Sichtbaren Kartenbereich empfangen (EPSG:4326)
                 float minLon, minLat, maxLon, maxLat;
 
@@ -1330,14 +1347,34 @@ MapLinkPlugin::handleMessage(Message *m)
 
                 // 6. Kamera einstellen und NUR fuer diese Anfrage registrieren.
                 // Weder MSG_SetModules noch MSG_LoadProject aktivieren sie.
+
                 setProjection(x, y, width, height, up);
+
                 if (!m_snapshotCameraRegistered)
                 {
                     m_snapshotRenderCompleted.store(false);
-                    VRViewer::instance()->addCamera(camera.get());
+
+                    auto *viewer = VRViewer::instance();
+                    const bool threaded = viewer->getThreadingModel() != osgViewer::ViewerBase::SingleThreaded;
+
+                    if (threaded)
+                        viewer->stopThreading();
+
+                    // Kamera beim GraphicsContext der Hauptkamera registrieren.
+                    osg::Camera *mainCamera = coVRConfig::instance()->channels[0].camera.get();
+
+                    camera->setGraphicsContext(mainCamera->getGraphicsContext());
+
+                    if (threaded)
+                        viewer->startThreading();
+
                     m_snapshotCameraRegistered = true;
-                    std::cerr << "Snapshot: Kamera fuer einen Renderdurchlauf aktiviert" << std::endl;
+
+                    std::cerr
+                        << "Snapshot: Kamera aktiviert"
+                        << std::endl;
                 }
+
                 break;
             }
 
@@ -1345,17 +1382,9 @@ MapLinkPlugin::handleMessage(Message *m)
 
             case MSG_SetModules:
             {
-                //const std::string modelPath = COVISEDIR + "/share/covise/example-data/PV/PV_kompakt_hoch.obj";
-
                 // Anzahl der empfangenen Module
                 int numModules;
                 tb >> numModules;
-
-                std::cerr
-                    << "MSG_SetModules: "
-                    << numModules
-                    << " modules received"
-                    << std::endl;
 
                 // Alle empfangenen Module verarbeiten
                 for (int moduleIndex = 0;
@@ -1387,15 +1416,23 @@ MapLinkPlugin::handleMessage(Message *m)
                         // UTM->project
                         worldCorners[cornerIndex] = GeoData::instance()->globalToProject(globalCorner);
 
-                        std::cerr
-                            << "Module " << moduleId
-                            << ", corner " << cornerIndex
-                            << " -> world=("
-                            << worldCorners[cornerIndex].x() << ", "
-                            << worldCorners[cornerIndex].y() << ", "
-                            << worldCorners[cornerIndex].z() << ")"
-                            << std::endl;
                     }
+
+                    // Dachtyp des Moduls auslesen
+                    int roofTypeCode;
+                    tb >> roofTypeCode;
+
+                    if (roofTypeCode != 0 && roofTypeCode != 1)
+                    {
+                        std::cerr
+                            << "MapLink: Ungueltiger Dachtyp fuer Modul "
+                            << moduleId
+                            << std::endl;
+
+                        continue;
+                    }
+
+                    const bool isFlatRoof = (roofTypeCode == 0);
 
                     // Eckpunkte speichern
                     m_modules[moduleId] = worldCorners;
@@ -1406,14 +1443,10 @@ MapLinkPlugin::handleMessage(Message *m)
                         createModule(
                             moduleId,
                             worldCorners,
-                            m_pvModel.get());
+                            m_pvModel.get(),
+                            roofTypeCode);
                     }
                 }
-
-                std::cerr
-                    << "Stored modules: "
-                    << m_modules.size()
-                    << std::endl;
 
                 // Antwort an den Server
                 TokenBuffer rtb;
@@ -1425,6 +1458,11 @@ MapLinkPlugin::handleMessage(Message *m)
 
                 sendMessage(response);
 
+                std::cerr
+                    << "[MapLink] Module empfangen: " << numModules
+                    << " | Gesamtbestand: " << m_modules.size()
+                    << '\n';
+
                 break;
             }
 
@@ -1432,9 +1470,6 @@ MapLinkPlugin::handleMessage(Message *m)
             {
                 int numModules;
                 tb >> numModules;
-
-                std::cerr << "MSG_DeleteModules received: "
-                          << numModules << " modules" << std::endl;
 
                 for (int i = 0; i < numModules; ++i)
                 {
@@ -1444,8 +1479,10 @@ MapLinkPlugin::handleMessage(Message *m)
                     deleteModule(moduleId);
                 }
 
-                std::cerr << "Remaining modules: "
-                          << m_modules.size() << std::endl;
+                std::cerr
+                    << "[MapLink] Module geloescht: " << numModules
+                    << " | Verbleibend: " << m_modules.size()
+                    << '\n';
 
                 break;
             }
@@ -1494,12 +1531,28 @@ void MapLinkPlugin::preFrame()
     sendProjectTransformReady();
     // Die Kamera wird ausschliesslich nach einem fertigen Snapshot entfernt.
     // Kein permanentes PRE_RENDER zwischen Anfragen.
+
     if (m_snapshotRenderCompleted.exchange(false) && m_snapshotCameraRegistered)
     {
-        VRViewer::instance()->removeCamera(camera.get());
+        auto *viewer = VRViewer::instance();
+        const bool threaded = viewer->getThreadingModel() != osgViewer::ViewerBase::SingleThreaded;
+
+        if (threaded)
+            viewer->stopThreading();
+
+        // Kamera aus der GraphicsContext-Kameraliste entfernen.
+        camera->setGraphicsContext(nullptr);
+
+        if (threaded)
+            viewer->startThreading();
+
         m_snapshotCameraRegistered = false;
-        std::cerr << "Snapshot: Kamera deaktiviert (Rendern beendet)" << std::endl;
+
+        std::cerr
+            << "Snapshot: Kamera deaktiviert (GraphicsContext geloest)"
+            << std::endl;
     }
+
 
     if (m_selectInteraction && m_selectInteraction->wasStarted())
     {
@@ -1644,14 +1697,6 @@ void MapLinkPlugin::preFrame()
         }
     }
 
-    static int frameCounter = 0;
-
-    if (++frameCounter % 300 == 0)
-    {
-        printMatrix(
-            "ObjectsXform:",
-            cover->getObjectsXform()->getMatrix());
-    }
 }
 
 void MapLinkPlugin::key(int type, int keySym, int mod)
@@ -1691,22 +1736,12 @@ bool MapLinkPlugin::update()
             }
         }
         while (toMapLink && toMapLink->check_for_input())
-        {
-            // Testcode zum direkten Lesen von 4 Byte.
-            // Wurde nur zur Prüfung der Raw-TCP-Verbindung verwendet.
-            //cerr << "received data" << endl;
-            //int buf;
-            //toMapLink->receive(&buf, 4);
-            //cerr << "received" << buf << endl;
-           
+        { 
             toMapLink->recv_msg(msg);
 
 
             if (msg)
             {
-                std::cerr << "msg received" << std::endl;
-                std::cerr << "msg->type: " << msg->type << std::endl;
-                std::cerr << "msg->data.length(): " << msg->data.length() << std::endl;
                 gotMsg = '\1';
                 coVRMSController::instance()->sendSlaves(&gotMsg, sizeof(char));
                 coVRMSController::instance()->sendSlaves(msg);
