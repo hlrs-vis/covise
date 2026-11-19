@@ -206,8 +206,7 @@ bool ARCamera::open(int deviceId)
 
     if (static_cast<int>(m_capture.get(cv::CAP_PROP_FRAME_WIDTH)) != m_width || static_cast<int>(m_capture.get(cv::CAP_PROP_FRAME_HEIGHT)) != m_height)
     {
-        std::cerr << "ARUCO WARNING: could not set capture frame size to  = " << m_width << "x" << m_height <<
-        "\n Actual frame size is: " << frame.cols << "x" << frame.rows << std::endl;
+        std::cerr << "ARUCO WARNING: could not set capture frame size to  = " << m_width << "x" << m_height << "\n Actual frame size is: " << frame.cols << "x" << frame.rows << std::endl;
     }
 
     m_deferredCalibration = !loadCalibration(frame);
@@ -313,9 +312,7 @@ bool ARCamera::loadCalibration(const cv::Mat &frame)
     const double focalLength = 250.0;
     const double cx = (frame.cols - 1) / 2.0;
     const double cy = (frame.rows - 1) / 2.0;
-    m_cameraMatrix = (cv::Mat_<double>(3, 3) << focalLength, 0.0, cx,
-        0.0, focalLength, cy,
-        0.0, 0.0, 1.0);
+    m_cameraMatrix = cv::Mat_<double>({ 3, 3 }, { focalLength, 0.0, cx, 0.0, focalLength, cy, 0.0, 0.0, 1.0 });
     m_distortionCoefficients = cv::Mat::zeros(5, 1, CV_64F);
     return false;
 }
