@@ -219,15 +219,18 @@ bool Surfboard::update()
     {
         // Below the carve threshold, heading tracks the measured lean
         // directly, so a small left/right angle changes direction immediately.
-        heading_ = osg::DegreesToRadians(relativeAngle * steeringRate_);
+        heading_ = osg::DegreesToRadians(relativeAngle * -2.0* steeringRate_);
         turnVelocity_ = 0.0;
     }
 
     const double targetSpeed = moving ? maxSpeed_ : 0.0;
     const double speedDelta = targetSpeed - speed_;
-    const double speedLimit = (targetSpeed > speed_) ? acceleration_ : deceleration_;
+    const double speedLimit = (targetSpeed > speed_) ? acceleration_*10 : deceleration_*10;
     speed_ += std::clamp(speedDelta, -speedLimit * dt, speedLimit * dt);
 
+    //std::cerr << "speed" << speed_ << std::endl;
+    //std::cerr << "speedDelta" << speedDelta << std::endl;
+    //std::cerr << "speedLimit" << speedDelta << std::endl;
     // Small lean drives laterally only. Forward motion starts for the hard
     // carve, as requested; the left/right sign follows the measured angle.
     double dx = 0.0, dy = 0.0;
@@ -238,8 +241,11 @@ bool Surfboard::update()
     }
     else if (moving && absAngle > lowAngleDeadZone_ && !carveLatched_)
     {
-        dx = sign * speed_ * (absAngle / turnThreshold_) * dt;
+        dx = -1.0 * sign * speed_ * (absAngle / turnThreshold_) * 20.0 * dt;
     }
+    //std::cerr << "speed" << speed_ << std::endl;
+    //std::cerr << "absAngle" << absAngle << std::endl;
+    //std::cerr << "turnThreshold_" << turnThreshold_ << std::endl;
 
     osg::Matrix relativeTranslation;
     relativeTranslation.makeTranslate(osg::Vec3(-dx * 1000.0, -dy * 1000.0, 0.0));
