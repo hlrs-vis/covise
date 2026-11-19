@@ -70,10 +70,10 @@ namespace opencover
 namespace ui
 {
 class Button;
-class EditField;
 class Group;
 class Label;
 class Menu;
+class Slider;
 }
 }
 
@@ -109,7 +109,8 @@ private:
     {
         None,
         PickTarget,
-        BoxFromObject
+        BoxFromObject,
+        AddBoxAtHit // toggle: each click drops a box at the hit point
     };
 
     // a clipped target: its top-level object node + the node that is
@@ -148,9 +149,6 @@ private:
     // a geode's world AABB in ObjectsRoot space (drawable bounding boxes
     // transformed through the full parent chain)
     static void geodeWorldAABB(const osg::Geode *geode, osg::Vec3 &min, osg::Vec3 &max);
-    // the current intersection hit point (already in COVER space); false if
-    // no interactor has a current hit
-    static bool currentHitPos(osg::Vec3 &pos);
 
     // ---- targets ----
     void addTarget(const std::string &name);
@@ -261,19 +259,21 @@ private:
     ui::Button *m_showBoxesBtn = nullptr;
     ui::Label *m_statusLabel = nullptr;
 
-    // resize box: numeric world size (X/Y/Z) of the currently selected box.
-    // The fields track the box selected with the Selection plugin; editing
-    // them resizes that box (center kept fixed).
+    // resize box: numeric world size (X/Y/Z) of the currently selected box,
+    // as draggable sliders (VR, tablet and desktop). The sliders track the
+    // box selected with the Selection plugin; dragging one resizes that box
+    // (center kept fixed). The range expands automatically if the tracked
+    // box is bigger than the slider's current upper bound.
     ui::Label *m_boxSizeLabel = nullptr;
-    ui::EditField *m_boxSizeX = nullptr;
-    ui::EditField *m_boxSizeY = nullptr;
-    ui::EditField *m_boxSizeZ = nullptr;
-    // the box the fields currently describe + a re-entrancy guard so
-    // refreshing the fields does not re-trigger their own callbacks
+    ui::Slider *m_boxSizeX = nullptr;
+    ui::Slider *m_boxSizeY = nullptr;
+    ui::Slider *m_boxSizeZ = nullptr;
+    // the box the sliders currently describe + a re-entrancy guard so
+    // refreshing the sliders does not re-trigger their own callbacks
     ClipBoxNode *m_boxSizeUiBox = nullptr;
     bool m_boxSizeUpdating = false;
-    // last world AABB pushed into the fields: while the tracked box does not
-    // move (e.g. while the user is typing), the fields are not overwritten
+    // last world AABB pushed into the sliders: while the tracked box does not
+    // move (and the user is not dragging), the sliders are not overwritten
     osg::Vec3 m_boxSizeUiLo{0, 0, 0}, m_boxSizeUiHi{0, 0, 0};
     bool m_boxSizeUiHasAABB = false;
 

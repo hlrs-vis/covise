@@ -3,13 +3,11 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRConfig.h>
 #include <cover/coVRLighting.h>
-#include <cover/coVRIntersectionInteractorManager.h>
-#include <cover/coVRIntersectionInteractor.h>
 #include <cover/ui/Button.h>
-#include <cover/ui/EditField.h>
 #include <cover/ui/Group.h>
 #include <cover/ui/Label.h>
 #include <cover/ui/Menu.h>
+#include <cover/ui/Slider.h>
 #include <cover/ui/View.h>
 
 #include <osg/Geode>
@@ -448,19 +446,16 @@ bool ClipPlugin::init()
             setMode(Mode::None);
     });
 
+    // toggle: while enabled, every click on an object drops a box at the
+    // hit point (bottom-anchored). Untoggle when done. Works in VR and on
+    // the tablet - each trigger press is one box.
     m_addBoxBtn = new ui::Button(m_group, "AddBox");
-    m_addBoxBtn->setText("Add box at hit point");
+    m_addBoxBtn->setText("Add box at hit point (toggle)");
     m_addBoxBtn->setCallback([this](bool state) {
-        // momentary action: the click toggled the checkbox on, create the box
-        // (if there is a hit point) and immediately switch it off again
-        if (!state)
-            return;
-        osg::Vec3 pos;
-        if (currentHitPos(pos))
-            addBoxAt(pos);
-        else
-            m_statusLabel->setText("Add box: move the interactor onto a surface first, then press again");
-        m_addBoxBtn->setState(false);
+        if (state)
+            setMode(Mode::AddBoxAtHit);
+        else if (m_mode == Mode::AddBoxAtHit)
+            setMode(Mode::None);
     });
 
     m_removeBoxBtn = new ui::Button(m_group, "RemoveLastBox");
@@ -483,43 +478,44 @@ bool ClipPlugin::init()
         clearAll();
     });
 
-    // resize box: the fields track the clip box currently selected with the
+    // resize box: the sliders track the clip box currently selected with the
     // Selection plugin (the ghosts are pickable even when hidden). Select a
-    // box, type a new extent and press Enter - the box is resized around its
-    // center and the cut follows on the next frame.
+    // box and drag a slider - the box is resized around its center and the
+    // cut follows on the next frame. Sliders (unlike EditFields) work in the
+    // VR and tablet UIs, which have no keyboard; the upper bound expands
+    // automatically when a bigger box is selected or resized.
     m_boxSizeLabel = new ui::Label(m_group, "BoxSizeLabel");
     m_boxSizeLabel->setText("Box size (select a box)  X  Y  Z");
-    auto makeSizeField = [this](const char *name, int axis) {
-        auto *f = new ui::EditField(m_group, name);
-        f->setValue("-");
-        f->setCallback([this, axis](const std::string &text) {
+    auto makeSizeSlider = [this](const char *name, int axis) {
+        auto *s = new ui::Slider(m_group, name);
+        s->setBounds(0.0, 256.0);
+        s->setValue(0.0);
+        s->setCallback([this, axis](double value, bool) {
             if (m_boxSizeUpdating || !m_boxSizeUiBox)
                 return;
-            char *end = nullptr;
-            const double v = std::strtod(text.c_str(), &end);
-            if (!end || *end != '\0' || v <= 0.0 || v > 1e9)
-                return; // ignore partial/invalid input; fields refresh on the next change
-            osg::Vec3 s(m_boxSizeX->number(), m_boxSizeY->number(), m_boxSizeZ->number());
+            if (value <= 0.0)
+                value = 1e-3; // keep the box non-degenerate
+            osg::Vec3 s(m_boxSizeX->value(), m_boxSizeY->value(), m_boxSizeZ->value());
             switch (axis)
             {
             case 0:
-                s.x() = static_cast<float>(v);
+                s.x() = static_cast<float>(value);
                 break;
             case 1:
-                s.y() = static_cast<float>(v);
+                s.y() = static_cast<float>(value);
                 break;
             default:
-                s.z() = static_cast<float>(v);
+                s.z() = static_cast<float>(value);
                 break;
             }
             setBoxSize(m_boxSizeUiBox, s);
             m_manual = true;
         });
-        return f;
+        return s;
     };
-    m_boxSizeX = makeSizeField("BoxSizeX", 0);
-    m_boxSizeY = makeSizeField("BoxSizeY", 1);
-    m_boxSizeZ = makeSizeField("BoxSizeZ", 2);
+    m_boxSizeX = makeSizeSlider("BoxSizeX", 0);
+    m_boxSizeY = makeSizeSlider("BoxSizeY", 1);
+    m_boxSizeZ = makeSizeSlider("BoxSizeZ", 2);
 
     m_statusLabel = new ui::Label(m_group, "Status");
     m_statusLabel->setText("Targets: (none) | Boxes: 0");
@@ -758,20 +754,13 @@ void ClipPlugin::geodeWorldAABB(const osg::Geode *geode, osg::Vec3 &min, osg::Ve
         min = max = osg::Vec3(0.0f, 0.0f, 0.0f); // empty geode: fall back to the origin
 }
 
-bool ClipPlugin::currentHitPos(osg::Vec3 &pos)
-{
-    auto *ii = coVRIntersectionInteractorManager::the()->getCurrentIntersectionInteractor();
-    if (!ii || !ii->isIntersected())
-        return false;
-    pos = ii->getHitPos();
-    return true;
-}
 
 void ClipPlugin::setMode(Mode m)
 {
     m_mode = m;
     m_targetBtn->setState(m_mode == Mode::PickTarget);
     m_boxBtn->setState(m_mode == Mode::BoxFromObject);
+    m_addBoxBtn->setState(m_mode == Mode::AddBoxAtHit);
 }
 
 // ---------------------------------------------------------------------------
@@ -1154,6 +1143,7 @@ void ClipPlugin::addBoxAt(const osg::Vec3 &point)
     addBoxAABB(point, point + size);
 }
 
+
 void ClipPlugin::removeLastBox()
 {
     if (m_boxes.empty())
@@ -1169,16 +1159,27 @@ void ClipPlugin::removeLastBox()
 
 ClipBoxNode *ClipPlugin::selectedBox() const
 {
-    auto selection = coVRSelectionManager::instance()->getSelectionList();
-    for (auto it = selection.rbegin(); it != selection.rend(); ++it)
+    // the Selection manager stores two lists: the selected parents (the
+    // top-level scene object the pick belongs to) and the intersected leaf
+    // nodes (e.g. a geode of the box's ghost cube). topObjectOf() refuses
+    // to return clip boxes, so resolve the box directly instead.
+    // parent list: the top-level object of the selection IS the box
+    auto parents = coVRSelectionManager::instance()->getSelectedParentList();
+    for (auto it = parents.rbegin(); it != parents.rend(); ++it)
     {
-        osg::Node *node = *it;
-        if (!node)
-            continue;
-        if (auto *b = dynamic_cast<ClipBoxNode *>(node))
+        osg::Group *g = *it;
+        if (auto *b = dynamic_cast<ClipBoxNode *>(g))
             return b;
-        if (auto *b = dynamic_cast<ClipBoxNode *>(topObjectOf(node)))
-            return b;
+    }
+    // leaf list: walk up from the intersected node to the enclosing box
+    auto nodes = coVRSelectionManager::instance()->getSelectionList();
+    for (auto it = nodes.rbegin(); it != nodes.rend(); ++it)
+    {
+        for (osg::Node *n = *it; n; n = n->getNumParents() == 1 ? n->getParent(0) : nullptr)
+        {
+            if (auto *b = dynamic_cast<ClipBoxNode *>(n))
+                return b;
+        }
     }
     return nullptr;
 }
@@ -1211,7 +1212,7 @@ void ClipPlugin::updateBoxSizeUi(ClipBoxNode *box)
         box = selectedBox();
     if (box != m_boxSizeUiBox)
     {
-        // the tracked box changed: refresh the fields unconditionally
+        // the tracked box changed: refresh the sliders unconditionally
         m_boxSizeUiBox = box;
         m_boxSizeUiHasAABB = false;
     }
@@ -1219,10 +1220,11 @@ void ClipPlugin::updateBoxSizeUi(ClipBoxNode *box)
     {
         if (m_boxSizeX && !box && !m_boxSizeUpdating)
         {
+            // no box selected: park the sliders at the default box size
             m_boxSizeUpdating = true;
-            m_boxSizeX->setValue("-");
-            m_boxSizeY->setValue("-");
-            m_boxSizeZ->setValue("-");
+            m_boxSizeX->setValue(CLIP_DEFAULT_SIZE[0]);
+            m_boxSizeY->setValue(CLIP_DEFAULT_SIZE[1]);
+            m_boxSizeZ->setValue(CLIP_DEFAULT_SIZE[2]);
             m_boxSizeUpdating = false;
         }
         m_boxSizeUiHasAABB = false;
@@ -1233,26 +1235,29 @@ void ClipPlugin::updateBoxSizeUi(ClipBoxNode *box)
         return;
     // the extent of the box in world space (root space); that is what the
     // cut actually is, so the numbers stay correct while the box (or the
-    // target) is being moved. While the box does not move, the fields are
-    // left alone so the user can type a new value.
+    // target) is being moved. While the box does not move (and the user is
+    // not dragging), the sliders are left alone.
     osg::Vec3 lo, hi;
     box->worldAABB(root, lo, hi);
+    const osg::Vec3 s = hi - lo;
+    if (m_boxSizeUpdating)
+        return;
     if (m_boxSizeUiHasAABB && (lo - m_boxSizeUiLo).length2() < 1e-10f && (hi - m_boxSizeUiHi).length2() < 1e-10f)
         return;
     m_boxSizeUiLo = lo;
     m_boxSizeUiHi = hi;
     m_boxSizeUiHasAABB = true;
     m_boxSizeUpdating = true;
-    auto fmt = [](const double v) {
-        std::ostringstream o;
-        o.precision(6);
-        o << v;
-        return o.str();
-    };
-    const osg::Vec3 s = hi - lo;
-    m_boxSizeX->setValue(fmt(s.x()));
-    m_boxSizeY->setValue(fmt(s.y()));
-    m_boxSizeZ->setValue(fmt(s.z()));
+    for (int axis = 0; axis < 3; ++axis)
+    {
+        const double size = axis == 0 ? s.x() : (axis == 1 ? s.y() : s.z());
+        ui::Slider *sl = axis == 0 ? m_boxSizeX : (axis == 1 ? m_boxSizeY : m_boxSizeZ);
+        // widen the slider's range if the box is (or becomes) bigger than
+        // its current upper bound, so the value is never clamped out of sight
+        if (size > sl->max())
+            sl->setBounds(0.0, std::ceil(std::max(2.0 * size, 256.0)));
+        sl->setValue(size);
+    }
     m_boxSizeUpdating = false;
 }
 
@@ -1603,17 +1608,11 @@ bool ClipPlugin::selectionChanged()
     // plugin and move them with the Move plugin)
     if (m_mode == Mode::None)
     {
-        // highlight the selected box(es), if any, and track the selection in
-        // the box size fields
-        auto selection = coVRSelectionManager::instance()->getSelectionList();
+        // highlight the selected box, if any, and track the selection in
+        // the box size sliders
+        ClipBoxNode *selBox = selectedBox();
         for (const auto &box : m_boxes)
-        {
-            bool sel = false;
-            for (const auto &s : selection)
-                if (s == box.get())
-                    sel = true;
-            box->setSelected(sel);
-        }
+            box->setSelected(box.get() == selBox);
         updateBoxSizeUi();
         return true;
     }
@@ -1655,6 +1654,9 @@ bool ClipPlugin::selectionChanged()
         break;
     case Mode::BoxFromObject:
         boxFromObject(geode, name);
+        break;
+    case Mode::AddBoxAtHit:
+        addBoxAt(cover->getIntersectionHitPointWorld() * cover->getInvBaseMat());
         break;
     default:
         break;

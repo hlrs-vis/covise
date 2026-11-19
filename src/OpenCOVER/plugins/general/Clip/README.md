@@ -36,8 +36,10 @@ shared shader uniforms. The same holds for the targets: move the terrain
 and the cut stays in place, in world space.
 
 * **auto**: pick an object → a box matching its world AABB is created,
-* **manual**: a default 10 × 2 × 10 box is created with its bottom corner
-  at the current intersection hit point,
+* **manual**: *toggle* "Add box at hit point" on, then **every click** on an
+  object drops a default 10 × 2 × 10 box with its bottom corner at the hit
+  point — repeat as often as you like, untoggle when done. Use it to place
+  boxes at arbitrary spots, not just where an object already is.
 * **config**: `boxes = ["minX,minY,minZ,maxX,maxY,maxZ", ...]` in the
   plugin's `[Setup]` config defines boxes directly — no object in the scene
   is needed (see below).
@@ -48,12 +50,14 @@ bounding box* of their current extent.
 
 ### Resizing a box
 
-Select a box with the Selection plugin (it highlights red; the ghosts stay
-pickable even when hidden). The **Box size** fields in the menu then show
-the box's current world extent (X, Y, Z). Type a new value into a field and
-press Enter — the box is resized around its center and the cut follows on
-the next frame. The fields update live while the box (or the target) is
-being moved.
+Select a box with the Selection plugin (it highlights red). The **Box size**
+sliders in the menu then show
+the box's current world extent (X, Y, Z). Drag a slider to resize the box
+around its center; the cut follows on the next frame. The sliders update
+live while the box (or the target) is being moved. They work in the VR and
+tablet UIs as well as on the desktop (unlike text fields, no keyboard is
+needed). If a box is larger than a slider's range, the range expands
+automatically.
 
 ## UI (menu: "Clip objects" → "Cut holes with boxes")
 
@@ -61,9 +65,9 @@ being moved.
 |--------|--------|
 | **Pick target** (toggle) | enter/leave target-picking mode: select an object (e.g. the terrain) to add/remove it as a clip target. Multiple targets are supported. |
 | **Box from picked object** (toggle) | enter/leave box-from-object mode: select an object to create a clip box matching its world AABB. |
-| **Add box at hit point** | momentary: creates a default 10 × 2 × 10 box at the current intersection hit point (bottom-anchored). The interactor must be on a surface. |
+| **Add box at hit point** (toggle) | while enabled, **each click** on an object drops a default 10 × 2 × 10 box with its bottom corner at the hit point. Untoggle when done — place as many boxes as you like, anywhere you can point. |
 | **Remove last box** | removes the most recently created box. |
-| **Box size X / Y / Z** | the world extent of the currently *selected* box; edit + Enter resizes that box around its center (see "Resizing a box"). |
+| **Box size X / Y / Z** | sliders showing the world extent of the currently *selected* box; dragging one resizes that box around its center (see "Resizing a box"). |
 | **Show box ghosts** (toggle) | show/hide the translucent ghost cubes (configurable, persists per model). |
 | **Clear** | removes all boxes and all targets (restoring their original rendering). |
 | **Apply setup from config** | re-apply the targets listed in the plugin config. |
