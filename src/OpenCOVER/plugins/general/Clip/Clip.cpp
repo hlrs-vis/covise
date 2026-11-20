@@ -383,25 +383,17 @@ const char *CLIP_FRAGMENT_SHADER =
 "    }\n"
 "    if (inBox == 1)\n"
 "        discard;\n"
-    "    // ---- reproduce the target's own look (fixed-function equivalent:\n"
-    "    // (matAmbient*lightAmbient + matDiffuse*lightDiffuse*NdotL) * vtxColor * tex)\n"
+    "    // ---- reproduce the target's own look. COVER renders scene models with\n"
+    "    // fixed-function UNLIT (it never enables GL_LIGHTING on model nodes; the\n"
+    "    // headlight only affects explicitly-lit UI). Measured pixel-identical for\n"
+    "    // photogrammetry tiles: color == vertexColor * texture. An NdotL term here\n"
+    "    // would *dim* the tiles (e.g. x0.61 for normal-less geometry with the\n"
+    "    // fallback normal) and read as washed-out grey. Render flat.\n"
     "    vec4 tcol = vec4(1.0);\n"
     "    if (clipHasTexture == 1)\n"
     "        tcol = texture2D(clipBaseTexture, clipTexCoord);\n"
     "    vec3 vc = (clipHasVertexColor == 1) ? clipColor.rgb : vec3(1.0);\n"
-    "    vec3 N = clipNormal;\n"
-    "    if (clipHasNormal == 0 || dot(N, N) < 1e-8)\n"
-    "        N = vec3(0.0, 0.0, 1.0);\n"
-    "    else\n"
-    "        N = normalize(N);\n"
-    "    vec3 L;\n"
-    "    if (clipLightPos.w != 0.0)\n"
-    "        L = normalize(clipLightPos.xyz - clipRootPos.xyz); // point light (COVER headlight)\n"
-    "    else\n"
-    "        L = -normalize(clipLightPos.xyz); // directional light (xyz = direction OF the light, flip it)\n"
-    "    float diff = max(dot(N, L), 0.0);\n"
-    "    vec3 lit = clipMatAmbient * clipLightAmbient + clipMatDiffuse * clipLightDiffuse * diff;\n"
-    "    gl_FragColor = vec4(lit * vc * tcol.rgb, 1.0);\n"
+    "    gl_FragColor = vec4(vc * tcol.rgb, 1.0);\n"
     "}\n";
 
 // ---------------------------------------------------------------------------
@@ -850,6 +842,13 @@ void ClipPlugin::applyClipToGeode(osg::Geode *geode)
     save.diffuse = defaultMat->getDiffuse(osg::Material::FRONT);
     save.ambient = defaultMat->getAmbient(osg::Material::FRONT);
     osg::StateSet *ss = geode->getStateSet();
+    // the texture search must run even when the geode has NO state set: many
+    // exporters (e.g. osg2/photogrammetry pipelines like Winterhalde_OSG.osgb)
+    // put the texture only on the drawables' state sets. Skipping it here used
+    // to latch clipHasTexture=0 for such tiles -> the shader output pure white
+    // (unlit, no texture, no vertex colors).
+    save.texUnit = 0;
+    save.texture = geodeTexture(geode, save.texUnit);
     if (ss)
     {
         auto *mat = dynamic_cast<osg::Material *>(ss->getAttribute(osg::StateAttribute::MATERIAL));
@@ -858,8 +857,6 @@ void ClipPlugin::applyClipToGeode(osg::Geode *geode)
             save.diffuse = mat->getDiffuse(osg::Material::FRONT);
             save.ambient = mat->getAmbient(osg::Material::FRONT);
         }
-        save.texUnit = 0;
-        save.texture = geodeTexture(geode, save.texUnit);
         if (save.texture)
         {
             save.hadTextureAttribute = ss->getTextureAttribute(save.texUnit, osg::StateAttribute::TEXTURE) != nullptr;
@@ -1418,7 +1415,11 @@ void ClipPlugin::preFrame()
 {
 
     // keep the box list in sync with the scene (boxes may have been removed
-    // by the user / the Move plugin may have wrapped them)
+    // by the user / the Move plugin may have wrapped them) and re-resolve the
+    // targets (a reload or a Move-plugin rewrap may have replaced the nodes).
+    // Runs BEFORE the viewer frame, so it sees the scene as of the previous
+    // frame; the paged tiles that the viewer loads DURING this frame are
+    // picked up by postFrame().
     std::vector<std::string> boxNames;
     for (const auto &box : m_boxes)
         if (box && box->getNumParents() > 0)
@@ -1459,6 +1460,29 @@ void ClipPlugin::preFrame()
         updateBoxSizeUi(m_boxSizeUiBox);
 
     // keep the geode lists of paged targets in sync, then push the uniforms
+    reconcileTargets();
+    syncClipUniforms();
+}
+
+// Reconcile AFTER the viewer has rendered this frame. A PagedLOD tile
+// requested during the cull pass of frame N is read asynchronously by the
+// DatabasePager and merged into the scene graph in the update pass of the
+// NEXT frame (updateTraversal -> addLoadedDataToSceneGraph). The preFrame()
+// reconcile runs BEFORE that update pass, so a tile that just got merged is
+// still missing from the clip lists for the frame it first renders in -
+// a one-frame flash of un-clipped geometry when zooming. Reconciling here
+// (after the render of the frame the tile first appeared in) applies the
+// clip before it renders a second time, so the flash is at most one frame
+// and usually not visible at all at 60 fps.
+//
+// The preFrame() reconcile stays: it also catches non-pager changes (plugin
+// adds, Move-plugin rewraps, scene reloads) and removes the clip from
+// expired pages.
+void ClipPlugin::postFrame()
+{
+    if (m_targets.empty())
+        return;
+
     reconcileTargets();
     syncClipUniforms();
 }

@@ -3,7 +3,7 @@
 Cuts axis-aligned, world-space rectangular "voids" (holes) out of one or more
 target objects (e.g. photogrammetry terrain). v2 replaces the old v1
 implementation (stencil buffer + shadow clones + three extra render bins)
-with a **per-pixel GLSL 150 cut**:
+with a **per-pixel GLSL cut**:
 
 * the vertex shader passes each vertex's **ObjectsRoot-space position**
   (via a per-geode `clipWorldMatrix` uniform) and its normal through to the
@@ -18,11 +18,13 @@ the hole shows through. No stencil bits, no shadow clones, no extra render
 passes.
 
 Because the fragment shader takes over the fixed-function pipeline for the
-clipped geodes, it also reproduces the target's own look: material (or
-vertex color) times an optional base texture, lit by the scene headlight
-(ambient + Lambert). Everything the shader overrides (material, texture
-binding, depth state) is saved per geode and **restored exactly** when the
-target is removed or the plugin is destroyed.
+clipped geodes, it reproduces the target's own look: vertex color (if
+present) times the optional base texture — **unlit**, exactly like COVER
+renders scene models (COVER never enables GL_LIGHTING on model nodes, so an
+NdotL term here would only dim normal-less geometry to a washed-out grey).
+Everything the shader overrides (material, texture binding, depth state) is
+saved per geode and **restored exactly** when the target is removed or the
+plugin is destroyed.
 
 ## The boxes
 
@@ -111,10 +113,43 @@ URL, so the config name is matched by exact name, basename, or prefix
 * At most **16 boxes** are active in the shader (fixed uniform array size);
   extra boxes are ignored (the status label still counts them).
 * The fragment shader replaces fixed-function shading for the clipped
-  geodes, so it approximates the target's look (diffuse + ambient, no
-  specular, no texture environment). Targets with custom shaders (e.g. the
-  VRML heightmap) lose those effects while clipped.
+  geodes with an **unlit** output (vertex color × base texture), which
+  matches how COVER renders scene models. Targets that are explicitly lit
+  (GL_LIGHTING on, e.g. most VRML objects) lose their lighting while
+  clipped.
 * The cut is a **soft boundary at pixel resolution**: box edges are as crisp
   as the screen sampling, not as a hard geometric intersection.
 * Targets are clipped at the **node** level (whole top-level object or a
   named sub-node), not per-drawable.
+
+## Paged (PagedLOD / photogrammetry) targets
+
+Models whose geometry is paged in by the OSG DatabasePager (photogrammetry
+`*.osgb` tile sets) have their tile geodes **added and expired at runtime**
+while zooming. The plugin reconciles the clip lists twice per frame:
+
+* `preFrame()` — before the viewer frame: clips tiles merged by the pager's
+  update pass and removes the clip from expired pages, re-resolves moved /
+  re-wrapped nodes and pushes the box uniforms,
+* `postFrame()` — after the viewer frame: catches the tiles that the pager
+  merged *during* the frame just rendered, so a freshly paged-in tile is
+  clipped before it renders a second time (without this hook a new tile
+  would flash one frame without the cut when zooming in/out).
+
+### Tile textures on drawable state sets (fix 2026-11-20)
+
+Many photogrammetry exporters (e.g. the Winterhalde OSG pipeline) attach the
+per-tile texture to the **drawable's** state set only — the geode itself has
+**no state set**. The clip shader samples the texture through a
+per-geode uniform, so at apply time the plugin rebinds the texture onto the
+geode's own state set and latches `clipHasTexture`. The texture search used
+to be skipped entirely when the geode had no state set, which latched
+`clipHasTexture = 0` for *every* tile of such models: the unlit shader with
+no texture and no vertex colors then outputs **pure white** for the whole
+target (the "white slab" bug). The search now runs unconditionally, and the
+texture is still moved from drawable to geode state set exactly as before.
+Verified headless against the full 7-level Winterhalde tile set
+(42+ paged tiles): white pixel share drops from ~84–100 % to 0 % and the
+per-tile images (1024²–4096×2048) sample correctly after GPU upload has
+freed the CPU-side `osg::Image` (only the GPU texture matters at render
+time).

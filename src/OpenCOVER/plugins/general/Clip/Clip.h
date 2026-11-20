@@ -95,6 +95,7 @@ public:
     bool init() override;
     bool destroy() override;
     void preFrame() override;
+    void postFrame() override;
 
     // coSelectionListener
     bool selectionChanged() override;
