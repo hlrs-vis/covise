@@ -1,7 +1,11 @@
 SET(HEADERS
   Clip.h
+  ClipBoxNode.h
+  utils.h
 )
 SET(SOURCES
   Clip.cpp
+  ClipBoxNode.cpp
+  utils.cpp
 )
 cover_add_plugin(Clip)
