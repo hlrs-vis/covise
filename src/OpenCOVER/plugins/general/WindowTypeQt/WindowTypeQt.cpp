@@ -255,6 +255,11 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     f |= Qt::CustomizeWindowHint;
     f |= Qt::WindowFullscreenButtonHint;
     win.window->setWindowFlags(f);
+    if (!conf.windows[i].decoration)
+    {
+        // frameless window for projection: no title bar, menubar or toolbar
+        win.window->setWindowFlags(Qt::FramelessWindowHint);
+    }
     win.window->show();
     window->connect(win.window, &QtMainWindow::closing, [this]()
         {
@@ -298,10 +303,10 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     }
 #endif
     if (win.menubar)
-        win.menubar->show();
+        win.menubar->setVisible(conf.windows[i].decoration);
     QToolBar *toolbar = nullptr;
     bool useToolbar = covise::coCoviseConfig::isOn("toolbar", "COVER.UI.Qt", true);
-    if (useToolbar)
+    if (useToolbar && conf.windows[i].decoration)
     {
         toolbar = new QToolBar("Toolbar", win.window);
         toolbar->layout()->setSpacing(2);
