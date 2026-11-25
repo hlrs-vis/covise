@@ -1,0 +1,1637 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "moduleId": 97236,
+        "areaId": 1264,
+        "areaEditData": {
+          "roofCoordinates": [
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ],
+            [
+              1013683.3188646759,
+              6232406.110831463
+            ],
+            [
+              1013682.2524704986,
+              6232392.514296801
+            ],
+            [
+              1013665.940375375,
+              6232393.793675973
+            ],
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ]
+          ],
+          "settings": {
+            "moduleType": "large",
+            "orientation": "portrait",
+            "mountingType": "south",
+            "rowGapOverrideM": 2.5,
+            "mountingDirection": "positive-v",
+            "tiltDeg": 30,
+            "edgeDistance": 0
+          }
+        },
+        "corners3D": [
+          {
+            "longitude": 9.105987759498428,
+            "latitude": 48.749137081915876,
+            "height": 529.047351337824
+          },
+          {
+            "longitude": 9.106003161945607,
+            "latitude": 48.7491362853903,
+            "height": 529.04968016832
+          },
+          {
+            "longitude": 9.106005361340033,
+            "latitude": 48.74915477526585,
+            "height": 530.2509428696031
+          },
+          {
+            "longitude": 9.105989958892854,
+            "latitude": 48.74915557179142,
+            "height": 530.2486140391072
+          }
+        ],
+        "moduleType": "large",
+        "orientation": "portrait",
+        "mountingDirection": "positive-v",
+        "mountingType": "south",
+        "orientationCategory": "south",
+        "moduleAzimuthDeg": 184.48460342478305,
+        "roofReferenceAzimuthDeg": 184.48460342478305,
+        "rowIndex": 1,
+        "rowPairId": null,
+        "tiltDeg": 30,
+        "automaticRowGapM": 2.5,
+        "roofType": "flat",
+        "roofTiltDeg": 0.2827016670522621
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1013673.920557147,
+              6232401.909471911
+            ],
+            [
+              1013675.635149724,
+              6232401.77499423
+            ],
+            [
+              1013675.8799851916,
+              6232404.896646755
+            ],
+            [
+              1013674.1653926146,
+              6232405.031124491
+            ],
+            [
+              1013673.920557147,
+              6232401.909471911
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "moduleId": 97235,
+        "areaId": 1264,
+        "areaEditData": {
+          "roofCoordinates": [
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ],
+            [
+              1013683.3188646759,
+              6232406.110831463
+            ],
+            [
+              1013682.2524704986,
+              6232392.514296801
+            ],
+            [
+              1013665.940375375,
+              6232393.793675973
+            ],
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ]
+          ],
+          "settings": {
+            "moduleType": "large",
+            "orientation": "portrait",
+            "mountingType": "south",
+            "rowGapOverrideM": 2.5,
+            "mountingDirection": "positive-v",
+            "tiltDeg": 30,
+            "edgeDistance": 0
+          }
+        },
+        "corners3D": [
+          {
+            "longitude": 9.10597235705125,
+            "latitude": 48.749137878441445,
+            "height": 529.0450225073282
+          },
+          {
+            "longitude": 9.105987759498428,
+            "latitude": 48.749137081915876,
+            "height": 529.047351337824
+          },
+          {
+            "longitude": 9.105989958892854,
+            "latitude": 48.74915557179142,
+            "height": 530.2486140391072
+          },
+          {
+            "longitude": 9.105974556445677,
+            "latitude": 48.749156368316996,
+            "height": 530.2462852086112
+          }
+        ],
+        "moduleType": "large",
+        "orientation": "portrait",
+        "mountingDirection": "positive-v",
+        "mountingType": "south",
+        "orientationCategory": "south",
+        "moduleAzimuthDeg": 184.48460342478305,
+        "roofReferenceAzimuthDeg": 184.48460342478305,
+        "rowIndex": 1,
+        "rowPairId": null,
+        "tiltDeg": 30,
+        "automaticRowGapM": 2.5,
+        "roofType": "flat",
+        "roofTiltDeg": 0.2827016670522621
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1013672.2059645702,
+              6232402.0439495975
+            ],
+            [
+              1013673.920557147,
+              6232401.909471911
+            ],
+            [
+              1013674.1653926146,
+              6232405.031124491
+            ],
+            [
+              1013672.450800038,
+              6232405.165602226
+            ],
+            [
+              1013672.2059645702,
+              6232402.0439495975
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "moduleId": 97234,
+        "areaId": 1264,
+        "areaEditData": {
+          "roofCoordinates": [
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ],
+            [
+              1013683.3188646759,
+              6232406.110831463
+            ],
+            [
+              1013682.2524704986,
+              6232392.514296801
+            ],
+            [
+              1013665.940375375,
+              6232393.793675973
+            ],
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ]
+          ],
+          "settings": {
+            "moduleType": "large",
+            "orientation": "portrait",
+            "mountingType": "south",
+            "rowGapOverrideM": 2.5,
+            "mountingDirection": "positive-v",
+            "tiltDeg": 30,
+            "edgeDistance": 0
+          }
+        },
+        "corners3D": [
+          {
+            "longitude": 9.105956954604071,
+            "latitude": 48.74913867496702,
+            "height": 529.0426936768322
+          },
+          {
+            "longitude": 9.10597235705125,
+            "latitude": 48.749137878441445,
+            "height": 529.0450225073282
+          },
+          {
+            "longitude": 9.105974556445677,
+            "latitude": 48.749156368316996,
+            "height": 530.2462852086112
+          },
+          {
+            "longitude": 9.105959153998498,
+            "latitude": 48.749157164842565,
+            "height": 530.2439563781152
+          }
+        ],
+        "moduleType": "large",
+        "orientation": "portrait",
+        "mountingDirection": "positive-v",
+        "mountingType": "south",
+        "orientationCategory": "south",
+        "moduleAzimuthDeg": 184.48460342478305,
+        "roofReferenceAzimuthDeg": 184.48460342478305,
+        "rowIndex": 1,
+        "rowPairId": null,
+        "tiltDeg": 30,
+        "automaticRowGapM": 2.5,
+        "roofType": "flat",
+        "roofTiltDeg": 0.2827016670522621
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1013670.4913719934,
+              6232402.178427288
+            ],
+            [
+              1013672.2059645702,
+              6232402.0439495975
+            ],
+            [
+              1013672.450800038,
+              6232405.165602226
+            ],
+            [
+              1013670.736207461,
+              6232405.300079963
+            ],
+            [
+              1013670.4913719934,
+              6232402.178427288
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "moduleId": 97233,
+        "areaId": 1264,
+        "areaEditData": {
+          "roofCoordinates": [
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ],
+            [
+              1013683.3188646759,
+              6232406.110831463
+            ],
+            [
+              1013682.2524704986,
+              6232392.514296801
+            ],
+            [
+              1013665.940375375,
+              6232393.793675973
+            ],
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ]
+          ],
+          "settings": {
+            "moduleType": "large",
+            "orientation": "portrait",
+            "mountingType": "south",
+            "rowGapOverrideM": 2.5,
+            "mountingDirection": "positive-v",
+            "tiltDeg": 30,
+            "edgeDistance": 0
+          }
+        },
+        "corners3D": [
+          {
+            "longitude": 9.105941552156894,
+            "latitude": 48.74913947149259,
+            "height": 529.0403648463362
+          },
+          {
+            "longitude": 9.105956954604071,
+            "latitude": 48.74913867496702,
+            "height": 529.0426936768322
+          },
+          {
+            "longitude": 9.105959153998498,
+            "latitude": 48.749157164842565,
+            "height": 530.2439563781152
+          },
+          {
+            "longitude": 9.10594375155132,
+            "latitude": 48.74915796136814,
+            "height": 530.2416275476194
+          }
+        ],
+        "moduleType": "large",
+        "orientation": "portrait",
+        "mountingDirection": "positive-v",
+        "mountingType": "south",
+        "orientationCategory": "south",
+        "moduleAzimuthDeg": 184.48460342478305,
+        "roofReferenceAzimuthDeg": 184.48460342478305,
+        "rowIndex": 1,
+        "rowPairId": null,
+        "tiltDeg": 30,
+        "automaticRowGapM": 2.5,
+        "roofType": "flat",
+        "roofTiltDeg": 0.2827016670522621
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1013668.7767794167,
+              6232402.312904977
+            ],
+            [
+              1013670.4913719934,
+              6232402.178427288
+            ],
+            [
+              1013670.736207461,
+              6232405.300079963
+            ],
+            [
+              1013669.0216148843,
+              6232405.434557701
+            ],
+            [
+              1013668.7767794167,
+              6232402.312904977
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "moduleId": 97232,
+        "areaId": 1264,
+        "areaEditData": {
+          "roofCoordinates": [
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ],
+            [
+              1013683.3188646759,
+              6232406.110831463
+            ],
+            [
+              1013682.2524704986,
+              6232392.514296801
+            ],
+            [
+              1013665.940375375,
+              6232393.793675973
+            ],
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ]
+          ],
+          "settings": {
+            "moduleType": "large",
+            "orientation": "portrait",
+            "mountingType": "south",
+            "rowGapOverrideM": 2.5,
+            "mountingDirection": "positive-v",
+            "tiltDeg": 30,
+            "edgeDistance": 0
+          }
+        },
+        "corners3D": [
+          {
+            "longitude": 9.105926149709717,
+            "latitude": 48.74914026801817,
+            "height": 529.0380360158402
+          },
+          {
+            "longitude": 9.105941552156894,
+            "latitude": 48.74913947149259,
+            "height": 529.0403648463362
+          },
+          {
+            "longitude": 9.10594375155132,
+            "latitude": 48.74915796136814,
+            "height": 530.2416275476194
+          },
+          {
+            "longitude": 9.105928349104142,
+            "latitude": 48.74915875789372,
+            "height": 530.2392987171233
+          }
+        ],
+        "moduleType": "large",
+        "orientation": "portrait",
+        "mountingDirection": "positive-v",
+        "mountingType": "south",
+        "orientationCategory": "south",
+        "moduleAzimuthDeg": 184.48460342478305,
+        "roofReferenceAzimuthDeg": 184.48460342478305,
+        "rowIndex": 1,
+        "rowPairId": null,
+        "tiltDeg": 30,
+        "automaticRowGapM": 2.5,
+        "roofType": "flat",
+        "roofTiltDeg": 0.2827016670522621
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1013667.0621868399,
+              6232402.44738267
+            ],
+            [
+              1013668.7767794167,
+              6232402.312904977
+            ],
+            [
+              1013669.0216148843,
+              6232405.434557701
+            ],
+            [
+              1013667.3070223073,
+              6232405.569035442
+            ],
+            [
+              1013667.0621868399,
+              6232402.44738267
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "moduleId": 97237,
+        "areaId": 1264,
+        "areaEditData": {
+          "roofCoordinates": [
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ],
+            [
+              1013683.3188646759,
+              6232406.110831463
+            ],
+            [
+              1013682.2524704986,
+              6232392.514296801
+            ],
+            [
+              1013665.940375375,
+              6232393.793675973
+            ],
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ]
+          ],
+          "settings": {
+            "moduleType": "large",
+            "orientation": "portrait",
+            "mountingType": "south",
+            "rowGapOverrideM": 2.5,
+            "mountingDirection": "positive-v",
+            "tiltDeg": 30,
+            "edgeDistance": 0
+          }
+        },
+        "corners3D": [
+          {
+            "longitude": 9.106003161945607,
+            "latitude": 48.7491362853903,
+            "height": 529.04968016832
+          },
+          {
+            "longitude": 9.106018564392784,
+            "latitude": 48.74913548886473,
+            "height": 529.0520089988161
+          },
+          {
+            "longitude": 9.10602076378721,
+            "latitude": 48.749153978740274,
+            "height": 530.2532717000992
+          },
+          {
+            "longitude": 9.106005361340033,
+            "latitude": 48.74915477526585,
+            "height": 530.2509428696031
+          }
+        ],
+        "moduleType": "large",
+        "orientation": "portrait",
+        "mountingDirection": "positive-v",
+        "mountingType": "south",
+        "orientationCategory": "south",
+        "moduleAzimuthDeg": 184.48460342478305,
+        "roofReferenceAzimuthDeg": 184.48460342478305,
+        "rowIndex": 1,
+        "rowPairId": null,
+        "tiltDeg": 30,
+        "automaticRowGapM": 2.5,
+        "roofType": "flat",
+        "roofTiltDeg": 0.2827016670522621
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1013675.635149724,
+              6232401.77499423
+            ],
+            [
+              1013677.3497423007,
+              6232401.6405165475
+            ],
+            [
+              1013677.5945777685,
+              6232404.762169028
+            ],
+            [
+              1013675.8799851916,
+              6232404.896646755
+            ],
+            [
+              1013675.635149724,
+              6232401.77499423
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "moduleId": 97238,
+        "areaId": 1264,
+        "areaEditData": {
+          "roofCoordinates": [
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ],
+            [
+              1013683.3188646759,
+              6232406.110831463
+            ],
+            [
+              1013682.2524704986,
+              6232392.514296801
+            ],
+            [
+              1013665.940375375,
+              6232393.793675973
+            ],
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ]
+          ],
+          "settings": {
+            "moduleType": "large",
+            "orientation": "portrait",
+            "mountingType": "south",
+            "rowGapOverrideM": 2.5,
+            "mountingDirection": "positive-v",
+            "tiltDeg": 30,
+            "edgeDistance": 0
+          }
+        },
+        "corners3D": [
+          {
+            "longitude": 9.106018564392784,
+            "latitude": 48.74913548886473,
+            "height": 529.0520089988161
+          },
+          {
+            "longitude": 9.106033966839963,
+            "latitude": 48.749134692339155,
+            "height": 529.0543378293121
+          },
+          {
+            "longitude": 9.106036166234388,
+            "latitude": 48.749153182214705,
+            "height": 530.2556005305952
+          },
+          {
+            "longitude": 9.10602076378721,
+            "latitude": 48.749153978740274,
+            "height": 530.2532717000992
+          }
+        ],
+        "moduleType": "large",
+        "orientation": "portrait",
+        "mountingDirection": "positive-v",
+        "mountingType": "south",
+        "orientationCategory": "south",
+        "moduleAzimuthDeg": 184.48460342478305,
+        "roofReferenceAzimuthDeg": 184.48460342478305,
+        "rowIndex": 1,
+        "rowPairId": null,
+        "tiltDeg": 30,
+        "automaticRowGapM": 2.5,
+        "roofType": "flat",
+        "roofTiltDeg": 0.2827016670522621
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1013677.3497423007,
+              6232401.6405165475
+            ],
+            [
+              1013679.0643348777,
+              6232401.506038869
+            ],
+            [
+              1013679.3091703452,
+              6232404.627691296
+            ],
+            [
+              1013677.5945777685,
+              6232404.762169028
+            ],
+            [
+              1013677.3497423007,
+              6232401.6405165475
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "moduleId": 97239,
+        "areaId": 1264,
+        "areaEditData": {
+          "roofCoordinates": [
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ],
+            [
+              1013683.3188646759,
+              6232406.110831463
+            ],
+            [
+              1013682.2524704986,
+              6232392.514296801
+            ],
+            [
+              1013665.940375375,
+              6232393.793675973
+            ],
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ]
+          ],
+          "settings": {
+            "moduleType": "large",
+            "orientation": "portrait",
+            "mountingType": "south",
+            "rowGapOverrideM": 2.5,
+            "mountingDirection": "positive-v",
+            "tiltDeg": 30,
+            "edgeDistance": 0
+          }
+        },
+        "corners3D": [
+          {
+            "longitude": 9.106033966839963,
+            "latitude": 48.749134692339155,
+            "height": 529.0543378293121
+          },
+          {
+            "longitude": 9.10604936928714,
+            "latitude": 48.749133895813586,
+            "height": 529.056666659808
+          },
+          {
+            "longitude": 9.106051568681567,
+            "latitude": 48.74915238568913,
+            "height": 530.2579293610911
+          },
+          {
+            "longitude": 9.106036166234388,
+            "latitude": 48.749153182214705,
+            "height": 530.2556005305952
+          }
+        ],
+        "moduleType": "large",
+        "orientation": "portrait",
+        "mountingDirection": "positive-v",
+        "mountingType": "south",
+        "orientationCategory": "south",
+        "moduleAzimuthDeg": 184.48460342478305,
+        "roofReferenceAzimuthDeg": 184.48460342478305,
+        "rowIndex": 1,
+        "rowPairId": null,
+        "tiltDeg": 30,
+        "automaticRowGapM": 2.5,
+        "roofType": "flat",
+        "roofTiltDeg": 0.2827016670522621
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1013679.0643348777,
+              6232401.506038869
+            ],
+            [
+              1013680.7789274544,
+              6232401.371561193
+            ],
+            [
+              1013681.0237629219,
+              6232404.49321357
+            ],
+            [
+              1013679.3091703452,
+              6232404.627691296
+            ],
+            [
+              1013679.0643348777,
+              6232401.506038869
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "moduleId": 97240,
+        "areaId": 1264,
+        "areaEditData": {
+          "roofCoordinates": [
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ],
+            [
+              1013683.3188646759,
+              6232406.110831463
+            ],
+            [
+              1013682.2524704986,
+              6232392.514296801
+            ],
+            [
+              1013665.940375375,
+              6232393.793675973
+            ],
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ]
+          ],
+          "settings": {
+            "moduleType": "large",
+            "orientation": "portrait",
+            "mountingType": "south",
+            "rowGapOverrideM": 2.5,
+            "mountingDirection": "positive-v",
+            "tiltDeg": 30,
+            "edgeDistance": 0
+          }
+        },
+        "corners3D": [
+          {
+            "longitude": 9.10604936928714,
+            "latitude": 48.749133895813586,
+            "height": 529.056666659808
+          },
+          {
+            "longitude": 9.106064771734317,
+            "latitude": 48.74913309928801,
+            "height": 529.058995490304
+          },
+          {
+            "longitude": 9.106066971128744,
+            "latitude": 48.74915158916356,
+            "height": 530.2602581915871
+          },
+          {
+            "longitude": 9.106051568681567,
+            "latitude": 48.74915238568913,
+            "height": 530.2579293610911
+          }
+        ],
+        "moduleType": "large",
+        "orientation": "portrait",
+        "mountingDirection": "positive-v",
+        "mountingType": "south",
+        "orientationCategory": "south",
+        "moduleAzimuthDeg": 184.48460342478305,
+        "roofReferenceAzimuthDeg": 184.48460342478305,
+        "rowIndex": 1,
+        "rowPairId": null,
+        "tiltDeg": 30,
+        "automaticRowGapM": 2.5,
+        "roofType": "flat",
+        "roofTiltDeg": 0.2827016670522621
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1013680.7789274544,
+              6232401.371561193
+            ],
+            [
+              1013682.4935200311,
+              6232401.237083519
+            ],
+            [
+              1013682.7383554988,
+              6232404.358735845
+            ],
+            [
+              1013681.0237629219,
+              6232404.49321357
+            ],
+            [
+              1013680.7789274544,
+              6232401.371561193
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "moduleId": 97227,
+        "areaId": 1264,
+        "areaEditData": {
+          "roofCoordinates": [
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ],
+            [
+              1013683.3188646759,
+              6232406.110831463
+            ],
+            [
+              1013682.2524704986,
+              6232392.514296801
+            ],
+            [
+              1013665.940375375,
+              6232393.793675973
+            ],
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ]
+          ],
+          "settings": {
+            "moduleType": "large",
+            "orientation": "portrait",
+            "mountingType": "south",
+            "rowGapOverrideM": 2.5,
+            "mountingDirection": "positive-v",
+            "tiltDeg": 30,
+            "edgeDistance": 0
+          }
+        },
+        "corners3D": [
+          {
+            "longitude": 9.105982896888891,
+            "latitude": 48.749096202915695,
+            "height": 529.0268725646467
+          },
+          {
+            "longitude": 9.10599829933607,
+            "latitude": 48.74909540639012,
+            "height": 529.0292013951428
+          },
+          {
+            "longitude": 9.106000498730497,
+            "latitude": 48.74911389626567,
+            "height": 530.2304640964259
+          },
+          {
+            "longitude": 9.105985096283318,
+            "latitude": 48.749114692791245,
+            "height": 530.2281352659298
+          }
+        ],
+        "moduleType": "large",
+        "orientation": "portrait",
+        "mountingDirection": "positive-v",
+        "mountingType": "south",
+        "orientationCategory": "south",
+        "moduleAzimuthDeg": 184.48460342478305,
+        "roofReferenceAzimuthDeg": 184.48460342478305,
+        "rowIndex": 0,
+        "rowPairId": null,
+        "tiltDeg": 30,
+        "automaticRowGapM": 2.5,
+        "roofType": "flat",
+        "roofTiltDeg": 0.2827016670522621
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1013673.3792539294,
+              6232395.007859161
+            ],
+            [
+              1013675.0938465064,
+              6232394.873381587
+            ],
+            [
+              1013675.3386819741,
+              6232397.995031573
+            ],
+            [
+              1013673.6240893971,
+              6232398.1295092
+            ],
+            [
+              1013673.3792539294,
+              6232395.007859161
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "moduleId": 97226,
+        "areaId": 1264,
+        "areaEditData": {
+          "roofCoordinates": [
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ],
+            [
+              1013683.3188646759,
+              6232406.110831463
+            ],
+            [
+              1013682.2524704986,
+              6232392.514296801
+            ],
+            [
+              1013665.940375375,
+              6232393.793675973
+            ],
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ]
+          ],
+          "settings": {
+            "moduleType": "large",
+            "orientation": "portrait",
+            "mountingType": "south",
+            "rowGapOverrideM": 2.5,
+            "mountingDirection": "positive-v",
+            "tiltDeg": 30,
+            "edgeDistance": 0
+          }
+        },
+        "corners3D": [
+          {
+            "longitude": 9.105967494441714,
+            "latitude": 48.74909699944127,
+            "height": 529.0245437341507
+          },
+          {
+            "longitude": 9.105982896888891,
+            "latitude": 48.749096202915695,
+            "height": 529.0268725646467
+          },
+          {
+            "longitude": 9.105985096283318,
+            "latitude": 48.749114692791245,
+            "height": 530.2281352659298
+          },
+          {
+            "longitude": 9.10596969383614,
+            "latitude": 48.749115489316814,
+            "height": 530.2258064354338
+          }
+        ],
+        "moduleType": "large",
+        "orientation": "portrait",
+        "mountingDirection": "positive-v",
+        "mountingType": "south",
+        "orientationCategory": "south",
+        "moduleAzimuthDeg": 184.48460342478305,
+        "roofReferenceAzimuthDeg": 184.48460342478305,
+        "rowIndex": 0,
+        "rowPairId": null,
+        "tiltDeg": 30,
+        "automaticRowGapM": 2.5,
+        "roofType": "flat",
+        "roofTiltDeg": 0.2827016670522621
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1013671.6646613528,
+              6232395.142336741
+            ],
+            [
+              1013673.3792539294,
+              6232395.007859161
+            ],
+            [
+              1013673.6240893971,
+              6232398.1295092
+            ],
+            [
+              1013671.9094968203,
+              6232398.263986826
+            ],
+            [
+              1013671.6646613528,
+              6232395.142336741
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "moduleId": 97223,
+        "areaId": 1264,
+        "areaEditData": {
+          "roofCoordinates": [
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ],
+            [
+              1013683.3188646759,
+              6232406.110831463
+            ],
+            [
+              1013682.2524704986,
+              6232392.514296801
+            ],
+            [
+              1013665.940375375,
+              6232393.793675973
+            ],
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ]
+          ],
+          "settings": {
+            "moduleType": "large",
+            "orientation": "portrait",
+            "mountingType": "south",
+            "rowGapOverrideM": 2.5,
+            "mountingDirection": "positive-v",
+            "tiltDeg": 30,
+            "edgeDistance": 0
+          }
+        },
+        "corners3D": [
+          {
+            "longitude": 9.10592128710018,
+            "latitude": 48.749099389017985,
+            "height": 529.0175572426629
+          },
+          {
+            "longitude": 9.105936689547358,
+            "latitude": 48.749098592492416,
+            "height": 529.0198860731588
+          },
+          {
+            "longitude": 9.105938888941784,
+            "latitude": 48.74911708236796,
+            "height": 530.2211487744419
+          },
+          {
+            "longitude": 9.105923486494607,
+            "latitude": 48.749117878893536,
+            "height": 530.2188199439458
+          }
+        ],
+        "moduleType": "large",
+        "orientation": "portrait",
+        "mountingDirection": "positive-v",
+        "mountingType": "south",
+        "orientationCategory": "south",
+        "moduleAzimuthDeg": 184.48460342478305,
+        "roofReferenceAzimuthDeg": 184.48460342478305,
+        "rowIndex": 0,
+        "rowPairId": null,
+        "tiltDeg": 30,
+        "automaticRowGapM": 2.5,
+        "roofType": "flat",
+        "roofTiltDeg": 0.2827016670522621
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1013666.5208836223,
+              6232395.54576948
+            ],
+            [
+              1013668.2354761991,
+              6232395.411291899
+            ],
+            [
+              1013668.4803116666,
+              6232398.532942082
+            ],
+            [
+              1013666.7657190899,
+              6232398.667419714
+            ],
+            [
+              1013666.5208836223,
+              6232395.54576948
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "moduleId": 97231,
+        "areaId": 1264,
+        "areaEditData": {
+          "roofCoordinates": [
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ],
+            [
+              1013683.3188646759,
+              6232406.110831463
+            ],
+            [
+              1013682.2524704986,
+              6232392.514296801
+            ],
+            [
+              1013665.940375375,
+              6232393.793675973
+            ],
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ]
+          ],
+          "settings": {
+            "moduleType": "large",
+            "orientation": "portrait",
+            "mountingType": "south",
+            "rowGapOverrideM": 2.5,
+            "mountingDirection": "positive-v",
+            "tiltDeg": 30,
+            "edgeDistance": 0
+          }
+        },
+        "corners3D": [
+          {
+            "longitude": 9.106044506677604,
+            "latitude": 48.749093016813404,
+            "height": 529.0361878866307
+          },
+          {
+            "longitude": 9.106059909124783,
+            "latitude": 48.74909222028783,
+            "height": 529.0385167171265
+          },
+          {
+            "longitude": 9.10606210851921,
+            "latitude": 48.74911071016338,
+            "height": 530.2397794184096
+          },
+          {
+            "longitude": 9.10604670607203,
+            "latitude": 48.74911150668895,
+            "height": 530.2374505879137
+          }
+        ],
+        "moduleType": "large",
+        "orientation": "portrait",
+        "mountingDirection": "positive-v",
+        "mountingType": "south",
+        "orientationCategory": "south",
+        "moduleAzimuthDeg": 184.48460342478305,
+        "roofReferenceAzimuthDeg": 184.48460342478305,
+        "rowIndex": 0,
+        "rowPairId": null,
+        "tiltDeg": 30,
+        "automaticRowGapM": 2.5,
+        "roofType": "flat",
+        "roofTiltDeg": 0.2827016670522621
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1013680.2376242367,
+              6232394.469948879
+            ],
+            [
+              1013681.9522168137,
+              6232394.335471313
+            ],
+            [
+              1013682.1970522815,
+              6232397.457121102
+            ],
+            [
+              1013680.4824597045,
+              6232397.591598717
+            ],
+            [
+              1013680.2376242367,
+              6232394.469948879
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "moduleId": 97230,
+        "areaId": 1264,
+        "areaEditData": {
+          "roofCoordinates": [
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ],
+            [
+              1013683.3188646759,
+              6232406.110831463
+            ],
+            [
+              1013682.2524704986,
+              6232392.514296801
+            ],
+            [
+              1013665.940375375,
+              6232393.793675973
+            ],
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ]
+          ],
+          "settings": {
+            "moduleType": "large",
+            "orientation": "portrait",
+            "mountingType": "south",
+            "rowGapOverrideM": 2.5,
+            "mountingDirection": "positive-v",
+            "tiltDeg": 30,
+            "edgeDistance": 0
+          }
+        },
+        "corners3D": [
+          {
+            "longitude": 9.106029104230426,
+            "latitude": 48.74909381333897,
+            "height": 529.0338590561347
+          },
+          {
+            "longitude": 9.106044506677604,
+            "latitude": 48.749093016813404,
+            "height": 529.0361878866307
+          },
+          {
+            "longitude": 9.10604670607203,
+            "latitude": 48.74911150668895,
+            "height": 530.2374505879137
+          },
+          {
+            "longitude": 9.106031303624853,
+            "latitude": 48.749112303214524,
+            "height": 530.2351217574177
+          }
+        ],
+        "moduleType": "large",
+        "orientation": "portrait",
+        "mountingDirection": "positive-v",
+        "mountingType": "south",
+        "orientationCategory": "south",
+        "moduleAzimuthDeg": 184.48460342478305,
+        "roofReferenceAzimuthDeg": 184.48460342478305,
+        "rowIndex": 0,
+        "rowPairId": null,
+        "tiltDeg": 30,
+        "automaticRowGapM": 2.5,
+        "roofType": "flat",
+        "roofTiltDeg": 0.2827016670522621
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1013678.52303166,
+              6232394.604426446
+            ],
+            [
+              1013680.2376242367,
+              6232394.469948879
+            ],
+            [
+              1013680.4824597045,
+              6232397.591598717
+            ],
+            [
+              1013678.7678671278,
+              6232397.726076334
+            ],
+            [
+              1013678.52303166,
+              6232394.604426446
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "moduleId": 97229,
+        "areaId": 1264,
+        "areaEditData": {
+          "roofCoordinates": [
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ],
+            [
+              1013683.3188646759,
+              6232406.110831463
+            ],
+            [
+              1013682.2524704986,
+              6232392.514296801
+            ],
+            [
+              1013665.940375375,
+              6232393.793675973
+            ],
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ]
+          ],
+          "settings": {
+            "moduleType": "large",
+            "orientation": "portrait",
+            "mountingType": "south",
+            "rowGapOverrideM": 2.5,
+            "mountingDirection": "positive-v",
+            "tiltDeg": 30,
+            "edgeDistance": 0
+          }
+        },
+        "corners3D": [
+          {
+            "longitude": 9.106013701783247,
+            "latitude": 48.74909460986455,
+            "height": 529.0315302256387
+          },
+          {
+            "longitude": 9.106029104230426,
+            "latitude": 48.74909381333897,
+            "height": 529.0338590561347
+          },
+          {
+            "longitude": 9.106031303624853,
+            "latitude": 48.749112303214524,
+            "height": 530.2351217574177
+          },
+          {
+            "longitude": 9.106015901177674,
+            "latitude": 48.74911309974009,
+            "height": 530.2327929269218
+          }
+        ],
+        "moduleType": "large",
+        "orientation": "portrait",
+        "mountingDirection": "positive-v",
+        "mountingType": "south",
+        "orientationCategory": "south",
+        "moduleAzimuthDeg": 184.48460342478305,
+        "roofReferenceAzimuthDeg": 184.48460342478305,
+        "rowIndex": 0,
+        "rowPairId": null,
+        "tiltDeg": 30,
+        "automaticRowGapM": 2.5,
+        "roofType": "flat",
+        "roofTiltDeg": 0.2827016670522621
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1013676.8084390833,
+              6232394.738904015
+            ],
+            [
+              1013678.52303166,
+              6232394.604426446
+            ],
+            [
+              1013678.7678671278,
+              6232397.726076334
+            ],
+            [
+              1013677.0532745508,
+              6232397.860553952
+            ],
+            [
+              1013676.8084390833,
+              6232394.738904015
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "moduleId": 97228,
+        "areaId": 1264,
+        "areaEditData": {
+          "roofCoordinates": [
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ],
+            [
+              1013683.3188646759,
+              6232406.110831463
+            ],
+            [
+              1013682.2524704986,
+              6232392.514296801
+            ],
+            [
+              1013665.940375375,
+              6232393.793675973
+            ],
+            [
+              1013667.0067695524,
+              6232407.390210635
+            ]
+          ],
+          "settings": {
+            "moduleType": "large",
+            "orientation": "portrait",
+            "mountingType": "south",
+            "rowGapOverrideM": 2.5,
+            "mountingDirection": "positive-v",
+            "tiltDeg": 30,
+            "edgeDistance": 0
+          }
+        },
+        "corners3D": [
+          {
+            "longitude": 9.10599829933607,
+            "latitude": 48.74909540639012,
+            "height": 529.0292013951428
+          },
+          {
+            "longitude": 9.106013701783247,
+            "latitude": 48.74909460986455,
+            "height": 529.0315302256387
+          },
+          {
+            "longitude": 9.106015901177674,
+            "latitude": 48.74911309974009,
+            "height": 530.2327929269218
+          },
+          {
+            "longitude": 9.106000498730497,
+            "latitude": 48.74911389626567,
+            "height": 530.2304640964259
+          }
+        ],
+        "moduleType": "large",
+        "orientation": "portrait",
+        "mountingDirection": "positive-v",
+        "mountingType": "south",
+        "orientationCategory": "south",
+        "moduleAzimuthDeg": 184.48460342478305,
+        "roofReferenceAzimuthDeg": 184.48460342478305,
+        "rowIndex": 0,
+        "rowPairId": null,
+        "tiltDeg": 30,
+        "automaticRowGapM": 2.5,
+        "roofType": "flat",
+        "roofTiltDeg": 0.2827016670522621
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1013675.0938465064,
+              6232394.873381587
+            ],
+            [
+              1013676.8084390833,
+              6232394.738904015
+            ],
+            [
+              1013677.0532745508,
+              6232397.860553952
+            ],
+            [
+              1013675.3386819741,
+              6232397.995031573
+            ],
+            [
+              1013675.0938465064,
+              6232394.873381587
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}
