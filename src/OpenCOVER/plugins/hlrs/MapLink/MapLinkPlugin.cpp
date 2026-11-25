@@ -515,8 +515,7 @@ void MapLinkPlugin::setModuleDeleteOutline(
     if (normal.z() < 0.0)
         normal = -normal;
 
-    // 5 cm visueller Modulabstand und weitere
-    // 1,5 cm zur Vermeidung von Überdeckungen.
+    // Zusätzlicher Abstand zur Vermeidung visueller Überdeckungen.
     constexpr double OUTLINE_OFFSET_M = 0.065;
 
     osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array();
@@ -548,7 +547,7 @@ void MapLinkPlugin::setModuleDeleteOutline(
 
     osg::ref_ptr<osg::Geode> outline = new osg::Geode();
 
-    // Den bestehenden Modul-Picking-Code weiter nutzen.
+    // Modul anhand des ausgewählten Szenenknotens bestimmen.
     outline->setName(
         "PV_Module_" + std::to_string(moduleId));
 
@@ -938,7 +937,7 @@ void MapLinkPlugin::createCamera()
     //pBufferCamera->setNearFarRatio(coVRConfig::instance()->nearClip()/coVRConfig::instance()->farClip());
     camera->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
     camera->setPostDrawCallback(drawCallback.get());
-    camera->setLODScale(0.0); // unveraendert aus hochgeladenem Code (maximale Snapshot-Details)
+    camera->setLODScale(0.0); // maximale Snapshot-Details
     renderer->getSceneView(0)->setSceneData(cover->getScene());
     renderer->getSceneView(1)->setSceneData(cover->getScene());
 
@@ -1193,7 +1192,6 @@ MapLinkPlugin::handleMessage(Message *m)
                     << intervalMs << " ms"
                     << '\n';
 
-                // Ab hier deine bisherige Snapshot-Verarbeitung
 
                 // 1. Sichtbaren Kartenbereich empfangen (EPSG:4326)
                 float minLon, minLat, maxLon, maxLat;
