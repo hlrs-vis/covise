@@ -139,7 +139,7 @@ public:
     MarkerTrackingMarker *getOrCreateMarker(const std::string &name, const std::string &pattern, double size, const osg::Matrix &offset, bool vrml, bool isObjectMarker = false);
     
     coTUITab *artTab;
-    bool flipH;
+    bool flipH=false;
     MarkerTrackingInterface *arInterface = nullptr;
     RemoteARInterface *remoteAR = nullptr;
     void config();

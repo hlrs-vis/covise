@@ -78,8 +78,8 @@ private:
 	cv::Mat m_cameraMatrix;
 	cv::Mat m_distortionCoefficients;
 	std::string m_calibrationFilename;
-	const int m_width;
-	const int m_height;
+    int m_width; // can`t be const because of the camera switch, which can change the resolution
+	int m_height;
 	bool m_deferredCalibration = false;
 	bool m_calibrating = false;
 	double m_lastCalibrationCapture = 0.0;

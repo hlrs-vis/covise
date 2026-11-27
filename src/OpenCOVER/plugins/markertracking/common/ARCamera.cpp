@@ -71,7 +71,7 @@ std::string parseCardType(const std::string &v4l2Info)
 std::vector<int> cameraBackends()
 {
 #ifdef _WIN32
-    return { cv::CAP_MSMF, cv::CAP_DSHOW, cv::CAP_ANY };
+    return { cv::CAP_DSHOW, cv::CAP_MSMF, cv::CAP_ANY };
 #elif defined(__APPLE__)
     return { cv::CAP_AVFOUNDATION, cv::CAP_ANY };
 #else
@@ -155,9 +155,18 @@ bool ARCamera::open(int deviceId)
     m_allImages.clear();
     m_lastCalibrationCapture = 0.0;
 
-    for (const int backend : cameraBackends())
-        if (m_capture.open(deviceId, backend))
-            break;
+    int backend = static_cast<int>(m_configFile->value<int64_t>("camera", "backend", 0)->value());
+    if (backend > 0)
+    {
+        if (!m_capture.open(deviceId, backend))
+            return false;
+    }
+    else
+    {
+        for (const int backend : cameraBackends())
+            if (m_capture.open(deviceId, backend))
+                break;
+    }
 
     if (!m_capture.isOpened())
         return false;
@@ -207,6 +216,8 @@ bool ARCamera::open(int deviceId)
     if (static_cast<int>(m_capture.get(cv::CAP_PROP_FRAME_WIDTH)) != m_width || static_cast<int>(m_capture.get(cv::CAP_PROP_FRAME_HEIGHT)) != m_height)
     {
         std::cerr << "ARUCO WARNING: could not set capture frame size to  = " << m_width << "x" << m_height << "\n Actual frame size is: " << frame.cols << "x" << frame.rows << std::endl;
+        m_width = frame.cols;
+        m_height = frame.rows; // otherwise we might read over the end of the image buffer
     }
 
     m_deferredCalibration = !loadCalibration(frame);

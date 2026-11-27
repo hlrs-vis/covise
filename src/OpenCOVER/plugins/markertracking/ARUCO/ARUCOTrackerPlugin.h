@@ -153,6 +153,6 @@ private:
 
     void detectCameras();
     void requestCameraSwitch(int deviceId);
-    void switchCamera(int deviceId);
+    bool switchCamera(int deviceId);
 };
 #endif

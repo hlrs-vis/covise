@@ -173,10 +173,10 @@ bool ARUCOPlugin::initAR()
         case 1: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_100); break;
         case 2: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_250); break;
         case 3: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_1000); break;
-        case 4: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_5X5_50); break;   // default
+        case 4: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_5X5_50); break;   
         case 5: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_5X5_100); break;
         case 6: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_5X5_250); break;
-        case 7: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_5X5_1000); break;
+        case 7: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_5X5_1000); break;// default
         case 8: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_6X6_50); break;
         case 9: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_6X6_100); break;
         case 10: dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_6X6_250); break;
@@ -204,13 +204,22 @@ detectorParams->cornerRefinementMethod = cv::aruco::CORNER_REFINE_SUBPIX;
         detector = cv::makePtr<cv::aruco::ArucoDetector>(*dictionary, *detectorParams);
 #endif
 
-#if CV_VERSION_MAJOR >= 5 || (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR >= 7)
+#if CV_VERSION_MAJOR >= 5 || (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR > 7)
         charucoboard = cv::makePtr<cv::aruco::CharucoBoard>(
             cv::Size(squaresX, squaresY), squareLength, markerLength, dictionary);
 
         // for boards printed with older OpenCV charuco pattern
         const bool legacyPattern = configBool("calibration", "legacyPattern", true)->value();
         charucoboard->setLegacyPattern(legacyPattern);
+
+        cv::aruco::CharucoParameters cparams;
+        cparams.tryRefineMarkers = true;
+        cparams.minMarkers = 2; // less strict
+        charucoDetector = cv::makePtr<cv::aruco::CharucoDetector>(*charucoboard, cparams);
+#elif (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR == 7)
+        charucoboard = cv::makePtr<cv::aruco::CharucoBoard>(
+            cv::Size(squaresX, squaresY), squareLength, markerLength, dictionary);
+
 
         cv::aruco::CharucoParameters cparams;
         cparams.tryRefineMarkers = true;
@@ -342,17 +351,22 @@ bool ARUCOPlugin::init()
     if (!initAR())
         return false;
 
-    // detect cameras after AR init
-    detectCameras();
 
     const int preferredDevice = static_cast<int>(configInt("camera", "deviceId", -1)->value());
-    if (std::find(m_cameraDeviceIds.begin(), m_cameraDeviceIds.end(), preferredDevice) != m_cameraDeviceIds.end())
-        switchCamera(preferredDevice);
-    else if (!m_cameraDeviceIds.empty())
+    if (switchCamera(preferredDevice) == false)
     {
-        std::cerr << "ARUCO: configured camera " << preferredDevice
-                  << " is unavailable; opening the first detected camera" << std::endl;
-        switchCamera(m_cameraDeviceIds.front());
+        std::cerr << "ARUCO: failed to open preferred camera device " << preferredDevice << "starting autodetect" <<std::endl;
+
+        // detect cameras after AR init
+        detectCameras();
+        if (std::find(m_cameraDeviceIds.begin(), m_cameraDeviceIds.end(), preferredDevice) != m_cameraDeviceIds.end())
+            switchCamera(preferredDevice);
+        else if (!m_cameraDeviceIds.empty())
+        {
+            std::cerr << "ARUCO: configured camera " << preferredDevice
+                      << " is unavailable; opening the first detected camera" << std::endl;
+            switchCamera(m_cameraDeviceIds.front());
+        }
     }
 
     opencvRunning = true;
@@ -466,12 +480,22 @@ void ARUCOPlugin::opencvLoop()
         if (!detectorParams)
             return false;
 
-#if CV_VERSION_MAJOR >= 5 || (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR >= 7)
+#if CV_VERSION_MAJOR >= 5 || (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR > 7)
         detector = cv::makePtr<cv::aruco::ArucoDetector>(dictionary, *detectorParams);
 
         charucoboard = cv::makePtr<cv::aruco::CharucoBoard>(
             cv::Size(squaresX, squaresY), squareLength, markerLength, dictionary);
         charucoboard->setLegacyPattern(legacyPattern);
+
+        cv::aruco::CharucoParameters cparams;
+        cparams.tryRefineMarkers = true;
+        cparams.minMarkers = 2;
+        charucoDetector = cv::makePtr<cv::aruco::CharucoDetector>(*charucoboard, cparams);
+#elif CV_VERSION_MAJOR >= 5 || (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR == 7)
+        detector = cv::makePtr<cv::aruco::ArucoDetector>(dictionary, *detectorParams);
+
+        charucoboard = cv::makePtr<cv::aruco::CharucoBoard>(
+            cv::Size(squaresX, squaresY), squareLength, markerLength, dictionary);
 
         cv::aruco::CharucoParameters cparams;
         cparams.tryRefineMarkers = true;
@@ -556,6 +580,7 @@ void ARUCOPlugin::opencvLoop()
             else
                 gray = image[captureIdx];
 
+
             ids[captureIdx].clear();
             corners.clear();
             rejected.clear();
@@ -622,7 +647,25 @@ void ARUCOPlugin::opencvLoop()
 }
 
             if (camera.isCalibrating())
-                camera.calibrateFrame(image[captureIdx], corners, ids[captureIdx], charucoDetector, charucoboard);
+            {
+
+                cv::Mat laplacian;
+                cv::Laplacian(gray, laplacian, CV_64F);
+
+                cv::Scalar mean, stddev;
+                cv::meanStdDev(laplacian, mean, stddev);
+
+                double variance = stddev[0] * stddev[0];
+                if (variance > 100.0)
+                {
+                    camera.calibrateFrame(image[captureIdx], corners, ids[captureIdx], charucoDetector, charucoboard);
+                }
+                else
+                {
+                    std::cerr << "ARUCO: frame too blurry for calibration (Laplacian variance = " << variance << ")" << std::endl;
+                }
+
+            }
 
             guard.lock();
             readyIdx = captureIdx;
@@ -868,13 +911,13 @@ void ARUCOPlugin::requestManualFocus(int focus)
     m_focusChangeRequested = true;
 }
 
-void ARUCOPlugin::switchCamera(int deviceId)
+bool ARUCOPlugin::switchCamera(int deviceId)
 {
     // reject garbage ids
     if (deviceId < 0 || deviceId > 255)
     {
         std::cerr << "ARUCO: invalid camera id " << deviceId << std::endl;
-        return;
+        return false;
     }
 
     if (camera.open(deviceId))
@@ -888,11 +931,13 @@ void ARUCOPlugin::switchCamera(int deviceId)
         MarkerTracking::instance()->videoDepth = 3;
         MarkerTracking::instance()->videoWidth = camera.width();
         MarkerTracking::instance()->videoHeight = camera.height();
+        return true;
     }
     else
     {
         std::cerr << "ARUCO: failed to open camera device " << deviceId << std::endl;
         MarkerTracking::instance()->running = false;
+        return false;
     }
 }
 
