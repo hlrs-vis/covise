@@ -197,7 +197,8 @@ namespace OpenCOVERPlugin
             BuiltInCategory.OST_Subdivision,
 #endif
             BuiltInCategory.OST_Ramps,
-            BuiltInCategory.OST_Floors
+            BuiltInCategory.OST_Floors,
+            BuiltInCategory.OST_Ceilings
         };
 
         public HashSet<ElementId> SystemTypeCache { get; set; } = new(){};
