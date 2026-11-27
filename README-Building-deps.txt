@@ -392,6 +392,15 @@ disable performance tests and normal tests, build (be very patient) and install
 cmake .. -G "Visual Studio 18 2026" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/OpenCV4  -DCMAKE_DEBUG_POSTFIX=d -DOPENCV_EXTRA_MODULES_PATH=../../opencv_contrib/modules
 disable performance tests and normal tests, build (be very patient) and install
 
+#OpenCV5
+remove c:\strawberry* or any other directory where gcc.exe is found to prevent it from being used
+C:\src\gitbase\opencv-5.0.0\3rdparty\mlas\CMakeLists.txt und füge ganz oben (direkt nach der cmake_minimum_required- oder project-Zeile) if(WIN32) return() endif() ein. Genau diesen Workaround hat das OpenCV-Team im 5.x-Branch offiziell eingeführt, sodass das DNN-Modul stattdessen problemlos auf die eingebaute SGEMM-Implementierung zurückfällt.
+C:\src\gitbase\opencv-contrib\modules\gapi\CMakeLists.txt und suche nach dem Block, in dem ocv_target_link_libraries(${the_module} ...) aufgerufen wird. Füge dort für Windows ws2_32 hinzu (z. B. if(WIN32) ocv_target_link_libraries(${the_module} PRIVATE ws2_32) endif())
+cmake  -S . -B build -G "Visual Studio 18 2026" -A x64 -DOPENCV_EXTRA_MODULES_PATH=C:/src/gitbase/opencv_contrib/modules -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_EXAMPLES=OFF  -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/OpenCV5  -DCMAKE_DEBUG_POSTFIX=d
+cmake --build build --config Debug --parallel 4
+cmake --build build --config Release --parallel 4
+
+
 #vtk
 cmake .. -G "Visual Studio 18 2026" -A x64  -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/VTK  -DCMAKE_DEBUG_POSTFIX=d
 
