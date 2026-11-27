@@ -164,7 +164,7 @@ private:
     void clearTileSelections();
     void toggleTileSelection(int index);
     void updateTileSelectionHighlight(TileSelection &tile);
-    void stageTileReplacement(const std::string &fileName, const std::string &replacementFileName);
+    void stageTileReplacement(const std::string fileName, const std::string replacementFileName);
     std::optional<std::string> replacementFor(const std::string &fileName) const;
     void applyTileEditRules(osg::Node *node);
     void doDelete();

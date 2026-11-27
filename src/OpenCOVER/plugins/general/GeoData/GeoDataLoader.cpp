@@ -95,7 +95,7 @@ public:
     ExportImageRestorer(const std::filesystem::path &exportPath)
         : osg::NodeVisitor(TRAVERSE_ALL_CHILDREN)
         , exportPath(exportPath)
-        , exportBaseName(exportPath.stem().string())
+        , exportBaseName(exportPath.filename().stem().string())
     {
     }
     ~ExportImageRestorer() { restore(); }
@@ -539,12 +539,6 @@ bool GeoDataLoader::init()
             if (!state || !coVRMSController::instance()->isMaster())
                 return;
             auto configFile = config();
-            // Make sure every omitted tile of the selection list is part of the config.
-            for (const auto &tile : tiles)
-            {
-                if (tile.omitted || omittedTiles.count(tile.fileName))
-                    stageTileReplacement(tile.fileName, "");
-            }
             // Save the replacements to the config file but just the master, otherwise the slaves will try to write the config file at the same time and fail.
             if (configFile && configFile->save())
                 std::cerr << "GeoData: Saved tile replacements to config" << std::endl;
@@ -834,7 +828,7 @@ void GeoDataLoader::updateTileSelectionHighlight(TileSelection &tile)
     selectionManager->pickedObjChanged();
 }
 
-void GeoDataLoader::stageTileReplacement(const std::string &fileName, const std::string &replacementFileName)
+void GeoDataLoader::stageTileReplacement(const std::string fileName, const std::string replacementFileName)
 {
     auto configFile = config();
     if (!configFile)
@@ -1165,6 +1159,8 @@ COVERPLUGIN(GeoDataLoader)
 
 void GeoDataLoader::doDelete()
 {
+    if (!coVRMSController::instance()->isMaster())
+        return;
     auto *selectionManager = coVRSelectionManager::instance();
     bool selectionChanged = false;
     size_t omittedCount = 0;
@@ -1259,6 +1255,8 @@ void GeoDataLoader::doDelete()
 }
 void GeoDataLoader::doReplace()
 {
+    if (!coVRMSController::instance()->isMaster())
+        return;
     if (selectedTile < 0 || selectedTile >= static_cast<int>(tiles.size()))
         return;
     auto &tile = tiles[selectedTile];
