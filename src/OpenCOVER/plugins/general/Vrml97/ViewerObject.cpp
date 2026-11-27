@@ -454,6 +454,11 @@ void osgViewerObject::updateBin()
                         stateset->setRenderBinDetails(-1, "RenderBin");
                         stateset->setNestRenderBins(false);
                     }
+                    else if (strncmp(pNode->getName().c_str(), "coPreDepth", 10) == 0)
+                    {
+                        stateset->setRenderBinDetails(-3, "RenderBin");
+                        stateset->setNestRenderBins(false);
+                    }
                     else if (transparent)
                     {
                         //geoset->setDrawBin(PFSORT_TRANSP_BIN);

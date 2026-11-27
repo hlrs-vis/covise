@@ -3655,15 +3655,24 @@ void ViewerOsg::setModesByName(const char *objectName)
                     else if (strncmp(name, "coNoDepthTest", 13) == 0)
                     {   
                         // do no depth test and render as late as possible
-                        stateset->setMode(GL_DEPTH_TEST,osg::StateAttribute::OFF);
+                        stateset->setMode(GL_DEPTH_TEST, osg::StateAttribute::OFF);
+                        stateset->setNestRenderBins(false);
                         stateset->setRenderBinDetails( 11, "RenderBin");
                     }
                     else if (strncmp(name, "coNoDepth", 9) == 0)
                     {
                         stateset->setRenderBinDetails(-2, "RenderBin");
+                        stateset->setNestRenderBins(false);
                         stateset->setAttributeAndModes(NoDepthBuffer, StateAttribute::ON);
                         if (cover->debugLevel(2))
                             fprintf(stderr, "coNoDepth\n");
+                    }
+                    else if (strncmp(name, "coPreDepth", 10) == 0)
+                    {
+                        stateset->setRenderBinDetails(-3, "RenderBin");
+                        stateset->setNestRenderBins(false);
+                        if (cover->debugLevel(2))
+                            fprintf(stderr, "coPreDepth\n");
                     }
                     else if (strncmp(name, "coShader", 8) == 0)
                     {
@@ -3851,8 +3860,17 @@ void ViewerOsg::setModesByName(const char *objectName)
                 StateSet *stateset = d_currentObject->pNode->getOrCreateStateSet();
                 stateset->setNestRenderBins(false);
                 stateset->setAttributeAndModes(NoDepthBuffer, StateAttribute::ON);
+                stateset->setRenderBinDetails(-2, "RenderBin");
                 if (cover->debugLevel(2))
                     fprintf(stderr, "coNoDepth\n");
+            }
+            else if (strncmp(name, "coPreDepth", 10) == 0)
+            {
+                StateSet *stateset = d_currentObject->pNode->getOrCreateStateSet();
+                stateset->setNestRenderBins(false);
+                stateset->setRenderBinDetails(-3, "RenderBin");
+                if (cover->debugLevel(2))
+                    fprintf(stderr, "coPreDepth\n");
             }
             else if (strncmp(name, "coGroupShader", 13) == 0)
             {
